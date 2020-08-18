@@ -20,12 +20,21 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub struct DocPrinter<'a> {
   doc_nodes: &'a [DocNode],
+  use_color: bool,
   private: bool,
 }
 
 impl<'a> DocPrinter<'a> {
-  pub fn new(doc_nodes: &[DocNode], private: bool) -> DocPrinter {
-    DocPrinter { doc_nodes, private }
+  pub fn new(
+    doc_nodes: &[DocNode],
+    use_color: bool,
+    private: bool,
+  ) -> DocPrinter {
+    DocPrinter {
+      doc_nodes,
+      use_color,
+      private,
+    }
   }
 
   pub fn format(&self, w: &mut Formatter<'_>) -> FmtResult {
@@ -38,6 +47,10 @@ impl<'a> DocPrinter<'a> {
     doc_nodes: &[DocNode],
     indent: i64,
   ) -> FmtResult {
+    if self.use_color {
+      colors::enable_color();
+    }
+
     let mut sorted = Vec::from(doc_nodes);
     sorted.sort_unstable_by(|a, b| {
       let kind_cmp = self.kind_order(&a.kind).cmp(&self.kind_order(&b.kind));
@@ -73,6 +86,10 @@ impl<'a> DocPrinter<'a> {
         DocNodeKind::Namespace => self.format_namespace(w, node)?,
         _ => {}
       }
+    }
+
+    if self.use_color {
+      colors::disable_color();
     }
 
     Ok(())

@@ -4,7 +4,7 @@ use crate::parser::DocFileLoader;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
 use crate::swc_util;
-use deno_core::ErrBox;
+use core::fmt::Error;
 use futures::Future;
 use futures::FutureExt;
 use serde_json::json;
@@ -32,13 +32,13 @@ impl DocFileLoader for TestLoader {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<String, ErrBox>>>> {
+  ) -> Pin<Box<dyn Future<Output = Result<String, Error>>>> {
     let res = match self.files.get(specifier) {
       Some(source_code) => Ok(source_code.to_string()),
-      None => Err(ErrBox::from(std::io::Error::new(
+      None => Err(std::io::Error::new(
         std::io::ErrorKind::NotFound,
         "not found".to_string(),
-      ))),
+      )),
     };
 
     async move { res }.boxed_local()

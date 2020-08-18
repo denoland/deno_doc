@@ -8,34 +8,53 @@ use swc_ecmascript::ast::ModuleDecl;
 use swc_ecmascript::ast::Stmt;
 use swc_ecmascript::parser::Syntax;
 
-use deno_core::ErrBox;
-use deno_core::ModuleSpecifier;
-use futures::Future;
-use regex::Regex;
-use std::collections::HashMap;
-use std::pin::Pin;
-
 use crate::namespace::NamespaceDef;
 use crate::node;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
+use crate::swc_util;
 use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
+use futures::Future;
+use regex::Regex;
+use std::collections::HashMap;
+use std::error::Error;
+use std::fmt;
+use std::pin::Pin;
+
+#[derive(Debug)]
+pub enum DocError {
+  Resolve(String),
+  Io(std::io::Error),
+  Parse(swc_util::SwcDiagnosticBuffer),
+}
+
+impl Error for DocError {}
+
+impl fmt::Display for DocError {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    f.pad(&self.to_string())
+  }
+}
+
+impl From<swc_util::SwcDiagnosticBuffer> for DocError {
+  fn from(error: swc_util::SwcDiagnosticBuffer) -> DocError {
+    DocError::Parse(error)
+  }
+}
 
 pub trait DocFileLoader {
   fn resolve(
     &self,
     specifier: &str,
     referrer: &str,
-  ) -> Result<ModuleSpecifier, ErrBox> {
-    ModuleSpecifier::resolve_import(specifier, referrer).map_err(ErrBox::from)
-  }
+  ) -> Result<String, DocError>;
 
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<String, ErrBox>>>>;
+  ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>>;
 }
 
 pub struct DocParser {
@@ -58,7 +77,7 @@ impl DocParser {
     file_name: &str,
     syntax: Syntax,
     source_code: &str,
-  ) -> Result<ModuleDoc, ErrBox> {
+  ) -> Result<ModuleDoc, DocError> {
     let parse_result =
       self.ast_parser.parse_module(file_name, syntax, source_code);
     let module = parse_result?;
@@ -79,7 +98,7 @@ impl DocParser {
     &self,
     file_name: &str,
     syntax: Syntax,
-  ) -> Result<Vec<DocNode>, ErrBox> {
+  ) -> Result<Vec<DocNode>, DocError> {
     let source_code = self.loader.load_source_code(file_name).await?;
 
     self.parse_source(file_name, syntax, source_code.as_str())
@@ -90,7 +109,7 @@ impl DocParser {
     file_name: &str,
     syntax: Syntax,
     source_code: &str,
-  ) -> Result<Vec<DocNode>, ErrBox> {
+  ) -> Result<Vec<DocNode>, DocError> {
     let module_doc = self.parse_module(file_name, syntax, &source_code)?;
     Ok(module_doc.definitions)
   }
@@ -100,7 +119,7 @@ impl DocParser {
     reexports: &[node::Reexport],
     referrer: &str,
     syntax: Syntax,
-  ) -> Result<Vec<DocNode>, ErrBox> {
+  ) -> Result<Vec<DocNode>, DocError> {
     let mut by_src: HashMap<String, Vec<node::Reexport>> = HashMap::new();
 
     let mut processed_reexports: Vec<DocNode> = vec![];
@@ -116,8 +135,7 @@ impl DocParser {
 
     for specifier in by_src.keys() {
       let resolved_specifier = self.loader.resolve(specifier, referrer)?;
-      let doc_nodes =
-        self.parse(&resolved_specifier.to_string(), syntax).await?;
+      let doc_nodes = self.parse(&resolved_specifier, syntax).await?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
@@ -184,7 +202,7 @@ impl DocParser {
     &self,
     file_name: &str,
     syntax: Syntax,
-  ) -> Result<Vec<DocNode>, ErrBox> {
+  ) -> Result<Vec<DocNode>, DocError> {
     let source_code = self.loader.load_source_code(file_name).await?;
 
     let module_doc = self.parse_module(file_name, syntax, &source_code)?;
@@ -206,7 +224,7 @@ impl DocParser {
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
     referrer: &str,
-  ) -> Result<Vec<DocNode>, ErrBox> {
+  ) -> Result<Vec<DocNode>, DocError> {
     let mut imports = vec![];
 
     for node in module_body.iter() {
@@ -240,7 +258,7 @@ impl DocParser {
 
             let resolved_specifier = self.loader.resolve(&src, referrer)?;
             let import_def = ImportDef {
-              src: resolved_specifier.to_string(),
+              src: resolved_specifier,
               imported: maybe_imported_name,
             };
 

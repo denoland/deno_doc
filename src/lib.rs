@@ -29,6 +29,7 @@ pub use node::DocNodeKind;
 pub use node::ImportDef;
 pub use node::Location;
 pub use params::ParamDef;
+pub use parser::DocError;
 pub use parser::DocParser;
 pub use printer::DocPrinter;
 
