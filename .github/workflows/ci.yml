@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   rust:
-    name: deno_Doc-${{ matrix.os }}
+    name: deno_doc-${{ matrix.os }}
     if: |
       github.event_name == 'push' ||
       !startsWith(github.event.pull_request.head.label, 'denoland:')
