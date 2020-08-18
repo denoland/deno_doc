@@ -1,8 +1,8 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-#![allow(unused)]
 
 #[macro_use]
 extern crate lazy_static;
+#[cfg(test)]
 #[macro_use]
 extern crate serde_json;
 

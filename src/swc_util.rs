@@ -14,31 +14,16 @@ use swc_common::FileName;
 use swc_common::Globals;
 use swc_common::SourceMap;
 use swc_common::Span;
-use swc_ecmascript::ast::Program;
 use swc_ecmascript::parser::lexer::Lexer;
-use swc_ecmascript::parser::EsConfig;
 use swc_ecmascript::parser::JscTarget;
 use swc_ecmascript::parser::Parser;
 use swc_ecmascript::parser::StringInput;
 use swc_ecmascript::parser::Syntax;
+
+#[cfg(test)]
 use swc_ecmascript::parser::TsConfig;
 
-pub fn get_default_es_config() -> EsConfig {
-  let mut config = EsConfig::default();
-  config.num_sep = true;
-  config.class_private_props = true;
-  config.class_private_methods = true;
-  config.class_props = true;
-  config.export_default_from = true;
-  config.export_namespace_from = true;
-  config.dynamic_import = true;
-  config.nullish_coalescing = true;
-  config.optional_chaining = true;
-  config.import_meta = true;
-  config.top_level_await = true;
-  config
-}
-
+#[cfg(test)]
 pub fn get_default_ts_config() -> TsConfig {
   let mut ts_config = TsConfig::default();
   ts_config.dynamic_import = true;

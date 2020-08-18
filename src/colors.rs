@@ -3,7 +3,7 @@ use regex::Regex;
 use std::env;
 use std::fmt;
 use std::io::Write;
-use termcolor::Color::{Ansi256, Black, Blue, Green, Magenta, Red, White};
+use termcolor::Color::{Ansi256, Blue, Green, Magenta, Red};
 use termcolor::{Ansi, ColorSpec, WriteColor};
 
 #[cfg(windows)]
@@ -21,6 +21,7 @@ lazy_static! {
 }
 
 /// Helper function to strip ansi codes.
+#[cfg(test)]
 pub fn strip_ansi_codes(s: &str) -> std::borrow::Cow<str> {
   STRIP_ANSI_RE.replace_all(s, "")
 }
@@ -44,45 +45,6 @@ fn style(s: &str, colorspec: ColorSpec) -> impl fmt::Display {
   ansi_writer.write_all(s.as_bytes()).unwrap();
   ansi_writer.reset().unwrap();
   String::from_utf8_lossy(&v).into_owned()
-}
-
-pub fn red_bold(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec.set_fg(Some(Red)).set_bold(true);
-  style(&s, style_spec)
-}
-
-pub fn green_bold(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec
-    .set_fg(Some(Green))
-    .set_bold(true)
-    .set_intense(true);
-  style(&s, style_spec)
-}
-
-pub fn italic_bold(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec.set_bold(true).set_italic(true);
-  style(&s, style_spec)
-}
-
-pub fn black_on_white(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec.set_bg(Some(White)).set_fg(Some(Black));
-  style(&s, style_spec)
-}
-
-pub fn white_on_red(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec.set_bg(Some(Red)).set_fg(Some(White));
-  style(&s, style_spec)
-}
-
-pub fn white_on_green(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec.set_bg(Some(Ansi256(10))).set_fg(Some(White));
-  style(&s, style_spec)
 }
 
 pub fn yellow(s: &str) -> impl fmt::Display {
@@ -130,15 +92,6 @@ pub fn gray(s: &str) -> impl fmt::Display {
 pub fn italic_gray(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(8))).set_italic(true);
-  style(&s, style_spec)
-}
-
-pub fn italic_bold_gray(s: &str) -> impl fmt::Display {
-  let mut style_spec = ColorSpec::new();
-  style_spec
-    .set_fg(Some(Ansi256(8)))
-    .set_bold(true)
-    .set_italic(true);
   style(&s, style_spec)
 }
 

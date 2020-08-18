@@ -13,7 +13,6 @@ use deno_core::ModuleSpecifier;
 use futures::Future;
 use regex::Regex;
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::pin::Pin;
 
 use crate::namespace::NamespaceDef;
