@@ -1,5 +1,4 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use regex::Regex;
 use std::fmt;
 use std::io::Write;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -7,18 +6,7 @@ use termcolor::Color::{Ansi256, Blue, Green, Magenta, Red};
 use termcolor::{Ansi, ColorSpec, WriteColor};
 
 lazy_static! {
-        // STRIP_ANSI_RE and strip_ansi_codes are lifted from the "console" crate.
-        // Copyright 2017 Armin Ronacher <armin.ronacher@active-4.com>. MIT License.
-        static ref STRIP_ANSI_RE: Regex = Regex::new(
-                r"[\x1b\x9b][\[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]"
-        ).unwrap();
-        static ref USE_COLOR: AtomicBool = AtomicBool::new(false);
-}
-
-/// Helper function to strip ansi codes.
-#[cfg(test)]
-pub fn strip_ansi_codes(s: &str) -> std::borrow::Cow<str> {
-  STRIP_ANSI_RE.replace_all(s, "")
+  static ref USE_COLOR: AtomicBool = AtomicBool::new(false);
 }
 
 pub fn enable_color() {

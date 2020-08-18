@@ -1,16 +1,16 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use crate::colors;
+use crate::parser::DocError;
 use crate::parser::DocFileLoader;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
 use crate::swc_util;
-use core::fmt::Error;
 use futures::Future;
 use futures::FutureExt;
 use serde_json::json;
 use std::collections::HashMap;
 use std::pin::Pin;
 use swc_ecmascript::parser::Syntax;
+use url::Url;
 
 pub struct TestLoader {
   files: HashMap<String, String>,
@@ -29,16 +29,26 @@ impl TestLoader {
 }
 
 impl DocFileLoader for TestLoader {
+  fn resolve(
+    &self,
+    specifier: &str,
+    referrer: &str,
+  ) -> Result<String, DocError> {
+    let url = Url::parse(referrer).expect("Must be valid referrer");
+    let url = url.join(specifier).expect("Invalid url");
+    Ok(url.to_string())
+  }
+
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<String, Error>>>> {
+  ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>> {
     let res = match self.files.get(specifier) {
       Some(source_code) => Ok(source_code.to_string()),
-      None => Err(std::io::Error::new(
+      None => Err(DocError::Io(std::io::Error::new(
         std::io::ErrorKind::NotFound,
         "not found".to_string(),
-      )),
+      ))),
     };
 
     async move { res }.boxed_local()
@@ -70,9 +80,8 @@ macro_rules! doc_test {
         .await
         .unwrap();
 
-      let doc = DocPrinter::new(&entries, private).to_string();
       #[allow(unused_variables)]
-      let doc = colors::strip_ansi_codes(&doc);
+      let doc = DocPrinter::new(&entries, false, private).to_string();
 
       $block
     }
@@ -233,10 +242,10 @@ export function fooFn(a: number) {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  assert!(colors::strip_ansi_codes(
-    DocPrinter::new(&entries, false).to_string().as_str()
-  )
-  .contains("function fooFn(a: number)"));
+  assert!(DocPrinter::new(&entries, false, false)
+    .to_string()
+    .as_str()
+    .contains("function fooFn(a: number)"));
 }
 
 #[tokio::test]
