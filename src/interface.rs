@@ -276,7 +276,8 @@ pub fn get_doc_for_ts_interface_decl(
         index_signatures.push(index_sig_def);
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
-        let construct_js_doc = doc_parser.js_doc_for_span(ts_construct_sig.span);
+        let construct_js_doc =
+          doc_parser.js_doc_for_span(ts_construct_sig.span);
 
         let mut params = vec![];
 
