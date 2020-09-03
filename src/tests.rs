@@ -1951,6 +1951,15 @@ export interface Interface {
     "readonly [index: number]: Interface"
   );
 
+  contains_test!(interface_construct,
+    r#"
+export interface I {
+  new(name: string);
+}
+    "#;
+    "new(name: string)"
+  );
+
   contains_test!(jsdoc,
     r#"
 /**
