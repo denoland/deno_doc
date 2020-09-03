@@ -275,8 +275,39 @@ pub fn get_doc_for_ts_interface_decl(
         };
         index_signatures.push(index_sig_def);
       }
-      // TODO:
-      TsConstructSignatureDecl(_) => {}
+      TsConstructSignatureDecl(ts_construct_sig) => {
+        let construct_js_doc =
+          doc_parser.js_doc_for_span(ts_construct_sig.span);
+
+        let mut params = vec![];
+
+        for param in &ts_construct_sig.params {
+          let param_def = ts_fn_param_to_param_def(
+            param,
+            Some(&doc_parser.ast_parser.source_map),
+          );
+          params.push(param_def);
+        }
+
+        let type_params = maybe_type_param_decl_to_type_param_defs(
+          ts_construct_sig.type_params.as_ref(),
+        );
+
+        let construct_sig_def = InterfaceMethodDef {
+          name: "new".to_string(),
+          js_doc: construct_js_doc,
+          location: doc_parser
+            .ast_parser
+            .get_span_location(ts_construct_sig.span)
+            .into(),
+          optional: false,
+          params,
+          return_type: None,
+          type_params,
+        };
+
+        methods.push(construct_sig_def);
+      }
     }
   }
 
