@@ -84,6 +84,15 @@ impl Into<TsTypeDef> for &TsLitType {
           boolean: Some(bool_.value),
         },
       ),
+      TsLit::BigInt(bigint_) => (
+        bigint_.value.to_string(),
+        LiteralDef {
+          kind: LiteralDefKind::BigInt,
+          number: None,
+          string: Some(bigint_.value.to_string()),
+          boolean: None,
+        },
+      ),
     };
 
     TsTypeDef {
@@ -601,6 +610,7 @@ pub enum LiteralDefKind {
   Number,
   String,
   Boolean,
+  BigInt,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -920,6 +930,11 @@ impl Display for TsTypeDef {
             f,
             "{}",
             colors::yellow(&literal.number.unwrap().to_string())
+          ),
+          LiteralDefKind::BigInt => write!(
+            f,
+            "{}",
+            colors::yellow(&literal.string.as_ref().unwrap().to_string())
           ),
         }
       }
