@@ -591,18 +591,15 @@ impl DocParser {
 
     for node in module_body.iter() {
       if let swc_ecmascript::ast::ModuleItem::Stmt(stmt) = node {
-        match stmt {
-          Stmt::Decl(decl) => {
-            if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
-              let is_declared = self.get_declare_for_decl(decl);
-              if is_declared || self.private {
-                doc_entries.push(doc_node);
-              } else {
-                unexported_doc_map.insert(doc_node.name.clone(), doc_node);
-              }
+        if let Stmt::Decl(decl) = stmt {
+          if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
+            let is_declared = self.get_declare_for_decl(decl);
+            if is_declared || self.private {
+              doc_entries.push(doc_node);
+            } else {
+              unexported_doc_map.insert(doc_node.name.clone(), doc_node);
             }
           }
-          _ => {}
         }
       }
     }
@@ -613,16 +610,13 @@ impl DocParser {
 
         if let ModuleDecl::ExportNamed(export_named) = module_decl {
           for specifier in &export_named.specifiers {
-            match specifier {
-              ExportSpecifier::Named(named_specifier) => {
-                if let Some(doc_node) =
-                  unexported_doc_map.get(&named_specifier.orig.sym.to_string())
-                {
-                  doc_entries.push(doc_node.clone());
-                }
+            if let ExportSpecifier::Named(named_specifier) = specifier {
+              if let Some(doc_node) =
+                unexported_doc_map.get(&named_specifier.orig.sym.to_string())
+              {
+                doc_entries.push(doc_node.clone());
               }
-              _ => {}
-            };
+            }
           }
         }
       }
