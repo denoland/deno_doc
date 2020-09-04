@@ -610,12 +610,17 @@ impl DocParser {
 
         if let ModuleDecl::ExportNamed(export_named) = module_decl {
           for specifier in &export_named.specifiers {
-            if let ExportSpecifier::Named(named_specifier) = specifier {
-              if let Some(doc_node) =
-                unexported_doc_map.get(&named_specifier.orig.sym.to_string())
-              {
-                doc_entries.push(doc_node.clone());
+            match specifier {
+              ExportSpecifier::Named(named_specifier) => {
+                if let Some(doc_node) =
+                  unexported_doc_map.get(&named_specifier.orig.sym.to_string())
+                {
+                  doc_entries.push(doc_node.clone());
+                }
               }
+              // TODO(zhmushan)
+              ExportSpecifier::Default(_default_specifier) => {}
+              ExportSpecifier::Namespace(_namespace_specifier) => {}
             }
           }
         }
