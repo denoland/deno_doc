@@ -1476,6 +1476,62 @@ export namespace RootNs {
     }
   }]);
 
+  json_test!(exports_declared_earlier,
+      r#"
+const hello = "world";
+function say(words: string): void { }
+export { hello, say };
+    "#;
+  [
+    {
+      "kind": "variable",
+      "name": "hello",
+      "location": {
+        "filename": "test.ts",
+        "line": 2,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": null,
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "function",
+      "name": "say",
+      "location": {
+        "filename": "test.ts",
+        "line": 3,
+        "col": 0
+      },
+      "jsDoc": null,
+      "functionDef": {
+        "params": [
+          {
+            "kind": "identifier",
+            "name": "words",
+            "optional": false,
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            }
+          }
+        ],
+        "returnType": {
+          "repr": "void",
+          "kind": "keyword",
+          "keyword": "void"
+        },
+        "isAsync": false,
+        "isGenerator": false,
+        "typeParams": []
+      }
+    }
+  ]
+    );
+
   json_test!(optional_return_type,
     r#"
   export function foo(a: number) {
@@ -1815,6 +1871,16 @@ namespace H {}
     "class D",
     "interface F",
     "namespace H"
+  );
+
+  contains_test!(exports_declared_earlier,
+    r#"
+const hello = "world";
+function say(words: string): void { }
+export { hello, say };
+    "#;
+    "const hello",
+    "function say(words: string): void"
   );
 
   contains_test!(function_async,

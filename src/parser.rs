@@ -4,6 +4,7 @@ use swc_common::comments::CommentKind;
 use swc_common::Span;
 use swc_ecmascript::ast::Decl;
 use swc_ecmascript::ast::DefaultDecl;
+use swc_ecmascript::ast::ExportSpecifier;
 use swc_ecmascript::ast::ModuleDecl;
 use swc_ecmascript::ast::Stmt;
 use swc_ecmascript::parser::Syntax;
@@ -371,13 +372,6 @@ impl DocParser {
     }
   }
 
-  pub fn get_doc_node_for_stmt(&self, stmt: &Stmt) -> Option<DocNode> {
-    match stmt {
-      Stmt::Decl(decl) => self.get_doc_node_for_decl(decl),
-      _ => None,
-    }
-  }
-
   fn details_for_span(&self, span: Span) -> (Option<String>, Location) {
     let js_doc = self.js_doc_for_span(span);
     let location = self.ast_parser.get_span_location(span).into();
@@ -387,9 +381,6 @@ impl DocParser {
   pub fn get_doc_node_for_decl(&self, decl: &Decl) -> Option<DocNode> {
     match decl {
       Decl::Class(class_decl) => {
-        if !self.private && !class_decl.declare {
-          return None;
-        }
         let (name, class_def) =
           super::class::get_doc_for_class_decl(self, class_decl);
         let (js_doc, location) = self.details_for_span(class_decl.class.span);
@@ -409,9 +400,6 @@ impl DocParser {
         })
       }
       Decl::Fn(fn_decl) => {
-        if !self.private && !fn_decl.declare {
-          return None;
-        }
         let (name, function_def) =
           super::function::get_doc_for_fn_decl(self, fn_decl);
         let (js_doc, location) = self.details_for_span(fn_decl.function.span);
@@ -431,9 +419,6 @@ impl DocParser {
         })
       }
       Decl::Var(var_decl) => {
-        if !self.private && !var_decl.declare {
-          return None;
-        }
         let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
         let (js_doc, location) = self.details_for_span(var_decl.span);
         Some(DocNode {
@@ -452,9 +437,6 @@ impl DocParser {
         })
       }
       Decl::TsInterface(ts_interface_decl) => {
-        if !self.private && !ts_interface_decl.declare {
-          return None;
-        }
         let (name, interface_def) =
           super::interface::get_doc_for_ts_interface_decl(
             self,
@@ -477,9 +459,6 @@ impl DocParser {
         })
       }
       Decl::TsTypeAlias(ts_type_alias) => {
-        if !self.private && !ts_type_alias.declare {
-          return None;
-        }
         let (name, type_alias_def) =
           super::type_alias::get_doc_for_ts_type_alias_decl(
             self,
@@ -502,9 +481,6 @@ impl DocParser {
         })
       }
       Decl::TsEnum(ts_enum) => {
-        if !self.private && !ts_enum.declare {
-          return None;
-        }
         let (name, enum_def) =
           super::r#enum::get_doc_for_ts_enum_decl(self, ts_enum);
         let (js_doc, location) = self.details_for_span(ts_enum.span);
@@ -524,9 +500,6 @@ impl DocParser {
         })
       }
       Decl::TsModule(ts_module) => {
-        if !self.private && !ts_module.declare {
-          return None;
-        }
         let (name, namespace_def) =
           super::namespace::get_doc_for_ts_module(self, ts_module);
         let (js_doc, location) = self.details_for_span(ts_module.span);
@@ -613,20 +586,48 @@ impl DocParser {
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<DocNode> {
+    let mut unexported_doc_map: HashMap<String, DocNode> = HashMap::new();
     let mut doc_entries: Vec<DocNode> = vec![];
+
     for node in module_body.iter() {
-      match node {
-        swc_ecmascript::ast::ModuleItem::ModuleDecl(module_decl) => {
-          doc_entries
-            .extend(self.get_doc_nodes_for_module_exports(module_decl));
+      if let swc_ecmascript::ast::ModuleItem::Stmt(stmt) = node {
+        match stmt {
+          Stmt::Decl(decl) => {
+            if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
+              let is_declared = self.get_declare_for_decl(decl);
+              if is_declared || self.private {
+                doc_entries.push(doc_node);
+              } else {
+                unexported_doc_map.insert(doc_node.name.clone(), doc_node);
+              }
+            }
+          }
+          _ => {}
         }
-        swc_ecmascript::ast::ModuleItem::Stmt(stmt) => {
-          if let Some(doc_node) = self.get_doc_node_for_stmt(stmt) {
-            doc_entries.push(doc_node);
+      }
+    }
+
+    for node in module_body.iter() {
+      if let swc_ecmascript::ast::ModuleItem::ModuleDecl(module_decl) = node {
+        doc_entries.extend(self.get_doc_nodes_for_module_exports(module_decl));
+
+        if let ModuleDecl::ExportNamed(export_named) = module_decl {
+          for specifier in &export_named.specifiers {
+            match specifier {
+              ExportSpecifier::Named(named_specifier) => {
+                if let Some(doc_node) =
+                  unexported_doc_map.get(&named_specifier.orig.sym.to_string())
+                {
+                  doc_entries.push(doc_node.clone());
+                }
+              }
+              _ => {}
+            };
           }
         }
       }
     }
+
     doc_entries
   }
 
@@ -661,5 +662,17 @@ impl DocParser {
     let txt = txt.trim_start().trim_end().to_string();
 
     Some(txt)
+  }
+
+  fn get_declare_for_decl(&self, decl: &Decl) -> bool {
+    match decl {
+      Decl::Class(class_decl) => class_decl.declare,
+      Decl::Fn(fn_decl) => fn_decl.declare,
+      Decl::TsEnum(ts_enum_decl) => ts_enum_decl.declare,
+      Decl::TsInterface(ts_interface_decl) => ts_interface_decl.declare,
+      Decl::TsModule(ts_module_decl) => ts_module_decl.declare,
+      Decl::TsTypeAlias(ts_type_alias_decl) => ts_type_alias_decl.declare,
+      Decl::Var(var_decl) => var_decl.declare,
+    }
   }
 }
