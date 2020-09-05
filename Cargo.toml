@@ -6,6 +6,12 @@ description = "doc generation for deno"
 authors = ["the Deno authors"]
 license = "MIT"
 
+[lib]
+name = "deno_doc"
+
+[[example]]
+name = "ddoc"
+
 [dependencies]
 futures = "0.3.5"
 lazy_static = "1.4.0"

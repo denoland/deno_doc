@@ -9,7 +9,11 @@ targets like Node or the browser as well.
 
 ## Example
 
-Coming soon...
+`examples/ddoc/main.rs` provides a minimal standalone binary demonstrating how `deno_doc` can be used as a crate.
+
+```shell
+$ cargo run --example ddoc ../deno/std/http/mod.ts
+```
 
 ## Developing
 
