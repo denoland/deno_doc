@@ -35,7 +35,12 @@ impl Error for DocError {}
 
 impl fmt::Display for DocError {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.pad(&self.to_string())
+    let m = match self {
+      Self::Resolve(s) => s.to_string(),
+      Self::Io(err) => err.to_string(),
+      Self::Parse(err) => err.to_string(),
+    };
+    f.pad(&m)
   }
 }
 
