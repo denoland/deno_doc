@@ -1,8 +1,9 @@
+use clap::{App, Arg};
 use deno_doc::parser::DocFileLoader;
 use deno_doc::{DocError, DocNodeKind, DocParser, DocPrinter};
 use futures::executor::block_on;
 use futures::FutureExt;
-use std::env::{args, current_dir};
+use std::env::current_dir;
 use std::fs::read_to_string;
 use swc_ecmascript::parser::{Syntax, TsConfig};
 use tokio::macros::support::{Future, Pin};
@@ -10,21 +11,6 @@ use url::Url;
 
 #[derive(Clone)]
 struct SourceFileFetcher {}
-
-impl SourceFileFetcher {
-  pub fn new() -> Box<Self> {
-    Box::new(Self {})
-  }
-
-  fn fetch_local_file(&self, module_url: &Url) -> String {
-    let path = module_url.to_file_path().unwrap();
-    read_to_string(path).unwrap()
-  }
-
-  fn fetch_remote_source(&self, _module_url: &Url) -> String {
-    unimplemented!();
-  }
-}
 
 impl DocFileLoader for SourceFileFetcher {
   fn resolve(
@@ -45,16 +31,18 @@ impl DocFileLoader for SourceFileFetcher {
     &self,
     specifier: &str,
   ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>> {
-    let fetcher = self.clone();
     let module_url = Url::parse(specifier).unwrap();
     async move {
       let url_scheme = module_url.scheme();
       let is_local_file = url_scheme == "file";
 
       if is_local_file {
-        Ok(fetcher.fetch_local_file(&module_url))
+        let path = module_url.to_file_path().unwrap();
+        Ok(read_to_string(path).unwrap())
       } else {
-        Ok(fetcher.fetch_remote_source(&module_url))
+        Err(DocError::Resolve(
+          "Fetching remote modules is not supported.".to_string(),
+        ))
       }
     }
     .boxed_local()
@@ -62,23 +50,33 @@ impl DocFileLoader for SourceFileFetcher {
 }
 
 fn main() {
-  let args: Vec<String> = args().collect();
-  let target = args.get(1).unwrap();
-  let target = Url::from_directory_path(current_dir().unwrap())
+  let matches = App::new("ddoc")
+    .arg(Arg::with_name("source_file").required(true))
+    .get_matches();
+
+  let source_file = matches.value_of("source_file").unwrap();
+  let source_file = Url::from_directory_path(current_dir().unwrap())
     .unwrap()
-    .join(target)
+    .join(source_file)
     .unwrap();
 
-  let loader = SourceFileFetcher::new();
+  let loader = Box::new(SourceFileFetcher {});
   let parser = DocParser::new(loader, false);
   let future = async move {
-    let mut doc_nodes = parser
+    let parse_result = parser
       .parse_with_reexports(
-        target.as_str(),
+        source_file.as_str(),
         Syntax::Typescript(TsConfig::default()),
       )
-      .await
-      .unwrap();
+      .await;
+
+    let mut doc_nodes = match parse_result {
+      Ok(nodes) => nodes,
+      Err(e) => {
+        eprintln!("{}", e);
+        std::process::exit(1);
+      }
+    };
 
     doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
     let result = DocPrinter::new(&doc_nodes, true, false);
