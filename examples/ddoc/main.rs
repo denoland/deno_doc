@@ -9,7 +9,6 @@ use swc_ecmascript::parser::{Syntax, TsConfig};
 use tokio::macros::support::{Future, Pin};
 use url::Url;
 
-#[derive(Clone)]
 struct SourceFileFetcher {}
 
 impl DocFileLoader for SourceFileFetcher {
