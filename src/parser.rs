@@ -78,7 +78,7 @@ impl DocParser {
     }
   }
 
-  fn parse_module(
+  pub fn parse_module(
     &self,
     file_name: &str,
     syntax: Syntax,
