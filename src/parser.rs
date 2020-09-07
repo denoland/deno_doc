@@ -617,9 +617,12 @@ impl DocParser {
           for specifier in &export_named.specifiers {
             match specifier {
               ExportSpecifier::Named(named_specifier) => {
-                if let Some(doc_node) =
-                  unexported_doc_map.get(&named_specifier.orig.sym.to_string())
+                if let Some(doc_node) = unexported_doc_map
+                  .get_mut(&named_specifier.orig.sym.to_string())
                 {
+                  if let Some(exported_ident) = &named_specifier.exported {
+                    doc_node.name = exported_ident.sym.to_string();
+                  }
                   doc_entries.push(doc_node.clone());
                 }
               }
