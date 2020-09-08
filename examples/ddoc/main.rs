@@ -17,13 +17,12 @@ impl DocFileLoader for SourceFileFetcher {
     specifier: &str,
     referrer: &str,
   ) -> Result<String, DocError> {
-    Ok(
-      Url::parse(referrer)
-        .unwrap()
-        .join(specifier)
-        .unwrap()
-        .to_string(),
-    )
+    let base =
+      Url::parse(referrer).map_err(|e| DocError::Resolve(e.to_string()))?;
+    let resolved = base
+      .join(specifier)
+      .map_err(|e| DocError::Resolve(e.to_string()))?;
+    Ok(resolved.to_string())
   }
 
   fn load_source_code(
