@@ -1480,7 +1480,8 @@ export namespace RootNs {
       r#"
 const hello = "world";
 function say(words: string): void { }
-export { hello, say };
+function foo(): void { }
+export { hello, say, foo as bar };
     "#;
   [
     {
@@ -1519,6 +1520,27 @@ export { hello, say };
             }
           }
         ],
+        "returnType": {
+          "repr": "void",
+          "kind": "keyword",
+          "keyword": "void"
+        },
+        "isAsync": false,
+        "isGenerator": false,
+        "typeParams": []
+      }
+    },
+    {
+      "kind": "function",
+      "name": "bar",
+      "location": {
+        "filename": "test.ts",
+        "line": 4,
+        "col": 0
+      },
+      "jsDoc": null,
+      "functionDef": {
+        "params": [],
         "returnType": {
           "repr": "void",
           "kind": "keyword",
@@ -1877,10 +1899,12 @@ namespace H {}
     r#"
 const hello = "world";
 function say(words: string): void { }
-export { hello, say };
+function foo(): void { }
+export { hello, say, foo as bar };
     "#;
     "const hello",
-    "function say(words: string): void"
+    "function say(words: string): void",
+    "function bar(): void"
   );
 
   contains_test!(function_async,
