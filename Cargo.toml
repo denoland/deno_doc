@@ -6,6 +6,12 @@ description = "doc generation for deno"
 authors = ["the Deno authors"]
 license = "MIT"
 
+[lib]
+name = "deno_doc"
+
+[[example]]
+name = "ddoc"
+
 [dependencies]
 futures = "0.3.5"
 lazy_static = "1.4.0"
@@ -18,5 +24,6 @@ termcolor = "1.1.0"
 regex = "1.3.9"
 
 [dev-dependencies]
+clap = "2.33.3"
 tokio = { version = "0.2.22", features = ["full"] }
 url = "2.1.1"
