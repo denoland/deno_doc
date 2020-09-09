@@ -249,6 +249,81 @@ export function fooFn(a: number) {
 }
 
 #[tokio::test]
+async fn reexports_has_same_name() {
+  let reexport_source_code = r#"
+export interface Hello {}
+export class Hello {}
+"#;
+  let test_source_code = r#"
+export { Hello } from "./reexport.ts";
+"#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///test.ts".to_string(), test_source_code.to_string()),
+    (
+      "file:///reexport.ts".to_string(),
+      reexport_source_code.to_string(),
+    ),
+  ]);
+  let entries = DocParser::new(loader, false)
+    .parse_with_reexports(
+      "file:///test.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "interface",
+      "name": "Hello",
+      "location": {
+        "filename": "file:///reexport.ts",
+        "line": 2,
+        "col": 0
+      },
+      "jsDoc": null,
+      "interfaceDef": {
+        "extends": [],
+        "methods": [],
+        "properties": [],
+        "callSignatures": [],
+        "indexSignatures": [],
+        "typeParams": []
+      }
+    },
+    {
+      "kind": "class",
+      "name": "Hello",
+      "location": {
+        "filename": "file:///reexport.ts",
+        "line": 3,
+        "col": 0
+      },
+      "jsDoc": null,
+      "classDef": {
+        "isAbstract": false,
+        "constructors": [],
+        "properties": [],
+        "indexSignatures": [],
+        "methods": [],
+        "extends": null,
+        "implements": [],
+        "typeParams": [],
+        "superTypeParams": []
+      }
+    }
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+
+  let output = DocPrinter::new(&entries, false, false).to_string();
+  assert!(output.contains("class Hello"));
+  assert!(output.contains("interface Hello"));
+}
+
+#[tokio::test]
 async fn filter_nodes_by_name() {
   use crate::find_nodes_by_name_recursively;
   let source_code = r#"

@@ -177,10 +177,12 @@ impl DocParser {
             // Try to find reexport.
             // NOTE: the reexport might actually be reexport from another
             // module; for now we're skipping nested reexports.
-            let maybe_doc_node =
-              doc_nodes.iter().find(|node| &node.name == ident);
+            let doc_nodes = doc_nodes
+              .iter()
+              .filter(|node| &node.name == ident)
+              .collect::<Vec<_>>();
 
-            if let Some(doc_node) = maybe_doc_node {
+            for doc_node in doc_nodes {
               let doc_node = doc_node.clone();
               let doc_node = if let Some(alias) = maybe_alias {
                 DocNode {
