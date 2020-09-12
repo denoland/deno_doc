@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "clap",
  "futures",
@@ -949,9 +949,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.37.1"
+version = "0.37.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "942d7b63580bea4f3cb1a25893a43a435833e83aefcc5120efd63da2640f72d3"
+checksum = "5130c8fcb77aebc02ab482776fe0d712e35d9faab4ae40faee1b51e3ec985473"
 dependencies = [
  "either",
  "enum_kind",
@@ -996,9 +996,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6a5a565d3a45ec891929d886de52fdbe8f0dbcc9f4c1c517edebc27c8c019d8"
+checksum = "ab0054c6e60ab54e03cb93a587a910ba2475b39d4d0233918f35711a6231e0e0"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
