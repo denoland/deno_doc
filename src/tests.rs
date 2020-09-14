@@ -56,15 +56,15 @@ impl DocFileLoader for TestLoader {
 }
 
 macro_rules! doc_test {
-  ( $name:ident, $source:expr; $block:block ) => {
+  ( $name:ident, $source:expr; $block:expr ) => {
     doc_test!($name, $source, false; $block);
   };
 
-  ( $name:ident, $source:expr, private; $block:block ) => {
+  ( $name:ident, $source:expr, private; $block:expr ) => {
     doc_test!($name, $source, true; $block);
   };
 
-  ( $name:ident, $source:expr, $private:expr; $block:block ) => {
+  ( $name:ident, $source:expr, $private:expr; $block:expr ) => {
     #[tokio::test]
     async fn $name() {
       use swc_ecmascript::parser::Syntax;
@@ -83,7 +83,8 @@ macro_rules! doc_test {
       #[allow(unused_variables)]
       let doc = DocPrinter::new(&entries, false, private).to_string();
 
-      $block
+      #[allow(clippy::redundant_closure_call)]
+      ($block)(entries, doc)
     }
   };
 }
@@ -101,7 +102,7 @@ macro_rules! contains_test {
 
   ( $name:ident, $source:expr, $private:expr;
     $( $contains:expr ),* $( ; $( $notcontains:expr ),* )? ) => {
-    doc_test!($name, $source, $private; {
+    doc_test!($name, $source, $private; |_entries, doc: String| {
       $(
         assert!(doc.contains($contains));
       )*
@@ -124,7 +125,7 @@ macro_rules! json_test {
   };
 
   ( $name:ident, $source:expr, $private:expr; $json:tt ) => {
-    doc_test!($name, $source, $private; {
+    doc_test!($name, $source, $private; |entries, _doc| {
       let actual = serde_json::to_value(&entries).unwrap();
       let expected_json = json!($json);
       assert_eq!(actual, expected_json);
