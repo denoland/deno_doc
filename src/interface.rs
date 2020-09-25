@@ -1,7 +1,7 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
 use crate::colors;
 use crate::display::{display_optional, display_readonly, SliceDisplayer};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::params::ts_fn_param_to_param_def;
 use crate::parser::DocParser;

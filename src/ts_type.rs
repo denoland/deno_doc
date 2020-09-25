@@ -6,7 +6,7 @@ use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use swc_ecmascript::ast::{
   TsArrayType, TsConditionalType, TsExprWithTypeArgs, TsFnOrConstructorType,

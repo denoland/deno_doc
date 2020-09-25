@@ -1,5 +1,5 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;

@@ -5,7 +5,7 @@ use crate::display::{
   display_method, display_optional, display_readonly, display_static,
   SliceDisplayer,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use swc_common::Spanned;
 
 use crate::function::function_to_function_def;

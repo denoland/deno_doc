@@ -1,5 +1,5 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::parser::DocParser;
 use crate::DocNode;

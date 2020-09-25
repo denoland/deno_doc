@@ -1,6 +1,6 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
 use crate::ts_type::TsTypeDef;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use swc_ecmascript::ast::TsTypeParam;
 use swc_ecmascript::ast::TsTypeParamDecl;
