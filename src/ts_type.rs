@@ -6,7 +6,7 @@ use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use swc_ecmascript::ast::{
   TsArrayType, TsConditionalType, TsExprWithTypeArgs, TsFnOrConstructorType,
@@ -597,14 +597,14 @@ impl Into<TsTypeDef> for &TsType {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
   pub type_params: Option<Vec<TsTypeDef>>,
   pub type_name: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum LiteralDefKind {
   Number,
@@ -613,7 +613,7 @@ pub enum LiteralDefKind {
   BigInt,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralDef {
   pub kind: LiteralDefKind,
@@ -628,14 +628,14 @@ pub struct LiteralDef {
   pub boolean: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeOperatorDef {
   pub operator: String,
   pub ts_type: TsTypeDef,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsFnOrConstructorDef {
   pub constructor: bool,
@@ -644,7 +644,7 @@ pub struct TsFnOrConstructorDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConditionalDef {
   pub check_type: Box<TsTypeDef>,
@@ -653,7 +653,7 @@ pub struct TsConditionalDef {
   pub false_type: Box<TsTypeDef>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsIndexedAccessDef {
   pub readonly: bool,
@@ -661,7 +661,7 @@ pub struct TsIndexedAccessDef {
   pub index_type: Box<TsTypeDef>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
@@ -685,7 +685,7 @@ impl Display for LiteralMethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralPropertyDef {
   pub name: String,
@@ -705,7 +705,7 @@ impl Display for LiteralPropertyDef {
     Ok(())
   }
 }
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralCallSignatureDef {
   pub params: Vec<ParamDef>,
@@ -723,7 +723,7 @@ impl Display for LiteralCallSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralIndexSignatureDef {
   pub readonly: bool,
@@ -746,7 +746,7 @@ impl Display for LiteralIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
   pub methods: Vec<LiteralMethodDef>,
@@ -755,7 +755,7 @@ pub struct TsTypeLiteralDef {
   pub index_signatures: Vec<LiteralIndexSignatureDef>,
 }
 
-#[derive(Debug, PartialEq, Serialize, Clone)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum TsTypeDefKind {
   Keyword,
@@ -777,7 +777,7 @@ pub enum TsTypeDefKind {
   TypeLiteral,
 }
 
-#[derive(Debug, Default, Serialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeDef {
   pub repr: String,

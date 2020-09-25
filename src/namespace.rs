@@ -1,11 +1,11 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::parser::DocParser;
 use crate::DocNode;
 use crate::DocNodeKind;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
   pub elements: Vec<DocNode>,
 }

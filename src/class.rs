@@ -5,7 +5,7 @@ use crate::display::{
   display_method, display_optional, display_readonly, display_static,
   SliceDisplayer,
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use swc_common::Spanned;
 
 use crate::function::function_to_function_def;
@@ -26,7 +26,7 @@ use crate::ParamDef;
 
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassConstructorDef {
   pub js_doc: Option<String>,
@@ -48,7 +48,7 @@ impl Display for ClassConstructorDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassPropertyDef {
   pub js_doc: Option<String>,
@@ -81,7 +81,7 @@ impl Display for ClassPropertyDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassIndexSignatureDef {
   pub readonly: bool,
@@ -104,7 +104,7 @@ impl Display for ClassIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassMethodDef {
   pub js_doc: Option<String>,
@@ -140,7 +140,7 @@ impl Display for ClassMethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassDef {
   // TODO(bartlomieju): decorators

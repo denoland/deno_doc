@@ -1,7 +1,7 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, PartialEq, Serialize, Clone)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum DocNodeKind {
   Function,
@@ -14,7 +14,7 @@ pub enum DocNodeKind {
   Import,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Location {
   pub filename: String,
   pub line: usize,
@@ -39,7 +39,7 @@ impl Into<Location> for swc_common::Loc {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum ReexportKind {
   /// export * from "./path/to/module.js";
@@ -54,28 +54,28 @@ pub enum ReexportKind {
   Named(String, Option<String>),
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Reexport {
   pub kind: ReexportKind,
   pub src: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModuleDoc {
   pub definitions: Vec<DocNode>,
   pub reexports: Vec<Reexport>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportDef {
   pub src: String,
   pub imported: Option<String>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNode {
   pub kind: DocNodeKind,
