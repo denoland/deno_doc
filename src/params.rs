@@ -1,12 +1,12 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
 use crate::display::{display_optional, SliceDisplayer};
 use crate::ts_type::{ts_type_ann_to_def, TsTypeDef};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use swc_common::SourceMap;
 use swc_ecmascript::ast::{ObjectPatProp, Pat, TsFnParam};
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "kind")]
 pub enum ParamDef {
@@ -115,7 +115,7 @@ impl Display for ParamDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "kind")]
 pub enum ObjectPatPropDef {

@@ -1,15 +1,15 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::parser::DocParser;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EnumMemberDef {
   pub name: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EnumDef {
   pub members: Vec<EnumMemberDef>,

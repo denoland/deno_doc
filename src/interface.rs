@@ -1,7 +1,7 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
 use crate::colors;
 use crate::display::{display_optional, display_readonly, SliceDisplayer};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::params::ts_fn_param_to_param_def;
 use crate::parser::DocParser;
@@ -14,7 +14,7 @@ use crate::ParamDef;
 
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDef {
   pub name: String,
@@ -42,7 +42,7 @@ impl Display for InterfaceMethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfacePropertyDef {
   pub name: String,
@@ -70,7 +70,7 @@ impl Display for InterfacePropertyDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceIndexSignatureDef {
   pub readonly: bool,
@@ -93,7 +93,7 @@ impl Display for InterfaceIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceCallSignatureDef {
   pub location: Location,
@@ -103,7 +103,7 @@ pub struct InterfaceCallSignatureDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceDef {
   pub extends: Vec<TsTypeDef>,

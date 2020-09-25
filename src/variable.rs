@@ -1,10 +1,10 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct VariableDef {
   pub ts_type: Option<TsTypeDef>,
