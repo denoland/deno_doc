@@ -15,6 +15,15 @@ targets like Node or the browser as well.
 $ cargo run --example ddoc ../deno/std/http/mod.ts
 ```
 
+make sure that folder structure as follow, or you will get error
+
+```bash
+  .
+  ├── deno
+  ├── deno_doc
+
+```
+
 ## Developing
 
 Make sure to have latest stable version of Rust installed (1.45.0).
