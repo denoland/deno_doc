@@ -7,7 +7,7 @@ extern crate lazy_static;
 extern crate serde_json;
 
 pub mod class;
-mod colors;
+pub mod colors;
 mod display;
 pub mod r#enum;
 pub mod function;
