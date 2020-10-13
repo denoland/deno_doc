@@ -445,13 +445,16 @@ declare namespace RootNs {
                 "enumDef": {
                   "members": [
                     {
-                      "name": "a"
+                      "name": "a",
+                      "jsDoc": null
                     },
                     {
-                      "name": "b"
+                      "name": "b",
+                      "jsDoc": null
                     },
                     {
-                      "name": "c"
+                      "name": "c",
+                      "jsDoc": null
                     }
                   ]
                 }
@@ -1032,13 +1035,16 @@ export enum Hello {
     "enumDef": {
       "members": [
         {
-          "name": "World"
+          "name": "World",
+          "jsDoc": null
         },
         {
-          "name": "Fizz"
+          "name": "Fizz",
+          "jsDoc": null
         },
         {
-          "name": "Buzz"
+          "name": "Buzz",
+          "jsDoc": null
         }
       ]
     }
@@ -1534,13 +1540,16 @@ export namespace RootNs {
                 "enumDef": {
                   "members": [
                     {
-                      "name": "a"
+                      "name": "a",
+                      "jsDoc": null
                     },
                     {
-                      "name": "b"
+                      "name": "b",
+                      "jsDoc": null
                     },
                     {
-                      "name": "c"
+                      "name": "c",
+                      "jsDoc": null
                     }
                   ]
                 }

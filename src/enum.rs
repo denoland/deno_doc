@@ -7,6 +7,7 @@ use crate::parser::DocParser;
 #[serde(rename_all = "camelCase")]
 pub struct EnumMemberDef {
   pub name: String,
+  pub js_doc: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -16,7 +17,7 @@ pub struct EnumDef {
 }
 
 pub fn get_doc_for_ts_enum_decl(
-  _doc_parser: &DocParser,
+  doc_parser: &DocParser,
   enum_decl: &swc_ecmascript::ast::TsEnumDecl,
 ) -> (String, EnumDef) {
   let enum_name = enum_decl.id.sym.to_string();
@@ -25,12 +26,17 @@ pub fn get_doc_for_ts_enum_decl(
   for enum_member in &enum_decl.members {
     use swc_ecmascript::ast::TsEnumMemberId::*;
 
+    let member_js_doc = doc_parser.js_doc_for_span(enum_member.span);
+
     let member_name = match &enum_member.id {
       Ident(ident) => ident.sym.to_string(),
       Str(str_) => str_.value.to_string(),
     };
 
-    let member_def = EnumMemberDef { name: member_name };
+    let member_def = EnumMemberDef {
+      name: member_name,
+      js_doc: member_js_doc,
+    };
     members.push(member_def);
   }
 
