@@ -188,6 +188,9 @@ impl<'a> DocPrinter<'a> {
     let enum_def = node.enum_def.as_ref().unwrap();
     for member in &enum_def.members {
       writeln!(w, "{}{}", Indent(1), colors::bold(&member.name))?;
+      if let Some(js_doc) = &member.js_doc {
+        self.format_jsdoc(w, js_doc, 2)?;
+      }
     }
     writeln!(w)
   }

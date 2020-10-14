@@ -445,13 +445,16 @@ declare namespace RootNs {
                 "enumDef": {
                   "members": [
                     {
-                      "name": "a"
+                      "name": "a",
+                      "jsDoc": null
                     },
                     {
-                      "name": "b"
+                      "name": "b",
+                      "jsDoc": null
                     },
                     {
-                      "name": "c"
+                      "name": "c",
+                      "jsDoc": null
                     }
                   ]
                 }
@@ -1016,6 +1019,7 @@ export default interface Reader {
  */
 export enum Hello {
     World = "world",
+    /** There is a JsDoc */
     Fizz = "fizz",
     Buzz = "buzz",
 }
@@ -1032,13 +1036,16 @@ export enum Hello {
     "enumDef": {
       "members": [
         {
-          "name": "World"
+          "name": "World",
+          "jsDoc": null
         },
         {
-          "name": "Fizz"
+          "name": "Fizz",
+          "jsDoc": "There is a JsDoc"
         },
         {
-          "name": "Buzz"
+          "name": "Buzz",
+          "jsDoc": null
         }
       ]
     }
@@ -1534,13 +1541,16 @@ export namespace RootNs {
                 "enumDef": {
                   "members": [
                     {
-                      "name": "a"
+                      "name": "a",
+                      "jsDoc": null
                     },
                     {
-                      "name": "b"
+                      "name": "b",
+                      "jsDoc": null
                     },
                     {
-                      "name": "c"
+                      "name": "c",
+                      "jsDoc": null
                     }
                   ]
                 }
@@ -1947,6 +1957,20 @@ export class Class {
   contains_test!(enum_declaration,
   "export enum Enum {}";
     "enum Enum"
+  );
+
+  contains_test!(enum_member,
+    r#"
+export enum Enum {
+  First,
+  /** There is a JsDoc */
+  Second,
+}
+    "#;
+    "enum Enum",
+    "First",
+    "Second",
+    "There is a JsDoc"
   );
 
   contains_test!(exports_all_with_private,
