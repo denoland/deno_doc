@@ -1019,6 +1019,7 @@ export default interface Reader {
  */
 export enum Hello {
     World = "world",
+    /** There is a JsDoc */
     Fizz = "fizz",
     Buzz = "buzz",
 }
@@ -1040,7 +1041,7 @@ export enum Hello {
         },
         {
           "name": "Fizz",
-          "jsDoc": null
+          "jsDoc": "There is a JsDoc"
         },
         {
           "name": "Buzz",
@@ -1956,6 +1957,20 @@ export class Class {
   contains_test!(enum_declaration,
   "export enum Enum {}";
     "enum Enum"
+  );
+
+  contains_test!(enum_member,
+    r#"
+export enum Enum {
+  First,
+  /** There is a JsDoc */
+  Second,
+}
+    "#;
+    "enum Enum",
+    "First",
+    "Second",
+    "There is a JsDoc"
   );
 
   contains_test!(exports_all_with_private,
