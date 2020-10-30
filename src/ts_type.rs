@@ -190,6 +190,7 @@ impl Into<TsTypeDef> for &TsKeywordType {
       TsUndefinedKeyword => "undefined",
       TsNullKeyword => "null",
       TsNeverKeyword => "never",
+      TsIntrinsicKeyword => "intrinsic",
     };
 
     TsTypeDef {
