@@ -282,6 +282,7 @@ pub fn prop_name_to_string(
     PropName::Ident(ident) => ident.sym.to_string(),
     PropName::Str(str_) => str_.value.to_string(),
     PropName::Num(num) => num.value.to_string(),
+    PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => source_map
       .map(|sm| sm.span_to_snippet(comp_prop_name.span).unwrap())
       .unwrap_or_else(|| "<UNAVAILABLE>".to_string()),
