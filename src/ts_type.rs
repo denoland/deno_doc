@@ -803,7 +803,7 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn tpl_literal(quasis: &Vec<TplElement>) -> TsTypeDef {
+  pub fn tpl_literal(quasis: &[TplElement]) -> TsTypeDef {
     // A template literal in a type is not allowed to have
     // expressions, so there will only be one quasi.
     let quasi = quasis.get(0).expect("Expected tpl to have a quasi.");
