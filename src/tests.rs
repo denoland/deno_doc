@@ -1640,7 +1640,7 @@ export { hello, say, foo as bar };
   ]
     );
 
-  json_test!(reexport_existing_symbol, 
+  json_test!(reexport_existing_symbol,
     r#"
 export function foo(): void {}
 export { foo as bar };
