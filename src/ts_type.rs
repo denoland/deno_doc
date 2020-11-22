@@ -950,34 +950,34 @@ pub fn infer_simple_ts_type_from_var_decl(
 fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
   match lit {
     Lit::Num(num) => {
-      let repr = format!("{}", num.value);
       if is_const {
         Some(TsTypeDef::number_literal(num))
       } else {
+        let repr = format!("{}", num.value);
         Some(TsTypeDef::number_with_repr(&repr))
       }
     }
     Lit::Str(str_) => {
-      let repr = str_.value.to_string();
       if is_const {
         Some(TsTypeDef::string_literal(str_))
       } else {
+        let repr = str_.value.to_string();
         Some(TsTypeDef::string_with_repr(&repr))
       }
     }
     Lit::Bool(bool_) => {
-      let repr = bool_.value.to_string();
       if is_const {
         Some(TsTypeDef::bool_literal(bool_))
       } else {
+        let repr = bool_.value.to_string();
         Some(TsTypeDef::bool_with_repr(&repr))
       }
     }
     Lit::BigInt(bigint_) => {
-      let repr = bigint_.value.to_string();
       if is_const {
         Some(TsTypeDef::bigint_literal(bigint_))
       } else {
+        let repr = bigint_.value.to_string();
         Some(TsTypeDef::bigint_with_repr(&repr))
       }
     }
