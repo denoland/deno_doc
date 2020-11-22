@@ -1640,6 +1640,57 @@ export { hello, say, foo as bar };
   ]
     );
 
+  json_test!(reexport_existing_symbol, 
+    r#"
+export function foo(): void {}
+export { foo as bar };
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      },
+      {
+        "kind": "function",
+        "name": "bar",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
   json_test!(optional_return_type,
     r#"
   export function foo(a: number) {
