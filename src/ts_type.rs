@@ -864,6 +864,233 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
   }
 }
 
+pub fn infer_simple_ts_type_from_var_decl(
+  decl: &swc_ecmascript::ast::VarDeclarator,
+  is_const: bool,
+) -> Option<TsTypeDef> {
+  if let Some(init_expr) = &decl.init {
+    match init_expr.as_ref() {
+      swc_ecmascript::ast::Expr::Lit(lit) => {
+        // e.g.) const n = 100;
+        infer_ts_type_from_lit(&lit, is_const)
+      }
+      swc_ecmascript::ast::Expr::New(expr) => {
+        // e.g.) const d = new Date()
+        infer_ts_type_from_new_expr(expr)
+      }
+      swc_ecmascript::ast::Expr::Tpl(tpl) => {
+        // e.g.) const s = `hello`;
+        infer_ts_type_from_tpl(tpl, is_const)
+      }
+      swc_ecmascript::ast::Expr::Call(expr) => {
+        // e.g.) const value = Number(123);
+        infer_ts_type_from_call_expr(expr)
+      }
+      _ => None,
+    }
+  } else {
+    None
+  }
+}
+
+fn infer_ts_type_from_lit(
+  lit: &swc_ecmascript::ast::Lit,
+  is_const: bool,
+) -> Option<TsTypeDef> {
+  match lit {
+    swc_ecmascript::ast::Lit::Num(num) => {
+      let repr = format!("{}", num.value);
+      if is_const {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Literal),
+          literal: Some(LiteralDef {
+            kind: LiteralDefKind::Number,
+            number: Some(num.value),
+            string: None,
+            boolean: None,
+          }),
+          ..Default::default()
+        })
+      } else {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Keyword),
+          keyword: Some("number".to_string()),
+          ..Default::default()
+        })
+      }
+    }
+    swc_ecmascript::ast::Lit::Str(str_) => {
+      let repr = str_.value.to_string();
+      if is_const {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Literal),
+          literal: Some(LiteralDef {
+            kind: LiteralDefKind::String,
+            number: None,
+            string: Some(str_.value.to_string()),
+            boolean: None,
+          }),
+          ..Default::default()
+        })
+      } else {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Keyword),
+          keyword: Some("string".to_string()),
+          ..Default::default()
+        })
+      }
+    }
+    swc_ecmascript::ast::Lit::Bool(bool_) => {
+      let repr = bool_.value.to_string();
+      if is_const {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Literal),
+          literal: Some(LiteralDef {
+            kind: LiteralDefKind::Boolean,
+            number: None,
+            string: None,
+            boolean: Some(bool_.value),
+          }),
+          ..Default::default()
+        })
+      } else {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Keyword),
+          keyword: Some("boolean".to_string()),
+          ..Default::default()
+        })
+      }
+    }
+    swc_ecmascript::ast::Lit::BigInt(bigint_) => {
+      let repr = bigint_.value.to_string();
+      if is_const {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Literal),
+          literal: Some(LiteralDef {
+            kind: LiteralDefKind::BigInt,
+            number: None,
+            string: Some(bigint_.value.to_string()),
+            boolean: None,
+          }),
+          ..Default::default()
+        })
+      } else {
+        Some(TsTypeDef {
+          repr,
+          kind: Some(TsTypeDefKind::Keyword),
+          keyword: Some("bigint".to_string()),
+          ..Default::default()
+        })
+      }
+    }
+    swc_ecmascript::ast::Lit::Regex(regex) => Some(TsTypeDef {
+      repr: regex.exp.to_string(),
+      kind: Some(TsTypeDefKind::TypeRef),
+      type_ref: Some(TsTypeRefDef {
+        type_params: None,
+        type_name: "RegExp".to_string(),
+      }),
+      ..Default::default()
+    }),
+    _ => None,
+  }
+}
+
+fn infer_ts_type_from_new_expr(
+  new_expr: &swc_ecmascript::ast::NewExpr,
+) -> Option<TsTypeDef> {
+  match new_expr.callee.as_ref() {
+    swc_ecmascript::ast::Expr::Ident(ident) => Some(TsTypeDef {
+      repr: ident.sym.to_string(),
+      kind: Some(TsTypeDefKind::TypeRef),
+      type_ref: Some(TsTypeRefDef {
+        type_params: None,
+        type_name: ident.sym.to_string(),
+      }),
+      ..Default::default()
+    }),
+    _ => None,
+  }
+}
+
+fn infer_ts_type_from_call_expr(
+  call_expr: &swc_ecmascript::ast::CallExpr,
+) -> Option<TsTypeDef> {
+  match &call_expr.callee {
+    swc_ecmascript::ast::ExprOrSuper::Expr(expr) => {
+      if let swc_ecmascript::ast::Expr::Ident(ident) = expr.as_ref() {
+        let sym = ident.sym.to_string();
+        match sym.as_str() {
+          "Symbol" | "Number" | "String" | "BigInt" => Some(TsTypeDef {
+            repr: sym.clone(),
+            kind: Some(TsTypeDefKind::Keyword),
+            keyword: Some(sym.to_ascii_lowercase()),
+            ..Default::default()
+          }),
+          "Date" => Some(TsTypeDef {
+            repr: sym,
+            kind: Some(TsTypeDefKind::Keyword),
+            keyword: Some("string".to_string()),
+            ..Default::default()
+          }),
+          "RegExp" => Some(TsTypeDef {
+            repr: sym,
+            kind: Some(TsTypeDefKind::TypeRef),
+            type_ref: Some(TsTypeRefDef {
+              type_params: None,
+              type_name: "RegExp".to_string(),
+            }),
+            ..Default::default()
+          }),
+          _ => None,
+        }
+      } else {
+        None
+      }
+    }
+    _ => None,
+  }
+}
+
+fn infer_ts_type_from_tpl(
+  tpl: &swc_ecmascript::ast::Tpl,
+  is_const: bool,
+) -> Option<TsTypeDef> {
+  if tpl.quasis.len() == 1 && is_const {
+    // If no placeholder is present, the type can be inferred.
+    //   e.g.) const tpl = `Hello world!`; // tpl has the type of `"Hello world!"`.
+    let quasi = tpl.quasis.get(0).unwrap();
+    let text = quasi.raw.value.to_string();
+    Some(TsTypeDef {
+      repr: text.clone(),
+      kind: Some(TsTypeDefKind::Literal),
+      literal: Some(LiteralDef {
+        kind: LiteralDefKind::String,
+        number: None,
+        string: Some(text),
+        boolean: None,
+      }),
+      ..Default::default()
+    })
+  } else {
+    // If placeholders are present, the type cannot be inferred.
+    //   e.g.) const tpl = `Hello ${name}!`; // tpl has the type of `string`.
+    Some(TsTypeDef {
+      repr: "string".to_string(),
+      kind: Some(TsTypeDefKind::Keyword),
+      keyword: Some("string".to_string()),
+      ..Default::default()
+    })
+  }
+}
+
 impl Display for TsTypeDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     if self.kind.is_none() {
