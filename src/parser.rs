@@ -6,6 +6,7 @@ use swc_ecmascript::ast::Decl;
 use swc_ecmascript::ast::DefaultDecl;
 use swc_ecmascript::ast::ExportSpecifier;
 use swc_ecmascript::ast::ModuleDecl;
+use swc_ecmascript::ast::ModuleItem;
 use swc_ecmascript::ast::Stmt;
 use swc_ecmascript::parser::Syntax;
 
@@ -589,48 +590,74 @@ impl DocParser {
     reexports
   }
 
+  fn get_symbols_for_module_body(
+    &self,
+    module_body: Vec<swc_ecmascript::ast::ModuleItem>,
+  ) -> HashMap<String, DocNode> {
+    let mut symbols = HashMap::new();
+
+    for node in module_body.iter() {
+      let doc_node = match node {
+        ModuleItem::Stmt(Stmt::Decl(decl)) => self.get_doc_node_for_decl(decl),
+        ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => Some(
+          super::module::get_doc_node_for_export_decl(self, export_decl),
+        ),
+        _ => None,
+      };
+
+      if let Some(doc_node) = doc_node {
+        symbols.insert(doc_node.name.clone(), doc_node.clone());
+      }
+    }
+
+    symbols
+  }
+
   pub fn get_doc_nodes_for_module_body(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<DocNode> {
-    let mut unexported_doc_map: HashMap<String, DocNode> = HashMap::new();
+    let symbols = self.get_symbols_for_module_body(module_body.clone());
+
     let mut doc_entries: Vec<DocNode> = vec![];
 
+    // Second pass, add actual doc entries
     for node in module_body.iter() {
-      if let swc_ecmascript::ast::ModuleItem::Stmt(stmt) = node {
-        if let Stmt::Decl(decl) = stmt {
-          if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
-            let is_declared = self.get_declare_for_decl(decl);
-            if is_declared || self.private {
-              doc_entries.push(doc_node);
-            } else {
-              unexported_doc_map.insert(doc_node.name.clone(), doc_node);
+      match node {
+        ModuleItem::Stmt(stmt) => {
+          if let Stmt::Decl(decl) = stmt {
+            if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
+              let is_declared = self.get_declare_for_decl(decl);
+              // FIXME(#57): declarations should only be added if this is ambient.
+              if is_declared || self.private {
+                doc_entries.push(doc_node);
+              }
             }
           }
         }
-      }
-    }
 
-    for node in module_body.iter() {
-      if let swc_ecmascript::ast::ModuleItem::ModuleDecl(module_decl) = node {
-        doc_entries.extend(self.get_doc_nodes_for_module_exports(module_decl));
+        ModuleItem::ModuleDecl(module_decl) => {
+          doc_entries
+            .extend(self.get_doc_nodes_for_module_exports(module_decl));
 
-        if let ModuleDecl::ExportNamed(export_named) = module_decl {
-          for specifier in &export_named.specifiers {
-            match specifier {
-              ExportSpecifier::Named(named_specifier) => {
-                if let Some(doc_node) = unexported_doc_map
-                  .get_mut(&named_specifier.orig.sym.to_string())
-                {
-                  if let Some(exported_ident) = &named_specifier.exported {
-                    doc_node.name = exported_ident.sym.to_string();
+          if let ModuleDecl::ExportNamed(export_named) = module_decl {
+            for specifier in &export_named.specifiers {
+              match specifier {
+                ExportSpecifier::Named(named_specifier) => {
+                  if let Some(mut doc_node) = symbols
+                    .get(&named_specifier.orig.sym.to_string())
+                    .map(|doc_node| doc_node.clone())
+                  {
+                    if let Some(exported_ident) = &named_specifier.exported {
+                      doc_node.name = exported_ident.sym.to_string();
+                    }
+                    doc_entries.push(doc_node.clone());
                   }
-                  doc_entries.push(doc_node.clone());
                 }
+                // TODO(zhmushan)
+                ExportSpecifier::Default(_default_specifier) => {}
+                ExportSpecifier::Namespace(_namespace_specifier) => {}
               }
-              // TODO(zhmushan)
-              ExportSpecifier::Default(_default_specifier) => {}
-              ExportSpecifier::Namespace(_namespace_specifier) => {}
             }
           }
         }
