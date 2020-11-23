@@ -326,7 +326,7 @@ export { Hello } from "./reexport.ts";
 
 #[tokio::test]
 async fn deep_reexports() {
-  let foo_source_code = r#"export const foo = "foo";"#;
+  let foo_source_code = r#"export const foo: string = "foo";"#;
   let bar_source_code = r#"export * from "./foo.ts""#;
   let baz_source_code = r#"export * from "./bar.ts""#;
 
@@ -355,7 +355,11 @@ async fn deep_reexports() {
       },
       "jsDoc": null,
       "variableDef": {
-        "tsType": null,
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
         "kind": "const"
       }
     }
