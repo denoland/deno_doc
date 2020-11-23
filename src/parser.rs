@@ -590,13 +590,12 @@ impl DocParser {
     reexports
   }
 
-  pub fn get_doc_nodes_for_module_body(
+  fn get_symbols_for_module_body(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
-  ) -> Vec<DocNode> {
-    let mut symbol_map: HashMap<String, DocNode> = HashMap::new();
+  ) -> HashMap<String, DocNode> {
+    let mut symbols = HashMap::new();
 
-    // First pass, add all declarations to symbol map
     for node in module_body.iter() {
       let doc_node = match node {
         ModuleItem::Stmt(Stmt::Decl(decl)) => self.get_doc_node_for_decl(decl),
@@ -607,9 +606,18 @@ impl DocParser {
       };
 
       if let Some(doc_node) = doc_node {
-        symbol_map.insert(doc_node.name.clone(), doc_node.clone());
+        symbols.insert(doc_node.name.clone(), doc_node.clone());
       }
     }
+
+    symbols
+  }
+
+  pub fn get_doc_nodes_for_module_body(
+    &self,
+    module_body: Vec<swc_ecmascript::ast::ModuleItem>,
+  ) -> Vec<DocNode> {
+    let symbols = self.get_symbols_for_module_body(module_body.clone());
 
     let mut doc_entries: Vec<DocNode> = vec![];
 
@@ -636,8 +644,9 @@ impl DocParser {
             for specifier in &export_named.specifiers {
               match specifier {
                 ExportSpecifier::Named(named_specifier) => {
-                  if let Some(doc_node) =
-                    symbol_map.get_mut(&named_specifier.orig.sym.to_string())
+                  if let Some(mut doc_node) = symbols
+                    .get(&named_specifier.orig.sym.to_string())
+                    .map(|doc_node| doc_node.clone())
                   {
                     if let Some(exported_ident) = &named_specifier.exported {
                       doc_node.name = exported_ident.sym.to_string();
