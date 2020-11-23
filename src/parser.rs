@@ -5,6 +5,7 @@ use swc_common::Span;
 use swc_ecmascript::ast::Decl;
 use swc_ecmascript::ast::DefaultDecl;
 use swc_ecmascript::ast::ExportSpecifier;
+use swc_ecmascript::ast::Expr;
 use swc_ecmascript::ast::ModuleDecl;
 use swc_ecmascript::ast::ModuleItem;
 use swc_ecmascript::ast::Stmt;
@@ -640,25 +641,38 @@ impl DocParser {
           doc_entries
             .extend(self.get_doc_nodes_for_module_exports(module_decl));
 
-          if let ModuleDecl::ExportNamed(export_named) = module_decl {
-            for specifier in &export_named.specifiers {
-              match specifier {
-                ExportSpecifier::Named(named_specifier) => {
-                  if let Some(mut doc_node) = symbols
-                    .get(&named_specifier.orig.sym.to_string())
-                    .map(|doc_node| doc_node.clone())
-                  {
-                    if let Some(exported_ident) = &named_specifier.exported {
-                      doc_node.name = exported_ident.sym.to_string();
+          match module_decl {
+            ModuleDecl::ExportNamed(export_named) => {
+              for specifier in &export_named.specifiers {
+                match specifier {
+                  ExportSpecifier::Named(named_specifier) => {
+                    if let Some(doc_node) =
+                      symbols.get(&named_specifier.orig.sym.to_string())
+                    {
+                      let mut doc_node = doc_node.clone();
+                      if let Some(exported_ident) = &named_specifier.exported {
+                        doc_node.name = exported_ident.sym.to_string();
+                      }
+                      doc_entries.push(doc_node);
                     }
-                    doc_entries.push(doc_node.clone());
                   }
+                  // TODO(zhmushan)
+                  ExportSpecifier::Default(_default_specifier) => {}
+                  ExportSpecifier::Namespace(_namespace_specifier) => {}
                 }
-                // TODO(zhmushan)
-                ExportSpecifier::Default(_default_specifier) => {}
-                ExportSpecifier::Namespace(_namespace_specifier) => {}
               }
             }
+            ModuleDecl::ExportDefaultExpr(export_expr) => {
+              if let Expr::Ident(ident) = &*export_expr.expr {
+                if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
+                  doc_entries.push(DocNode {
+                    name: String::from("default"),
+                    ..doc_node.clone()
+                  });
+                }
+              }
+            }
+            _ => {}
           }
         }
       }
