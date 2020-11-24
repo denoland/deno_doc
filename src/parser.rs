@@ -644,10 +644,10 @@ impl DocParser {
             for specifier in &export_named.specifiers {
               match specifier {
                 ExportSpecifier::Named(named_specifier) => {
-                  if let Some(mut doc_node) = symbols
-                    .get(&named_specifier.orig.sym.to_string())
-                    .map(|doc_node| doc_node.clone())
+                  if let Some(doc_node) =
+                    symbols.get(&named_specifier.orig.sym.to_string())
                   {
+                    let mut doc_node = doc_node.clone();
                     if let Some(exported_ident) = &named_specifier.exported {
                       doc_node.name = exported_ident.sym.to_string();
                     }
