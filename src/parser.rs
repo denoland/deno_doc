@@ -663,7 +663,7 @@ impl DocParser {
               }
             }
             ModuleDecl::ExportDefaultExpr(export_expr) => {
-              if let Expr::Ident(ident) = &*export_expr.expr {
+              if let Expr::Ident(ident) = export_expr.expr.as_ref() {
                 if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
                   doc_entries.push(DocNode {
                     name: String::from("default"),
