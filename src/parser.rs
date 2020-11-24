@@ -621,7 +621,6 @@ impl DocParser {
 
     let mut doc_entries: Vec<DocNode> = vec![];
 
-    // Second pass, add actual doc entries
     for node in module_body.iter() {
       match node {
         ModuleItem::Stmt(stmt) => {
