@@ -480,7 +480,7 @@ impl DocParser {
 
   fn get_imports_for_module_body(
     &self,
-    module_body: &Vec<swc_ecmascript::ast::ModuleItem>,
+    module_body: &[swc_ecmascript::ast::ModuleItem],
   ) -> HashMap<String, Import> {
     let mut imports = HashMap::new();
 
@@ -623,7 +623,7 @@ impl DocParser {
 
   fn get_symbols_for_module_body(
     &self,
-    module_body: &Vec<swc_ecmascript::ast::ModuleItem>,
+    module_body: &[swc_ecmascript::ast::ModuleItem],
   ) -> HashMap<String, DocNode> {
     let mut symbols = HashMap::new();
 
