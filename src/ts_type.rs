@@ -918,30 +918,37 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
   }
 }
 
+pub fn infer_simple_ts_type_from_expr(
+  expr: &Expr,
+  is_const: bool,
+) -> Option<TsTypeDef> {
+  match expr {
+    Expr::Lit(lit) => {
+      // e.g.) const n = 100;
+      infer_ts_type_from_lit(&lit, is_const)
+    }
+    Expr::New(expr) => {
+      // e.g.) const d = new Date()
+      infer_ts_type_from_new_expr(expr)
+    }
+    Expr::Tpl(tpl) => {
+      // e.g.) const s = `hello`;
+      infer_ts_type_from_tpl(tpl, is_const)
+    }
+    Expr::Call(expr) => {
+      // e.g.) const value = Number(123);
+      infer_ts_type_from_call_expr(expr)
+    }
+    _ => None,
+  }
+}
+
 pub fn infer_simple_ts_type_from_var_decl(
   decl: &VarDeclarator,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   if let Some(init_expr) = &decl.init {
-    match init_expr.as_ref() {
-      Expr::Lit(lit) => {
-        // e.g.) const n = 100;
-        infer_ts_type_from_lit(&lit, is_const)
-      }
-      Expr::New(expr) => {
-        // e.g.) const d = new Date()
-        infer_ts_type_from_new_expr(expr)
-      }
-      Expr::Tpl(tpl) => {
-        // e.g.) const s = `hello`;
-        infer_ts_type_from_tpl(tpl, is_const)
-      }
-      Expr::Call(expr) => {
-        // e.g.) const value = Number(123);
-        infer_ts_type_from_call_expr(expr)
-      }
-      _ => None,
-    }
+    infer_simple_ts_type_from_expr(init_expr.as_ref(), is_const)
   } else {
     None
   }

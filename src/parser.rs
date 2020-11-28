@@ -324,7 +324,6 @@ impl DocParser {
 
         vec![doc_node]
       }
-      ModuleDecl::ExportDefaultExpr(_export_default_expr) => vec![],
       _ => vec![],
     }
   }
@@ -722,6 +721,29 @@ impl DocParser {
                     ..doc_node.clone()
                   });
                 }
+              } else {
+                let (js_doc, location) =
+                  self.details_for_span(export_expr.span);
+                doc_entries.push(DocNode {
+                  kind: DocNodeKind::Variable,
+                  name: String::from("default"),
+                  location,
+                  js_doc,
+                  variable_def: Some(super::variable::VariableDef {
+                    kind: swc_ecmascript::ast::VarDeclKind::Var,
+                    ts_type: super::ts_type::infer_simple_ts_type_from_expr(
+                      export_expr.expr.as_ref(),
+                      true,
+                    ),
+                  }),
+                  function_def: None,
+                  class_def: None,
+                  enum_def: None,
+                  type_alias_def: None,
+                  namespace_def: None,
+                  interface_def: None,
+                  import_def: None,
+                });
               }
             }
             _ => {}

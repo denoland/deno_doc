@@ -1406,6 +1406,33 @@ export default interface Reader {
     }
   }]);
 
+  json_test!(export_default_expr,
+    r#"export default "foo";"#;
+    [
+      {
+        "kind": "variable",
+        "name": "default",
+        "location": {
+          "filename": "test.ts",
+          "line": 1,
+          "col": 0
+        },
+        "jsDoc": null,
+        "variableDef": {
+          "tsType": {
+            "repr": "foo",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "foo"
+            }
+          },
+          "kind": "var"
+        }
+      }
+    ]
+  );
+
   json_test!(export_enum,
     r#"
 /**
