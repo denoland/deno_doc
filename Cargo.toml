@@ -17,8 +17,8 @@ futures = "0.3.8"
 lazy_static = "1.4.0"
 serde = { version = "1.0.117", features = ["derive"] }
 serde_json = { version = "1.0.59", features = [ "preserve_order" ] }
-swc_common = "=0.10.5"
-swc_ecmascript = { version = "=0.14.1", features = ["parser"] }
+swc_common = "0.10.6"
+swc_ecmascript = { version = "0.14.4", features = ["parser"] }
 termcolor = "1.1.0"
 regex = "1.4.1"
 
