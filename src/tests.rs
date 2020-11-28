@@ -2267,8 +2267,8 @@ export { foo };
         "kind": "variable",
         "name": "foo",
         "location": {
-          "filename": "file:///foo.ts",
-          "line": 1,
+          "filename": "test.ts",
+          "line": 2,
           "col": 0
         },
         "jsDoc": null,
