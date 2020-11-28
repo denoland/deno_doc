@@ -106,10 +106,8 @@ impl DocParser {
         .ast_parser
         .parse_module(file_name, syntax, source_code)?;
 
-    let doc_entries: Vec<DocNode> =
-      self.get_doc_nodes_for_module_body(module.body.clone());
-    let reexports: Vec<Reexport> =
-      self.get_reexports_for_module_body(module.body);
+    let doc_entries = self.get_doc_nodes_for_module_body(module.body.clone());
+    let reexports = self.get_reexports_for_module_body(module.body);
 
     let module_doc = ModuleDoc {
       definitions: doc_entries,
@@ -482,7 +480,7 @@ impl DocParser {
 
   fn get_imports_for_module_body(
     &self,
-    module_body: Vec<swc_ecmascript::ast::ModuleItem>,
+    module_body: &Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> HashMap<String, Import> {
     let mut imports = HashMap::new();
 
@@ -531,7 +529,7 @@ impl DocParser {
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<node::Reexport> {
-    let imports = self.get_imports_for_module_body(module_body.clone());
+    let imports = self.get_imports_for_module_body(&module_body);
 
     let mut reexports: Vec<node::Reexport> = vec![];
 
@@ -625,7 +623,7 @@ impl DocParser {
 
   fn get_symbols_for_module_body(
     &self,
-    module_body: Vec<swc_ecmascript::ast::ModuleItem>,
+    module_body: &Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> HashMap<String, DocNode> {
     let mut symbols = HashMap::new();
 
@@ -650,7 +648,7 @@ impl DocParser {
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<DocNode> {
-    let symbols = self.get_symbols_for_module_body(module_body.clone());
+    let symbols = self.get_symbols_for_module_body(&module_body);
 
     let mut doc_entries: Vec<DocNode> = Vec::new();
 
