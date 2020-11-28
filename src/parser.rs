@@ -1,6 +1,6 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
 use crate::swc_util::AstParser;
-use crate::{Reexport, ReexportKind};
+use crate::ReexportKind;
 use swc_common::comments::CommentKind;
 use swc_common::Span;
 use swc_ecmascript::ast::Decl;

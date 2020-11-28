@@ -180,7 +180,7 @@ export function fooFn(a: number) {
     )
     .await
     .unwrap();
-  assert_eq!(entries.len(), 3);
+  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -224,20 +224,6 @@ export function fooFn(a: number) {
         "isAsync": false,
         "isGenerator": false
       },
-    },
-    {
-      "kind": "import",
-      "name": "buzz",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 3,
-        "col": 0
-      },
-      "jsDoc": null,
-      "importDef": {
-        "src": "file:///reexport.ts",
-        "imported": "fizz",
-      }
     }
   ]);
   let actual = serde_json::to_value(&entries).unwrap();
