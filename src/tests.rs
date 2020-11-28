@@ -1640,6 +1640,36 @@ export { hello, say, foo as bar };
   ]
     );
 
+  json_test!(default_exports_declared_earlier,
+    r#"
+function foo(): void {}
+export default foo;
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "default",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
   json_test!(reexport_existing_symbol,
     r#"
 export function foo(): void {}
