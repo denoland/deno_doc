@@ -533,6 +533,18 @@ impl DocParser {
 
     let mut reexports: Vec<node::Reexport> = vec![];
 
+    if self.private {
+      reexports.extend(imports.values().cloned().map(|import| node::Reexport {
+        src: import.src,
+        kind: match import.kind {
+          ImportKind::Named(orig, exported) => {
+            ReexportKind::Named(orig, exported)
+          }
+          ImportKind::Namespace(name) => ReexportKind::Namespace(name),
+        },
+      }))
+    }
+
     for node in module_body.iter() {
       if let swc_ecmascript::ast::ModuleItem::ModuleDecl(module_decl) = node {
         let r = match module_decl {
@@ -577,6 +589,12 @@ impl DocParser {
                     if let Some(import) =
                       imports.get(&specifier.orig.sym.to_string())
                     {
+                      // If it has the same name as the original import and private values are exported,
+                      // don't export this again and document the same value twice.
+                      if self.private && specifier.exported.is_none() {
+                        return None;
+                      }
+
                       let name = specifier
                         .exported
                         .as_ref()
@@ -675,6 +693,12 @@ impl DocParser {
               for specifier in &export_named.specifiers {
                 match specifier {
                   ExportSpecifier::Named(named_specifier) => {
+                    // If it has the same name as the original symbol and private values are exported,
+                    // don't export this again and document the same value twice.
+                    if self.private && named_specifier.exported.is_none() {
+                      continue;
+                    }
+
                     let symbol = named_specifier.orig.sym.to_string();
                     if let Some(doc_node) = symbols.get(&symbol) {
                       let mut doc_node = doc_node.clone();
