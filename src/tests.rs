@@ -375,10 +375,7 @@ async fn exports_imported_earlier() {
 
   let loader = TestLoader::new(vec![
     ("file:///foo.ts".to_string(), foo_source_code.to_string()),
-    (
-      "file:///test.ts".to_string(),
-      test_source_code.to_string(),
-    ),
+    ("file:///test.ts".to_string(), test_source_code.to_string()),
   ]);
   let entries = DocParser::new(loader, false)
     .parse_with_reexports(
