@@ -67,28 +67,15 @@ pub trait DocFileLoader {
 }
 
 #[derive(Clone)]
-enum Symbol {
-  DocNode(DocNode),
-  Reexport(Reexport),
+enum ImportKind {
+  Namespace(String),
+  Named(String, Option<String>),
 }
 
-impl Symbol {
-  fn rename(&mut self, name: impl Into<String>) {
-    match self {
-      Symbol::DocNode(doc_node) => {
-        doc_node.name = name.into();
-      }
-      Symbol::Reexport(reexport) => {
-        reexport.kind = match reexport.kind {
-          ReexportKind::Named(orig, _) => {
-            ReexportKind::Named(orig, Some(name.into()))
-          }
-          ReexportKind::Namespace(_) => ReexportKind::Namespace(name.into()),
-          other => other,
-        }
-      }
-    }
-  }
+#[derive(Clone)]
+struct Import {
+  src: String,
+  kind: ImportKind,
 }
 
 pub struct DocParser {
@@ -119,71 +106,10 @@ impl DocParser {
         .ast_parser
         .parse_module(file_name, syntax, source_code)?;
 
-    let symbols = self.get_symbols_for_module_body(module.body.clone());
-
-    let mut doc_entries: Vec<DocNode> = Vec::new();
-    let mut reexports: Vec<Reexport> =
+    let doc_entries: Vec<DocNode> =
+      self.get_doc_nodes_for_module_body(module.body.clone());
+    let reexports: Vec<Reexport> =
       self.get_reexports_for_module_body(module.body);
-
-    for node in module.body.iter() {
-      match node {
-        ModuleItem::Stmt(stmt) => {
-          if let Stmt::Decl(decl) = stmt {
-            if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
-              let is_declared = self.get_declare_for_decl(decl);
-              // FIXME(#57): declarations should only be added if this is ambient.
-              if is_declared || self.private {
-                doc_entries.push(doc_node);
-              }
-            }
-          }
-        }
-
-        ModuleItem::ModuleDecl(module_decl) => {
-          doc_entries
-            .extend(self.get_doc_nodes_for_module_exports(module_decl));
-
-          match module_decl {
-            ModuleDecl::ExportNamed(export_named) => {
-              for specifier in &export_named.specifiers {
-                match specifier {
-                  ExportSpecifier::Named(named_specifier) => {
-                    let symbol_name = named_specifier.orig.sym.to_string();
-                    if let Some(symbol) = symbols.get(&symbol_name) {
-                      let mut symbol = symbol.clone();
-                      if let Some(exported) = &named_specifier.exported {
-                        symbol.rename(exported.sym.to_string())
-                      }
-
-                      match symbol {
-                        Symbol::DocNode(doc_node) => doc_entries.push(doc_node),
-                        Symbol::Reexport(reexport) => reexports.push(reexport),
-                      }
-                    }
-                  }
-                  // TODO(zhmushan)
-                  ExportSpecifier::Default(_default_specifier) => {}
-                  ExportSpecifier::Namespace(_namespace_specifier) => {}
-                }
-              }
-            }
-            ModuleDecl::ExportDefaultExpr(export_expr) => {
-              if let Expr::Ident(ident) = export_expr.expr.as_ref() {
-                if let Some(symbol) = symbols.get(&ident.sym.to_string()) {
-                  let mut symbol = symbol.clone();
-                  symbol.rename("default");
-                  match symbol {
-                    Symbol::DocNode(doc_node) => doc_entries.push(doc_node),
-                    Symbol::Reexport(reexport) => reexports.push(reexport),
-                  }
-                }
-              }
-            }
-            _ => {}
-          }
-        }
-      }
-    }
 
     let module_doc = ModuleDoc {
       definitions: doc_entries,
@@ -554,10 +480,59 @@ impl DocParser {
     }
   }
 
+  fn get_imports_for_module_body(
+    &self,
+    module_body: Vec<swc_ecmascript::ast::ModuleItem>,
+  ) -> HashMap<String, Import> {
+    let mut imports = HashMap::new();
+
+    for node in module_body.iter() {
+      if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
+        for specifier in &import_decl.specifiers {
+          let import = match specifier {
+            ImportSpecifier::Named(named_specifier) => Import {
+              kind: ImportKind::Named(
+                named_specifier.local.sym.to_string(),
+                named_specifier
+                  .imported
+                  .as_ref()
+                  .map(|ident| ident.sym.to_string()),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+            ImportSpecifier::Default(default_specifier) => Import {
+              kind: ImportKind::Named(
+                default_specifier.local.sym.to_string(),
+                Some("default".to_string()),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+            ImportSpecifier::Namespace(namespace_specifier) => Import {
+              kind: ImportKind::Namespace(
+                namespace_specifier.local.sym.to_string(),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+          };
+
+          let name = match import.kind.clone() {
+            ImportKind::Named(name, _) | ImportKind::Namespace(name) => name,
+          };
+
+          imports.insert(name, import);
+        }
+      }
+    }
+
+    imports
+  }
+
   pub fn get_reexports_for_module_body(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<node::Reexport> {
+    let imports = self.get_imports_for_module_body(module_body.clone());
+
     let mut reexports: Vec<node::Reexport> = vec![];
 
     for node in module_body.iter() {
@@ -596,7 +571,39 @@ impl DocParser {
                 })
                 .collect::<Vec<node::Reexport>>()
             } else {
-              vec![]
+              named_export
+                .specifiers
+                .iter()
+                .filter_map(|specifier| {
+                  if let ExportSpecifier::Named(specifier) = specifier {
+                    if let Some(import) =
+                      imports.get(&specifier.orig.sym.to_string())
+                    {
+                      let name = specifier
+                        .exported
+                        .as_ref()
+                        .unwrap_or(&specifier.orig)
+                        .sym
+                        .to_string();
+                      Some(node::Reexport {
+                        src: import.src.clone(),
+                        kind: match &import.kind {
+                          ImportKind::Named(orig, _) => {
+                            ReexportKind::Named(orig.clone(), Some(name))
+                          }
+                          ImportKind::Namespace(_) => {
+                            ReexportKind::Namespace(name)
+                          }
+                        },
+                      })
+                    } else {
+                      None
+                    }
+                  } else {
+                    None
+                  }
+                })
+                .collect()
             }
           }
           ModuleDecl::ExportAll(export_all) => {
@@ -619,7 +626,7 @@ impl DocParser {
   fn get_symbols_for_module_body(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
-  ) -> HashMap<String, Symbol> {
+  ) -> HashMap<String, DocNode> {
     let mut symbols = HashMap::new();
 
     for node in module_body.iter() {
@@ -632,49 +639,76 @@ impl DocParser {
       };
 
       if let Some(doc_node) = doc_node {
-        symbols.insert(doc_node.name.clone(), Symbol::DocNode(doc_node));
-      }
-
-      if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
-        for specifier in &import_decl.specifiers {
-          let reexport = match specifier {
-            ImportSpecifier::Named(named_specifier) => Reexport {
-              kind: ReexportKind::Named(
-                named_specifier.local.sym.to_string(),
-                named_specifier
-                  .imported
-                  .as_ref()
-                  .map(|ident| ident.sym.to_string()),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-            ImportSpecifier::Default(default_specifier) => Reexport {
-              kind: ReexportKind::Named(
-                default_specifier.local.sym.to_string(),
-                Some("default".to_string()),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-            ImportSpecifier::Namespace(namespace_specifier) => Reexport {
-              kind: ReexportKind::Namespace(
-                namespace_specifier.local.sym.to_string(),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-          };
-
-          let name = match reexport.kind {
-            ReexportKind::Named(name, _) => name,
-            ReexportKind::Namespace(name) => name,
-            _ => unreachable!(),
-          };
-
-          symbols.insert(name, Symbol::Reexport(reexport));
-        }
+        symbols.insert(doc_node.name.clone(), doc_node);
       }
     }
 
     symbols
+  }
+
+  pub fn get_doc_nodes_for_module_body(
+    &self,
+    module_body: Vec<swc_ecmascript::ast::ModuleItem>,
+  ) -> Vec<DocNode> {
+    let symbols = self.get_symbols_for_module_body(module_body.clone());
+
+    let mut doc_entries: Vec<DocNode> = Vec::new();
+
+    for node in module_body.iter() {
+      match node {
+        ModuleItem::Stmt(stmt) => {
+          if let Stmt::Decl(decl) = stmt {
+            if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
+              let is_declared = self.get_declare_for_decl(decl);
+              // FIXME(#57): declarations should only be added if this is ambient.
+              if is_declared || self.private {
+                doc_entries.push(doc_node);
+              }
+            }
+          }
+        }
+
+        ModuleItem::ModuleDecl(module_decl) => {
+          doc_entries
+            .extend(self.get_doc_nodes_for_module_exports(module_decl));
+
+          match module_decl {
+            ModuleDecl::ExportNamed(export_named) => {
+              for specifier in &export_named.specifiers {
+                match specifier {
+                  ExportSpecifier::Named(named_specifier) => {
+                    let symbol = named_specifier.orig.sym.to_string();
+                    if let Some(doc_node) = symbols.get(&symbol) {
+                      let mut doc_node = doc_node.clone();
+                      if let Some(exported) = &named_specifier.exported {
+                        doc_node.name = exported.sym.to_string()
+                      }
+                      doc_entries.push(doc_node)
+                    }
+                  }
+                  // TODO(zhmushan)
+                  ExportSpecifier::Default(_default_specifier) => {}
+                  ExportSpecifier::Namespace(_namespace_specifier) => {}
+                }
+              }
+            }
+            ModuleDecl::ExportDefaultExpr(export_expr) => {
+              if let Expr::Ident(ident) = export_expr.expr.as_ref() {
+                if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
+                  doc_entries.push(DocNode {
+                    name: String::from("default"),
+                    ..doc_node.clone()
+                  });
+                }
+              }
+            }
+            _ => {}
+          }
+        }
+      }
+    }
+
+    doc_entries
   }
 
   pub fn js_doc_for_span(&self, span: Span) -> Option<String> {
