@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.1.16"
+version = "0.1.17"
 dependencies = [
  "clap",
  "futures",
