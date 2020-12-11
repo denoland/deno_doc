@@ -101,14 +101,11 @@ impl DocParser {
     syntax: Syntax,
     source_code: &str,
   ) -> Result<ModuleDoc, DocError> {
-    let module =
-      self
-        .ast_parser
-        .parse_module(file_name, syntax, source_code)?;
-
+    let parse_result =
+      self.ast_parser.parse_module(file_name, syntax, source_code);
+    let module = parse_result?;
     let doc_entries = self.get_doc_nodes_for_module_body(module.body.clone());
     let reexports = self.get_reexports_for_module_body(module.body);
-
     let module_doc = ModuleDoc {
       definitions: doc_entries,
       reexports,
