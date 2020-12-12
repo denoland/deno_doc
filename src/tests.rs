@@ -193,7 +193,14 @@ export function fooFn(a: number) {
       },
       "jsDoc": "JSDoc for const",
       "variableDef": {
-        "tsType": null,
+        "tsType": {
+          "repr": "foo",
+          "kind": "literal",
+          "literal": {
+            "kind": "string",
+            "string": "foo"
+          }
+        },
         "kind": "const"
       }
     },
@@ -418,7 +425,14 @@ declare namespace RootNs {
           },
           "jsDoc": null,
           "variableDef": {
-            "tsType": null,
+            "tsType": {
+              "repr": "a",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "a"
+              }
+            },
             "kind": "const"
           }
         },
@@ -720,6 +734,14 @@ export const env: {
   /** set doc */
   set(key: string, value: string): void;
 }
+
+export const num = 100;
+export const bool = false;
+export const bigint = 123n;
+export const regex = /hello/;
+export const date = new Date();
+export const tpl1 = `foo`;
+export const tpl2 = `Value: ${num}`;
     "#;
   [
   {
@@ -732,7 +754,14 @@ export const env: {
     },
     "jsDoc":"Something about fizzBuzz",
     "variableDef":{
-      "tsType":null,
+      "tsType": {
+        "repr": "fizzBuzz",
+        "kind": "literal",
+        "literal": {
+          "kind": "string",
+          "string": "fizzBuzz"
+        }
+      },
       "kind":"const"
     }
   },
@@ -819,6 +848,293 @@ export const env: {
           }
         },
         "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"num",
+      "location": {
+        "filename":"test.ts",
+        "line":13,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr":"100",
+          "kind":"literal",
+          "literal":{
+            "kind":"number",
+            "number":100.0
+          }
+        },
+        "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"bool",
+      "location":{
+        "filename":"test.ts",
+        "line":14,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr":"false",
+          "kind":"literal",
+          "literal":{
+            "kind":"boolean",
+            "boolean":false
+          }
+        },
+        "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"bigint",
+      "location":{
+        "filename":"test.ts",
+        "line":15,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr":"123",
+          "kind":"literal",
+          "literal":{
+            "kind":"bigInt",
+            "string":"123"
+          }
+        },
+        "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"regex",
+      "location":{
+        "filename":"test.ts",
+        "line":16,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr": "hello",
+          "kind":"typeRef",
+          "typeRef":{
+            "typeParams":null,
+            "typeName":"RegExp"
+          }
+        },
+        "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"date",
+      "location":{
+        "filename":"test.ts",
+        "line":17,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr": "Date",
+          "kind":"typeRef",
+          "typeRef":{
+            "typeParams":null,
+            "typeName":"Date"
+          }
+        },
+        "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"tpl1",
+      "location":{
+        "filename":"test.ts",
+        "line":18,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr": "foo",
+          "kind":"literal",
+          "literal":{
+            "kind":"string",
+            "string":"foo"
+          }
+        },
+        "kind":"const"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"tpl2",
+      "location":{
+        "filename":"test.ts",
+        "line":19,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType":{
+          "repr": "string",
+          "kind":"keyword",
+          "keyword":"string"
+        },
+        "kind":"const"
+      }
+    }
+    ]
+  );
+
+  json_test!(export_let,
+    r#"
+export let str = "hello";
+export let num = 100;
+export let bool = false;
+export let dateStr = Date();
+export let regex = RegExp("foobar");
+export let sym = Symbol("baz");
+export let tpl = `foobarbaz`;
+    "#;
+    [
+    {
+      "kind":"variable",
+      "name":"str",
+      "location":{
+        "filename":"test.ts",
+        "line":2,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "hello",
+          "kind": "keyword",
+          "keyword":"string"
+        },
+        "kind":"let"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"num",
+      "location":{
+        "filename":"test.ts",
+        "line":3,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "100",
+          "kind": "keyword",
+          "keyword":"number"
+        },
+        "kind":"let"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"bool",
+      "location":{
+        "filename":"test.ts",
+        "line":4,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "false",
+          "kind": "keyword",
+          "keyword":"boolean"
+        },
+        "kind":"let"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"dateStr",
+      "location":{
+        "filename":"test.ts",
+        "line":5,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "Date",
+          "kind": "keyword",
+          "keyword":"string"
+        },
+        "kind":"let"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"regex",
+      "location":{
+        "filename":"test.ts",
+        "line":6,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "RegExp",
+          "kind": "typeRef",
+          "typeRef":{
+            "typeParams":null,
+            "typeName":"RegExp"
+          }
+        },
+        "kind":"let"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"sym",
+      "location":{
+        "filename":"test.ts",
+        "line":7,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "Symbol",
+          "kind": "keyword",
+          "keyword":"symbol"
+        },
+        "kind":"let"
+      }
+    },
+    {
+      "kind":"variable",
+      "name":"tpl",
+      "location":{
+        "filename":"test.ts",
+        "line":8,
+        "col":0
+      },
+      "jsDoc":null,
+      "variableDef":{
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword":"string"
+        },
+        "kind":"let"
       }
     }
     ]
@@ -1514,7 +1830,14 @@ export namespace RootNs {
           },
           "jsDoc": null,
           "variableDef": {
-            "tsType": null,
+            "tsType": {
+              "repr": "a",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "a"
+              }
+            },
             "kind": "const"
           }
         },
@@ -1580,7 +1903,14 @@ export { hello, say, foo as bar };
       },
       "jsDoc": null,
       "variableDef": {
-        "tsType": null,
+        "tsType": {
+          "repr": "world",
+          "kind": "literal",
+          "literal": {
+            "kind": "string",
+            "string": "world"
+          }
+        },
         "kind": "const"
       }
     },
@@ -2248,5 +2578,49 @@ export namespace Namespace {
   contains_test!(type_generic_alias,
   "export type A<T> = T";
   "type A<T> = T"
+  );
+
+  contains_test!(infer_ts_types,
+    r#"
+    export let s = "hello";
+    export let n = 123;
+    export let b = false;
+    export let bi = 100n;
+    export let re = /hello/;
+    export let tpl = `foobar`;
+    "#;
+    "let s: string",
+    "let n: number",
+    "let b: boolean",
+    "let bi: bigint",
+    "let re: RegExp",
+    "let tpl: string"
+  );
+
+  contains_test!(infer_simple_ts_types,
+    r#"
+export const s = "hello";
+export const n = 123;
+export const b = false;
+export const bi = 100n;
+export const re = /hello/;
+export const tpl = `foobar`;
+export const d = new Date();
+export const s2 = String("foo");
+export const n2 = Number(100);
+export const bi2 = BigInt(123);
+export const sym = Symbol("hello");
+    "#;
+    "const s: \"hello\"",
+    "const n: 123",
+    "const b: false",
+    "const bi: 100",
+    "const re: RegExp",
+    "const tpl: \"foobar\"",
+    "const d: Date",
+    "const s2: string",
+    "const n2: number",
+    "const bi2: bigint",
+    "const sym: symbol"
   );
 }

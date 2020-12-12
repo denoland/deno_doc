@@ -1,8 +1,8 @@
 // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
 use serde::{Deserialize, Serialize};
 
-use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
+use crate::ts_type::{infer_simple_ts_type_from_var_decl, ts_type_ann_to_def};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -31,7 +31,12 @@ pub fn get_doc_for_var_decl(
   };
 
   let variable_def = VariableDef {
-    ts_type: maybe_ts_type,
+    ts_type: maybe_ts_type.or_else(|| {
+      infer_simple_ts_type_from_var_decl(
+        &var_declarator,
+        var_decl.kind == swc_ecmascript::ast::VarDeclKind::Const,
+      )
+    }),
     kind: var_decl.kind,
   };
 
