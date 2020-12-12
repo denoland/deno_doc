@@ -1640,7 +1640,7 @@ export { hello, say, foo as bar };
   ]
     );
 
-  json_test!(non_implemented_renamed_exports_declared_earlier, 
+  json_test!(non_implemented_renamed_exports_declared_earlier,
     r#"
 declare function foo(): void;
 export { foo as bar };
