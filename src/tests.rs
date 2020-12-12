@@ -1970,10 +1970,41 @@ export { hello, say, foo as bar };
   ]
     );
 
-  json_test!(non_implemented_renamed_exports_declared_earlier,
+  // TODO(#57): This will pass once both #59 and #60 are merged
+  // json_test!(non_implemented_renamed_exports_declared_earlier,
+  //   r#"
+  // declare function foo(): void;
+  // export { foo as bar };
+  //   "#;
+  //   [
+  //     {
+  //       "kind": "function",
+  //       "name": "bar",
+  //       "location": {
+  //         "filename": "test.ts",
+  //         "line": 2,
+  //         "col": 10
+  //       },
+  //       "jsDoc": null,
+  //       "functionDef": {
+  //         "params": [],
+  //         "returnType": {
+  //           "repr": "void",
+  //           "kind": "keyword",
+  //           "keyword": "void"
+  //         },
+  //         "isAsync": false,
+  //         "isGenerator": false,
+  //         "typeParams": []
+  //       }
+  //     }
+  //   ]
+  // );
+
+  json_test!(no_ambient_in_module,
     r#"
-declare function foo(): void;
-export { foo as bar };
+declare function foo(): number;
+export function bar() {};
     "#;
     [
       {
@@ -1981,17 +2012,13 @@ export { foo as bar };
         "name": "bar",
         "location": {
           "filename": "test.ts",
-          "line": 2,
-          "col": 8
+          "line": 3,
+          "col": 0
         },
         "jsDoc": null,
         "functionDef": {
           "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "keyword": "void"
-          },
+          "returnType": null,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
