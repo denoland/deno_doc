@@ -972,9 +972,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3110a752791f7c5f0cce84b6d0a088c79e08571cab6365c509fc5b244d66242e"
+checksum = "498cdc72a4ef3d032c98552ea617829ff2c5f5583770369fb0e85edb70e6297a"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
