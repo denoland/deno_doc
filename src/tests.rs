@@ -421,7 +421,7 @@ declare namespace RootNs {
           "location": {
             "filename": "test.ts",
             "line": 4,
-            "col": 12
+            "col": 4
           },
           "jsDoc": null,
           "variableDef": {
