@@ -17,6 +17,7 @@ use crate::swc_util;
 use crate::ImportDef;
 use crate::Location;
 use futures::Future;
+use futures::FutureExt;
 use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
@@ -140,7 +141,9 @@ impl DocParser {
 
     for specifier in by_src.keys() {
       let resolved_specifier = self.loader.resolve(specifier, referrer)?;
-      let doc_nodes = self.parse(&resolved_specifier, syntax).await?;
+      let doc_nodes = self
+        .parse_with_reexports(&resolved_specifier, syntax)
+        .await?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
@@ -197,26 +200,29 @@ impl DocParser {
     Ok(processed_reexports)
   }
 
-  pub async fn parse_with_reexports(
-    &self,
-    file_name: &str,
+  pub fn parse_with_reexports<'a>(
+    &'a self,
+    file_name: &'a str,
     syntax: Syntax,
-  ) -> Result<Vec<DocNode>, DocError> {
-    let source_code = self.loader.load_source_code(file_name).await?;
+  ) -> Pin<Box<dyn Future<Output = Result<Vec<DocNode>, DocError>> + 'a>> {
+    async move {
+      let source_code = self.loader.load_source_code(file_name).await?;
 
-    let module_doc = self.parse_module(file_name, syntax, &source_code)?;
+      let module_doc = self.parse_module(file_name, syntax, &source_code)?;
 
-    let flattened_docs = if !module_doc.reexports.is_empty() {
-      let mut flattenned_reexports = self
-        .flatten_reexports(&module_doc.reexports, file_name, syntax)
-        .await?;
-      flattenned_reexports.extend(module_doc.definitions);
-      flattenned_reexports
-    } else {
-      module_doc.definitions
-    };
+      let flattened_docs = if !module_doc.reexports.is_empty() {
+        let mut flattenned_reexports = self
+          .flatten_reexports(&module_doc.reexports, file_name, syntax)
+          .await?;
+        flattenned_reexports.extend(module_doc.definitions);
+        flattenned_reexports
+      } else {
+        module_doc.definitions
+      };
 
-    Ok(flattened_docs)
+      Ok(flattened_docs)
+    }
+    .boxed_local()
   }
 
   fn get_doc_nodes_for_module_imports(

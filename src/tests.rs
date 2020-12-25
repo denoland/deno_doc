@@ -332,6 +332,54 @@ export { Hello } from "./reexport.ts";
 }
 
 #[tokio::test]
+async fn deep_reexports() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let bar_source_code = r#"export * from "./foo.ts""#;
+  let baz_source_code = r#"export * from "./bar.ts""#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
+    ("file:///bar.ts".to_string(), bar_source_code.to_string()),
+    ("file:///baz.ts".to_string(), baz_source_code.to_string()),
+  ]);
+  let entries = DocParser::new(loader, false)
+    .parse_with_reexports(
+      "file:///baz.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 1);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    }
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+
+  assert!(DocPrinter::new(&entries, false, false)
+    .to_string()
+    .contains("const foo"))
+}
+
+#[tokio::test]
 async fn filter_nodes_by_name() {
   use crate::find_nodes_by_name_recursively;
   let source_code = r#"
