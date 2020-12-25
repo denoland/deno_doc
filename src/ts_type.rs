@@ -9,11 +9,12 @@ use crate::ParamDef;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use swc_ecmascript::ast::{
-  TsArrayType, TsConditionalType, TsExprWithTypeArgs, TsFnOrConstructorType,
-  TsIndexedAccessType, TsKeywordType, TsLit, TsLitType, TsOptionalType,
-  TsParenthesizedType, TsRestType, TsThisType, TsTupleType, TsType, TsTypeAnn,
-  TsTypeLit, TsTypeOperator, TsTypeParamInstantiation, TsTypeQuery, TsTypeRef,
-  TsUnionOrIntersectionType,
+  BigInt, Bool, CallExpr, Expr, ExprOrSuper, Lit, NewExpr, Number, Str, Tpl,
+  TplElement, TsArrayType, TsConditionalType, TsExprWithTypeArgs,
+  TsFnOrConstructorType, TsIndexedAccessType, TsKeywordType, TsLit, TsLitType,
+  TsOptionalType, TsParenthesizedType, TsRestType, TsThisType, TsTupleType,
+  TsType, TsTypeAnn, TsTypeLit, TsTypeOperator, TsTypeParamInstantiation,
+  TsTypeQuery, TsTypeRef, TsUnionOrIntersectionType, VarDeclarator,
 };
 
 // pub enum TsType {
@@ -41,65 +42,12 @@ use swc_ecmascript::ast::{
 
 impl Into<TsTypeDef> for &TsLitType {
   fn into(self) -> TsTypeDef {
-    let (repr, lit) = match &self.lit {
-      TsLit::Number(num) => (
-        format!("{}", num.value),
-        LiteralDef {
-          kind: LiteralDefKind::Number,
-          number: Some(num.value),
-          string: None,
-          boolean: None,
-        },
-      ),
-      TsLit::Str(str_) => (
-        str_.value.to_string(),
-        LiteralDef {
-          kind: LiteralDefKind::String,
-          number: None,
-          string: Some(str_.value.to_string()),
-          boolean: None,
-        },
-      ),
-      TsLit::Tpl(tpl) => {
-        // A template literal in a type is not allowed to have
-        // expressions, so there will only be one quasi.
-        let quasi = tpl.quasis.get(0).expect("Expected tpl to have a quasi.");
-        let text = quasi.raw.value.to_string();
-        (
-          text.clone(),
-          LiteralDef {
-            kind: LiteralDefKind::String, // semantically the same
-            number: None,
-            string: Some(text),
-            boolean: None,
-          },
-        )
-      }
-      TsLit::Bool(bool_) => (
-        bool_.value.to_string(),
-        LiteralDef {
-          kind: LiteralDefKind::Boolean,
-          number: None,
-          string: None,
-          boolean: Some(bool_.value),
-        },
-      ),
-      TsLit::BigInt(bigint_) => (
-        bigint_.value.to_string(),
-        LiteralDef {
-          kind: LiteralDefKind::BigInt,
-          number: None,
-          string: Some(bigint_.value.to_string()),
-          boolean: None,
-        },
-      ),
-    };
-
-    TsTypeDef {
-      repr,
-      kind: Some(TsTypeDefKind::Literal),
-      literal: Some(lit),
-      ..Default::default()
+    match &self.lit {
+      TsLit::Number(num) => (TsTypeDef::number_literal(num)),
+      TsLit::Str(str_) => (TsTypeDef::string_literal(str_)),
+      TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(&tpl.quasis),
+      TsLit::Bool(bool_) => (TsTypeDef::bool_literal(bool_)),
+      TsLit::BigInt(bigint_) => (TsTypeDef::bigint_literal(bigint_)),
     }
   }
 }
@@ -193,12 +141,7 @@ impl Into<TsTypeDef> for &TsKeywordType {
       TsIntrinsicKeyword => "intrinsic",
     };
 
-    TsTypeDef {
-      repr: keyword_str.to_string(),
-      kind: Some(TsTypeDefKind::Keyword),
-      keyword: Some(keyword_str.to_string()),
-      ..Default::default()
-    }
+    TsTypeDef::keyword(keyword_str)
   }
 }
 
@@ -837,6 +780,117 @@ pub struct TsTypeDef {
   pub type_literal: Option<TsTypeLiteralDef>,
 }
 
+impl TsTypeDef {
+  pub fn number_literal(num: &Number) -> TsTypeDef {
+    let repr = format!("{}", num.value);
+    let lit = LiteralDef {
+      kind: LiteralDefKind::Number,
+      number: Some(num.value),
+      string: None,
+      boolean: None,
+    };
+    Self::literal(repr, lit)
+  }
+
+  pub fn string_literal(str_: &Str) -> TsTypeDef {
+    let repr = str_.value.to_string();
+    let lit = LiteralDef {
+      kind: LiteralDefKind::String,
+      number: None,
+      string: Some(str_.value.to_string()),
+      boolean: None,
+    };
+    Self::literal(repr, lit)
+  }
+
+  pub fn tpl_literal(quasis: &[TplElement]) -> TsTypeDef {
+    // A template literal in a type is not allowed to have
+    // expressions, so there will only be one quasi.
+    let quasi = quasis.get(0).expect("Expected tpl to have a quasi.");
+    let text = quasi.raw.value.to_string();
+    let repr = text.clone();
+    let lit = LiteralDef {
+      kind: LiteralDefKind::String, // semantically the same
+      number: None,
+      string: Some(text),
+      boolean: None,
+    };
+    Self::literal(repr, lit)
+  }
+
+  pub fn bool_literal(bool_: &Bool) -> TsTypeDef {
+    let repr = bool_.value.to_string();
+    let lit = LiteralDef {
+      kind: LiteralDefKind::Boolean,
+      number: None,
+      string: None,
+      boolean: Some(bool_.value),
+    };
+    Self::literal(repr, lit)
+  }
+
+  pub fn bigint_literal(bigint_: &BigInt) -> TsTypeDef {
+    let repr = bigint_.value.to_string();
+    let lit = LiteralDef {
+      kind: LiteralDefKind::BigInt,
+      number: None,
+      string: Some(bigint_.value.to_string()),
+      boolean: None,
+    };
+    Self::literal(repr, lit)
+  }
+
+  pub fn regexp(repr: String) -> TsTypeDef {
+    TsTypeDef {
+      repr,
+      kind: Some(TsTypeDefKind::TypeRef),
+      type_ref: Some(TsTypeRefDef {
+        type_params: None,
+        type_name: "RegExp".to_string(),
+      }),
+      ..Default::default()
+    }
+  }
+
+  pub fn keyword(keyword_str: &str) -> TsTypeDef {
+    Self::keyword_with_repr(keyword_str, keyword_str)
+  }
+
+  pub fn number_with_repr(repr: &str) -> TsTypeDef {
+    Self::keyword_with_repr("number", repr)
+  }
+
+  pub fn string_with_repr(repr: &str) -> TsTypeDef {
+    Self::keyword_with_repr("string", repr)
+  }
+
+  pub fn bool_with_repr(repr: &str) -> TsTypeDef {
+    Self::keyword_with_repr("boolean", repr)
+  }
+
+  pub fn bigint_with_repr(repr: &str) -> TsTypeDef {
+    Self::keyword_with_repr("bigint", repr)
+  }
+
+  pub fn keyword_with_repr(keyword_str: &str, repr: &str) -> TsTypeDef {
+    TsTypeDef {
+      repr: repr.to_string(),
+      kind: Some(TsTypeDefKind::Keyword),
+      keyword: Some(keyword_str.to_string()),
+      ..Default::default()
+    }
+  }
+
+  fn literal(repr: String, lit: LiteralDef) -> TsTypeDef {
+    TsTypeDef {
+      repr,
+      kind: Some(TsTypeDefKind::Literal),
+      literal: Some(lit),
+      ..Default::default()
+    }
+  }
+}
+
 pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
   use swc_ecmascript::ast::TsType::*;
 
@@ -861,6 +915,125 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
       repr: "<TODO>".to_string(),
       ..Default::default()
     },
+  }
+}
+
+pub fn infer_simple_ts_type_from_var_decl(
+  decl: &VarDeclarator,
+  is_const: bool,
+) -> Option<TsTypeDef> {
+  if let Some(init_expr) = &decl.init {
+    match init_expr.as_ref() {
+      Expr::Lit(lit) => {
+        // e.g.) const n = 100;
+        infer_ts_type_from_lit(&lit, is_const)
+      }
+      Expr::New(expr) => {
+        // e.g.) const d = new Date()
+        infer_ts_type_from_new_expr(expr)
+      }
+      Expr::Tpl(tpl) => {
+        // e.g.) const s = `hello`;
+        infer_ts_type_from_tpl(tpl, is_const)
+      }
+      Expr::Call(expr) => {
+        // e.g.) const value = Number(123);
+        infer_ts_type_from_call_expr(expr)
+      }
+      _ => None,
+    }
+  } else {
+    None
+  }
+}
+
+fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
+  match lit {
+    Lit::Num(num) => {
+      if is_const {
+        Some(TsTypeDef::number_literal(num))
+      } else {
+        let repr = format!("{}", num.value);
+        Some(TsTypeDef::number_with_repr(&repr))
+      }
+    }
+    Lit::Str(str_) => {
+      if is_const {
+        Some(TsTypeDef::string_literal(str_))
+      } else {
+        let repr = str_.value.to_string();
+        Some(TsTypeDef::string_with_repr(&repr))
+      }
+    }
+    Lit::Bool(bool_) => {
+      if is_const {
+        Some(TsTypeDef::bool_literal(bool_))
+      } else {
+        let repr = bool_.value.to_string();
+        Some(TsTypeDef::bool_with_repr(&repr))
+      }
+    }
+    Lit::BigInt(bigint_) => {
+      if is_const {
+        Some(TsTypeDef::bigint_literal(bigint_))
+      } else {
+        let repr = bigint_.value.to_string();
+        Some(TsTypeDef::bigint_with_repr(&repr))
+      }
+    }
+    Lit::Regex(regex) => Some(TsTypeDef::regexp(regex.exp.to_string())),
+    _ => None,
+  }
+}
+
+fn infer_ts_type_from_new_expr(new_expr: &NewExpr) -> Option<TsTypeDef> {
+  match new_expr.callee.as_ref() {
+    Expr::Ident(ident) => Some(TsTypeDef {
+      repr: ident.sym.to_string(),
+      kind: Some(TsTypeDefKind::TypeRef),
+      type_ref: Some(TsTypeRefDef {
+        type_params: None,
+        type_name: ident.sym.to_string(),
+      }),
+      ..Default::default()
+    }),
+    _ => None,
+  }
+}
+
+fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
+  match &call_expr.callee {
+    ExprOrSuper::Expr(expr) => {
+      if let Expr::Ident(ident) = expr.as_ref() {
+        let sym = ident.sym.to_string();
+        match sym.as_str() {
+          "Symbol" | "Number" | "String" | "BigInt" => {
+            Some(TsTypeDef::keyword_with_repr(
+              &sym.to_ascii_lowercase(),
+              &sym.clone(),
+            ))
+          }
+          "Date" => Some(TsTypeDef::string_with_repr(&sym)),
+          "RegExp" => Some(TsTypeDef::regexp(sym)),
+          _ => None,
+        }
+      } else {
+        None
+      }
+    }
+    _ => None,
+  }
+}
+
+fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> Option<TsTypeDef> {
+  if tpl.quasis.len() == 1 && is_const {
+    // If no placeholder is present, the type can be inferred.
+    //   e.g.) const tpl = `Hello world!`; // tpl has the type of `"Hello world!"`.
+    Some(TsTypeDef::tpl_literal(&tpl.quasis))
+  } else {
+    // If placeholders are present, the type cannot be inferred.
+    //   e.g.) const tpl = `Hello ${name}!`; // tpl has the type of `string`.
+    Some(TsTypeDef::string_with_repr("string"))
   }
 }
 
