@@ -3,12 +3,15 @@ use crate::colors;
 use crate::display::{display_optional, display_readonly, SliceDisplayer};
 use serde::{Deserialize, Serialize};
 
+use crate::function::FunctionDef;
 use crate::params::ts_fn_param_to_param_def;
 use crate::parser::DocParser;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::variable::VariableDef;
+use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 
@@ -24,6 +27,23 @@ pub struct InterfaceMethodDef {
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
+}
+
+impl Into<DocNode> for InterfaceMethodDef {
+  fn into(self) -> DocNode {
+    DocNode::function(
+      self.name,
+      self.location,
+      self.js_doc,
+      FunctionDef {
+        params: self.params,
+        return_type: self.return_type,
+        is_async: false,
+        is_generator: false,
+        type_params: self.type_params,
+      },
+    )
+  }
 }
 
 impl Display for InterfaceMethodDef {
@@ -53,6 +73,20 @@ pub struct InterfacePropertyDef {
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
+}
+
+impl Into<DocNode> for InterfacePropertyDef {
+  fn into(self) -> DocNode {
+    DocNode::variable(
+      self.name,
+      self.location,
+      self.js_doc,
+      VariableDef {
+        ts_type: self.ts_type,
+        kind: swc_ecmascript::ast::VarDeclKind::Const,
+      },
+    )
+  }
 }
 
 impl Display for InterfacePropertyDef {

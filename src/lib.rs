@@ -57,8 +57,11 @@ pub fn find_nodes_by_name_recursively(
   match leftover {
     Some(leftover) => {
       for node in doc_nodes {
-        let children = find_children_by_name(node, leftover.to_string());
-        found.extend(children);
+        let children = get_children_of_node(node);
+        found.extend(find_nodes_by_name_recursively(
+          children,
+          leftover.to_string(),
+        ));
       }
       found
     }
@@ -76,13 +79,34 @@ fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: String) -> Vec<DocNode> {
   found
 }
 
-fn find_children_by_name(node: DocNode, name: String) -> Vec<DocNode> {
+fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
   match node.kind {
     DocNodeKind::Namespace => {
       let namespace_def = node.namespace_def.unwrap();
-      find_nodes_by_name_recursively(namespace_def.elements, name)
+      namespace_def.elements
     }
-    // TODO(#4516) handle class, interface etc...
+    DocNodeKind::Interface => {
+      let interface_def = node.interface_def.unwrap();
+      let mut doc_nodes: Vec<DocNode> = vec![];
+      for method in interface_def.methods {
+        doc_nodes.push(method.into());
+      }
+      for property in interface_def.properties {
+        doc_nodes.push(property.into());
+      }
+      doc_nodes
+    }
+    DocNodeKind::Class => {
+      let class_def = node.class_def.unwrap();
+      let mut doc_nodes: Vec<DocNode> = vec![];
+      for method in class_def.methods {
+        doc_nodes.push(method.into());
+      }
+      for property in class_def.properties {
+        doc_nodes.push(property.into());
+      }
+      doc_nodes
+    }
     _ => vec![],
   }
 }

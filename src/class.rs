@@ -21,6 +21,8 @@ use crate::ts_type::{
 };
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::variable::VariableDef;
+use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 
@@ -60,6 +62,20 @@ pub struct ClassPropertyDef {
   pub is_static: bool,
   pub name: String,
   pub location: Location,
+}
+
+impl Into<DocNode> for ClassPropertyDef {
+  fn into(self) -> DocNode {
+    DocNode::variable(
+      self.name,
+      self.location,
+      self.js_doc,
+      VariableDef {
+        ts_type: self.ts_type,
+        kind: swc_ecmascript::ast::VarDeclKind::Const,
+      },
+    )
+  }
 }
 
 impl Display for ClassPropertyDef {
@@ -116,6 +132,12 @@ pub struct ClassMethodDef {
   pub kind: swc_ecmascript::ast::MethodKind,
   pub function_def: FunctionDef,
   pub location: Location,
+}
+
+impl Into<DocNode> for ClassMethodDef {
+  fn into(self) -> DocNode {
+    DocNode::function(self.name, self.location, self.js_doc, self.function_def)
+  }
 }
 
 impl Display for ClassMethodDef {
