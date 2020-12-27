@@ -1,6 +1,6 @@
 use clap::{App, Arg};
 use deno_doc::parser::DocFileLoader;
-use deno_doc::{DocError, DocNodeKind, DocParser, DocPrinter};
+use deno_doc::{DocError, DocNodeKind, DocParser, DocPrinter, find_nodes_by_name_recursively};
 use futures::executor::block_on;
 use futures::FutureExt;
 use std::env::current_dir;
@@ -50,9 +50,11 @@ impl DocFileLoader for SourceFileFetcher {
 fn main() {
   let matches = App::new("ddoc")
     .arg(Arg::with_name("source_file").required(true))
+    .arg(Arg::with_name("filter"))
     .get_matches();
 
   let source_file = matches.value_of("source_file").unwrap();
+  let maybe_filter = matches.value_of("filter");
   let source_file = Url::from_directory_path(current_dir().unwrap())
     .unwrap()
     .join(source_file)
@@ -77,6 +79,9 @@ fn main() {
     };
 
     doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
+    if let Some(filter) = maybe_filter {
+        doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
+    }
     let result = DocPrinter::new(&doc_nodes, true, false);
     println!("{}", result);
   };
