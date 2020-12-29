@@ -475,7 +475,7 @@ export namespace Deno {
   assert_eq!(found[0].name, "output".to_string());
   assert_eq!(found[0].kind, DocNodeKind::Function);
 
-  // Not found
+  // No match
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.test.a".to_string());
   assert_eq!(found.len(), 0);
