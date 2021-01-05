@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.1.19"
+version = "0.1.20"
 dependencies = [
  "clap",
  "futures",
@@ -890,9 +890,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.10.7"
+version = "0.10.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96d63837c3d3d226ec338338a8fc32c6c8aabefd0c4d32e6b0bcd1ed991c6963"
+checksum = "ae0750e2b492550c8b90e7547bc060d10bc2c5476f36cce039fe8fad71aa086d"
 dependencies = [
  "ast_node",
  "cfg-if 0.1.10",
@@ -900,10 +900,13 @@ dependencies = [
  "from_variant",
  "fxhash",
  "log",
+ "num-bigint",
  "once_cell",
  "owning_ref",
  "scoped-tls",
  "serde",
+ "string_cache",
+ "swc_eq_ignore_macros",
  "swc_visit",
  "unicode-width",
 ]
@@ -972,12 +975,24 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.16.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22a63164105d73e729bc426f6982571d800f3e14770c848a7ee0f6e8a8d821a8"
+checksum = "ab54fd9535fe42b73e6409b360b10472dcfa7239aa22a7da75ab664d3105ab83"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
+]
+
+[[package]]
+name = "swc_eq_ignore_macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c8f200a2eaed938e7c1a685faaa66e6d42fa9e17da5f62572d3cbc335898f5e"
+dependencies = [
+ "pmutil",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
