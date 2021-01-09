@@ -100,6 +100,23 @@ impl DocParser {
     Ok(module_doc)
   }
 
+  pub fn parse_ast(
+    &self,
+    file_name: &str,
+    ast: &swc_ecmascript::ast::Module,
+  ) -> Result<ModuleDoc, DocError> {
+    let mut doc_entries = self.get_doc_nodes_for_module_body(ast.body.clone());
+    let import_doc_entries =
+      self.get_doc_nodes_for_module_imports(ast.body.clone(), file_name)?;
+    doc_entries.extend(import_doc_entries);
+    let reexports = self.get_reexports_for_module_body(ast.body.clone());
+    let module_doc = ModuleDoc {
+      definitions: doc_entries,
+      reexports,
+    };
+    Ok(module_doc)
+  }
+
   pub async fn parse(
     &self,
     file_name: &str,
