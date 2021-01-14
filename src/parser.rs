@@ -1,4 +1,4 @@
-// Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::swc_util::AstParser;
 use swc_common::comments::CommentKind;
 use swc_common::Span;
