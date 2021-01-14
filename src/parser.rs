@@ -18,7 +18,6 @@ use crate::node;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util;
-use crate::DocNodeKind;
 use crate::Location;
 use futures::Future;
 use futures::FutureExt;
@@ -427,8 +426,8 @@ impl DocParser {
                   },
                   ExportSpecifier::Default(specifier) => node::Reexport {
                     kind: node::ReexportKind::Named(
-                      specifier.exported.sym.to_string(),
-                      Some("default".to_string()),
+                      "default".to_string(),
+                      Some(specifier.exported.sym.to_string()),
                     ),
                     src: src_str.to_string(),
                   },
