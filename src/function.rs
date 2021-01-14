@@ -1,4 +1,4 @@
-// Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
+// Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
 use crate::params::pat_to_param_def;
 use crate::parser::DocParser;
 use crate::ts_type::ts_type_ann_to_def;
