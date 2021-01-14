@@ -1,4 +1,4 @@
-// Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
@@ -25,10 +25,11 @@ use swc_ecmascript::parser::TsConfig;
 
 #[cfg(test)]
 pub fn get_default_ts_config() -> TsConfig {
-  let mut ts_config = TsConfig::default();
-  ts_config.dynamic_import = true;
-  ts_config.decorators = true;
-  ts_config
+  TsConfig {
+    dynamic_import: true,
+    decorators: true,
+    ..Default::default()
+  }
 }
 
 #[derive(Clone, Debug)]
