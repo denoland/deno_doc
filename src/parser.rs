@@ -1,11 +1,15 @@
-// Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::swc_util::AstParser;
+use crate::ReexportKind;
 use swc_common::comments::CommentKind;
 use swc_common::Span;
 use swc_ecmascript::ast::Decl;
 use swc_ecmascript::ast::DefaultDecl;
 use swc_ecmascript::ast::ExportSpecifier;
+use swc_ecmascript::ast::Expr;
+use swc_ecmascript::ast::ImportSpecifier;
 use swc_ecmascript::ast::ModuleDecl;
+use swc_ecmascript::ast::ModuleItem;
 use swc_ecmascript::ast::Stmt;
 use swc_ecmascript::parser::Syntax;
 
@@ -14,10 +18,10 @@ use crate::node;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util;
-use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
 use futures::Future;
+use futures::FutureExt;
 use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
@@ -63,6 +67,18 @@ pub trait DocFileLoader {
   ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>>;
 }
 
+#[derive(Clone)]
+enum ImportKind {
+  Namespace(String),
+  Named(String, Option<String>),
+}
+
+#[derive(Clone)]
+struct Import {
+  src: String,
+  kind: ImportKind,
+}
+
 pub struct DocParser {
   pub ast_parser: AstParser,
   pub loader: Box<dyn DocFileLoader>,
@@ -78,6 +94,8 @@ impl DocParser {
     }
   }
 
+  /// Parses a module into a list of exported items,
+  /// as well as a list of reexported items which need to be fetched from other modules.
   pub fn parse_module(
     &self,
     file_name: &str,
@@ -100,6 +118,7 @@ impl DocParser {
     Ok(module_doc)
   }
 
+  /// Fetches `file_name` and parses it.
   pub async fn parse(
     &self,
     file_name: &str,
@@ -110,6 +129,7 @@ impl DocParser {
     self.parse_source(file_name, syntax, source_code.as_str())
   }
 
+  /// Parses a module and returns a list of exported items (no reexports).
   pub fn parse_source(
     &self,
     file_name: &str,
@@ -141,7 +161,9 @@ impl DocParser {
 
     for specifier in by_src.keys() {
       let resolved_specifier = self.loader.resolve(specifier, referrer)?;
-      let doc_nodes = self.parse(&resolved_specifier, syntax).await?;
+      let doc_nodes = self
+        .parse_with_reexports(&resolved_specifier, syntax)
+        .await?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
@@ -153,24 +175,16 @@ impl DocParser {
             let ns_def = NamespaceDef {
               elements: doc_nodes.clone(),
             };
-            let ns_doc_node = DocNode {
-              kind: DocNodeKind::Namespace,
-              name: ns_name.to_string(),
-              location: Location {
+            let ns_doc_node = DocNode::namespace(
+              ns_name.to_string(),
+              Location {
                 filename: specifier.to_string(),
                 line: 1,
                 col: 0,
               },
-              js_doc: None,
-              namespace_def: Some(ns_def),
-              enum_def: None,
-              type_alias_def: None,
-              interface_def: None,
-              variable_def: None,
-              function_def: None,
-              class_def: None,
-              import_def: None,
-            };
+              None,
+              ns_def,
+            );
             processed_reexports.push(ns_doc_node);
           }
           node::ReexportKind::Named(ident, maybe_alias) => {
@@ -196,9 +210,6 @@ impl DocParser {
               processed_reexports.push(doc_node);
             }
           }
-          node::ReexportKind::Default => {
-            // TODO: handle default export from child module
-          }
         }
       }
     }
@@ -206,26 +217,30 @@ impl DocParser {
     Ok(processed_reexports)
   }
 
-  pub async fn parse_with_reexports(
-    &self,
-    file_name: &str,
+  /// Fetches `file_name`, parses it, and resolves its reexports.
+  pub fn parse_with_reexports<'a>(
+    &'a self,
+    file_name: &'a str,
     syntax: Syntax,
-  ) -> Result<Vec<DocNode>, DocError> {
-    let source_code = self.loader.load_source_code(file_name).await?;
+  ) -> Pin<Box<dyn Future<Output = Result<Vec<DocNode>, DocError>> + 'a>> {
+    async move {
+      let source_code = self.loader.load_source_code(file_name).await?;
 
-    let module_doc = self.parse_module(file_name, syntax, &source_code)?;
+      let module_doc = self.parse_module(file_name, syntax, &source_code)?;
 
-    let flattened_docs = if !module_doc.reexports.is_empty() {
-      let mut flattenned_reexports = self
-        .flatten_reexports(&module_doc.reexports, file_name, syntax)
-        .await?;
-      flattenned_reexports.extend(module_doc.definitions);
-      flattenned_reexports
-    } else {
-      module_doc.definitions
-    };
+      let flattened_docs = if !module_doc.reexports.is_empty() {
+        let mut flattenned_reexports = self
+          .flatten_reexports(&module_doc.reexports, file_name, syntax)
+          .await?;
+        flattenned_reexports.extend(module_doc.definitions);
+        flattenned_reexports
+      } else {
+        module_doc.definitions
+      };
 
-    Ok(flattened_docs)
+      Ok(flattened_docs)
+    }
+    .boxed_local()
   }
 
   fn get_doc_nodes_for_module_imports(
@@ -270,20 +285,12 @@ impl DocParser {
               imported: maybe_imported_name,
             };
 
-            let doc_node = DocNode {
-              kind: DocNodeKind::Import,
+            let doc_node = DocNode::import(
               name,
-              location: location.clone(),
-              js_doc: js_doc.clone(),
-              import_def: Some(import_def),
-              class_def: None,
-              function_def: None,
-              variable_def: None,
-              enum_def: None,
-              type_alias_def: None,
-              namespace_def: None,
-              interface_def: None,
-            };
+              location.clone(),
+              js_doc.clone(),
+              import_def,
+            );
 
             imports.push(doc_node);
           }
@@ -314,40 +321,14 @@ impl DocParser {
           DefaultDecl::Class(class_expr) => {
             let class_def =
               crate::class::class_to_class_def(self, &class_expr.class);
-            DocNode {
-              kind: DocNodeKind::Class,
-              name,
-              location,
-              js_doc,
-              class_def: Some(class_def),
-              function_def: None,
-              variable_def: None,
-              enum_def: None,
-              type_alias_def: None,
-              namespace_def: None,
-              interface_def: None,
-              import_def: None,
-            }
+            DocNode::class(name, location, js_doc, class_def)
           }
           DefaultDecl::Fn(fn_expr) => {
             let function_def = crate::function::function_to_function_def(
               self,
               &fn_expr.function,
             );
-            DocNode {
-              kind: DocNodeKind::Function,
-              name,
-              location,
-              js_doc,
-              class_def: None,
-              function_def: Some(function_def),
-              variable_def: None,
-              enum_def: None,
-              type_alias_def: None,
-              namespace_def: None,
-              interface_def: None,
-              import_def: None,
-            }
+            DocNode::function(name, location, js_doc, function_def)
           }
           DefaultDecl::TsInterfaceDecl(interface_decl) => {
             let (_, interface_def) =
@@ -355,26 +336,12 @@ impl DocParser {
                 self,
                 interface_decl,
               );
-            DocNode {
-              kind: DocNodeKind::Interface,
-              name,
-              location,
-              js_doc,
-              class_def: None,
-              function_def: None,
-              variable_def: None,
-              enum_def: None,
-              type_alias_def: None,
-              namespace_def: None,
-              interface_def: Some(interface_def),
-              import_def: None,
-            }
+            DocNode::interface(name, location, js_doc, interface_def)
           }
         };
 
         vec![doc_node]
       }
-      ModuleDecl::ExportDefaultExpr(_export_default_expr) => vec![],
       _ => vec![],
     }
   }
@@ -391,57 +358,18 @@ impl DocParser {
         let (name, class_def) =
           super::class::get_doc_for_class_decl(self, class_decl);
         let (js_doc, location) = self.details_for_span(class_decl.class.span);
-        Some(DocNode {
-          kind: DocNodeKind::Class,
-          name,
-          location,
-          js_doc,
-          class_def: Some(class_def),
-          function_def: None,
-          variable_def: None,
-          enum_def: None,
-          type_alias_def: None,
-          namespace_def: None,
-          interface_def: None,
-          import_def: None,
-        })
+        Some(DocNode::class(name, location, js_doc, class_def))
       }
       Decl::Fn(fn_decl) => {
         let (name, function_def) =
           super::function::get_doc_for_fn_decl(self, fn_decl);
         let (js_doc, location) = self.details_for_span(fn_decl.function.span);
-        Some(DocNode {
-          kind: DocNodeKind::Function,
-          name,
-          location,
-          js_doc,
-          function_def: Some(function_def),
-          class_def: None,
-          variable_def: None,
-          enum_def: None,
-          type_alias_def: None,
-          namespace_def: None,
-          interface_def: None,
-          import_def: None,
-        })
+        Some(DocNode::function(name, location, js_doc, function_def))
       }
       Decl::Var(var_decl) => {
         let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
         let (js_doc, location) = self.details_for_span(var_decl.span);
-        Some(DocNode {
-          kind: DocNodeKind::Variable,
-          name,
-          location,
-          js_doc,
-          variable_def: Some(var_def),
-          function_def: None,
-          class_def: None,
-          enum_def: None,
-          type_alias_def: None,
-          namespace_def: None,
-          interface_def: None,
-          import_def: None,
-        })
+        Some(DocNode::variable(name, location, js_doc, var_def))
       }
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
@@ -450,20 +378,7 @@ impl DocParser {
             ts_interface_decl,
           );
         let (js_doc, location) = self.details_for_span(ts_interface_decl.span);
-        Some(DocNode {
-          kind: DocNodeKind::Interface,
-          name,
-          location,
-          js_doc,
-          interface_def: Some(interface_def),
-          variable_def: None,
-          function_def: None,
-          class_def: None,
-          enum_def: None,
-          type_alias_def: None,
-          namespace_def: None,
-          import_def: None,
-        })
+        Some(DocNode::interface(name, location, js_doc, interface_def))
       }
       Decl::TsTypeAlias(ts_type_alias) => {
         let (name, type_alias_def) =
@@ -472,69 +387,89 @@ impl DocParser {
             ts_type_alias,
           );
         let (js_doc, location) = self.details_for_span(ts_type_alias.span);
-        Some(DocNode {
-          kind: DocNodeKind::TypeAlias,
-          name,
-          location,
-          js_doc,
-          type_alias_def: Some(type_alias_def),
-          interface_def: None,
-          variable_def: None,
-          function_def: None,
-          class_def: None,
-          enum_def: None,
-          namespace_def: None,
-          import_def: None,
-        })
+        Some(DocNode::type_alias(name, location, js_doc, type_alias_def))
       }
       Decl::TsEnum(ts_enum) => {
         let (name, enum_def) =
           super::r#enum::get_doc_for_ts_enum_decl(self, ts_enum);
         let (js_doc, location) = self.details_for_span(ts_enum.span);
-        Some(DocNode {
-          kind: DocNodeKind::Enum,
-          name,
-          location,
-          js_doc,
-          enum_def: Some(enum_def),
-          type_alias_def: None,
-          interface_def: None,
-          variable_def: None,
-          function_def: None,
-          class_def: None,
-          namespace_def: None,
-          import_def: None,
-        })
+        Some(DocNode::r#enum(name, location, js_doc, enum_def))
       }
       Decl::TsModule(ts_module) => {
         let (name, namespace_def) =
           super::namespace::get_doc_for_ts_module(self, ts_module);
         let (js_doc, location) = self.details_for_span(ts_module.span);
-        Some(DocNode {
-          kind: DocNodeKind::Namespace,
-          name,
-          location,
-          js_doc,
-          namespace_def: Some(namespace_def),
-          enum_def: None,
-          type_alias_def: None,
-          interface_def: None,
-          variable_def: None,
-          function_def: None,
-          class_def: None,
-          import_def: None,
-        })
+        Some(DocNode::namespace(name, location, js_doc, namespace_def))
       }
     }
+  }
+
+  fn get_imports_for_module_body(
+    &self,
+    module_body: &[swc_ecmascript::ast::ModuleItem],
+  ) -> HashMap<String, Import> {
+    let mut imports = HashMap::new();
+
+    for node in module_body.iter() {
+      if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
+        for specifier in &import_decl.specifiers {
+          let import = match specifier {
+            ImportSpecifier::Named(named_specifier) => Import {
+              kind: ImportKind::Named(
+                named_specifier.local.sym.to_string(),
+                named_specifier
+                  .imported
+                  .as_ref()
+                  .map(|ident| ident.sym.to_string()),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+            ImportSpecifier::Default(default_specifier) => Import {
+              kind: ImportKind::Named(
+                default_specifier.local.sym.to_string(),
+                Some("default".to_string()),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+            ImportSpecifier::Namespace(namespace_specifier) => Import {
+              kind: ImportKind::Namespace(
+                namespace_specifier.local.sym.to_string(),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+          };
+
+          let name = match import.kind.clone() {
+            ImportKind::Named(name, _) | ImportKind::Namespace(name) => name,
+          };
+
+          imports.insert(name, import);
+        }
+      }
+    }
+
+    imports
   }
 
   pub fn get_reexports_for_module_body(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<node::Reexport> {
-    use swc_ecmascript::ast::ExportSpecifier::*;
+    let imports = self.get_imports_for_module_body(&module_body);
 
     let mut reexports: Vec<node::Reexport> = vec![];
+
+    if self.private {
+      reexports.extend(imports.values().cloned().map(|import| node::Reexport {
+        src: import.src,
+        kind: match import.kind {
+          ImportKind::Named(orig, exported) => {
+            ReexportKind::Named(orig, exported)
+          }
+          ImportKind::Namespace(name) => ReexportKind::Namespace(name),
+        },
+      }))
+    }
 
     for node in module_body.iter() {
       if let swc_ecmascript::ast::ModuleItem::ModuleDecl(module_decl) = node {
@@ -546,17 +481,20 @@ impl DocParser {
                 .specifiers
                 .iter()
                 .map(|export_specifier| match export_specifier {
-                  Namespace(ns_export) => node::Reexport {
+                  ExportSpecifier::Namespace(ns_export) => node::Reexport {
                     kind: node::ReexportKind::Namespace(
                       ns_export.name.sym.to_string(),
                     ),
                     src: src_str.to_string(),
                   },
-                  Default(_) => node::Reexport {
-                    kind: node::ReexportKind::Default,
+                  ExportSpecifier::Default(specifier) => node::Reexport {
+                    kind: node::ReexportKind::Named(
+                      "default".to_string(),
+                      Some(specifier.exported.sym.to_string()),
+                    ),
                     src: src_str.to_string(),
                   },
-                  Named(named_export) => {
+                  ExportSpecifier::Named(named_export) => {
                     let ident = named_export.orig.sym.to_string();
                     let maybe_alias =
                       named_export.exported.as_ref().map(|e| e.sym.to_string());
@@ -569,7 +507,45 @@ impl DocParser {
                 })
                 .collect::<Vec<node::Reexport>>()
             } else {
-              vec![]
+              named_export
+                .specifiers
+                .iter()
+                .filter_map(|specifier| {
+                  if let ExportSpecifier::Named(specifier) = specifier {
+                    if let Some(import) =
+                      imports.get(&specifier.orig.sym.to_string())
+                    {
+                      // If it has the same name as the original import and private values are exported,
+                      // don't export this again and document the same value twice.
+                      if self.private && specifier.exported.is_none() {
+                        return None;
+                      }
+
+                      let name = specifier
+                        .exported
+                        .as_ref()
+                        .unwrap_or(&specifier.orig)
+                        .sym
+                        .to_string();
+                      Some(node::Reexport {
+                        src: import.src.clone(),
+                        kind: match &import.kind {
+                          ImportKind::Named(orig, _) => {
+                            ReexportKind::Named(orig.clone(), Some(name))
+                          }
+                          ImportKind::Namespace(_) => {
+                            ReexportKind::Namespace(name)
+                          }
+                        },
+                      })
+                    } else {
+                      None
+                    }
+                  } else {
+                    None
+                  }
+                })
+                .collect()
             }
           }
           ModuleDecl::ExportAll(export_all) => {
@@ -589,57 +565,114 @@ impl DocParser {
     reexports
   }
 
+  fn get_symbols_for_module_body(
+    &self,
+    module_body: &[swc_ecmascript::ast::ModuleItem],
+  ) -> HashMap<String, DocNode> {
+    let mut symbols = HashMap::new();
+
+    for node in module_body.iter() {
+      let doc_node = match node {
+        ModuleItem::Stmt(Stmt::Decl(decl)) => self.get_doc_node_for_decl(decl),
+        ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => Some(
+          super::module::get_doc_node_for_export_decl(self, export_decl),
+        ),
+        _ => None,
+      };
+
+      if let Some(doc_node) = doc_node {
+        symbols.insert(doc_node.name.clone(), doc_node);
+      }
+    }
+
+    symbols
+  }
+
   pub fn get_doc_nodes_for_module_body(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
   ) -> Vec<DocNode> {
-    let mut unexported_doc_map: HashMap<String, DocNode> = HashMap::new();
-    let mut doc_entries: Vec<DocNode> = vec![];
-    let mut ambient_entries: Vec<DocNode> = vec![];
+    let symbols = self.get_symbols_for_module_body(&module_body);
+
+    let mut doc_entries: Vec<DocNode> = Vec::new();
+    let mut ambient_entries: Vec<DocNode> = Vec::new();
 
     let mut is_ambient = true;
 
     for node in module_body.iter() {
-      if let swc_ecmascript::ast::ModuleItem::Stmt(stmt) = node {
-        if let Stmt::Decl(decl) = stmt {
-          if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
-            let is_declared = self.get_declare_for_decl(decl);
-            if self.private {
-              doc_entries.push(doc_node);
-            } else if is_declared {
-              ambient_entries.push(doc_node)
-            } else {
-              unexported_doc_map.insert(doc_node.name.clone(), doc_node);
+      match node {
+        ModuleItem::Stmt(stmt) => {
+          if let Stmt::Decl(decl) = stmt {
+            if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
+              let is_declared = self.get_declare_for_decl(decl);
+              if self.private {
+                doc_entries.push(doc_node);
+              } else if is_declared {
+                ambient_entries.push(doc_node)
+              }
             }
           }
         }
-      }
-    }
 
-    for node in module_body.iter() {
-      if let swc_ecmascript::ast::ModuleItem::ModuleDecl(module_decl) = node {
-        // If it has imports/exports, it isn't ambient.
-        is_ambient = false;
+        ModuleItem::ModuleDecl(module_decl) => {
+          // If it has imports/exports, it isn't ambient.
+          is_ambient = false;
 
-        doc_entries.extend(self.get_doc_nodes_for_module_exports(module_decl));
+          doc_entries
+            .extend(self.get_doc_nodes_for_module_exports(module_decl));
 
-        if let ModuleDecl::ExportNamed(export_named) = module_decl {
-          for specifier in &export_named.specifiers {
-            match specifier {
-              ExportSpecifier::Named(named_specifier) => {
-                if let Some(doc_node) = unexported_doc_map
-                  .get_mut(&named_specifier.orig.sym.to_string())
-                {
-                  if let Some(exported_ident) = &named_specifier.exported {
-                    doc_node.name = exported_ident.sym.to_string();
+          match module_decl {
+            ModuleDecl::ExportNamed(export_named) => {
+              for specifier in &export_named.specifiers {
+                match specifier {
+                  ExportSpecifier::Named(named_specifier) => {
+                    // If it has the same name as the original symbol and private values are exported,
+                    // don't export this again and document the same value twice.
+                    if self.private && named_specifier.exported.is_none() {
+                      continue;
+                    }
+
+                    let symbol = named_specifier.orig.sym.to_string();
+                    if let Some(doc_node) = symbols.get(&symbol) {
+                      let mut doc_node = doc_node.clone();
+                      if let Some(exported) = &named_specifier.exported {
+                        doc_node.name = exported.sym.to_string()
+                      }
+                      doc_entries.push(doc_node)
+                    }
                   }
-                  doc_entries.push(doc_node.clone());
+                  // TODO(zhmushan)
+                  ExportSpecifier::Default(_default_specifier) => {}
+                  ExportSpecifier::Namespace(_namespace_specifier) => {}
                 }
               }
-              // TODO(zhmushan)
-              ExportSpecifier::Default(_default_specifier) => {}
-              ExportSpecifier::Namespace(_namespace_specifier) => {}
             }
+            ModuleDecl::ExportDefaultExpr(export_expr) => {
+              if let Expr::Ident(ident) = export_expr.expr.as_ref() {
+                if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
+                  doc_entries.push(DocNode {
+                    name: String::from("default"),
+                    ..doc_node.clone()
+                  });
+                }
+              } else {
+                let (js_doc, location) =
+                  self.details_for_span(export_expr.span);
+                doc_entries.push(DocNode::variable(
+                  String::from("default"),
+                  location,
+                  js_doc,
+                  super::variable::VariableDef {
+                    kind: swc_ecmascript::ast::VarDeclKind::Var,
+                    ts_type: super::ts_type::infer_simple_ts_type_from_expr(
+                      export_expr.expr.as_ref(),
+                      true,
+                    ),
+                  },
+                ));
+              }
+            }
+            _ => {}
           }
         }
       }

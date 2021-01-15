@@ -1,9 +1,8 @@
-// Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use serde::{Deserialize, Serialize};
 
 use crate::parser::DocParser;
 use crate::DocNode;
-use crate::DocNodeKind;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
@@ -34,20 +33,7 @@ pub fn get_doc_for_ts_namespace_decl(
 
   let ns_def = NamespaceDef { elements };
 
-  DocNode {
-    kind: DocNodeKind::Namespace,
-    name: namespace_name,
-    location,
-    js_doc,
-    namespace_def: Some(ns_def),
-    function_def: None,
-    variable_def: None,
-    enum_def: None,
-    class_def: None,
-    type_alias_def: None,
-    interface_def: None,
-    import_def: None,
-  }
+  DocNode::namespace(namespace_name, location, js_doc, ns_def)
 }
 
 pub fn get_doc_for_ts_module(

@@ -1,4 +1,4 @@
-// Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::parser::DocError;
 use crate::parser::DocFileLoader;
 use crate::parser::DocParser;
@@ -332,8 +332,57 @@ export { Hello } from "./reexport.ts";
 }
 
 #[tokio::test]
+async fn deep_reexports() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let bar_source_code = r#"export * from "./foo.ts""#;
+  let baz_source_code = r#"export * from "./bar.ts""#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
+    ("file:///bar.ts".to_string(), bar_source_code.to_string()),
+    ("file:///baz.ts".to_string(), baz_source_code.to_string()),
+  ]);
+  let entries = DocParser::new(loader, false)
+    .parse_with_reexports(
+      "file:///baz.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 1);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    }
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+
+  assert!(DocPrinter::new(&entries, false, false)
+    .to_string()
+    .contains("const foo"))
+}
+
+#[tokio::test]
 async fn filter_nodes_by_name() {
   use crate::find_nodes_by_name_recursively;
+  use crate::DocNodeKind;
   let source_code = r#"
 export namespace Deno {
   export class Buffer {}
@@ -347,6 +396,16 @@ export namespace Deno {
     export function a(): void {}
     export const b = 100;
   }
+
+  export interface Conn {
+    rid: number;
+    closeWrite(): void;
+  }
+
+  export class Process {
+    readonly pid: number;
+    output(): Promise<Uint8Array>;
+  }
 }
 "#;
   let loader =
@@ -359,12 +418,14 @@ export namespace Deno {
     .await
     .unwrap();
 
+  // Namespace
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno".to_string());
   assert_eq!(found.len(), 2);
   assert_eq!(found[0].name, "Deno".to_string());
   assert_eq!(found[1].name, "Deno".to_string());
 
+  // Overloaded functions
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.test".to_string());
   assert_eq!(found.len(), 3);
@@ -372,17 +433,175 @@ export namespace Deno {
   assert_eq!(found[1].name, "test".to_string());
   assert_eq!(found[2].name, "test".to_string());
 
+  // Nested namespace
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Inner.a".to_string());
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name, "a".to_string());
 
+  // Interface property
+  let found = find_nodes_by_name_recursively(
+    entries.clone(),
+    "Deno.Conn.rid".to_string(),
+  );
+  assert_eq!(found.len(), 1);
+  assert_eq!(found[0].name, "rid".to_string());
+  assert_eq!(found[0].kind, DocNodeKind::Variable);
+
+  // Interface method
+  let found = find_nodes_by_name_recursively(
+    entries.clone(),
+    "Deno.Conn.closeWrite".to_string(),
+  );
+  assert_eq!(found.len(), 1);
+  assert_eq!(found[0].name, "closeWrite".to_string());
+  assert_eq!(found[0].kind, DocNodeKind::Function);
+
+  // Class property
+  let found = find_nodes_by_name_recursively(
+    entries.clone(),
+    "Deno.Process.pid".to_string(),
+  );
+  assert_eq!(found.len(), 1);
+  assert_eq!(found[0].name, "pid".to_string());
+  assert_eq!(found[0].kind, DocNodeKind::Variable);
+
+  // Class method
+  let found = find_nodes_by_name_recursively(
+    entries.clone(),
+    "Deno.Process.output".to_string(),
+  );
+  assert_eq!(found.len(), 1);
+  assert_eq!(found[0].name, "output".to_string());
+  assert_eq!(found[0].kind, DocNodeKind::Function);
+
+  // No match
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.test.a".to_string());
   assert_eq!(found.len(), 0);
 
   let found = find_nodes_by_name_recursively(entries, "a.b.c".to_string());
   assert_eq!(found.len(), 0);
+}
+
+#[tokio::test]
+async fn exports_imported_earlier() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let test_source_code = r#"
+  import { foo } from "./foo.ts";
+
+  export { foo };
+  "#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
+    ("file:///test.ts".to_string(), test_source_code.to_string()),
+  ]);
+  let entries = DocParser::new(loader, false)
+    .parse_with_reexports(
+      "file:///test.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2,
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo",
+      },
+    },
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+}
+
+#[tokio::test]
+async fn exports_imported_earlier_private() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let test_source_code = r#"
+  import { foo } from "./foo.ts";
+
+  export { foo };
+  "#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
+    ("file:///test.ts".to_string(), test_source_code.to_string()),
+  ]);
+  let entries = DocParser::new(loader, true)
+    .parse_with_reexports(
+      "file:///test.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2,
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo",
+      },
+    },
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
 }
 
 mod serialization {
@@ -421,7 +640,7 @@ declare namespace RootNs {
           "location": {
             "filename": "test.ts",
             "line": 4,
-            "col": 12
+            "col": 4
           },
           "jsDoc": null,
           "variableDef": {
@@ -1328,6 +1547,33 @@ export default interface Reader {
     }
   }]);
 
+  json_test!(export_default_expr,
+    r#"export default "foo";"#;
+    [
+      {
+        "kind": "variable",
+        "name": "default",
+        "location": {
+          "filename": "test.ts",
+          "line": 1,
+          "col": 0
+        },
+        "jsDoc": null,
+        "variableDef": {
+          "tsType": {
+            "repr": "foo",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "foo"
+            }
+          },
+          "kind": "var"
+        }
+      }
+    ]
+  );
+
   json_test!(export_enum,
     r#"
 /**
@@ -1970,36 +2216,35 @@ export { hello, say, foo as bar };
   ]
     );
 
-  // TODO(#57): This will pass once both #59 and #60 are merged
-  // json_test!(non_implemented_renamed_exports_declared_earlier,
-  //   r#"
-  // declare function foo(): void;
-  // export { foo as bar };
-  //   "#;
-  //   [
-  //     {
-  //       "kind": "function",
-  //       "name": "bar",
-  //       "location": {
-  //         "filename": "test.ts",
-  //         "line": 2,
-  //         "col": 10
-  //       },
-  //       "jsDoc": null,
-  //       "functionDef": {
-  //         "params": [],
-  //         "returnType": {
-  //           "repr": "void",
-  //           "kind": "keyword",
-  //           "keyword": "void"
-  //         },
-  //         "isAsync": false,
-  //         "isGenerator": false,
-  //         "typeParams": []
-  //       }
-  //     }
-  //   ]
-  // );
+  json_test!(non_implemented_renamed_exports_declared_earlier,
+    r#"
+  declare function foo(): void;
+  export { foo as bar };
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "bar",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 2
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
 
   json_test!(no_ambient_in_module,
     r#"
@@ -2019,6 +2264,87 @@ export function bar() {};
         "functionDef": {
           "params": [],
           "returnType": null,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(default_exports_declared_earlier,
+    r#"
+function foo(): void {}
+export default foo;
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "default",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(reexport_existing_symbol,
+    r#"
+export function foo(): void {}
+export { foo as bar };
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      },
+      {
+        "kind": "function",
+        "name": "bar",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -2153,6 +2479,34 @@ export type numLit = 5;
       }
     }
   ]);
+
+  json_test!(export_private,
+    r#"
+const foo: string = "foo";
+export { foo };
+    "#,
+    private;
+    [
+      {
+        "kind": "variable",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      }
+    ]
+  );
 }
 
 mod printer {

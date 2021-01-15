@@ -1,4 +1,4 @@
-// Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
 // TODO(ry) This module builds up output by appending to a string. Instead it
 // should either use a formatting trait
