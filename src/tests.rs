@@ -180,7 +180,7 @@ export function fooFn(a: number) {
     )
     .await
     .unwrap();
-  assert_eq!(entries.len(), 2);
+  assert_eq!(entries.len(), 3);
 
   let expected_json = json!([
     {
@@ -231,6 +231,20 @@ export function fooFn(a: number) {
         "isAsync": false,
         "isGenerator": false
       },
+    },
+    {
+      "kind": "import",
+      "name": "buzz",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 3,
+        "col": 0
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///reexport.ts",
+        "imported": "fizz",
+      }
     }
   ]);
   let actual = serde_json::to_value(&entries).unwrap();
@@ -439,7 +453,7 @@ async fn exports_imported_earlier() {
     )
     .await
     .unwrap();
-  assert_eq!(entries.len(), 1);
+  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -459,7 +473,21 @@ async fn exports_imported_earlier() {
         },
         "kind": "const"
       }
-    }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2,
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo",
+      },
+    },
   ]);
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
@@ -485,7 +513,7 @@ async fn exports_imported_earlier_private() {
     )
     .await
     .unwrap();
-  assert_eq!(entries.len(), 1);
+  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -505,7 +533,21 @@ async fn exports_imported_earlier_private() {
         },
         "kind": "const"
       }
-    }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2,
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo",
+      },
+    },
   ]);
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
