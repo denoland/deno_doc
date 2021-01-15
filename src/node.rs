@@ -46,8 +46,6 @@ pub enum ReexportKind {
   All,
   /// export * as someNamespace from "./path/to/module.js";
   Namespace(String),
-  /// export default from "./path/to/module.js";
-  Default,
   /// (identifier, optional alias)
   /// export { foo } from "./path/to/module.js";
   /// export { foo as bar } from "./path/to/module.js";

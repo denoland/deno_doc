@@ -484,6 +484,126 @@ export namespace Deno {
   assert_eq!(found.len(), 0);
 }
 
+#[tokio::test]
+async fn exports_imported_earlier() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let test_source_code = r#"
+  import { foo } from "./foo.ts";
+
+  export { foo };
+  "#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
+    ("file:///test.ts".to_string(), test_source_code.to_string()),
+  ]);
+  let entries = DocParser::new(loader, false)
+    .parse_with_reexports(
+      "file:///test.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2,
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo",
+      },
+    },
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+}
+
+#[tokio::test]
+async fn exports_imported_earlier_private() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let test_source_code = r#"
+  import { foo } from "./foo.ts";
+
+  export { foo };
+  "#;
+
+  let loader = TestLoader::new(vec![
+    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
+    ("file:///test.ts".to_string(), test_source_code.to_string()),
+  ]);
+  let entries = DocParser::new(loader, true)
+    .parse_with_reexports(
+      "file:///test.ts",
+      Syntax::Typescript(swc_util::get_default_ts_config()),
+    )
+    .await
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2,
+      },
+      "jsDoc": null,
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo",
+      },
+    },
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+}
+
 mod serialization {
   use crate::*;
 
@@ -1427,6 +1547,33 @@ export default interface Reader {
     }
   }]);
 
+  json_test!(export_default_expr,
+    r#"export default "foo";"#;
+    [
+      {
+        "kind": "variable",
+        "name": "default",
+        "location": {
+          "filename": "test.ts",
+          "line": 1,
+          "col": 0
+        },
+        "jsDoc": null,
+        "variableDef": {
+          "tsType": {
+            "repr": "foo",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "foo"
+            }
+          },
+          "kind": "var"
+        }
+      }
+    ]
+  );
+
   json_test!(export_enum,
     r#"
 /**
@@ -2069,6 +2216,87 @@ export { hello, say, foo as bar };
   ]
     );
 
+  json_test!(default_exports_declared_earlier,
+    r#"
+function foo(): void {}
+export default foo;
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "default",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(reexport_existing_symbol,
+    r#"
+export function foo(): void {}
+export { foo as bar };
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      },
+      {
+        "kind": "function",
+        "name": "bar",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
   json_test!(optional_return_type,
     r#"
   export function foo(a: number) {
@@ -2195,6 +2423,34 @@ export type numLit = 5;
       }
     }
   ]);
+
+  json_test!(export_private,
+    r#"
+const foo: string = "foo";
+export { foo };
+    "#,
+    private;
+    [
+      {
+        "kind": "variable",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      }
+    ]
+  );
 }
 
 mod printer {
