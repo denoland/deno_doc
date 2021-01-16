@@ -595,6 +595,9 @@ impl DocParser {
     let symbols = self.get_symbols_for_module_body(&module_body);
 
     let mut doc_entries: Vec<DocNode> = Vec::new();
+    let mut ambient_entries: Vec<DocNode> = Vec::new();
+
+    let mut is_ambient = true;
 
     for node in module_body.iter() {
       match node {
@@ -602,15 +605,19 @@ impl DocParser {
           if let Stmt::Decl(decl) = stmt {
             if let Some(doc_node) = self.get_doc_node_for_decl(decl) {
               let is_declared = self.get_declare_for_decl(decl);
-              // FIXME(#57): declarations should only be added if this is ambient.
-              if is_declared || self.private {
+              if self.private {
                 doc_entries.push(doc_node);
+              } else if is_declared {
+                ambient_entries.push(doc_node)
               }
             }
           }
         }
 
         ModuleItem::ModuleDecl(module_decl) => {
+          // If it has imports/exports, it isn't ambient.
+          is_ambient = false;
+
           doc_entries
             .extend(self.get_doc_nodes_for_module_exports(module_decl));
 
@@ -669,6 +676,10 @@ impl DocParser {
           }
         }
       }
+    }
+
+    if is_ambient {
+      doc_entries.extend(ambient_entries);
     }
 
     doc_entries

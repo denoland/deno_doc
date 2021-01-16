@@ -1,6 +1,8 @@
 use clap::{App, Arg};
 use deno_doc::parser::DocFileLoader;
-use deno_doc::{DocError, DocNodeKind, DocParser, DocPrinter, find_nodes_by_name_recursively};
+use deno_doc::{
+  find_nodes_by_name_recursively, DocError, DocNodeKind, DocParser, DocPrinter,
+};
 use futures::executor::block_on;
 use futures::FutureExt;
 use std::env::current_dir;
@@ -80,7 +82,7 @@ fn main() {
 
     doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
     if let Some(filter) = maybe_filter {
-        doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
+      doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
     }
     let result = DocPrinter::new(&doc_nodes, true, false);
     println!("{}", result);

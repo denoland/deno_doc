@@ -2216,6 +2216,62 @@ export { hello, say, foo as bar };
   ]
     );
 
+  json_test!(non_implemented_renamed_exports_declared_earlier,
+    r#"
+  declare function foo(): void;
+  export { foo as bar };
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "bar",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 2
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(no_ambient_in_module,
+    r#"
+declare function foo(): number;
+export function bar() {};
+    "#;
+    [
+      {
+        "kind": "function",
+        "name": "bar",
+        "location": {
+          "filename": "test.ts",
+          "line": 3,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [],
+          "returnType": null,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
   json_test!(default_exports_declared_earlier,
     r#"
 function foo(): void {}
