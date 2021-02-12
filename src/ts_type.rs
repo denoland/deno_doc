@@ -933,7 +933,7 @@ pub fn infer_simple_ts_type_from_expr(
     }
     Expr::Tpl(tpl) => {
       // e.g.) const s = `hello`;
-      infer_ts_type_from_tpl(tpl, is_const)
+      Some(infer_ts_type_from_tpl(tpl, is_const))
     }
     Expr::Call(expr) => {
       // e.g.) const value = Number(123);
@@ -1032,15 +1032,15 @@ fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
   }
 }
 
-fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> Option<TsTypeDef> {
+fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> TsTypeDef {
   if tpl.quasis.len() == 1 && is_const {
     // If no placeholder is present, the type can be inferred.
     //   e.g.) const tpl = `Hello world!`; // tpl has the type of `"Hello world!"`.
-    Some(TsTypeDef::tpl_literal(&tpl.quasis))
+    TsTypeDef::tpl_literal(&tpl.quasis)
   } else {
     // If placeholders are present, the type cannot be inferred.
     //   e.g.) const tpl = `Hello ${name}!`; // tpl has the type of `string`.
-    Some(TsTypeDef::string_with_repr("string"))
+    TsTypeDef::string_with_repr("string")
   }
 }
 
