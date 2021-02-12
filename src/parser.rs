@@ -251,7 +251,10 @@ impl DocParser {
     let mut imports = vec![];
 
     for node in module_body.iter() {
-      if let swc_ecmascript::ast::ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
+      if let swc_ecmascript::ast::ModuleItem::ModuleDecl(ModuleDecl::Import(
+        import_decl,
+      )) = node
+      {
         let (js_doc, location) = self.details_for_span(import_decl.span);
         for specifier in &import_decl.specifiers {
           use swc_ecmascript::ast::ImportSpecifier::*;
@@ -284,12 +287,8 @@ impl DocParser {
             imported: maybe_imported_name,
           };
 
-          let doc_node = DocNode::import(
-            name,
-            location.clone(),
-            js_doc.clone(),
-            import_def,
-          );
+          let doc_node =
+            DocNode::import(name, location.clone(), js_doc.clone(), import_def);
 
           imports.push(doc_node);
         }
