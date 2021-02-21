@@ -145,14 +145,14 @@ impl Display for ObjectPatPropDef {
 }
 
 pub fn ident_to_param_def(
-  ident: &swc_ecmascript::ast::Ident,
+  ident: &swc_ecmascript::ast::BindingIdent,
   _source_map: Option<&SourceMap>,
 ) -> ParamDef {
   let ts_type = ident.type_ann.as_ref().map(|rt| ts_type_ann_to_def(rt));
 
   ParamDef::Identifier {
-    name: ident.sym.to_string(),
-    optional: ident.optional,
+    name: ident.id.sym.to_string(),
+    optional: ident.id.optional,
     ts_type,
   }
 }
@@ -248,7 +248,7 @@ pub fn pat_to_param_def(
   source_map: Option<&SourceMap>,
 ) -> ParamDef {
   match pat {
-    Pat::Ident(ident) => ident_to_param_def(ident, source_map),
+    Pat::Ident(ident) => ident_to_param_def(&ident, source_map),
     Pat::Array(array_pat) => array_pat_to_param_def(array_pat, source_map),
     Pat::Rest(rest_pat) => rest_pat_to_param_def(rest_pat, source_map),
     Pat::Object(object_pat) => object_pat_to_param_def(object_pat, source_map),
@@ -262,7 +262,7 @@ pub fn ts_fn_param_to_param_def(
   source_map: Option<&SourceMap>,
 ) -> ParamDef {
   match ts_fn_param {
-    TsFnParam::Ident(ident) => ident_to_param_def(ident, source_map),
+    TsFnParam::Ident(ident) => ident_to_param_def(&ident, source_map),
     TsFnParam::Array(array_pat) => {
       array_pat_to_param_def(array_pat, source_map)
     }
