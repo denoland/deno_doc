@@ -4,11 +4,11 @@ use deno_doc::{
   find_nodes_by_name_recursively, DocError, DocNodeKind, DocParser, DocPrinter,
 };
 use futures::executor::block_on;
+use futures::future::LocalBoxFuture;
 use futures::FutureExt;
 use std::env::current_dir;
 use std::fs::read_to_string;
 use swc_ecmascript::parser::{Syntax, TsConfig};
-use tokio::macros::support::{Future, Pin};
 use url::Url;
 
 struct SourceFileFetcher {}
@@ -30,7 +30,7 @@ impl DocFileLoader for SourceFileFetcher {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>> {
+  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
     let module_url = Url::parse(specifier).unwrap();
     async move {
       let url_scheme = module_url.scheme();
@@ -38,7 +38,10 @@ impl DocFileLoader for SourceFileFetcher {
 
       if is_local_file {
         let path = module_url.to_file_path().unwrap();
-        Ok(read_to_string(path).unwrap())
+        Ok((
+          Syntax::Typescript(TsConfig::default()),
+          read_to_string(path).unwrap(),
+        ))
       } else {
         Err(DocError::Resolve(
           "Fetching remote modules is not supported.".to_string(),
@@ -65,12 +68,7 @@ fn main() {
   let loader = Box::new(SourceFileFetcher {});
   let parser = DocParser::new(loader, false);
   let future = async move {
-    let parse_result = parser
-      .parse_with_reexports(
-        source_file.as_str(),
-        Syntax::Typescript(TsConfig::default()),
-      )
-      .await;
+    let parse_result = parser.parse_with_reexports(source_file.as_str()).await;
 
     let mut doc_nodes = match parse_result {
       Ok(nodes) => nodes,
