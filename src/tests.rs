@@ -10,6 +10,7 @@ use serde_json::json;
 use std::collections::HashMap;
 use std::pin::Pin;
 use swc_ecmascript::parser::Syntax;
+use swc_ecmascript::parser::TsConfig;
 use url::Url;
 
 pub struct TestLoader {
@@ -42,9 +43,12 @@ impl DocFileLoader for TestLoader {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>> {
+  ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>> {
     let res = match self.files.get(specifier) {
-      Some(source_code) => Ok(source_code.to_string()),
+      Some(source_code) => Ok((
+        Syntax::Typescript(swc_util::get_default_ts_config()),
+        source_code.to_string(),
+      )),
       None => Err(DocError::Io(std::io::Error::new(
         std::io::ErrorKind::NotFound,
         "not found".to_string(),
@@ -67,7 +71,6 @@ macro_rules! doc_test {
   ( $name:ident, $source:expr, $private:expr; $block:expr ) => {
     #[tokio::test]
     async fn $name() {
-      use swc_ecmascript::parser::Syntax;
       use crate::tests::TestLoader;
 
       let source_code = $source;
@@ -76,7 +79,7 @@ macro_rules! doc_test {
       let loader =
         TestLoader::new(vec![("test.ts".to_string(), source_code.to_string())]);
       let entries = DocParser::new(loader, private)
-        .parse("test.ts", Syntax::Typescript(swc_util::get_default_ts_config()))
+        .parse("test.ts")
         .await
         .unwrap();
 
@@ -174,10 +177,7 @@ export function fooFn(a: number) {
     ),
   ]);
   let entries = DocParser::new(loader, false)
-    .parse_with_reexports(
-      "file:///test.ts",
-      Syntax::Typescript(swc_util::get_default_ts_config()),
-    )
+    .parse_with_reexports("file:///test.ts")
     .await
     .unwrap();
   assert_eq!(entries.len(), 3);
@@ -274,10 +274,7 @@ export { Hello } from "./reexport.ts";
     ),
   ]);
   let entries = DocParser::new(loader, false)
-    .parse_with_reexports(
-      "file:///test.ts",
-      Syntax::Typescript(swc_util::get_default_ts_config()),
-    )
+    .parse_with_reexports("file:///test.ts")
     .await
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -343,10 +340,7 @@ async fn deep_reexports() {
     ("file:///baz.ts".to_string(), baz_source_code.to_string()),
   ]);
   let entries = DocParser::new(loader, false)
-    .parse_with_reexports(
-      "file:///baz.ts",
-      Syntax::Typescript(swc_util::get_default_ts_config()),
-    )
+    .parse_with_reexports("file:///baz.ts")
     .await
     .unwrap();
   assert_eq!(entries.len(), 1);
@@ -411,10 +405,7 @@ export namespace Deno {
   let loader =
     TestLoader::new(vec![("test.ts".to_string(), source_code.to_string())]);
   let entries = DocParser::new(loader, false)
-    .parse(
-      "test.ts",
-      Syntax::Typescript(swc_util::get_default_ts_config()),
-    )
+    .parse("test.ts")
     .await
     .unwrap();
 
@@ -498,10 +489,7 @@ async fn exports_imported_earlier() {
     ("file:///test.ts".to_string(), test_source_code.to_string()),
   ]);
   let entries = DocParser::new(loader, false)
-    .parse_with_reexports(
-      "file:///test.ts",
-      Syntax::Typescript(swc_util::get_default_ts_config()),
-    )
+    .parse_with_reexports("file:///test.ts")
     .await
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -558,10 +546,7 @@ async fn exports_imported_earlier_private() {
     ("file:///test.ts".to_string(), test_source_code.to_string()),
   ]);
   let entries = DocParser::new(loader, true)
-    .parse_with_reexports(
-      "file:///test.ts",
-      Syntax::Typescript(swc_util::get_default_ts_config()),
-    )
+    .parse_with_reexports("file:///test.ts")
     .await
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -602,6 +587,54 @@ async fn exports_imported_earlier_private() {
   ]);
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
+}
+
+#[tokio::test]
+async fn variable_syntax() {
+  struct VariableSyntaxLoader;
+
+  impl DocFileLoader for VariableSyntaxLoader {
+    fn resolve(
+      &self,
+      specifier: &str,
+      referrer: &str,
+    ) -> Result<String, DocError> {
+      let url = Url::parse(referrer).expect("Must be valid referrer");
+      let url = url.join(specifier).expect("Invalid url");
+      Ok(url.to_string())
+    }
+
+    fn load_source_code(
+      &self,
+      specifier: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>> {
+      let res = match specifier {
+        "file:///foo.ts" => Ok((
+          Syntax::Typescript(swc_util::get_default_ts_config()),
+          String::from("export * from './bar.tsx'"),
+        )),
+        "file:///bar.tsx" => Ok((
+          Syntax::Typescript(TsConfig {
+            tsx: true,
+            ..swc_util::get_default_ts_config()
+          }),
+          String::from("export default <foo>bar</foo>"),
+        )),
+        _ => Err(DocError::Io(std::io::Error::new(
+          std::io::ErrorKind::NotFound,
+          "not found".to_string(),
+        ))),
+      };
+
+      async move { res }.boxed_local()
+    }
+  }
+
+  // This just needs to not throw a syntax error
+  DocParser::new(Box::new(VariableSyntaxLoader), false)
+    .parse_with_reexports("file:///foo.ts")
+    .await
+    .unwrap();
 }
 
 mod serialization {

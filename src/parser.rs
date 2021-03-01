@@ -64,7 +64,7 @@ pub trait DocFileLoader {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<String, DocError>>>>;
+  ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>>;
 }
 
 #[derive(Clone)]
@@ -119,12 +119,8 @@ impl DocParser {
   }
 
   /// Fetches `file_name` and parses it.
-  pub async fn parse(
-    &self,
-    file_name: &str,
-    syntax: Syntax,
-  ) -> Result<Vec<DocNode>, DocError> {
-    let source_code = self.loader.load_source_code(file_name).await?;
+  pub async fn parse(&self, file_name: &str) -> Result<Vec<DocNode>, DocError> {
+    let (syntax, source_code) = self.loader.load_source_code(file_name).await?;
 
     self.parse_source(file_name, syntax, source_code.as_str())
   }
@@ -144,7 +140,6 @@ impl DocParser {
     &self,
     reexports: &[node::Reexport],
     referrer: &str,
-    syntax: Syntax,
   ) -> Result<Vec<DocNode>, DocError> {
     let mut by_src: HashMap<String, Vec<node::Reexport>> = HashMap::new();
 
@@ -161,9 +156,7 @@ impl DocParser {
 
     for specifier in by_src.keys() {
       let resolved_specifier = self.loader.resolve(specifier, referrer)?;
-      let doc_nodes = self
-        .parse_with_reexports(&resolved_specifier, syntax)
-        .await?;
+      let doc_nodes = self.parse_with_reexports(&resolved_specifier).await?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
@@ -221,16 +214,16 @@ impl DocParser {
   pub fn parse_with_reexports<'a>(
     &'a self,
     file_name: &'a str,
-    syntax: Syntax,
   ) -> Pin<Box<dyn Future<Output = Result<Vec<DocNode>, DocError>> + 'a>> {
     async move {
-      let source_code = self.loader.load_source_code(file_name).await?;
+      let (syntax, source_code) =
+        self.loader.load_source_code(file_name).await?;
 
       let module_doc = self.parse_module(file_name, syntax, &source_code)?;
 
       let flattened_docs = if !module_doc.reexports.is_empty() {
         let mut flattenned_reexports = self
-          .flatten_reexports(&module_doc.reexports, file_name, syntax)
+          .flatten_reexports(&module_doc.reexports, file_name)
           .await?;
         flattenned_reexports.extend(module_doc.definitions);
         flattenned_reexports
