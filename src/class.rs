@@ -136,12 +136,7 @@ pub struct ClassMethodDef {
 
 impl From<ClassMethodDef> for DocNode {
   fn from(def: ClassMethodDef) -> DocNode {
-    DocNode::function(
-      def.name,
-      def.location,
-      def.js_doc,
-      def.function_def,
-    )
+    DocNode::function(def.name, def.location, def.js_doc, def.function_def)
   }
 }
 
