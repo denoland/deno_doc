@@ -30,18 +30,18 @@ impl Display for TsTypeParamDef {
   }
 }
 
-impl Into<TsTypeParamDef> for &TsTypeParam {
-  fn into(self) -> TsTypeParamDef {
-    let name = self.name.sym.to_string();
+impl From<&TsTypeParam> for TsTypeParamDef {
+  fn from(param: &TsTypeParam) -> TsTypeParamDef {
+    let name = param.name.sym.to_string();
     let constraint: Option<TsTypeDef> =
-      if let Some(ts_type) = self.constraint.as_ref() {
+      if let Some(ts_type) = param.constraint.as_ref() {
         let type_def: TsTypeDef = (&**ts_type).into();
         Some(type_def)
       } else {
         None
       };
     let default: Option<TsTypeDef> =
-      if let Some(ts_type) = self.default.as_ref() {
+      if let Some(ts_type) = param.default.as_ref() {
         let type_def: TsTypeDef = (&**ts_type).into();
         Some(type_def)
       } else {

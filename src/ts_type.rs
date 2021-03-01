@@ -40,9 +40,9 @@ use swc_ecmascript::ast::{
 //     TsImportType(TsImportType),
 // }
 
-impl Into<TsTypeDef> for &TsLitType {
-  fn into(self) -> TsTypeDef {
-    match &self.lit {
+impl From<&TsLitType> for TsTypeDef {
+  fn from(other: &TsLitType) -> TsTypeDef {
+    match &other.lit {
       TsLit::Number(num) => (TsTypeDef::number_literal(num)),
       TsLit::Str(str_) => (TsTypeDef::string_literal(str_)),
       TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(&tpl.quasis),
@@ -52,9 +52,9 @@ impl Into<TsTypeDef> for &TsLitType {
   }
 }
 
-impl Into<TsTypeDef> for &TsArrayType {
-  fn into(self) -> TsTypeDef {
-    let ts_type_def: TsTypeDef = (&*self.elem_type).into();
+impl From<&TsArrayType> for TsTypeDef {
+  fn from(other: &TsArrayType) -> TsTypeDef {
+    let ts_type_def: TsTypeDef = (&*other.elem_type).into();
 
     TsTypeDef {
       array: Some(Box::new(ts_type_def)),
@@ -64,11 +64,11 @@ impl Into<TsTypeDef> for &TsArrayType {
   }
 }
 
-impl Into<TsTypeDef> for &TsTupleType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsTupleType> for TsTypeDef {
+  fn from(other: &TsTupleType) -> TsTypeDef {
     let mut type_defs = vec![];
 
-    for type_box in &self.elem_types {
+    for type_box in &other.elem_types {
       let ts_type: &TsType = &type_box.ty;
       let def: TsTypeDef = ts_type.into();
       type_defs.push(def)
@@ -82,11 +82,11 @@ impl Into<TsTypeDef> for &TsTupleType {
   }
 }
 
-impl Into<TsTypeDef> for &TsUnionOrIntersectionType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsUnionOrIntersectionType> for TsTypeDef {
+  fn from(other: &TsUnionOrIntersectionType) -> TsTypeDef {
     use swc_ecmascript::ast::TsUnionOrIntersectionType::*;
 
-    match self {
+    match other {
       TsUnionType(union_type) => {
         let mut types_union = vec![];
 
@@ -121,11 +121,11 @@ impl Into<TsTypeDef> for &TsUnionOrIntersectionType {
   }
 }
 
-impl Into<TsTypeDef> for &TsKeywordType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsKeywordType> for TsTypeDef {
+  fn from(other: &TsKeywordType) -> TsTypeDef {
     use swc_ecmascript::ast::TsKeywordTypeKind::*;
 
-    let keyword_str = match self.kind {
+    let keyword_str = match other.kind {
       TsAnyKeyword => "any",
       TsUnknownKeyword => "unknown",
       TsNumberKeyword => "number",
@@ -145,11 +145,11 @@ impl Into<TsTypeDef> for &TsKeywordType {
   }
 }
 
-impl Into<TsTypeDef> for &TsTypeOperator {
-  fn into(self) -> TsTypeDef {
-    let ts_type = (&*self.type_ann).into();
+impl From<&TsTypeOperator> for TsTypeDef {
+  fn from(other: &TsTypeOperator) -> TsTypeDef {
+    let ts_type = (&*other.type_ann).into();
     let type_operator_def = TsTypeOperatorDef {
-      operator: self.op.as_str().to_string(),
+      operator: other.op.as_str().to_string(),
       ts_type,
     };
 
@@ -161,9 +161,9 @@ impl Into<TsTypeDef> for &TsTypeOperator {
   }
 }
 
-impl Into<TsTypeDef> for &TsParenthesizedType {
-  fn into(self) -> TsTypeDef {
-    let ts_type = (&*self.type_ann).into();
+impl From<&TsParenthesizedType> for TsTypeDef {
+  fn from(other: &TsParenthesizedType) -> TsTypeDef {
+    let ts_type = (&*other.type_ann).into();
 
     TsTypeDef {
       parenthesized: Some(Box::new(ts_type)),
@@ -173,9 +173,9 @@ impl Into<TsTypeDef> for &TsParenthesizedType {
   }
 }
 
-impl Into<TsTypeDef> for &TsRestType {
-  fn into(self) -> TsTypeDef {
-    let ts_type = (&*self.type_ann).into();
+impl From<&TsRestType> for TsTypeDef {
+  fn from(other: &TsRestType) -> TsTypeDef {
+    let ts_type = (&*other.type_ann).into();
 
     TsTypeDef {
       rest: Some(Box::new(ts_type)),
@@ -185,9 +185,9 @@ impl Into<TsTypeDef> for &TsRestType {
   }
 }
 
-impl Into<TsTypeDef> for &TsOptionalType {
-  fn into(self) -> TsTypeDef {
-    let ts_type = (&*self.type_ann).into();
+impl From<&TsOptionalType> for TsTypeDef {
+  fn from(other: &TsOptionalType) -> TsTypeDef {
+    let ts_type = (&*other.type_ann).into();
 
     TsTypeDef {
       optional: Some(Box::new(ts_type)),
@@ -197,8 +197,8 @@ impl Into<TsTypeDef> for &TsOptionalType {
   }
 }
 
-impl Into<TsTypeDef> for &TsThisType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsThisType> for TsTypeDef {
+  fn from(_: &TsThisType) -> TsTypeDef {
     TsTypeDef {
       repr: "this".to_string(),
       this: Some(true),
@@ -223,11 +223,11 @@ pub fn ts_entity_name_to_name(
   }
 }
 
-impl Into<TsTypeDef> for &TsTypeQuery {
-  fn into(self) -> TsTypeDef {
+impl From<&TsTypeQuery> for TsTypeDef {
+  fn from(other: &TsTypeQuery) -> TsTypeDef {
     use swc_ecmascript::ast::TsTypeQueryExpr::*;
 
-    let type_name = match &self.expr_name {
+    let type_name = match &other.expr_name {
       TsEntityName(entity_name) => ts_entity_name_to_name(&*entity_name),
       Import(import_type) => import_type.arg.value.to_string(),
     };
@@ -241,11 +241,11 @@ impl Into<TsTypeDef> for &TsTypeQuery {
   }
 }
 
-impl Into<TsTypeDef> for &TsTypeRef {
-  fn into(self) -> TsTypeDef {
-    let type_name = ts_entity_name_to_name(&self.type_name);
+impl From<&TsTypeRef> for TsTypeDef {
+  fn from(other: &TsTypeRef) -> TsTypeDef {
+    let type_name = ts_entity_name_to_name(&other.type_name);
 
-    let type_params = if let Some(type_params_inst) = &self.type_params {
+    let type_params = if let Some(type_params_inst) = &other.type_params {
       let mut ts_type_defs = vec![];
 
       for type_box in &type_params_inst.params {
@@ -271,11 +271,11 @@ impl Into<TsTypeDef> for &TsTypeRef {
   }
 }
 
-impl Into<TsTypeDef> for &TsExprWithTypeArgs {
-  fn into(self) -> TsTypeDef {
-    let type_name = ts_entity_name_to_name(&self.expr);
+impl From<&TsExprWithTypeArgs> for TsTypeDef {
+  fn from(other: &TsExprWithTypeArgs) -> TsTypeDef {
+    let type_name = ts_entity_name_to_name(&other.expr);
 
-    let type_params = if let Some(type_params_inst) = &self.type_args {
+    let type_params = if let Some(type_params_inst) = &other.type_args {
       let mut ts_type_defs = vec![];
 
       for type_box in &type_params_inst.params {
@@ -301,12 +301,12 @@ impl Into<TsTypeDef> for &TsExprWithTypeArgs {
   }
 }
 
-impl Into<TsTypeDef> for &TsIndexedAccessType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsIndexedAccessType> for TsTypeDef {
+  fn from(other: &TsIndexedAccessType) -> TsTypeDef {
     let indexed_access_def = TsIndexedAccessDef {
-      readonly: self.readonly,
-      obj_type: Box::new((&*self.obj_type).into()),
-      index_type: Box::new((&*self.index_type).into()),
+      readonly: other.readonly,
+      obj_type: Box::new((&*other.obj_type).into()),
+      index_type: Box::new((&*other.index_type).into()),
     };
 
     TsTypeDef {
@@ -317,14 +317,14 @@ impl Into<TsTypeDef> for &TsIndexedAccessType {
   }
 }
 
-impl Into<TsTypeDef> for &TsTypeLit {
-  fn into(self) -> TsTypeDef {
+impl From<&TsTypeLit> for TsTypeDef {
+  fn from(other: &TsTypeLit) -> TsTypeDef {
     let mut methods = vec![];
     let mut properties = vec![];
     let mut call_signatures = vec![];
     let mut index_signatures = vec![];
 
-    for type_element in &self.members {
+    for type_element in &other.members {
       use swc_ecmascript::ast::TsTypeElement::*;
 
       match &type_element {
@@ -443,13 +443,13 @@ impl Into<TsTypeDef> for &TsTypeLit {
   }
 }
 
-impl Into<TsTypeDef> for &TsConditionalType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsConditionalType> for TsTypeDef {
+  fn from(other: &TsConditionalType) -> TsTypeDef {
     let conditional_type_def = TsConditionalDef {
-      check_type: Box::new((&*self.check_type).into()),
-      extends_type: Box::new((&*self.extends_type).into()),
-      true_type: Box::new((&*self.true_type).into()),
-      false_type: Box::new((&*self.false_type).into()),
+      check_type: Box::new((&*other.check_type).into()),
+      extends_type: Box::new((&*other.extends_type).into()),
+      true_type: Box::new((&*other.true_type).into()),
+      false_type: Box::new((&*other.false_type).into()),
     };
 
     TsTypeDef {
@@ -460,11 +460,11 @@ impl Into<TsTypeDef> for &TsConditionalType {
   }
 }
 
-impl Into<TsTypeDef> for &TsFnOrConstructorType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsFnOrConstructorType> for TsTypeDef {
+  fn from(other: &TsFnOrConstructorType) -> TsTypeDef {
     use swc_ecmascript::ast::TsFnOrConstructorType::*;
 
-    let fn_def = match self {
+    let fn_def = match other {
       TsFnType(ts_fn_type) => {
         let mut params = vec![];
 
@@ -512,11 +512,11 @@ impl Into<TsTypeDef> for &TsFnOrConstructorType {
   }
 }
 
-impl Into<TsTypeDef> for &TsType {
-  fn into(self) -> TsTypeDef {
+impl From<&TsType> for TsTypeDef {
+  fn from(other: &TsType) -> TsTypeDef {
     use swc_ecmascript::ast::TsType::*;
 
-    match self {
+    match other {
       TsKeywordType(ref keyword_type) => keyword_type.into(),
       TsLitType(ref lit_type) => lit_type.into(),
       TsTypeRef(ref type_ref) => type_ref.into(),

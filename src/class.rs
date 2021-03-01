@@ -64,14 +64,14 @@ pub struct ClassPropertyDef {
   pub location: Location,
 }
 
-impl Into<DocNode> for ClassPropertyDef {
-  fn into(self) -> DocNode {
+impl From<ClassPropertyDef> for DocNode {
+  fn from(def: ClassPropertyDef) -> DocNode {
     DocNode::variable(
-      self.name,
-      self.location,
-      self.js_doc,
+      def.name,
+      def.location,
+      def.js_doc,
       VariableDef {
-        ts_type: self.ts_type,
+        ts_type: def.ts_type,
         kind: swc_ecmascript::ast::VarDeclKind::Const,
       },
     )
@@ -134,9 +134,14 @@ pub struct ClassMethodDef {
   pub location: Location,
 }
 
-impl Into<DocNode> for ClassMethodDef {
-  fn into(self) -> DocNode {
-    DocNode::function(self.name, self.location, self.js_doc, self.function_def)
+impl From<ClassMethodDef> for DocNode {
+  fn from(def: ClassMethodDef) -> DocNode {
+    DocNode::function(
+      def.name,
+      def.location,
+      def.js_doc,
+      def.function_def,
+    )
   }
 }
 

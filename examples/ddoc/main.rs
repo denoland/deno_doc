@@ -4,11 +4,11 @@ use deno_doc::{
   find_nodes_by_name_recursively, DocError, DocNodeKind, DocParser, DocPrinter,
 };
 use futures::executor::block_on;
+use futures::future::LocalBoxFuture;
 use futures::FutureExt;
 use std::env::current_dir;
 use std::fs::read_to_string;
 use swc_ecmascript::parser::{Syntax, TsConfig};
-use tokio::macros::support::{Future, Pin};
 use url::Url;
 
 struct SourceFileFetcher {}
@@ -30,7 +30,7 @@ impl DocFileLoader for SourceFileFetcher {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>> {
+  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
     let module_url = Url::parse(specifier).unwrap();
     async move {
       let url_scheme = module_url.scheme();

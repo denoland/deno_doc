@@ -29,18 +29,18 @@ pub struct InterfaceMethodDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-impl Into<DocNode> for InterfaceMethodDef {
-  fn into(self) -> DocNode {
+impl From<InterfaceMethodDef> for DocNode {
+  fn from(def: InterfaceMethodDef) -> DocNode {
     DocNode::function(
-      self.name,
-      self.location,
-      self.js_doc,
+      def.name,
+      def.location,
+      def.js_doc,
       FunctionDef {
-        params: self.params,
-        return_type: self.return_type,
+        params: def.params,
+        return_type: def.return_type,
         is_async: false,
         is_generator: false,
-        type_params: self.type_params,
+        type_params: def.type_params,
       },
     )
   }
@@ -75,14 +75,14 @@ pub struct InterfacePropertyDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-impl Into<DocNode> for InterfacePropertyDef {
-  fn into(self) -> DocNode {
+impl From<InterfacePropertyDef> for DocNode {
+  fn from(def: InterfacePropertyDef) -> DocNode {
     DocNode::variable(
-      self.name,
-      self.location,
-      self.js_doc,
+      def.name,
+      def.location,
+      def.js_doc,
       VariableDef {
-        ts_type: self.ts_type,
+        ts_type: def.ts_type,
         kind: swc_ecmascript::ast::VarDeclKind::Const,
       },
     )

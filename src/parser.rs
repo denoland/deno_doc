@@ -1,6 +1,7 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::swc_util::AstParser;
 use crate::ReexportKind;
+use futures::future::LocalBoxFuture;
 use swc_common::comments::CommentKind;
 use swc_common::Span;
 use swc_ecmascript::ast::Decl;
@@ -20,13 +21,11 @@ use crate::node::ModuleDoc;
 use crate::swc_util;
 use crate::ImportDef;
 use crate::Location;
-use futures::Future;
 use futures::FutureExt;
 use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
-use std::pin::Pin;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -64,7 +63,7 @@ pub trait DocFileLoader {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>>;
+  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>>;
 }
 
 #[derive(Clone)]
@@ -214,7 +213,7 @@ impl DocParser {
   pub fn parse_with_reexports<'a>(
     &'a self,
     file_name: &'a str,
-  ) -> Pin<Box<dyn Future<Output = Result<Vec<DocNode>, DocError>> + 'a>> {
+  ) -> LocalBoxFuture<Result<Vec<DocNode>, DocError>> {
     async move {
       let (syntax, source_code) =
         self.loader.load_source_code(file_name).await?;

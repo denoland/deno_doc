@@ -21,11 +21,11 @@ pub struct Location {
   pub col: usize,
 }
 
-impl Into<Location> for swc_common::Loc {
-  fn into(self) -> Location {
+impl From<swc_common::Loc> for Location {
+  fn from(loc: swc_common::Loc) -> Location {
     use swc_common::FileName::*;
 
-    let filename = match &self.file.name {
+    let filename = match &loc.file.name {
       Real(path_buf) => path_buf.to_string_lossy().to_string(),
       Custom(str_) => str_.to_string(),
       _ => panic!("invalid filename"),
@@ -33,8 +33,8 @@ impl Into<Location> for swc_common::Loc {
 
     Location {
       filename,
-      line: self.line,
-      col: self.col_display,
+      line: loc.line,
+      col: loc.col_display,
     }
   }
 }

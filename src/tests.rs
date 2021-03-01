@@ -4,11 +4,10 @@ use crate::parser::DocFileLoader;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
 use crate::swc_util;
-use futures::Future;
+use futures::future::LocalBoxFuture;
 use futures::FutureExt;
 use serde_json::json;
 use std::collections::HashMap;
-use std::pin::Pin;
 use swc_ecmascript::parser::Syntax;
 use swc_ecmascript::parser::TsConfig;
 use url::Url;
@@ -43,7 +42,7 @@ impl DocFileLoader for TestLoader {
   fn load_source_code(
     &self,
     specifier: &str,
-  ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>> {
+  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
     let res = match self.files.get(specifier) {
       Some(source_code) => Ok((
         Syntax::Typescript(swc_util::get_default_ts_config()),
@@ -607,7 +606,7 @@ async fn variable_syntax() {
     fn load_source_code(
       &self,
       specifier: &str,
-    ) -> Pin<Box<dyn Future<Output = Result<(Syntax, String), DocError>>>> {
+    ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
       let res = match specifier {
         "file:///foo.ts" => Ok((
           Syntax::Typescript(swc_util::get_default_ts_config()),
