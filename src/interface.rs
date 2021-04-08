@@ -165,9 +165,7 @@ pub fn expr_to_name(expr: &swc_ecmascript::ast::Expr) -> String {
     Lit(lit) => {
       use swc_ecmascript::ast::Lit::*;
       match lit {
-        Str(str) => {
-          str.value.to_string()
-        }
+        Str(str) => str.value.to_string(),
         _ => "<TODO>".to_string(),
       }
     }
