@@ -162,6 +162,15 @@ pub fn expr_to_name(expr: &swc_ecmascript::ast::Expr) -> String {
       let right = expr_to_name(&*member_expr.prop);
       format!("[{}.{}]", left, right)
     }
+    Lit(lit) => {
+      use swc_ecmascript::ast::Lit::*;
+      match lit {
+        Str(str) => {
+          str.value.to_string()
+        }
+        _ => "<TODO>".to_string(),
+      }
+    }
     _ => "<TODO>".to_string(),
   }
 }
