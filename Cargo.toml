@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.1.23"
+version = "0.2.0"
 edition = "2018"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -13,7 +13,7 @@ name = "deno_doc"
 name = "ddoc"
 
 [dependencies]
-futures = "0.3.12"
+futures = "0.3.13"
 lazy_static = "1.4.0"
 serde = { version = "1.0.123", features = ["derive"] }
 serde_json = { version = "1.0.62", features = [ "preserve_order" ] }
@@ -24,5 +24,5 @@ regex = "1.4.3"
 
 [dev-dependencies]
 clap = "2.33.3"
-tokio = { version = "1.2.0", features = ["full"] }
+tokio = { version = "1.4.0", features = ["full"] }
 url = "2.2.0"
