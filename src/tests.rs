@@ -2916,6 +2916,17 @@ export interface I {
     "po?: number"
   );
 
+  contains_test!(interface_number_literal_property,
+    r#"
+export interface I {
+  1: string;
+  2?: number;
+}
+    "#;
+    "1: string",
+    "2?: number"
+  );
+
   contains_test!(interface_readonly_index_signature,
     r#"
 export interface Interface {

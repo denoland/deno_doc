@@ -163,10 +163,24 @@ pub fn expr_to_name(expr: &swc_ecmascript::ast::Expr) -> String {
       format!("[{}.{}]", left, right)
     }
     Lit(lit) => {
-      use swc_ecmascript::ast::Lit::*;
+      use swc_ecmascript::ast::BigInt;
+      use swc_ecmascript::ast::Bool;
+      use swc_ecmascript::ast::JSXText;
+      use swc_ecmascript::ast::Lit;
+      use swc_ecmascript::ast::Number;
+      use swc_ecmascript::ast::Regex;
+      use swc_ecmascript::ast::Str;
       match lit {
-        Str(str) => str.value.to_string(),
-        _ => "<TODO>".to_string(),
+        Lit::Str(Str { ref value, .. }) => value.to_string(),
+        Lit::Bool(Bool { ref value, .. }) => {
+          let str_val = if *value { "true" } else { "false" };
+          str_val.to_string()
+        }
+        Lit::Null(_) => "null".to_string(),
+        Lit::Num(Number { ref value, .. }) => value.to_string(),
+        Lit::BigInt(BigInt { ref value, .. }) => value.to_string(),
+        Lit::Regex(Regex { ref exp, .. }) => format!("/{}/", exp),
+        Lit::JSXText(JSXText { ref raw, .. }) => raw.to_string(),
       }
     }
     _ => "<TODO>".to_string(),
