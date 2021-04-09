@@ -353,6 +353,31 @@ impl From<&TsTypeLit> for TsTypeDef {
           };
           methods.push(method_def);
         }
+        TsGetterSignature(ts_getter_sig) => {
+          let maybe_return_type = ts_getter_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| (&*rt.type_ann).into());
+
+          let name = expr_to_name(&*ts_getter_sig.key);
+          let method_def = LiteralMethodDef {
+            name,
+            params: vec![],
+            return_type: maybe_return_type,
+            type_params: vec![],
+          };
+          methods.push(method_def);
+        }
+        TsSetterSignature(ts_setter_sig) => {
+          let name = expr_to_name(&*ts_setter_sig.key);
+          let method_def = LiteralMethodDef {
+            name,
+            params: vec![],
+            return_type: None,
+            type_params: vec![],
+          };
+          methods.push(method_def);
+        }
         TsPropertySignature(ts_prop_sig) => {
           let name = expr_to_name(&*ts_prop_sig.key);
 

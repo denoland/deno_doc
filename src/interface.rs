@@ -240,6 +240,48 @@ pub fn get_doc_for_ts_interface_decl(
         };
         methods.push(method_def);
       }
+      TsGetterSignature(ts_getter_sig) => {
+        let method_js_doc = doc_parser.js_doc_for_span(ts_getter_sig.span);
+        let name = expr_to_name(&*ts_getter_sig.key);
+
+        let maybe_return_type = ts_getter_sig
+          .type_ann
+          .as_ref()
+          .map(|rt| ts_type_ann_to_def(rt));
+
+        let method_def = InterfaceMethodDef {
+          name,
+          js_doc: method_js_doc,
+          location: doc_parser
+            .ast_parser
+            .get_span_location(ts_getter_sig.span)
+            .into(),
+          optional: ts_getter_sig.optional,
+          params: vec![],
+          return_type: maybe_return_type,
+          type_params: vec![],
+        };
+        methods.push(method_def);
+      }
+      TsSetterSignature(ts_setter_sig) => {
+        let method_js_doc = doc_parser.js_doc_for_span(ts_setter_sig.span);
+
+        let name = expr_to_name(&*ts_setter_sig.key);
+
+        let method_def = InterfaceMethodDef {
+          name,
+          js_doc: method_js_doc,
+          location: doc_parser
+            .ast_parser
+            .get_span_location(ts_setter_sig.span)
+            .into(),
+          optional: ts_setter_sig.optional,
+          params: vec![],
+          return_type: None,
+          type_params: vec![],
+        };
+        methods.push(method_def);
+      }
       TsPropertySignature(ts_prop_sig) => {
         let prop_js_doc = doc_parser.js_doc_for_span(ts_prop_sig.span);
         let name = expr_to_name(&*ts_prop_sig.key);
