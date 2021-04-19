@@ -13,16 +13,16 @@ name = "deno_doc"
 name = "ddoc"
 
 [dependencies]
-futures = "0.3.13"
+futures = "0.3.14"
 lazy_static = "1.4.0"
 serde = { version = "1.0.125", features = ["derive"] }
 serde_json = { version = "1.0.64", features = [ "preserve_order" ] }
-swc_common = "0.10.15"
-swc_ecmascript = { version = "0.31.0", features = ["parser"] }
+swc_common = "0.10.17"
+swc_ecmascript = { version = "0.31.3", features = ["parser"] }
 termcolor = "1.1.2"
-regex = "1.4.3"
+regex = "=1.4.3"
 
 [dev-dependencies]
 clap = "2.33.3"
-tokio = { version = "1.4.0", features = ["full"] }
-url = "2.2.0"
+tokio = { version = "1.5.0", features = ["full"] }
+url = "2.2.1"
