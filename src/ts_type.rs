@@ -262,8 +262,8 @@ impl From<&TsTypeRef> for TsTypeDef {
     TsTypeDef {
       repr: type_name.clone(),
       type_ref: Some(TsTypeRefDef {
-        type_name,
         type_params,
+        type_name,
       }),
       kind: Some(TsTypeDefKind::TypeRef),
       ..Default::default()
@@ -292,8 +292,8 @@ impl From<&TsExprWithTypeArgs> for TsTypeDef {
     TsTypeDef {
       repr: type_name.clone(),
       type_ref: Some(TsTypeRefDef {
-        type_name,
         type_params,
+        type_name,
       }),
       kind: Some(TsTypeDefKind::TypeRef),
       ..Default::default()
