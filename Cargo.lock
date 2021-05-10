@@ -30,9 +30,9 @@ dependencies = [
 
 [[package]]
 name = "ast_node"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c84c445d38f7f29c82ed56c2cfae4885e5e6d9fb81b956ab31430757ddad5d7"
+checksum = "f93f52ce8fac3d0e6720a92b0576d737c01b1b5db4dd786e962e5925f00bf755"
 dependencies = [
  "darling",
  "pmutil",
@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "clap",
  "futures",
@@ -857,9 +857,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.10.17"
+version = "0.10.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07760521aeef6e2dc3a06169916de60ab0e587666469366c2a0401cf84917ffc"
+checksum = "2061abb9f67dcef7abd6c874c72be6c90e8eca8b799fd769fd696c14af526929"
 dependencies = [
  "ast_node",
  "cfg-if 0.1.10",
@@ -927,9 +927,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.31.3"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45286c7e1199a0c9ef13951535f5c6f777228d26df2fcf2d2d81ef11d0f22e40"
+checksum = "fad428a7b5e0c493521bc18b9b4d943f42aa13f386b15e3c9535eeb65412d8b2"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
