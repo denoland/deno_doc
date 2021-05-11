@@ -17,12 +17,12 @@ $ cargo run --example ddoc ../deno/std/http/mod.ts
 
 ## Developing
 
-Make sure to have latest stable version of Rust installed (1.51.0).
+Make sure to have latest stable version of Rust installed (1.52.1).
 
 ```shell
 // check version
 $ rustc --version
-rustc 1.51.0 (2fd73fabe 2021-03-23)
+rustc 1.52.1 (9bc8c42bb 2021-05-09)
 
 // build all targets
 $ cargo build --all-targets
