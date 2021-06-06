@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "clap",
  "futures",
@@ -857,9 +857,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.10.19"
+version = "0.10.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2061abb9f67dcef7abd6c874c72be6c90e8eca8b799fd769fd696c14af526929"
+checksum = "d02578ed17d73cb0233cf27aa6c59220a1910f5f335196dced75c9b2be2900fb"
 dependencies = [
  "ast_node",
  "cfg-if 0.1.10",
@@ -880,9 +880,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_ast"
-version = "0.43.1"
+version = "0.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8418b0b8a387a1ea919e5bc21d79897c0b24832cae9fd4974d9e2ae8a58df81e"
+checksum = "acd752f1785f4dc4c9597464c4079e1f25e90dc1c533d026188e2666a83e9863"
 dependencies = [
  "is-macro",
  "num-bigint",
@@ -894,9 +894,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.54.3"
+version = "0.57.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbc20d007becbd7960a7083ddedd7e5da11c85f7e1399961508e8bc70f69ac18"
+checksum = "024e04f5aa369dd085078ec41879b5ce338501f65a5a896eb72ffc9361256ea3"
 dependencies = [
  "either",
  "enum_kind",
@@ -914,9 +914,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_visit"
-version = "0.29.1"
+version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81e54a3b94a33507346193c1f56d8251b3d9bc1381214174f982e6f091716dfe"
+checksum = "c32efec33fd514574cac43c9172861ac4e85eaced6afbf8483114ffbeef78a87"
 dependencies = [
  "num-bigint",
  "swc_atoms",
@@ -927,9 +927,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.33.0"
+version = "0.36.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fad428a7b5e0c493521bc18b9b4d943f42aa13f386b15e3c9535eeb65412d8b2"
+checksum = "e921993ebfbe701c739c4966ee6f47531637725a2a23b7ef1b5d73c51bcfbef0"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
