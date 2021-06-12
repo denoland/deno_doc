@@ -848,16 +848,21 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
   }
 }
 
+/// ```ts
+/// function foo(param: any): asserts param is SomeType { ... }
+///                           ^^^^^^^ ^^^^^    ^^^^^^^^
+///                           (1)     (2)      (3)
+/// ```
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypePredicateDef {
-  /// Whether the predicate includes `asserts` keyword or not
+  /// (1) Whether the predicate includes `asserts` keyword or not
   pub asserts: bool,
 
-  /// The term of predicate
+  /// (2) The term of predicate
   pub param: ThisOrIdent,
 
-  /// The type against which the parameter is checked
+  /// (3) The type against which the parameter is checked
   pub r#type: Option<Box<TsTypeDef>>,
 }
 
