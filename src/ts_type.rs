@@ -830,10 +830,10 @@ pub struct TsTypeDef {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged, rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum ThisOrIdent {
   This,
-  Ident(String),
+  Identifier { name: String },
 }
 
 impl From<&TsThisTypeOrIdent> for ThisOrIdent {
@@ -841,7 +841,9 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
     use TsThisTypeOrIdent::*;
     match other {
       TsThisType(_) => Self::This,
-      Ident(ident) => Self::Ident(ident.sym.to_string()),
+      Ident(ident) => Self::Identifier {
+        name: ident.sym.to_string(),
+      },
     }
   }
 }
@@ -867,7 +869,7 @@ impl Display for TsTypePredicateDef {
     }
     s.push(match &self.param {
       ThisOrIdent::This => "this".to_string(),
-      ThisOrIdent::Ident(i) => i.clone(),
+      ThisOrIdent::Identifier { name } => name.clone(),
     });
     if let Some(ty) = &self.r#type {
       s.push("is".to_string());
@@ -1261,19 +1263,7 @@ impl Display for TsTypeDef {
       }
       TsTypeDefKind::TypePredicate => {
         let pred = self.type_predicate.as_ref().unwrap();
-        let mut s = Vec::new();
-        if pred.asserts {
-          s.push("asserts".to_string());
-        }
-        s.push(match &pred.param {
-          ThisOrIdent::This => "this".to_string(),
-          ThisOrIdent::Ident(i) => i.clone(),
-        });
-        if let Some(ty) = &pred.r#type {
-          s.push("is".to_string());
-          s.push(ty.to_string());
-        }
-        write!(f, "{}", s.join(" "))
+        write!(f, "{}", pred)
       }
     }
   }
