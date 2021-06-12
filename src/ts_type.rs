@@ -214,14 +214,14 @@ impl From<&TsTypePredicate> for TsTypeDef {
     let pred = TsTypePredicateDef {
       asserts: other.asserts,
       param: (&other.param_name).into(),
-      ty: other
+      r#type: other
         .type_ann
         .as_ref()
         .map(|t| Box::new(ts_type_ann_to_def(t))),
     };
     TsTypeDef {
       repr: pred.to_string(),
-      kind: Some(TsTypeDefKind::Predicate),
+      kind: Some(TsTypeDefKind::TypePredicate),
       type_predicate: Some(pred),
       ..Default::default()
     }
@@ -764,7 +764,7 @@ pub enum TsTypeDefKind {
   Conditional,
   IndexedAccess,
   TypeLiteral,
-  Predicate,
+  TypePredicate,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -849,14 +849,14 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypePredicateDef {
-  /// Whether the predicate includes `assserts` keyword or not
+  /// Whether the predicate includes `asserts` keyword or not
   pub asserts: bool,
 
-  /// The asserted parameter
+  /// The term of predicate
   pub param: ThisOrIdent,
 
-  /// The type against which the parameter is asserted
-  pub ty: Option<Box<TsTypeDef>>,
+  /// The type against which the parameter is checked
+  pub r#type: Option<Box<TsTypeDef>>,
 }
 
 impl Display for TsTypePredicateDef {
@@ -869,7 +869,7 @@ impl Display for TsTypePredicateDef {
       ThisOrIdent::This => "this".to_string(),
       ThisOrIdent::Ident(i) => i.clone(),
     });
-    if let Some(ty) = &self.ty {
+    if let Some(ty) = &self.r#type {
       s.push("is".to_string());
       s.push(ty.to_string());
     }
@@ -1259,7 +1259,7 @@ impl Display for TsTypeDef {
         let union = self.union.as_ref().unwrap();
         write!(f, "{}", SliceDisplayer::new(union, " | ", false))
       }
-      TsTypeDefKind::Predicate => {
+      TsTypeDefKind::TypePredicate => {
         let pred = self.type_predicate.as_ref().unwrap();
         let mut s = Vec::new();
         if pred.asserts {
@@ -1269,7 +1269,7 @@ impl Display for TsTypeDef {
           ThisOrIdent::This => "this".to_string(),
           ThisOrIdent::Ident(i) => i.clone(),
         });
-        if let Some(ty) = &pred.ty {
+        if let Some(ty) = &pred.r#type {
           s.push("is".to_string());
           s.push(ty.to_string());
         }
