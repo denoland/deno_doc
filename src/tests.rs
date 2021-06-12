@@ -6,6 +6,7 @@ use crate::printer::DocPrinter;
 use crate::swc_util;
 use futures::future::LocalBoxFuture;
 use futures::FutureExt;
+use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
 use swc_ecmascript::parser::Syntax;
@@ -130,7 +131,7 @@ macro_rules! json_test {
     doc_test!($name, $source, $private; |entries, _doc| {
       let actual = serde_json::to_value(&entries).unwrap();
       let expected_json = json!($json);
-      assert_eq!(actual, expected_json);
+      pretty_assertions::assert_eq!(actual, expected_json);
     });
   };
 }
@@ -2535,6 +2536,75 @@ export { foo };
             "keyword": "string"
           },
           "kind": "const"
+        }
+      }
+    ]
+  );
+
+  json_test!(ts_user_defined_type_guard_1,
+    r#"
+export function foo(bar: A | B): bar is A {}
+    "#,
+    private;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "bar",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "A",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "A"
+                    }
+                  },
+                  {
+                    "repr": "B",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "B"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "bar is A",
+            "kind": "typePredicate",
+            "typePredicate": {
+              "asserts": false,
+              "param": "bar",
+              "type": {
+                "repr": "A",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "A"
+                }
+              }
+            }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
       }
     ]
