@@ -12,9 +12,10 @@ use swc_ecmascript::ast::{
   BigInt, Bool, CallExpr, Expr, ExprOrSuper, Lit, NewExpr, Number, Str, Tpl,
   TplElement, TsArrayType, TsConditionalType, TsExprWithTypeArgs,
   TsFnOrConstructorType, TsIndexedAccessType, TsKeywordType, TsLit, TsLitType,
-  TsOptionalType, TsParenthesizedType, TsRestType, TsThisType, TsTupleType,
-  TsType, TsTypeAnn, TsTypeLit, TsTypeOperator, TsTypeParamInstantiation,
-  TsTypeQuery, TsTypeRef, TsUnionOrIntersectionType, VarDeclarator,
+  TsOptionalType, TsParenthesizedType, TsRestType, TsThisType,
+  TsThisTypeOrIdent, TsTupleType, TsType, TsTypeAnn, TsTypeLit, TsTypeOperator,
+  TsTypeParamInstantiation, TsTypePredicate, TsTypeQuery, TsTypeRef,
+  TsUnionOrIntersectionType, VarDeclarator,
 };
 
 // pub enum TsType {
@@ -36,7 +37,7 @@ use swc_ecmascript::ast::{
 //  *      TsLitType(TsLitType),
 //     TsInferType(TsInferType),
 //     TsMappedType(TsMappedType),
-//     TsTypePredicate(TsTypePredicate),
+//  *      TsTypePredicate(TsTypePredicate),
 //     TsImportType(TsImportType),
 // }
 
@@ -203,6 +204,25 @@ impl From<&TsThisType> for TsTypeDef {
       repr: "this".to_string(),
       this: Some(true),
       kind: Some(TsTypeDefKind::This),
+      ..Default::default()
+    }
+  }
+}
+
+impl From<&TsTypePredicate> for TsTypeDef {
+  fn from(other: &TsTypePredicate) -> TsTypeDef {
+    let pred = TsTypePredicateDef {
+      asserts: other.asserts,
+      param: (&other.param_name).into(),
+      ty: other
+        .type_ann
+        .as_ref()
+        .map(|t| Box::new(ts_type_ann_to_def(t))),
+    };
+    TsTypeDef {
+      repr: pred.to_string(),
+      kind: Some(TsTypeDefKind::Predicate),
+      type_predicate: Some(pred),
       ..Default::default()
     }
   }
@@ -744,6 +764,7 @@ pub enum TsTypeDefKind {
   Conditional,
   IndexedAccess,
   TypeLiteral,
+  Predicate,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -803,6 +824,57 @@ pub struct TsTypeDef {
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_literal: Option<TsTypeLiteralDef>,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub type_predicate: Option<TsTypePredicateDef>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged, rename_all = "camelCase")]
+pub enum ThisOrIdent {
+  This,
+  Ident(String),
+}
+
+impl From<&TsThisTypeOrIdent> for ThisOrIdent {
+  fn from(other: &TsThisTypeOrIdent) -> ThisOrIdent {
+    use TsThisTypeOrIdent::*;
+    match other {
+      TsThisType(_) => Self::This,
+      Ident(ident) => Self::Ident(ident.sym.to_string()),
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TsTypePredicateDef {
+  /// Whether the predicate includes `assserts` keyword or not
+  pub asserts: bool,
+
+  /// The asserted parameter
+  pub param: ThisOrIdent,
+
+  /// The type against which the parameter is asserted
+  pub ty: Option<Box<TsTypeDef>>,
+}
+
+impl Display for TsTypePredicateDef {
+  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+    let mut s = Vec::new();
+    if self.asserts {
+      s.push("asserts".to_string());
+    }
+    s.push(match &self.param {
+      ThisOrIdent::This => "this".to_string(),
+      ThisOrIdent::Ident(i) => i.clone(),
+    });
+    if let Some(ty) = &self.ty {
+      s.push("is".to_string());
+      s.push(ty.to_string());
+    }
+    write!(f, "{}", s.join(" "))
+  }
 }
 
 impl TsTypeDef {
@@ -936,6 +1008,7 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
     TsConditionalType(conditional_type) => conditional_type.into(),
     TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
     TsTypeLit(type_literal) => type_literal.into(),
+    TsTypePredicate(type_predicate) => type_predicate.into(),
     _ => TsTypeDef {
       repr: "<TODO>".to_string(),
       ..Default::default()
@@ -1185,6 +1258,22 @@ impl Display for TsTypeDef {
       TsTypeDefKind::Union => {
         let union = self.union.as_ref().unwrap();
         write!(f, "{}", SliceDisplayer::new(union, " | ", false))
+      }
+      TsTypeDefKind::Predicate => {
+        let pred = self.type_predicate.as_ref().unwrap();
+        let mut s = Vec::new();
+        if pred.asserts {
+          s.push("asserts".to_string());
+        }
+        s.push(match &pred.param {
+          ThisOrIdent::This => "this".to_string(),
+          ThisOrIdent::Ident(i) => i.clone(),
+        });
+        if let Some(ty) = &pred.ty {
+          s.push("is".to_string());
+          s.push(ty.to_string());
+        }
+        write!(f, "{}", s.join(" "))
       }
     }
   }

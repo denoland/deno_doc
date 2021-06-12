@@ -3058,4 +3058,24 @@ export const sym = Symbol("hello");
     "const bi2: bigint",
     "const sym: symbol"
   );
+
+  contains_test!(
+    ts_user_defined_type_guards,
+    r#"
+export function f1(val1: A | B): val1 is A {}
+export function f2(val2: any): asserts val2 is string {}
+export function f3(val3: any): asserts val3 {}
+export function assertIsDefined<T>(val4: T): asserts val4 is NonNullable<T> {
+  if (val === undefined || val === null) {
+    throw new AssertionError(
+      `Expected 'val' to be defined, but received ${val}`
+    );
+  }
+}
+    "#;
+    "val1 is A",
+    "asserts val2 is string",
+    "asserts val3",
+    "asserts val4 is NonNullable<T>"
+  );
 }
