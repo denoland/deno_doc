@@ -6,6 +6,7 @@ use crate::printer::DocPrinter;
 use crate::swc_util;
 use futures::future::LocalBoxFuture;
 use futures::FutureExt;
+use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
 use swc_ecmascript::parser::Syntax;
@@ -130,7 +131,7 @@ macro_rules! json_test {
     doc_test!($name, $source, $private; |entries, _doc| {
       let actual = serde_json::to_value(&entries).unwrap();
       let expected_json = json!($json);
-      assert_eq!(actual, expected_json);
+      pretty_assertions::assert_eq!(actual, expected_json);
     });
   };
 }
@@ -2539,6 +2540,269 @@ export { foo };
       }
     ]
   );
+
+  json_test!(ts_type_predicate_1,
+    r#"
+export function foo(bar: A | B): bar is A {}
+    "#,
+    private;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "bar",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "A",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "A"
+                    }
+                  },
+                  {
+                    "repr": "B",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "B"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "bar is A",
+            "kind": "typePredicate",
+            "typePredicate": {
+              "asserts": false,
+              "param": {
+                "type": "identifier",
+                "name": "bar"
+              },
+              "type": {
+                "repr": "A",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "A"
+                }
+              }
+            }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(ts_type_predicate_2,
+    r#"
+export function foo(bar: A | B): asserts bar is B {}
+    "#,
+    private;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "bar",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "A",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "A"
+                    }
+                  },
+                  {
+                    "repr": "B",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "B"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "asserts bar is B",
+            "kind": "typePredicate",
+            "typePredicate": {
+              "asserts": true,
+              "param": {
+                "type": "identifier",
+                "name": "bar"
+              },
+              "type": {
+                "repr": "B",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "B"
+                }
+              }
+            }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(ts_type_predicate_3,
+    r#"
+export class C {
+  isSomething(): this is Something {}
+}
+    "#,
+    private;
+    [
+      {
+        "kind": "class",
+        "name": "C",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [
+            {
+              "jsDoc": null,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "isSomething",
+              "kind": "method",
+              "functionDef": {
+                "params": [],
+                "returnType": {
+                  "repr": "this is Something",
+                  "kind": "typePredicate",
+                  "typePredicate": {
+                    "asserts": false,
+                    "param": {
+                      "type": "this"
+                    },
+                    "type": {
+                      "repr": "Something",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "Something",
+                      },
+                    },
+                  },
+                },
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": [],
+              },
+              "location": {
+                "filename": "test.ts",
+                "line": 3,
+                "col": 2
+              }
+            }
+          ],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
+  );
+
+  json_test!(ts_type_assertion,
+    r#"
+export function foo(bar: any): asserts bar {}
+    "#,
+    private;
+    [
+      {
+        "kind": "function",
+        "name": "foo",
+        "location": {
+          "filename": "test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "jsDoc": null,
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "bar",
+              "optional": false,
+              "tsType": {
+                "repr": "any",
+                "kind": "keyword",
+                "keyword": "any"
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "asserts bar",
+            "kind": "typePredicate",
+            "typePredicate": {
+              "asserts": true,
+              "param": {
+                "type": "identifier",
+                "name": "bar"
+              },
+              "type": null,
+            }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
+  );
 }
 
 mod printer {
@@ -3057,5 +3321,31 @@ export const sym = Symbol("hello");
     "const n2: number",
     "const bi2: bigint",
     "const sym: symbol"
+  );
+
+  contains_test!(
+    ts_user_defined_type_guards,
+    r#"
+export function f1(val1: A | B): val1 is A {}
+export function f2(val2: any): asserts val2 is string {}
+export function f3(val3: any): asserts val3 {}
+export function assertIsDefined<T>(val4: T): asserts val4 is NonNullable<T> {
+  if (val === undefined || val === null) {
+    throw new AssertionError(
+      `Expected 'val' to be defined, but received ${val}`
+    );
+  }
+}
+export class C {
+  isSomething(): this is Something {
+    return this instanceof Something;
+  }
+}
+    "#;
+    "val1 is A",
+    "asserts val2 is string",
+    "asserts val3",
+    "asserts val4 is NonNullable<T>",
+    "this is Something"
   );
 }
