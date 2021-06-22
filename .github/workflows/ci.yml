@@ -23,7 +23,7 @@ jobs:
       - name: Install rust
         uses: hecrj/setup-rust-action@v1.3.4
         with:
-          rust-version: 1.52.1
+          rust-version: 1.53.0
 
       - name: Install clippy and rustfmt
         run: |
@@ -53,7 +53,7 @@ jobs:
         run: cargo build --locked --release --all-targets
 
       - name: Test
-        run: cargo test --locked --release --all-targets 
+        run: cargo test --locked --release --all-targets
 
       - name: Lint
         run: cargo clippy --all-targets --release --locked -- -D clippy::all
