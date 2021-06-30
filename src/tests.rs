@@ -1477,26 +1477,26 @@ export default function foo(a: number) {
     "location": {
       "filename": "test.ts",
       "line": 2,
-      "col": 15
+      "col": 0
     },
     "jsDoc": null,
     "functionDef": {
       "params": [
           {
-            "name": "a",
             "kind": "identifier",
+            "name": "a",
             "optional": false,
             "tsType": {
-              "keyword": "number",
-              "kind": "keyword",
               "repr": "number",
+              "kind": "keyword",
+              "keyword": "number",
             },
           }
       ],
-      "typeParams": [],
       "returnType": null,
       "isAsync": false,
-      "isGenerator": false
+      "isGenerator": false,
+      "typeParams": []
     }
   }]);
 
