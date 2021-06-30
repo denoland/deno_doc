@@ -166,7 +166,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "clap",
  "futures",
@@ -939,9 +939,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.10.20"
+version = "0.10.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d02578ed17d73cb0233cf27aa6c59220a1910f5f335196dced75c9b2be2900fb"
+checksum = "526ac4386aca6a792d75bb3bd5cb72eb170e2029f4ce0f6a9d280923da4b0ce8"
 dependencies = [
  "ast_node",
  "cfg-if 0.1.10",
@@ -962,9 +962,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_ast"
-version = "0.46.0"
+version = "0.47.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9e64e7a5db16d1a3887291e149bfe0603cd8886c64ca0e210519a879eada926"
+checksum = "ab98b7f6777222431bdf193bbfc6046af53cc105c8702390a9109d1a4511329b"
 dependencies = [
  "is-macro",
  "num-bigint",
@@ -976,9 +976,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.60.0"
+version = "0.61.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5118746b81e7b0cab2d9920383a384567647c623f8a7b73aa87a553fadc572e5"
+checksum = "82ed9b5648252851ae2cfc066717fcae9c5561be74f496eda64afc791d9b17ed"
 dependencies = [
  "either",
  "enum_kind",
@@ -997,9 +997,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_visit"
-version = "0.32.0"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d52f36a7e74c2895c97c1d86e61fd74b50027ec838b5c6d0b44485f6cbde868"
+checksum = "23ad83badbeda1123290a73ca6254158ed027f72f1b593f96acddcaed5d49c6a"
 dependencies = [
  "num-bigint",
  "swc_atoms",
@@ -1010,9 +1010,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.39.0"
+version = "0.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3366daf79ec1a0820dc307fd7cf50536106e2fab11cdeffdf84c0b2a9c9204bb"
+checksum = "02310c936439262f27053e42b4b2922f036fa1f75630fe6a45379d45e6ba74d8"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_parser",
