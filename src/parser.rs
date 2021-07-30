@@ -131,7 +131,7 @@ impl DocParser {
     syntax: Syntax,
     source_code: &str,
   ) -> Result<Vec<DocNode>, DocError> {
-    let module_doc = self.parse_module(file_name, syntax, &source_code)?;
+    let module_doc = self.parse_module(file_name, syntax, source_code)?;
     Ok(module_doc.definitions)
   }
 

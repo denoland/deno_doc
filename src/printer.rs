@@ -71,7 +71,7 @@ impl<'a> DocPrinter<'a> {
         ))
       )?;
 
-      self.format_signature(w, &node, indent)?;
+      self.format_signature(w, node, indent)?;
 
       let js_doc = &node.js_doc;
       if let Some(js_doc) = js_doc {
@@ -140,7 +140,7 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
   ) -> FmtResult {
     for line in jsdoc.lines() {
-      writeln!(w, "{}{}", Indent(indent), colors::gray(&line))?;
+      writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
     }
 
     Ok(())
@@ -151,7 +151,7 @@ impl<'a> DocPrinter<'a> {
     for node in &class_def.constructors {
       writeln!(w, "{}{}", Indent(1), node,)?;
       if let Some(js_doc) = &node.js_doc {
-        self.format_jsdoc(w, &js_doc, 2)?;
+        self.format_jsdoc(w, js_doc, 2)?;
       }
     }
     for node in class_def.properties.iter().filter(|node| {
@@ -163,7 +163,7 @@ impl<'a> DocPrinter<'a> {
     }) {
       writeln!(w, "{}{}", Indent(1), node,)?;
       if let Some(js_doc) = &node.js_doc {
-        self.format_jsdoc(w, &js_doc, 2)?;
+        self.format_jsdoc(w, js_doc, 2)?;
       }
     }
     for index_sign_def in &class_def.index_signatures {
@@ -227,7 +227,7 @@ impl<'a> DocPrinter<'a> {
   ) -> FmtResult {
     let elements = &node.namespace_def.as_ref().unwrap().elements;
     for node in elements {
-      self.format_signature(w, &node, 1)?;
+      self.format_signature(w, node, 1)?;
       if let Some(js_doc) = &node.js_doc {
         self.format_jsdoc(w, js_doc, 2)?;
       }

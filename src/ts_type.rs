@@ -1030,7 +1030,7 @@ pub fn infer_simple_ts_type_from_expr(
   match expr {
     Expr::Lit(lit) => {
       // e.g.) const n = 100;
-      infer_ts_type_from_lit(&lit, is_const)
+      infer_ts_type_from_lit(lit, is_const)
     }
     Expr::New(expr) => {
       // e.g.) const d = new Date()
@@ -1194,7 +1194,7 @@ impl Display for TsTypeDef {
       }
       TsTypeDefKind::Intersection => {
         let intersection = self.intersection.as_ref().unwrap();
-        write!(f, "{}", SliceDisplayer::new(&intersection, " & ", false))
+        write!(f, "{}", SliceDisplayer::new(intersection, " & ", false))
       }
       TsTypeDefKind::Keyword => {
         write!(f, "{}", colors::cyan(self.keyword.as_ref().unwrap()))
@@ -1234,7 +1234,7 @@ impl Display for TsTypeDef {
       TsTypeDefKind::This => write!(f, "this"),
       TsTypeDefKind::Tuple => {
         let tuple = self.tuple.as_ref().unwrap();
-        write!(f, "[{}]", SliceDisplayer::new(&tuple, ", ", false))
+        write!(f, "[{}]", SliceDisplayer::new(tuple, ", ", false))
       }
       TsTypeDefKind::TypeLiteral => {
         let type_literal = self.type_literal.as_ref().unwrap();

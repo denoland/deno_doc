@@ -36,53 +36,53 @@ fn style(s: &str, colorspec: ColorSpec) -> impl fmt::Display {
 pub fn yellow(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(11)));
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn cyan(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(14)));
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn red(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Red));
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn green(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Green)).set_intense(true);
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn magenta(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Magenta));
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn bold(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_bold(true);
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn gray(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(8)));
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn italic_gray(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(8))).set_italic(true);
-  style(&s, style_spec)
+  style(s, style_spec)
 }
 
 pub fn intense_blue(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Blue)).set_intense(true);
-  style(&s, style_spec)
+  style(s, style_spec)
 }
