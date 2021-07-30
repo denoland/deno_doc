@@ -261,7 +261,7 @@ pub fn class_to_class_def(
           Some(&doc_parser.ast_parser.source_map),
         );
         let fn_def =
-          function_to_function_def(&doc_parser, &class_method.function);
+          function_to_function_def(doc_parser, &class_method.function);
         let method_def = ClassMethodDef {
           js_doc: method_js_doc,
           accessibility: class_method.accessibility,

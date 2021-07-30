@@ -33,7 +33,7 @@ pub fn get_doc_for_var_decl(
   let variable_def = VariableDef {
     ts_type: maybe_ts_type.or_else(|| {
       infer_simple_ts_type_from_var_decl(
-        &var_declarator,
+        var_declarator,
         var_decl.kind == swc_ecmascript::ast::VarDeclKind::Const,
       )
     }),

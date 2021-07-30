@@ -53,6 +53,6 @@ pub fn get_doc_for_fn_decl(
   fn_decl: &swc_ecmascript::ast::FnDecl,
 ) -> (String, FunctionDef) {
   let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(&doc_parser, &fn_decl.function);
+  let fn_def = function_to_function_def(doc_parser, &fn_decl.function);
   (name, fn_def)
 }
