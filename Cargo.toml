@@ -18,7 +18,7 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.125", features = ["derive"] }
 serde_json = { version = "1.0.64", features = [ "preserve_order" ] }
 swc_common = "0.11.4"
-swc_ecmascript = { version = "0.51.0", features = ["parser"] }
+swc_ecmascript = { version = "0.52.1", features = ["parser"] }
 termcolor = "1.1.2"
 regex = "=1.4.3"
 
