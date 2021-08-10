@@ -1,5 +1,5 @@
 {
-  "name": "deno_graph",
+  "name": "deno_doc",
   "build": {
     "dockerfile": "Dockerfile"
   },
