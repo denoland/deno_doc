@@ -14,7 +14,7 @@ name = "deno_doc"
 name = "ddoc"
 
 [dependencies]
-deno_graph = { git = "https://github.com/kitsonk/deno_graph" }
+deno_graph = "0.1.0"
 futures = "0.3.16"
 js-sys = { version = "0.3.52", optional = true }
 lazy_static = "1.4.0"
