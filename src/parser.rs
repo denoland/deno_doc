@@ -159,7 +159,7 @@ impl DocParser {
         .graph
         .resolve_dependency(specifier, referrer)
         .ok_or_else(|| DocError::Resolve(specifier.clone()))?;
-      let doc_nodes = self.parse_with_reexports(&resolved_specifier)?;
+      let doc_nodes = self.parse_with_reexports(resolved_specifier)?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
