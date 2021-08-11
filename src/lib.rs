@@ -36,6 +36,10 @@ pub use parser::DocError;
 pub use parser::DocParser;
 pub use printer::DocPrinter;
 
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 #[cfg(test)]
 mod tests;
 
