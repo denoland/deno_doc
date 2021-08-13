@@ -33,14 +33,17 @@ impl Loader for JsLoader {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
-    let result = self.load.call2(&this, &arg0, &arg1).unwrap();
+    let result = self.load.call2(&this, &arg0, &arg1);
     let f = async move {
-      let response = JsFuture::from(js_sys::Promise::resolve(&result)).await;
+      let response = match result {
+        Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,
+        Err(err) => Err(err),
+      };
       (
         specifier,
         response
           .map(|value| value.into_serde().unwrap())
-          .map_err(|_| anyhow!("promise rejected")),
+          .map_err(|_| anyhow!("load rejected or errored")),
       )
     };
     Box::pin(f)
@@ -82,8 +85,9 @@ pub async fn doc(
   root_specifier: String,
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
-) -> JsValue {
-  let root_specifier = ModuleSpecifier::parse(&root_specifier).unwrap();
+) -> Result<JsValue, JsValue> {
+  let root_specifier = ModuleSpecifier::parse(&root_specifier)
+    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   let loader = Box::new(JsLoader::new(load));
   let maybe_resolver: Option<Box<dyn Resolver>> =
     if let Some(resolve) = maybe_resolve {
@@ -95,8 +99,10 @@ pub async fn doc(
     create_graph(root_specifier.clone(), loader, maybe_resolver, None).await;
   let entries = DocParser::new(graph, false)
     .parse_with_reexports(&root_specifier)
-    .unwrap();
+    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
-  entries.serialize(&serializer).unwrap()
+  entries
+    .serialize(&serializer)
+    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
 }

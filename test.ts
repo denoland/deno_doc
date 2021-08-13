@@ -3,6 +3,7 @@
 import {
   assert,
   assertEquals,
+  assertThrowsAsync,
 } from "https://deno.land/std@0.104.0/testing/asserts.ts";
 import { doc } from "./mod.ts";
 
@@ -29,5 +30,33 @@ Deno.test({
         keyword: "string",
       },
     }]);
+  },
+});
+
+Deno.test({
+  name: "doc() - missing specifier",
+  // TODO(@kitsonk) - remove when new deno_graph crate published
+  sanitizeResources: false,
+  fn() {
+    return assertThrowsAsync(
+      async () => {
+        await doc("https://deno.land/x/bad.ts");
+      },
+      Error,
+      `Unable to load specifier: "https://deno.land/x/bad.ts"`,
+    );
+  },
+});
+
+Deno.test({
+  name: "doc() - bad specifier",
+  fn() {
+    return assertThrowsAsync(
+      async () => {
+        await doc("./bad.ts");
+      },
+      Error,
+      "relative URL without a base",
+    );
   },
 });
