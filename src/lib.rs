@@ -1,48 +1,58 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
 #[macro_use]
+extern crate cfg_if;
+#[macro_use]
 extern crate lazy_static;
 #[cfg(test)]
 #[macro_use]
 extern crate serde_json;
 
-pub mod class;
+mod class;
 mod colors;
 mod display;
-pub mod r#enum;
-pub mod function;
-pub mod interface;
-pub mod module;
-pub mod namespace;
+mod r#enum;
+mod function;
+mod interface;
+mod module;
+mod namespace;
 mod node;
-pub mod params;
-pub mod parser;
-pub mod printer;
+mod params;
+mod parser;
+#[cfg(feature = "rust")]
+mod printer;
 mod swc_util;
-pub mod ts_type;
-pub mod ts_type_param;
-pub mod type_alias;
-pub mod variable;
+mod ts_type;
+mod ts_type_param;
+mod type_alias;
+mod variable;
 
-pub use node::DocNode;
-pub use node::DocNodeKind;
-pub use node::ImportDef;
-pub use node::Location;
-pub use node::ModuleDoc;
-pub use node::Reexport;
-pub use node::ReexportKind;
-pub use params::ParamDef;
-pub use parser::DocError;
+use node::DocNode;
+use node::ImportDef;
+use node::Location;
+use node::ReexportKind;
+use params::ParamDef;
 pub use parser::DocParser;
-pub use printer::DocPrinter;
 
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+cfg_if! {
+  if #[cfg(feature = "rust")] {
+    pub use node::DocNodeKind;
+    pub use parser::DocError;
+    pub use printer::DocPrinter;
+  }
+}
+
+cfg_if! {
+  if #[cfg(feature = "wasm")] {
+    mod js;
+    pub use js::doc;
+  }
+}
 
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "rust")]
 pub fn find_nodes_by_name_recursively(
   doc_nodes: Vec<DocNode>,
   name: String,
@@ -73,6 +83,7 @@ pub fn find_nodes_by_name_recursively(
   }
 }
 
+#[cfg(feature = "rust")]
 fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: String) -> Vec<DocNode> {
   let mut found: Vec<DocNode> = vec![];
   for node in doc_nodes {
@@ -83,6 +94,7 @@ fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: String) -> Vec<DocNode> {
   found
 }
 
+#[cfg(feature = "rust")]
 fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
   match node.kind {
     DocNodeKind::Namespace => {

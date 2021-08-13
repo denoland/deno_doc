@@ -9,10 +9,12 @@ lazy_static! {
   static ref USE_COLOR: AtomicBool = AtomicBool::new(false);
 }
 
+#[cfg(feature = "rust")]
 pub fn enable_color() {
   USE_COLOR.store(true, Ordering::Relaxed);
 }
 
+#[cfg(feature = "rust")]
 pub fn disable_color() {
   USE_COLOR.store(false, Ordering::Relaxed);
 }
@@ -69,12 +71,14 @@ pub fn bold(s: &str) -> impl fmt::Display {
   style(s, style_spec)
 }
 
+#[cfg(feature = "rust")]
 pub fn gray(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(8)));
   style(s, style_spec)
 }
 
+#[cfg(feature = "rust")]
 pub fn italic_gray(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Ansi256(8))).set_italic(true);

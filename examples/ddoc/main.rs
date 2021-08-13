@@ -2,17 +2,17 @@
 
 use clap::App;
 use clap::Arg;
+use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocPrinter;
-use deno_doc::find_nodes_by_name_recursively;
 use deno_graph::create_graph;
-use deno_graph::ModuleSpecifier;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use futures::future;
+use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
+use futures::future;
 use std::env::current_dir;
 use std::fs::read_to_string;
 
@@ -50,10 +50,11 @@ fn main() {
 
   let source_file = matches.value_of("source_file").unwrap();
   let maybe_filter = matches.value_of("filter");
-  let source_file = ModuleSpecifier::from_directory_path(current_dir().unwrap())
-    .unwrap()
-    .join(source_file)
-    .unwrap();
+  let source_file =
+    ModuleSpecifier::from_directory_path(current_dir().unwrap())
+      .unwrap()
+      .join(source_file)
+      .unwrap();
 
   let loader = Box::new(SourceFileLoader {});
   let future = async move {
