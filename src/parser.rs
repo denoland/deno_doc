@@ -1,7 +1,8 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::swc_util::AstParser;
 use crate::ReexportKind;
-use futures::future::LocalBoxFuture;
+use deno_graph::ModuleGraph;
+use deno_graph::ModuleSpecifier;
 use swc_common::comments::CommentKind;
 use swc_common::Span;
 use swc_ecmascript::ast::Decl;
@@ -21,7 +22,6 @@ use crate::node::ModuleDoc;
 use crate::swc_util;
 use crate::ImportDef;
 use crate::Location;
-use futures::FutureExt;
 use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
@@ -53,19 +53,6 @@ impl From<swc_util::SwcDiagnosticBuffer> for DocError {
   }
 }
 
-pub trait DocFileLoader {
-  fn resolve(
-    &self,
-    specifier: &str,
-    referrer: &str,
-  ) -> Result<String, DocError>;
-
-  fn load_source_code(
-    &self,
-    specifier: &str,
-  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>>;
-}
-
 #[derive(Clone)]
 enum ImportKind {
   Namespace(String),
@@ -80,15 +67,15 @@ struct Import {
 
 pub struct DocParser {
   pub ast_parser: AstParser,
-  pub loader: Box<dyn DocFileLoader>,
+  pub graph: ModuleGraph,
   pub private: bool,
 }
 
 impl DocParser {
-  pub fn new(loader: Box<dyn DocFileLoader>, private: bool) -> Self {
+  pub fn new(graph: ModuleGraph, private: bool) -> Self {
     DocParser {
-      loader,
       ast_parser: AstParser::default(),
+      graph,
       private,
     }
   }
@@ -97,17 +84,19 @@ impl DocParser {
   /// as well as a list of reexported items which need to be fetched from other modules.
   pub fn parse_module(
     &self,
-    file_name: &str,
+    specifier: &ModuleSpecifier,
     syntax: Syntax,
     source_code: &str,
   ) -> Result<ModuleDoc, DocError> {
     let parse_result =
-      self.ast_parser.parse_module(file_name, syntax, source_code);
+      self
+        .ast_parser
+        .parse_module(&specifier.to_string(), syntax, source_code);
     let module = parse_result?;
     let mut doc_entries =
       self.get_doc_nodes_for_module_body(module.body.clone());
     let import_doc_entries =
-      self.get_doc_nodes_for_module_imports(module.body.clone(), file_name)?;
+      self.get_doc_nodes_for_module_imports(module.body.clone(), specifier)?;
     doc_entries.extend(import_doc_entries);
     let reexports = self.get_reexports_for_module_body(module.body);
     let module_doc = ModuleDoc {
@@ -118,27 +107,39 @@ impl DocParser {
   }
 
   /// Fetches `file_name` and parses it.
-  pub async fn parse(&self, file_name: &str) -> Result<Vec<DocNode>, DocError> {
-    let (syntax, source_code) = self.loader.load_source_code(file_name).await?;
+  pub fn parse(
+    &self,
+    specifier: &ModuleSpecifier,
+  ) -> Result<Vec<DocNode>, DocError> {
+    let module = self
+      .graph
+      .try_get(specifier)
+      .map_err(|err| DocError::Resolve(err.to_string()))?
+      .ok_or_else(|| DocError::Resolve(specifier.to_string()))?;
 
-    self.parse_source(file_name, syntax, source_code.as_str())
+    self.parse_source(
+      &module.specifier,
+      Syntax::from(&module.media_type),
+      &module.source,
+    )
   }
 
   /// Parses a module and returns a list of exported items (no reexports).
   pub fn parse_source(
     &self,
-    file_name: &str,
+    specifier: &ModuleSpecifier,
     syntax: Syntax,
     source_code: &str,
   ) -> Result<Vec<DocNode>, DocError> {
-    let module_doc = self.parse_module(file_name, syntax, source_code)?;
-    Ok(module_doc.definitions)
+    self
+      .parse_module(specifier, syntax, source_code)
+      .map(|md| md.definitions)
   }
 
-  async fn flatten_reexports(
+  fn flatten_reexports(
     &self,
     reexports: &[node::Reexport],
-    referrer: &str,
+    referrer: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
     let mut by_src: HashMap<String, Vec<node::Reexport>> = HashMap::new();
 
@@ -154,8 +155,11 @@ impl DocParser {
     }
 
     for specifier in by_src.keys() {
-      let resolved_specifier = self.loader.resolve(specifier, referrer)?;
-      let doc_nodes = self.parse_with_reexports(&resolved_specifier).await?;
+      let resolved_specifier = self
+        .graph
+        .resolve_dependency(specifier, referrer)
+        .ok_or_else(|| DocError::Resolve(specifier.clone()))?;
+      let doc_nodes = self.parse_with_reexports(resolved_specifier)?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
@@ -210,35 +214,38 @@ impl DocParser {
   }
 
   /// Fetches `file_name`, parses it, and resolves its reexports.
-  pub fn parse_with_reexports<'a>(
-    &'a self,
-    file_name: &'a str,
-  ) -> LocalBoxFuture<Result<Vec<DocNode>, DocError>> {
-    async move {
-      let (syntax, source_code) =
-        self.loader.load_source_code(file_name).await?;
+  pub fn parse_with_reexports(
+    &self,
+    specifier: &ModuleSpecifier,
+  ) -> Result<Vec<DocNode>, DocError> {
+    let module = self
+      .graph
+      .try_get(specifier)
+      .map_err(|err| DocError::Resolve(err.to_string()))?
+      .ok_or_else(|| DocError::Resolve(specifier.to_string()))?;
 
-      let module_doc = self.parse_module(file_name, syntax, &source_code)?;
+    let module_doc = self.parse_module(
+      &module.specifier,
+      Syntax::from(&module.media_type),
+      &module.source,
+    )?;
 
-      let flattened_docs = if !module_doc.reexports.is_empty() {
-        let mut flattenned_reexports = self
-          .flatten_reexports(&module_doc.reexports, file_name)
-          .await?;
-        flattenned_reexports.extend(module_doc.definitions);
-        flattenned_reexports
-      } else {
-        module_doc.definitions
-      };
+    let flattened_docs = if !module_doc.reexports.is_empty() {
+      let mut flattenned_reexports =
+        self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
+      flattenned_reexports.extend(module_doc.definitions);
+      flattenned_reexports
+    } else {
+      module_doc.definitions
+    };
 
-      Ok(flattened_docs)
-    }
-    .boxed_local()
+    Ok(flattened_docs)
   }
 
   fn get_doc_nodes_for_module_imports(
     &self,
     module_body: Vec<swc_ecmascript::ast::ModuleItem>,
-    referrer: &str,
+    referrer: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
     let mut imports = vec![];
 
@@ -273,9 +280,12 @@ impl DocParser {
             ),
           };
 
-          let resolved_specifier = self.loader.resolve(&src, referrer)?;
+          let resolved_specifier = self
+            .graph
+            .resolve_dependency(&src, referrer)
+            .ok_or_else(|| DocError::Resolve(src.clone()))?;
           let import_def = ImportDef {
-            src: resolved_specifier,
+            src: resolved_specifier.to_string(),
             imported: maybe_imported_name,
           };
 

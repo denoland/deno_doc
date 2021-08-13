@@ -20,18 +20,6 @@ use swc_ecmascript::parser::Parser;
 use swc_ecmascript::parser::StringInput;
 use swc_ecmascript::parser::Syntax;
 
-#[cfg(test)]
-use swc_ecmascript::parser::TsConfig;
-
-#[cfg(test)]
-pub fn get_default_ts_config() -> TsConfig {
-  TsConfig {
-    dynamic_import: true,
-    decorators: true,
-    ..Default::default()
-  }
-}
-
 #[derive(Clone, Debug)]
 pub struct SwcDiagnosticBuffer {
   pub diagnostics: Vec<String>,

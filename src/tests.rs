@@ -1,62 +1,25 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use crate::parser::DocError;
-use crate::parser::DocFileLoader;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use crate::swc_util;
-use futures::future::LocalBoxFuture;
-use futures::FutureExt;
+use deno_graph::create_graph;
+use deno_graph::source::MemoryLoader;
+use deno_graph::ModuleGraph;
+use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
 use serde_json::json;
-use std::collections::HashMap;
-use swc_ecmascript::parser::Syntax;
-use swc_ecmascript::parser::TsConfig;
-use url::Url;
 
-pub struct TestLoader {
-  files: HashMap<String, String>,
-}
-
-impl TestLoader {
-  pub fn new(files_vec: Vec<(String, String)>) -> Box<Self> {
-    let mut files = HashMap::new();
-
-    for file_tuple in files_vec {
-      files.insert(file_tuple.0, file_tuple.1);
-    }
-
-    Box::new(Self { files })
-  }
-}
-
-impl DocFileLoader for TestLoader {
-  fn resolve(
-    &self,
-    specifier: &str,
-    referrer: &str,
-  ) -> Result<String, DocError> {
-    let url = Url::parse(referrer).expect("Must be valid referrer");
-    let url = url.join(specifier).expect("Invalid url");
-    Ok(url.to_string())
-  }
-
-  fn load_source_code(
-    &self,
-    specifier: &str,
-  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
-    let res = match self.files.get(specifier) {
-      Some(source_code) => Ok((
-        Syntax::Typescript(swc_util::get_default_ts_config()),
-        source_code.to_string(),
-      )),
-      None => Err(DocError::Io(std::io::Error::new(
-        std::io::ErrorKind::NotFound,
-        "not found".to_string(),
-      ))),
-    };
-
-    async move { res }.boxed_local()
-  }
+pub(crate) async fn setup<S: AsRef<str> + Copy>(
+  root: S,
+  sources: Vec<(S, S)>,
+) -> (ModuleGraph, ModuleSpecifier) {
+  let sources = sources
+    .into_iter()
+    .map(|(s, c)| (s, Ok((s, None, c))))
+    .collect();
+  let memory_loader = Box::new(MemoryLoader::new(sources, vec![]));
+  let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
+  let graph = create_graph(root.clone(), memory_loader, None, None).await;
+  (graph, root)
 }
 
 macro_rules! doc_test {
@@ -71,16 +34,16 @@ macro_rules! doc_test {
   ( $name:ident, $source:expr, $private:expr; $block:expr ) => {
     #[tokio::test]
     async fn $name() {
-      use crate::tests::TestLoader;
+      use super::setup;
 
       let source_code = $source;
       let private = $private;
 
-      let loader =
-        TestLoader::new(vec![("test.ts".to_string(), source_code.to_string())]);
-      let entries = DocParser::new(loader, private)
-        .parse("test.ts")
-        .await
+      let (graph, specifier) = setup("file:///test.ts", vec![
+        ("file:///test.ts", source_code)
+      ]).await;
+      let entries = DocParser::new(graph, private)
+        .parse(&specifier)
         .unwrap();
 
       #[allow(unused_variables)]
@@ -165,20 +128,17 @@ export function fooFn(a: number) {
   return a;
 }
 "#;
-  let loader = TestLoader::new(vec![
-    ("file:///test.ts".to_string(), test_source_code.to_string()),
-    (
-      "file:///reexport.ts".to_string(),
-      reexport_source_code.to_string(),
-    ),
-    (
-      "file:///nested_reexport.ts".to_string(),
-      nested_reexport_source_code.to_string(),
-    ),
-  ]);
-  let entries = DocParser::new(loader, false)
-    .parse_with_reexports("file:///test.ts")
-    .await
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![
+      ("file:///test.ts", test_source_code),
+      ("file:///reexport.ts", reexport_source_code),
+      ("file:///nested_reexport.ts", nested_reexport_source_code),
+    ],
+  )
+  .await;
+  let entries = DocParser::new(graph, false)
+    .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 3);
 
@@ -266,16 +226,16 @@ export class Hello {}
 export { Hello } from "./reexport.ts";
 "#;
 
-  let loader = TestLoader::new(vec![
-    ("file:///test.ts".to_string(), test_source_code.to_string()),
-    (
-      "file:///reexport.ts".to_string(),
-      reexport_source_code.to_string(),
-    ),
-  ]);
-  let entries = DocParser::new(loader, false)
-    .parse_with_reexports("file:///test.ts")
-    .await
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![
+      ("file:///test.ts", test_source_code),
+      ("file:///reexport.ts", reexport_source_code),
+    ],
+  )
+  .await;
+  let entries = DocParser::new(graph, false)
+    .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
 
@@ -334,14 +294,17 @@ async fn deep_reexports() {
   let bar_source_code = r#"export * from "./foo.ts""#;
   let baz_source_code = r#"export * from "./bar.ts""#;
 
-  let loader = TestLoader::new(vec![
-    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
-    ("file:///bar.ts".to_string(), bar_source_code.to_string()),
-    ("file:///baz.ts".to_string(), baz_source_code.to_string()),
-  ]);
-  let entries = DocParser::new(loader, false)
-    .parse_with_reexports("file:///baz.ts")
-    .await
+  let (graph, specifier) = setup(
+    "file:///baz.ts",
+    vec![
+      ("file:///foo.ts", foo_source_code),
+      ("file:///bar.ts", bar_source_code),
+      ("file:///baz.ts", baz_source_code),
+    ],
+  )
+  .await;
+  let entries = DocParser::new(graph, false)
+    .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 1);
 
@@ -402,12 +365,9 @@ export namespace Deno {
   }
 }
 "#;
-  let loader =
-    TestLoader::new(vec![("test.ts".to_string(), source_code.to_string())]);
-  let entries = DocParser::new(loader, false)
-    .parse("test.ts")
-    .await
-    .unwrap();
+  let (graph, specifier) =
+    setup("file:///test.ts", vec![("file:///test.ts", source_code)]).await;
+  let entries = DocParser::new(graph, false).parse(&specifier).unwrap();
 
   // Namespace
   let found =
@@ -484,13 +444,16 @@ async fn exports_imported_earlier() {
   export { foo };
   "#;
 
-  let loader = TestLoader::new(vec![
-    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
-    ("file:///test.ts".to_string(), test_source_code.to_string()),
-  ]);
-  let entries = DocParser::new(loader, false)
-    .parse_with_reexports("file:///test.ts")
-    .await
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![
+      ("file:///foo.ts", foo_source_code),
+      ("file:///test.ts", test_source_code),
+    ],
+  )
+  .await;
+  let entries = DocParser::new(graph, false)
+    .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
 
@@ -541,13 +504,16 @@ async fn exports_imported_earlier_private() {
   export { foo };
   "#;
 
-  let loader = TestLoader::new(vec![
-    ("file:///foo.ts".to_string(), foo_source_code.to_string()),
-    ("file:///test.ts".to_string(), test_source_code.to_string()),
-  ]);
-  let entries = DocParser::new(loader, true)
-    .parse_with_reexports("file:///test.ts")
-    .await
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![
+      ("file:///foo.ts", foo_source_code),
+      ("file:///test.ts", test_source_code),
+    ],
+  )
+  .await;
+  let entries = DocParser::new(graph, true)
+    .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
 
@@ -591,49 +557,18 @@ async fn exports_imported_earlier_private() {
 
 #[tokio::test]
 async fn variable_syntax() {
-  struct VariableSyntaxLoader;
-
-  impl DocFileLoader for VariableSyntaxLoader {
-    fn resolve(
-      &self,
-      specifier: &str,
-      referrer: &str,
-    ) -> Result<String, DocError> {
-      let url = Url::parse(referrer).expect("Must be valid referrer");
-      let url = url.join(specifier).expect("Invalid url");
-      Ok(url.to_string())
-    }
-
-    fn load_source_code(
-      &self,
-      specifier: &str,
-    ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
-      let res = match specifier {
-        "file:///foo.ts" => Ok((
-          Syntax::Typescript(swc_util::get_default_ts_config()),
-          String::from("export * from './bar.tsx'"),
-        )),
-        "file:///bar.tsx" => Ok((
-          Syntax::Typescript(TsConfig {
-            tsx: true,
-            ..swc_util::get_default_ts_config()
-          }),
-          String::from("export default <foo>bar</foo>"),
-        )),
-        _ => Err(DocError::Io(std::io::Error::new(
-          std::io::ErrorKind::NotFound,
-          "not found".to_string(),
-        ))),
-      };
-
-      async move { res }.boxed_local()
-    }
-  }
+  let (graph, specifier) = setup(
+    "file:///foo.ts",
+    vec![
+      ("file:///foo.ts", "export * from './bar.tsx'"),
+      ("file:///bar.tsx", "export default <foo>bar</foo>"),
+    ],
+  )
+  .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(Box::new(VariableSyntaxLoader), false)
-    .parse_with_reexports("file:///foo.ts")
-    .await
+  DocParser::new(graph, false)
+    .parse_with_reexports(&specifier)
     .unwrap();
 }
 
@@ -660,7 +595,7 @@ declare namespace RootNs {
     "kind": "namespace",
     "name": "RootNs",
     "location": {
-      "filename": "test.ts",
+      "filename": "file:///test.ts",
       "line": 3,
       "col": 0
     },
@@ -671,7 +606,7 @@ declare namespace RootNs {
           "kind": "variable",
           "name": "a",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 4,
             "col": 4
           },
@@ -692,7 +627,7 @@ declare namespace RootNs {
           "kind": "namespace",
           "name": "NestedNs",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 7,
             "col": 4
           },
@@ -703,7 +638,7 @@ declare namespace RootNs {
                 "kind": "enum",
                 "name": "Foo",
                 "location": {
-                  "filename": "test.ts",
+                  "filename": "file:///test.ts",
                   "line": 8,
                   "col": 6
                 },
@@ -759,7 +694,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     "kind": "class",
     "name": "Foobar",
     "location": {
-      "filename": "test.ts",
+      "filename": "file:///test.ts",
       "line": 3,
       "col": 0
     },
@@ -825,7 +760,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             }
           ],
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 10,
             "col": 4
           }
@@ -846,7 +781,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "isStatic": false,
           "name": "private1",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 4,
             "col": 4
           }
@@ -865,7 +800,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "isStatic": false,
           "name": "protected1",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 5,
             "col": 4
           }
@@ -884,7 +819,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "isStatic": false,
           "name": "public1",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 6,
             "col": 4
           }
@@ -903,7 +838,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "isStatic": false,
           "name": "public2",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 7,
             "col": 4
           }
@@ -940,7 +875,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             "isGenerator": false
           },
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 13,
             "col": 4
           }
@@ -965,7 +900,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             "typeParams": []
           },
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 18,
             "col": 4
           }
@@ -1000,7 +935,7 @@ export const tpl2 = `Value: ${num}`;
     "kind":"variable",
     "name":"fizzBuzz",
     "location":{
-      "filename":"test.ts",
+      "filename":"file:///test.ts",
       "line":3,
       "col":0
     },
@@ -1021,7 +956,7 @@ export const tpl2 = `Value: ${num}`;
     "kind":"variable",
     "name":"env",
     "location":{
-      "filename":"test.ts",
+      "filename":"file:///test.ts",
       "line":5,
       "col":0
     },
@@ -1106,7 +1041,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"num",
       "location": {
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":13,
         "col":0
       },
@@ -1127,7 +1062,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"bool",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":14,
         "col":0
       },
@@ -1148,7 +1083,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"bigint",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":15,
         "col":0
       },
@@ -1169,7 +1104,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"regex",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":16,
         "col":0
       },
@@ -1190,7 +1125,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"date",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":17,
         "col":0
       },
@@ -1211,7 +1146,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"tpl1",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":18,
         "col":0
       },
@@ -1232,7 +1167,7 @@ export const tpl2 = `Value: ${num}`;
       "kind":"variable",
       "name":"tpl2",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":19,
         "col":0
       },
@@ -1264,7 +1199,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"str",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":2,
         "col":0
       },
@@ -1282,7 +1217,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"num",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":3,
         "col":0
       },
@@ -1300,7 +1235,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"bool",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":4,
         "col":0
       },
@@ -1318,7 +1253,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"dateStr",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":5,
         "col":0
       },
@@ -1336,7 +1271,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"regex",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":6,
         "col":0
       },
@@ -1357,7 +1292,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"sym",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":7,
         "col":0
       },
@@ -1375,7 +1310,7 @@ export let tpl = `foobarbaz`;
       "kind":"variable",
       "name":"tpl",
       "location":{
-        "filename":"test.ts",
+        "filename":"file:///test.ts",
         "line":8,
         "col":0
       },
@@ -1404,7 +1339,7 @@ export default class Foobar {
       "kind": "class",
       "name": "default",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 3,
         "col": 0
       },
@@ -1453,7 +1388,7 @@ export default class Foobar {
               }
             ],
             "location": {
-              "filename": "test.ts",
+              "filename": "file:///test.ts",
               "line": 5,
               "col": 4
             }
@@ -1475,7 +1410,7 @@ export default function foo(a: number) {
     "kind": "function",
     "name": "default",
     "location": {
-      "filename": "test.ts",
+      "filename": "file:///test.ts",
       "line": 2,
       "col": 0
     },
@@ -1514,7 +1449,7 @@ export default interface Reader {
       "kind": "interface",
       "name": "default",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 5,
         "col": 0
       },
@@ -1525,7 +1460,7 @@ export default interface Reader {
           {
             "name": "read",
             "location": {
-              "filename": "test.ts",
+              "filename": "file:///test.ts",
               "line": 7,
               "col": 4
             },
@@ -1587,7 +1522,7 @@ export default interface Reader {
         "kind": "variable",
         "name": "default",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 1,
           "col": 0
         },
@@ -1623,7 +1558,7 @@ export enum Hello {
     "kind": "enum",
     "name": "Hello",
     "location": {
-      "filename": "test.ts",
+      "filename": "file:///test.ts",
       "line": 5,
       "col": 0
     },
@@ -1756,7 +1691,7 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
       "kind": "function",
       "location": {
         "col": 0,
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 12,
       },
       "name": "foo",
@@ -1882,7 +1817,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
     "kind": "function",
     "location": {
       "col": 0,
-      "filename": "test.ts",
+      "filename": "file:///test.ts",
       "line": 7,
     },
     "name": "foo",
@@ -1908,7 +1843,7 @@ export interface Reader extends Foo, Bar {
       "kind": "interface",
       "name": "Reader",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 11,
         "col": 0
       },
@@ -1936,7 +1871,7 @@ export interface Reader extends Foo, Bar {
           {
             "name": "read",
             "location": {
-              "filename": "test.ts",
+              "filename": "file:///test.ts",
               "line": 13,
               "col": 4
             },
@@ -2001,7 +1936,7 @@ export interface TypedIface<T> {
       "kind": "interface",
       "name": "TypedIface",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 2,
         "col": 0
       },
@@ -2012,7 +1947,7 @@ export interface TypedIface<T> {
           {
             "name": "something",
             "location": {
-              "filename": "test.ts",
+              "filename": "file:///test.ts",
               "line": 3,
               "col": 4
             },
@@ -2048,7 +1983,7 @@ export type NumberArray = Array<number>;
     "kind": "typeAlias",
     "name": "NumberArray",
     "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
       "line": 3,
       "col": 0
     },
@@ -2092,7 +2027,7 @@ export namespace RootNs {
     "kind": "namespace",
     "name": "RootNs",
     "location": {
-      "filename": "test.ts",
+      "filename": "file:///test.ts",
       "line": 3,
       "col": 0
     },
@@ -2103,7 +2038,7 @@ export namespace RootNs {
           "kind": "variable",
           "name": "a",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 4,
             "col": 4
           },
@@ -2124,7 +2059,7 @@ export namespace RootNs {
           "kind": "namespace",
           "name": "NestedNs",
           "location": {
-            "filename": "test.ts",
+            "filename": "file:///test.ts",
             "line": 7,
             "col": 4
           },
@@ -2135,7 +2070,7 @@ export namespace RootNs {
                 "kind": "enum",
                 "name": "Foo",
                 "location": {
-                  "filename": "test.ts",
+                  "filename": "file:///test.ts",
                   "line": 8,
                   "col": 6
                 },
@@ -2176,7 +2111,7 @@ export { hello, say, foo as bar };
       "kind": "variable",
       "name": "hello",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 2,
         "col": 0
       },
@@ -2197,7 +2132,7 @@ export { hello, say, foo as bar };
       "kind": "function",
       "name": "say",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 3,
         "col": 0
       },
@@ -2229,7 +2164,7 @@ export { hello, say, foo as bar };
       "kind": "function",
       "name": "bar",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 4,
         "col": 0
       },
@@ -2259,7 +2194,7 @@ export { hello, say, foo as bar };
         "kind": "function",
         "name": "bar",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 2
         },
@@ -2289,7 +2224,7 @@ export function bar() {};
         "kind": "function",
         "name": "bar",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 3,
           "col": 0
         },
@@ -2315,7 +2250,7 @@ export default foo;
         "kind": "function",
         "name": "default",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2345,7 +2280,7 @@ export { foo as bar };
         "kind": "function",
         "name": "foo",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2366,7 +2301,7 @@ export { foo as bar };
         "kind": "function",
         "name": "bar",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2396,7 +2331,7 @@ export { foo as bar };
       "kind": "function",
       "name": "foo",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 2,
         "col": 2
       },
@@ -2434,7 +2369,7 @@ export type numLit = 5;
       "kind": "typeAlias",
       "name": "boolLit",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 2,
         "col": 0
       },
@@ -2454,7 +2389,7 @@ export type numLit = 5;
       "kind": "typeAlias",
       "name": "strLit",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 3,
         "col": 0
       },
@@ -2474,7 +2409,7 @@ export type numLit = 5;
       "kind": "typeAlias",
       "name": "tplLit",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 4,
         "col": 0
       },
@@ -2494,7 +2429,7 @@ export type numLit = 5;
       "kind": "typeAlias",
       "name": "numLit",
       "location": {
-        "filename": "test.ts",
+        "filename": "file:///test.ts",
         "line": 5,
         "col": 0
       },
@@ -2524,7 +2459,7 @@ export { foo };
         "kind": "variable",
         "name": "foo",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2551,7 +2486,7 @@ export function foo(bar: A | B): bar is A {}
         "kind": "function",
         "name": "foo",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2623,7 +2558,7 @@ export function foo(bar: A | B): asserts bar is B {}
         "kind": "function",
         "name": "foo",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2697,7 +2632,7 @@ export class C {
         "kind": "class",
         "name": "C",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -2741,7 +2676,7 @@ export class C {
                 "typeParams": [],
               },
               "location": {
-                "filename": "test.ts",
+                "filename": "file:///test.ts",
                 "line": 3,
                 "col": 2
               }
@@ -2766,7 +2701,7 @@ export function foo(bar: any): asserts bar {}
         "kind": "function",
         "name": "foo",
         "location": {
-          "filename": "test.ts",
+          "filename": "file:///test.ts",
           "line": 2,
           "col": 0
         },
@@ -3089,7 +3024,6 @@ export { hello, say, foo as bar };
     "pet is Fish"
   );
   */
-
   contains_test!(generic_instantiated_with_tuple_type,
     r#"
 interface Generic<T> {}

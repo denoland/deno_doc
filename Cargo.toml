@@ -7,23 +7,40 @@ authors = ["the Deno authors"]
 license = "MIT"
 
 [lib]
+crate-type = ["cdylib", "rlib"]
 name = "deno_doc"
 
 [[example]]
 name = "ddoc"
 
 [dependencies]
-futures = "0.3.14"
+deno_graph = "0.1.0"
+futures = "0.3.16"
+js-sys = { version = "0.3.52", optional = true }
 lazy_static = "1.4.0"
-serde = { version = "1.0.125", features = ["derive"] }
-serde_json = { version = "1.0.64", features = [ "preserve_order" ] }
+serde = { version = "1.0.127", features = ["derive"] }
+serde_json = { version = "1.0.66", features = [ "preserve_order" ] }
+serde-wasm-bindgen = { version = "0.3.0", optional = true }
 swc_common = "0.11.4"
-swc_ecmascript = { version = "0.52.1", features = ["parser"] }
+swc_ecmascript = { version = "0.54.0", features = ["parser"] }
 termcolor = "1.1.2"
-regex = "=1.4.3"
+regex = "1.5.4"
+wasm-bindgen = { version = "0.2.75", features = ["serde-serialize"], optional = true }
+wasm-bindgen-futures = { version = "0.4.25", optional = true }
+wee_alloc = { version = "0.4.5", optional = true }
 
 [dev-dependencies]
 clap = "2.33.3"
-tokio = { version = "1.5.0", features = ["full"] }
-url = "2.2.1"
+tokio = { version = "1.9.0", features = ["full"] }
 pretty_assertions = "0.7.2"
+
+[features]
+default = ["rust"]
+rust = []
+wasm = ["js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "wee_alloc"]
+
+[profile.release]
+codegen-units = 1
+incremental = true
+lto = true
+opt-level = "z"

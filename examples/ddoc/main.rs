@@ -1,54 +1,44 @@
-use clap::{App, Arg};
-use deno_doc::parser::DocFileLoader;
-use deno_doc::{
-  find_nodes_by_name_recursively, DocError, DocNodeKind, DocParser, DocPrinter,
-};
+// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use clap::App;
+use clap::Arg;
+use deno_doc::DocNodeKind;
+use deno_doc::DocParser;
+use deno_doc::DocPrinter;
+use deno_doc::find_nodes_by_name_recursively;
+use deno_graph::create_graph;
+use deno_graph::ModuleSpecifier;
+use deno_graph::source::LoadFuture;
+use deno_graph::source::LoadResponse;
+use deno_graph::source::Loader;
+use futures::future;
 use futures::executor::block_on;
-use futures::future::LocalBoxFuture;
-use futures::FutureExt;
 use std::env::current_dir;
 use std::fs::read_to_string;
-use swc_ecmascript::parser::{Syntax, TsConfig};
-use url::Url;
 
-struct SourceFileFetcher {}
+struct SourceFileLoader {}
 
-impl DocFileLoader for SourceFileFetcher {
-  fn resolve(
-    &self,
-    specifier: &str,
-    referrer: &str,
-  ) -> Result<String, DocError> {
-    let base =
-      Url::parse(referrer).map_err(|e| DocError::Resolve(e.to_string()))?;
-    let resolved = base
-      .join(specifier)
-      .map_err(|e| DocError::Resolve(e.to_string()))?;
-    Ok(resolved.to_string())
-  }
-
-  fn load_source_code(
-    &self,
-    specifier: &str,
-  ) -> LocalBoxFuture<Result<(Syntax, String), DocError>> {
-    let module_url = Url::parse(specifier).unwrap();
-    async move {
-      let url_scheme = module_url.scheme();
-      let is_local_file = url_scheme == "file";
-
-      if is_local_file {
-        let path = module_url.to_file_path().unwrap();
-        Ok((
-          Syntax::Typescript(TsConfig::default()),
-          read_to_string(path).unwrap(),
-        ))
-      } else {
-        Err(DocError::Resolve(
-          "Fetching remote modules is not supported.".to_string(),
-        ))
-      }
-    }
-    .boxed_local()
+impl Loader for SourceFileLoader {
+  fn load(
+    &mut self,
+    specifier: &ModuleSpecifier,
+    _is_dynamic: bool,
+  ) -> LoadFuture {
+    let result = if specifier.scheme() == "file" {
+      let path = specifier.to_file_path().unwrap();
+      read_to_string(path)
+        .map(|content| {
+          Some(LoadResponse {
+            specifier: specifier.clone(),
+            maybe_headers: None,
+            content,
+          })
+        })
+        .map_err(|err| err.into())
+    } else {
+      Ok(None)
+    };
+    Box::pin(future::ready((specifier.clone(), result)))
   }
 }
 
@@ -60,15 +50,16 @@ fn main() {
 
   let source_file = matches.value_of("source_file").unwrap();
   let maybe_filter = matches.value_of("filter");
-  let source_file = Url::from_directory_path(current_dir().unwrap())
+  let source_file = ModuleSpecifier::from_directory_path(current_dir().unwrap())
     .unwrap()
     .join(source_file)
     .unwrap();
 
-  let loader = Box::new(SourceFileFetcher {});
-  let parser = DocParser::new(loader, false);
+  let loader = Box::new(SourceFileLoader {});
   let future = async move {
-    let parse_result = parser.parse_with_reexports(source_file.as_str()).await;
+    let graph = create_graph(source_file.clone(), loader, None, None).await;
+    let parser = DocParser::new(graph, false);
+    let parse_result = parser.parse_with_reexports(&source_file);
 
     let mut doc_nodes = match parse_result {
       Ok(nodes) => nodes,
