@@ -27,42 +27,42 @@ type DocNodeType =
   | "interface"
   | "import";
 
-interface DocNodeFunction extends DocNodeBase {
+export interface DocNodeFunction extends DocNodeBase {
   kind: "function";
   functionDef: FunctionDef;
 }
 
-interface DocNodeVariable extends DocNodeBase {
+export interface DocNodeVariable extends DocNodeBase {
   kind: "variable";
   variableDef: VariableDef;
 }
 
-interface DocNodeEnum extends DocNodeBase {
+export interface DocNodeEnum extends DocNodeBase {
   kind: "enum";
   enumDef: EnumDef;
 }
 
-interface DocNodeClass extends DocNodeBase {
+export interface DocNodeClass extends DocNodeBase {
   kind: "class";
   classDef: ClassDef;
 }
 
-interface DocNodeTypeAlias extends DocNodeBase {
+export interface DocNodeTypeAlias extends DocNodeBase {
   kind: "typeAlias";
   typeAliasDef: TypeAliasDef;
 }
 
-interface DocNodeNamespace extends DocNodeBase {
+export interface DocNodeNamespace extends DocNodeBase {
   kind: "namespace";
   namespaceDef: NamespaceDef;
 }
 
-interface DocNodeInterface extends DocNodeBase {
+export interface DocNodeInterface extends DocNodeBase {
   kind: "interface";
   interfaceDef: InterfaceDef;
 }
 
-interface DocNodeImport extends DocNodeBase {
+export interface DocNodeImport extends DocNodeBase {
   kind: "import";
   importDef: ImportDef;
 }
