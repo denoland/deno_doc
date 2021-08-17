@@ -34,6 +34,26 @@ Deno.test({
 });
 
 Deno.test({
+  name: "doc() - with headers",
+  async fn() {
+    const entries = await doc("https://example.com/a", {
+      load(specifier) {
+        return Promise.resolve({
+          specifier,
+          headers: {
+            "content-type": "application/typescript; charset=utf-8",
+          },
+          content: `declare interface A {
+            a: string;
+          }`,
+        });
+      },
+    });
+    assertEquals(entries.length, 1);
+  },
+});
+
+Deno.test({
   name: "doc() - missing specifier",
   // TODO(@kitsonk) - remove when new deno_graph crate published
   sanitizeResources: false,

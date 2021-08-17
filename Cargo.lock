@@ -231,7 +231,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.2.0"
-source = "git+https://github.com/kitsonk/deno_graph?branch=fix_content_type_parsing#72f16229d98f5175c24b21af54952f9abc196b27"
+source = "git+https://github.com/kitsonk/deno_graph?branch=fix_content_type_parsing#fe741e47a1ce02ee6d5541cc399c092649ef8ad1"
 dependencies = [
  "anyhow",
  "data-url",

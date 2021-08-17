@@ -100,6 +100,30 @@ macro_rules! json_test {
 }
 
 #[tokio::test]
+async fn content_type_handling() {
+  let sources = vec![(
+    "https://example.com/a",
+    Ok((
+      "https://example.com/a",
+      Some(vec![(
+        "content-type",
+        "application/typescript; charset=utf-8",
+      )]),
+      r#"declare interface A {
+      a: string;
+    }"#,
+    )),
+  )];
+  let memory_loader = Box::new(MemoryLoader::new(sources, vec![]));
+  let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
+  let graph = create_graph(root.clone(), memory_loader, None, None).await;
+  let entries = DocParser::new(graph, false)
+    .parse_with_reexports(&root)
+    .unwrap();
+  assert_eq!(entries.len(), 1);
+}
+
+#[tokio::test]
 async fn reexports() {
   let nested_reexport_source_code = r#"
 /**
