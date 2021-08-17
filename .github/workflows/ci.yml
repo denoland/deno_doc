@@ -41,7 +41,7 @@ jobs:
           restore-keys: ${{ runner.os }}-
 
       - name: ➡️  install Deno
-        uses: denoland/setup-deno@v1.0.0
+        uses: denoland/setup-deno@v1
         with:
           deno-version: 1.x
 
