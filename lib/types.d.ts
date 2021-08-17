@@ -11,13 +11,13 @@ export type DocNode =
   | DocNodeImport;
 
 interface DocNodeBase {
-  kind: DocNodeType;
+  kind: DocNodeKind;
   name: string;
   location: Location;
   jsDoc?: string;
 }
 
-type DocNodeType =
+type DocNodeKind =
   | "function"
   | "variable"
   | "enum"

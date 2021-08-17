@@ -12,6 +12,7 @@ export type {
   DocNodeFunction,
   DocNodeImport,
   DocNodeInterface,
+  DocNodeKind,
   DocNodeNamespace,
   DocNodeTypeAlias,
   DocNodeVariable,
