@@ -14,8 +14,8 @@ use crate::colors;
 use crate::display::{
   display_abstract, display_async, display_generator, Indent, SliceDisplayer,
 };
-use crate::DocNode;
-use crate::DocNodeKind;
+use crate::node::DocNode;
+use crate::node::DocNodeKind;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub struct DocPrinter<'a> {

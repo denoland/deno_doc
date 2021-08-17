@@ -115,7 +115,12 @@ impl DocParser {
       .graph
       .try_get(specifier)
       .map_err(|err| DocError::Resolve(err.to_string()))?
-      .ok_or_else(|| DocError::Resolve(specifier.to_string()))?;
+      .ok_or_else(|| {
+        DocError::Resolve(format!(
+          "Unable to load specifier: \"{}\"",
+          specifier
+        ))
+      })?;
 
     self.parse_source(
       &module.specifier,
@@ -222,7 +227,12 @@ impl DocParser {
       .graph
       .try_get(specifier)
       .map_err(|err| DocError::Resolve(err.to_string()))?
-      .ok_or_else(|| DocError::Resolve(specifier.to_string()))?;
+      .ok_or_else(|| {
+        DocError::Resolve(format!(
+          "Unable to load specifier: \"{}\"",
+          specifier
+        ))
+      })?;
 
     let module_doc = self.parse_module(
       &module.specifier,

@@ -40,6 +40,11 @@ jobs:
           key: ${{ runner.os }}-${{ github.sha }}
           restore-keys: ${{ runner.os }}-
 
+      - name: ➡️  install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: 1.x
+
       - name: Environment
         run: |
           echo "GH_ACTIONS=1" >> ${GITHUB_ENV}
@@ -47,16 +52,22 @@ jobs:
 
       - name: Format
         if: contains(matrix.os, 'ubuntu')
-        run: rustfmt --check src/lib.rs
+        run: |
+          rustfmt --check src/lib.rs
+          deno fmt --check *.ts *.md lib
 
       - name: Build
         run: cargo build --locked --release --all-targets --all-features
 
       - name: Test
-        run: cargo test --locked --release --all-targets --all-features
+        run: |
+          cargo test --locked --release --all-targets --all-features
+          deno test --allow-read --allow-net
 
       - name: Lint
-        run: cargo clippy --all-targets --all-features --release --locked -- -D clippy::all
+        run: |
+          cargo clippy --all-targets --all-features --release --locked -- -D clippy::all
+          deno lint *.ts lib
 
       - name: Publish
         if: |
