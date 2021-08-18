@@ -5,19 +5,6 @@ import type { DocNode } from "./lib/types.d.ts";
 import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.2.0/lib/loader.ts";
 import type { LoadResponse } from "https://deno.land/x/deno_graph@0.2.0/mod.ts";
 
-export type {
-  DocNode,
-  DocNodeClass,
-  DocNodeEnum,
-  DocNodeFunction,
-  DocNodeImport,
-  DocNodeInterface,
-  DocNodeKind,
-  DocNodeNamespace,
-  DocNodeTypeAlias,
-  DocNodeVariable,
-} from "./lib/types.d.ts";
-
 export type { LoadResponse } from "https://deno.land/x/deno_graph@0.2.0/mod.ts";
 
 export interface DocOptions {
