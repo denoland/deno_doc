@@ -6,6 +6,7 @@ import {
   assertThrowsAsync,
 } from "https://deno.land/std@0.104.0/testing/asserts.ts";
 import { doc } from "./mod.ts";
+import type { LoadResponse } from "./mod.ts";
 
 Deno.test({
   name: "doc()",
@@ -30,6 +31,32 @@ Deno.test({
         keyword: "string",
       },
     }]);
+  },
+});
+
+Deno.test({
+  name: "doc() - timings",
+  async fn() {
+    const fixture = new URL("./benches/fixtures/deno.d.ts", import.meta.url)
+      .toString();
+
+    const start = Date.now();
+    await doc(fixture);
+    const end = Date.now();
+    console.log(`\n  First run: ${end - start}ms`);
+
+    const runCount = 10;
+    const time = [];
+
+    for (let i = 0; i < runCount; i++) {
+      const start = Date.now();
+      await doc(fixture);
+      const end = Date.now();
+      time.push(end - start);
+    }
+    const totalTime = time.reduce((p, c) => p += c, 0);
+    const meanTime = (totalTime / runCount).toFixed(0);
+    console.log(`  Mean of ${runCount} runs: ${meanTime}ms`);
   },
 });
 

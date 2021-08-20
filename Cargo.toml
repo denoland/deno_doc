@@ -22,7 +22,6 @@ js-sys = { version = "0.3.52", optional = true }
 lazy_static = "1.4.0"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = { version = "1.0.66", features = [ "preserve_order" ] }
-serde-wasm-bindgen = { version = "0.3.0", optional = true }
 swc_common = "0.11.6"
 swc_ecmascript = { version = "0.56.0", features = ["parser"] }
 termcolor = "1.1.2"
@@ -32,16 +31,21 @@ wasm-bindgen-futures = { version = "0.4.25", optional = true }
 
 [dev-dependencies]
 clap = "2.33.3"
+criterion = { version = "0.3.5", features = ["async_futures", "html_reports"] }
 tokio = { version = "1.9.0", features = ["full"] }
 pretty_assertions = "0.7.2"
 
 [features]
 default = ["rust"]
 rust = []
-wasm = ["anyhow", "js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures"]
+wasm = ["anyhow", "js-sys", "wasm-bindgen", "wasm-bindgen-futures"]
 
 [profile.release]
 codegen-units = 1
 incremental = true
 lto = true
-opt-level = "z"
+opt-level = "s"
+
+[[bench]]
+name = "doc_parser"
+harness = false

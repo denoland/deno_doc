@@ -27,7 +27,7 @@ mod ts_type_param;
 mod type_alias;
 mod variable;
 
-use node::DocNode;
+pub use node::DocNode;
 use node::ImportDef;
 use node::Location;
 use node::ReexportKind;
