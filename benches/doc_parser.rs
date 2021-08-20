@@ -28,7 +28,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
 fn doc_parser(c: &mut Criterion) {
   c.bench_function("parse_with_rexports large", |b| {
     b.to_async(FuturesExecutor)
-      .iter_with_large_drop(|| parse_with_reexports())
+      .iter_with_large_drop(parse_with_reexports)
   });
 }
 
