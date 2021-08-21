@@ -34,6 +34,32 @@ Deno.test({
 });
 
 Deno.test({
+  name: "doc() - timings",
+  async fn() {
+    const fixture = new URL("./benches/fixtures/deno.d.ts", import.meta.url)
+      .toString();
+
+    const start = Date.now();
+    await doc(fixture);
+    const end = Date.now();
+    console.log(`\n  First run: ${end - start}ms`);
+
+    const runCount = 10;
+    const time = [];
+
+    for (let i = 0; i < runCount; i++) {
+      const start = Date.now();
+      await doc(fixture);
+      const end = Date.now();
+      time.push(end - start);
+    }
+    const totalTime = time.reduce((p, c) => p += c, 0);
+    const meanTime = (totalTime / runCount).toFixed(0);
+    console.log(`  Mean of ${runCount} runs: ${meanTime}ms`);
+  },
+});
+
+Deno.test({
   name: "doc() - with headers",
   async fn() {
     const entries = await doc("https://example.com/a", {

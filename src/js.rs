@@ -9,7 +9,6 @@ use deno_graph::source::LoadFuture;
 use deno_graph::source::Loader;
 use deno_graph::source::Resolver;
 use deno_graph::ModuleSpecifier;
-use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
@@ -100,9 +99,6 @@ pub async fn doc(
   let entries = DocParser::new(graph, false)
     .parse_with_reexports(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-  let serializer =
-    serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
-  entries
-    .serialize(&serializer)
+  JsValue::from_serde(&entries)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
 }
