@@ -6,7 +6,6 @@ import {
   assertThrowsAsync,
 } from "https://deno.land/std@0.104.0/testing/asserts.ts";
 import { doc } from "./mod.ts";
-import type { LoadResponse } from "./mod.ts";
 
 Deno.test({
   name: "doc()",
