@@ -66,7 +66,7 @@ impl<'a> DocPrinter<'a> {
         w,
         "{}",
         colors::italic_gray(&format!(
-          "Defined in {}:{}:{} \n\n",
+          "Defined in {}:{}:{}\n\n",
           node.location.filename, node.location.line, node.location.col
         ))
       )?;

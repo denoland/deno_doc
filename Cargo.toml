@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.10.0"
+version = "0.11.0"
 edition = "2018"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -16,14 +16,14 @@ name = "ddoc"
 [dependencies]
 anyhow = { version = "1.0.43", optional = true }
 cfg-if = "1.0.0"
-deno_graph = "0.2.1"
+deno_graph = "0.2.2"
 futures = "0.3.16"
 js-sys = { version = "0.3.52", optional = true }
 lazy_static = "1.4.0"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = { version = "1.0.66", features = [ "preserve_order" ] }
 swc_common = "0.11.6"
-swc_ecmascript = { version = "0.56.0", features = ["parser"] }
+swc_ecmascript = { version = "0.57.0", features = ["parser"] }
 termcolor = "1.1.2"
 regex = "1.5.4"
 wasm-bindgen = { version = "0.2.75", features = ["serde-serialize"], optional = true }
