@@ -114,6 +114,7 @@ export interface ClassPropertyDef {
   accessibility?: Accessibility;
   optional: boolean;
   isAbstract: boolean;
+  isStatic: boolean;
   name: string;
   location: Location;
 }
