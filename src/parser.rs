@@ -707,7 +707,7 @@ impl DocParser {
       }
     }
 
-    let js_doc_re = Regex::new(r#" ?\* ?"#).unwrap();
+    let js_doc_re = Regex::new(r#"\t* ?\* ?"#).unwrap();
     let txt = js_doc_comment
       .text
       .split('\n')
