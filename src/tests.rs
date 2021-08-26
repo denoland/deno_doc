@@ -2762,6 +2762,90 @@ export function foo(bar: any): asserts bar {}
       }
     ]
   );
+
+  json_test!(indented_with_tabs,
+      r#"
+/**
+ * Line 1
+ *
+ * Line 2
+ *
+ * 	Indented
+ */
+export namespace Tabs {
+	/**
+	 * Line 1
+	 *
+	 * Line 2
+	 *
+	 * 	Indented
+	 */
+	export interface Tabs{
+		/**
+		 * Line 1
+		 *
+		 * Line 2
+		 *
+		 * 	Indented
+		 */
+		property: string;
+	}
+}
+    "#;
+      [
+        {
+          "kind": "namespace",
+          "name": "Tabs",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 9,
+            "col": 0
+          },
+          "jsDoc": "Line 1\n\nLine 2\n\n\tIndented",
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "interface",
+                "name": "Tabs",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 17,
+                  "col": 4
+                },
+                "jsDoc": "Line 1\n\nLine 2\n\n\tIndented",
+                "interfaceDef": {
+                  "extends": [],
+                  "methods": [],
+                  "properties": [
+                    {
+                      "name": "property",
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 25,
+                        "col": 8
+                      },
+                      "jsDoc": "Line 1\n\nLine 2\n\n\tIndented",
+                      "params": [],
+                      "computed": false,
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      },
+                      "typeParams": []
+                    }
+                  ],
+                  "callSignatures": [],
+                  "indexSignatures": [],
+                  "typeParams": []
+                }
+              }
+            ]
+          }
+        }
+  ]
+    );
 }
 
 mod printer {
