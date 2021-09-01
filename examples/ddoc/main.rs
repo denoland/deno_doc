@@ -15,6 +15,7 @@ use futures::executor::block_on;
 use futures::future;
 use std::env::current_dir;
 use std::fs::read_to_string;
+use std::sync::Arc;
 
 struct SourceFileLoader {}
 
@@ -31,7 +32,7 @@ impl Loader for SourceFileLoader {
           Some(LoadResponse {
             specifier: specifier.clone(),
             maybe_headers: None,
-            content,
+            content: Arc::new(content),
           })
         })
         .map_err(|err| err.into())
@@ -56,9 +57,10 @@ fn main() {
       .join(source_file)
       .unwrap();
 
-  let loader = Box::new(SourceFileLoader {});
+  let mut loader = SourceFileLoader {};
   let future = async move {
-    let graph = create_graph(source_file.clone(), loader, None, None).await;
+    let graph =
+      create_graph(source_file.clone(), &mut loader, None, None, None).await;
     let parser = DocParser::new(graph, false);
     let parse_result = parser.parse_with_reexports(&source_file);
 

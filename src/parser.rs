@@ -124,7 +124,7 @@ impl DocParser {
 
     self.parse_source(
       &module.specifier,
-      Syntax::from(&module.media_type),
+      Syntax::from(module.media_type),
       &module.source,
     )
   }
@@ -236,7 +236,7 @@ impl DocParser {
 
     let module_doc = self.parse_module(
       &module.specifier,
-      Syntax::from(&module.media_type),
+      Syntax::from(module.media_type),
       &module.source,
     )?;
 

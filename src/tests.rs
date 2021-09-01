@@ -16,9 +16,10 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     .into_iter()
     .map(|(s, c)| (s, Ok((s, None, c))))
     .collect();
-  let memory_loader = Box::new(MemoryLoader::new(sources, vec![]));
+  let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
-  let graph = create_graph(root.clone(), memory_loader, None, None).await;
+  let graph =
+    create_graph(root.clone(), &mut memory_loader, None, None, None).await;
   (graph, root)
 }
 
@@ -114,9 +115,10 @@ async fn content_type_handling() {
     }"#,
     )),
   )];
-  let memory_loader = Box::new(MemoryLoader::new(sources, vec![]));
+  let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
-  let graph = create_graph(root.clone(), memory_loader, None, None).await;
+  let graph =
+    create_graph(root.clone(), &mut memory_loader, None, None, None).await;
   let entries = DocParser::new(graph, false)
     .parse_with_reexports(&root)
     .unwrap();
