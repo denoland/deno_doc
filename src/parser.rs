@@ -30,6 +30,10 @@ use swc_ecmascript::ast::ModuleItem;
 use swc_ecmascript::ast::Stmt;
 use swc_ecmascript::parser::Syntax;
 
+lazy_static! {
+  static ref JS_DOC_RE: Regex = Regex::new(r#"\s*\* ?"#).unwrap();
+}
+
 #[derive(Debug)]
 pub enum DocError {
   Resolve(String),
@@ -729,11 +733,10 @@ impl DocParser {
         }
       }
 
-      let js_doc_re = Regex::new(r#"\s*\* ?"#).unwrap();
       let txt = js_doc_comment
         .text
         .split('\n')
-        .map(|line| js_doc_re.replace(line, "").to_string())
+        .map(|line| JS_DOC_RE.replace(line, "").to_string())
         .map(|line| {
           if line.starts_with(&margin_pat) {
             line[margin_pat.len()..].to_string()

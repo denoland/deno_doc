@@ -1,7 +1,17 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
+
+lazy_static! {
+  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"^\s*@\S+"#).unwrap();
+  static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
+    r#"(?s)^\s*@(?:param|arg|argument)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
+  )
+  .unwrap();
+  static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r#"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+(.+))?"#).unwrap();
+}
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct JsDoc {
@@ -19,10 +29,35 @@ impl JsDoc {
 
 impl From<String> for JsDoc {
   fn from(value: String) -> Self {
-    Self {
-      doc: Some(value),
-      tags: Vec::new(),
+    let mut tags = Vec::new();
+    let mut doc_lines = Vec::new();
+    let mut is_tag = false;
+    let mut current_tag: Vec<&str> = Vec::new();
+    for line in value.lines() {
+      let is_match = JS_DOC_TAG_RE.is_match(line);
+      if is_tag || is_match {
+        if !is_tag {
+          is_tag = true;
+          assert!(current_tag.is_empty());
+        }
+        if is_match && !current_tag.is_empty() {
+          tags.push(current_tag.join("\n").into());
+          current_tag.clear();
+        }
+        current_tag.push(line.trim());
+      } else {
+        doc_lines.push(line);
+      }
     }
+    if !current_tag.is_empty() {
+      tags.push(current_tag.join("\n").into());
+    }
+    let doc = if doc_lines.is_empty() {
+      None
+    } else {
+      Some(doc_lines.join("\n"))
+    };
+    Self { doc, tags }
   }
 }
 
@@ -120,11 +155,75 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
+  Unsupported {
+    value: String,
+  },
+}
+
+impl From<String> for JsDocTag {
+  fn from(value: String) -> Self {
+    if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
+      let name = caps.get(2).unwrap().as_str().to_string();
+      let type_ref = caps.get(1).map(|m| m.as_str().to_string());
+      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      Self::Param {
+        name,
+        type_ref,
+        doc,
+      }
+    } else if let Some(caps) = JS_DOC_TAG_RETURN_RE.captures(&value) {
+      let type_ref = caps.get(1).map(|m| m.as_str().to_string());
+      let doc = caps.get(2).map(|m| m.as_str().to_string());
+      Self::Return { type_ref, doc }
+    } else {
+      Self::Unsupported { value }
+    }
+  }
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn test_js_doc_from_str() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "Line 1
+Line 2
+
+@param {string} a comment
+@param {string} b comment
+multi-line
+@returns {Promise<T>} nothing
+"
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "Line 1\nLine 2\n",
+        "tags": [
+          {
+            "kind": "param",
+            "name": "a",
+            "type": "string",
+            "doc": "comment",
+          },
+          {
+            "kind": "param",
+            "name": "b",
+            "type": "string",
+            "doc": "comment\nmulti-line",
+          },
+          {
+            "kind": "return",
+            "type": "Promise<T>",
+            "doc": "nothing"
+          }
+        ]
+      })
+    );
+  }
 
   #[test]
   fn test_js_doc_tag_serialization() {
@@ -289,6 +388,16 @@ mod tests {
       json!({
         "kind": "type",
         "type": "Map<string, string>",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Unsupported {
+        value: "unsupported".to_string()
+      })
+      .unwrap(),
+      json!({
+        "kind": "unsupported",
+        "value": "unsupported",
       })
     );
   }

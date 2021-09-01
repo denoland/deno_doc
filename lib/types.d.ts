@@ -207,7 +207,8 @@ export type JsDocTagKind =
   | "template"
   | "this"
   | "typedef"
-  | "type";
+  | "type"
+  | "unsupported";
 
 export type JsDocTag =
   | JsDocTagOnly
@@ -216,7 +217,8 @@ export type JsDocTag =
   | JsDocTagTyped
   | JsDocTagNamedTyped
   | JsDocTagParam
-  | JsDocTagReturn;
+  | JsDocTagReturn
+  | JsDocTagUnsupported;
 
 export interface JsDocTagBase {
   kind: JsDocTagKind;
@@ -261,6 +263,11 @@ export interface JsDocTagReturn extends JsDocTagBase {
   kind: "return";
   type?: string;
   doc?: string;
+}
+
+export interface JsDocTagUnsupported extends JsDocTagBase {
+  kind: "unsupported";
+  value: string;
 }
 
 export interface LiteralCallSignatureDef {
