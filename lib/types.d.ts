@@ -14,7 +14,7 @@ interface DocNodeBase {
   kind: DocNodeKind;
   name: string;
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
 }
 
 export type DocNodeKind =
@@ -82,7 +82,7 @@ export interface ClassDef {
 }
 
 export interface ClassConstructorDef {
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   accessibility?: Accessibility;
   name: string;
   params: ParamDef[];
@@ -96,7 +96,7 @@ export interface ClassIndexSignatureDef {
 }
 
 export interface ClassMethodDef {
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   accessibility?: Accessibility;
   optional: boolean;
   isAbstract: boolean;
@@ -108,7 +108,7 @@ export interface ClassMethodDef {
 }
 
 export interface ClassPropertyDef {
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   tsType?: TsTypeDef;
   readonly: boolean;
   accessibility?: Accessibility;
@@ -125,7 +125,7 @@ export interface EnumDef {
 
 export interface EnumMemberDef {
   name: string;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
 }
 
 export interface FunctionDef {
@@ -152,7 +152,7 @@ export interface InterfaceDef {
 
 export interface InterfaceCallSignatureDef {
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   params: ParamDef[];
   tsType?: TsTypeDef;
   typeParams: TsTypeParamDef[];
@@ -168,7 +168,7 @@ export interface InterfaceMethodDef {
   name: string;
   kind: MethodKind;
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   optional: boolean;
   params: ParamDef[];
   returnType?: TsTypeDef;
@@ -178,7 +178,7 @@ export interface InterfaceMethodDef {
 export interface InterfacePropertyDef {
   name: string;
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   params: ParamDef[];
   computed: boolean;
   optional: boolean;

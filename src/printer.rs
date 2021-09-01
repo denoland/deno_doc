@@ -131,7 +131,6 @@ impl<'a> DocPrinter<'a> {
     }
   }
 
-  // TODO(SyrupThinker) this should use a JSDoc parser
   fn format_jsdoc(
     &self,
     w: &mut Formatter<'_>,
