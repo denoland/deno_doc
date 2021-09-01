@@ -87,15 +87,16 @@ pub async fn doc(
 ) -> Result<JsValue, JsValue> {
   let root_specifier = ModuleSpecifier::parse(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-  let loader = Box::new(JsLoader::new(load));
-  let maybe_resolver: Option<Box<dyn Resolver>> =
-    if let Some(resolve) = maybe_resolve {
-      Some(Box::new(JsResolver::new(resolve)))
-    } else {
-      None
-    };
-  let graph =
-    create_graph(root_specifier.clone(), loader, maybe_resolver, None).await;
+  let mut loader = JsLoader::new(load);
+  let maybe_resolver = maybe_resolve.map(JsResolver::new);
+  let graph = create_graph(
+    root_specifier.clone(),
+    &mut loader,
+    maybe_resolver.as_ref().map(|r| r as &dyn Resolver),
+    None,
+    None,
+  )
+  .await;
   let entries = DocParser::new(graph, false)
     .parse_with_reexports(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
