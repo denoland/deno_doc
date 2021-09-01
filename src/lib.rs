@@ -14,13 +14,12 @@ mod display;
 mod r#enum;
 mod function;
 mod interface;
+mod js_doc;
 mod module;
 mod namespace;
 mod node;
 mod params;
 mod parser;
-#[cfg(feature = "rust")]
-mod printer;
 mod swc_util;
 mod ts_type;
 mod ts_type_param;
@@ -32,12 +31,13 @@ use node::ImportDef;
 use node::Location;
 use node::ReexportKind;
 use params::ParamDef;
-pub use parser::DocParser;
 
 cfg_if! {
   if #[cfg(feature = "rust")] {
+    mod printer;
     pub use node::DocNodeKind;
     pub use parser::DocError;
+    pub use parser::DocParser;
     pub use printer::DocPrinter;
   }
 }

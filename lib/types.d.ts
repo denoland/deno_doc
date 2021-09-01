@@ -186,6 +186,83 @@ export interface InterfacePropertyDef {
   typeParams: TsTypeParamDef[];
 }
 
+export interface JsDoc {
+  doc?: string;
+  tags?: JsDocTag[];
+}
+
+export type JsDocTagKind =
+  | "callback"
+  | "constructor"
+  | "deprecated"
+  | "enum"
+  | "extends"
+  | "param"
+  | "public"
+  | "private"
+  | "property"
+  | "protected"
+  | "readonly"
+  | "return"
+  | "template"
+  | "this"
+  | "typedef"
+  | "type";
+
+export type JsDocTag =
+  | JsDocTagOnly
+  | JsDocTagDoc
+  | JsDocTagNamed
+  | JsDocTagTyped
+  | JsDocTagNamedTyped
+  | JsDocTagParam
+  | JsDocTagReturn;
+
+export interface JsDocTagBase {
+  kind: JsDocTagKind;
+}
+
+export interface JsDocTagOnly extends JsDocTagBase {
+  kind: "public" | "private" | "protected" | "readonly";
+}
+
+export interface JsDocTagDoc extends JsDocTagBase {
+  kind: "constructor" | "deprecated";
+  doc?: string;
+}
+
+export interface JsDocTagNamed extends JsDocTagBase {
+  kind: "callback" | "template";
+  name: string;
+  doc?: string;
+}
+
+export interface JsDocTagTyped extends JsDocTagBase {
+  kind: "enum" | "extends" | "this" | "type";
+  type: string;
+  doc?: string;
+}
+
+export interface JsDocTagNamedTyped extends JsDocTagBase {
+  kind: "property" | "typedef";
+  name: string;
+  type: string;
+  doc?: string;
+}
+
+export interface JsDocTagParam extends JsDocTagBase {
+  kind: "param";
+  name: string;
+  type?: string;
+  doc?: string;
+}
+
+export interface JsDocTagReturn extends JsDocTagBase {
+  kind: "return";
+  type?: string;
+  doc?: string;
+}
+
 export interface LiteralCallSignatureDef {
   params: ParamDef[];
   tsType?: TsTypeDef;
