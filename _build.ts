@@ -92,6 +92,7 @@ console.log(
 const loader = `let wasmInstantiatePromise;
 switch (wasm_url.protocol) {
   case "file:": {
+    if ("permissions" in Deno) Deno.permissions.request({ name: "read", path: wasm_url });
     const wasmCode = await Deno.readFile(wasm_url);
     wasmInstantiatePromise = WebAssembly.instantiate(wasmCode, imports);
     break;
@@ -128,7 +129,7 @@ ${generatedJs.replace(/^let\swasmCode\s.+/ms, loader)}
 export const _wasm = wasm;
 export const _wasmInstance = wasmInstance;
 `;
-const libDenoDocJs = "./lib/deno_doc.js";
+const libDenoDocJs = "./lib/deno_doc.generated.js";
 console.log(`  write ${colors.yellow(libDenoDocJs)}`);
 await Deno.writeTextFile(libDenoDocJs, bindingJs);
 
@@ -136,8 +137,7 @@ const denoFmtCmd = [
   "deno",
   "fmt",
   "--quiet",
-  "./lib/deno_doc.wasm.js",
-  "./lib/deno_doc.js",
+  "./lib/deno_doc.generated.js",
 ];
 console.log(`  ${colors.bold(colors.gray(denoFmtCmd.join(" ")))}`);
 const denoFmtCmdStatus = Deno.run({ cmd: denoFmtCmd }).status();
