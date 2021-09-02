@@ -8,9 +8,11 @@ use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
+type MaybeHeaders<S> = Option<Vec<(S, S)>>;
+
 pub(crate) async fn setup<S: AsRef<str> + Copy>(
   root: S,
-  sources: Vec<(S, Option<Vec<(S, S)>>, S)>,
+  sources: Vec<(S, MaybeHeaders<S>, S)>,
 ) -> (ModuleGraph, ModuleSpecifier) {
   let sources = sources
     .into_iter()
