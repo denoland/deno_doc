@@ -233,6 +233,7 @@ export interface LiteralIndexSignatureDef {
 export interface LiteralMethodDef {
   name: string;
   params: ParamDef[];
+  optional: boolean;
   returnType?: TsTypeDef;
   typeParams: TsTypeParamDef[];
 }

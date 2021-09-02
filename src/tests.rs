@@ -1006,6 +1006,7 @@ export const tpl2 = `Value: ${num}`;
                 }
               }
             ],
+            "optional": false,
             "returnType":{
               "repr":"",
               "kind":"union",
@@ -1047,6 +1048,7 @@ export const tpl2 = `Value: ${num}`;
                 }
               }
               ],
+              "optional": false,
               "returnType":{
                 "repr":"void",
                 "kind":"keyword",
@@ -2113,6 +2115,60 @@ export type NumberArray = Array<number>;
             }
           ],
           "typeName": "Array"
+        }
+      }
+    }
+  }]);
+
+  json_test!(export_type_alias_literal,
+  r#"
+export type A = {
+  a(): void;
+  b?(): void;
+};
+"#;
+  [{
+    "kind": "typeAlias",
+    "name": "A",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0,
+    },
+    "jsDoc": null,
+    "typeAliasDef": {
+      "typeParams": [],
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [
+            {
+              "name": "a",
+              "params": [],
+              "optional": false,
+              "returnType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void",
+              },
+              "typeParams": [],
+            },
+            {
+              "name": "b",
+              "params": [],
+              "optional": true,
+              "returnType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void",
+              },
+              "typeParams": [],
+            }
+          ],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": []
         }
       }
     }
