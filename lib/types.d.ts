@@ -225,11 +225,11 @@ export interface JsDocTagBase {
 }
 
 export interface JsDocTagOnly extends JsDocTagBase {
-  kind: "public" | "private" | "protected" | "readonly";
+  kind: "constructor" | "public" | "private" | "protected" | "readonly";
 }
 
 export interface JsDocTagDoc extends JsDocTagBase {
-  kind: "constructor" | "deprecated";
+  kind: "deprecated";
   doc?: string;
 }
 

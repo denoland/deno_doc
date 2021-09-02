@@ -6,6 +6,11 @@ use serde::Serialize;
 
 lazy_static! {
   static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"^\s*@\S+"#).unwrap();
+  static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|public|private|protected|readonly)"#).unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"^\s*@(deprecated)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
     r#"(?s)^\s*@(?:param|arg|argument)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
   )
@@ -70,11 +75,8 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
-  /// `@constructor comment` or `@class comment`
-  Constructor {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    doc: Option<String>,
-  },
+  /// `@constructor` or `@class`
+  Constructor,
   /// `@deprecated comment`
   Deprecated {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -162,7 +164,62 @@ pub enum JsDocTag {
 
 impl From<String> for JsDocTag {
   fn from(value: String) -> Self {
-    if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
+    if let Some(caps) = JS_DOC_TAG_ONLY_RE.captures(&value) {
+      let kind = caps.get(1).unwrap().as_str();
+      match kind {
+        "constructor" | "class" => Self::Constructor,
+        "public" => Self::Public,
+        "private" => Self::Private,
+        "protected" => Self::Protected,
+        "readonly" => Self::ReadOnly,
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
+    } else if let Some(caps) = JS_DOC_TAG_NAMED_RE.captures(&value) {
+      let kind = caps.get(1).unwrap().as_str();
+      let name = caps.get(2).unwrap().as_str().to_string();
+      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      match kind {
+        "callback" => Self::Callback { name, doc },
+        "template" => Self::Template { name, doc },
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
+    } else if let Some(caps) = JS_DOC_TAG_TYPED_RE.captures(&value) {
+      let kind = caps.get(1).unwrap().as_str();
+      let type_ref = caps.get(2).unwrap().as_str().to_string();
+      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      match kind {
+        "enum" => Self::Enum { type_ref, doc },
+        "extends" | "augments" => Self::Extends { type_ref, doc },
+        "this" => Self::This { type_ref, doc },
+        "type" => Self::TypeRef { type_ref, doc },
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
+    } else if let Some(caps) = JS_DOC_TAG_NAMED_TYPED_RE.captures(&value) {
+      let kind = caps.get(1).unwrap().as_str();
+      let type_ref = caps.get(2).unwrap().as_str().to_string();
+      let name = caps.get(3).unwrap().as_str().to_string();
+      let doc = caps.get(4).map(|m| m.as_str().to_string());
+      match kind {
+        "prop" | "property" => Self::Property {
+          name,
+          type_ref,
+          doc,
+        },
+        "typedef" => Self::TypeDef {
+          name,
+          type_ref,
+          doc,
+        },
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
+    } else if let Some(caps) = JS_DOC_TAG_MAYBE_DOC_RE.captures(&value) {
+      let kind = caps.get(1).unwrap().as_str();
+      let doc = caps.get(2).map(|m| m.as_str().to_string());
+      match kind {
+        "deprecated" => Self::Deprecated { doc },
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
+    } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
       let name = caps.get(2).unwrap().as_str().to_string();
       let type_ref = caps.get(1).map(|m| m.as_str().to_string());
       let doc = caps.get(3).map(|m| m.as_str().to_string());
@@ -184,6 +241,128 @@ impl From<String> for JsDocTag {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn test_js_doc_tag_only() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@constructor more".to_string()))
+        .unwrap(),
+      json!({ "tags": [ { "kind": "constructor" } ] }),
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@class more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "constructor" } ] }),
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@public more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "public" } ] }),
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@private more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "private" } ] }),
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@protected more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "protected" } ] }),
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@readonly more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "readonly" } ] }),
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_named() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@callback name more docs".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [
+          {
+            "kind": "callback",
+            "name": "name",
+            "doc": "more docs",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@template T more docs".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [
+          {
+            "kind": "template",
+            "name": "T",
+            "doc": "more docs",
+          }
+        ]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_typed() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@enum {string} more doc".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "enum",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@extends {string} more doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "extends",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@augments {string} more doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "extends",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@this {string} more doc".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "this",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@type {string} more doc".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "type",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+  }
 
   #[test]
   fn test_js_doc_from_str() {
@@ -239,7 +418,7 @@ multi-line
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDocTag::Constructor { doc: None }).unwrap(),
+      serde_json::to_value(JsDocTag::Constructor).unwrap(),
       json!({
         "kind": "constructor",
       })
