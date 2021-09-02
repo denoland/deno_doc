@@ -166,6 +166,7 @@ export interface InterfaceIndexSignatureDef {
 
 export interface InterfaceMethodDef {
   name: string;
+  kind: MethodKind;
   location: Location;
   jsDoc?: string;
   optional: boolean;
