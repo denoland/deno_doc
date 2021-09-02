@@ -2121,58 +2121,58 @@ export type NumberArray = Array<number>;
   }]);
 
   json_test!(export_type_alias_literal,
-    r#"
+  r#"
 export type A = {
   a(): void;
   b?(): void;
 };
 "#;
-    [{
-      "kind": "typeAlias",
-      "name": "A",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 2,
-        "col": 0,
-      },
-      "jsDoc": null,
-      "typeAliasDef": {
-        "typeParams": [],
-        "tsType": {
-          "repr": "",
-          "kind": "typeLiteral",
-          "typeLiteral": {
-            "methods": [
-              {
-                "name": "a",
-                "params": [],
-                "optional": false,
-                "returnType": {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "keyword": "void",
-                },
-                "typeParams": [],
+  [{
+    "kind": "typeAlias",
+    "name": "A",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0,
+    },
+    "jsDoc": null,
+    "typeAliasDef": {
+      "typeParams": [],
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [
+            {
+              "name": "a",
+              "params": [],
+              "optional": false,
+              "returnType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void",
               },
-              {
-                "name": "b",
-                "params": [],
-                "optional": true,
-                "returnType": {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "keyword": "void",
-                },
-                "typeParams": [],
-              }
-            ],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": []
-          }
+              "typeParams": [],
+            },
+            {
+              "name": "b",
+              "params": [],
+              "optional": true,
+              "returnType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void",
+              },
+              "typeParams": [],
+            }
+          ],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": []
         }
       }
-    }]);
+    }
+  }]);
 
   json_test!(export_namespace,
     r#"
