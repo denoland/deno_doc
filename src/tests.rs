@@ -8,13 +8,15 @@ use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
+type MaybeHeaders<S> = Option<Vec<(S, S)>>;
+
 pub(crate) async fn setup<S: AsRef<str> + Copy>(
   root: S,
-  sources: Vec<(S, S)>,
+  sources: Vec<(S, MaybeHeaders<S>, S)>,
 ) -> (ModuleGraph, ModuleSpecifier) {
   let sources = sources
     .into_iter()
-    .map(|(s, c)| (s, Ok((s, None, c))))
+    .map(|(s, h, c)| (s, Ok((s, h, c))))
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
@@ -41,7 +43,7 @@ macro_rules! doc_test {
       let private = $private;
 
       let (graph, specifier) = setup("file:///test.ts", vec![
-        ("file:///test.ts", source_code)
+        ("file:///test.ts", None, source_code)
       ]).await;
       let entries = DocParser::new(graph, private)
         .parse(&specifier)
@@ -126,6 +128,65 @@ async fn content_type_handling() {
 }
 
 #[tokio::test]
+async fn types_header_handling() {
+  let sources = vec![
+    (
+      "https://example.com/a.js",
+      Ok((
+        "https://example.com/a.js",
+        Some(vec![
+          ("content-type", "application/javascript; charset=utf-8"),
+          ("x-typescript-types", "./a.d.ts"),
+        ]),
+        r#"console.log("a");"#,
+      )),
+    ),
+    (
+      "https://example.com/a.d.ts",
+      Ok((
+        "https://example.com/a.d.ts",
+        Some(vec![(
+          "content-type",
+          "application/typescript; charset=utf-8",
+        )]),
+        r#"export const a: "a";"#,
+      )),
+    ),
+  ];
+  let mut memory_loader = MemoryLoader::new(sources, vec![]);
+  let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
+  let graph =
+    create_graph(root.clone(), &mut memory_loader, None, None, None).await;
+  let entries = DocParser::new(graph, false)
+    .parse_with_reexports(&root)
+    .unwrap();
+  assert_eq!(
+    serde_json::to_value(&entries).unwrap(),
+    json!([{
+      "kind": "variable",
+      "name": "a",
+      "location": {
+        "filename": "https://example.com/a.d.ts",
+        "line": 1,
+        "col": 0
+      },
+      "jsDoc": null,
+      "variableDef": {
+        "tsType": {
+          "repr": "a",
+          "kind": "literal",
+          "literal": {
+            "kind": "string",
+            "string": "a"
+          }
+        },
+        "kind": "const"
+      }
+    }])
+  );
+}
+
+#[tokio::test]
 async fn reexports() {
   let nested_reexport_source_code = r#"
 /**
@@ -157,9 +218,13 @@ export function fooFn(a: number) {
   let (graph, specifier) = setup(
     "file:///test.ts",
     vec![
-      ("file:///test.ts", test_source_code),
-      ("file:///reexport.ts", reexport_source_code),
-      ("file:///nested_reexport.ts", nested_reexport_source_code),
+      ("file:///test.ts", None, test_source_code),
+      ("file:///reexport.ts", None, reexport_source_code),
+      (
+        "file:///nested_reexport.ts",
+        None,
+        nested_reexport_source_code,
+      ),
     ],
   )
   .await;
@@ -255,8 +320,8 @@ export { Hello } from "./reexport.ts";
   let (graph, specifier) = setup(
     "file:///test.ts",
     vec![
-      ("file:///test.ts", test_source_code),
-      ("file:///reexport.ts", reexport_source_code),
+      ("file:///test.ts", None, test_source_code),
+      ("file:///reexport.ts", None, reexport_source_code),
     ],
   )
   .await;
@@ -323,9 +388,9 @@ async fn deep_reexports() {
   let (graph, specifier) = setup(
     "file:///baz.ts",
     vec![
-      ("file:///foo.ts", foo_source_code),
-      ("file:///bar.ts", bar_source_code),
-      ("file:///baz.ts", baz_source_code),
+      ("file:///foo.ts", None, foo_source_code),
+      ("file:///bar.ts", None, bar_source_code),
+      ("file:///baz.ts", None, baz_source_code),
     ],
   )
   .await;
@@ -391,8 +456,11 @@ export namespace Deno {
   }
 }
 "#;
-  let (graph, specifier) =
-    setup("file:///test.ts", vec![("file:///test.ts", source_code)]).await;
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![("file:///test.ts", None, source_code)],
+  )
+  .await;
   let entries = DocParser::new(graph, false).parse(&specifier).unwrap();
 
   // Namespace
@@ -473,8 +541,8 @@ async fn exports_imported_earlier() {
   let (graph, specifier) = setup(
     "file:///test.ts",
     vec![
-      ("file:///foo.ts", foo_source_code),
-      ("file:///test.ts", test_source_code),
+      ("file:///foo.ts", None, foo_source_code),
+      ("file:///test.ts", None, test_source_code),
     ],
   )
   .await;
@@ -533,8 +601,8 @@ async fn exports_imported_earlier_private() {
   let (graph, specifier) = setup(
     "file:///test.ts",
     vec![
-      ("file:///foo.ts", foo_source_code),
-      ("file:///test.ts", test_source_code),
+      ("file:///foo.ts", None, foo_source_code),
+      ("file:///test.ts", None, test_source_code),
     ],
   )
   .await;
@@ -586,8 +654,8 @@ async fn variable_syntax() {
   let (graph, specifier) = setup(
     "file:///foo.ts",
     vec![
-      ("file:///foo.ts", "export * from './bar.tsx'"),
-      ("file:///bar.tsx", "export default <foo>bar</foo>"),
+      ("file:///foo.ts", None, "export * from './bar.tsx'"),
+      ("file:///bar.tsx", None, "export default <foo>bar</foo>"),
     ],
   )
   .await;
