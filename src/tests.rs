@@ -756,6 +756,157 @@ declare namespace RootNs {
     }
   }]);
 
+  json_test!(structured_jsdoc,
+  r#"
+/** Class doc */
+export class A {
+  /** @private */
+  p = false;
+
+  /**
+   * Some leading documentation here.
+   * 
+   * @param {string} name some comment
+   * @param {string} a    some other comment that
+   *                      spans two lines
+   * @param {number} b    a number
+   */
+  constructor(name, a, b) {}
+
+  /**
+   * @returns {Promise<void>}
+   */
+  a() {}
+}
+  "#;
+  [{
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 3,
+      "col": 0,
+    },
+    "jsDoc": {
+      "doc": "Class doc",
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [
+        {
+          "jsDoc": {
+            "doc": "Some leading documentation here.\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "name",
+                "type": "string",
+                "doc": "some comment",
+              },
+              {
+                "kind": "param",
+                "name": "a",
+                "type": "string",
+                "doc": "some other comment that\nspans two lines",
+              },
+              {
+                "kind": "param",
+                "name": "b",
+                "type": "number",
+                "doc": "a number",
+              },
+            ],
+          },
+          "accessibility": null,
+          "name": "constructor",
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "name",
+              "optional": false,
+              "tsType": null,
+            },
+            {
+              "kind": "identifier",
+              "name": "a",
+              "optional": false,
+              "tsType": null,
+            },
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": null,
+            }
+          ],
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 15,
+            "col": 2,
+          }
+        }
+      ],
+      "properties": [
+        {
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "private"
+              }
+            ]
+          },
+          "tsType": null,
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "p",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 5,
+            "col": 2,
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [
+        {
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "return",
+                "type": "Promise<void>"
+              }
+            ]
+          },
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "a",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": [],
+          },
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 20,
+            "col": 2,
+          }
+        }
+      ],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": [],
+    }
+  }]);
+
   json_test!(export_class,
    r#"
 /** Class doc */

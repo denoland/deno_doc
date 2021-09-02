@@ -5,17 +5,17 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"^\s*@\S+"#).unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"^\s*@(deprecated)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
-  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|public|private|protected|readonly)"#).unwrap();
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"^\s*@(deprecated)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
-    r#"(?s)^\s*@(?:param|arg|argument)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
+    r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
   )
   .unwrap();
+  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"^\s*@\S+"#).unwrap();
   static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r#"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
@@ -359,6 +359,182 @@ mod tests {
           "kind": "type",
           "type": "string",
           "doc": "more doc"
+        }]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_named_typed() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@prop {string} a more doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "property",
+          "name": "a",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@property {string} a more doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "property",
+          "name": "a",
+          "type": "string",
+          "doc": "more doc"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@typedef {object} Interface more doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "typedef",
+          "name": "Interface",
+          "type": "object",
+          "doc": "more doc"
+        }]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_maybe_doc() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@deprecated".to_string())).unwrap(),
+      json!({
+        "tags": [{
+          "kind": "deprecated",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@deprecated maybe doc".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "deprecated",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_param() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@param a maybe doc".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@param {string} a maybe doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "type": "string",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@param {string} a".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "type": "string",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@arg {string} a maybe doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "type": "string",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@argument {string} a maybe doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "type": "string",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_returns() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@return {string} maybe doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "return",
+          "type": "string",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@return maybe doc".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "return",
+          "doc": "maybe doc",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@returns {string} maybe doc".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "return",
+          "type": "string",
+          "doc": "maybe doc",
         }]
       })
     );
