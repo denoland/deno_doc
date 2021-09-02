@@ -1485,6 +1485,7 @@ export default interface Reader {
         "methods": [
           {
             "name": "read",
+            "kind": "method",
             "location": {
               "filename": "file:///test.ts",
               "line": 7,
@@ -1896,6 +1897,7 @@ export interface Reader extends Foo, Bar {
         "methods": [
           {
             "name": "read",
+            "kind": "method",
             "location": {
               "filename": "file:///test.ts",
               "line": 13,
@@ -1972,6 +1974,7 @@ export interface TypedIface<T> {
         "methods": [
           {
             "name": "something",
+            "kind": "method",
             "location": {
               "filename": "file:///test.ts",
               "line": 3,
@@ -1999,6 +2002,88 @@ export interface TypedIface<T> {
         ],
     }
   }]);
+
+  json_test!(export_interface_accessors,
+    r#"
+export interface Thing {
+  get size(): number;
+  set size(value: number | string);
+}
+    "#;
+    [{
+      "kind": "interface",
+      "name": "Thing",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 0
+      },
+      "jsDoc": null,
+      "interfaceDef": {
+        "extends": [],
+        "methods": [
+          {
+            "name": "size",
+            "kind": "getter",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 3,
+              "col": 2,
+            },
+            "jsDoc": null,
+            "optional": false,
+            "params": [],
+            "typeParams": [],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number",
+            },
+          },
+          {
+            "name": "size",
+            "kind": "setter",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 4,
+              "col": 2,
+            },
+            "jsDoc": null,
+            "optional": false,
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "value",
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "union",
+                  "union": [
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number",
+                    },
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string",
+                    }
+                  ]
+                }
+              }
+            ],
+            "typeParams": [],
+            "returnType": null,
+          },
+        ],
+        "properties": [],
+        "callSignatures": [],
+        "indexSignatures": [],
+        "typeParams": [],
+      }
+    }]
+  );
 
   json_test!(export_type_alias,
     r#"
