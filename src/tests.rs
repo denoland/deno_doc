@@ -159,7 +159,8 @@ async fn types_header_handling() {
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
   let graph =
     create_graph(root.clone(), &mut memory_loader, None, None, None).await;
-  let entries = DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&root)
     .unwrap();
   assert_eq!(

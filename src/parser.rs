@@ -14,8 +14,8 @@ use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
-use deno_graph::SourceParser;
 use deno_graph::Resolved;
+use deno_graph::SourceParser;
 
 use crate::namespace::NamespaceDef;
 use crate::node;
