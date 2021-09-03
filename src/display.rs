@@ -49,13 +49,13 @@ pub(crate) fn display_abstract(is_abstract: bool) -> impl Display {
 }
 
 pub(crate) fn display_accessibility(
-  accessibility: Option<swc_ecmascript::ast::Accessibility>,
+  accessibility: Option<deno_ast::swc::ast::Accessibility>,
 ) -> impl Display {
   colors::magenta(
-    match accessibility.unwrap_or(swc_ecmascript::ast::Accessibility::Public) {
-      swc_ecmascript::ast::Accessibility::Public => "",
-      swc_ecmascript::ast::Accessibility::Protected => "protected ",
-      swc_ecmascript::ast::Accessibility::Private => "private ",
+    match accessibility.unwrap_or(deno_ast::swc::ast::Accessibility::Public) {
+      deno_ast::swc::ast::Accessibility::Public => "",
+      deno_ast::swc::ast::Accessibility::Protected => "protected ",
+      deno_ast::swc::ast::Accessibility::Private => "private ",
     },
   )
 }
@@ -69,11 +69,11 @@ pub(crate) fn display_generator(is_generator: bool) -> impl Display {
 }
 
 pub(crate) fn display_method(
-  method: swc_ecmascript::ast::MethodKind,
+  method: deno_ast::swc::ast::MethodKind,
 ) -> impl Display {
   colors::magenta(match method {
-    swc_ecmascript::ast::MethodKind::Getter => "get ",
-    swc_ecmascript::ast::MethodKind::Setter => "set ",
+    deno_ast::swc::ast::MethodKind::Getter => "get ",
+    deno_ast::swc::ast::MethodKind::Setter => "set ",
     _ => "",
   })
 }

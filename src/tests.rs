@@ -43,7 +43,8 @@ macro_rules! doc_test {
       let (graph, specifier) = setup("file:///test.ts", vec![
         ("file:///test.ts", source_code)
       ]).await;
-      let entries = DocParser::new(graph, private)
+      let source_parser = deno_graph::DefaultSourceParser::new();
+      let entries = DocParser::new(graph, private, &source_parser)
         .parse(&specifier)
         .unwrap();
 
@@ -119,7 +120,8 @@ async fn content_type_handling() {
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
   let graph =
     create_graph(root.clone(), &mut memory_loader, None, None, None).await;
-  let entries = DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&root)
     .unwrap();
   assert_eq!(entries.len(), 1);
@@ -163,7 +165,8 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 3);
@@ -260,7 +263,8 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -329,7 +333,8 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 1);
@@ -393,7 +398,10 @@ export namespace Deno {
 "#;
   let (graph, specifier) =
     setup("file:///test.ts", vec![("file:///test.ts", source_code)]).await;
-  let entries = DocParser::new(graph, false).parse(&specifier).unwrap();
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
+    .parse(&specifier)
+    .unwrap();
 
   // Namespace
   let found =
@@ -478,7 +486,8 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -538,7 +547,8 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, true)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, true, &source_parser)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -593,7 +603,8 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(graph, false)
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&specifier)
     .unwrap();
 }

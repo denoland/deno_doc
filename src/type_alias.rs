@@ -1,8 +1,8 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use crate::parser::DocParser;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -13,8 +13,8 @@ pub struct TypeAliasDef {
 }
 
 pub fn get_doc_for_ts_type_alias_decl(
-  _doc_parser: &DocParser,
-  type_alias_decl: &swc_ecmascript::ast::TsTypeAliasDecl,
+  _parsed_source: &ParsedSource,
+  type_alias_decl: &deno_ast::swc::ast::TsTypeAliasDecl,
 ) -> (String, TypeAliasDef) {
   let alias_name = type_alias_decl.id.sym.to_string();
   let ts_type = type_alias_decl.type_ann.as_ref().into();
