@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.12.0"
+version = "0.12.1"
 edition = "2018"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -17,7 +17,7 @@ name = "ddoc"
 anyhow = { version = "1.0.43", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.1.2"
-deno_graph = { version = "0.3.0", path = "../deno_graph" }
+deno_graph = { version = "0.3.1", path = "../deno_graph" }
 futures = "0.3.16"
 js-sys = { version = "0.3.52", optional = true }
 lazy_static = "1.4.0"

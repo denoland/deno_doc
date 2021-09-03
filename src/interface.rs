@@ -22,6 +22,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDef {
   pub name: String,
+  pub kind: swc_ecmascript::ast::MethodKind,
   pub location: Location,
   pub js_doc: Option<String>,
   pub optional: bool,
@@ -226,6 +227,7 @@ pub fn get_doc_for_ts_interface_decl(
 
         let method_def = InterfaceMethodDef {
           name,
+          kind: swc_ecmascript::ast::MethodKind::Method,
           js_doc: method_js_doc,
           location: get_location(parsed_source, ts_method_sig.span.lo()),
           optional: ts_method_sig.optional,
@@ -246,6 +248,7 @@ pub fn get_doc_for_ts_interface_decl(
 
         let method_def = InterfaceMethodDef {
           name,
+          kind: swc_ecmascript::ast::MethodKind::Getter,
           js_doc: method_js_doc,
           location: get_location(parsed_source, ts_getter_sig.span.lo()),
           optional: ts_getter_sig.optional,
@@ -260,12 +263,19 @@ pub fn get_doc_for_ts_interface_decl(
 
         let name = expr_to_name(&*ts_setter_sig.key);
 
+        let param_def = ts_fn_param_to_param_def(
+          &ts_setter_sig.param,
+          Some(&doc_parser.ast_parser.source_map),
+        );
+        let params = vec![param_def];
+
         let method_def = InterfaceMethodDef {
           name,
+          kind: swc_ecmascript::ast::MethodKind::Setter,
           js_doc: method_js_doc,
           location: get_location(parsed_source, ts_setter_sig.span.lo()),
           optional: ts_setter_sig.optional,
-          params: vec![],
+          params,
           return_type: None,
           type_params: vec![],
         };
@@ -367,6 +377,7 @@ pub fn get_doc_for_ts_interface_decl(
 
         let construct_sig_def = InterfaceMethodDef {
           name: "new".to_string(),
+          kind: swc_ecmascript::ast::MethodKind::Method,
           js_doc: construct_js_doc,
           location: get_location(parsed_source, ts_construct_sig.span.lo()),
           optional: false,

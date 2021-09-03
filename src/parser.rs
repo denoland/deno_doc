@@ -15,6 +15,7 @@ use deno_ast::swc::ast::Stmt;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use deno_graph::SourceParser;
+use deno_graph::Resolved;
 
 use crate::namespace::NamespaceDef;
 use crate::node;
@@ -240,6 +241,23 @@ impl<'a> DocParser<'a> {
           specifier
         ))
       })?;
+
+    let module = if let Some((_, Resolved::Specifier(types_specifier, _))) =
+      &module.maybe_types_dependency
+    {
+      self
+        .graph
+        .try_get(types_specifier)
+        .map_err(|err| DocError::Resolve(err.to_string()))?
+        .ok_or_else(|| {
+          DocError::Resolve(format!(
+            "Unable to load specifier: \"{}\"",
+            specifier
+          ))
+        })?
+    } else {
+      module
+    };
 
     let module_doc = self.parse_module(
       &module.specifier,

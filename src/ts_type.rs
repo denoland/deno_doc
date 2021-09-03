@@ -368,6 +368,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let method_def = LiteralMethodDef {
             name,
             params,
+            optional: ts_method_sig.optional,
             return_type: maybe_return_type,
             type_params,
           };
@@ -383,6 +384,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let method_def = LiteralMethodDef {
             name,
             params: vec![],
+            optional: ts_getter_sig.optional,
             return_type: maybe_return_type,
             type_params: vec![],
           };
@@ -393,6 +395,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let method_def = LiteralMethodDef {
             name,
             params: vec![],
+            optional: ts_setter_sig.optional,
             return_type: None,
             type_params: vec![],
           };
@@ -655,6 +658,7 @@ pub struct TsIndexedAccessDef {
 pub struct LiteralMethodDef {
   pub name: String,
   pub params: Vec<ParamDef>,
+  pub optional: bool,
   pub return_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
 }
