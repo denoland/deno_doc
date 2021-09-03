@@ -170,7 +170,6 @@ async fn types_header_handling() {
         "line": 1,
         "col": 0
       },
-      "jsDoc": null,
       "variableDef": {
         "tsType": {
           "repr": "a",
@@ -2236,7 +2235,6 @@ export interface Thing {
         "line": 2,
         "col": 0
       },
-      "jsDoc": null,
       "interfaceDef": {
         "extends": [],
         "methods": [
@@ -2248,7 +2246,6 @@ export interface Thing {
               "line": 3,
               "col": 2,
             },
-            "jsDoc": null,
             "optional": false,
             "params": [],
             "typeParams": [],
@@ -2266,7 +2263,6 @@ export interface Thing {
               "line": 4,
               "col": 2,
             },
-            "jsDoc": null,
             "optional": false,
             "params": [
               {
@@ -2353,7 +2349,6 @@ export type A = {
       "line": 2,
       "col": 0,
     },
-    "jsDoc": null,
     "typeAliasDef": {
       "typeParams": [],
       "tsType": {
