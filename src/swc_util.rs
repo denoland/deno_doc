@@ -34,13 +34,13 @@ pub fn js_doc_for_span(
 }
 
 pub fn get_location(parsed_source: &ParsedSource, pos: BytePos) -> Location {
-  // todo(dsherret): for some reason we're using a display indent width of 4
+  // todo(#150): for some reason we're using a display indent width of 4
   let line_and_column_index = parsed_source
     .source()
     .line_and_column_display_with_indent_width(pos, 4);
   Location {
     filename: parsed_source.specifier().to_string(),
-    // todo(dsherret): make 0-indexed
+    // todo(#150): make 0-indexed
     line: line_and_column_index.line_number,
     col: line_and_column_index.column_number - 1,
   }

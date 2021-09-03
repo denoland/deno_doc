@@ -60,13 +60,13 @@ fn main() {
 
   let mut loader = SourceFileLoader {};
   let future = async move {
-    let mut ast_parser = CapturingSourceParser::new();
+    let ast_parser = CapturingSourceParser::new();
     let graph = create_graph(
       source_file.clone(),
       &mut loader,
       None,
       None,
-      Some(&mut ast_parser),
+      Some(&ast_parser),
     )
     .await;
     let source_parser = deno_graph::DefaultSourceParser::new();
