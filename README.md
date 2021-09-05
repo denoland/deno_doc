@@ -56,7 +56,7 @@ from the `mod.ts`.
 `deno_doc` can be used as a crate.
 
 ```shell
-$ cargo run --example ddoc ../deno/std/http/mod.ts
+$ cargo run --example ddoc ../deno_std/http/mod.ts
 ```
 
 ## Developing
