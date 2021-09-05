@@ -1,5 +1,9 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use serde::{Deserialize, Serialize};
+
+use serde::Deserialize;
+use serde::Serialize;
+
+use crate::js_doc::JsDoc;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -79,7 +83,8 @@ pub struct DocNode {
   pub kind: DocNodeKind,
   pub name: String,
   pub location: Location,
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub function_def: Option<super::function::FunctionDef>,
@@ -110,7 +115,7 @@ impl DocNode {
   pub fn function(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     fn_def: super::function::FunctionDef,
   ) -> Self {
     Self {
@@ -132,7 +137,7 @@ impl DocNode {
   pub fn variable(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     var_def: super::variable::VariableDef,
   ) -> Self {
     Self {
@@ -154,7 +159,7 @@ impl DocNode {
   pub fn r#enum(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     enum_def: super::r#enum::EnumDef,
   ) -> Self {
     Self {
@@ -176,7 +181,7 @@ impl DocNode {
   pub fn class(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     class_def: super::class::ClassDef,
   ) -> Self {
     Self {
@@ -198,7 +203,7 @@ impl DocNode {
   pub fn type_alias(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     type_alias_def: super::type_alias::TypeAliasDef,
   ) -> Self {
     Self {
@@ -220,7 +225,7 @@ impl DocNode {
   pub fn namespace(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     namespace_def: super::namespace::NamespaceDef,
   ) -> Self {
     Self {
@@ -242,7 +247,7 @@ impl DocNode {
   pub fn interface(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     interface_def: super::interface::InterfaceDef,
   ) -> Self {
     Self {
@@ -264,7 +269,7 @@ impl DocNode {
   pub fn import(
     name: String,
     location: Location,
-    js_doc: Option<String>,
+    js_doc: JsDoc,
     import_def: ImportDef,
   ) -> Self {
     Self {

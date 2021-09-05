@@ -14,7 +14,7 @@ interface DocNodeBase {
   kind: DocNodeKind;
   name: string;
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
 }
 
 export type DocNodeKind =
@@ -82,7 +82,7 @@ export interface ClassDef {
 }
 
 export interface ClassConstructorDef {
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   accessibility?: Accessibility;
   name: string;
   params: ParamDef[];
@@ -96,7 +96,7 @@ export interface ClassIndexSignatureDef {
 }
 
 export interface ClassMethodDef {
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   accessibility?: Accessibility;
   optional: boolean;
   isAbstract: boolean;
@@ -108,7 +108,7 @@ export interface ClassMethodDef {
 }
 
 export interface ClassPropertyDef {
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   tsType?: TsTypeDef;
   readonly: boolean;
   accessibility?: Accessibility;
@@ -125,7 +125,7 @@ export interface EnumDef {
 
 export interface EnumMemberDef {
   name: string;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
 }
 
 export interface FunctionDef {
@@ -152,7 +152,7 @@ export interface InterfaceDef {
 
 export interface InterfaceCallSignatureDef {
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   params: ParamDef[];
   tsType?: TsTypeDef;
   typeParams: TsTypeParamDef[];
@@ -168,7 +168,7 @@ export interface InterfaceMethodDef {
   name: string;
   kind: MethodKind;
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   optional: boolean;
   params: ParamDef[];
   returnType?: TsTypeDef;
@@ -178,12 +178,96 @@ export interface InterfaceMethodDef {
 export interface InterfacePropertyDef {
   name: string;
   location: Location;
-  jsDoc?: string;
+  jsDoc?: JsDoc;
   params: ParamDef[];
   computed: boolean;
   optional: boolean;
   tsType?: TsTypeDef;
   typeParams: TsTypeParamDef[];
+}
+
+export interface JsDoc {
+  doc?: string;
+  tags?: JsDocTag[];
+}
+
+export type JsDocTagKind =
+  | "callback"
+  | "constructor"
+  | "deprecated"
+  | "enum"
+  | "extends"
+  | "param"
+  | "public"
+  | "private"
+  | "property"
+  | "protected"
+  | "readonly"
+  | "return"
+  | "template"
+  | "this"
+  | "typedef"
+  | "type"
+  | "unsupported";
+
+export type JsDocTag =
+  | JsDocTagOnly
+  | JsDocTagDoc
+  | JsDocTagNamed
+  | JsDocTagTyped
+  | JsDocTagNamedTyped
+  | JsDocTagParam
+  | JsDocTagReturn
+  | JsDocTagUnsupported;
+
+export interface JsDocTagBase {
+  kind: JsDocTagKind;
+}
+
+export interface JsDocTagOnly extends JsDocTagBase {
+  kind: "constructor" | "public" | "private" | "protected" | "readonly";
+}
+
+export interface JsDocTagDoc extends JsDocTagBase {
+  kind: "deprecated";
+  doc?: string;
+}
+
+export interface JsDocTagNamed extends JsDocTagBase {
+  kind: "callback" | "template";
+  name: string;
+  doc?: string;
+}
+
+export interface JsDocTagTyped extends JsDocTagBase {
+  kind: "enum" | "extends" | "this" | "type";
+  type: string;
+  doc?: string;
+}
+
+export interface JsDocTagNamedTyped extends JsDocTagBase {
+  kind: "property" | "typedef";
+  name: string;
+  type: string;
+  doc?: string;
+}
+
+export interface JsDocTagParam extends JsDocTagBase {
+  kind: "param";
+  name: string;
+  type?: string;
+  doc?: string;
+}
+
+export interface JsDocTagReturn extends JsDocTagBase {
+  kind: "return";
+  type?: string;
+  doc?: string;
+}
+
+export interface JsDocTagUnsupported extends JsDocTagBase {
+  kind: "unsupported";
+  value: string;
 }
 
 export interface LiteralCallSignatureDef {

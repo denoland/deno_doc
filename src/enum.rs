@@ -1,13 +1,17 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use serde::{Deserialize, Serialize};
 
+use serde::Deserialize;
+use serde::Serialize;
+
+use crate::js_doc::JsDoc;
 use crate::parser::DocParser;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EnumMemberDef {
   pub name: String,
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

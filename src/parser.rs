@@ -1,9 +1,23 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use crate::js_doc::JsDoc;
+use crate::namespace::NamespaceDef;
+use crate::node;
+use crate::node::DocNode;
+use crate::node::ModuleDoc;
+use crate::swc_util;
 use crate::swc_util::AstParser;
+use crate::ImportDef;
+use crate::Location;
 use crate::ReexportKind;
+
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use deno_graph::Resolved;
+use regex::Regex;
+use std::collections::HashMap;
+use std::error::Error;
+use std::fmt;
 use swc_common::comments::CommentKind;
 use swc_common::Span;
 use swc_ecmascript::ast::Decl;
@@ -16,21 +30,14 @@ use swc_ecmascript::ast::ModuleItem;
 use swc_ecmascript::ast::Stmt;
 use swc_ecmascript::parser::Syntax;
 
-use crate::namespace::NamespaceDef;
-use crate::node;
-use crate::node::DocNode;
-use crate::node::ModuleDoc;
-use crate::swc_util;
-use crate::ImportDef;
-use crate::Location;
-use regex::Regex;
-use std::collections::HashMap;
-use std::error::Error;
-use std::fmt;
+lazy_static! {
+  static ref JS_DOC_RE: Regex = Regex::new(r#"\s*\* ?"#).unwrap();
+}
 
 #[derive(Debug)]
 pub enum DocError {
   Resolve(String),
+  #[allow(dead_code)]
   Io(std::io::Error),
   Parse(swc_util::SwcDiagnosticBuffer),
 }
@@ -108,6 +115,7 @@ impl DocParser {
   }
 
   /// Fetches `file_name` and parses it.
+  #[cfg(feature = "rust")]
   pub fn parse(
     &self,
     specifier: &ModuleSpecifier,
@@ -131,6 +139,7 @@ impl DocParser {
   }
 
   /// Parses a module and returns a list of exported items (no reexports).
+  #[cfg(feature = "rust")]
   pub fn parse_source(
     &self,
     specifier: &ModuleSpecifier,
@@ -184,7 +193,7 @@ impl DocParser {
                 line: 1,
                 col: 0,
               },
-              None,
+              JsDoc::default(),
               ns_def,
             );
             processed_reexports.push(ns_doc_node);
@@ -373,7 +382,7 @@ impl DocParser {
     }
   }
 
-  fn details_for_span(&self, span: Span) -> (Option<String>, Location) {
+  fn details_for_span(&self, span: Span) -> (JsDoc, Location) {
     let js_doc = self.js_doc_for_span(span);
     let location = self.ast_parser.get_span_location(span).into();
     (js_doc, location)
@@ -712,37 +721,38 @@ impl DocParser {
     doc_entries
   }
 
-  pub fn js_doc_for_span(&self, span: Span) -> Option<String> {
+  pub fn js_doc_for_span(&self, span: Span) -> JsDoc {
     let comments = self.ast_parser.get_span_comments(span);
-    let js_doc_comment = comments.iter().rev().find(|comment| {
+    if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
       comment.kind == CommentKind::Block && comment.text.starts_with('*')
-    })?;
-
-    let mut margin_pat = String::from("");
-    if let Some(margin) = self.ast_parser.source_map.span_to_margin(span) {
-      for _ in 0..margin {
-        margin_pat.push(' ');
-      }
-    }
-
-    let js_doc_re = Regex::new(r#"\s*\* ?"#).unwrap();
-    let txt = js_doc_comment
-      .text
-      .split('\n')
-      .map(|line| js_doc_re.replace(line, "").to_string())
-      .map(|line| {
-        if line.starts_with(&margin_pat) {
-          line[margin_pat.len()..].to_string()
-        } else {
-          line
+    }) {
+      let mut margin_pat = String::from("");
+      if let Some(margin) = self.ast_parser.source_map.span_to_margin(span) {
+        for _ in 0..margin {
+          margin_pat.push(' ');
         }
-      })
-      .collect::<Vec<String>>()
-      .join("\n");
+      }
 
-    let txt = txt.trim_start().trim_end().to_string();
+      let txt = js_doc_comment
+        .text
+        .split('\n')
+        .map(|line| JS_DOC_RE.replace(line, "").to_string())
+        .map(|line| {
+          if line.starts_with(&margin_pat) {
+            line[margin_pat.len()..].to_string()
+          } else {
+            line
+          }
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
 
-    Some(txt)
+      let txt = txt.trim_start().trim_end().to_string();
+
+      txt.into()
+    } else {
+      JsDoc::default()
+    }
   }
 
   fn get_declare_for_decl(&self, decl: &Decl) -> bool {
