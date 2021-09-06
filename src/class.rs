@@ -299,6 +299,7 @@ pub fn class_to_class_def(
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
         for param in &ts_index_sig.params {
+          // todo(kitsonk): investigate why `None` is provided here
           let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }

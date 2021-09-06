@@ -3,14 +3,19 @@
 use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 use crate::colors;
-use crate::display::{display_optional, display_readonly, SliceDisplayer};
+use crate::display::display_optional;
+use crate::display::display_readonly;
+use crate::display::SliceDisplayer;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::params::ts_fn_param_to_param_def;
-use crate::swc_util::{get_location, js_doc_for_span};
+use crate::swc_util::get_location;
+use crate::swc_util::js_doc_for_span;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
