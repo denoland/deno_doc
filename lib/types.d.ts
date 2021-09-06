@@ -276,12 +276,18 @@ export interface LiteralCallSignatureDef {
   typeParams: TsTypeParamDef[];
 }
 
-export type LiteralDefKind = "number" | "string" | "boolean" | "bigInt";
+export type LiteralDefKind =
+  | "number"
+  | "string"
+  | "template"
+  | "boolean"
+  | "bigInt";
 
 export type LiteralDef =
   | LiteralDefNumber
   | LiteralDefBigInt
   | LiteralDefString
+  | LiteralDefTemplate
   | LiteralDefBoolean;
 
 interface LiteralDefBase {
@@ -295,12 +301,17 @@ export interface LiteralDefNumber extends LiteralDefBase {
 
 export interface LiteralDefBigInt extends LiteralDefBase {
   kind: "bigInt";
-  number: bigint;
+  string: string;
 }
 
 export interface LiteralDefString extends LiteralDefBase {
   kind: "string";
   string: string;
+}
+
+export interface LiteralDefTemplate extends LiteralDefBase {
+  kind: "template";
+  tsTypes: TsTypeDef[];
 }
 
 export interface LiteralDefBoolean extends LiteralDefBase {
