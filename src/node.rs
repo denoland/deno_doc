@@ -25,24 +25,6 @@ pub struct Location {
   pub col: usize,
 }
 
-impl From<swc_common::Loc> for Location {
-  fn from(loc: swc_common::Loc) -> Location {
-    use swc_common::FileName::*;
-
-    let filename = match &loc.file.name {
-      Real(path_buf) => path_buf.to_string_lossy().to_string(),
-      Custom(str_) => str_.to_string(),
-      _ => panic!("invalid filename"),
-    };
-
-    Location {
-      filename,
-      line: loc.line,
-      col: loc.col_display,
-    }
-  }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum ReexportKind {

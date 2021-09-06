@@ -1,10 +1,10 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::display::{display_optional, SliceDisplayer};
 use crate::ts_type::{ts_type_ann_to_def, TsTypeDef};
+use deno_ast::swc::ast::{ObjectPatProp, Pat, TsFnParam};
+use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use swc_common::SourceMap;
-use swc_ecmascript::ast::{ObjectPatProp, Pat, TsFnParam};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -145,8 +145,8 @@ impl Display for ObjectPatPropDef {
 }
 
 pub fn ident_to_param_def(
-  ident: &swc_ecmascript::ast::BindingIdent,
-  _source_map: Option<&SourceMap>,
+  _parsed_source: Option<&ParsedSource>,
+  ident: &deno_ast::swc::ast::BindingIdent,
 ) -> ParamDef {
   let ts_type = ident.type_ann.as_ref().map(|rt| ts_type_ann_to_def(rt));
 
@@ -158,20 +158,20 @@ pub fn ident_to_param_def(
 }
 
 fn rest_pat_to_param_def(
-  rest_pat: &swc_ecmascript::ast::RestPat,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  rest_pat: &deno_ast::swc::ast::RestPat,
 ) -> ParamDef {
   let ts_type = rest_pat.type_ann.as_ref().map(|rt| ts_type_ann_to_def(rt));
 
   ParamDef::Rest {
-    arg: Box::new(pat_to_param_def(&*rest_pat.arg, source_map)),
+    arg: Box::new(pat_to_param_def(parsed_source, &*rest_pat.arg)),
     ts_type,
   }
 }
 
 fn object_pat_prop_to_def(
+  parsed_source: Option<&ParsedSource>,
   object_pat_prop: &ObjectPatProp,
-  source_map: Option<&SourceMap>,
 ) -> ObjectPatPropDef {
   match object_pat_prop {
     ObjectPatProp::Assign(assign) => ObjectPatPropDef::Assign {
@@ -179,23 +179,23 @@ fn object_pat_prop_to_def(
       value: assign.value.as_ref().map(|_| "<UNIMPLEMENTED>".to_string()),
     },
     ObjectPatProp::KeyValue(keyvalue) => ObjectPatPropDef::KeyValue {
-      key: prop_name_to_string(&keyvalue.key, source_map),
-      value: Box::new(pat_to_param_def(&*keyvalue.value, source_map)),
+      key: prop_name_to_string(parsed_source, &keyvalue.key),
+      value: Box::new(pat_to_param_def(parsed_source, &*keyvalue.value)),
     },
     ObjectPatProp::Rest(rest) => ObjectPatPropDef::Rest {
-      arg: Box::new(pat_to_param_def(&*rest.arg, source_map)),
+      arg: Box::new(pat_to_param_def(parsed_source, &*rest.arg)),
     },
   }
 }
 
 fn object_pat_to_param_def(
-  object_pat: &swc_ecmascript::ast::ObjectPat,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  object_pat: &deno_ast::swc::ast::ObjectPat,
 ) -> ParamDef {
   let props = object_pat
     .props
     .iter()
-    .map(|prop| object_pat_prop_to_def(prop, source_map))
+    .map(|prop| object_pat_prop_to_def(parsed_source, prop))
     .collect::<Vec<_>>();
   let ts_type = object_pat
     .type_ann
@@ -210,13 +210,13 @@ fn object_pat_to_param_def(
 }
 
 fn array_pat_to_param_def(
-  array_pat: &swc_ecmascript::ast::ArrayPat,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  array_pat: &deno_ast::swc::ast::ArrayPat,
 ) -> ParamDef {
   let elements = array_pat
     .elems
     .iter()
-    .map(|elem| elem.as_ref().map(|e| pat_to_param_def(e, source_map)))
+    .map(|elem| elem.as_ref().map(|e| pat_to_param_def(parsed_source, e)))
     .collect::<Vec<Option<_>>>();
   let ts_type = array_pat.type_ann.as_ref().map(|rt| ts_type_ann_to_def(rt));
 
@@ -228,8 +228,8 @@ fn array_pat_to_param_def(
 }
 
 pub fn assign_pat_to_param_def(
-  assign_pat: &swc_ecmascript::ast::AssignPat,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  assign_pat: &deno_ast::swc::ast::AssignPat,
 ) -> ParamDef {
   let ts_type = assign_pat
     .type_ann
@@ -237,54 +237,58 @@ pub fn assign_pat_to_param_def(
     .map(|rt| ts_type_ann_to_def(rt));
 
   ParamDef::Assign {
-    left: Box::new(pat_to_param_def(&*assign_pat.left, source_map)),
+    left: Box::new(pat_to_param_def(parsed_source, &*assign_pat.left)),
     right: "<UNIMPLEMENTED>".to_string(),
     ts_type,
   }
 }
 
 pub fn pat_to_param_def(
-  pat: &swc_ecmascript::ast::Pat,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  pat: &deno_ast::swc::ast::Pat,
 ) -> ParamDef {
   match pat {
-    Pat::Ident(ident) => ident_to_param_def(ident, source_map),
-    Pat::Array(array_pat) => array_pat_to_param_def(array_pat, source_map),
-    Pat::Rest(rest_pat) => rest_pat_to_param_def(rest_pat, source_map),
-    Pat::Object(object_pat) => object_pat_to_param_def(object_pat, source_map),
-    Pat::Assign(assign_pat) => assign_pat_to_param_def(assign_pat, source_map),
+    Pat::Ident(ident) => ident_to_param_def(parsed_source, ident),
+    Pat::Array(array_pat) => array_pat_to_param_def(parsed_source, array_pat),
+    Pat::Rest(rest_pat) => rest_pat_to_param_def(parsed_source, rest_pat),
+    Pat::Object(object_pat) => {
+      object_pat_to_param_def(parsed_source, object_pat)
+    }
+    Pat::Assign(assign_pat) => {
+      assign_pat_to_param_def(parsed_source, assign_pat)
+    }
     _ => unreachable!(),
   }
 }
 
 pub fn ts_fn_param_to_param_def(
-  ts_fn_param: &swc_ecmascript::ast::TsFnParam,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  ts_fn_param: &deno_ast::swc::ast::TsFnParam,
 ) -> ParamDef {
   match ts_fn_param {
-    TsFnParam::Ident(ident) => ident_to_param_def(ident, source_map),
+    TsFnParam::Ident(ident) => ident_to_param_def(parsed_source, ident),
     TsFnParam::Array(array_pat) => {
-      array_pat_to_param_def(array_pat, source_map)
+      array_pat_to_param_def(parsed_source, array_pat)
     }
-    TsFnParam::Rest(rest_pat) => rest_pat_to_param_def(rest_pat, source_map),
+    TsFnParam::Rest(rest_pat) => rest_pat_to_param_def(parsed_source, rest_pat),
     TsFnParam::Object(object_pat) => {
-      object_pat_to_param_def(object_pat, source_map)
+      object_pat_to_param_def(parsed_source, object_pat)
     }
   }
 }
 
 pub fn prop_name_to_string(
-  prop_name: &swc_ecmascript::ast::PropName,
-  source_map: Option<&SourceMap>,
+  parsed_source: Option<&ParsedSource>,
+  prop_name: &deno_ast::swc::ast::PropName,
 ) -> String {
-  use swc_ecmascript::ast::PropName;
+  use deno_ast::swc::ast::PropName;
   match prop_name {
     PropName::Ident(ident) => ident.sym.to_string(),
     PropName::Str(str_) => str_.value.to_string(),
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
-    PropName::Computed(comp_prop_name) => source_map
-      .map(|sm| sm.span_to_snippet(comp_prop_name.span).unwrap())
+    PropName::Computed(comp_prop_name) => parsed_source
+      .map(|s| s.source().get_span_text(&comp_prop_name.span).to_string())
       .unwrap_or_else(|| "<UNAVAILABLE>".to_string()),
   }
 }

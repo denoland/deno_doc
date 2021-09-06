@@ -1,9 +1,9 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::ts_type::TsTypeDef;
+use deno_ast::swc::ast::TsTypeParam;
+use deno_ast::swc::ast::TsTypeParamDecl;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use swc_ecmascript::ast::TsTypeParam;
-use swc_ecmascript::ast::TsTypeParamDecl;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]

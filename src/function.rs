@@ -1,11 +1,11 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 use crate::params::pat_to_param_def;
-use crate::parser::DocParser;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
+use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -20,14 +20,13 @@ pub struct FunctionDef {
 }
 
 pub fn function_to_function_def(
-  doc_parser: &DocParser,
-  function: &swc_ecmascript::ast::Function,
+  parsed_source: &ParsedSource,
+  function: &deno_ast::swc::ast::Function,
 ) -> FunctionDef {
   let mut params = vec![];
 
   for param in &function.params {
-    let param_def =
-      pat_to_param_def(&param.pat, Some(&doc_parser.ast_parser.source_map));
+    let param_def = pat_to_param_def(Some(parsed_source), &param.pat);
     params.push(param_def);
   }
 
@@ -49,10 +48,10 @@ pub fn function_to_function_def(
 }
 
 pub fn get_doc_for_fn_decl(
-  doc_parser: &DocParser,
-  fn_decl: &swc_ecmascript::ast::FnDecl,
+  parsed_source: &ParsedSource,
+  fn_decl: &deno_ast::swc::ast::FnDecl,
 ) -> (String, FunctionDef) {
   let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(doc_parser, &fn_decl.function);
+  let fn_def = function_to_function_def(parsed_source, &fn_decl.function);
   (name, fn_def)
 }

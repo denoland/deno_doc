@@ -6,9 +6,7 @@ use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
-use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result as FmtResult};
-use swc_ecmascript::ast::{
+use deno_ast::swc::ast::{
   BigInt, Bool, CallExpr, Expr, ExprOrSuper, Lit, NewExpr, Number, Str, Tpl,
   TplElement, TsArrayType, TsConditionalType, TsExprWithTypeArgs,
   TsFnOrConstructorType, TsIndexedAccessType, TsKeywordType, TsLit, TsLitType,
@@ -17,6 +15,8 @@ use swc_ecmascript::ast::{
   TsTypeParamInstantiation, TsTypePredicate, TsTypeQuery, TsTypeRef,
   TsUnionOrIntersectionType, VarDeclarator,
 };
+use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 // pub enum TsType {
 //  *      TsKeywordType(TsKeywordType),
@@ -85,7 +85,7 @@ impl From<&TsTupleType> for TsTypeDef {
 
 impl From<&TsUnionOrIntersectionType> for TsTypeDef {
   fn from(other: &TsUnionOrIntersectionType) -> TsTypeDef {
-    use swc_ecmascript::ast::TsUnionOrIntersectionType::*;
+    use deno_ast::swc::ast::TsUnionOrIntersectionType::*;
 
     match other {
       TsUnionType(union_type) => {
@@ -124,7 +124,7 @@ impl From<&TsUnionOrIntersectionType> for TsTypeDef {
 
 impl From<&TsKeywordType> for TsTypeDef {
   fn from(other: &TsKeywordType) -> TsTypeDef {
-    use swc_ecmascript::ast::TsKeywordTypeKind::*;
+    use deno_ast::swc::ast::TsKeywordTypeKind::*;
 
     let keyword_str = match other.kind {
       TsAnyKeyword => "any",
@@ -229,9 +229,9 @@ impl From<&TsTypePredicate> for TsTypeDef {
 }
 
 pub fn ts_entity_name_to_name(
-  entity_name: &swc_ecmascript::ast::TsEntityName,
+  entity_name: &deno_ast::swc::ast::TsEntityName,
 ) -> String {
-  use swc_ecmascript::ast::TsEntityName::*;
+  use deno_ast::swc::ast::TsEntityName::*;
 
   match entity_name {
     Ident(ident) => ident.sym.to_string(),
@@ -245,7 +245,7 @@ pub fn ts_entity_name_to_name(
 
 impl From<&TsTypeQuery> for TsTypeDef {
   fn from(other: &TsTypeQuery) -> TsTypeDef {
-    use swc_ecmascript::ast::TsTypeQueryExpr::*;
+    use deno_ast::swc::ast::TsTypeQueryExpr::*;
 
     let type_name = match &other.expr_name {
       TsEntityName(entity_name) => ts_entity_name_to_name(&*entity_name),
@@ -345,14 +345,14 @@ impl From<&TsTypeLit> for TsTypeDef {
     let mut index_signatures = vec![];
 
     for type_element in &other.members {
-      use swc_ecmascript::ast::TsTypeElement::*;
+      use deno_ast::swc::ast::TsTypeElement::*;
 
       match &type_element {
         TsMethodSignature(ts_method_sig) => {
           let mut params = vec![];
 
           for param in &ts_method_sig.params {
-            let param_def = ts_fn_param_to_param_def(param, None);
+            let param_def = ts_fn_param_to_param_def(None, param);
             params.push(param_def);
           }
 
@@ -407,7 +407,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let mut params = vec![];
 
           for param in &ts_prop_sig.params {
-            let param_def = ts_fn_param_to_param_def(param, None);
+            let param_def = ts_fn_param_to_param_def(None, param);
             params.push(param_def);
           }
 
@@ -432,7 +432,7 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsCallSignatureDecl(ts_call_sig) => {
           let mut params = vec![];
           for param in &ts_call_sig.params {
-            let param_def = ts_fn_param_to_param_def(param, None);
+            let param_def = ts_fn_param_to_param_def(None, param);
             params.push(param_def);
           }
 
@@ -455,7 +455,7 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsIndexSignature(ts_index_sig) => {
           let mut params = vec![];
           for param in &ts_index_sig.params {
-            let param_def = ts_fn_param_to_param_def(param, None);
+            let param_def = ts_fn_param_to_param_def(None, param);
             params.push(param_def);
           }
 
@@ -510,14 +510,14 @@ impl From<&TsConditionalType> for TsTypeDef {
 
 impl From<&TsFnOrConstructorType> for TsTypeDef {
   fn from(other: &TsFnOrConstructorType) -> TsTypeDef {
-    use swc_ecmascript::ast::TsFnOrConstructorType::*;
+    use deno_ast::swc::ast::TsFnOrConstructorType::*;
 
     let fn_def = match other {
       TsFnType(ts_fn_type) => {
         let mut params = vec![];
 
         for param in &ts_fn_type.params {
-          let param_def = ts_fn_param_to_param_def(param, None);
+          let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }
 
@@ -536,7 +536,7 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
         let mut params = vec![];
 
         for param in &ctor_type.params {
-          let param_def = ts_fn_param_to_param_def(param, None);
+          let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }
 
@@ -562,7 +562,7 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
 
 impl From<&TsType> for TsTypeDef {
   fn from(other: &TsType) -> TsTypeDef {
-    use swc_ecmascript::ast::TsType::*;
+    use deno_ast::swc::ast::TsType::*;
 
     match other {
       TsKeywordType(ref keyword_type) => keyword_type.into(),
@@ -1000,7 +1000,7 @@ impl TsTypeDef {
 }
 
 pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
-  use swc_ecmascript::ast::TsType::*;
+  use deno_ast::swc::ast::TsType::*;
 
   match &*type_ann.type_ann {
     TsKeywordType(keyword_type) => keyword_type.into(),

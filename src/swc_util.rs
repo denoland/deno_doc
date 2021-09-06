@@ -1,160 +1,74 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use std::error::Error;
-use std::fmt;
-use std::rc::Rc;
-use std::sync::Arc;
-use std::sync::RwLock;
-use swc_common::comments::SingleThreadedComments;
-use swc_common::errors::Diagnostic;
-use swc_common::errors::DiagnosticBuilder;
-use swc_common::errors::Emitter;
-use swc_common::errors::Handler;
-use swc_common::errors::HandlerFlags;
-use swc_common::FileName;
-use swc_common::Globals;
-use swc_common::SourceMap;
-use swc_common::Span;
-use swc_ecmascript::parser::lexer::Lexer;
-use swc_ecmascript::parser::JscTarget;
-use swc_ecmascript::parser::Parser;
-use swc_ecmascript::parser::StringInput;
-use swc_ecmascript::parser::Syntax;
 
-#[derive(Clone, Debug)]
-pub struct SwcDiagnosticBuffer {
-  pub diagnostics: Vec<String>,
+use deno_ast::swc::common::comments::CommentKind;
+use deno_ast::swc::common::comments::Comments;
+use deno_ast::swc::common::BytePos;
+use deno_ast::swc::common::Span;
+use deno_ast::ParsedSource;
+use regex::Regex;
+
+use crate::js_doc::JsDoc;
+use crate::node::Location;
+
+lazy_static! {
+  static ref JS_DOC_RE: Regex = Regex::new(r#"\s*\* ?"#).unwrap();
 }
 
-impl Error for SwcDiagnosticBuffer {}
-
-impl fmt::Display for SwcDiagnosticBuffer {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let msg = self.diagnostics.join(",");
-
-    f.pad(&msg)
-  }
-}
-
-impl SwcDiagnosticBuffer {
-  pub fn from_swc_error(
-    error_buffer: SwcErrorBuffer,
-    parser: &AstParser,
-  ) -> Self {
-    let s = error_buffer.0.read().unwrap().clone();
-
-    let diagnostics = s
-      .iter()
-      .map(|d| {
-        let mut msg = d.message();
-
-        if let Some(span) = d.span.primary_span() {
-          let location = parser.get_span_location(span);
-          let filename = match &location.file.name {
-            FileName::Custom(n) => n,
-            _ => unreachable!(),
-          };
-          msg = format!(
-            "{} at {}:{}:{}",
-            msg, filename, location.line, location.col_display
-          );
-        }
-
-        msg
-      })
-      .collect::<Vec<String>>();
-
-    Self { diagnostics }
-  }
-}
-
-#[derive(Clone)]
-pub struct SwcErrorBuffer(Arc<RwLock<Vec<Diagnostic>>>);
-
-impl SwcErrorBuffer {
-  pub fn default() -> Self {
-    Self(Arc::new(RwLock::new(vec![])))
-  }
-}
-
-impl Emitter for SwcErrorBuffer {
-  fn emit(&mut self, db: &DiagnosticBuilder) {
-    self.0.write().unwrap().push((**db).clone());
-  }
-}
-
-/// Low-level utility structure with common AST parsing functions.
-///
-/// Allows to build more complicated parser by providing a callback
-/// to `parse_module`.
-pub struct AstParser {
-  pub buffered_error: SwcErrorBuffer,
-  pub source_map: Rc<SourceMap>,
-  pub handler: Handler,
-  pub comments: SingleThreadedComments,
-  pub globals: Globals,
-}
-
-impl AstParser {
-  pub fn default() -> Self {
-    let buffered_error = SwcErrorBuffer::default();
-
-    let handler = Handler::with_emitter_and_flags(
-      Box::new(buffered_error.clone()),
-      HandlerFlags {
-        dont_buffer_diagnostics: true,
-        can_emit_warnings: true,
-        ..Default::default()
-      },
-    );
-
-    AstParser {
-      buffered_error,
-      source_map: Rc::new(SourceMap::default()),
-      handler,
-      comments: SingleThreadedComments::default(),
-      globals: Globals::new(),
+pub fn js_doc_for_span(parsed_source: &ParsedSource, span: &Span) -> JsDoc {
+  let comments = parsed_source
+    .comments()
+    .get_leading(span.lo())
+    .unwrap_or_else(Vec::new);
+  if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
+    comment.kind == CommentKind::Block && comment.text.starts_with('*')
+  }) {
+    // todo(dsherret): I've inlined the `source_map.span_to_margin` swc code
+    // here after removing the usage of swc's source map, but it seems strange and
+    // no tests fail if this is removed. We should look to improve this and
+    // add a test in the future.
+    let mut margin_pat = String::from("");
+    let span_text = parsed_source.source().get_span_text(span);
+    if let Some(margin) = span_text
+      .split('\n')
+      .last()
+      .map(|last_line| last_line.len() - last_line.trim_start().len())
+    {
+      for _ in 0..margin {
+        margin_pat.push(' ');
+      }
     }
+
+    let txt = js_doc_comment
+      .text
+      .split('\n')
+      .map(|line| JS_DOC_RE.replace(line, "").to_string())
+      .map(|line| {
+        if line.starts_with(&margin_pat) {
+          line[margin_pat.len()..].to_string()
+        } else {
+          line
+        }
+      })
+      .collect::<Vec<String>>()
+      .join("\n");
+
+    let txt = txt.trim_start().trim_end().to_string();
+
+    txt.into()
+  } else {
+    JsDoc::default()
   }
+}
 
-  pub fn parse_module(
-    &self,
-    file_name: &str,
-    syntax: Syntax,
-    source_code: &str,
-  ) -> Result<swc_ecmascript::ast::Module, SwcDiagnosticBuffer> {
-    let swc_source_file = self.source_map.new_source_file(
-      FileName::Custom(file_name.to_string()),
-      source_code.to_string(),
-    );
-
-    let buffered_err = self.buffered_error.clone();
-
-    let lexer = Lexer::new(
-      syntax,
-      JscTarget::Es2019,
-      StringInput::from(&*swc_source_file),
-      Some(&self.comments),
-    );
-
-    let mut parser = Parser::new_from(lexer);
-
-    parser.parse_module().map_err(move |err| {
-      let mut diagnostic = err.into_diagnostic(&self.handler);
-      diagnostic.emit();
-      SwcDiagnosticBuffer::from_swc_error(buffered_err, self)
-    })
-  }
-
-  pub fn get_span_location(&self, span: Span) -> swc_common::Loc {
-    self.source_map.lookup_char_pos(span.lo())
-  }
-
-  pub fn get_span_comments(
-    &self,
-    span: Span,
-  ) -> Vec<swc_common::comments::Comment> {
-    self
-      .comments
-      .with_leading(span.lo(), |comments| comments.to_vec())
+pub fn get_location(parsed_source: &ParsedSource, pos: BytePos) -> Location {
+  // todo(#150): for some reason we're using a display indent width of 4
+  let line_and_column_index = parsed_source
+    .source()
+    .line_and_column_display_with_indent_width(pos, 4);
+  Location {
+    filename: parsed_source.specifier().to_string(),
+    // todo(#150): make 0-indexed
+    line: line_and_column_index.line_number,
+    col: line_and_column_index.column_number - 1,
   }
 }

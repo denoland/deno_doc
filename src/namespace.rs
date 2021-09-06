@@ -1,8 +1,12 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 
-use crate::parser::DocParser;
+use crate::swc_util::get_location;
+use crate::swc_util::js_doc_for_span;
 use crate::DocNode;
+use crate::DocParser;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
@@ -11,23 +15,26 @@ pub struct NamespaceDef {
 
 pub fn get_doc_for_ts_namespace_decl(
   doc_parser: &DocParser,
-  ts_namespace_decl: &swc_ecmascript::ast::TsNamespaceDecl,
+  parsed_source: &ParsedSource,
+  ts_namespace_decl: &deno_ast::swc::ast::TsNamespaceDecl,
 ) -> DocNode {
-  let js_doc = doc_parser.js_doc_for_span(ts_namespace_decl.span);
-  let location = doc_parser
-    .ast_parser
-    .get_span_location(ts_namespace_decl.span)
-    .into();
+  let js_doc = js_doc_for_span(parsed_source, &ts_namespace_decl.span);
+  let location = get_location(parsed_source, ts_namespace_decl.span.lo());
   let namespace_name = ts_namespace_decl.id.sym.to_string();
 
-  use swc_ecmascript::ast::TsNamespaceBody::*;
+  use deno_ast::swc::ast::TsNamespaceBody::*;
 
   let elements = match &*ts_namespace_decl.body {
-    TsModuleBlock(ts_module_block) => {
-      doc_parser.get_doc_nodes_for_module_body(ts_module_block.body.clone())
-    }
+    TsModuleBlock(ts_module_block) => doc_parser.get_doc_nodes_for_module_body(
+      parsed_source,
+      ts_module_block.body.clone(),
+    ),
     TsNamespaceDecl(ts_namespace_decl) => {
-      vec![get_doc_for_ts_namespace_decl(doc_parser, ts_namespace_decl)]
+      vec![get_doc_for_ts_namespace_decl(
+        doc_parser,
+        parsed_source,
+        ts_namespace_decl,
+      )]
     }
   };
 
@@ -38,23 +45,30 @@ pub fn get_doc_for_ts_namespace_decl(
 
 pub fn get_doc_for_ts_module(
   doc_parser: &DocParser,
-  ts_module_decl: &swc_ecmascript::ast::TsModuleDecl,
+  parsed_source: &ParsedSource,
+  ts_module_decl: &deno_ast::swc::ast::TsModuleDecl,
 ) -> (String, NamespaceDef) {
-  use swc_ecmascript::ast::TsModuleName;
+  use deno_ast::swc::ast::TsModuleName;
   let namespace_name = match &ts_module_decl.id {
     TsModuleName::Ident(ident) => ident.sym.to_string(),
     TsModuleName::Str(str_) => str_.value.to_string(),
   };
 
   let elements = if let Some(body) = &ts_module_decl.body {
-    use swc_ecmascript::ast::TsNamespaceBody::*;
+    use deno_ast::swc::ast::TsNamespaceBody::*;
 
     match &body {
-      TsModuleBlock(ts_module_block) => {
-        doc_parser.get_doc_nodes_for_module_body(ts_module_block.body.clone())
-      }
+      TsModuleBlock(ts_module_block) => doc_parser
+        .get_doc_nodes_for_module_body(
+          parsed_source,
+          ts_module_block.body.clone(),
+        ),
       TsNamespaceDecl(ts_namespace_decl) => {
-        vec![get_doc_for_ts_namespace_decl(doc_parser, ts_namespace_decl)]
+        vec![get_doc_for_ts_namespace_decl(
+          doc_parser,
+          parsed_source,
+          ts_namespace_decl,
+        )]
       }
     }
   } else {

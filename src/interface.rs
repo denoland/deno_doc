@@ -1,14 +1,21 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 use crate::colors;
-use crate::display::{display_optional, display_readonly, SliceDisplayer};
+use crate::display::display_optional;
+use crate::display::display_readonly;
+use crate::display::SliceDisplayer;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::params::ts_fn_param_to_param_def;
-use crate::parser::DocParser;
+use crate::swc_util::get_location;
+use crate::swc_util::js_doc_for_span;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -18,13 +25,11 @@ use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 
-use std::fmt::{Display, Formatter, Result as FmtResult};
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDef {
   pub name: String,
-  pub kind: swc_ecmascript::ast::MethodKind,
+  pub kind: deno_ast::swc::ast::MethodKind,
   pub location: Location,
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
@@ -89,7 +94,7 @@ impl From<InterfacePropertyDef> for DocNode {
       def.js_doc,
       VariableDef {
         ts_type: def.ts_type,
-        kind: swc_ecmascript::ast::VarDeclKind::Const,
+        kind: deno_ast::swc::ast::VarDeclKind::Const,
       },
     )
   }
@@ -155,9 +160,9 @@ pub struct InterfaceDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-pub fn expr_to_name(expr: &swc_ecmascript::ast::Expr) -> String {
-  use swc_ecmascript::ast::Expr::*;
-  use swc_ecmascript::ast::ExprOrSuper::*;
+pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
+  use deno_ast::swc::ast::Expr::*;
+  use deno_ast::swc::ast::ExprOrSuper::*;
 
   match expr {
     Ident(ident) => ident.sym.to_string(),
@@ -170,13 +175,13 @@ pub fn expr_to_name(expr: &swc_ecmascript::ast::Expr) -> String {
       format!("[{}.{}]", left, right)
     }
     Lit(lit) => {
-      use swc_ecmascript::ast::BigInt;
-      use swc_ecmascript::ast::Bool;
-      use swc_ecmascript::ast::JSXText;
-      use swc_ecmascript::ast::Lit;
-      use swc_ecmascript::ast::Number;
-      use swc_ecmascript::ast::Regex;
-      use swc_ecmascript::ast::Str;
+      use deno_ast::swc::ast::BigInt;
+      use deno_ast::swc::ast::Bool;
+      use deno_ast::swc::ast::JSXText;
+      use deno_ast::swc::ast::Lit;
+      use deno_ast::swc::ast::Number;
+      use deno_ast::swc::ast::Regex;
+      use deno_ast::swc::ast::Str;
       match lit {
         Lit::Str(Str { ref value, .. }) => value.to_string(),
         Lit::Bool(Bool { ref value, .. }) => {
@@ -195,8 +200,8 @@ pub fn expr_to_name(expr: &swc_ecmascript::ast::Expr) -> String {
 }
 
 pub fn get_doc_for_ts_interface_decl(
-  doc_parser: &DocParser,
-  interface_decl: &swc_ecmascript::ast::TsInterfaceDecl,
+  parsed_source: &ParsedSource,
+  interface_decl: &deno_ast::swc::ast::TsInterfaceDecl,
 ) -> (String, InterfaceDef) {
   let interface_name = interface_decl.id.sym.to_string();
 
@@ -206,19 +211,16 @@ pub fn get_doc_for_ts_interface_decl(
   let mut index_signatures = vec![];
 
   for type_element in &interface_decl.body.body {
-    use swc_ecmascript::ast::TsTypeElement::*;
+    use deno_ast::swc::ast::TsTypeElement::*;
 
     match &type_element {
       TsMethodSignature(ts_method_sig) => {
-        let method_js_doc = doc_parser.js_doc_for_span(ts_method_sig.span);
+        let method_js_doc = js_doc_for_span(parsed_source, &ts_method_sig.span);
 
         let mut params = vec![];
 
         for param in &ts_method_sig.params {
-          let param_def = ts_fn_param_to_param_def(
-            param,
-            Some(&doc_parser.ast_parser.source_map),
-          );
+          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
           params.push(param_def);
         }
 
@@ -235,12 +237,9 @@ pub fn get_doc_for_ts_interface_decl(
 
         let method_def = InterfaceMethodDef {
           name,
-          kind: swc_ecmascript::ast::MethodKind::Method,
+          kind: deno_ast::swc::ast::MethodKind::Method,
           js_doc: method_js_doc,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(ts_method_sig.span)
-            .into(),
+          location: get_location(parsed_source, ts_method_sig.span.lo()),
           optional: ts_method_sig.optional,
           params,
           return_type: maybe_return_type,
@@ -249,7 +248,7 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsGetterSignature(ts_getter_sig) => {
-        let method_js_doc = doc_parser.js_doc_for_span(ts_getter_sig.span);
+        let method_js_doc = js_doc_for_span(parsed_source, &ts_getter_sig.span);
         let name = expr_to_name(&*ts_getter_sig.key);
 
         let maybe_return_type = ts_getter_sig
@@ -259,12 +258,9 @@ pub fn get_doc_for_ts_interface_decl(
 
         let method_def = InterfaceMethodDef {
           name,
-          kind: swc_ecmascript::ast::MethodKind::Getter,
+          kind: deno_ast::swc::ast::MethodKind::Getter,
           js_doc: method_js_doc,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(ts_getter_sig.span)
-            .into(),
+          location: get_location(parsed_source, ts_getter_sig.span.lo()),
           optional: ts_getter_sig.optional,
           params: vec![],
           return_type: maybe_return_type,
@@ -273,24 +269,19 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsSetterSignature(ts_setter_sig) => {
-        let method_js_doc = doc_parser.js_doc_for_span(ts_setter_sig.span);
+        let method_js_doc = js_doc_for_span(parsed_source, &ts_setter_sig.span);
 
         let name = expr_to_name(&*ts_setter_sig.key);
 
-        let param_def = ts_fn_param_to_param_def(
-          &ts_setter_sig.param,
-          Some(&doc_parser.ast_parser.source_map),
-        );
+        let param_def =
+          ts_fn_param_to_param_def(Some(parsed_source), &ts_setter_sig.param);
         let params = vec![param_def];
 
         let method_def = InterfaceMethodDef {
           name,
-          kind: swc_ecmascript::ast::MethodKind::Setter,
+          kind: deno_ast::swc::ast::MethodKind::Setter,
           js_doc: method_js_doc,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(ts_setter_sig.span)
-            .into(),
+          location: get_location(parsed_source, ts_setter_sig.span.lo()),
           optional: ts_setter_sig.optional,
           params,
           return_type: None,
@@ -299,16 +290,13 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsPropertySignature(ts_prop_sig) => {
-        let prop_js_doc = doc_parser.js_doc_for_span(ts_prop_sig.span);
+        let prop_js_doc = js_doc_for_span(parsed_source, &ts_prop_sig.span);
         let name = expr_to_name(&*ts_prop_sig.key);
 
         let mut params = vec![];
 
         for param in &ts_prop_sig.params {
-          let param_def = ts_fn_param_to_param_def(
-            param,
-            Some(&doc_parser.ast_parser.source_map),
-          );
+          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
           params.push(param_def);
         }
 
@@ -324,10 +312,7 @@ pub fn get_doc_for_ts_interface_decl(
         let prop_def = InterfacePropertyDef {
           name,
           js_doc: prop_js_doc,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(ts_prop_sig.span)
-            .into(),
+          location: get_location(parsed_source, ts_prop_sig.span.lo()),
           params,
           ts_type,
           computed: ts_prop_sig.computed,
@@ -337,14 +322,11 @@ pub fn get_doc_for_ts_interface_decl(
         properties.push(prop_def);
       }
       TsCallSignatureDecl(ts_call_sig) => {
-        let call_sig_js_doc = doc_parser.js_doc_for_span(ts_call_sig.span);
+        let call_sig_js_doc = js_doc_for_span(parsed_source, &ts_call_sig.span);
 
         let mut params = vec![];
         for param in &ts_call_sig.params {
-          let param_def = ts_fn_param_to_param_def(
-            param,
-            Some(&doc_parser.ast_parser.source_map),
-          );
+          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
           params.push(param_def);
         }
 
@@ -359,10 +341,7 @@ pub fn get_doc_for_ts_interface_decl(
 
         let call_sig_def = InterfaceCallSignatureDef {
           js_doc: call_sig_js_doc,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(ts_call_sig.span)
-            .into(),
+          location: get_location(parsed_source, ts_call_sig.span.lo()),
           params,
           ts_type,
           type_params,
@@ -372,7 +351,7 @@ pub fn get_doc_for_ts_interface_decl(
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
         for param in &ts_index_sig.params {
-          let param_def = ts_fn_param_to_param_def(param, None);
+          let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }
 
@@ -390,15 +369,12 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
         let construct_js_doc =
-          doc_parser.js_doc_for_span(ts_construct_sig.span);
+          js_doc_for_span(parsed_source, &ts_construct_sig.span);
 
         let mut params = vec![];
 
         for param in &ts_construct_sig.params {
-          let param_def = ts_fn_param_to_param_def(
-            param,
-            Some(&doc_parser.ast_parser.source_map),
-          );
+          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
           params.push(param_def);
         }
 
@@ -408,12 +384,9 @@ pub fn get_doc_for_ts_interface_decl(
 
         let construct_sig_def = InterfaceMethodDef {
           name: "new".to_string(),
-          kind: swc_ecmascript::ast::MethodKind::Method,
+          kind: deno_ast::swc::ast::MethodKind::Method,
           js_doc: construct_js_doc,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(ts_construct_sig.span)
-            .into(),
+          location: get_location(parsed_source, ts_construct_sig.span.lo()),
           optional: false,
           params,
           return_type: None,

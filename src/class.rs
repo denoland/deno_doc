@@ -1,11 +1,12 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::swc::common::Spanned;
+use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
-use swc_common::Spanned;
 
 use crate::colors;
 use crate::display::{
@@ -21,7 +22,7 @@ use crate::params::{
   assign_pat_to_param_def, ident_to_param_def, pat_to_param_def,
   prop_name_to_string, ts_fn_param_to_param_def,
 };
-use crate::parser::DocParser;
+use crate::swc_util::{get_location, js_doc_for_span};
 use crate::ts_type::{
   maybe_type_param_instantiation_to_type_defs, ts_type_ann_to_def, TsTypeDef,
 };
@@ -37,7 +38,7 @@ use crate::ParamDef;
 pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
-  pub accessibility: Option<swc_ecmascript::ast::Accessibility>,
+  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   pub name: String,
   pub params: Vec<ParamDef>,
   pub location: Location,
@@ -62,7 +63,7 @@ pub struct ClassPropertyDef {
   pub js_doc: JsDoc,
   pub ts_type: Option<TsTypeDef>,
   pub readonly: bool,
-  pub accessibility: Option<swc_ecmascript::ast::Accessibility>,
+  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
@@ -78,7 +79,7 @@ impl From<ClassPropertyDef> for DocNode {
       def.js_doc,
       VariableDef {
         ts_type: def.ts_type,
-        kind: swc_ecmascript::ast::VarDeclKind::Const,
+        kind: deno_ast::swc::ast::VarDeclKind::Const,
       },
     )
   }
@@ -131,12 +132,12 @@ impl Display for ClassIndexSignatureDef {
 pub struct ClassMethodDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
-  pub accessibility: Option<swc_ecmascript::ast::Accessibility>,
+  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
   pub name: String,
-  pub kind: swc_ecmascript::ast::MethodKind,
+  pub kind: deno_ast::swc::ast::MethodKind,
   pub function_def: FunctionDef,
   pub location: Location,
 }
@@ -185,8 +186,8 @@ pub struct ClassDef {
 }
 
 pub fn class_to_class_def(
-  doc_parser: &DocParser,
-  class: &swc_ecmascript::ast::Class,
+  parsed_source: &ParsedSource,
+  class: &deno_ast::swc::ast::Class,
 ) -> ClassDef {
   let mut constructors = vec![];
   let mut methods = vec![];
@@ -195,7 +196,7 @@ pub fn class_to_class_def(
 
   let extends: Option<String> = match &class.super_class {
     Some(boxed) => {
-      use swc_ecmascript::ast::Expr;
+      use deno_ast::swc::ast::Expr;
       let expr: &Expr = &**boxed;
       match expr {
         Expr::Ident(ident) => Some(ident.sym.to_string()),
@@ -212,39 +213,30 @@ pub fn class_to_class_def(
     .collect::<Vec<TsTypeDef>>();
 
   for member in &class.body {
-    use swc_ecmascript::ast::ClassMember::*;
+    use deno_ast::swc::ast::ClassMember::*;
 
     match member {
       Constructor(ctor) => {
-        let ctor_js_doc = doc_parser.js_doc_for_span(ctor.span());
-        let constructor_name = prop_name_to_string(
-          &ctor.key,
-          Some(&doc_parser.ast_parser.source_map),
-        );
+        let ctor_js_doc = js_doc_for_span(parsed_source, &ctor.span());
+        let constructor_name =
+          prop_name_to_string(Some(parsed_source), &ctor.key);
 
         let mut params = vec![];
 
         for param in &ctor.params {
-          use swc_ecmascript::ast::ParamOrTsParamProp::*;
+          use deno_ast::swc::ast::ParamOrTsParamProp::*;
 
           let param_def = match param {
-            Param(param) => pat_to_param_def(
-              &param.pat,
-              Some(&doc_parser.ast_parser.source_map),
-            ),
+            Param(param) => pat_to_param_def(Some(parsed_source), &param.pat),
             TsParamProp(ts_param_prop) => {
-              use swc_ecmascript::ast::TsParamPropParam;
+              use deno_ast::swc::ast::TsParamPropParam;
 
               match &ts_param_prop.param {
-                TsParamPropParam::Ident(ident) => ident_to_param_def(
-                  ident,
-                  Some(&doc_parser.ast_parser.source_map),
-                ),
+                TsParamPropParam::Ident(ident) => {
+                  ident_to_param_def(Some(parsed_source), ident)
+                }
                 TsParamPropParam::Assign(assign_pat) => {
-                  assign_pat_to_param_def(
-                    assign_pat,
-                    Some(&doc_parser.ast_parser.source_map),
-                  )
+                  assign_pat_to_param_def(Some(parsed_source), assign_pat)
                 }
               }
             }
@@ -257,18 +249,17 @@ pub fn class_to_class_def(
           accessibility: ctor.accessibility,
           name: constructor_name,
           params,
-          location: doc_parser.ast_parser.get_span_location(ctor.span).into(),
+          location: get_location(parsed_source, ctor.span.lo()),
         };
         constructors.push(constructor_def);
       }
       Method(class_method) => {
-        let method_js_doc = doc_parser.js_doc_for_span(class_method.span());
-        let method_name = prop_name_to_string(
-          &class_method.key,
-          Some(&doc_parser.ast_parser.source_map),
-        );
+        let method_js_doc =
+          js_doc_for_span(parsed_source, &class_method.span());
+        let method_name =
+          prop_name_to_string(Some(parsed_source), &class_method.key);
         let fn_def =
-          function_to_function_def(doc_parser, &class_method.function);
+          function_to_function_def(parsed_source, &class_method.function);
         let method_def = ClassMethodDef {
           js_doc: method_js_doc,
           accessibility: class_method.accessibility,
@@ -278,15 +269,12 @@ pub fn class_to_class_def(
           name: method_name,
           kind: class_method.kind,
           function_def: fn_def,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(class_method.span)
-            .into(),
+          location: get_location(parsed_source, class_method.span.lo()),
         };
         methods.push(method_def);
       }
       ClassProp(class_prop) => {
-        let prop_js_doc = doc_parser.js_doc_for_span(class_prop.span());
+        let prop_js_doc = js_doc_for_span(parsed_source, &class_prop.span());
 
         let ts_type = class_prop
           .type_ann
@@ -304,17 +292,15 @@ pub fn class_to_class_def(
           is_static: class_prop.is_static,
           accessibility: class_prop.accessibility,
           name: prop_name,
-          location: doc_parser
-            .ast_parser
-            .get_span_location(class_prop.span)
-            .into(),
+          location: get_location(parsed_source, class_prop.span.lo()),
         };
         properties.push(prop_def);
       }
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
         for param in &ts_index_sig.params {
-          let param_def = ts_fn_param_to_param_def(param, None);
+          // todo(kitsonk): investigate why `None` is provided here
+          let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }
 
@@ -358,11 +344,11 @@ pub fn class_to_class_def(
 }
 
 pub fn get_doc_for_class_decl(
-  doc_parser: &DocParser,
-  class_decl: &swc_ecmascript::ast::ClassDecl,
+  parsed_source: &ParsedSource,
+  class_decl: &deno_ast::swc::ast::ClassDecl,
 ) -> (String, ClassDef) {
   let class_name = class_decl.ident.sym.to_string();
-  let class_def = class_to_class_def(doc_parser, &class_decl.class);
+  let class_def = class_to_class_def(parsed_source, &class_decl.class);
 
   (class_name, class_def)
 }

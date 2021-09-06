@@ -156,8 +156,8 @@ impl<'a> DocPrinter<'a> {
       self.private
         || node
           .accessibility
-          .unwrap_or(swc_ecmascript::ast::Accessibility::Public)
-          != swc_ecmascript::ast::Accessibility::Private
+          .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
+          != deno_ast::swc::ast::Accessibility::Private
     }) {
       writeln!(w, "{}{}", Indent(1), node,)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
@@ -169,8 +169,8 @@ impl<'a> DocPrinter<'a> {
       self.private
         || node
           .accessibility
-          .unwrap_or(swc_ecmascript::ast::Accessibility::Public)
-          != swc_ecmascript::ast::Accessibility::Private
+          .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
+          != deno_ast::swc::ast::Accessibility::Private
     }) {
       writeln!(w, "{}{}", Indent(1), node,)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
@@ -404,9 +404,9 @@ impl<'a> DocPrinter<'a> {
       "{}{} {}",
       Indent(indent),
       colors::magenta(match variable_def.kind {
-        swc_ecmascript::ast::VarDeclKind::Const => "const",
-        swc_ecmascript::ast::VarDeclKind::Let => "let",
-        swc_ecmascript::ast::VarDeclKind::Var => "var",
+        deno_ast::swc::ast::VarDeclKind::Const => "const",
+        deno_ast::swc::ast::VarDeclKind::Let => "let",
+        deno_ast::swc::ast::VarDeclKind::Var => "var",
       }),
       colors::bold(&node.name),
     )?;
