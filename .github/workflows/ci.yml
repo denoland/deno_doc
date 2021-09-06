@@ -14,6 +14,12 @@ jobs:
       matrix:
         os: [macOS-latest, ubuntu-16.04, windows-2019]
 
+    env:
+      CARGO_INCREMENTAL: 0
+      GH_ACTIONS: 1
+      RUST_BACKTRACE: full
+      RUSTFLAGS: -D warnings
+
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -30,25 +36,13 @@ jobs:
           rustup component add clippy
           rustup component add rustfmt
 
-      - name: Cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target/
-          key: ${{ runner.os }}-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v1
 
       - name: ➡️  install Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: 1.x
-
-      - name: Environment
-        run: |
-          echo "GH_ACTIONS=1" >> ${GITHUB_ENV}
-          echo "RUST_BACKTRACE=full" >> ${GITHUB_ENV}
 
       - name: Format
         if: contains(matrix.os, 'ubuntu')
