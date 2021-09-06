@@ -22,10 +22,33 @@ pub fn js_doc_for_span(parsed_source: &ParsedSource, span: &Span) -> JsDoc {
   if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {
+    // todo(dsherret): I've inlined the `source_map.span_to_margin` swc code
+    // here after removing the usage of swc's source map, but it seems strange and
+    // no tests fail if this is removed. We should look to improve this and
+    // add a test in the future.
+    let mut margin_pat = String::from("");
+    let span_text = parsed_source.source().get_span_text(span);
+    if let Some(margin) = span_text
+      .split('\n')
+      .last()
+      .map(|last_line| last_line.len() - last_line.trim_start().len())
+    {
+      for _ in 0..margin {
+        margin_pat.push(' ');
+      }
+    }
+
     let txt = js_doc_comment
       .text
       .split('\n')
       .map(|line| JS_DOC_RE.replace(line, "").to_string())
+      .map(|line| {
+        if line.starts_with(&margin_pat) {
+          line[margin_pat.len()..].to_string()
+        } else {
+          line
+        }
+      })
       .collect::<Vec<String>>()
       .join("\n");
 
