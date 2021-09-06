@@ -1,5 +1,6 @@
-use deno_ast::ParsedSource;
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 
 use crate::swc_util::get_location;

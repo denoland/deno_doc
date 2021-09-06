@@ -1,5 +1,7 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::swc::common::Spanned;
+use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -12,10 +14,6 @@ use crate::display::{
   display_method, display_optional, display_readonly, display_static,
   SliceDisplayer,
 };
-use crate::swc_util::{get_location, js_doc_for_span};
-use deno_ast::swc::common::Spanned;
-use deno_ast::ParsedSource;
-
 use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
 use crate::interface::expr_to_name;
@@ -24,6 +22,7 @@ use crate::params::{
   assign_pat_to_param_def, ident_to_param_def, pat_to_param_def,
   prop_name_to_string, ts_fn_param_to_param_def,
 };
+use crate::swc_util::{get_location, js_doc_for_span};
 use crate::ts_type::{
   maybe_type_param_instantiation_to_type_defs, ts_type_ann_to_def, TsTypeDef,
 };
@@ -300,7 +299,6 @@ pub fn class_to_class_def(
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
         for param in &ts_index_sig.params {
-          // todo: why is None passed in here?
           let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }

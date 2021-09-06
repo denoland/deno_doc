@@ -1,16 +1,16 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::colors;
 use crate::display::{display_optional, display_readonly, SliceDisplayer};
-use crate::swc_util::{get_location, js_doc_for_span};
-use deno_ast::ParsedSource;
-
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::params::ts_fn_param_to_param_def;
+use crate::swc_util::{get_location, js_doc_for_span};
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -19,8 +19,6 @@ use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
-
-use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -348,7 +346,6 @@ pub fn get_doc_for_ts_interface_decl(
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
         for param in &ts_index_sig.params {
-          // todo: why is None passed in here?
           let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }

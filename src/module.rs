@@ -1,6 +1,7 @@
-use deno_ast::ParsedSource;
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
 use deno_ast::swc::common::Spanned;
+use deno_ast::ParsedSource;
 
 use crate::swc_util::{get_location, js_doc_for_span};
 use crate::{DocNode, DocParser};
