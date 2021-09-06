@@ -17,7 +17,7 @@ name = "ddoc"
 anyhow = { version = "1.0.43", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.1.4"
-deno_graph = { version = "0.4.0", path = "../deno_graph" }
+deno_graph = "0.4.0"
 futures = "0.3.16"
 js-sys = { version = "0.3.52", optional = true }
 lazy_static = "1.4.0"
