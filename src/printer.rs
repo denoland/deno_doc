@@ -10,13 +10,15 @@
 // unnecessary and can result in unnecessary copying. Instead they should take
 // references.
 
+use std::fmt::{Display, Formatter, Result as FmtResult};
+
 use crate::colors;
 use crate::display::{
   display_abstract, display_async, display_generator, Indent, SliceDisplayer,
 };
+use crate::js_doc::JsDoc;
 use crate::node::DocNode;
 use crate::node::DocNodeKind;
-use std::fmt::{Display, Formatter, Result as FmtResult};
 
 pub struct DocPrinter<'a> {
   doc_nodes: &'a [DocNode],
@@ -73,10 +75,7 @@ impl<'a> DocPrinter<'a> {
 
       self.format_signature(w, node, indent)?;
 
-      let js_doc = &node.js_doc;
-      if let Some(js_doc) = js_doc {
-        self.format_jsdoc(w, js_doc, indent + 1)?;
-      }
+      self.format_jsdoc(w, &node.js_doc, indent + 1)?;
       writeln!(w)?;
 
       match node.kind {
@@ -132,17 +131,18 @@ impl<'a> DocPrinter<'a> {
     }
   }
 
-  // TODO(SyrupThinker) this should use a JSDoc parser
   fn format_jsdoc(
     &self,
     w: &mut Formatter<'_>,
-    jsdoc: &str,
+    js_doc: &JsDoc,
     indent: i64,
   ) -> FmtResult {
-    for line in jsdoc.lines() {
-      writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
+    // TODO(@kitsonk) this is just a temporary hack
+    if let Some(doc) = &js_doc.doc {
+      for line in doc.lines() {
+        writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
+      }
     }
-
     Ok(())
   }
 
@@ -150,9 +150,7 @@ impl<'a> DocPrinter<'a> {
     let class_def = node.class_def.as_ref().unwrap();
     for node in &class_def.constructors {
       writeln!(w, "{}{}", Indent(1), node,)?;
-      if let Some(js_doc) = &node.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     for node in class_def.properties.iter().filter(|node| {
       self.private
@@ -162,9 +160,7 @@ impl<'a> DocPrinter<'a> {
           != deno_ast::swc::ast::Accessibility::Private
     }) {
       writeln!(w, "{}{}", Indent(1), node,)?;
-      if let Some(js_doc) = &node.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     for index_sign_def in &class_def.index_signatures {
       writeln!(w, "{}{}", Indent(1), index_sign_def)?;
@@ -177,9 +173,7 @@ impl<'a> DocPrinter<'a> {
           != deno_ast::swc::ast::Accessibility::Private
     }) {
       writeln!(w, "{}{}", Indent(1), node,)?;
-      if let Some(js_doc) = &node.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     writeln!(w)
   }
@@ -188,9 +182,7 @@ impl<'a> DocPrinter<'a> {
     let enum_def = node.enum_def.as_ref().unwrap();
     for member in &enum_def.members {
       writeln!(w, "{}{}", Indent(1), colors::bold(&member.name))?;
-      if let Some(js_doc) = &member.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &member.js_doc, 2)?;
     }
     writeln!(w)
   }
@@ -204,15 +196,11 @@ impl<'a> DocPrinter<'a> {
 
     for property_def in &interface_def.properties {
       writeln!(w, "{}{}", Indent(1), property_def)?;
-      if let Some(js_doc) = &property_def.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &property_def.js_doc, 2)?;
     }
     for method_def in &interface_def.methods {
       writeln!(w, "{}{}", Indent(1), method_def)?;
-      if let Some(js_doc) = &method_def.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &method_def.js_doc, 2)?;
     }
     for index_sign_def in &interface_def.index_signatures {
       writeln!(w, "{}{}", Indent(1), index_sign_def)?;
@@ -228,9 +216,7 @@ impl<'a> DocPrinter<'a> {
     let elements = &node.namespace_def.as_ref().unwrap().elements;
     for node in elements {
       self.format_signature(w, node, 1)?;
-      if let Some(js_doc) = &node.js_doc {
-        self.format_jsdoc(w, js_doc, 2)?;
-      }
+      self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     writeln!(w)
   }

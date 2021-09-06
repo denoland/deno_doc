@@ -1,4 +1,11 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use serde::Deserialize;
+use serde::Serialize;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
+
 use crate::colors;
 use crate::display::{
   display_abstract, display_accessibility, display_async, display_generator,
@@ -8,11 +15,11 @@ use crate::display::{
 use crate::swc_util::{get_location, js_doc_for_span};
 use deno_ast::swc::common::Spanned;
 use deno_ast::ParsedSource;
-use serde::{Deserialize, Serialize};
 
 use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
 use crate::interface::expr_to_name;
+use crate::js_doc::JsDoc;
 use crate::params::{
   assign_pat_to_param_def, ident_to_param_def, pat_to_param_def,
   prop_name_to_string, ts_fn_param_to_param_def,
@@ -27,12 +34,11 @@ use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 
-use std::fmt::{Display, Formatter, Result as FmtResult};
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassConstructorDef {
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   pub name: String,
   pub params: Vec<ParamDef>,
@@ -54,7 +60,8 @@ impl Display for ClassConstructorDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassPropertyDef {
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub ts_type: Option<TsTypeDef>,
   pub readonly: bool,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
@@ -124,7 +131,8 @@ impl Display for ClassIndexSignatureDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassMethodDef {
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   pub optional: bool,
   pub is_abstract: bool,

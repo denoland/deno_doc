@@ -1,11 +1,15 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use serde::Deserialize;
+use serde::Serialize;
+
 use crate::colors;
 use crate::display::{display_optional, display_readonly, SliceDisplayer};
 use crate::swc_util::{get_location, js_doc_for_span};
 use deno_ast::ParsedSource;
-use serde::{Deserialize, Serialize};
 
 use crate::function::FunctionDef;
+use crate::js_doc::JsDoc;
 use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
@@ -24,7 +28,8 @@ pub struct InterfaceMethodDef {
   pub name: String,
   pub kind: deno_ast::swc::ast::MethodKind,
   pub location: Location,
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub optional: bool,
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
@@ -69,7 +74,8 @@ impl Display for InterfaceMethodDef {
 pub struct InterfacePropertyDef {
   pub name: String,
   pub location: Location,
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
   pub computed: bool,
   pub optional: bool,
@@ -133,7 +139,8 @@ impl Display for InterfaceIndexSignatureDef {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceCallSignatureDef {
   pub location: Location,
-  pub js_doc: Option<String>,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,

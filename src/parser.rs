@@ -1,9 +1,16 @@
-use deno_ast::ParsedSource;
-use deno_graph::MediaType;
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use crate::js_doc::JsDoc;
+use crate::namespace::NamespaceDef;
+use crate::node;
+use crate::node::DocNode;
+use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
+use crate::ImportDef;
+use crate::Location;
 use crate::ReexportKind;
+
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportSpecifier;
@@ -12,17 +19,13 @@ use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
+use deno_ast::ParsedSource;
+use deno_graph::MediaType;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use deno_graph::Resolved;
 use deno_graph::SourceParser;
 
-use crate::namespace::NamespaceDef;
-use crate::node;
-use crate::node::DocNode;
-use crate::node::ModuleDoc;
-use crate::ImportDef;
-use crate::Location;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
@@ -31,6 +34,7 @@ use std::sync::Arc;
 #[derive(Debug)]
 pub enum DocError {
   Resolve(String),
+  #[allow(dead_code)]
   Io(std::io::Error),
   Parse(deno_ast::Diagnostic),
 }
@@ -115,6 +119,7 @@ impl<'a> DocParser<'a> {
   }
 
   /// Fetches `file_name` and parses it.
+  #[cfg(feature = "rust")]
   pub fn parse(
     &self,
     specifier: &ModuleSpecifier,
@@ -138,6 +143,7 @@ impl<'a> DocParser<'a> {
   }
 
   /// Parses a module and returns a list of exported items (no reexports).
+  #[cfg(feature = "rust")]
   pub fn parse_source(
     &self,
     specifier: &ModuleSpecifier,
@@ -191,7 +197,7 @@ impl<'a> DocParser<'a> {
                 line: 1,
                 col: 0,
               },
-              None,
+              JsDoc::default(),
               ns_def,
             );
             processed_reexports.push(ns_doc_node);
