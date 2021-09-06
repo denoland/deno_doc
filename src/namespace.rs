@@ -3,10 +3,10 @@
 use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 
+use crate::node::DocNode;
+use crate::parser::DocParser;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
-use crate::DocNode;
-use crate::DocParser;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
