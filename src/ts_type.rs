@@ -1,52 +1,28 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
 use crate::colors;
-use crate::display::{display_readonly, SliceDisplayer};
+use crate::display::display_readonly;
+use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
 use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
-use deno_ast::swc::ast::{
-  BigInt, Bool, CallExpr, Expr, ExprOrSuper, Lit, NewExpr, Number, Str, Tpl,
-  TplElement, TsArrayType, TsConditionalType, TsExprWithTypeArgs,
-  TsFnOrConstructorType, TsIndexedAccessType, TsKeywordType, TsLit, TsLitType,
-  TsOptionalType, TsParenthesizedType, TsRestType, TsThisType,
-  TsThisTypeOrIdent, TsTupleType, TsType, TsTypeAnn, TsTypeLit, TsTypeOperator,
-  TsTypeParamInstantiation, TsTypePredicate, TsTypeQuery, TsTypeRef,
-  TsUnionOrIntersectionType, VarDeclarator,
-};
-use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result as FmtResult};
 
-// pub enum TsType {
-//  *      TsKeywordType(TsKeywordType),
-//  *      TsThisType(TsThisType),
-//  *      TsFnOrConstructorType(TsFnOrConstructorType),
-//  *      TsTypeRef(TsTypeRef),
-//  *      TsTypeQuery(TsTypeQuery),
-//  *      TsTypeLit(TsTypeLit),
-//  *      TsArrayType(TsArrayType),
-//  *      TsTupleType(TsTupleType),
-//  *      TsOptionalType(TsOptionalType),
-//  *      TsRestType(TsRestType),
-//  *      TsUnionOrIntersectionType(TsUnionOrIntersectionType),
-//  *      TsConditionalType(TsConditionalType),
-//  *      TsParenthesizedType(TsParenthesizedType),
-//  *      TsTypeOperator(TsTypeOperator),
-//  *      TsIndexedAccessType(TsIndexedAccessType),
-//  *      TsLitType(TsLitType),
-//     TsInferType(TsInferType),
-//     TsMappedType(TsMappedType),
-//  *      TsTypePredicate(TsTypePredicate),
-//     TsImportType(TsImportType),
-// }
+use deno_ast::swc::ast::*;
+use deno_ast::swc::common::Span;
+use serde::Deserialize;
+use serde::Serialize;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 impl From<&TsLitType> for TsTypeDef {
   fn from(other: &TsLitType) -> TsTypeDef {
     match &other.lit {
       TsLit::Number(num) => (TsTypeDef::number_literal(num)),
       TsLit::Str(str_) => (TsTypeDef::string_literal(str_)),
-      TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(&tpl.quasis),
+      TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(&tpl.types, &tpl.quasis),
       TsLit::Bool(bool_) => (TsTypeDef::bool_literal(bool_)),
       TsLit::BigInt(bigint_) => (TsTypeDef::bigint_literal(bigint_)),
     }
@@ -596,11 +572,12 @@ pub struct TsTypeRefDef {
   pub type_name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum LiteralDefKind {
   Number,
   String,
+  Template,
   Boolean,
   BigInt,
 }
@@ -615,6 +592,9 @@ pub struct LiteralDef {
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub string: Option<String>,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub ts_types: Option<Vec<TsTypeDef>>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub boolean: Option<bool>,
@@ -888,68 +868,135 @@ impl Display for TsTypePredicateDef {
   }
 }
 
+fn get_span_from_type(ts_type: &TsType) -> Span {
+  match ts_type {
+    TsType::TsArrayType(ref t) => get_span_from_type(t.elem_type.as_ref()),
+    TsType::TsConditionalType(ref t) => {
+      get_span_from_type(t.check_type.as_ref())
+    }
+    TsType::TsFnOrConstructorType(ref t) => {
+      if let Some(t) = t.clone().ts_constructor_type() {
+        t.span
+      } else if let Some(t) = t.clone().ts_fn_type() {
+        t.span
+      } else {
+        unreachable!("no type found")
+      }
+    }
+    TsType::TsImportType(ref t) => t.span,
+    TsType::TsIndexedAccessType(ref t) => get_span_from_type(&t.index_type),
+    TsType::TsInferType(t) => t.span,
+    TsType::TsKeywordType(t) => t.span,
+    TsType::TsLitType(t) => t.span,
+    TsType::TsMappedType(t) => t.span,
+    TsType::TsOptionalType(t) => t.span,
+    TsType::TsParenthesizedType(t) => t.span,
+    TsType::TsRestType(t) => t.span,
+    TsType::TsThisType(t) => t.span,
+    TsType::TsTupleType(t) => t.span,
+    TsType::TsTypeLit(t) => t.span,
+    TsType::TsTypeOperator(t) => t.span,
+    TsType::TsTypePredicate(t) => t.span,
+    TsType::TsTypeQuery(t) => t.span,
+    TsType::TsTypeRef(t) => t.span,
+    TsType::TsUnionOrIntersectionType(t) => {
+      if let Some(t) = t.clone().ts_intersection_type() {
+        t.span
+      } else if let Some(t) = t.clone().ts_union_type() {
+        t.span
+      } else {
+        unreachable!("no type found")
+      }
+    }
+  }
+}
+
 impl TsTypeDef {
-  pub fn number_literal(num: &Number) -> TsTypeDef {
+  pub fn number_literal(num: &Number) -> Self {
     let repr = format!("{}", num.value);
     let lit = LiteralDef {
       kind: LiteralDefKind::Number,
       number: Some(num.value),
       string: None,
+      ts_types: None,
       boolean: None,
     };
     Self::literal(repr, lit)
   }
 
-  pub fn string_literal(str_: &Str) -> TsTypeDef {
+  pub fn string_literal(str_: &Str) -> Self {
     let repr = str_.value.to_string();
     let lit = LiteralDef {
       kind: LiteralDefKind::String,
       number: None,
       string: Some(str_.value.to_string()),
+      ts_types: None,
       boolean: None,
     };
     Self::literal(repr, lit)
   }
 
-  pub fn tpl_literal(quasis: &[TplElement]) -> TsTypeDef {
-    // A template literal in a type is not allowed to have
-    // expressions, so there will only be one quasi.
-    let quasi = quasis.get(0).expect("Expected tpl to have a quasi.");
-    let text = quasi.raw.value.to_string();
-    let repr = text.clone();
+  pub fn tpl_literal(types: &[Box<TsType>], quasis: &[TplElement]) -> Self {
+    let mut ts_types: Vec<(Span, Self, String)> = Vec::new();
+    for ts_type in types {
+      let t: Self = ts_type.as_ref().into();
+      let repr = format!("${{{}}}", t);
+      ts_types.push((get_span_from_type(ts_type), t, repr))
+    }
+    for quasi in quasis {
+      let repr = quasi.raw.value.to_string();
+      let lit = LiteralDef {
+        kind: LiteralDefKind::String,
+        number: None,
+        string: Some(repr.clone()),
+        ts_types: None,
+        boolean: None,
+      };
+      ts_types.push((quasi.span, Self::literal(repr.clone(), lit), repr));
+    }
+    ts_types.sort_by(|(a, _, _), (b, _, _)| a.cmp(b));
+    let repr = ts_types
+      .iter()
+      .map(|(_, _, s)| s.as_str())
+      .collect::<Vec<&str>>()
+      .join("");
+    let ts_types = Some(ts_types.into_iter().map(|(_, t, _)| t).collect());
     let lit = LiteralDef {
-      kind: LiteralDefKind::String, // semantically the same
+      kind: LiteralDefKind::Template,
       number: None,
-      string: Some(text),
+      string: None,
+      ts_types,
       boolean: None,
     };
     Self::literal(repr, lit)
   }
 
-  pub fn bool_literal(bool_: &Bool) -> TsTypeDef {
+  pub fn bool_literal(bool_: &Bool) -> Self {
     let repr = bool_.value.to_string();
     let lit = LiteralDef {
       kind: LiteralDefKind::Boolean,
       number: None,
       string: None,
+      ts_types: None,
       boolean: Some(bool_.value),
     };
     Self::literal(repr, lit)
   }
 
-  pub fn bigint_literal(bigint_: &BigInt) -> TsTypeDef {
+  pub fn bigint_literal(bigint_: &BigInt) -> Self {
     let repr = bigint_.value.to_string();
     let lit = LiteralDef {
       kind: LiteralDefKind::BigInt,
       number: None,
       string: Some(bigint_.value.to_string()),
+      ts_types: None,
       boolean: None,
     };
     Self::literal(repr, lit)
   }
 
-  pub fn regexp(repr: String) -> TsTypeDef {
-    TsTypeDef {
+  pub fn regexp(repr: String) -> Self {
+    Self {
       repr,
       kind: Some(TsTypeDefKind::TypeRef),
       type_ref: Some(TsTypeRefDef {
@@ -960,28 +1007,28 @@ impl TsTypeDef {
     }
   }
 
-  pub fn keyword(keyword_str: &str) -> TsTypeDef {
+  pub fn keyword(keyword_str: &str) -> Self {
     Self::keyword_with_repr(keyword_str, keyword_str)
   }
 
-  pub fn number_with_repr(repr: &str) -> TsTypeDef {
+  pub fn number_with_repr(repr: &str) -> Self {
     Self::keyword_with_repr("number", repr)
   }
 
-  pub fn string_with_repr(repr: &str) -> TsTypeDef {
+  pub fn string_with_repr(repr: &str) -> Self {
     Self::keyword_with_repr("string", repr)
   }
 
-  pub fn bool_with_repr(repr: &str) -> TsTypeDef {
+  pub fn bool_with_repr(repr: &str) -> Self {
     Self::keyword_with_repr("boolean", repr)
   }
 
-  pub fn bigint_with_repr(repr: &str) -> TsTypeDef {
+  pub fn bigint_with_repr(repr: &str) -> Self {
     Self::keyword_with_repr("bigint", repr)
   }
 
-  pub fn keyword_with_repr(keyword_str: &str, repr: &str) -> TsTypeDef {
-    TsTypeDef {
+  pub fn keyword_with_repr(keyword_str: &str, repr: &str) -> Self {
+    Self {
       repr: repr.to_string(),
       kind: Some(TsTypeDefKind::Keyword),
       keyword: Some(keyword_str.to_string()),
@@ -989,8 +1036,8 @@ impl TsTypeDef {
     }
   }
 
-  fn literal(repr: String, lit: LiteralDef) -> TsTypeDef {
-    TsTypeDef {
+  fn literal(repr: String, lit: LiteralDef) -> Self {
+    Self {
       repr,
       kind: Some(TsTypeDefKind::Literal),
       literal: Some(lit),
@@ -1142,13 +1189,12 @@ fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
 }
 
 fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> TsTypeDef {
+  // TODO(@kitsonk) we should iterate over the expr and if each expr has a
+  // ts_type or can be trivially inferred, it should be passed to the
+  // tp_literal
   if tpl.quasis.len() == 1 && is_const {
-    // If no placeholder is present, the type can be inferred.
-    //   e.g.) const tpl = `Hello world!`; // tpl has the type of `"Hello world!"`.
-    TsTypeDef::tpl_literal(&tpl.quasis)
+    TsTypeDef::tpl_literal(&[], &tpl.quasis)
   } else {
-    // If placeholders are present, the type cannot be inferred.
-    //   e.g.) const tpl = `Hello ${name}!`; // tpl has the type of `string`.
     TsTypeDef::string_with_repr("string")
   }
 }
@@ -1216,6 +1262,31 @@ impl Display for TsTypeDef {
             "{}",
             colors::green(&format!("\"{}\"", literal.string.as_ref().unwrap()))
           ),
+          LiteralDefKind::Template => {
+            write!(f, "{}", colors::green("`"))?;
+            for ts_type in literal.ts_types.as_ref().unwrap() {
+              let kind = ts_type.kind.as_ref().unwrap();
+              if *kind == TsTypeDefKind::Literal {
+                let literal = ts_type.literal.as_ref().unwrap();
+                if literal.kind == LiteralDefKind::String {
+                  write!(
+                    f,
+                    "{}",
+                    colors::green(literal.string.as_ref().unwrap())
+                  )?;
+                  continue;
+                }
+              }
+              write!(
+                f,
+                "{}{}{}",
+                colors::magenta("${"),
+                ts_type,
+                colors::magenta("}")
+              )?;
+            }
+            write!(f, "{}", colors::green("`"))
+          }
           LiteralDefKind::Number => write!(
             f,
             "{}",

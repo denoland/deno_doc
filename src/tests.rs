@@ -1408,8 +1408,17 @@ export const tpl2 = `Value: ${num}`;
           "repr": "foo",
           "kind":"literal",
           "literal":{
-            "kind":"string",
-            "string":"foo"
+            "kind":"template",
+            "tsTypes": [
+              {
+                "repr": "foo",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "foo"
+                }
+              }
+            ]
           }
         },
         "kind":"const"
@@ -2744,6 +2753,7 @@ export { foo as bar };
 export type boolLit = false;
 export type strLit = "text";
 export type tplLit = `text`;
+export type tplLitArg = `test${number}`;
 export type numLit = 5;
     "#;
   [
@@ -2798,18 +2808,66 @@ export type numLit = 5;
           "repr": "text",
           "kind": "literal",
           "literal": {
-            "kind": "string",
-            "string": "text"
+            "kind": "template",
+            "tsTypes": [
+              {
+                "repr": "text",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "text"
+                }
+              }
+            ]
           }
         },
         "typeParams": []
       }
     }, {
       "kind": "typeAlias",
-      "name": "numLit",
+      "name": "tplLitArg",
       "location": {
         "filename": "file:///test.ts",
         "line": 5,
+        "col": 0,
+      },
+      "typeAliasDef": {
+        "tsType": {
+          "repr": "test${number}",
+          "kind": "literal",
+          "literal": {
+            "kind": "template",
+            "tsTypes": [
+              {
+                "repr": "test",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "test",
+                }
+              }, {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }, {
+                "repr": "",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": ""
+                }
+              }
+            ]
+          }
+        },
+        "typeParams": [],
+      }
+    }, {
+      "kind": "typeAlias",
+      "name": "numLit",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 6,
         "col": 0
       },
       "typeAliasDef": {
@@ -3711,12 +3769,20 @@ export const sym = Symbol("hello");
     "const b: false",
     "const bi: 100",
     "const re: RegExp",
-    "const tpl: \"foobar\"",
+    "const tpl: `foobar`",
     "const d: Date",
     "const s2: string",
     "const n2: number",
     "const bi2: bigint",
     "const sym: symbol"
+  );
+
+  contains_test!(
+    ts_template_with_args,
+    r#"
+export const tpl: `test${number}` = `test1`;
+    "#;
+    "const tpl: `test${number}`"
   );
 
   contains_test!(
