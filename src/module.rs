@@ -3,10 +3,10 @@
 use deno_ast::swc::common::Spanned;
 use deno_ast::ParsedSource;
 
+use crate::node::DocNode;
+use crate::parser::DocParser;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
-use crate::DocNode;
-use crate::DocParser;
 
 pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,

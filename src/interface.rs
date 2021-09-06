@@ -351,6 +351,7 @@ pub fn get_doc_for_ts_interface_decl(
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
         for param in &ts_index_sig.params {
+          // todo(kitsonk): investigate why `None` is provided here
           let param_def = ts_fn_param_to_param_def(None, param);
           params.push(param_def);
         }
