@@ -65,6 +65,7 @@ pub fn magenta(s: &str) -> impl fmt::Display {
   style(s, style_spec)
 }
 
+#[cfg(feature = "rust")]
 pub fn bold(s: &str) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_bold(true);

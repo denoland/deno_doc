@@ -3,6 +3,7 @@ use crate::ts_type::TsTypeDef;
 use deno_ast::swc::ast::TsTypeParam;
 use deno_ast::swc::ast::TsTypeParamDecl;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "rust")]
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -17,6 +18,7 @@ pub struct TsTypeParamDef {
   pub default: Option<TsTypeDef>,
 }
 
+#[cfg(feature = "rust")]
 impl Display for TsTypeParamDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(f, "{}", self.name)?;
