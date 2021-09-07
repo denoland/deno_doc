@@ -4,16 +4,7 @@ use deno_ast::swc::common::Spanned;
 use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fmt::Display;
-use std::fmt::Formatter;
-use std::fmt::Result as FmtResult;
 
-use crate::colors;
-use crate::display::{
-  display_abstract, display_accessibility, display_async, display_generator,
-  display_method, display_optional, display_readonly, display_static,
-  SliceDisplayer,
-};
 use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
 use crate::interface::expr_to_name;
@@ -33,6 +24,25 @@ use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 
+cfg_if! {
+  if #[cfg(feature = "rust")] {
+    use crate::colors;
+    use crate::display::display_abstract;
+    use crate::display::display_accessibility;
+    use crate::display::display_async;
+    use crate::display::display_generator;
+    use crate::display::display_method;
+    use crate::display::display_optional;
+    use crate::display::display_readonly;
+    use crate::display::display_static;
+    use crate::display::SliceDisplayer;
+
+    use std::fmt::Display;
+    use std::fmt::Formatter;
+    use std::fmt::Result as FmtResult;
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassConstructorDef {
@@ -44,6 +54,7 @@ pub struct ClassConstructorDef {
   pub location: Location,
 }
 
+#[cfg(feature = "rust")]
 impl Display for ClassConstructorDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
@@ -85,6 +96,7 @@ impl From<ClassPropertyDef> for DocNode {
   }
 }
 
+#[cfg(feature = "rust")]
 impl Display for ClassPropertyDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
@@ -112,6 +124,7 @@ pub struct ClassIndexSignatureDef {
   pub ts_type: Option<TsTypeDef>,
 }
 
+#[cfg(feature = "rust")]
 impl Display for ClassIndexSignatureDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
@@ -148,6 +161,7 @@ impl From<ClassMethodDef> for DocNode {
   }
 }
 
+#[cfg(feature = "rust")]
 impl Display for ClassMethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(

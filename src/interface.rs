@@ -3,14 +3,7 @@
 use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fmt::Display;
-use std::fmt::Formatter;
-use std::fmt::Result as FmtResult;
 
-use crate::colors;
-use crate::display::display_optional;
-use crate::display::display_readonly;
-use crate::display::SliceDisplayer;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::params::ts_fn_param_to_param_def;
@@ -24,6 +17,19 @@ use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
+
+cfg_if! {
+  if #[cfg(feature = "rust")] {
+    use crate::colors;
+    use crate::display::display_optional;
+    use crate::display::display_readonly;
+    use crate::display::SliceDisplayer;
+
+    use std::fmt::Display;
+    use std::fmt::Formatter;
+    use std::fmt::Result as FmtResult;
+  }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -56,6 +62,7 @@ impl From<InterfaceMethodDef> for DocNode {
   }
 }
 
+#[cfg(feature = "rust")]
 impl Display for InterfaceMethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
@@ -100,6 +107,7 @@ impl From<InterfacePropertyDef> for DocNode {
   }
 }
 
+#[cfg(feature = "rust")]
 impl Display for InterfacePropertyDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
@@ -123,6 +131,7 @@ pub struct InterfaceIndexSignatureDef {
   pub ts_type: Option<TsTypeDef>,
 }
 
+#[cfg(feature = "rust")]
 impl Display for InterfaceIndexSignatureDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
