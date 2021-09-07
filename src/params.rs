@@ -176,7 +176,7 @@ fn object_pat_prop_to_def(
   match object_pat_prop {
     ObjectPatProp::Assign(assign) => ObjectPatPropDef::Assign {
       key: assign.key.sym.to_string(),
-      value: assign.value.as_ref().map(|_| "<UNIMPLEMENTED>".to_string()),
+      value: assign.value.as_ref().map(|_| "[UNSUPPORTED]".to_string()),
     },
     ObjectPatProp::KeyValue(keyvalue) => ObjectPatPropDef::KeyValue {
       key: prop_name_to_string(parsed_source, &keyvalue.key),
@@ -238,7 +238,7 @@ pub fn assign_pat_to_param_def(
 
   ParamDef::Assign {
     left: Box::new(pat_to_param_def(parsed_source, &*assign_pat.left)),
-    right: "<UNIMPLEMENTED>".to_string(),
+    right: "[UNSUPPORTED]".to_string(),
     ts_type,
   }
 }

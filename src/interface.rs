@@ -57,6 +57,7 @@ impl From<InterfaceMethodDef> for DocNode {
         is_async: false,
         is_generator: false,
         type_params: def.type_params,
+        decorators: vec![],
       },
     )
   }

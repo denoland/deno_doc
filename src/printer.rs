@@ -159,6 +159,9 @@ impl<'a> DocPrinter<'a> {
           .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
           != deno_ast::swc::ast::Accessibility::Private
     }) {
+      for d in &node.decorators {
+        writeln!(w, "{}{}", Indent(1), d)?;
+      }
       writeln!(w, "{}{}", Indent(1), node,)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
     }
@@ -172,6 +175,9 @@ impl<'a> DocPrinter<'a> {
           .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
           != deno_ast::swc::ast::Accessibility::Private
     }) {
+      for d in &node.function_def.decorators {
+        writeln!(w, "{}{}", Indent(1), d)?;
+      }
       writeln!(w, "{}{}", Indent(1), node,)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
     }
@@ -228,6 +234,9 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
   ) -> FmtResult {
     let class_def = node.class_def.as_ref().unwrap();
+    for node in &class_def.decorators {
+      writeln!(w, "{}{}", Indent(indent), node)?;
+    }
     write!(
       w,
       "{}{}{} {}",
