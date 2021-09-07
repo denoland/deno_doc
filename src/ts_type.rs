@@ -558,7 +558,7 @@ impl From<&TsType> for TsTypeDef {
       TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
       TsTypeLit(type_literal) => type_literal.into(),
       _ => TsTypeDef {
-        repr: "<UNIMPLEMENTED>".to_string(),
+        repr: "[UNSUPPORTED]".to_string(),
         ..Default::default()
       },
     }
@@ -1202,7 +1202,7 @@ fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> TsTypeDef {
 impl Display for TsTypeDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     if self.kind.is_none() {
-      return write!(f, "{}", colors::red("<UNIMPLEMENTED>"));
+      return write!(f, "{}", colors::red("[UNSUPPORTED]"));
     }
 
     let kind = self.kind.as_ref().unwrap();

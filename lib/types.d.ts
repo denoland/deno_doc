@@ -79,6 +79,7 @@ export interface ClassDef {
   implements: TsTypeDef[];
   typeParams: TsTypeParamDef[];
   superTypeParams: TsTypeDef[];
+  decorators?: DecoratorDef[];
 }
 
 export interface ClassConstructorDef {
@@ -116,6 +117,13 @@ export interface ClassPropertyDef {
   isAbstract: boolean;
   isStatic: boolean;
   name: string;
+  decorators?: DecoratorDef[];
+  location: Location;
+}
+
+export interface DecoratorDef {
+  name: string;
+  args?: string[];
   location: Location;
 }
 
@@ -134,6 +142,7 @@ export interface FunctionDef {
   isAsync: boolean;
   isGenerator: boolean;
   typeParams: TsTypeParamDef[];
+  decorators?: DecoratorDef[];
 }
 
 export interface ImportDef {

@@ -5,6 +5,8 @@ use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::decorators::decorators_to_defs;
+use crate::decorators::DecoratorDef;
 use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
 use crate::interface::expr_to_name;
@@ -75,6 +77,8 @@ pub struct ClassPropertyDef {
   pub ts_type: Option<TsTypeDef>,
   pub readonly: bool,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  pub decorators: Vec<DecoratorDef>,
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
@@ -197,6 +201,8 @@ pub struct ClassDef {
   pub implements: Vec<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
   pub super_type_params: Vec<TsTypeDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  pub decorators: Vec<DecoratorDef>,
 }
 
 pub fn class_to_class_def(
@@ -297,6 +303,9 @@ pub fn class_to_class_def(
 
         let prop_name = expr_to_name(&*class_prop.key);
 
+        let decorators =
+          decorators_to_defs(parsed_source, &class_prop.decorators);
+
         let prop_def = ClassPropertyDef {
           js_doc: prop_js_doc,
           ts_type,
@@ -306,6 +315,7 @@ pub fn class_to_class_def(
           is_static: class_prop.is_static,
           accessibility: class_prop.accessibility,
           name: prop_name,
+          decorators,
           location: get_location(parsed_source, class_prop.span.lo()),
         };
         properties.push(prop_def);
@@ -344,6 +354,8 @@ pub fn class_to_class_def(
     class.super_type_params.as_ref(),
   );
 
+  let decorators = decorators_to_defs(parsed_source, &class.decorators);
+
   ClassDef {
     is_abstract: class.is_abstract,
     extends,
@@ -354,6 +366,7 @@ pub fn class_to_class_def(
     methods,
     type_params,
     super_type_params,
+    decorators,
   }
 }
 

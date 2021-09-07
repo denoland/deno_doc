@@ -10,6 +10,7 @@ extern crate serde_json;
 
 mod class;
 mod colors;
+mod decorators;
 mod display;
 mod r#enum;
 mod function;

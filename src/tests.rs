@@ -1164,6 +1164,156 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     }
   }]);
 
+  json_test!(export_class_decorators,
+    r#"
+@sealed
+export class A {
+  #x = "x";
+
+  @format("Hello, %s")
+  greeting: string;
+
+  @configurable(false)
+  get x() {
+    return this.#x;
+  }
+
+  @enumerable(false)
+  greet() {
+    return "hello";
+  }
+}
+"#;
+    [{
+      "kind": "class",
+      "name": "A",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 3,
+        "col": 0,
+      },
+      "classDef": {
+        "isAbstract": false,
+        "constructors": [],
+        "properties": [
+          {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string",
+            },
+            "readonly": false,
+            "accessibility": null,
+            "decorators": [
+              {
+                "name": "format",
+                "args": [
+                  "\"Hello, %s\"",
+                ],
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 6,
+                  "col": 3,
+                }
+              }
+            ],
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "greeting",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 6,
+              "col": 2,
+            }
+          }
+        ],
+        "indexSignatures": [],
+        "methods": [
+          {
+            "accessibility": null,
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "x",
+            "kind": "getter",
+            "functionDef": {
+              "params": [],
+              "returnType": null,
+              "isAsync": false,
+              "isGenerator": false,
+              "typeParams": [],
+              "decorators": [
+                {
+                  "name": "configurable",
+                  "args": [
+                    "false"
+                  ],
+                  "location": {
+                    "filename": "file:///test.ts",
+                    "line": 9,
+                    "col": 3,
+                  }
+                }
+              ]
+            },
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 9,
+              "col": 2,
+            }
+          }, {
+            "accessibility": null,
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "greet",
+            "kind": "method",
+            "functionDef": {
+              "params": [],
+              "returnType": null,
+              "isAsync": false,
+              "isGenerator": false,
+              "typeParams": [],
+              "decorators": [
+                {
+                  "name": "enumerable",
+                  "args": [
+                    "false"
+                  ],
+                  "location": {
+                    "filename": "file:///test.ts",
+                    "line": 14,
+                    "col": 3,
+                  }
+                }
+              ]
+            },
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 14,
+              "col": 2,
+            }
+          }
+        ],
+        "extends": null,
+        "implements": [],
+        "typeParams": [],
+        "superTypeParams": [],
+        "decorators": [
+          {
+            "name": "sealed",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 2,
+              "col": 1,
+            }
+          }
+        ]
+      }
+    }]
+  );
+
   json_test!(export_const,
     r#"
 /** Something about fizzBuzz */
@@ -2038,7 +2188,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
             {
               "kind": "assign",
               "key": "i",
-              "value": "<UNIMPLEMENTED>"
+              "value": "[UNSUPPORTED]"
             },
             {
               "arg": {
@@ -2067,7 +2217,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
               }
             }
           },
-          "right": "<UNIMPLEMENTED>",
+          "right": "[UNSUPPORTED]",
           "tsType": null
         }
       ],
@@ -3439,6 +3589,32 @@ export class Class {
     "#,
     private;
     "private property"
+  );
+
+  contains_test!(class_decorators,
+    r#"
+@sealed
+export class A {
+  #x = "x";
+
+  @format("Hello, %s")
+  greeting: string;
+
+  @configurable(false)
+  get x() {
+    return this.#x;
+  }
+
+  @enumerable(false)
+  greet() {
+    return "hello";
+  }
+}
+    "#;
+    "@sealed",
+    "@format(\"Hello, %s\")",
+    "@configurable(false)",
+    "@enumerable(false)"
   );
 
   contains_test!(const_declaration,

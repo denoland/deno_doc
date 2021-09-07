@@ -1,4 +1,7 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
+use crate::decorators::decorators_to_defs;
+use crate::decorators::DecoratorDef;
 use crate::params::pat_to_param_def;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
@@ -16,7 +19,8 @@ pub struct FunctionDef {
   pub is_async: bool,
   pub is_generator: bool,
   pub type_params: Vec<TsTypeParamDef>,
-  // TODO(bartlomieju): decorators
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  pub decorators: Vec<DecoratorDef>,
 }
 
 pub fn function_to_function_def(
@@ -38,12 +42,15 @@ pub fn function_to_function_def(
   let type_params =
     maybe_type_param_decl_to_type_param_defs(function.type_params.as_ref());
 
+  let decorators = decorators_to_defs(parsed_source, &function.decorators);
+
   FunctionDef {
     params,
     return_type: maybe_return_type,
     is_async: function.is_async,
     is_generator: function.is_generator,
     type_params,
+    decorators,
   }
 }
 
