@@ -30,7 +30,7 @@ impl Display for DecoratorDef {
       let args = self
         .args
         .iter()
-        .map(|a| format!("{}", a))
+        .map(|a| a.to_string())
         .collect::<Vec<String>>()
         .join(", ");
       write!(f, "{}{}{}", colors::cyan("("), args, colors::cyan(")"))?;
