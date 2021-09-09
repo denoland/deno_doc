@@ -205,7 +205,7 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
         Lit::JSXText(JSXText { ref raw, .. }) => raw.to_string(),
       }
     }
-    _ => "<TODO>".to_string(),
+    _ => "[UNSUPPORTED]".to_string(),
   }
 }
 

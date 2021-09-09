@@ -20,7 +20,7 @@ pub fn get_doc_for_var_decl(
   let var_declarator = var_decl.decls.get(0).unwrap();
   let var_name = match &var_declarator.name {
     deno_ast::swc::ast::Pat::Ident(ident) => ident.id.sym.to_string(),
-    _ => "<TODO>".to_string(),
+    _ => "[UNSUPPORTED]".to_string(),
   };
 
   let maybe_ts_type = match &var_declarator.name {
