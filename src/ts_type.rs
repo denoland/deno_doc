@@ -313,6 +313,30 @@ impl From<&TsIndexedAccessType> for TsTypeDef {
   }
 }
 
+impl From<&TsMappedType> for TsTypeDef {
+  fn from(other: &TsMappedType) -> Self {
+    let mapped_type_def = TsMappedTypeDef {
+      readonly: other.readonly,
+      type_param: Box::new((&other.type_param).into()),
+      name_type: other
+        .name_type
+        .as_ref()
+        .map(|nt| Box::new(TsTypeDef::from(&**nt))),
+      optional: other.optional,
+      ts_type: other
+        .type_ann
+        .as_ref()
+        .map(|a| Box::new(TsTypeDef::from(&**a))),
+    };
+
+    TsTypeDef {
+      mapped_type: Some(mapped_type_def),
+      kind: Some(TsTypeDefKind::Mapped),
+      ..Default::default()
+    }
+  }
+}
+
 impl From<&TsTypeLit> for TsTypeDef {
   fn from(other: &TsTypeLit) -> TsTypeDef {
     let mut methods = vec![];
@@ -484,6 +508,50 @@ impl From<&TsConditionalType> for TsTypeDef {
   }
 }
 
+impl From<&TsInferType> for TsTypeDef {
+  fn from(other: &TsInferType) -> Self {
+    let infer = TsInferDef {
+      type_param: Box::new((&other.type_param).into()),
+    };
+
+    Self {
+      kind: Some(TsTypeDefKind::Infer),
+      infer: Some(infer),
+      ..Default::default()
+    }
+  }
+}
+
+impl From<&TsImportType> for TsTypeDef {
+  fn from(other: &TsImportType) -> Self {
+    let type_params = if let Some(type_params_inst) = &other.type_args {
+      let mut ts_type_defs = vec![];
+
+      for type_box in &type_params_inst.params {
+        let ts_type: &TsType = &(*type_box);
+        let def: TsTypeDef = ts_type.into();
+        ts_type_defs.push(def);
+      }
+
+      Some(ts_type_defs)
+    } else {
+      None
+    };
+
+    let import_type_def = TsImportTypeDef {
+      specifier: other.arg.value.to_string(),
+      qualifier: other.qualifier.as_ref().map(|e| ts_entity_name_to_name(e)),
+      type_params,
+    };
+
+    Self {
+      kind: Some(TsTypeDefKind::ImportType),
+      import_type: Some(import_type_def),
+      ..Default::default()
+    }
+  }
+}
+
 impl From<&TsFnOrConstructorType> for TsTypeDef {
   fn from(other: &TsFnOrConstructorType) -> TsTypeDef {
     use deno_ast::swc::ast::TsFnOrConstructorType::*;
@@ -541,26 +609,26 @@ impl From<&TsType> for TsTypeDef {
     use deno_ast::swc::ast::TsType::*;
 
     match other {
-      TsKeywordType(ref keyword_type) => keyword_type.into(),
-      TsLitType(ref lit_type) => lit_type.into(),
-      TsTypeRef(ref type_ref) => type_ref.into(),
-      TsUnionOrIntersectionType(union_or_inter) => union_or_inter.into(),
-      TsArrayType(array_type) => array_type.into(),
-      TsTupleType(tuple_type) => tuple_type.into(),
-      TsTypeOperator(type_op_type) => type_op_type.into(),
-      TsParenthesizedType(paren_type) => paren_type.into(),
-      TsRestType(rest_type) => rest_type.into(),
-      TsOptionalType(optional_type) => optional_type.into(),
-      TsTypeQuery(type_query) => type_query.into(),
+      TsKeywordType(keyword_type) => keyword_type.into(),
       TsThisType(this_type) => this_type.into(),
       TsFnOrConstructorType(fn_or_con_type) => fn_or_con_type.into(),
-      TsConditionalType(conditional_type) => conditional_type.into(),
-      TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
+      TsTypeRef(type_ref) => type_ref.into(),
+      TsTypeQuery(type_query) => type_query.into(),
       TsTypeLit(type_literal) => type_literal.into(),
-      _ => TsTypeDef {
-        repr: "[UNSUPPORTED]".to_string(),
-        ..Default::default()
-      },
+      TsArrayType(array_type) => array_type.into(),
+      TsTupleType(tuple_type) => tuple_type.into(),
+      TsOptionalType(optional_type) => optional_type.into(),
+      TsRestType(rest_type) => rest_type.into(),
+      TsUnionOrIntersectionType(union_or_inter) => union_or_inter.into(),
+      TsConditionalType(conditional_type) => conditional_type.into(),
+      TsInferType(infer_type) => infer_type.into(),
+      TsParenthesizedType(paren_type) => paren_type.into(),
+      TsTypeOperator(type_op_type) => type_op_type.into(),
+      TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
+      TsMappedType(mapped_type) => mapped_type.into(),
+      TsLitType(lit_type) => lit_type.into(),
+      TsTypePredicate(type_predicate_type) => type_predicate_type.into(),
+      TsImportType(import_type) => import_type.into(),
     }
   }
 }
@@ -627,10 +695,52 @@ pub struct TsConditionalDef {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct TsInferDef {
+  pub type_param: Box<TsTypeParamDef>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TsImportTypeDef {
+  pub specifier: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub qualifier: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub type_params: Option<Vec<TsTypeDef>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct TsIndexedAccessDef {
   pub readonly: bool,
   pub obj_type: Box<TsTypeDef>,
   pub index_type: Box<TsTypeDef>,
+}
+
+/// Mapped Types
+///
+/// ```ts
+/// readonly [Properties in keyof Type as NewType]: Type[Properties]
+/// ```
+///
+/// - `readonly` = `TruePlusMinus::True`
+/// - `type_param` = `Some(TsTypeParamDef)` (`Properties in keyof Type`)
+/// - `name_type` = `Some(TsTypeDef)` (`NewType`)
+/// - `optional` = `None`
+/// - `ts_type` = `Some(TsTypeDef)` (`Type[Properties]`)
+///
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TsMappedTypeDef {
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub readonly: Option<TruePlusMinus>,
+  pub type_param: Box<TsTypeParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_type: Option<Box<TsTypeDef>>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub optional: Option<TruePlusMinus>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub ts_type: Option<Box<TsTypeDef>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -746,9 +856,12 @@ pub enum TsTypeDefKind {
   This,
   FnOrConstructor,
   Conditional,
+  Infer,
   IndexedAccess,
+  Mapped,
   TypeLiteral,
   TypePredicate,
+  ImportType,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -804,13 +917,22 @@ pub struct TsTypeDef {
   pub conditional_type: Option<TsConditionalDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub infer: Option<TsInferDef>,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub indexed_access: Option<TsIndexedAccessDef>,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub mapped_type: Option<TsMappedTypeDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_literal: Option<TsTypeLiteralDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_predicate: Option<TsTypePredicateDef>,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub import_type: Option<TsImportTypeDef>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -869,12 +991,12 @@ impl Display for TsTypePredicateDef {
 }
 
 fn get_span_from_type(ts_type: &TsType) -> Span {
+  use deno_ast::swc::ast::TsType::*;
+
   match ts_type {
-    TsType::TsArrayType(ref t) => get_span_from_type(t.elem_type.as_ref()),
-    TsType::TsConditionalType(ref t) => {
-      get_span_from_type(t.check_type.as_ref())
-    }
-    TsType::TsFnOrConstructorType(ref t) => {
+    TsArrayType(ref t) => get_span_from_type(t.elem_type.as_ref()),
+    TsConditionalType(ref t) => get_span_from_type(t.check_type.as_ref()),
+    TsFnOrConstructorType(ref t) => {
       if let Some(t) = t.clone().ts_constructor_type() {
         t.span
       } else if let Some(t) = t.clone().ts_fn_type() {
@@ -883,23 +1005,23 @@ fn get_span_from_type(ts_type: &TsType) -> Span {
         unreachable!("no type found")
       }
     }
-    TsType::TsImportType(ref t) => t.span,
-    TsType::TsIndexedAccessType(ref t) => get_span_from_type(&t.index_type),
-    TsType::TsInferType(t) => t.span,
-    TsType::TsKeywordType(t) => t.span,
-    TsType::TsLitType(t) => t.span,
-    TsType::TsMappedType(t) => t.span,
-    TsType::TsOptionalType(t) => t.span,
-    TsType::TsParenthesizedType(t) => t.span,
-    TsType::TsRestType(t) => t.span,
-    TsType::TsThisType(t) => t.span,
-    TsType::TsTupleType(t) => t.span,
-    TsType::TsTypeLit(t) => t.span,
-    TsType::TsTypeOperator(t) => t.span,
-    TsType::TsTypePredicate(t) => t.span,
-    TsType::TsTypeQuery(t) => t.span,
-    TsType::TsTypeRef(t) => t.span,
-    TsType::TsUnionOrIntersectionType(t) => {
+    TsImportType(ref t) => t.span,
+    TsIndexedAccessType(ref t) => get_span_from_type(&t.index_type),
+    TsInferType(t) => t.span,
+    TsKeywordType(t) => t.span,
+    TsLitType(t) => t.span,
+    TsMappedType(t) => t.span,
+    TsOptionalType(t) => t.span,
+    TsParenthesizedType(t) => t.span,
+    TsRestType(t) => t.span,
+    TsThisType(t) => t.span,
+    TsTupleType(t) => t.span,
+    TsTypeLit(t) => t.span,
+    TsTypeOperator(t) => t.span,
+    TsTypePredicate(t) => t.span,
+    TsTypeQuery(t) => t.span,
+    TsTypeRef(t) => t.span,
+    TsUnionOrIntersectionType(t) => {
       if let Some(t) = t.clone().ts_intersection_type() {
         t.span
       } else if let Some(t) = t.clone().ts_union_type() {
@@ -1051,26 +1173,25 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
 
   match &*type_ann.type_ann {
     TsKeywordType(keyword_type) => keyword_type.into(),
-    TsLitType(lit_type) => lit_type.into(),
-    TsTypeRef(type_ref) => type_ref.into(),
-    TsUnionOrIntersectionType(union_or_inter) => union_or_inter.into(),
-    TsArrayType(array_type) => array_type.into(),
-    TsTupleType(tuple_type) => tuple_type.into(),
-    TsTypeOperator(type_op_type) => type_op_type.into(),
-    TsParenthesizedType(paren_type) => paren_type.into(),
-    TsRestType(rest_type) => rest_type.into(),
-    TsOptionalType(optional_type) => optional_type.into(),
-    TsTypeQuery(type_query) => type_query.into(),
     TsThisType(this_type) => this_type.into(),
     TsFnOrConstructorType(fn_or_con_type) => fn_or_con_type.into(),
-    TsConditionalType(conditional_type) => conditional_type.into(),
-    TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
+    TsTypeRef(type_ref) => type_ref.into(),
+    TsTypeQuery(type_query) => type_query.into(),
     TsTypeLit(type_literal) => type_literal.into(),
+    TsArrayType(array_type) => array_type.into(),
+    TsTupleType(tuple_type) => tuple_type.into(),
+    TsOptionalType(optional_type) => optional_type.into(),
+    TsRestType(rest_type) => rest_type.into(),
+    TsUnionOrIntersectionType(union_or_inter) => union_or_inter.into(),
+    TsConditionalType(conditional_type) => conditional_type.into(),
+    TsInferType(infer_type) => infer_type.into(),
+    TsParenthesizedType(paren_type) => paren_type.into(),
+    TsTypeOperator(type_op_type) => type_op_type.into(),
+    TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
+    TsMappedType(mapped_type) => mapped_type.into(),
+    TsLitType(lit_type) => lit_type.into(),
     TsTypePredicate(type_predicate) => type_predicate.into(),
-    _ => TsTypeDef {
-      repr: "<TODO>".to_string(),
-      ..Default::default()
-    },
+    TsImportType(import_type) => import_type.into(),
   }
 }
 
@@ -1220,6 +1341,21 @@ impl Display for TsTypeDef {
           &*conditional.false_type
         )
       }
+      TsTypeDefKind::Infer => {
+        let infer = self.infer.as_ref().unwrap();
+        write!(f, "{} {}", colors::magenta("infer"), infer.type_param)
+      }
+      TsTypeDefKind::ImportType => {
+        let import_type = self.import_type.as_ref().unwrap();
+        write!(f, "import(\"{}\")", import_type.specifier)?;
+        if let Some(qualifier) = &import_type.qualifier {
+          write!(f, ".{}", qualifier)?;
+        }
+        if let Some(type_params) = &import_type.type_params {
+          write!(f, "<{}>", SliceDisplayer::new(type_params, ", ", false))?;
+        }
+        Ok(())
+      }
       TsTypeDefKind::FnOrConstructor => {
         let fn_or_constructor = self.fn_or_constructor.as_ref().unwrap();
         write!(
@@ -1245,6 +1381,48 @@ impl Display for TsTypeDef {
       TsTypeDefKind::Intersection => {
         let intersection = self.intersection.as_ref().unwrap();
         write!(f, "{}", SliceDisplayer::new(intersection, " & ", false))
+      }
+      TsTypeDefKind::Mapped => {
+        let mapped_type = self.mapped_type.as_ref().unwrap();
+        let readonly = match mapped_type.readonly {
+          Some(TruePlusMinus::True) => {
+            format!("{} ", colors::magenta("readonly"))
+          }
+          Some(TruePlusMinus::Plus) => {
+            format!("+{} ", colors::magenta("readonly"))
+          }
+          Some(TruePlusMinus::Minus) => {
+            format!("-{} ", colors::magenta("readonly"))
+          }
+          _ => "".to_string(),
+        };
+        let optional = match mapped_type.optional {
+          Some(TruePlusMinus::True) => "?",
+          Some(TruePlusMinus::Plus) => "+?",
+          Some(TruePlusMinus::Minus) => "-?",
+          _ => "",
+        };
+        let type_param =
+          if let Some(ts_type_def) = &mapped_type.type_param.constraint {
+            format!("{} in {}", mapped_type.type_param.name, ts_type_def)
+          } else {
+            mapped_type.type_param.to_string()
+          };
+        let name_type = if let Some(name_type) = &mapped_type.name_type {
+          format!(" {} {}", colors::magenta("as"), name_type)
+        } else {
+          "".to_string()
+        };
+        let ts_type = if let Some(ts_type) = &mapped_type.ts_type {
+          format!(": {}", ts_type)
+        } else {
+          "".to_string()
+        };
+        write!(
+          f,
+          "{}[{}{}]{}{}",
+          readonly, type_param, name_type, optional, ts_type
+        )
       }
       TsTypeDefKind::Keyword => {
         write!(f, "{}", colors::cyan(self.keyword.as_ref().unwrap()))

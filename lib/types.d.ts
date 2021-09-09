@@ -426,6 +426,8 @@ export interface ParamRestDef {
   tsType?: TsTypeDef;
 }
 
+export type TruePlusMinus = true | "+" | "-";
+
 export interface TsConditionalDef {
   checkType: TsTypeDef;
   extendsType: TsTypeDef;
@@ -440,10 +442,28 @@ export interface TsFnOrConstructorDef {
   typeParams: TsTypeParamDef[];
 }
 
+export interface TsImportTypeDef {
+  specifier: string;
+  qualifier?: string;
+  typeParams?: TsTypeDef[];
+}
+
 export interface TsIndexedAccessDef {
   readonly: boolean;
   objType: TsTypeDef;
   indexType: TsTypeDef;
+}
+
+export interface TsInferDef {
+  typeParam: TsTypeParamDef;
+}
+
+export interface TsMappedTypeDef {
+  readonly?: TruePlusMinus;
+  typeParam: TsTypeParamDef;
+  nameType?: TsTypeDef;
+  optional?: TruePlusMinus;
+  tsType?: TsTypeDef;
 }
 
 export interface TsTypeLiteralDef {
@@ -486,7 +506,10 @@ export type TsTypeDef =
   | TsTypeThisDef
   | TsTypeFnOrConstructorDef
   | TsTypeConditionalDef
+  | TsTypeImportTypeDef
+  | TsTypeInferDef
   | TsTypeIndexedAccessDef
+  | TsTypeMappedDef
   | TsTypeTypeLiteralDef
   | TsTypeTypePredicateDef;
 
@@ -570,6 +593,21 @@ export interface TsTypeConditionalDef extends TsTypeDefBase {
   conditionalType: TsConditionalDef;
 }
 
+export interface TsTypeInferDef extends TsTypeDefBase {
+  kind: "infer";
+  infer: TsInferDef;
+}
+
+export interface TsTypeMappedDef extends TsTypeDefBase {
+  kind: "mapped";
+  mapped: TsMappedTypeDef;
+}
+
+export interface TsTypeImportTypeDef extends TsTypeDefBase {
+  kind: "importType";
+  importType: TsImportTypeDef;
+}
+
 export interface TsTypeIndexedAccessDef extends TsTypeDefBase {
   kind: "indexedAccess";
   indexedAccess: TsIndexedAccessDef;
@@ -601,7 +639,10 @@ export type TsTypeDefKind =
   | "this"
   | "fnOrConstructor"
   | "conditional"
+  | "importType"
+  | "infer"
   | "indexedAccess"
+  | "mapped"
   | "typeLiteral"
   | "typePredicate";
 

@@ -3319,6 +3319,211 @@ export function foo(bar: any): asserts bar {}
     ]
   );
 
+  json_test!(infer_types,
+  r#"export type Flatten<T> = T extends Array<infer U> ? U : T;"#;
+  [
+    {
+      "kind": "typeAlias",
+      "name": "Flatten",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 1,
+        "col": 0
+      },
+      "typeAliasDef": {
+        "tsType": {
+          "repr": "",
+          "kind": "conditional",
+          "conditionalType": {
+            "checkType": {
+              "repr": "T",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "T"
+              }
+            },
+            "extendsType": {
+              "repr": "Array",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "",
+                    "kind": "infer",
+                    "infer": {
+                      "typeParam": {
+                        "name": "U"
+                      }
+                    }
+                  }
+                ],
+                "typeName": "Array"
+              }
+            },
+            "trueType": {
+              "repr": "U",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "U"
+              }
+            },
+            "falseType": {
+              "repr": "T",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "T",
+              }
+            }
+          }
+        },
+        "typeParams": [
+          {
+            "name": "T"
+          }
+        ]
+      }
+    }
+  ]);
+
+  json_test!(mapped_types,
+  r#"
+export type MappedTypeWithNewProperties<Type> = {
+  readonly [Properties in keyof Type as NewKeyType]?: Type[Properties];
+};
+"#;
+  [
+    {
+      "kind": "typeAlias",
+      "name": "MappedTypeWithNewProperties",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 0,
+      },
+      "typeAliasDef": {
+        "tsType": {
+          "repr": "",
+          "kind": "mapped",
+          "mappedType": {
+            "readonly": true,
+            "typeParam": {
+              "name": "Properties",
+              "constraint": {
+                "repr": "",
+                "kind": "typeOperator",
+                "typeOperator": {
+                  "operator": "keyof",
+                  "tsType": {
+                    "repr": "Type",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Type"
+                    }
+                  }
+                }
+              }
+            },
+            "nameType": {
+              "repr": "NewKeyType",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "NewKeyType"
+              }
+            },
+            "optional": true,
+            "tsType": {
+              "repr": "",
+              "kind": "indexedAccess",
+              "indexedAccess": {
+                "readonly": false,
+                "objType": {
+                  "repr": "Type",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Type",
+                  }
+                },
+                "indexType": {
+                  "repr": "Properties",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Properties"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "typeParams": [
+          {
+            "name": "Type",
+          }
+        ]
+      }
+    }
+  ]);
+
+  json_test!(import_types,
+    r#"
+export function adopt<T>(p: import("./module.ts").Pet<T>) {
+  console.log(`Adopting ${p.name}...`);
+}
+"#;
+    [
+      {
+        "kind": "function",
+        "name": "adopt",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 2,
+          "col": 0,
+        },
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "p",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "importType",
+                "importType": {
+                  "specifier": "./module.ts",
+                  "qualifier": "Pet",
+                  "typeParams": [
+                    {
+                      "repr": "T",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "T"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "returnType": null,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": [
+            {
+              "name": "T"
+            }
+          ]
+        }
+      }
+    ]
+  );
+
   json_test!(indented_with_tabs,
       r#"
 /**
@@ -3741,6 +3946,21 @@ export function f(): Generic<[string, number]> { return {}; }
   contains_test!(type_literal_readonly_index_signature,
     "export type T = { readonly [key: string]: number; }";
     "readonly [key: string]: number"
+  );
+
+  contains_test!(type_alias_infer_type,
+    "export type Flatten<T> = T extends Array<infer U> ? U : T;";
+    "T extends Array<infer U> ? U : T"
+  );
+
+  contains_test!(type_literal_mapped_type,
+    "export type T<Type> = { readonly [P in keyof Type as NewType]: Type[P]; }";
+    "readonly [P in keyof Type as NewType]: Type[P]"
+  );
+
+  contains_test!(type_import_type,
+    "export function adopt<T>(p: import(\"./module.ts\").Pet<T>) { }";
+    "import(\"./module.ts\").Pet<T>"
   );
 
   contains_test!(interface_declaration,
