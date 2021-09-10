@@ -8,6 +8,7 @@ use crate::js_doc::JsDoc;
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum DocNodeKind {
+  ModuleDoc,
   Function,
   Variable,
   Class,
@@ -93,7 +94,39 @@ pub struct DocNode {
   pub import_def: Option<ImportDef>,
 }
 
+impl Default for DocNode {
+  fn default() -> Self {
+    Self {
+      kind: DocNodeKind::ModuleDoc,
+      name: "".to_string(),
+      location: Location {
+        filename: "".to_string(),
+        line: 0,
+        col: 0,
+      },
+      js_doc: JsDoc::default(),
+      function_def: None,
+      variable_def: None,
+      enum_def: None,
+      class_def: None,
+      type_alias_def: None,
+      namespace_def: None,
+      interface_def: None,
+      import_def: None,
+    }
+  }
+}
+
 impl DocNode {
+  pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
+    Self {
+      kind: DocNodeKind::ModuleDoc,
+      name: "".to_string(),
+      location,
+      js_doc,
+      ..Default::default()
+    }
+  }
   pub fn function(
     name: String,
     location: Location,
@@ -106,13 +139,7 @@ impl DocNode {
       location,
       js_doc,
       function_def: Some(fn_def),
-      variable_def: None,
-      enum_def: None,
-      class_def: None,
-      type_alias_def: None,
-      namespace_def: None,
-      interface_def: None,
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -127,14 +154,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
       variable_def: Some(var_def),
-      enum_def: None,
-      class_def: None,
-      type_alias_def: None,
-      namespace_def: None,
-      interface_def: None,
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -149,14 +170,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
-      variable_def: None,
       enum_def: Some(enum_def),
-      class_def: None,
-      type_alias_def: None,
-      namespace_def: None,
-      interface_def: None,
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -171,14 +186,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
-      variable_def: None,
-      enum_def: None,
       class_def: Some(class_def),
-      type_alias_def: None,
-      namespace_def: None,
-      interface_def: None,
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -193,14 +202,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
-      variable_def: None,
-      enum_def: None,
-      class_def: None,
       type_alias_def: Some(type_alias_def),
-      namespace_def: None,
-      interface_def: None,
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -215,14 +218,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
-      variable_def: None,
-      enum_def: None,
-      class_def: None,
-      type_alias_def: None,
       namespace_def: Some(namespace_def),
-      interface_def: None,
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -237,14 +234,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
-      variable_def: None,
-      enum_def: None,
-      class_def: None,
-      type_alias_def: None,
-      namespace_def: None,
       interface_def: Some(interface_def),
-      import_def: None,
+      ..Default::default()
     }
   }
 
@@ -259,14 +250,8 @@ impl DocNode {
       name,
       location,
       js_doc,
-      function_def: None,
-      variable_def: None,
-      enum_def: None,
-      class_def: None,
-      type_alias_def: None,
-      namespace_def: None,
-      interface_def: None,
       import_def: Some(import_def),
+      ..Default::default()
     }
   }
 }

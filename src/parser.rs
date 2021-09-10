@@ -7,6 +7,7 @@ use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
+use crate::swc_util::leading_js_doc;
 use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
@@ -667,6 +668,12 @@ impl<'a> DocParser<'a> {
     let mut ambient_entries: Vec<DocNode> = Vec::new();
 
     let mut is_ambient = true;
+
+    if let Some((js_doc, span)) = leading_js_doc(parsed_source) {
+      let doc_node =
+        DocNode::module_doc(get_location(parsed_source, span.lo), js_doc);
+      doc_entries.push(doc_node);
+    }
 
     for node in module_body.iter() {
       match node {

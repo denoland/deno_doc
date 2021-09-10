@@ -8,7 +8,7 @@ lazy_static! {
   static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"^\s*@(deprecated)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
-  static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|public|private|protected|readonly)"#).unwrap();
+  static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|module|public|private|protected|readonly)"#).unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
     r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
   )
@@ -66,7 +66,7 @@ impl From<String> for JsDoc {
   }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum JsDocTag {
   /// `@callback Predicate comment`
@@ -96,6 +96,8 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
+  /// `@module`
+  Module,
   /// `@param {type} name comment` or `@arg {type} name comment` or
   /// `@argument {type} name comment`
   Param {
@@ -168,6 +170,7 @@ impl From<String> for JsDocTag {
       let kind = caps.get(1).unwrap().as_str();
       match kind {
         "constructor" | "class" => Self::Constructor,
+        "module" => Self::Module,
         "public" => Self::Public,
         "private" => Self::Private,
         "protected" => Self::Protected,

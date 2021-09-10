@@ -676,6 +676,57 @@ async fn variable_syntax() {
 mod serialization {
   use crate::*;
 
+  json_test!(module_docs,
+  r#"/* a non-jsdoc comment */
+
+/**
+ * A leading JSDoc comment
+ * @module
+ */
+
+/** One associated with a class */
+export class A {}
+    "#;
+  [
+    {
+      "kind": "moduleDoc",
+      "name": "",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 3,
+        "col": 0,
+      },
+      "jsDoc": {
+        "doc": "\nA leading JSDoc comment",
+        "tags": [{
+          "kind": "module"
+        }],
+      }
+    }, {
+      "kind": "class",
+      "name": "A",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 9,
+        "col": 0,
+      },
+      "jsDoc": {
+        "doc": "One associated with a class ",
+      },
+      "classDef": {
+        "isAbstract": false,
+        "constructors": [],
+        "properties": [],
+        "indexSignatures": [],
+        "methods": [],
+        "extends": null,
+        "implements": [],
+        "typeParams": [],
+        "superTypeParams": []
+      }
+    }
+  ]);
+
   json_test!(declare_namespace,
     r#"
 /** Namespace JSdoc */
