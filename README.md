@@ -14,7 +14,7 @@ and exposes an interface which is available via the `mod.ts` and can be imported
 like this:
 
 ```ts
-import * as denoDoc from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
+import { doc } from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
 ```
 
 Where `{VERSION}` should be substituted with the specific version you want to
@@ -30,7 +30,7 @@ A minimal example of using `doc()` and printing out some information about a
 function:
 
 ```ts
-import * as denoDoc from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
+import { doc } from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
 
 const colorsDoc = await doc("https://deno.land/std/fmt/colors.ts");
 
@@ -56,7 +56,7 @@ from the `mod.ts`.
 `deno_doc` can be used as a crate.
 
 ```shell
-$ cargo run --example ddoc ../deno/std/http/mod.ts
+$ cargo run --example ddoc ../deno_std/http/mod.ts
 ```
 
 ## Developing
@@ -64,14 +64,14 @@ $ cargo run --example ddoc ../deno/std/http/mod.ts
 Make sure to have latest stable version of Rust installed (1.55.0).
 
 ```shell
-// check version
+# check version
 $ rustc --version
 rustc 1.55.0 (c8dfcfe04 2021-09-06)
 
-// build all targets
+# build all targets
 $ cargo build --all-targets
 
-// test it
+# test it
 $ cargo test
 ```
 
