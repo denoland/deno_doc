@@ -9,7 +9,7 @@ targets like Node or the browser as well.
 
 ## Usage from Deno CLI or Deploy
 
-This repostiroy includes a compiled version of the Rust crate as Web Assembly
+This repository includes a compiled version of the Rust crate as Web Assembly
 and exposes an interface which is available via the `mod.ts` and can be imported
 like this:
 
