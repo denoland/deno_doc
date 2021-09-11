@@ -21,8 +21,13 @@ pub fn get_doc_node_for_export_decl(
 
   match &export_decl.decl {
     Decl::Class(class_decl) => {
-      let (name, class_def) =
+      let (name, class_def, decorator_js_doc) =
         super::class::get_doc_for_class_decl(parsed_source, class_decl);
+      let js_doc = if js_doc.is_empty() {
+        decorator_js_doc
+      } else {
+        js_doc
+      };
       DocNode::class(name, location, js_doc, class_def)
     }
     Decl::Fn(fn_decl) => {

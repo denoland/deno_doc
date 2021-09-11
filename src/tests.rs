@@ -1314,6 +1314,69 @@ export class A {
     }]
   );
 
+  json_test!(decorators_jsdoc,
+  r#"
+/** jsdoc */
+@sealed
+export class A {
+  a: string = "a";
+}
+    "#;
+  [
+    {
+      "kind": "class",
+      "name": "A",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 4,
+        "col": 0,
+      },
+      "jsDoc": {
+        "doc": "jsdoc"
+      },
+      "classDef": {
+        "isAbstract": false,
+        "constructors": [],
+        "properties": [
+          {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string",
+            },
+            "readonly": false,
+            "accessibility": null,
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "a",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 5,
+              "col": 2,
+            }
+          }
+        ],
+        "indexSignatures": [],
+        "methods": [],
+        "extends": null,
+        "implements": [],
+        "typeParams": [],
+        "superTypeParams": [],
+        "decorators": [
+          {
+            "name": "sealed",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 3,
+              "col": 1,
+            }
+          }
+        ]
+      }
+    }
+  ]);
+
   json_test!(export_const,
     r#"
 /** Something about fizzBuzz */

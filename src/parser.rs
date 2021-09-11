@@ -363,10 +363,16 @@ impl<'a> DocParser<'a> {
 
         let doc_node = match &export_default_decl.decl {
           DefaultDecl::Class(class_expr) => {
-            let class_def = crate::class::class_to_class_def(
-              parsed_source,
-              &class_expr.class,
-            );
+            let (class_def, decorator_js_doc) =
+              crate::class::class_to_class_def(
+                parsed_source,
+                &class_expr.class,
+              );
+            let js_doc = if js_doc.is_empty() {
+              decorator_js_doc
+            } else {
+              js_doc
+            };
             DocNode::class(name, location, js_doc, class_def)
           }
           DefaultDecl::Fn(fn_expr) => {
@@ -399,7 +405,8 @@ impl<'a> DocParser<'a> {
   ) -> Option<DocNode> {
     match decl {
       Decl::Class(class_decl) => {
-        let (name, class_def) =
+        // declared classes cannot have decorators, so we ignore that return
+        let (name, class_def, _) =
           super::class::get_doc_for_class_decl(parsed_source, class_decl);
         let js_doc = js_doc_for_span(parsed_source, &class_decl.class.span);
         let location = get_location(parsed_source, class_decl.class.span.lo);
