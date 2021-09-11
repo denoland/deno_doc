@@ -208,7 +208,7 @@ pub struct ClassDef {
 pub fn class_to_class_def(
   parsed_source: &ParsedSource,
   class: &deno_ast::swc::ast::Class,
-) -> ClassDef {
+) -> (ClassDef, JsDoc) {
   let mut constructors = vec![];
   let mut methods = vec![];
   let mut properties = vec![];
@@ -356,26 +356,38 @@ pub fn class_to_class_def(
 
   let decorators = decorators_to_defs(parsed_source, &class.decorators);
 
-  ClassDef {
-    is_abstract: class.is_abstract,
-    extends,
-    implements,
-    constructors,
-    properties,
-    index_signatures,
-    methods,
-    type_params,
-    super_type_params,
-    decorators,
-  }
+  // JSDoc associated with the class may actually be a leading comment on a
+  // decorator, and so we should parse out the JSDoc for the first decorator
+  let js_doc = if !class.decorators.is_empty() {
+    js_doc_for_span(parsed_source, &class.decorators[0].span)
+  } else {
+    JsDoc::default()
+  };
+
+  (
+    ClassDef {
+      is_abstract: class.is_abstract,
+      extends,
+      implements,
+      constructors,
+      properties,
+      index_signatures,
+      methods,
+      type_params,
+      super_type_params,
+      decorators,
+    },
+    js_doc,
+  )
 }
 
 pub fn get_doc_for_class_decl(
   parsed_source: &ParsedSource,
   class_decl: &deno_ast::swc::ast::ClassDecl,
-) -> (String, ClassDef) {
+) -> (String, ClassDef, JsDoc) {
   let class_name = class_decl.ident.sym.to_string();
-  let class_def = class_to_class_def(parsed_source, &class_decl.class);
+  let (class_def, js_doc) =
+    class_to_class_def(parsed_source, &class_decl.class);
 
-  (class_name, class_def)
+  (class_name, class_def, js_doc)
 }
