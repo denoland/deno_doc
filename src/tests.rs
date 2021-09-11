@@ -697,7 +697,7 @@ export class A {}
         "col": 0,
       },
       "jsDoc": {
-        "doc": "\nA leading JSDoc comment",
+        "doc": "A leading JSDoc comment",
         "tags": [{
           "kind": "module"
         }],
@@ -711,7 +711,7 @@ export class A {}
         "col": 0,
       },
       "jsDoc": {
-        "doc": "One associated with a class ",
+        "doc": "One associated with a class",
       },
       "classDef": {
         "isAbstract": false,
@@ -2126,7 +2126,23 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
     console.log("Hello world");
 }
     "#;
-  [{
+  [
+    {
+      "kind": "moduleDoc",
+      "name": "",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 1,
+        "col": 0,
+      },
+      "jsDoc": {
+        "tags": [
+          {
+            "kind": "module"
+          }
+        ]
+      },
+    }, {
       "functionDef": {
         "isAsync": false,
         "isGenerator": false,

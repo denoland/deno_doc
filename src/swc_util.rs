@@ -22,7 +22,9 @@ fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
     .split('\n')
     .map(|line| JS_DOC_RE.replace(line, "").to_string())
     .collect::<Vec<String>>()
-    .join("\n");
+    .join("\n")
+    .trim()
+    .to_string();
   txt.into()
 }
 
@@ -43,7 +45,10 @@ pub(crate) fn js_doc_for_span(
   }
 }
 
-pub(crate) fn leading_js_doc(
+/// Inspects leading comments in the source and returns the first JSDoc comment
+/// with a `@module` tag along with its associated span, otherwise returns
+/// `None`.
+pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
 ) -> Option<(JsDoc, Span)> {
   let comments = parsed_source.get_leading_comments();
