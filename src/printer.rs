@@ -96,14 +96,15 @@ impl<'a> DocPrinter<'a> {
 
   fn kind_order(&self, kind: &DocNodeKind) -> i64 {
     match kind {
-      DocNodeKind::Function => 0,
-      DocNodeKind::Variable => 1,
-      DocNodeKind::Class => 2,
-      DocNodeKind::Enum => 3,
-      DocNodeKind::Interface => 4,
-      DocNodeKind::TypeAlias => 5,
-      DocNodeKind::Namespace => 6,
-      DocNodeKind::Import => 7,
+      DocNodeKind::ModuleDoc => 0,
+      DocNodeKind::Function => 1,
+      DocNodeKind::Variable => 2,
+      DocNodeKind::Class => 3,
+      DocNodeKind::Enum => 4,
+      DocNodeKind::Interface => 5,
+      DocNodeKind::TypeAlias => 6,
+      DocNodeKind::Namespace => 7,
+      DocNodeKind::Import => 8,
     }
   }
 
@@ -114,6 +115,7 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
   ) -> FmtResult {
     match node.kind {
+      DocNodeKind::ModuleDoc => self.format_module_doc(w, node, indent),
       DocNodeKind::Function => self.format_function_signature(w, node, indent),
       DocNodeKind::Variable => self.format_variable_signature(w, node, indent),
       DocNodeKind::Class => self.format_class_signature(w, node, indent),
@@ -358,6 +360,17 @@ impl<'a> DocPrinter<'a> {
     }
 
     writeln!(w)
+  }
+
+  fn format_module_doc(
+    &self,
+    _w: &mut Formatter<'_>,
+    _node: &DocNode,
+    _indent: i64,
+  ) -> FmtResult {
+    // currently we do not print out JSDoc in the printer, so there is nothing
+    // to print.
+    Ok(())
   }
 
   fn format_type_alias_signature(

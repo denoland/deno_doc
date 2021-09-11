@@ -1,6 +1,7 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
 export type DocNode =
+  | DocNodeModuleDoc
   | DocNodeFunction
   | DocNodeVariable
   | DocNodeEnum
@@ -18,6 +19,7 @@ interface DocNodeBase {
 }
 
 export type DocNodeKind =
+  | "moduleDoc"
   | "function"
   | "variable"
   | "enum"
@@ -26,6 +28,11 @@ export type DocNodeKind =
   | "namespace"
   | "interface"
   | "import";
+
+export interface DocNodeModuleDoc extends DocNodeBase {
+  kind: "moduleDoc";
+  jsDoc: JsDoc;
+}
 
 export interface DocNodeFunction extends DocNodeBase {
   kind: "function";
@@ -206,6 +213,7 @@ export type JsDocTagKind =
   | "deprecated"
   | "enum"
   | "extends"
+  | "module"
   | "param"
   | "public"
   | "private"
@@ -234,7 +242,13 @@ export interface JsDocTagBase {
 }
 
 export interface JsDocTagOnly extends JsDocTagBase {
-  kind: "constructor" | "public" | "private" | "protected" | "readonly";
+  kind:
+    | "constructor"
+    | "module"
+    | "public"
+    | "private"
+    | "protected"
+    | "readonly";
 }
 
 export interface JsDocTagDoc extends JsDocTagBase {
