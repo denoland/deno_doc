@@ -51,9 +51,7 @@ impl DecoratorDef {
             let args = call_expr
               .args
               .iter()
-              .map(|a| {
-                parsed_source.source().get_span_text(&a.span()).to_string()
-              })
+              .map(|a| parsed_source.source().span_text(&a.span()).to_string())
               .collect();
             return Self {
               name: ident.sym.to_string(),
