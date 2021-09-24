@@ -177,7 +177,7 @@ impl<'a> DocParser<'a> {
     for specifier in by_src.keys() {
       let resolved_specifier = self
         .graph
-        .resolve_dependency(specifier, referrer)
+        .resolve_dependency(specifier, referrer, true)
         .ok_or_else(|| DocError::Resolve(specifier.clone()))?;
       let doc_nodes = self.parse_with_reexports(resolved_specifier)?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
@@ -326,7 +326,7 @@ impl<'a> DocParser<'a> {
 
           let resolved_specifier = self
             .graph
-            .resolve_dependency(&src, referrer)
+            .resolve_dependency(&src, referrer, true)
             .ok_or_else(|| DocError::Resolve(src.clone()))?;
           let import_def = ImportDef {
             src: resolved_specifier.to_string(),
