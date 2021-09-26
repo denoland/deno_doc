@@ -369,7 +369,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.5.0"
-source = "git+https://github.com/kitsonk/deno_graph?branch=cli_changes#e81fd47e42bed0a18d4e03e82338e497b778835e"
+source = "git+https://github.com/kitsonk/deno_graph?branch=cli_changes#057a89262baaa8c74eb085f3bdaa0eb82e72fd18"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",
@@ -1307,9 +1307,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0100bddbd0b5587223a862dedc9556715d066205e7e1954ca080567693923ee5"
+checksum = "acc9ad667d8c220e1625e189933ffd9d29b643317aca7a211db2600ef622879e"
 dependencies = [
  "ahash",
  "ast_node",
@@ -1358,9 +1358,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.70.3"
+version = "0.70.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7b54c9b110cf6e5677cbe5dac27ff1fd6bff2064409bd79d89e66be79ccf278"
+checksum = "04b2e3c0ac2132a7ab0679fe8bb89ad0a3311c6c5f44a22bffc559647e1f2e47"
 dependencies = [
  "either",
  "enum_kind",
@@ -1499,9 +1499,9 @@ dependencies = [
 
 [[package]]
 name = "tinyvec"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5241dd6f21443a3606b432718b166d3cedc962fd4b8bea54a8bc7f514ebda986"
+checksum = "f83b2a3d4d9091d0abd7eba4dc2710b1718583bd4d8992e2190720ea38f391f7"
 dependencies = [
  "tinyvec_macros",
 ]

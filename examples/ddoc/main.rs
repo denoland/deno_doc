@@ -62,7 +62,7 @@ fn main() {
   let future = async move {
     let ast_parser = CapturingSourceParser::new();
     let graph = create_graph(
-      source_file.clone(),
+      vec![source_file.clone()],
       &mut loader,
       None,
       None,
