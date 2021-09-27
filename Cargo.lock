@@ -369,7 +369,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.5.0"
-source = "git+https://github.com/kitsonk/deno_graph?branch=cli_changes#6e6da34508414d6a4f9f56896702c69ef6c466e4"
+source = "git+https://github.com/kitsonk/deno_graph?branch=cli_changes#030696ea0ade54ce52812f99b4dc54db7bb879c1"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",

@@ -20,9 +20,15 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
-  let graph =
-    create_graph(vec![root.clone()], &mut memory_loader, None, None, None)
-      .await;
+  let graph = create_graph(
+    vec![root.clone()],
+    false,
+    &mut memory_loader,
+    None,
+    None,
+    None,
+  )
+  .await;
   (graph, root)
 }
 
@@ -121,9 +127,15 @@ async fn content_type_handling() {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
-  let graph =
-    create_graph(vec![root.clone()], &mut memory_loader, None, None, None)
-      .await;
+  let graph = create_graph(
+    vec![root.clone()],
+    false,
+    &mut memory_loader,
+    None,
+    None,
+    None,
+  )
+  .await;
   let source_parser = deno_graph::DefaultSourceParser::new();
   let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&root)
@@ -159,9 +171,15 @@ async fn types_header_handling() {
   ];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
-  let graph =
-    create_graph(vec![root.clone()], &mut memory_loader, None, None, None)
-      .await;
+  let graph = create_graph(
+    vec![root.clone()],
+    false,
+    &mut memory_loader,
+    None,
+    None,
+    None,
+  )
+  .await;
   let source_parser = deno_graph::DefaultSourceParser::new();
   let entries = DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&root)

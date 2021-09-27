@@ -63,6 +63,7 @@ fn main() {
     let ast_parser = CapturingSourceParser::new();
     let graph = create_graph(
       vec![source_file.clone()],
+      false,
       &mut loader,
       None,
       None,
