@@ -5,17 +5,17 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"^\s*@(deprecated)(?:\s+([\s\S]+))?"#).unwrap();
-  static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+([\s\S]+))?"#).unwrap();
-  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+([\s\S]+))?"#).unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(deprecated)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|module|public|private|protected|readonly)"#).unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
-    r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+([\s\S]+))?"#
+    r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
   )
   .unwrap();
-  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"^\s*@\S+"#).unwrap();
-  static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r#"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+([\s\S]+))?"#).unwrap();
-  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+([\s\S]+))?"#).unwrap();
+  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"(?s)^\s*@\S+"#).unwrap();
+  static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r#"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
