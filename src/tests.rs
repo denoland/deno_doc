@@ -1144,6 +1144,42 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             "line": 7,
             "col": 4
           }
+        },
+        {
+            "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number",
+            },
+            "readonly": false,
+            "accessibility": "private",
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "private2",
+            "location": {
+                "filename": "file:///test.ts",
+                "line": 10,
+                "col": 38,
+            },
+        },
+        {
+            "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number",
+            },
+            "readonly": false,
+            "accessibility": "protected",
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "protected2",
+            "location": {
+                "filename": "file:///test.ts",
+                "line": 10,
+                "col": 66,
+            },
         }
       ],
       "indexSignatures": [],
@@ -1915,7 +1951,44 @@ export default class Foobar {
             }
           }
         ],
-        "properties": [],
+        "properties": [
+            {
+                "tsType": {
+                    "repr":  "number",
+                    "kind":  "keyword",
+                    "keyword": "number",
+                },
+                "readonly":  false,
+                "accessibility":  "private",
+                "optional":  false,
+                "isAbstract":  false,
+                "isStatic":  false,
+                "name":  "private2",
+                "location": {
+                    "filename":  "file:///test.ts",
+                    "line":  5,
+                    "col":  38,
+                },
+            },
+            {
+                "tsType": {
+                    "repr":  "number",
+                    "kind":  "keyword",
+                    "keyword":  "number",
+                },
+                "readonly":  false,
+                "accessibility":  "protected",
+                "optional":  false,
+                "isAbstract":  false,
+                "isStatic":  false,
+                "name":  "protected2",
+                "location": {
+                    "filename":  "file:///test.ts",
+                    "line":  5,
+                    "col":  66,
+                },
+            },
+        ],
         "indexSignatures": [],
         "methods": []
       }
