@@ -210,11 +210,11 @@ fn ts_param_prop_to_property_def(
   param_prop: &deno_ast::swc::ast::TsParamProp,
 ) -> ClassPropertyDef {
   use deno_ast::swc::ast::Pat;
-  use deno_ast::swc::ast::TsParamPropParam;
+  use deno_ast::swc::ast::TsParamPropParam::*;
 
   let ident = match &param_prop.param {
-    TsParamPropParam::Ident(id) => id,
-    TsParamPropParam::Assign(assign) => match assign.left.as_ref() {
+    Ident(id) => id,
+    Assign(assign) => match assign.left.as_ref() {
       Pat::Ident(id) => id,
       _ => unreachable!(),
     },
@@ -273,14 +273,12 @@ pub fn class_to_class_def(
         let mut params = vec![];
 
         for param in &ctor.params {
-          use deno_ast::swc::ast::ParamOrTsParamProp;
+          use deno_ast::swc::ast::ParamOrTsParamProp::*;
 
           let param_def = match param {
-            ParamOrTsParamProp::Param(param) => {
-              pat_to_param_def(Some(parsed_source), &param.pat)
-            }
-            ParamOrTsParamProp::TsParamProp(ts_param_prop) => {
-              use deno_ast::swc::ast::TsParamPropParam;
+            Param(param) => pat_to_param_def(Some(parsed_source), &param.pat),
+            TsParamProp(ts_param_prop) => {
+              use deno_ast::swc::ast::TsParamPropParam::*;
 
               properties.push(ts_param_prop_to_property_def(
                 parsed_source,
@@ -288,10 +286,8 @@ pub fn class_to_class_def(
               ));
 
               match &ts_param_prop.param {
-                TsParamPropParam::Ident(ident) => {
-                  ident_to_param_def(Some(parsed_source), ident)
-                }
-                TsParamPropParam::Assign(assign_pat) => {
+                Ident(ident) => ident_to_param_def(Some(parsed_source), ident),
+                Assign(assign_pat) => {
                   assign_pat_to_param_def(Some(parsed_source), assign_pat)
                 }
               }
