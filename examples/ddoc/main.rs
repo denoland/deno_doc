@@ -64,6 +64,7 @@ fn main() {
     let graph = create_graph(
       vec![source_file.clone()],
       false,
+      None,
       &mut loader,
       None,
       None,

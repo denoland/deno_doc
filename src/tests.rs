@@ -23,6 +23,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   let graph = create_graph(
     vec![root.clone()],
     false,
+    None,
     &mut memory_loader,
     None,
     None,
@@ -130,6 +131,7 @@ async fn content_type_handling() {
   let graph = create_graph(
     vec![root.clone()],
     false,
+    None,
     &mut memory_loader,
     None,
     None,
@@ -174,6 +176,7 @@ async fn types_header_handling() {
   let graph = create_graph(
     vec![root.clone()],
     false,
+    None,
     &mut memory_loader,
     None,
     None,

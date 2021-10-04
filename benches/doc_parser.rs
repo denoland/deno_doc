@@ -22,6 +22,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   let graph = create_graph(
     vec![root.clone()],
     false,
+    None,
     &mut memory_loader,
     None,
     None,

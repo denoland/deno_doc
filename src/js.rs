@@ -92,6 +92,7 @@ pub async fn doc(
   let graph = create_graph(
     vec![root_specifier.clone()],
     false,
+    None,
     &mut loader,
     maybe_resolver.as_ref().map(|r| r as &dyn Resolver),
     None,
