@@ -216,7 +216,7 @@ fn ts_param_prop_to_property_def(
     TsParamPropParam::Ident(id) => id,
     TsParamPropParam::Assign(assign) => match assign.left.as_ref() {
       Pat::Ident(id) => id,
-      _ => unreachable!()
+      _ => unreachable!(),
     },
   };
 
