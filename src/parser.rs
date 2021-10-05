@@ -24,7 +24,6 @@ use deno_ast::ParsedSource;
 use deno_graph::MediaType;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
-use deno_graph::Resolved;
 use deno_graph::SourceParser;
 
 use std::collections::HashMap;
@@ -249,7 +248,7 @@ impl<'a> DocParser<'a> {
         ))
       })?;
 
-    let module = if let Some((_, Resolved::Specifier(types_specifier, _))) =
+    let module = if let Some((_, Some(Ok((types_specifier, _))))) =
       &module.maybe_types_dependency
     {
       self
