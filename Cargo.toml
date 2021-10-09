@@ -17,7 +17,7 @@ name = "ddoc"
 anyhow = { version = "1.0.43", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.2.0"
-deno_graph = { git = "https://github.com/kitsonk/deno_graph", branch = "cli_changes" }
+deno_graph = { git = "https://github.com/kitsonk/deno_graph", branch = "main" }
 futures = "0.3.17"
 js-sys = { version = "0.3.54", optional = true }
 lazy_static = "1.4.0"
