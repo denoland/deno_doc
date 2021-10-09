@@ -19,8 +19,16 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("file:///test/fixtures/deno.d.ts").unwrap();
-  let graph =
-    create_graph(root.clone(), &mut memory_loader, None, None, None).await;
+  let graph = create_graph(
+    vec![root.clone()],
+    false,
+    None,
+    &mut memory_loader,
+    None,
+    None,
+    None,
+  )
+  .await;
   let source_parser = deno_graph::DefaultSourceParser::new();
   DocParser::new(graph, false, &source_parser)
     .parse_with_reexports(&root)

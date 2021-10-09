@@ -90,7 +90,9 @@ pub async fn doc(
   let mut loader = JsLoader::new(load);
   let maybe_resolver = maybe_resolve.map(JsResolver::new);
   let graph = create_graph(
-    root_specifier.clone(),
+    vec![root_specifier.clone()],
+    false,
+    None,
     &mut loader,
     maybe_resolver.as_ref().map(|r| r as &dyn Resolver),
     None,
