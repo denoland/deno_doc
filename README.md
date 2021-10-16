@@ -1,28 +1,27 @@
 # `deno_doc`
 
-A Rust crate to generate documentation for JavaScript and TypeScript modules.
+Rust crate для создания документации для модулей JavaScript и TypeScript..
 
-This crate powers
-[`deno doc`](https://deno.land/manual/tools/documentation_generator), but is not
-Deno specific and can be used to write documentation generators for other
-targets like Node or the browser as well.
+Этот crate крут
+[`deno doc`](https://deno.land/manual/tools/documentation_generator), но
+не специален для Deno и может быть использован для написания генератора документации для чего то вроде node
+или браузера.
 
-## Usage from Deno CLI or Deploy
+## Использование из Deno CLI или Deploy
 
-This repository includes a compiled version of the Rust crate as Web Assembly
-and exposes an interface which is available via the `mod.ts` and can be imported
-like this:
+Этот репозиторий включает скомпилированную версию Rust crate как Web Assembly
+и предоставляет интерфейс, доступный через `mod.ts` и может быть импортирован
+так:
 
 ```ts
 import { doc } from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
 ```
 
-Where `{VERSION}` should be substituted with the specific version you want to
-use.
+Где `{VERSION}` следует заменить на конкретную версию, которую вы хотите использовать.
 
 ### `doc()`
 
-The `doc()` function takes a string URL module specifier and potentially some
+Функция `doc()` принимает строку URL module specifier and potentially some
 options, and asynchronously resolves with an array of documentation nodes, which
 represent the surface API of the module.
 
