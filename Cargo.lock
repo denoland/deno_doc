@@ -166,6 +166,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cloudabi"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4344512281c643ae7638bbabc3af17a11307803ec8f0fcad9fae512a8bf36467"
+dependencies = [
+ "bitflags",
+]
+
+[[package]]
 name = "criterion"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -324,9 +333,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d177a5fbe88bec8d8b86882c77b7ba39ba03be99c5d80d3c9fc529191f3c0933"
+checksum = "f9f3b4f3ed02c96faa6f877d54463b6ae499f9e347b0ab406958cb729d0cead3"
 dependencies = [
  "data-url",
  "serde",
@@ -339,7 +348,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",
@@ -362,9 +371,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9adc8acfce4c311ebb4cd08a70d3149cf2cd157d468bd46bb5c556db0754eec"
+checksum = "baedce4f0b5e81c54cd1c72d3cad64459d9350a74b9902363ece0fb3f6c550bf"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",
@@ -372,6 +381,7 @@ dependencies = [
  "deno_ast",
  "futures",
  "lazy_static",
+ "parking_lot_core",
  "regex",
  "ring",
  "serde",
@@ -826,9 +836,9 @@ dependencies = [
 
 [[package]]
 name = "parking_lot"
-version = "0.11.2"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d17b78036a60663b797adeaee46f5c9dfebb86948d1255007a1d6be0271ff99"
+checksum = "6d7744ac029df22dca6284efe4e898991d28e3085c706c972bcd7da4a27a15eb"
 dependencies = [
  "instant",
  "lock_api",
@@ -837,11 +847,12 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
-version = "0.8.5"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d76e8e1493bcac0d2766c42737f34458f1c8c50c0d23bcb24ea953affb273216"
+checksum = "c361aa727dd08437f2f1447be8b59a33b0edd15e0fcee698f935613d9efbca9b"
 dependencies = [
- "cfg-if 1.0.0",
+ "cfg-if 0.1.10",
+ "cloudabi",
  "instant",
  "libc",
  "redox_syscall",
@@ -1057,12 +1068,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.2.10"
+version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8383f39639269cde97d255a32bdb68c047337295414940c68bdd30c2e13203ff"
-dependencies = [
- "bitflags",
-]
+checksum = "41cc0f7e4d5d4544e8861606a285bb08d3e70712ccc7d2b84d7c0ccfaf4b05ce"
 
 [[package]]
 name = "regex"
@@ -1239,12 +1247,13 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "string_cache"
-version = "0.8.1"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ddb1139b5353f96e429e1a5e19fbaf663bddedaa06d1dbd49f82e352601209a"
+checksum = "923f0f39b6267d37d23ce71ae7235602134b250ace715dd2c90421998ddac0c6"
 dependencies = [
  "lazy_static",
  "new_debug_unreachable",
+ "parking_lot",
  "phf_shared",
  "precomputed-hash",
  "serde",
@@ -1289,9 +1298,9 @@ checksum = "6446ced80d6c486436db5c078dde11a9f73d42b57fb273121e160b84f63d894c"
 
 [[package]]
 name = "swc_atoms"
-version = "0.2.7"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "837a3ef86c2817228e733b6f173c821fd76f9eb21a0bc9001a826be48b00b4e7"
+checksum = "6a20e0ff436c9967b5cbafbc0872f384fef5be6f9913ce92fb5f017427e95c7e"
 dependencies = [
  "string_cache",
  "string_cache_codegen",
@@ -1299,9 +1308,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.13.4"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "259212df9a949aa6ec440b64244475bcda531609a85489a22eb27908dd8d1b0d"
+checksum = "09b096f9f8b1400690ccd25cb030b89267d40cd549b99bece6e936c5eb71e7a7"
 dependencies = [
  "ahash",
  "ast_node",
@@ -1324,9 +1333,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_ast"
-version = "0.54.3"
+version = "0.55.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eae24a6603262822de50069ff72394b0d208267e5bd5298678ba6a79f670c40f"
+checksum = "e40d99e5376086f6a057202b3889f276c3f5cbcafeead8f536ed088ad0bf36b3"
 dependencies = [
  "is-macro",
  "num-bigint",
@@ -1338,9 +1347,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_dep_graph"
-version = "0.42.0"
+version = "0.43.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e27fde9ec4d2b24663836ac0bff26909db0505abad3b873d30808f7659d977a"
+checksum = "dbe2b73e128b13e91f9a937b6a9109184eb04b7af7d463cd8c7f5f0f81ee56d0"
 dependencies = [
  "swc_atoms",
  "swc_common",
@@ -1350,9 +1359,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.73.10"
+version = "0.74.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfb726e493ad51f1754e092dfb5b8ec6656c0b76bf95c7d31c3ce72bbc3aa0f6"
+checksum = "a95c7f1ee909bac1b4e185385271e53aeea8a16b38bb48411e6082de7fdf0fef"
 dependencies = [
  "either",
  "enum_kind",
@@ -1365,14 +1374,15 @@ dependencies = [
  "swc_ecma_ast",
  "swc_ecma_visit",
  "tracing",
+ "typed-arena",
  "unicode-xid",
 ]
 
 [[package]]
 name = "swc_ecma_visit"
-version = "0.40.0"
+version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c24a7600061813d7df3248d93ff27cacc1a81f9eeec47701866f3adc9ae2930"
+checksum = "c242ca4236cf826f9d575f27235a049e7e5629b66f130fdc1f333fa23e6a2ff4"
 dependencies = [
  "num-bigint",
  "swc_atoms",
@@ -1383,9 +1393,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecmascript"
-version = "0.73.0"
+version = "0.78.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8147c047015f4289b3202a5362a6ed8c384a585eee05c98f040299a0b303f22e"
+checksum = "affa64aa63157f944acbe058a3bf54b67965c81ed37c001844daf8739156fc3a"
 dependencies = [
  "swc_ecma_ast",
  "swc_ecma_dep_graph",
@@ -1565,6 +1575,12 @@ checksum = "1f4ed65637b8390770814083d20756f87bfa2c21bf2f110babdc5438351746e4"
 dependencies = [
  "lazy_static",
 ]
+
+[[package]]
+name = "typed-arena"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0685c84d5d54d1c26f7d3eb96cd41550adb97baed141a761cf335d3d33bcd0ae"
 
 [[package]]
 name = "unicode-bidi"
