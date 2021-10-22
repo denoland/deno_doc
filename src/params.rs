@@ -131,7 +131,7 @@ impl Display for ObjectPatPropDef {
         // The internal identifier does not need to be exposed
         write!(f, "{}", key)
       }
-      ObjectPatPropDef::Assign { key } => {
+      ObjectPatPropDef::Assign { key, .. } => {
         // TODO(SyrupThinker) As we cannot display expressions the value is just omitted
         write!(f, "{}", key)
       }
