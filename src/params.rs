@@ -131,13 +131,9 @@ impl Display for ObjectPatPropDef {
         // The internal identifier does not need to be exposed
         write!(f, "{}", key)
       }
-      ObjectPatPropDef::Assign { key, value } => {
-        if let Some(_value) = value {
-          // TODO(SyrupThinker) As we cannot display expressions the value is just omitted
-          write!(f, "{}", key)
-        } else {
-          write!(f, "{}", key)
-        }
+      ObjectPatPropDef::Assign { key, .. } => {
+        // TODO(SyrupThinker) As we cannot display expressions the value is just omitted
+        write!(f, "{}", key)
       }
       ObjectPatPropDef::Rest { arg } => write!(f, "...{}", arg),
     }
