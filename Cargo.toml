@@ -17,16 +17,16 @@ name = "ddoc"
 anyhow = { version = "1.0.43", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.4.1"
-deno_graph = { git = "https://github.com/denoland/deno_graph", branch = "main" }
+deno_graph = "0.9.0"
 futures = "0.3.17"
-js-sys = { version = "0.3.54", optional = true }
+js-sys = { version = "0.3.55", optional = true }
 lazy_static = "1.4.0"
 regex = "1.5.4"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = { version = "1.0.67", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
-wasm-bindgen = { version = "0.2.77", features = ["serde-serialize"], optional = true }
-wasm-bindgen-futures = { version = "0.4.27", optional = true }
+wasm-bindgen = { version = "0.2.78", features = ["serde-serialize"], optional = true }
+wasm-bindgen-futures = { version = "0.4.28", optional = true }
 
 [dev-dependencies]
 clap = "2.33.3"
