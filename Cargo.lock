@@ -324,9 +324,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e23902664e99dc1e0f7186ddd26dbf31fc2ab934ef86593700d43052f5ad43bf"
+checksum = "2ee37af956e0efce7863828eb055208965be06f47959b73c47466e0b5f9a1a9e"
 dependencies = [
  "data-url",
  "serde",
@@ -339,7 +339,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.18.0"
+version = "0.19.0"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",
@@ -362,9 +362,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f579f93d0bbef0c7207378c9fe34396a965640be84cbf3f8a4608e0fa4e2d386"
+checksum = "6df7e1b135780d9424ce4fb9a8927983d27d2c094922cb84b5fd5d72a4c85b82"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",
