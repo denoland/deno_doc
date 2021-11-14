@@ -89,7 +89,7 @@ Deno.test({
         await doc("https://deno.land/x/bad.ts");
       },
       Error,
-      `Unable to load specifier: "https://deno.land/x/bad.ts"`,
+      `Cannot load module "https://deno.land/x/bad.ts".`,
     );
   },
 });
