@@ -789,7 +789,7 @@ declare namespace RootNs {
       "line": 3,
       "col": 0
     },
-    "declarationKind": "declaration",
+    "declarationKind": "declare",
     "jsDoc": {
       "doc": "Namespace JSdoc",
     },
@@ -803,7 +803,7 @@ declare namespace RootNs {
             "line": 4,
             "col": 4
           },
-          "declarationKind": "declaration",
+          "declarationKind": "declare",
           "variableDef": {
             "tsType": {
               "repr": "a",
@@ -827,7 +827,7 @@ declare namespace RootNs {
           "jsDoc": {
             "doc": "Nested namespace JSDoc",
           },
-          "declarationKind": "declaration",
+          "declarationKind": "declare",
           "namespaceDef": {
             "elements": [
               {
@@ -838,7 +838,7 @@ declare namespace RootNs {
                   "line": 8,
                   "col": 6
                 },
-                "declarationKind": "declaration",
+                "declarationKind": "declare",
                 "enumDef": {
                   "members": [
                     {

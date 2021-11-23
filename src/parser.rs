@@ -433,7 +433,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::class(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           class_def,
         ))
@@ -446,7 +446,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::function(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           function_def,
         ))
@@ -458,7 +458,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::variable(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           var_def,
         ))
@@ -474,7 +474,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::interface(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           interface_def,
         ))
@@ -490,7 +490,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::type_alias(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           type_alias_def,
         ))
@@ -503,7 +503,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::r#enum(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           enum_def,
         ))
@@ -519,7 +519,7 @@ impl<'a> DocParser<'a> {
         Some(DocNode::namespace(
           name,
           location,
-          DeclarationKind::Declaration,
+          DeclarationKind::Declare,
           js_doc,
           namespace_def,
         ))
@@ -747,13 +747,13 @@ impl<'a> DocParser<'a> {
               let is_declared = self.get_declare_for_decl(decl);
               if self.private {
                 doc_node.declaration_kind = if is_declared {
-                  DeclarationKind::Declaration
+                  DeclarationKind::Declare
                 } else {
                   DeclarationKind::Private
                 };
                 doc_entries.push(doc_node);
               } else if is_declared {
-                doc_node.declaration_kind = DeclarationKind::Declaration;
+                doc_node.declaration_kind = DeclarationKind::Declare;
                 ambient_entries.push(doc_node)
               }
             }

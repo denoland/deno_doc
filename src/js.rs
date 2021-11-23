@@ -82,7 +82,7 @@ impl Resolver for JsResolver {
 #[wasm_bindgen]
 pub async fn doc(
   root_specifier: String,
-  private: bool,
+  include_all: bool,
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
 ) -> Result<JsValue, JsValue> {
@@ -101,7 +101,7 @@ pub async fn doc(
   )
   .await;
   let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, private, &source_parser)
+  let entries = DocParser::new(graph, include_all, &source_parser)
     .parse_with_reexports(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   JsValue::from_serde(&entries)

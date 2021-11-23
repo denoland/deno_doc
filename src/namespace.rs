@@ -44,7 +44,7 @@ pub fn get_doc_for_ts_namespace_decl(
   DocNode::namespace(
     namespace_name,
     location,
-    DeclarationKind::Declaration,
+    DeclarationKind::Declare,
     js_doc,
     ns_def,
   )

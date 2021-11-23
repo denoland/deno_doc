@@ -64,7 +64,7 @@ pub struct ImportDef {
 #[serde(rename_all = "camelCase")]
 pub enum DeclarationKind {
   Private,
-  Declaration,
+  Declare,
   Export,
   Import,
 }
