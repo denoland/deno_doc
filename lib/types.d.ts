@@ -11,10 +11,16 @@ export type DocNode =
   | DocNodeInterface
   | DocNodeImport;
 
+/** Indicates how the documentation node was declared. `"private"` indicates
+ * the node is un-exported. `"export"` indicates it is exported from the current
+ * module. `"declare"` indicates that it is a type only declaration. */
+export type DeclarationKind = "private" | "export" | "declare";
+
 interface DocNodeBase {
   kind: DocNodeKind;
   name: string;
   location: Location;
+  declarationKind: DeclarationKind;
   jsDoc?: JsDoc;
 }
 

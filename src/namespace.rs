@@ -3,6 +3,7 @@
 use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 
+use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::parser::DocParser;
 use crate::swc_util::get_location;
@@ -40,7 +41,13 @@ pub fn get_doc_for_ts_namespace_decl(
 
   let ns_def = NamespaceDef { elements };
 
-  DocNode::namespace(namespace_name, location, js_doc, ns_def)
+  DocNode::namespace(
+    namespace_name,
+    location,
+    DeclarationKind::Declare,
+    js_doc,
+    ns_def,
+  )
 }
 
 pub fn get_doc_for_ts_module(

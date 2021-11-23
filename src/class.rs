@@ -11,6 +11,7 @@ use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
 use crate::interface::expr_to_name;
 use crate::js_doc::JsDoc;
+use crate::node::DeclarationKind;
 use crate::params::{
   assign_pat_to_param_def, ident_to_param_def, pat_to_param_def,
   prop_name_to_string, ts_fn_param_to_param_def,
@@ -91,6 +92,7 @@ impl From<ClassPropertyDef> for DocNode {
     DocNode::variable(
       def.name,
       def.location,
+      DeclarationKind::Private,
       def.js_doc,
       VariableDef {
         ts_type: def.ts_type,
@@ -161,7 +163,13 @@ pub struct ClassMethodDef {
 
 impl From<ClassMethodDef> for DocNode {
   fn from(def: ClassMethodDef) -> DocNode {
-    DocNode::function(def.name, def.location, def.js_doc, def.function_def)
+    DocNode::function(
+      def.name,
+      def.location,
+      DeclarationKind::Private,
+      def.js_doc,
+      def.function_def,
+    )
   }
 }
 

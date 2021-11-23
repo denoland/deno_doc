@@ -8,6 +8,11 @@ import type { LoadResponse } from "https://deno.land/x/deno_graph@0.2.0/mod.ts";
 export type { LoadResponse } from "https://deno.land/x/deno_graph@0.2.0/mod.ts";
 
 export interface DocOptions {
+  /** If `true` include all documentation nodes in the output, included private
+   * (non-exported) nodes. The default is `false`.  Use the `declarationKind`
+   * of the `DocNode` to determine if the doc node is private, exported,
+   * imported, or declared. */
+  includeAll?: boolean;
   /**
    * An optional callback that is called with the URL string of the resource to
    * be loaded and a flag indicating if the module was required dynamically. The
@@ -60,6 +65,6 @@ export function doc(
   specifier: string,
   options: DocOptions = {},
 ): Promise<Array<DocNode>> {
-  const { load = defaultLoad, resolve } = options;
-  return jsDoc(specifier, load, resolve);
+  const { load = defaultLoad, includeAll = false, resolve } = options;
+  return jsDoc(specifier, includeAll, load, resolve);
 }
