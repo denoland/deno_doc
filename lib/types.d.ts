@@ -140,6 +140,7 @@ export interface EnumDef {
 
 export interface EnumMemberDef {
   name: string;
+  init?: TsTypeDef;
   jsDoc?: JsDoc;
 }
 

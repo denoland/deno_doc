@@ -6,11 +6,15 @@ use serde::Serialize;
 
 use crate::js_doc::JsDoc;
 use crate::swc_util::js_doc_for_span;
+use crate::ts_type::infer_simple_ts_type_from_expr;
+use crate::ts_type::TsTypeDef;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EnumMemberDef {
   pub name: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub init: Option<TsTypeDef>,
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
 }
@@ -31,16 +35,21 @@ pub fn get_doc_for_ts_enum_decl(
   for enum_member in &enum_decl.members {
     use deno_ast::swc::ast::TsEnumMemberId::*;
 
-    let member_js_doc = js_doc_for_span(parsed_source, &enum_member.span);
-
-    let member_name = match &enum_member.id {
+    let js_doc = js_doc_for_span(parsed_source, &enum_member.span);
+    let name = match &enum_member.id {
       Ident(ident) => ident.sym.to_string(),
       Str(str_) => str_.value.to_string(),
     };
+    let init = if let Some(expr) = &enum_member.init {
+      infer_simple_ts_type_from_expr(expr, true)
+    } else {
+      None
+    };
 
     let member_def = EnumMemberDef {
-      name: member_name,
-      js_doc: member_js_doc,
+      name,
+      init,
+      js_doc,
     };
     members.push(member_def);
   }
