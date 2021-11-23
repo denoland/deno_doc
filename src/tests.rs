@@ -825,12 +825,36 @@ declare namespace RootNs {
                   "members": [
                     {
                       "name": "a",
+                      "init": {
+                        "repr": "1",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 1.0,
+                        }
+                      }
                     },
                     {
                       "name": "b",
+                      "init": {
+                        "repr": "2",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 2.0,
+                        }
+                      }
                     },
                     {
                       "name": "c",
+                      "init": {
+                        "repr": "3",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 3.0,
+                        }
+                      }
                     }
                   ]
                 }
@@ -2117,15 +2141,39 @@ export enum Hello {
       "members": [
         {
           "name": "World",
+          "init": {
+            "repr": "world",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "world",
+            }
+          },
         },
         {
           "name": "Fizz",
+          "init": {
+            "repr": "fizz",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "fizz",
+            }
+          },
           "jsDoc": {
             "doc": "There is a JsDoc"
           }
         },
         {
           "name": "Buzz",
+          "init": {
+            "repr": "buzz",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "buzz",
+            }
+          },
         }
       ]
     }
@@ -2786,12 +2834,36 @@ export namespace RootNs {
                   "members": [
                     {
                       "name": "a",
+                      "init": {
+                        "repr": "1",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 1.0,
+                        }
+                      },
                     },
                     {
                       "name": "b",
+                      "init": {
+                        "repr": "2",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 2.0,
+                        }
+                      },
                     },
                     {
                       "name": "c",
+                      "init": {
+                        "repr": "3",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 3.0,
+                        }
+                      },
                     }
                   ]
                 }
