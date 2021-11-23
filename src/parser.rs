@@ -3,6 +3,7 @@
 use crate::js_doc::JsDoc;
 use crate::namespace::NamespaceDef;
 use crate::node;
+use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
@@ -102,17 +103,17 @@ impl<'a> DocParser<'a> {
         .ast_parser
         .parse_module(specifier, source_code, media_type)?;
     let module = parsed_source.module();
-    let mut doc_entries =
+    let mut definitions =
       self.get_doc_nodes_for_module_body(&parsed_source, module.body.clone());
     let import_doc_entries = self.get_doc_nodes_for_module_imports(
       &parsed_source,
       module.body.clone(),
       specifier,
     )?;
-    doc_entries.extend(import_doc_entries);
+    definitions.extend(import_doc_entries);
     let reexports = self.get_reexports_for_module_body(&module.body);
     let module_doc = ModuleDoc {
-      definitions: doc_entries,
+      definitions,
       reexports,
     };
     Ok(module_doc)
@@ -197,6 +198,7 @@ impl<'a> DocParser<'a> {
                 line: 1,
                 col: 0,
               },
+              DeclarationKind::Export,
               JsDoc::default(),
               ns_def,
             );
@@ -373,14 +375,26 @@ impl<'a> DocParser<'a> {
             } else {
               js_doc
             };
-            DocNode::class(name, location, js_doc, class_def)
+            DocNode::class(
+              name,
+              location,
+              DeclarationKind::Export,
+              js_doc,
+              class_def,
+            )
           }
           DefaultDecl::Fn(fn_expr) => {
             let function_def = crate::function::function_to_function_def(
               parsed_source,
               &fn_expr.function,
             );
-            DocNode::function(name, location, js_doc, function_def)
+            DocNode::function(
+              name,
+              location,
+              DeclarationKind::Export,
+              js_doc,
+              function_def,
+            )
           }
           DefaultDecl::TsInterfaceDecl(interface_decl) => {
             let (_, interface_def) =
@@ -388,7 +402,13 @@ impl<'a> DocParser<'a> {
                 parsed_source,
                 interface_decl,
               );
-            DocNode::interface(name, location, js_doc, interface_def)
+            DocNode::interface(
+              name,
+              location,
+              DeclarationKind::Export,
+              js_doc,
+              interface_def,
+            )
           }
         };
 
@@ -410,20 +430,38 @@ impl<'a> DocParser<'a> {
           super::class::get_doc_for_class_decl(parsed_source, class_decl);
         let js_doc = js_doc_for_span(parsed_source, &class_decl.class.span);
         let location = get_location(parsed_source, class_decl.class.span.lo);
-        Some(DocNode::class(name, location, js_doc, class_def))
+        Some(DocNode::class(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          class_def,
+        ))
       }
       Decl::Fn(fn_decl) => {
         let (name, function_def) =
           super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
         let js_doc = js_doc_for_span(parsed_source, &fn_decl.function.span);
         let location = get_location(parsed_source, fn_decl.function.span.lo);
-        Some(DocNode::function(name, location, js_doc, function_def))
+        Some(DocNode::function(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          function_def,
+        ))
       }
       Decl::Var(var_decl) => {
         let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
         let js_doc = js_doc_for_span(parsed_source, &var_decl.span);
         let location = get_location(parsed_source, var_decl.span.lo);
-        Some(DocNode::variable(name, location, js_doc, var_def))
+        Some(DocNode::variable(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          var_def,
+        ))
       }
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
@@ -433,7 +471,13 @@ impl<'a> DocParser<'a> {
           );
         let js_doc = js_doc_for_span(parsed_source, &ts_interface_decl.span);
         let location = get_location(parsed_source, ts_interface_decl.span.lo);
-        Some(DocNode::interface(name, location, js_doc, interface_def))
+        Some(DocNode::interface(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          interface_def,
+        ))
       }
       Decl::TsTypeAlias(ts_type_alias) => {
         let (name, type_alias_def) =
@@ -443,14 +487,26 @@ impl<'a> DocParser<'a> {
           );
         let js_doc = js_doc_for_span(parsed_source, &ts_type_alias.span);
         let location = get_location(parsed_source, ts_type_alias.span.lo);
-        Some(DocNode::type_alias(name, location, js_doc, type_alias_def))
+        Some(DocNode::type_alias(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          type_alias_def,
+        ))
       }
       Decl::TsEnum(ts_enum) => {
         let (name, enum_def) =
           super::r#enum::get_doc_for_ts_enum_decl(parsed_source, ts_enum);
         let js_doc = js_doc_for_span(parsed_source, &ts_enum.span);
         let location = get_location(parsed_source, ts_enum.span.lo);
-        Some(DocNode::r#enum(name, location, js_doc, enum_def))
+        Some(DocNode::r#enum(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          enum_def,
+        ))
       }
       Decl::TsModule(ts_module) => {
         let (name, namespace_def) = super::namespace::get_doc_for_ts_module(
@@ -460,7 +516,13 @@ impl<'a> DocParser<'a> {
         );
         let js_doc = js_doc_for_span(parsed_source, &ts_module.span);
         let location = get_location(parsed_source, ts_module.span.lo);
-        Some(DocNode::namespace(name, location, js_doc, namespace_def))
+        Some(DocNode::namespace(
+          name,
+          location,
+          DeclarationKind::Declaration,
+          js_doc,
+          namespace_def,
+        ))
       }
     }
   }
@@ -679,13 +741,19 @@ impl<'a> DocParser<'a> {
       match node {
         ModuleItem::Stmt(stmt) => {
           if let Stmt::Decl(decl) = stmt {
-            if let Some(doc_node) =
+            if let Some(mut doc_node) =
               self.get_doc_node_for_decl(parsed_source, decl)
             {
               let is_declared = self.get_declare_for_decl(decl);
               if self.private {
+                doc_node.declaration_kind = if is_declared {
+                  DeclarationKind::Declaration
+                } else {
+                  DeclarationKind::Private
+                };
                 doc_entries.push(doc_node);
               } else if is_declared {
+                doc_node.declaration_kind = DeclarationKind::Declaration;
                 ambient_entries.push(doc_node)
               }
             }
@@ -705,18 +773,13 @@ impl<'a> DocParser<'a> {
               for specifier in &export_named.specifiers {
                 match specifier {
                   ExportSpecifier::Named(named_specifier) => {
-                    // If it has the same name as the original symbol and private values are exported,
-                    // don't export this again and document the same value twice.
-                    if self.private && named_specifier.exported.is_none() {
-                      continue;
-                    }
-
                     let symbol = named_specifier.orig.sym.to_string();
                     if let Some(doc_node) = symbols.get(&symbol) {
                       let mut doc_node = doc_node.clone();
                       if let Some(exported) = &named_specifier.exported {
                         doc_node.name = exported.sym.to_string()
                       }
+                      doc_node.declaration_kind = DeclarationKind::Export;
                       doc_entries.push(doc_node)
                     }
                   }
@@ -731,6 +794,7 @@ impl<'a> DocParser<'a> {
                 if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
                   doc_entries.push(DocNode {
                     name: String::from("default"),
+                    declaration_kind: DeclarationKind::Export,
                     ..doc_node.clone()
                   });
                 }
@@ -740,6 +804,7 @@ impl<'a> DocParser<'a> {
                 doc_entries.push(DocNode::variable(
                   String::from("default"),
                   location,
+                  DeclarationKind::Export,
                   js_doc,
                   super::variable::VariableDef {
                     kind: deno_ast::swc::ast::VarDeclKind::Var,

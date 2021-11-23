@@ -11,10 +11,13 @@ export type DocNode =
   | DocNodeInterface
   | DocNodeImport;
 
+export type DeclarationKind = "private" | "export" | "import" | "declaration";
+
 interface DocNodeBase {
   kind: DocNodeKind;
   name: string;
   location: Location;
+  declarationKind: DeclarationKind;
   jsDoc?: JsDoc;
 }
 

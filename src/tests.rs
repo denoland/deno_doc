@@ -1,4 +1,5 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
 use deno_graph::create_graph;
@@ -197,6 +198,7 @@ async fn types_header_handling() {
         "line": 1,
         "col": 0
       },
+      "declarationKind": "export",
       "variableDef": {
         "tsType": {
           "repr": "a",
@@ -269,6 +271,7 @@ export function fooFn(a: number) {
         "line": 7,
         "col": 0
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "JSDoc for const",
       },
@@ -292,6 +295,7 @@ export function fooFn(a: number) {
         "line": 6,
         "col": 0
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "JSDoc for function",
       },
@@ -322,6 +326,7 @@ export function fooFn(a: number) {
         "line": 3,
         "col": 0
       },
+      "declarationKind": "import",
       "importDef": {
         "src": "file:///reexport.ts",
         "imported": "fizz",
@@ -370,6 +375,7 @@ export { Hello } from "./reexport.ts";
         "line": 2,
         "col": 0
       },
+      "declarationKind": "export",
       "interfaceDef": {
         "extends": [],
         "methods": [],
@@ -387,6 +393,7 @@ export { Hello } from "./reexport.ts";
         "line": 3,
         "col": 0
       },
+      "declarationKind": "export",
       "classDef": {
         "isAbstract": false,
         "constructors": [],
@@ -438,6 +445,7 @@ async fn deep_reexports() {
         "line": 1,
         "col": 0
       },
+      "declarationKind": "export",
       "variableDef": {
         "tsType": {
           "repr": "string",
@@ -593,6 +601,7 @@ async fn exports_imported_earlier() {
         "line": 1,
         "col": 0
       },
+      "declarationKind": "export",
       "variableDef": {
         "tsType": {
           "repr": "string",
@@ -610,6 +619,7 @@ async fn exports_imported_earlier() {
         "line": 2,
         "col": 2,
       },
+      "declarationKind": "import",
       "importDef": {
         "src": "file:///foo.ts",
         "imported": "foo",
@@ -652,6 +662,7 @@ async fn exports_imported_earlier_private() {
         "line": 1,
         "col": 0
       },
+      "declarationKind": "export",
       "variableDef": {
         "tsType": {
           "repr": "string",
@@ -669,6 +680,7 @@ async fn exports_imported_earlier_private() {
         "line": 2,
         "col": 2,
       },
+      "declarationKind": "import",
       "importDef": {
         "src": "file:///foo.ts",
         "imported": "foo",
@@ -720,6 +732,7 @@ export class A {}
         "line": 3,
         "col": 0,
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "A leading JSDoc comment",
         "tags": [{
@@ -734,6 +747,7 @@ export class A {}
         "line": 9,
         "col": 0,
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "One associated with a class",
       },
@@ -775,6 +789,7 @@ declare namespace RootNs {
       "line": 3,
       "col": 0
     },
+    "declarationKind": "declaration",
     "jsDoc": {
       "doc": "Namespace JSdoc",
     },
@@ -788,6 +803,7 @@ declare namespace RootNs {
             "line": 4,
             "col": 4
           },
+          "declarationKind": "declaration",
           "variableDef": {
             "tsType": {
               "repr": "a",
@@ -811,6 +827,7 @@ declare namespace RootNs {
           "jsDoc": {
             "doc": "Nested namespace JSDoc",
           },
+          "declarationKind": "declaration",
           "namespaceDef": {
             "elements": [
               {
@@ -821,6 +838,7 @@ declare namespace RootNs {
                   "line": 8,
                   "col": 6
                 },
+                "declarationKind": "declaration",
                 "enumDef": {
                   "members": [
                     {
@@ -900,6 +918,7 @@ export class A {
     "jsDoc": {
       "doc": "Class doc",
     },
+    "declarationKind": "export",
     "classDef": {
       "isAbstract": false,
       "constructors": [
@@ -1048,6 +1067,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
       "line": 3,
       "col": 0
     },
+    "declarationKind": "export",
     "jsDoc": {
       "doc": "Class doc",
     },
@@ -1291,6 +1311,7 @@ export class A {
         "line": 3,
         "col": 0,
       },
+      "declarationKind": "export",
       "classDef": {
         "isAbstract": false,
         "constructors": [],
@@ -1430,6 +1451,7 @@ export class A {
         "line": 4,
         "col": 0,
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "jsdoc"
       },
@@ -1506,6 +1528,7 @@ export const tpl2 = `Value: ${num}`;
       "line":3,
       "col":0
     },
+    "declarationKind": "export",
     "jsDoc": {
       "doc": "Something about fizzBuzz",
     },
@@ -1529,6 +1552,7 @@ export const tpl2 = `Value: ${num}`;
       "line":5,
       "col":0
     },
+    "declarationKind": "export",
     "variableDef":{
       "tsType":{
         "repr":"",
@@ -1615,6 +1639,7 @@ export const tpl2 = `Value: ${num}`;
         "line":13,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr":"100",
@@ -1635,6 +1660,7 @@ export const tpl2 = `Value: ${num}`;
         "line":14,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr":"false",
@@ -1655,6 +1681,7 @@ export const tpl2 = `Value: ${num}`;
         "line":15,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr":"123",
@@ -1675,6 +1702,7 @@ export const tpl2 = `Value: ${num}`;
         "line":16,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr": "hello",
@@ -1695,6 +1723,7 @@ export const tpl2 = `Value: ${num}`;
         "line":17,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr": "Date",
@@ -1715,6 +1744,7 @@ export const tpl2 = `Value: ${num}`;
         "line":18,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr": "foo",
@@ -1744,6 +1774,7 @@ export const tpl2 = `Value: ${num}`;
         "line":19,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType":{
           "repr": "string",
@@ -1775,6 +1806,7 @@ export let tpl = `foobarbaz`;
         "line":2,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "hello",
@@ -1792,6 +1824,7 @@ export let tpl = `foobarbaz`;
         "line":3,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "100",
@@ -1809,6 +1842,7 @@ export let tpl = `foobarbaz`;
         "line":4,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "false",
@@ -1826,6 +1860,7 @@ export let tpl = `foobarbaz`;
         "line":5,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "Date",
@@ -1843,6 +1878,7 @@ export let tpl = `foobarbaz`;
         "line":6,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "RegExp",
@@ -1863,6 +1899,7 @@ export let tpl = `foobarbaz`;
         "line":7,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "Symbol",
@@ -1880,6 +1917,7 @@ export let tpl = `foobarbaz`;
         "line":8,
         "col":0
       },
+      "declarationKind": "export",
       "variableDef":{
         "tsType": {
           "repr": "string",
@@ -1908,6 +1946,7 @@ export default class Foobar {
         "line": 3,
         "col": 0
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "Class doc",
       },
@@ -1983,6 +2022,7 @@ export default function foo(a: number) {
       "line": 2,
       "col": 0
     },
+    "declarationKind": "export",
     "functionDef": {
       "params": [
           {
@@ -2021,6 +2061,7 @@ export default interface Reader {
         "line": 5,
         "col": 0
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "Interface js doc",
       },
@@ -2099,6 +2140,7 @@ export default interface Reader {
           "line": 1,
           "col": 0
         },
+        "declarationKind": "export",
         "variableDef": {
           "tsType": {
             "repr": "foo",
@@ -2134,6 +2176,7 @@ export enum Hello {
       "line": 5,
       "col": 0
     },
+    "declarationKind": "export",
     "jsDoc": {
       "doc": "Some enum for good measure",
     },
@@ -2207,6 +2250,7 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
         "line": 1,
         "col": 0,
       },
+      "declarationKind": "export",
       "jsDoc": {
         "tags": [
           {
@@ -2301,6 +2345,7 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
           "repr": "void",
         },
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "Hello there, this is a multiline JSdoc.\n\nIt has many lines\n\nOr not that many?",
       },
@@ -2430,6 +2475,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
       },
     },
     "kind": "function",
+    "declarationKind": "export",
     "location": {
       "col": 0,
       "filename": "file:///test.ts",
@@ -2462,6 +2508,7 @@ export interface Reader extends Foo, Bar {
         "line": 11,
         "col": 0
       },
+      "declarationKind": "export",
       "jsDoc": {
         "doc": "Interface js doc",
       },
@@ -2560,6 +2607,7 @@ export interface TypedIface<T> {
         "line": 2,
         "col": 0
       },
+      "declarationKind": "export",
       "interfaceDef": {
         "extends": [],
         "methods": [
@@ -2608,6 +2656,7 @@ export interface Thing {
         "line": 2,
         "col": 0
       },
+      "declarationKind": "export",
       "interfaceDef": {
         "extends": [],
         "methods": [
@@ -2685,6 +2734,7 @@ export type NumberArray = Array<number>;
       "line": 3,
       "col": 0
     },
+    "declarationKind": "export",
     "jsDoc": {
       "doc": "Array holding numbers",
     },
@@ -2722,6 +2772,7 @@ export type A = {
       "line": 2,
       "col": 0,
     },
+    "declarationKind": "export",
     "typeAliasDef": {
       "typeParams": [],
       "tsType": {
@@ -2784,6 +2835,7 @@ export namespace RootNs {
       "line": 3,
       "col": 0
     },
+    "declarationKind": "export",
     "jsDoc": {
       "doc": "Namespace JSdoc",
     },
@@ -2797,6 +2849,7 @@ export namespace RootNs {
             "line": 4,
             "col": 4
           },
+          "declarationKind": "export",
           "variableDef": {
             "tsType": {
               "repr": "a",
@@ -2817,6 +2870,7 @@ export namespace RootNs {
             "line": 7,
             "col": 4
           },
+          "declarationKind": "export",
           "jsDoc": {
             "doc": "Nested namespace JSDoc",
           },
@@ -2830,6 +2884,7 @@ export namespace RootNs {
                   "line": 8,
                   "col": 6
                 },
+                "declarationKind": "export",
                 "enumDef": {
                   "members": [
                     {
@@ -2891,6 +2946,7 @@ export { hello, say, foo as bar };
         "line": 2,
         "col": 0
       },
+      "declarationKind": "export",
       "variableDef": {
         "tsType": {
           "repr": "world",
@@ -2911,6 +2967,7 @@ export { hello, say, foo as bar };
         "line": 3,
         "col": 0
       },
+      "declarationKind": "export",
       "functionDef": {
         "params": [
           {
@@ -2942,6 +2999,7 @@ export { hello, say, foo as bar };
         "line": 4,
         "col": 0
       },
+      "declarationKind": "export",
       "functionDef": {
         "params": [],
         "returnType": {
@@ -2971,6 +3029,7 @@ export { hello, say, foo as bar };
           "line": 2,
           "col": 2
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [],
           "returnType": {
@@ -3000,6 +3059,7 @@ export function bar() {};
           "line": 3,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [],
           "returnType": null,
@@ -3025,6 +3085,7 @@ export default foo;
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [],
           "returnType": {
@@ -3054,6 +3115,7 @@ export { foo as bar };
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [],
           "returnType": {
@@ -3074,6 +3136,7 @@ export { foo as bar };
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [],
           "returnType": {
@@ -3103,6 +3166,7 @@ export { foo as bar };
         "line": 2,
         "col": 2
       },
+      "declarationKind": "export",
       "functionDef": {
         "params": [
             {
@@ -3141,6 +3205,7 @@ export type numLit = 5;
         "line": 2,
         "col": 0
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "false",
@@ -3160,6 +3225,7 @@ export type numLit = 5;
         "line": 3,
         "col": 0
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "text",
@@ -3179,6 +3245,7 @@ export type numLit = 5;
         "line": 4,
         "col": 0
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "text",
@@ -3207,6 +3274,7 @@ export type numLit = 5;
         "line": 5,
         "col": 0,
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "test${number}",
@@ -3246,6 +3314,7 @@ export type numLit = 5;
         "line": 6,
         "col": 0
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "5",
@@ -3275,6 +3344,25 @@ export { foo };
           "line": 2,
           "col": 0
         },
+        "declarationKind": "private",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      },
+      {
+        "kind": "variable",
+        "name": "foo",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "declarationKind": "export",
         "variableDef": {
           "tsType": {
             "repr": "string",
@@ -3290,8 +3378,7 @@ export { foo };
   json_test!(ts_type_predicate_1,
     r#"
 export function foo(bar: A | B): bar is A {}
-    "#,
-    private;
+    "#;
     [
       {
         "kind": "function",
@@ -3301,6 +3388,7 @@ export function foo(bar: A | B): bar is A {}
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [
             {
@@ -3361,8 +3449,7 @@ export function foo(bar: A | B): bar is A {}
   json_test!(ts_type_predicate_2,
     r#"
 export function foo(bar: A | B): asserts bar is B {}
-    "#,
-    private;
+    "#;
     [
       {
         "kind": "function",
@@ -3372,6 +3459,7 @@ export function foo(bar: A | B): asserts bar is B {}
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [
             {
@@ -3434,8 +3522,7 @@ export function foo(bar: A | B): asserts bar is B {}
 export class C {
   isSomething(): this is Something {}
 }
-    "#,
-    private;
+    "#;
     [
       {
         "kind": "class",
@@ -3445,6 +3532,7 @@ export class C {
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "classDef": {
           "isAbstract": false,
           "constructors": [],
@@ -3501,8 +3589,7 @@ export class C {
   json_test!(ts_type_assertion,
     r#"
 export function foo(bar: any): asserts bar {}
-    "#,
-    private;
+    "#;
     [
       {
         "kind": "function",
@@ -3512,6 +3599,7 @@ export function foo(bar: any): asserts bar {}
           "line": 2,
           "col": 0
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [
             {
@@ -3556,6 +3644,7 @@ export function foo(bar: any): asserts bar {}
         "line": 1,
         "col": 0
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "",
@@ -3629,6 +3718,7 @@ export type MappedTypeWithNewProperties<Type> = {
         "line": 2,
         "col": 0,
       },
+      "declarationKind": "export",
       "typeAliasDef": {
         "tsType": {
           "repr": "",
@@ -3711,6 +3801,7 @@ export function adopt<T>(p: import("./module.ts").Pet<T>) {
           "line": 2,
           "col": 0,
         },
+        "declarationKind": "export",
         "functionDef": {
           "params": [
             {
@@ -3791,6 +3882,7 @@ export namespace Tabs {
           "jsDoc": {
             "doc": "Line 1\n\nLine 2\n\n\tIndented",
           },
+          "declarationKind": "export",
           "namespaceDef": {
             "elements": [
               {
@@ -3804,6 +3896,7 @@ export namespace Tabs {
                 "jsDoc": {
                   "doc": "Line 1\n\nLine 2\n\n\tIndented",
                 },
+                "declarationKind": "export",
                 "interfaceDef": {
                   "extends": [],
                   "methods": [],

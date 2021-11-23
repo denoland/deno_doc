@@ -6,6 +6,7 @@ use serde::Serialize;
 
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
+use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
@@ -50,6 +51,7 @@ impl From<InterfaceMethodDef> for DocNode {
     DocNode::function(
       def.name,
       def.location,
+      DeclarationKind::Private,
       def.js_doc,
       FunctionDef {
         params: def.params,
@@ -99,6 +101,7 @@ impl From<InterfacePropertyDef> for DocNode {
     DocNode::variable(
       def.name,
       def.location,
+      DeclarationKind::Private,
       def.js_doc,
       VariableDef {
         ts_type: def.ts_type,

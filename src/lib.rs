@@ -1,5 +1,7 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+#![recursion_limit = "256"]
+
 #[macro_use]
 extern crate cfg_if;
 #[macro_use]
