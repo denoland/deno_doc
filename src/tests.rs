@@ -326,7 +326,7 @@ export function fooFn(a: number) {
         "line": 3,
         "col": 0
       },
-      "declarationKind": "import",
+      "declarationKind": "private",
       "importDef": {
         "src": "file:///reexport.ts",
         "imported": "fizz",
@@ -619,7 +619,7 @@ async fn exports_imported_earlier() {
         "line": 2,
         "col": 2,
       },
-      "declarationKind": "import",
+      "declarationKind": "private",
       "importDef": {
         "src": "file:///foo.ts",
         "imported": "foo",
@@ -680,7 +680,7 @@ async fn exports_imported_earlier_private() {
         "line": 2,
         "col": 2,
       },
-      "declarationKind": "import",
+      "declarationKind": "private",
       "importDef": {
         "src": "file:///foo.ts",
         "imported": "foo",

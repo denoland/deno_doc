@@ -66,7 +66,6 @@ pub enum DeclarationKind {
   Private,
   Declare,
   Export,
-  Import,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -275,7 +274,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Import,
       name,
-      declaration_kind: DeclarationKind::Import,
+      declaration_kind: DeclarationKind::Private,
       location,
       js_doc,
       import_def: Some(import_def),
