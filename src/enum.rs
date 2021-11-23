@@ -46,11 +46,7 @@ pub fn get_doc_for_ts_enum_decl(
       None
     };
 
-    let member_def = EnumMemberDef {
-      name,
-      init,
-      js_doc,
-    };
+    let member_def = EnumMemberDef { name, init, js_doc };
     members.push(member_def);
   }
 
