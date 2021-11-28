@@ -4332,10 +4332,14 @@ export interface I {
 export interface I {
   p: string;
   po?: number;
+  readonly pro: string;
+  [pc]: string;
 }
     "#;
     "p: string",
-    "po?: number"
+    "po?: number",
+    "readonly pro: string",
+    "[pc]: string"
   );
 
   contains_test!(interface_string_literal_property,

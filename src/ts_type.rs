@@ -5,6 +5,7 @@ use crate::display::display_readonly;
 use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
 use crate::params::ts_fn_param_to_param_def;
+use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
@@ -423,6 +424,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             name,
             params,
             ts_type,
+            readonly: ts_prop_sig.readonly,
             computed: ts_prop_sig.computed,
             optional: ts_prop_sig.optional,
             type_params,
@@ -773,6 +775,8 @@ impl Display for LiteralMethodDef {
 pub struct LiteralPropertyDef {
   pub name: String,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub readonly: bool,
   pub computed: bool,
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,

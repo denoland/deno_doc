@@ -203,6 +203,7 @@ export interface InterfacePropertyDef {
   location: Location;
   jsDoc?: JsDoc;
   params: ParamDef[];
+  readonly?: boolean;
   computed: boolean;
   optional: boolean;
   tsType?: TsTypeDef;
@@ -366,6 +367,7 @@ export interface LiteralMethodDef {
 export interface LiteralPropertyDef {
   name: string;
   params: ParamDef[];
+  readonly?: boolean;
   computed: boolean;
   optional: boolean;
   tsType?: TsTypeDef;

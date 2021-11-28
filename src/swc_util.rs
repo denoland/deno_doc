@@ -16,6 +16,10 @@ lazy_static! {
   static ref JS_DOC_RE: Regex = Regex::new(r#"\s*\* ?"#).unwrap();
 }
 
+pub(crate) fn is_false(b: &bool) -> bool {
+  !b
+}
+
 fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
   let txt = js_doc_comment
     .text

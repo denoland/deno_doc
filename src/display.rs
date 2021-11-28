@@ -74,6 +74,14 @@ cfg_if! {
       colors::magenta(if is_async { "async " } else { "" })
     }
 
+    pub(crate) fn display_computed(is_computed: bool, name: &str) -> impl Display {
+      colors::bold(if is_computed {
+        format!("[{}]", name)
+      } else {
+        name.to_string()
+      })
+    }
+
     pub(crate) fn display_generator(is_generator: bool) -> impl Display {
       colors::magenta(if is_generator { "*" } else { "" })
     }

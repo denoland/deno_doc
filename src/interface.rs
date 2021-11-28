@@ -9,6 +9,7 @@ use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
+use crate::swc_util::is_false;
 use crate::swc_util::js_doc_for_span;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
@@ -22,6 +23,7 @@ use crate::ParamDef;
 cfg_if! {
   if #[cfg(feature = "rust")] {
     use crate::colors;
+    use crate::display::display_computed;
     use crate::display::display_optional;
     use crate::display::display_readonly;
     use crate::display::SliceDisplayer;
@@ -90,6 +92,8 @@ pub struct InterfacePropertyDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub readonly: bool,
   pub computed: bool,
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,
@@ -116,8 +120,9 @@ impl Display for InterfacePropertyDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}{}",
-      colors::bold(&self.name),
+      "{}{}{}",
+      display_readonly(self.readonly),
+      display_computed(self.computed, &self.name),
       display_optional(self.optional),
     )?;
     if let Some(ts_type) = &self.ts_type {
@@ -328,6 +333,7 @@ pub fn get_doc_for_ts_interface_decl(
           location: get_location(parsed_source, ts_prop_sig.span.lo()),
           params,
           ts_type,
+          readonly: ts_prop_sig.readonly,
           computed: ts_prop_sig.computed,
           optional: ts_prop_sig.optional,
           type_params,
