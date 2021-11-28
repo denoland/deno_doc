@@ -44,6 +44,14 @@ impl<T: Display> Display for SliceDisplayer<'_, T> {
   }
 }
 
+pub(crate) fn display_computed(is_computed: bool, name: &str) -> impl Display {
+  colors::bold(if is_computed {
+    format!("[{}]", name)
+  } else {
+    name.to_string()
+  })
+}
+
 pub(crate) fn display_optional(is_optional: bool) -> impl Display {
   colors::magenta(if is_optional { "?" } else { "" })
 }
@@ -72,14 +80,6 @@ cfg_if! {
 
     pub(crate) fn display_async(is_async: bool) -> impl Display {
       colors::magenta(if is_async { "async " } else { "" })
-    }
-
-    pub(crate) fn display_computed(is_computed: bool, name: &str) -> impl Display {
-      colors::bold(if is_computed {
-        format!("[{}]", name)
-      } else {
-        name.to_string()
-      })
     }
 
     pub(crate) fn display_generator(is_generator: bool) -> impl Display {

@@ -4321,10 +4321,12 @@ export interface Interface {
 export interface I {
   m(a, b);
   mo?(c);
+  [mc](d);
 }
     "#;
     "m(a, b)",
-    "mo?(c)"
+    "mo?(c)",
+    "[mc](d)"
   );
 
   contains_test!(interface_property,

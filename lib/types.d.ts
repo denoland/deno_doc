@@ -192,6 +192,7 @@ export interface InterfaceMethodDef {
   kind: MethodKind;
   location: Location;
   jsDoc?: JsDoc;
+  computed?: boolean;
   optional: boolean;
   params: ParamDef[];
   returnType?: TsTypeDef;
@@ -359,6 +360,7 @@ export interface LiteralIndexSignatureDef {
 export interface LiteralMethodDef {
   name: string;
   params: ParamDef[];
+  computed?: boolean;
   optional: boolean;
   returnType?: TsTypeDef;
   typeParams: TsTypeParamDef[];

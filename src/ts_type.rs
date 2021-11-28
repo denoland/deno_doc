@@ -1,6 +1,8 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
 use crate::colors;
+use crate::display::display_computed;
+use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
@@ -369,6 +371,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let method_def = LiteralMethodDef {
             name,
             params,
+            computed: ts_method_sig.computed,
             optional: ts_method_sig.optional,
             return_type: maybe_return_type,
             type_params,
@@ -385,6 +388,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let method_def = LiteralMethodDef {
             name,
             params: vec![],
+            computed: ts_getter_sig.computed,
             optional: ts_getter_sig.optional,
             return_type: maybe_return_type,
             type_params: vec![],
@@ -396,6 +400,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let method_def = LiteralMethodDef {
             name,
             params: vec![],
+            computed: ts_setter_sig.computed,
             optional: ts_setter_sig.optional,
             return_type: None,
             type_params: vec![],
@@ -750,6 +755,8 @@ pub struct TsMappedTypeDef {
 pub struct LiteralMethodDef {
   pub name: String,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub computed: bool,
   pub optional: bool,
   pub return_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
@@ -759,8 +766,9 @@ impl Display for LiteralMethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}({})",
-      self.name,
+      "{}{}({})",
+      display_computed(self.computed, &self.name),
+      display_optional(self.optional),
       SliceDisplayer::new(&self.params, ", ", false)
     )?;
     if let Some(return_type) = &self.return_type {
