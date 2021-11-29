@@ -72,7 +72,6 @@ pub fn magenta<S: AsRef<str>>(s: S) -> impl fmt::Display {
   style(s, style_spec)
 }
 
-#[cfg(feature = "rust")]
 pub fn bold<S: AsRef<str>>(s: S) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_bold(true);

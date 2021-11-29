@@ -9,6 +9,7 @@ use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
+use crate::swc_util::is_false;
 use crate::swc_util::js_doc_for_span;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
@@ -21,7 +22,7 @@ use crate::ParamDef;
 
 cfg_if! {
   if #[cfg(feature = "rust")] {
-    use crate::colors;
+    use crate::display::display_computed;
     use crate::display::display_optional;
     use crate::display::display_readonly;
     use crate::display::SliceDisplayer;
@@ -40,6 +41,8 @@ pub struct InterfaceMethodDef {
   pub location: Location,
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "is_false")]
+  pub computed: bool,
   pub optional: bool,
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
@@ -71,7 +74,7 @@ impl Display for InterfaceMethodDef {
     write!(
       f,
       "{}{}({})",
-      colors::bold(&self.name),
+      display_computed(self.computed, &self.name),
       display_optional(self.optional),
       SliceDisplayer::new(&self.params, ", ", false),
     )?;
@@ -90,6 +93,8 @@ pub struct InterfacePropertyDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub readonly: bool,
   pub computed: bool,
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,
@@ -116,8 +121,9 @@ impl Display for InterfacePropertyDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}{}",
-      colors::bold(&self.name),
+      "{}{}{}",
+      display_readonly(self.readonly),
+      display_computed(self.computed, &self.name),
       display_optional(self.optional),
     )?;
     if let Some(ts_type) = &self.ts_type {
@@ -253,6 +259,7 @@ pub fn get_doc_for_ts_interface_decl(
           kind: deno_ast::swc::ast::MethodKind::Method,
           js_doc: method_js_doc,
           location: get_location(parsed_source, ts_method_sig.span.lo()),
+          computed: ts_method_sig.computed,
           optional: ts_method_sig.optional,
           params,
           return_type: maybe_return_type,
@@ -274,6 +281,7 @@ pub fn get_doc_for_ts_interface_decl(
           kind: deno_ast::swc::ast::MethodKind::Getter,
           js_doc: method_js_doc,
           location: get_location(parsed_source, ts_getter_sig.span.lo()),
+          computed: ts_getter_sig.computed,
           optional: ts_getter_sig.optional,
           params: vec![],
           return_type: maybe_return_type,
@@ -295,6 +303,7 @@ pub fn get_doc_for_ts_interface_decl(
           kind: deno_ast::swc::ast::MethodKind::Setter,
           js_doc: method_js_doc,
           location: get_location(parsed_source, ts_setter_sig.span.lo()),
+          computed: ts_setter_sig.computed,
           optional: ts_setter_sig.optional,
           params,
           return_type: None,
@@ -328,6 +337,7 @@ pub fn get_doc_for_ts_interface_decl(
           location: get_location(parsed_source, ts_prop_sig.span.lo()),
           params,
           ts_type,
+          readonly: ts_prop_sig.readonly,
           computed: ts_prop_sig.computed,
           optional: ts_prop_sig.optional,
           type_params,
@@ -396,14 +406,20 @@ pub fn get_doc_for_ts_interface_decl(
           ts_construct_sig.type_params.as_ref(),
         );
 
+        let maybe_return_type = ts_construct_sig
+          .type_ann
+          .as_ref()
+          .map(|rt| (&*rt.type_ann).into());
+
         let construct_sig_def = InterfaceMethodDef {
           name: "new".to_string(),
           kind: deno_ast::swc::ast::MethodKind::Method,
           js_doc: construct_js_doc,
           location: get_location(parsed_source, ts_construct_sig.span.lo()),
+          computed: false,
           optional: false,
           params,
-          return_type: None,
+          return_type: maybe_return_type,
           type_params,
         };
 

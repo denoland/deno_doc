@@ -1,10 +1,13 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
 use crate::colors;
+use crate::display::display_computed;
+use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
 use crate::params::ts_fn_param_to_param_def;
+use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
@@ -367,7 +370,9 @@ impl From<&TsTypeLit> for TsTypeDef {
           let name = expr_to_name(&*ts_method_sig.key);
           let method_def = LiteralMethodDef {
             name,
+            kind: deno_ast::swc::ast::MethodKind::Method,
             params,
+            computed: ts_method_sig.computed,
             optional: ts_method_sig.optional,
             return_type: maybe_return_type,
             type_params,
@@ -383,7 +388,9 @@ impl From<&TsTypeLit> for TsTypeDef {
           let name = expr_to_name(&*ts_getter_sig.key);
           let method_def = LiteralMethodDef {
             name,
+            kind: deno_ast::swc::ast::MethodKind::Getter,
             params: vec![],
+            computed: ts_getter_sig.computed,
             optional: ts_getter_sig.optional,
             return_type: maybe_return_type,
             type_params: vec![],
@@ -392,9 +399,15 @@ impl From<&TsTypeLit> for TsTypeDef {
         }
         TsSetterSignature(ts_setter_sig) => {
           let name = expr_to_name(&*ts_setter_sig.key);
+
+          let params =
+            vec![ts_fn_param_to_param_def(None, &ts_setter_sig.param)];
+
           let method_def = LiteralMethodDef {
             name,
-            params: vec![],
+            kind: deno_ast::swc::ast::MethodKind::Setter,
+            params,
+            computed: ts_setter_sig.computed,
             optional: ts_setter_sig.optional,
             return_type: None,
             type_params: vec![],
@@ -423,6 +436,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             name,
             params,
             ts_type,
+            readonly: ts_prop_sig.readonly,
             computed: ts_prop_sig.computed,
             optional: ts_prop_sig.optional,
             type_params,
@@ -471,8 +485,34 @@ impl From<&TsTypeLit> for TsTypeDef {
           };
           index_signatures.push(index_sig_def);
         }
-        // TODO:
-        TsConstructSignatureDecl(_) => {}
+        TsConstructSignatureDecl(ts_construct_sig) => {
+          let mut params = vec![];
+          for param in &ts_construct_sig.params {
+            let param_def = ts_fn_param_to_param_def(None, param);
+            params.push(param_def);
+          }
+
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            ts_construct_sig.type_params.as_ref(),
+          );
+
+          let maybe_return_type = ts_construct_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| (&*rt.type_ann).into());
+
+          let construct_sig_def = LiteralMethodDef {
+            name: "new".to_string(),
+            kind: deno_ast::swc::ast::MethodKind::Method,
+            computed: false,
+            optional: false,
+            params,
+            return_type: maybe_return_type,
+            type_params,
+          };
+
+          methods.push(construct_sig_def);
+        }
       }
     }
 
@@ -747,7 +787,10 @@ pub struct TsMappedTypeDef {
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
+  pub kind: deno_ast::swc::ast::MethodKind,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub computed: bool,
   pub optional: bool,
   pub return_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
@@ -757,8 +800,9 @@ impl Display for LiteralMethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}({})",
-      self.name,
+      "{}{}({})",
+      display_computed(self.computed, &self.name),
+      display_optional(self.optional),
       SliceDisplayer::new(&self.params, ", ", false)
     )?;
     if let Some(return_type) = &self.return_type {
@@ -773,6 +817,8 @@ impl Display for LiteralMethodDef {
 pub struct LiteralPropertyDef {
   pub name: String,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub readonly: bool,
   pub computed: bool,
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,

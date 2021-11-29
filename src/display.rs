@@ -44,6 +44,14 @@ impl<T: Display> Display for SliceDisplayer<'_, T> {
   }
 }
 
+pub(crate) fn display_computed(is_computed: bool, name: &str) -> impl Display {
+  colors::bold(if is_computed {
+    format!("[{}]", name)
+  } else {
+    name.to_string()
+  })
+}
+
 pub(crate) fn display_optional(is_optional: bool) -> impl Display {
   colors::magenta(if is_optional { "?" } else { "" })
 }

@@ -1560,6 +1560,7 @@ export const tpl2 = `Value: ${num}`;
         "typeLiteral":{
           "methods":[{
             "name":"get",
+            "kind": "method",
             "params":[
               {
                 "name":"key",
@@ -1592,6 +1593,7 @@ export const tpl2 = `Value: ${num}`;
             "typeParams":[]
           }, {
             "name":"set",
+            "kind": "method",
             "params":[
               {
                 "name":"key",
@@ -2760,8 +2762,11 @@ export type NumberArray = Array<number>;
   json_test!(export_type_alias_literal,
   r#"
 export type A = {
+  new (d: string): A;
   a(): void;
   b?(): void;
+  get c(): string;
+  set c(v: number);
 };
 "#;
   [{
@@ -2781,7 +2786,34 @@ export type A = {
         "typeLiteral": {
           "methods": [
             {
+              "name": "new",
+              "kind": "method",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "d",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string",
+                  }
+                }
+              ],
+              "optional": false,
+              "returnType": {
+                "repr": "A",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "A",
+                }
+              },
+              "typeParams": [],
+            },
+            {
               "name": "a",
+              "kind": "method",
               "params": [],
               "optional": false,
               "returnType": {
@@ -2793,6 +2825,7 @@ export type A = {
             },
             {
               "name": "b",
+              "kind": "method",
               "params": [],
               "optional": true,
               "returnType": {
@@ -2800,6 +2833,37 @@ export type A = {
                 "kind": "keyword",
                 "keyword": "void",
               },
+              "typeParams": [],
+            },
+            {
+              "name": "c",
+              "kind": "getter",
+              "params": [],
+              "optional": false,
+              "returnType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string",
+              },
+              "typeParams": [],
+            },
+            {
+              "name": "c",
+              "kind": "setter",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "v",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number",
+                  }
+                }
+              ],
+              "optional": false,
+              "returnType": null,
               "typeParams": [],
             }
           ],
@@ -4321,10 +4385,12 @@ export interface Interface {
 export interface I {
   m(a, b);
   mo?(c);
+  [mc](d);
 }
     "#;
     "m(a, b)",
-    "mo?(c)"
+    "mo?(c)",
+    "[mc](d)"
   );
 
   contains_test!(interface_property,
@@ -4332,10 +4398,14 @@ export interface I {
 export interface I {
   p: string;
   po?: number;
+  readonly pro: string;
+  [pc]: string;
 }
     "#;
     "p: string",
-    "po?: number"
+    "po?: number",
+    "readonly pro: string",
+    "[pc]: string"
   );
 
   contains_test!(interface_string_literal_property,
