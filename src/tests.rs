@@ -2762,6 +2762,7 @@ export type NumberArray = Array<number>;
   json_test!(export_type_alias_literal,
   r#"
 export type A = {
+  new (d: string): A;
   a(): void;
   b?(): void;
   get c(): string;
@@ -2784,6 +2785,25 @@ export type A = {
         "kind": "typeLiteral",
         "typeLiteral": {
           "methods": [
+            {
+              "name": "new",
+              "kind": "method",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "d",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string",
+                  }
+                }
+              ],
+              "optional": false,
+              "returnType": null,
+              "typeParams": [],
+            },
             {
               "name": "a",
               "kind": "method",

@@ -485,8 +485,29 @@ impl From<&TsTypeLit> for TsTypeDef {
           };
           index_signatures.push(index_sig_def);
         }
-        // TODO:
-        TsConstructSignatureDecl(_) => {}
+        TsConstructSignatureDecl(ts_construct_sig) => {
+          let mut params = vec![];
+          for param in &ts_construct_sig.params {
+            let param_def = ts_fn_param_to_param_def(None, param);
+            params.push(param_def);
+          }
+
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            ts_construct_sig.type_params.as_ref(),
+          );
+
+          let construct_sig_def = LiteralMethodDef {
+            name: "new".to_string(),
+            kind: deno_ast::swc::ast::MethodKind::Method,
+            computed: false,
+            optional: false,
+            params,
+            return_type: None,
+            type_params,
+          };
+
+          methods.push(construct_sig_def);
+        }
       }
     }
 
