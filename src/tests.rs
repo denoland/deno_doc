@@ -1560,6 +1560,7 @@ export const tpl2 = `Value: ${num}`;
         "typeLiteral":{
           "methods":[{
             "name":"get",
+            "kind": "method",
             "params":[
               {
                 "name":"key",
@@ -1592,6 +1593,7 @@ export const tpl2 = `Value: ${num}`;
             "typeParams":[]
           }, {
             "name":"set",
+            "kind": "method",
             "params":[
               {
                 "name":"key",
@@ -2762,6 +2764,8 @@ export type NumberArray = Array<number>;
 export type A = {
   a(): void;
   b?(): void;
+  get c(): string;
+  set c(v: number);
 };
 "#;
   [{
@@ -2782,6 +2786,7 @@ export type A = {
           "methods": [
             {
               "name": "a",
+              "kind": "method",
               "params": [],
               "optional": false,
               "returnType": {
@@ -2793,6 +2798,7 @@ export type A = {
             },
             {
               "name": "b",
+              "kind": "method",
               "params": [],
               "optional": true,
               "returnType": {
@@ -2800,6 +2806,37 @@ export type A = {
                 "kind": "keyword",
                 "keyword": "void",
               },
+              "typeParams": [],
+            },
+            {
+              "name": "c",
+              "kind": "getter",
+              "params": [],
+              "optional": false,
+              "returnType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string",
+              },
+              "typeParams": [],
+            },
+            {
+              "name": "c",
+              "kind": "setter",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "v",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number",
+                  }
+                }
+              ],
+              "optional": false,
+              "returnType": null,
               "typeParams": [],
             }
           ],

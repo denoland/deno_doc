@@ -370,6 +370,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let name = expr_to_name(&*ts_method_sig.key);
           let method_def = LiteralMethodDef {
             name,
+            kind: deno_ast::swc::ast::MethodKind::Method,
             params,
             computed: ts_method_sig.computed,
             optional: ts_method_sig.optional,
@@ -387,6 +388,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let name = expr_to_name(&*ts_getter_sig.key);
           let method_def = LiteralMethodDef {
             name,
+            kind: deno_ast::swc::ast::MethodKind::Getter,
             params: vec![],
             computed: ts_getter_sig.computed,
             optional: ts_getter_sig.optional,
@@ -397,9 +399,14 @@ impl From<&TsTypeLit> for TsTypeDef {
         }
         TsSetterSignature(ts_setter_sig) => {
           let name = expr_to_name(&*ts_setter_sig.key);
+
+          let params =
+            vec![ts_fn_param_to_param_def(None, &ts_setter_sig.param)];
+
           let method_def = LiteralMethodDef {
             name,
-            params: vec![],
+            kind: deno_ast::swc::ast::MethodKind::Setter,
+            params,
             computed: ts_setter_sig.computed,
             optional: ts_setter_sig.optional,
             return_type: None,
@@ -754,6 +761,7 @@ pub struct TsMappedTypeDef {
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
+  pub kind: deno_ast::swc::ast::MethodKind,
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false")]
   pub computed: bool,

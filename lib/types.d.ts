@@ -359,6 +359,7 @@ export interface LiteralIndexSignatureDef {
 
 export interface LiteralMethodDef {
   name: string;
+  kind: MethodKind;
   params: ParamDef[];
   computed?: boolean;
   optional: boolean;
