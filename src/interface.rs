@@ -406,6 +406,11 @@ pub fn get_doc_for_ts_interface_decl(
           ts_construct_sig.type_params.as_ref(),
         );
 
+        let maybe_return_type = ts_construct_sig
+          .type_ann
+          .as_ref()
+          .map(|rt| (&*rt.type_ann).into());
+
         let construct_sig_def = InterfaceMethodDef {
           name: "new".to_string(),
           kind: deno_ast::swc::ast::MethodKind::Method,
@@ -414,7 +419,7 @@ pub fn get_doc_for_ts_interface_decl(
           computed: false,
           optional: false,
           params,
-          return_type: None,
+          return_type: maybe_return_type,
           type_params,
         };
 

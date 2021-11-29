@@ -2801,7 +2801,14 @@ export type A = {
                 }
               ],
               "optional": false,
-              "returnType": null,
+              "returnType": {
+                "repr": "A",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "A",
+                }
+              },
               "typeParams": [],
             },
             {
