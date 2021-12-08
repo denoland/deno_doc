@@ -25,7 +25,7 @@ pub fn get_doc_for_var_decl(
 
   let maybe_ts_type = match &var_declarator.name {
     deno_ast::swc::ast::Pat::Ident(ident) => {
-      ident.type_ann.as_ref().map(|rt| ts_type_ann_to_def(rt))
+      ident.type_ann.as_ref().map(ts_type_ann_to_def)
     }
     _ => None,
   };

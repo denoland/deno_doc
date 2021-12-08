@@ -304,10 +304,7 @@ pub fn class_to_class_def(
       ClassProp(class_prop) => {
         let prop_js_doc = js_doc_for_span(parsed_source, &class_prop.span());
 
-        let ts_type = class_prop
-          .type_ann
-          .as_ref()
-          .map(|rt| ts_type_ann_to_def(rt));
+        let ts_type = class_prop.type_ann.as_ref().map(ts_type_ann_to_def);
 
         let prop_name = expr_to_name(&*class_prop.key);
 
