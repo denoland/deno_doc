@@ -580,7 +580,7 @@ impl From<&TsImportType> for TsTypeDef {
 
     let import_type_def = TsImportTypeDef {
       specifier: other.arg.value.to_string(),
-      qualifier: other.qualifier.as_ref().map(|e| ts_entity_name_to_name(e)),
+      qualifier: other.qualifier.as_ref().map(ts_entity_name_to_name),
       type_params,
     };
 

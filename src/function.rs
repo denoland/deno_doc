@@ -34,10 +34,7 @@ pub fn function_to_function_def(
     params.push(param_def);
   }
 
-  let maybe_return_type = function
-    .return_type
-    .as_ref()
-    .map(|rt| ts_type_ann_to_def(rt));
+  let maybe_return_type = function.return_type.as_ref().map(ts_type_ann_to_def);
 
   let type_params =
     maybe_type_param_decl_to_type_param_defs(function.type_params.as_ref());
