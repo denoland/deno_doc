@@ -23,6 +23,7 @@ use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
 use deno_graph::MediaType;
+use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use deno_graph::SourceParser;
@@ -136,11 +137,18 @@ impl<'a> DocParser<'a> {
         ))
       })?;
 
-    self.parse_source(
-      &module.specifier,
-      module.media_type,
-      module.source.clone(),
-    )
+    if let Module::Es(module) = module {
+      self.parse_source(
+        &module.specifier,
+        module.media_type,
+        module.source.clone(),
+      )
+    } else {
+      Err(DocError::Resolve(format!(
+        "{} is not an JavaScript/TypeScript module",
+        specifier
+      )))
+    }
   }
 
   /// Parses a module and returns a list of exported items (no reexports).
@@ -251,7 +259,7 @@ impl<'a> DocParser<'a> {
       })?;
 
     let module = if let Some((_, Some(Ok((types_specifier, _))))) =
-      &module.maybe_types_dependency
+      module.maybe_types_dependency()
     {
       self
         .graph
@@ -267,22 +275,29 @@ impl<'a> DocParser<'a> {
       module
     };
 
-    let module_doc = self.parse_module(
-      &module.specifier,
-      module.media_type,
-      module.source.clone(),
-    )?;
+    if let Module::Es(module) = module {
+      let module_doc = self.parse_module(
+        &module.specifier,
+        module.media_type,
+        module.source.clone(),
+      )?;
 
-    let flattened_docs = if !module_doc.reexports.is_empty() {
-      let mut flattenned_reexports =
-        self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
-      flattenned_reexports.extend(module_doc.definitions);
-      flattenned_reexports
+      let flattened_docs = if !module_doc.reexports.is_empty() {
+        let mut flattened_reexports =
+          self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
+        flattened_reexports.extend(module_doc.definitions);
+        flattened_reexports
+      } else {
+        module_doc.definitions
+      };
+
+      Ok(flattened_docs)
     } else {
-      module_doc.definitions
-    };
-
-    Ok(flattened_docs)
+      Err(DocError::Resolve(format!(
+        "{} is not a JavaScript/TypeScript module",
+        module.specifier()
+      )))
+    }
   }
 
   fn get_doc_nodes_for_module_imports(
