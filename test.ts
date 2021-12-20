@@ -89,7 +89,7 @@ Deno.test({
         await doc("https://deno.land/x/bad.ts");
       },
       Error,
-      `Cannot load module "https://deno.land/x/bad.ts".`,
+      `Module not found "https://deno.land/x/bad.ts".`,
     );
   },
 });
