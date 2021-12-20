@@ -165,9 +165,8 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
   ) -> FmtResult {
     if let Some(doc) = maybe_doc {
-      writeln!(w)?;
       for line in doc.lines() {
-        writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
+        writeln!(w, "{}{}", Indent(indent + 2), colors::gray(line))?;
       }
       writeln!(w)
     } else {
