@@ -1301,6 +1301,8 @@ export class A {
   greet() {
     return "hello";
   }
+
+  method(@readonly param: string) {}
 }
 "#;
     [{
@@ -1412,6 +1414,46 @@ export class A {
             "location": {
               "filename": "file:///test.ts",
               "line": 14,
+              "col": 2,
+            }
+          }, {
+            "accessibility": null,
+            "optional": false,
+            "isAbstract": false,
+            "isStatic": false,
+            "name": "method",
+            "kind": "method",
+            "functionDef": {
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "param",
+                  "optional": false,
+                  "decorators": [
+                    {
+                      "name": "readonly",
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 19,
+                        "col": 10,
+                      }
+                    }
+                  ],
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string",
+                  }
+                }
+              ],
+              "returnType": null,
+              "isAsync": false,
+              "isGenerator": false,
+              "typeParams": [],
+            },
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 19,
               "col": 2,
             }
           }

@@ -12,10 +12,11 @@ use crate::function::FunctionDef;
 use crate::interface::expr_to_name;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
-use crate::params::{
-  assign_pat_to_param_def, ident_to_param_def, pat_to_param_def,
-  prop_name_to_string, ts_fn_param_to_param_def,
-};
+use crate::params::assign_pat_to_param_def;
+use crate::params::ident_to_param_def;
+use crate::params::param_to_param_def;
+use crate::params::prop_name_to_string;
+use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::{get_location, js_doc_for_span};
 use crate::ts_type::{
   maybe_type_param_instantiation_to_type_defs, ts_type_ann_to_def, TsTypeDef,
@@ -255,7 +256,7 @@ pub fn class_to_class_def(
           use deno_ast::swc::ast::ParamOrTsParamProp::*;
 
           let param_def = match param {
-            Param(param) => pat_to_param_def(Some(parsed_source), &param.pat),
+            Param(param) => param_to_param_def(parsed_source, param),
             TsParamProp(ts_param_prop) => {
               use deno_ast::swc::ast::TsParamPropParam;
 
