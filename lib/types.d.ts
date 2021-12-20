@@ -422,6 +422,7 @@ export interface ParamArrayDef {
   kind: "array";
   elements: (ParamDef | undefined)[];
   optional: boolean;
+  decorators?: DecoratorDef[];
   tsType?: TsTypeDef;
 }
 
@@ -429,6 +430,7 @@ export interface ParamAssignDef {
   kind: "assign";
   left: ParamDef;
   right: string;
+  decorators?: DecoratorDef[];
   tsType?: TsTypeDef;
 }
 
@@ -436,6 +438,7 @@ export interface ParamIdentifierDef {
   kind: "identifier";
   name: string;
   optional: boolean;
+  decorators?: DecoratorDef[];
   tsType?: TsTypeDef;
 }
 
@@ -443,12 +446,14 @@ export interface ParamObjectDef {
   kind: "object";
   props: ObjectPatPropDef[];
   optional: boolean;
+  decorators?: DecoratorDef[];
   tsType?: TsTypeDef;
 }
 
 export interface ParamRestDef {
   kind: "rest";
   arg: ParamDef;
+  decorators?: DecoratorDef[];
   tsType?: TsTypeDef;
 }
 

@@ -1,54 +1,64 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use crate::display::{display_optional, SliceDisplayer};
-use crate::ts_type::{ts_type_ann_to_def, TsTypeDef};
-use deno_ast::swc::ast::{ObjectPatProp, Pat, TsFnParam};
+
+use crate::decorators::decorators_to_defs;
+use crate::decorators::DecoratorDef;
+use crate::display::display_optional;
+use crate::display::SliceDisplayer;
+use crate::ts_type::ts_type_ann_to_def;
+use crate::ts_type::TsTypeDef;
+
+use deno_ast::swc::ast::ObjectPatProp;
+use deno_ast::swc::ast::Pat;
+use deno_ast::swc::ast::TsFnParam;
 use deno_ast::ParsedSource;
-use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result as FmtResult};
+use serde::Deserialize;
+use serde::Serialize;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "kind")]
-pub enum ParamDef {
-  #[serde(rename_all = "camelCase")]
+enum ParamPatternDef {
   Array {
     elements: Vec<Option<ParamDef>>,
     optional: bool,
-    ts_type: Option<TsTypeDef>,
   },
-  #[serde(rename_all = "camelCase")]
   Assign {
     left: Box<ParamDef>,
     right: String,
-    ts_type: Option<TsTypeDef>,
   },
-  #[serde(rename_all = "camelCase")]
   Identifier {
     name: String,
     optional: bool,
-    ts_type: Option<TsTypeDef>,
   },
-  #[serde(rename_all = "camelCase")]
   Object {
     props: Vec<ObjectPatPropDef>,
     optional: bool,
-    ts_type: Option<TsTypeDef>,
   },
-  #[serde(rename_all = "camelCase")]
   Rest {
     arg: Box<ParamDef>,
-    ts_type: Option<TsTypeDef>,
   },
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ParamDef {
+  #[serde(flatten)]
+  pattern: ParamPatternDef,
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  decorators: Vec<DecoratorDef>,
+  ts_type: Option<TsTypeDef>,
 }
 
 impl Display for ParamDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    match self {
-      ParamDef::Array {
-        elements,
-        optional,
-        ts_type,
-      } => {
+    for decorator in &self.decorators {
+      write!(f, "{} ", decorator)?;
+    }
+    match &self.pattern {
+      ParamPatternDef::Array { elements, optional } => {
         write!(f, "[")?;
         if !elements.is_empty() {
           if let Some(v) = &elements[0] {
@@ -63,50 +73,42 @@ impl Display for ParamDef {
         }
         write!(f, "]")?;
         write!(f, "{}", display_optional(*optional))?;
-        if let Some(ts_type) = ts_type {
+        if let Some(ts_type) = &self.ts_type {
           write!(f, ": {}", ts_type)?;
         }
         Ok(())
       }
-      ParamDef::Assign { left, ts_type, .. } => {
+      ParamPatternDef::Assign { left, .. } => {
         write!(f, "{}", left)?;
-        if let Some(ts_type) = ts_type {
+        if let Some(ts_type) = &self.ts_type {
           write!(f, ": {}", ts_type)?;
         }
         // TODO(SyrupThinker) As we cannot display expressions the value is just omitted
         // write!(f, " = {}", right)?;
         Ok(())
       }
-      ParamDef::Identifier {
-        name,
-        optional,
-        ts_type,
-      } => {
+      ParamPatternDef::Identifier { name, optional } => {
         write!(f, "{}{}", name, display_optional(*optional))?;
-        if let Some(ts_type) = ts_type {
+        if let Some(ts_type) = &self.ts_type {
           write!(f, ": {}", ts_type)?;
         }
         Ok(())
       }
-      ParamDef::Object {
-        props,
-        optional,
-        ts_type,
-      } => {
+      ParamPatternDef::Object { props, optional } => {
         write!(
           f,
           "{{{}}}{}",
           SliceDisplayer::new(props, ", ", false),
           display_optional(*optional)
         )?;
-        if let Some(ts_type) = ts_type {
+        if let Some(ts_type) = &self.ts_type {
           write!(f, ": {}", ts_type)?;
         }
         Ok(())
       }
-      ParamDef::Rest { arg, ts_type } => {
+      ParamPatternDef::Rest { arg } => {
         write!(f, "...{}", arg)?;
-        if let Some(ts_type) = ts_type {
+        if let Some(ts_type) = &self.ts_type {
           write!(f, ": {}", ts_type)?;
         }
         Ok(())
@@ -146,9 +148,12 @@ pub fn ident_to_param_def(
 ) -> ParamDef {
   let ts_type = ident.type_ann.as_ref().map(ts_type_ann_to_def);
 
-  ParamDef::Identifier {
-    name: ident.id.sym.to_string(),
-    optional: ident.id.optional,
+  ParamDef {
+    pattern: ParamPatternDef::Identifier {
+      name: ident.id.sym.to_string(),
+      optional: ident.id.optional,
+    },
+    decorators: Vec::new(),
     ts_type,
   }
 }
@@ -159,8 +164,11 @@ fn rest_pat_to_param_def(
 ) -> ParamDef {
   let ts_type = rest_pat.type_ann.as_ref().map(ts_type_ann_to_def);
 
-  ParamDef::Rest {
-    arg: Box::new(pat_to_param_def(parsed_source, &*rest_pat.arg)),
+  ParamDef {
+    pattern: ParamPatternDef::Rest {
+      arg: Box::new(pat_to_param_def(parsed_source, &*rest_pat.arg)),
+    },
+    decorators: Vec::new(),
     ts_type,
   }
 }
@@ -195,9 +203,12 @@ fn object_pat_to_param_def(
     .collect::<Vec<_>>();
   let ts_type = object_pat.type_ann.as_ref().map(ts_type_ann_to_def);
 
-  ParamDef::Object {
-    props,
-    optional: object_pat.optional,
+  ParamDef {
+    pattern: ParamPatternDef::Object {
+      props,
+      optional: object_pat.optional,
+    },
+    decorators: Vec::new(),
     ts_type,
   }
 }
@@ -213,9 +224,12 @@ fn array_pat_to_param_def(
     .collect::<Vec<Option<_>>>();
   let ts_type = array_pat.type_ann.as_ref().map(ts_type_ann_to_def);
 
-  ParamDef::Array {
-    elements,
-    optional: array_pat.optional,
+  ParamDef {
+    pattern: ParamPatternDef::Array {
+      elements,
+      optional: array_pat.optional,
+    },
+    decorators: Vec::new(),
     ts_type,
   }
 }
@@ -226,14 +240,26 @@ pub fn assign_pat_to_param_def(
 ) -> ParamDef {
   let ts_type = assign_pat.type_ann.as_ref().map(ts_type_ann_to_def);
 
-  ParamDef::Assign {
-    left: Box::new(pat_to_param_def(parsed_source, &*assign_pat.left)),
-    right: "[UNSUPPORTED]".to_string(),
+  ParamDef {
+    pattern: ParamPatternDef::Assign {
+      left: Box::new(pat_to_param_def(parsed_source, &*assign_pat.left)),
+      right: "[UNSUPPORTED]".to_string(),
+    },
+    decorators: Vec::new(),
     ts_type,
   }
 }
 
-pub fn pat_to_param_def(
+pub fn param_to_param_def(
+  parsed_source: &ParsedSource,
+  param: &deno_ast::swc::ast::Param,
+) -> ParamDef {
+  let mut def = pat_to_param_def(Some(parsed_source), &param.pat);
+  def.decorators = decorators_to_defs(parsed_source, &param.decorators);
+  def
+}
+
+fn pat_to_param_def(
   parsed_source: Option<&ParsedSource>,
   pat: &deno_ast::swc::ast::Pat,
 ) -> ParamDef {

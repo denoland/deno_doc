@@ -2,7 +2,7 @@
 
 use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
-use crate::params::pat_to_param_def;
+use crate::params::param_to_param_def;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -30,7 +30,7 @@ pub fn function_to_function_def(
   let mut params = vec![];
 
   for param in &function.params {
-    let param_def = pat_to_param_def(Some(parsed_source), &param.pat);
+    let param_def = param_to_param_def(parsed_source, param);
     params.push(param_def);
   }
 
