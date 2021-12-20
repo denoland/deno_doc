@@ -10,15 +10,20 @@
 // unnecessary and can result in unnecessary copying. Instead they should take
 // references.
 
-use std::fmt::{Display, Formatter, Result as FmtResult};
-
 use crate::colors;
-use crate::display::{
-  display_abstract, display_async, display_generator, Indent, SliceDisplayer,
-};
+use crate::display::display_abstract;
+use crate::display::display_async;
+use crate::display::display_generator;
+use crate::display::Indent;
+use crate::display::SliceDisplayer;
 use crate::js_doc::JsDoc;
+use crate::js_doc::JsDocTag;
 use crate::node::DocNode;
 use crate::node::DocNodeKind;
+
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 pub struct DocPrinter<'a> {
   doc_nodes: &'a [DocNode],
@@ -139,13 +144,181 @@ impl<'a> DocPrinter<'a> {
     js_doc: &JsDoc,
     indent: i64,
   ) -> FmtResult {
-    // TODO(@kitsonk) this is just a temporary hack
     if let Some(doc) = &js_doc.doc {
       for line in doc.lines() {
         writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
       }
     }
+    if !js_doc.tags.is_empty() {
+      writeln!(w)?;
+    }
+    for tag in &js_doc.tags {
+      self.format_jsdoc_tag(w, tag, indent)?;
+    }
     Ok(())
+  }
+
+  fn format_jsdoc_tag_maybe_doc(
+    &self,
+    w: &mut Formatter<'_>,
+    maybe_doc: &Option<String>,
+    indent: i64,
+  ) -> FmtResult {
+    if let Some(doc) = maybe_doc {
+      writeln!(w)?;
+      for line in doc.lines() {
+        writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
+      }
+      writeln!(w)
+    } else {
+      Ok(())
+    }
+  }
+
+  fn format_jsdoc_tag(
+    &self,
+    w: &mut Formatter<'_>,
+    tag: &JsDocTag,
+    indent: i64,
+  ) -> FmtResult {
+    match tag {
+      JsDocTag::Callback { name, doc } => {
+        writeln!(
+          w,
+          "{}@{} {}",
+          Indent(indent),
+          colors::magenta("callback"),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Constructor => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("constructor"))
+      }
+      JsDocTag::Deprecated { doc } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("deprecated"))?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Enum { type_ref, doc } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("enum"),
+          colors::italic_cyan(type_ref)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Extends { type_ref, doc } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("extends"),
+          colors::italic_cyan(type_ref)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Module => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("module"))
+      }
+      JsDocTag::Param {
+        name,
+        type_ref,
+        doc,
+      } => {
+        write!(w, "{}@{}", Indent(indent), colors::magenta("param"))?;
+        if let Some(type_ref) = type_ref {
+          write!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+        }
+        writeln!(w, " {}", colors::bold(name))?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Public => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("public"))
+      }
+      JsDocTag::Private => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("private"))
+      }
+      JsDocTag::Property {
+        name,
+        type_ref,
+        doc,
+      } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}} {}",
+          Indent(indent),
+          colors::magenta("property"),
+          colors::italic_cyan(type_ref),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Protected => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("protected"))
+      }
+      JsDocTag::ReadOnly => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("readonly"))
+      }
+      JsDocTag::Return { type_ref, doc } => {
+        write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
+        if let Some(type_ref) = type_ref {
+          writeln!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+        } else {
+          writeln!(w)?;
+        }
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Template { name, doc } => {
+        writeln!(
+          w,
+          "{}@{} {}",
+          Indent(indent),
+          colors::magenta("template"),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::This { type_ref, doc } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("this"),
+          colors::italic_cyan(type_ref)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::TypeDef {
+        name,
+        type_ref,
+        doc,
+      } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}} {}",
+          Indent(indent),
+          colors::magenta("typedef"),
+          colors::italic_cyan(type_ref),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::TypeRef { type_ref, doc } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("typeref"),
+          colors::italic_cyan(type_ref)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
+      JsDocTag::Unsupported { value } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta(value))
+      }
+    }
   }
 
   fn format_class(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {

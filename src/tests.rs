@@ -4477,6 +4477,26 @@ export function C() {}
     "Summarised"
   );
 
+  contains_test!(jsdoc_tags,
+    r#"
+/**
+ * a is a function
+ *
+ * @param {string} b some doc
+ * @param c additional doc
+ * @returns {string} returning doc
+ */
+export function a(b, c) {}
+    "#;
+    "a is a function",
+    "@param {string} b",
+    "some doc",
+    "@param c",
+    "additional doc",
+    "@return {string}",
+    "returning doc"
+  );
+
   contains_test!(namespace_declaration,
   "export namespace Namespace {}";
     "namespace Namespace"

@@ -92,6 +92,13 @@ pub fn italic_gray<S: AsRef<str>>(s: S) -> impl fmt::Display {
   style(s, style_spec)
 }
 
+#[cfg(feature = "rust")]
+pub fn italic_cyan<S: AsRef<str>>(s: S) -> impl fmt::Display {
+  let mut style_spec = ColorSpec::new();
+  style_spec.set_fg(Some(Ansi256(14))).set_italic(true);
+  style(s, style_spec)
+}
+
 pub fn intense_blue<S: AsRef<str>>(s: S) -> impl fmt::Display {
   let mut style_spec = ColorSpec::new();
   style_spec.set_fg(Some(Blue)).set_intense(true);
