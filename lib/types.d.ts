@@ -221,6 +221,7 @@ export type JsDocTagKind =
   | "constructor"
   | "deprecated"
   | "enum"
+  | "example"
   | "extends"
   | "module"
   | "param"
@@ -261,7 +262,7 @@ export interface JsDocTagOnly extends JsDocTagBase {
 }
 
 export interface JsDocTagDoc extends JsDocTagBase {
-  kind: "deprecated";
+  kind: "deprecated" | "example";
   doc?: string;
 }
 
