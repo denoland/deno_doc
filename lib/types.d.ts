@@ -632,7 +632,7 @@ export interface TsTypeInferDef extends TsTypeDefBase {
 
 export interface TsTypeMappedDef extends TsTypeDefBase {
   kind: "mapped";
-  mapped: TsMappedTypeDef;
+  mappedType: TsMappedTypeDef;
 }
 
 export interface TsTypeImportTypeDef extends TsTypeDefBase {
