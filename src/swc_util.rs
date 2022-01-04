@@ -85,7 +85,9 @@ pub fn get_location(parsed_source: &ParsedSource, pos: BytePos) -> Location {
   }
 }
 
-pub fn module_export_name_value(module_export_name: &ModuleExportName) -> String {
+pub fn module_export_name_value(
+  module_export_name: &ModuleExportName,
+) -> String {
   match module_export_name {
     ModuleExportName::Ident(ident) => ident.sym.to_string(),
     ModuleExportName::Str(str) => str.value.to_string(),

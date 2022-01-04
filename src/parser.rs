@@ -634,10 +634,14 @@ impl<'a> DocParser<'a> {
                     src: src_str.to_string(),
                   },
                   ExportSpecifier::Named(named_export) => {
-                    let export_name = module_export_name_value(&named_export.orig);
-                    let maybe_alias =
-                      named_export.exported.as_ref().map(|e| module_export_name_value(e));
-                    let kind = node::ReexportKind::Named(export_name, maybe_alias);
+                    let export_name =
+                      module_export_name_value(&named_export.orig);
+                    let maybe_alias = named_export
+                      .exported
+                      .as_ref()
+                      .map(|e| module_export_name_value(e));
+                    let kind =
+                      node::ReexportKind::Named(export_name, maybe_alias);
                     node::Reexport {
                       kind,
                       src: src_str.to_string(),
@@ -660,10 +664,9 @@ impl<'a> DocParser<'a> {
                         return None;
                       }
 
-                      let name = module_export_name_value(specifier
-                        .exported
-                        .as_ref()
-                        .unwrap_or(&specifier.orig));
+                      let name = module_export_name_value(
+                        specifier.exported.as_ref().unwrap_or(&specifier.orig),
+                      );
                       Some(node::Reexport {
                         src: import.src.clone(),
                         kind: match &import.kind {
@@ -787,7 +790,8 @@ impl<'a> DocParser<'a> {
               for specifier in &export_named.specifiers {
                 match specifier {
                   ExportSpecifier::Named(named_specifier) => {
-                    let symbol = module_export_name_value(&named_specifier.orig);
+                    let symbol =
+                      module_export_name_value(&named_specifier.orig);
                     if let Some(doc_node) = symbols.get(&symbol) {
                       let mut doc_node = doc_node.clone();
                       if let Some(exported) = &named_specifier.exported {

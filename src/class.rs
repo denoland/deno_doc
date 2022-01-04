@@ -306,7 +306,8 @@ pub fn class_to_class_def(
 
         let ts_type = class_prop.type_ann.as_ref().map(ts_type_ann_to_def);
 
-        let prop_name = prop_name_to_string(Some(parsed_source), &class_prop.key);
+        let prop_name =
+          prop_name_to_string(Some(parsed_source), &class_prop.key);
 
         let decorators =
           decorators_to_defs(parsed_source, &class_prop.decorators);
