@@ -9,7 +9,6 @@ use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
 use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
-use crate::interface::expr_to_name;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::params::assign_pat_to_param_def;
@@ -307,7 +306,8 @@ pub fn class_to_class_def(
 
         let ts_type = class_prop.type_ann.as_ref().map(ts_type_ann_to_def);
 
-        let prop_name = expr_to_name(&*class_prop.key);
+        let prop_name =
+          prop_name_to_string(Some(parsed_source), &class_prop.key);
 
         let decorators =
           decorators_to_defs(parsed_source, &class_prop.decorators);
