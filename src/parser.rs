@@ -325,7 +325,7 @@ impl<'a> DocParser<'a> {
               named_specifier
                 .imported
                 .as_ref()
-                .map(|name| module_export_name_value(name))
+                .map(module_export_name_value)
                 .or_else(|| Some(named_specifier.local.sym.to_string())),
               import_decl.src.value.to_string(),
             ),
@@ -559,7 +559,7 @@ impl<'a> DocParser<'a> {
                 named_specifier
                   .imported
                   .as_ref()
-                  .map(|name| module_export_name_value(name)),
+                  .map(module_export_name_value),
               ),
               src: import_decl.src.value.to_string(),
             },
@@ -639,7 +639,7 @@ impl<'a> DocParser<'a> {
                     let maybe_alias = named_export
                       .exported
                       .as_ref()
-                      .map(|e| module_export_name_value(e));
+                      .map(module_export_name_value);
                     let kind =
                       node::ReexportKind::Named(export_name, maybe_alias);
                     node::Reexport {
