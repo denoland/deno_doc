@@ -1,5 +1,6 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::swc::ast::ModuleExportName;
 use deno_ast::swc::common::comments::Comment;
 use deno_ast::swc::common::comments::CommentKind;
 use deno_ast::swc::common::comments::Comments;
@@ -81,5 +82,12 @@ pub fn get_location(parsed_source: &ParsedSource, pos: BytePos) -> Location {
     // todo(#150): make 0-indexed
     line: line_and_column_index.line_number,
     col: line_and_column_index.column_number - 1,
+  }
+}
+
+pub fn module_export_name_value(module_export_name: &ModuleExportName) -> String {
+  match module_export_name {
+    ModuleExportName::Ident(ident) => ident.sym.to_string(),
+    ModuleExportName::Str(str) => str.value.to_string(),
   }
 }

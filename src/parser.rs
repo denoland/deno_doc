@@ -8,6 +8,7 @@ use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
+use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
 use crate::ImportDef;
 use crate::Location;
@@ -324,7 +325,7 @@ impl<'a> DocParser<'a> {
               named_specifier
                 .imported
                 .as_ref()
-                .map(|ident| ident.sym.to_string())
+                .map(|name| module_export_name_value(name))
                 .or_else(|| Some(named_specifier.local.sym.to_string())),
               import_decl.src.value.to_string(),
             ),
@@ -558,7 +559,7 @@ impl<'a> DocParser<'a> {
                 named_specifier
                   .imported
                   .as_ref()
-                  .map(|ident| ident.sym.to_string()),
+                  .map(|name| module_export_name_value(name)),
               ),
               src: import_decl.src.value.to_string(),
             },
@@ -633,10 +634,10 @@ impl<'a> DocParser<'a> {
                     src: src_str.to_string(),
                   },
                   ExportSpecifier::Named(named_export) => {
-                    let ident = named_export.orig.sym.to_string();
+                    let export_name = module_export_name_value(&named_export.orig);
                     let maybe_alias =
-                      named_export.exported.as_ref().map(|e| e.sym.to_string());
-                    let kind = node::ReexportKind::Named(ident, maybe_alias);
+                      named_export.exported.as_ref().map(|e| module_export_name_value(e));
+                    let kind = node::ReexportKind::Named(export_name, maybe_alias);
                     node::Reexport {
                       kind,
                       src: src_str.to_string(),
@@ -651,7 +652,7 @@ impl<'a> DocParser<'a> {
                 .filter_map(|specifier| {
                   if let ExportSpecifier::Named(specifier) = specifier {
                     if let Some(import) =
-                      imports.get(&specifier.orig.sym.to_string())
+                      imports.get(&module_export_name_value(&specifier.orig))
                     {
                       // If it has the same name as the original import and private values are exported,
                       // don't export this again and document the same value twice.
@@ -659,12 +660,10 @@ impl<'a> DocParser<'a> {
                         return None;
                       }
 
-                      let name = specifier
+                      let name = module_export_name_value(specifier
                         .exported
                         .as_ref()
-                        .unwrap_or(&specifier.orig)
-                        .sym
-                        .to_string();
+                        .unwrap_or(&specifier.orig));
                       Some(node::Reexport {
                         src: import.src.clone(),
                         kind: match &import.kind {
@@ -788,11 +787,11 @@ impl<'a> DocParser<'a> {
               for specifier in &export_named.specifiers {
                 match specifier {
                   ExportSpecifier::Named(named_specifier) => {
-                    let symbol = named_specifier.orig.sym.to_string();
+                    let symbol = module_export_name_value(&named_specifier.orig);
                     if let Some(doc_node) = symbols.get(&symbol) {
                       let mut doc_node = doc_node.clone();
                       if let Some(exported) = &named_specifier.exported {
-                        doc_node.name = exported.sym.to_string()
+                        doc_node.name = module_export_name_value(exported)
                       }
                       doc_node.declaration_kind = DeclarationKind::Export;
                       doc_entries.push(doc_node)
