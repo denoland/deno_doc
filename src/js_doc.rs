@@ -13,7 +13,7 @@ lazy_static! {
     r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
   )
   .unwrap();
-  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"(?s)^\s*@\S+"#).unwrap();
+  static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"(?s)^\s*@(\S+)"#).unwrap();
   static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r#"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
 }
@@ -38,18 +38,27 @@ impl From<String> for JsDoc {
     let mut doc_lines = Vec::new();
     let mut is_tag = false;
     let mut current_tag: Vec<&str> = Vec::new();
+    let mut current_tag_name = "";
     for line in value.lines() {
-      let is_match = JS_DOC_TAG_RE.is_match(line);
-      if is_tag || is_match {
+      let caps = JS_DOC_TAG_RE.captures(line);
+      if is_tag || caps.is_some() {
         if !is_tag {
           is_tag = true;
           assert!(current_tag.is_empty());
         }
-        if is_match && !current_tag.is_empty() {
+        if caps.is_some() && !current_tag.is_empty() {
           tags.push(current_tag.join("\n").into());
           current_tag.clear();
         }
-        current_tag.push(line.trim());
+        if let Some(caps) = caps {
+          current_tag_name = caps.get(1).unwrap().as_str();
+        }
+        // certain tags, we want to preserve any leading whitespace
+        if matches!(current_tag_name, "example") {
+          current_tag.push(line.trim_end());
+        } else {
+          current_tag.push(line.trim());
+        }
       } else {
         doc_lines.push(line);
       }
@@ -276,6 +285,51 @@ mod tests {
     assert_eq!(
       serde_json::to_value(JsDoc::from("@readonly more".to_string())).unwrap(),
       json!({ "tags": [ { "kind": "readonly" } ] }),
+    );
+  }
+
+  #[test]
+  fn test_js_doc_preserves_leading_whitespace() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"
+Some JSDoc goes here
+
+@example something like this
+
+explain
+
+```ts
+if (true) {
+  console.log("hello");
+}
+```
+
+@param a an example of a multi-line
+         indented comment
+@returns nothing
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "\nSome JSDoc goes here\n",
+        "tags": [
+          {
+            "kind": "example",
+            "doc": "something like this\n\nexplain\n\n```ts\nif (true) {\n  console.log(\"hello\");\n}\n```\n"
+          },
+          {
+            "kind": "param",
+            "name": "a",
+            "doc": "an example of a multi-line\nindented comment"
+          },
+          {
+            "kind": "return",
+            "doc": "nothing"
+          }
+        ]
+      })
     );
   }
 
