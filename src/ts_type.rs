@@ -673,7 +673,7 @@ impl From<&TsType> for TsTypeDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
   pub type_params: Option<Vec<TsTypeDef>>,
@@ -690,7 +690,7 @@ pub enum LiteralDefKind {
   BigInt,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralDef {
   pub kind: LiteralDefKind,
@@ -708,14 +708,14 @@ pub struct LiteralDef {
   pub boolean: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeOperatorDef {
   pub operator: String,
   pub ts_type: TsTypeDef,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsFnOrConstructorDef {
   pub constructor: bool,
@@ -724,7 +724,7 @@ pub struct TsFnOrConstructorDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConditionalDef {
   pub check_type: Box<TsTypeDef>,
@@ -733,13 +733,13 @@ pub struct TsConditionalDef {
   pub false_type: Box<TsTypeDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsInferDef {
   pub type_param: Box<TsTypeParamDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsImportTypeDef {
   pub specifier: String,
@@ -749,7 +749,7 @@ pub struct TsImportTypeDef {
   pub type_params: Option<Vec<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsIndexedAccessDef {
   pub readonly: bool,
@@ -769,7 +769,7 @@ pub struct TsIndexedAccessDef {
 /// - `optional` = `None`
 /// - `ts_type` = `Some(TsTypeDef)` (`Type[Properties]`)
 ///
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsMappedTypeDef {
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -783,7 +783,7 @@ pub struct TsMappedTypeDef {
   pub ts_type: Option<Box<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
@@ -812,7 +812,7 @@ impl Display for LiteralMethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralPropertyDef {
   pub name: String,
@@ -834,7 +834,7 @@ impl Display for LiteralPropertyDef {
     Ok(())
   }
 }
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralCallSignatureDef {
   pub params: Vec<ParamDef>,
@@ -852,7 +852,7 @@ impl Display for LiteralCallSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralIndexSignatureDef {
   pub readonly: bool,
@@ -875,7 +875,7 @@ impl Display for LiteralIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
   pub methods: Vec<LiteralMethodDef>,
@@ -910,7 +910,7 @@ pub enum TsTypeDefKind {
   ImportType,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeDef {
   pub repr: String,
@@ -981,7 +981,7 @@ pub struct TsTypeDef {
   pub import_type: Option<TsImportTypeDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum ThisOrIdent {
   This,
@@ -1005,7 +1005,7 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
 ///                           ^^^^^^^ ^^^^^    ^^^^^^^^
 ///                           (1)     (2)      (3)
 /// ```
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypePredicateDef {
   /// (1) Whether the predicate includes `asserts` keyword or not
@@ -1246,6 +1246,10 @@ pub fn infer_simple_ts_type_from_expr(
   is_const: bool,
 ) -> Option<TsTypeDef> {
   match expr {
+    Expr::Array(arr_lit) => {
+      // e.g.) const n = ["a", 1];
+      infer_ts_type_from_arr_lit(arr_lit, false)
+    }
     Expr::Lit(lit) => {
       // e.g.) const n = 100;
       infer_ts_type_from_lit(lit, is_const)
@@ -1257,6 +1261,10 @@ pub fn infer_simple_ts_type_from_expr(
     Expr::Tpl(tpl) => {
       // e.g.) const s = `hello`;
       Some(infer_ts_type_from_tpl(tpl, is_const))
+    }
+    Expr::TsConstAssertion(assertion) => {
+      // e.g.) const s = [] as const;
+      infer_ts_type_from_const_assertion(assertion)
     }
     Expr::Call(expr) => {
       // e.g.) const value = Number(123);
@@ -1277,38 +1285,103 @@ pub fn infer_simple_ts_type_from_var_decl(
   }
 }
 
+fn infer_ts_type_from_arr_lit(
+  arr_lit: &ArrayLit,
+  is_const: bool,
+) -> Option<TsTypeDef> {
+  let mut defs = Vec::new();
+  for elem in &arr_lit.elems {
+    if let Some(expr) = elem {
+      if expr.spread.is_none() {
+        if let Some(ts_type) =
+          infer_simple_ts_type_from_expr(&expr.expr, is_const)
+        {
+          if !defs.contains(&ts_type) {
+            defs.push(ts_type);
+          }
+        } else {
+          // it is not a trivial type that can be inferred an so will infer an
+          // an any array.
+          return Some(TsTypeDef {
+            repr: "any[]".to_string(),
+            kind: Some(TsTypeDefKind::Array),
+            array: Some(Box::new(TsTypeDef::keyword("any"))),
+            ..Default::default()
+          });
+        }
+      } else {
+        // TODO(@kitsonk) we should recursively unwrap the spread here
+        return Some(TsTypeDef {
+          repr: "any[]".to_string(),
+          kind: Some(TsTypeDefKind::Array),
+          array: Some(Box::new(TsTypeDef::keyword("any"))),
+          ..Default::default()
+        });
+      }
+    }
+  }
+  if defs.len() > 1 {
+    let union = TsTypeDef {
+      kind: Some(TsTypeDefKind::Union),
+      union: Some(defs),
+      ..Default::default()
+    };
+    Some(TsTypeDef {
+      kind: Some(TsTypeDefKind::Array),
+      array: Some(Box::new(union)),
+      ..Default::default()
+    })
+  } else if defs.len() == 1 {
+    Some(TsTypeDef {
+      kind: Some(TsTypeDefKind::Array),
+      array: Some(Box::new(defs[0].clone())),
+      ..Default::default()
+    })
+  } else {
+    None
+  }
+}
+
+fn infer_ts_type_from_const_assertion(
+  assertion: &TsConstAssertion,
+) -> Option<TsTypeDef> {
+  match &*assertion.expr {
+    Expr::Array(arr_lit) => {
+      // e.g.) const n = ["a", 1] as const;
+      infer_ts_type_from_arr_lit(arr_lit, true)
+    }
+    _ => infer_simple_ts_type_from_expr(&*assertion.expr, true),
+  }
+}
+
 fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
   match lit {
     Lit::Num(num) => {
       if is_const {
         Some(TsTypeDef::number_literal(num))
       } else {
-        let repr = format!("{}", num.value);
-        Some(TsTypeDef::number_with_repr(&repr))
+        Some(TsTypeDef::number_with_repr("number"))
       }
     }
     Lit::Str(str_) => {
       if is_const {
         Some(TsTypeDef::string_literal(str_))
       } else {
-        let repr = str_.value.to_string();
-        Some(TsTypeDef::string_with_repr(&repr))
+        Some(TsTypeDef::string_with_repr("string"))
       }
     }
     Lit::Bool(bool_) => {
       if is_const {
         Some(TsTypeDef::bool_literal(bool_))
       } else {
-        let repr = bool_.value.to_string();
-        Some(TsTypeDef::bool_with_repr(&repr))
+        Some(TsTypeDef::bool_with_repr("boolean"))
       }
     }
     Lit::BigInt(bigint_) => {
       if is_const {
         Some(TsTypeDef::bigint_literal(bigint_))
       } else {
-        let repr = bigint_.value.to_string();
-        Some(TsTypeDef::bigint_with_repr(&repr))
+        Some(TsTypeDef::bigint_with_repr("bigint"))
       }
     }
     Lit::Regex(regex) => Some(TsTypeDef::regexp(regex.exp.to_string())),
@@ -1322,7 +1395,10 @@ fn infer_ts_type_from_new_expr(new_expr: &NewExpr) -> Option<TsTypeDef> {
       repr: ident.sym.to_string(),
       kind: Some(TsTypeDefKind::TypeRef),
       type_ref: Some(TsTypeRefDef {
-        type_params: None,
+        type_params: new_expr
+          .type_args
+          .as_ref()
+          .map(|init| maybe_type_param_instantiation_to_type_defs(Some(init))),
         type_name: ident.sym.to_string(),
       }),
       ..Default::default()
@@ -1374,7 +1450,17 @@ impl Display for TsTypeDef {
 
     let kind = self.kind.as_ref().unwrap();
     match kind {
-      TsTypeDefKind::Array => write!(f, "{}[]", &*self.array.as_ref().unwrap()),
+      TsTypeDefKind::Array => {
+        let array = self.array.as_ref().unwrap();
+        if matches!(
+          array.kind,
+          Some(TsTypeDefKind::Union) | Some(TsTypeDefKind::Intersection)
+        ) {
+          write!(f, "({})[]", &*self.array.as_ref().unwrap())
+        } else {
+          write!(f, "{}[]", &*self.array.as_ref().unwrap())
+        }
+      }
       TsTypeDefKind::Conditional => {
         let conditional = self.conditional_type.as_ref().unwrap();
         write!(
