@@ -984,7 +984,11 @@ export class A {
               }
             ]
           },
-          "tsType": null,
+          "tsType": {
+            "repr": "boolean",
+            "kind": "keyword",
+            "keyword": "boolean",
+          },
           "readonly": false,
           "accessibility": null,
           "optional": false,
@@ -1044,6 +1048,9 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     protected protected1: number;
     public public1: boolean;
     public2: number;
+    m = new Map<string, string>();
+    s = "foo";
+    a = [1, "foo"];
 
     /** Constructor js doc */
     constructor(name: string, private private2: number, protected protected2: number) {}
@@ -1135,7 +1142,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           ],
           "location": {
             "filename": "file:///test.ts",
-            "line": 10,
+            "line": 13,
             "col": 4
           }
         }
@@ -1212,6 +1219,88 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             "line": 7,
             "col": 4
           }
+        },
+        {
+          "tsType": {
+            "repr": "Map",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": [
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                },
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              ],
+              "typeName": "Map",
+            },
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "m",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 8,
+            "col": 4,
+          }
+        },
+        {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string",
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "s",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 9,
+            "col": 4,
+          }
+        },
+        {
+          "tsType": {
+            "repr": "",
+            "kind": "array",
+            "array": {
+              "repr": "",
+              "kind": "union",
+              "union": [
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number",
+                }, {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string",
+                }
+              ]
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "a",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 10,
+            "col": 4,
+          }
         }
       ],
       "indexSignatures": [],
@@ -1248,7 +1337,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 13,
+            "line": 16,
             "col": 4
           }
         },
@@ -1275,7 +1364,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 18,
+            "line": 21,
             "col": 4
           }
         }
@@ -1853,7 +1942,7 @@ export let tpl = `foobarbaz`;
       "declarationKind": "export",
       "variableDef":{
         "tsType": {
-          "repr": "hello",
+          "repr": "string",
           "kind": "keyword",
           "keyword":"string"
         },
@@ -1871,7 +1960,7 @@ export let tpl = `foobarbaz`;
       "declarationKind": "export",
       "variableDef":{
         "tsType": {
-          "repr": "100",
+          "repr": "number",
           "kind": "keyword",
           "keyword":"number"
         },
@@ -1889,7 +1978,7 @@ export let tpl = `foobarbaz`;
       "declarationKind": "export",
       "variableDef":{
         "tsType": {
-          "repr": "false",
+          "repr": "boolean",
           "kind": "keyword",
           "keyword":"boolean"
         },
@@ -4610,6 +4699,7 @@ export const s2 = String("foo");
 export const n2 = Number(100);
 export const bi2 = BigInt(123);
 export const sym = Symbol("hello");
+export const m = new Map<string, string>();
     "#;
     "const s: \"hello\"",
     "const n: 123",
@@ -4621,7 +4711,27 @@ export const sym = Symbol("hello");
     "const s2: string",
     "const n2: number",
     "const bi2: bigint",
-    "const sym: symbol"
+    "const sym: symbol",
+    "const m: Map<string, string>"
+  );
+
+  contains_test!(infer_simple_ts_arr_types,
+    r#"
+      export const a = [1];
+      export const b = [true];
+      export const c = ["c"];
+      export const d = [2, "d"];
+      export const e = [1, 2, 3];
+      export const f = ["a", 1, e];
+      export const g = ["a", 1, true] as const;
+    "#;
+    "const a: number[]",
+    "const b: boolean[]",
+    "const c: string[]",
+    "const d: (number | string)[]",
+    "const e: number[]",
+    "const f: any[]",
+    "const g: (\"a\" | 1 | true)[]"
   );
 
   contains_test!(

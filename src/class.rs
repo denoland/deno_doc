@@ -16,10 +16,12 @@ use crate::params::ident_to_param_def;
 use crate::params::param_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
-use crate::swc_util::{get_location, js_doc_for_span};
-use crate::ts_type::{
-  maybe_type_param_instantiation_to_type_defs, ts_type_ann_to_def, TsTypeDef,
-};
+use crate::swc_util::get_location;
+use crate::swc_util::js_doc_for_span;
+use crate::ts_type::infer_simple_ts_type_from_expr;
+use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
+use crate::ts_type::ts_type_ann_to_def;
+use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::variable::VariableDef;
@@ -304,7 +306,16 @@ pub fn class_to_class_def(
       ClassProp(class_prop) => {
         let prop_js_doc = js_doc_for_span(parsed_source, &class_prop.span());
 
-        let ts_type = class_prop.type_ann.as_ref().map(ts_type_ann_to_def);
+        let ts_type = if let Some(type_ann) = &class_prop.type_ann {
+          // if the property has a type annotation, use it
+          Some(ts_type_ann_to_def(type_ann))
+        } else if let Some(value) = &class_prop.value {
+          // else, if it has an initializer, try to infer the type
+          infer_simple_ts_type_from_expr(&*value, false)
+        } else {
+          // else, none
+          None
+        };
 
         let prop_name =
           prop_name_to_string(Some(parsed_source), &class_prop.key);

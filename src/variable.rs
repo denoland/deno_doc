@@ -1,8 +1,10 @@
 // Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
+use crate::ts_type::infer_simple_ts_type_from_var_decl;
+use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
-use crate::ts_type::{infer_simple_ts_type_from_var_decl, ts_type_ann_to_def};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
