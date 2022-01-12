@@ -1290,27 +1290,17 @@ fn infer_ts_type_from_arr_lit(
   is_const: bool,
 ) -> Option<TsTypeDef> {
   let mut defs = Vec::new();
-  for elem in &arr_lit.elems {
-    if let Some(expr) = elem {
-      if expr.spread.is_none() {
-        if let Some(ts_type) =
-          infer_simple_ts_type_from_expr(&expr.expr, is_const)
-        {
-          if !defs.contains(&ts_type) {
-            defs.push(ts_type);
-          }
-        } else {
-          // it is not a trivial type that can be inferred an so will infer an
-          // an any array.
-          return Some(TsTypeDef {
-            repr: "any[]".to_string(),
-            kind: Some(TsTypeDefKind::Array),
-            array: Some(Box::new(TsTypeDef::keyword("any"))),
-            ..Default::default()
-          });
+  for expr in arr_lit.elems.iter().flatten() {
+    if expr.spread.is_none() {
+      if let Some(ts_type) =
+        infer_simple_ts_type_from_expr(&expr.expr, is_const)
+      {
+        if !defs.contains(&ts_type) {
+          defs.push(ts_type);
         }
       } else {
-        // TODO(@kitsonk) we should recursively unwrap the spread here
+        // it is not a trivial type that can be inferred an so will infer an
+        // an any array.
         return Some(TsTypeDef {
           repr: "any[]".to_string(),
           kind: Some(TsTypeDefKind::Array),
@@ -1318,27 +1308,35 @@ fn infer_ts_type_from_arr_lit(
           ..Default::default()
         });
       }
+    } else {
+      // TODO(@kitsonk) we should recursively unwrap the spread here
+      return Some(TsTypeDef {
+        repr: "any[]".to_string(),
+        kind: Some(TsTypeDefKind::Array),
+        array: Some(Box::new(TsTypeDef::keyword("any"))),
+        ..Default::default()
+      });
     }
   }
-  if defs.len() > 1 {
-    let union = TsTypeDef {
-      kind: Some(TsTypeDefKind::Union),
-      union: Some(defs),
-      ..Default::default()
-    };
-    Some(TsTypeDef {
-      kind: Some(TsTypeDefKind::Array),
-      array: Some(Box::new(union)),
-      ..Default::default()
-    })
-  } else if defs.len() == 1 {
-    Some(TsTypeDef {
+  match defs.len() {
+    1 => Some(TsTypeDef {
       kind: Some(TsTypeDefKind::Array),
       array: Some(Box::new(defs[0].clone())),
       ..Default::default()
-    })
-  } else {
-    None
+    }),
+    2.. => {
+      let union = TsTypeDef {
+        kind: Some(TsTypeDefKind::Union),
+        union: Some(defs),
+        ..Default::default()
+      };
+      Some(TsTypeDef {
+        kind: Some(TsTypeDefKind::Array),
+        array: Some(Box::new(union)),
+        ..Default::default()
+      })
+    }
+    _ => None
   }
 }
 
