@@ -27,12 +27,11 @@ pub fn function_to_function_def(
   parsed_source: &ParsedSource,
   function: &deno_ast::swc::ast::Function,
 ) -> FunctionDef {
-  let mut params = vec![];
-
-  for param in &function.params {
-    let param_def = param_to_param_def(parsed_source, param);
-    params.push(param_def);
-  }
+  let params = function
+    .params
+    .iter()
+    .map(|param| param_to_param_def(parsed_source, param))
+    .collect();
 
   let maybe_return_type = function.return_type.as_ref().map(ts_type_ann_to_def);
 

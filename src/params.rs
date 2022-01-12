@@ -259,7 +259,7 @@ pub fn param_to_param_def(
   def
 }
 
-fn pat_to_param_def(
+pub fn pat_to_param_def(
   parsed_source: Option<&ParsedSource>,
   pat: &deno_ast::swc::ast::Pat,
 ) -> ParamDef {

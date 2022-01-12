@@ -6,7 +6,7 @@ use serde::Serialize;
 
 use crate::js_doc::JsDoc;
 use crate::swc_util::js_doc_for_span;
-use crate::ts_type::infer_simple_ts_type_from_expr;
+use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::TsTypeDef;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -41,7 +41,7 @@ pub fn get_doc_for_ts_enum_decl(
       Str(str_) => str_.value.to_string(),
     };
     let init = if let Some(expr) = &enum_member.init {
-      infer_simple_ts_type_from_expr(expr, true)
+      infer_ts_type_from_expr(expr, true)
     } else {
       None
     };

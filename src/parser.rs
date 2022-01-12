@@ -826,7 +826,7 @@ impl<'a> DocParser<'a> {
                   js_doc,
                   super::variable::VariableDef {
                     kind: deno_ast::swc::ast::VarDeclKind::Var,
-                    ts_type: super::ts_type::infer_simple_ts_type_from_expr(
+                    ts_type: super::ts_type::infer_ts_type_from_expr(
                       export_expr.expr.as_ref(),
                       true,
                     ),
