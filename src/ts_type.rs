@@ -6,6 +6,7 @@ use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
+use crate::params::pat_to_param_def;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -724,6 +725,57 @@ pub struct TsFnOrConstructorDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
+impl From<&deno_ast::swc::ast::ArrowExpr> for TsFnOrConstructorDef {
+  fn from(expr: &deno_ast::swc::ast::ArrowExpr) -> Self {
+    let params = expr
+      .params
+      .iter()
+      .map(|pat| pat_to_param_def(None, pat))
+      .collect();
+    let ts_type = expr
+      .return_type
+      .as_ref()
+      .map(ts_type_ann_to_def)
+      .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
+    let type_params =
+      maybe_type_param_decl_to_type_param_defs(expr.type_params.as_ref());
+
+    Self {
+      constructor: false,
+      ts_type,
+      params,
+      type_params,
+    }
+  }
+}
+
+impl From<&deno_ast::swc::ast::FnExpr> for TsFnOrConstructorDef {
+  fn from(expr: &deno_ast::swc::ast::FnExpr) -> Self {
+    let params = expr
+      .function
+      .params
+      .iter()
+      .map(|param| pat_to_param_def(None, &param.pat))
+      .collect();
+    let ts_type = expr
+      .function
+      .return_type
+      .as_ref()
+      .map(ts_type_ann_to_def)
+      .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
+    let type_params = maybe_type_param_decl_to_type_param_defs(
+      expr.function.type_params.as_ref(),
+    );
+
+    Self {
+      constructor: false,
+      ts_type,
+      params,
+      type_params,
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConditionalDef {
@@ -1241,7 +1293,7 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
   }
 }
 
-pub fn infer_simple_ts_type_from_expr(
+pub fn infer_ts_type_from_expr(
   expr: &Expr,
   is_const: bool,
 ) -> Option<TsTypeDef> {
@@ -1249,6 +1301,14 @@ pub fn infer_simple_ts_type_from_expr(
     Expr::Array(arr_lit) => {
       // e.g.) const n = ["a", 1];
       infer_ts_type_from_arr_lit(arr_lit, false)
+    }
+    Expr::Arrow(expr) => {
+      // e.g.) const f = (a: string): void => {};
+      infer_ts_type_from_arrow_expr(expr)
+    }
+    Expr::Fn(expr) => {
+      // e.g.) const f = function a(a:string): void {};
+      infer_ts_type_from_fn_expr(expr)
     }
     Expr::Lit(lit) => {
       // e.g.) const n = 100;
@@ -1279,7 +1339,7 @@ pub fn infer_simple_ts_type_from_var_decl(
   is_const: bool,
 ) -> Option<TsTypeDef> {
   if let Some(init_expr) = &decl.init {
-    infer_simple_ts_type_from_expr(init_expr.as_ref(), is_const)
+    infer_ts_type_from_expr(init_expr.as_ref(), is_const)
   } else {
     None
   }
@@ -1292,9 +1352,7 @@ fn infer_ts_type_from_arr_lit(
   let mut defs = Vec::new();
   for expr in arr_lit.elems.iter().flatten() {
     if expr.spread.is_none() {
-      if let Some(ts_type) =
-        infer_simple_ts_type_from_expr(&expr.expr, is_const)
-      {
+      if let Some(ts_type) = infer_ts_type_from_expr(&expr.expr, is_const) {
         if !defs.contains(&ts_type) {
           defs.push(ts_type);
         }
@@ -1340,6 +1398,22 @@ fn infer_ts_type_from_arr_lit(
   }
 }
 
+fn infer_ts_type_from_arrow_expr(expr: &ArrowExpr) -> Option<TsTypeDef> {
+  Some(TsTypeDef {
+    kind: Some(TsTypeDefKind::FnOrConstructor),
+    fn_or_constructor: Some(Box::new(expr.into())),
+    ..Default::default()
+  })
+}
+
+fn infer_ts_type_from_fn_expr(expr: &FnExpr) -> Option<TsTypeDef> {
+  Some(TsTypeDef {
+    kind: Some(TsTypeDefKind::FnOrConstructor),
+    fn_or_constructor: Some(Box::new(expr.into())),
+    ..Default::default()
+  })
+}
+
 fn infer_ts_type_from_const_assertion(
   assertion: &TsConstAssertion,
 ) -> Option<TsTypeDef> {
@@ -1348,7 +1422,7 @@ fn infer_ts_type_from_const_assertion(
       // e.g.) const n = ["a", 1] as const;
       infer_ts_type_from_arr_lit(arr_lit, true)
     }
-    _ => infer_simple_ts_type_from_expr(&*assertion.expr, true),
+    _ => infer_ts_type_from_expr(&*assertion.expr, true),
   }
 }
 

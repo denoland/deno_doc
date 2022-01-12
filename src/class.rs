@@ -18,7 +18,7 @@ use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_span;
-use crate::ts_type::infer_simple_ts_type_from_expr;
+use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
@@ -311,7 +311,7 @@ pub fn class_to_class_def(
           Some(ts_type_ann_to_def(type_ann))
         } else if let Some(value) = &class_prop.value {
           // else, if it has an initializer, try to infer the type
-          infer_simple_ts_type_from_expr(&*value, false)
+          infer_ts_type_from_expr(&*value, false)
         } else {
           // else, none
           None

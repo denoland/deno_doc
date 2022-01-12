@@ -1051,6 +1051,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     m = new Map<string, string>();
     s = "foo";
     a = [1, "foo"];
+    fn = (a: string): void => {};
 
     /** Constructor js doc */
     constructor(name: string, private private2: number, protected protected2: number) {}
@@ -1142,7 +1143,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           ],
           "location": {
             "filename": "file:///test.ts",
-            "line": 13,
+            "line": 14,
             "col": 4
           }
         }
@@ -1301,6 +1302,44 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             "line": 10,
             "col": 4,
           }
+        },
+        {
+          "tsType": {
+            "repr": "",
+            "kind": "fnOrConstructor",
+            "fnOrConstructor": {
+              "constructor": false,
+              "tsType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void"
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string",
+                  }
+                }
+              ],
+              "typeParams": []
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "fn",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 11,
+            "col": 4,
+          },
         }
       ],
       "indexSignatures": [],
@@ -1337,7 +1376,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 16,
+            "line": 17,
             "col": 4
           }
         },
@@ -1364,7 +1403,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 21,
+            "line": 22,
             "col": 4
           }
         }
@@ -4700,6 +4739,8 @@ export const n2 = Number(100);
 export const bi2 = BigInt(123);
 export const sym = Symbol("hello");
 export const m = new Map<string, string>();
+export const fn1 = (a: string): void => {};
+export const fn2 = function (a:string): void {};
     "#;
     "const s: \"hello\"",
     "const n: 123",
@@ -4712,7 +4753,9 @@ export const m = new Map<string, string>();
     "const n2: number",
     "const bi2: bigint",
     "const sym: symbol",
-    "const m: Map<string, string>"
+    "const m: Map<string, string>",
+    "const fn1: (a: string) => void",
+    "const fn2: (a: string) => void"
   );
 
   contains_test!(infer_simple_ts_arr_types,
