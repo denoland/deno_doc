@@ -1336,7 +1336,7 @@ fn infer_ts_type_from_arr_lit(
         ..Default::default()
       })
     }
-    _ => None
+    _ => None,
   }
 }
 
