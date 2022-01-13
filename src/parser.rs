@@ -622,7 +622,7 @@ impl<'a> DocParser<'a> {
                 .map(|export_specifier| match export_specifier {
                   ExportSpecifier::Namespace(ns_export) => node::Reexport {
                     kind: node::ReexportKind::Namespace(
-                      ns_export.name.sym.to_string(),
+                      module_export_name_value(&ns_export.name),
                     ),
                     src: src_str.to_string(),
                   },

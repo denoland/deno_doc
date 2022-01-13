@@ -40,7 +40,7 @@ impl Loader for SourceFileLoader {
     } else {
       Ok(None)
     };
-    Box::pin(future::ready((specifier.clone(), result)))
+    Box::pin(future::ready(result))
   }
 }
 
@@ -69,6 +69,7 @@ fn main() {
       None,
       None,
       Some(&source_parser),
+      None,
     )
     .await;
     let parser = DocParser::new(graph, false, &source_parser);

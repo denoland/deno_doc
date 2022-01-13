@@ -28,7 +28,6 @@ impl Loader for JsLoader {
     specifier: &ModuleSpecifier,
     is_dynamic: bool,
   ) -> LoadFuture {
-    let specifier = specifier.clone();
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
@@ -38,12 +37,9 @@ impl Loader for JsLoader {
         Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,
         Err(err) => Err(err),
       };
-      (
-        specifier,
-        response
-          .map(|value| value.into_serde().unwrap())
-          .map_err(|_| anyhow!("load rejected or errored")),
-      )
+      response
+        .map(|value| value.into_serde().unwrap())
+        .map_err(|_| anyhow!("load rejected or errored"))
     };
     Box::pin(f)
   }
@@ -96,6 +92,7 @@ pub async fn doc(
     None,
     &mut loader,
     maybe_resolver.as_ref().map(|r| r as &dyn Resolver),
+    None,
     None,
     None,
   )

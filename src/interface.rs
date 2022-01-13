@@ -181,17 +181,19 @@ pub struct InterfaceDef {
 
 pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
   use deno_ast::swc::ast::Expr::*;
-  use deno_ast::swc::ast::ExprOrSuper::*;
+  use deno_ast::swc::ast::MemberProp;
 
   match expr {
     Ident(ident) => ident.sym.to_string(),
     Member(member_expr) => {
-      let left = match &member_expr.obj {
-        Super(_) => "super".to_string(),
-        Expr(boxed_expr) => expr_to_name(&*boxed_expr),
+      let left = expr_to_name(&*member_expr.obj);
+      let right = match &member_expr.prop {
+        MemberProp::Ident(ident) => format!(".{}", ident.sym.to_string()),
+        MemberProp::Computed(_) | MemberProp::PrivateName(_) => {
+          "[UNSUPPORTED]".to_string()
+        }
       };
-      let right = expr_to_name(&*member_expr.prop);
-      format!("[{}.{}]", left, right)
+      format!("[{}{}]", left, right)
     }
     Lit(lit) => {
       use deno_ast::swc::ast::BigInt;

@@ -29,6 +29,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     None,
     None,
     None,
+    None,
   )
   .await;
   (graph, root)
@@ -137,6 +138,7 @@ async fn content_type_handling() {
     None,
     None,
     None,
+    None,
   )
   .await;
   let source_parser = deno_graph::DefaultSourceParser::new();
@@ -179,6 +181,7 @@ async fn types_header_handling() {
     false,
     None,
     &mut memory_loader,
+    None,
     None,
     None,
     None,
@@ -893,7 +896,7 @@ export class A {
 
   /**
    * Some leading documentation here.
-   * 
+   *
    * @param {string} name some comment
    * @param {string} a    some other comment that
    *                      spans two lines
