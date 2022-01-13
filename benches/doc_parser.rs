@@ -27,6 +27,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
     None,
     None,
     None,
+    None,
   )
   .await;
   let source_parser = deno_graph::DefaultSourceParser::new();

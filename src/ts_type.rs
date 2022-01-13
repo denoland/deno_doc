@@ -1481,7 +1481,7 @@ fn infer_ts_type_from_new_expr(new_expr: &NewExpr) -> Option<TsTypeDef> {
 
 fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
   match &call_expr.callee {
-    ExprOrSuper::Expr(expr) => {
+    Callee::Expr(expr) => {
       if let Expr::Ident(ident) = expr.as_ref() {
         let sym = ident.sym.to_string();
         match sym.as_str() {
