@@ -4,7 +4,7 @@ use crate::parser::DocParser;
 
 use anyhow::anyhow;
 use anyhow::Result;
-use deno_graph::create_graph;
+use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::Loader;
 use deno_graph::source::Resolver;
@@ -86,7 +86,7 @@ pub async fn doc(
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   let mut loader = JsLoader::new(load);
   let maybe_resolver = maybe_resolve.map(JsResolver::new);
-  let graph = create_graph(
+  let graph = create_type_graph(
     vec![root_specifier.clone()],
     false,
     None,
