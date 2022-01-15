@@ -6,7 +6,7 @@ use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocPrinter;
-use deno_graph::create_graph;
+use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
@@ -61,7 +61,7 @@ fn main() {
   let mut loader = SourceFileLoader {};
   let future = async move {
     let source_parser = DefaultSourceParser::new();
-    let graph = create_graph(
+    let graph = create_type_graph(
       vec![source_file.clone()],
       false,
       None,

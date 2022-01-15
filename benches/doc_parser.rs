@@ -7,7 +7,7 @@ use criterion::Criterion;
 
 use deno_doc::DocNode;
 use deno_doc::DocParser;
-use deno_graph::create_graph;
+use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::ModuleSpecifier;
 
@@ -19,7 +19,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("file:///test/fixtures/deno.d.ts").unwrap();
-  let graph = create_graph(
+  let graph = create_type_graph(
     vec![root.clone()],
     false,
     None,

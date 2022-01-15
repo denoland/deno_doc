@@ -2,7 +2,7 @@
 
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use deno_graph::create_graph;
+use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -21,7 +21,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
-  let graph = create_graph(
+  let graph = create_type_graph(
     vec![root.clone()],
     false,
     None,
@@ -130,7 +130,7 @@ async fn content_type_handling() {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
-  let graph = create_graph(
+  let graph = create_type_graph(
     vec![root.clone()],
     false,
     None,
@@ -176,7 +176,7 @@ async fn types_header_handling() {
   ];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
-  let graph = create_graph(
+  let graph = create_type_graph(
     vec![root.clone()],
     false,
     None,
