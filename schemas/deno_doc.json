@@ -1,0 +1,168 @@
+{
+  "$id": "https://deno.land/schemas/deno_doc.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "A JSON representation of a deno_doc documentation structure",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/DocNode"
+  },
+  "definitions": {
+    "DocNode": {
+      "type": "object",
+      "required": [
+        "kind",
+        "name",
+        "location"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "function",
+            "variable",
+            "enum",
+            "class",
+            "typeAlias",
+            "namespace",
+            "interface",
+            "import"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/definitions/Location"
+        },
+        "jsDoc": {
+          "type": "string"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "functionDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "function"
+            },
+            "functionDef": {
+              "$ref": "#/definitions/FunctionDef"
+            }
+          }
+        },
+        {
+          "required": [
+            "variableDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "variable"
+            },
+            "variableDef": {
+              "$ref": "#/definitions/VariableDef"
+            }
+          }
+        },
+        {
+          "required": [
+            "enumDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "enum"
+            },
+            "enumDef": {
+              "$ref": "#/definitions/EnumDef"
+            }
+          }
+        },
+        {
+          "required": [
+            "classDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "class"
+            }
+          },
+          "classDef": {
+            "$ref": "#/definitions/ClassDef"
+          }
+        },
+        {
+          "required": [
+            "typeAliasDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "typeAlias"
+            }
+          },
+          "typeAliasDef": {
+            "$ref": "#/definitions/TypeAliasDef"
+          }
+        },
+        {
+          "required": [
+            "namespaceDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "namespace"
+            }
+          },
+          "namespaceDef": {
+            "$ref": "#/definitions/NamespaceDef"
+          }
+        },
+        {
+          "required": [
+            "interfaceDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "interface"
+            }
+          },
+          "interfaceDef": {
+            "$ref": "#/definitions/interfaceDef"
+          }
+        },
+        {
+          "required": [
+            "importDef"
+          ],
+          "properties": {
+            "kind": {
+              "const": "import"
+            },
+            "importDef": {
+              "$ref": "#/definitions/ImportDef"
+            }
+          }
+        }
+      ]
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "filename",
+        "line",
+        "col"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "line": {
+          "type": "number"
+        },
+        "col": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}
