@@ -24,9 +24,9 @@ use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
 use deno_graph::MediaType;
-use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::Resolved;
 use deno_graph::SourceParser;
 
 use std::collections::HashMap;
@@ -138,15 +138,15 @@ impl<'a> DocParser<'a> {
         ))
       })?;
 
-    if let Module::Es(module) = module {
+    if let Some(source_code) = &module.maybe_source {
       self.parse_source(
         &module.specifier,
         module.media_type,
-        module.source.clone(),
+        source_code.clone(),
       )
     } else {
       Err(DocError::Resolve(format!(
-        "{} is not an JavaScript/TypeScript module",
+        "{} does not contain any source code",
         specifier
       )))
     }
@@ -259,12 +259,12 @@ impl<'a> DocParser<'a> {
         ))
       })?;
 
-    let module = if let Some((_, Some(Ok((types_specifier, _))))) =
-      module.maybe_types_dependency()
+    let module = if let Some((_, Resolved::Ok { specifier, .. })) =
+      &module.maybe_types_dependency
     {
       self
         .graph
-        .try_get(types_specifier)
+        .try_get(specifier)
         .map_err(|err| DocError::Resolve(err.to_string()))?
         .ok_or_else(|| {
           DocError::Resolve(format!(
@@ -276,11 +276,11 @@ impl<'a> DocParser<'a> {
       module
     };
 
-    if let Module::Es(module) = module {
+    if let Some(source_code) = &module.maybe_source {
       let module_doc = self.parse_module(
         &module.specifier,
         module.media_type,
-        module.source.clone(),
+        source_code.clone(),
       )?;
 
       let flattened_docs = if !module_doc.reexports.is_empty() {
@@ -296,7 +296,7 @@ impl<'a> DocParser<'a> {
     } else {
       Err(DocError::Resolve(format!(
         "{} is not a JavaScript/TypeScript module",
-        module.specifier()
+        module.specifier
       )))
     }
   }

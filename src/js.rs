@@ -7,6 +7,7 @@ use anyhow::Result;
 use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::Loader;
+use deno_graph::source::ResolveResponse;
 use deno_graph::source::Resolver;
 use deno_graph::ModuleSpecifier;
 use wasm_bindgen::prelude::*;
@@ -61,17 +62,26 @@ impl Resolver for JsResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier> {
+  ) -> ResolveResponse {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
     let arg1 = JsValue::from(referrer.to_string());
-    let value = self
-      .resolve
-      .call2(&this, &arg0, &arg1)
-      .map_err(|_| anyhow!("JavaScript resolve() function threw."))?;
-    let value: String = value.into_serde()?;
-    let resolved_specifier = ModuleSpecifier::parse(&value)?;
-    Ok(resolved_specifier)
+    let value = match self.resolve.call2(&this, &arg0, &arg1) {
+      Ok(value) => value,
+      Err(_) => {
+        return ResolveResponse::Err(anyhow!(
+          "JavaScript resolve() function threw."
+        ))
+      }
+    };
+    let value: String = match value.into_serde() {
+      Ok(value) => value,
+      Err(err) => return ResolveResponse::Err(err.into()),
+    };
+    match ModuleSpecifier::parse(&value) {
+      Ok(specifier) => ResolveResponse::Specifier(specifier),
+      Err(err) => ResolveResponse::Err(err.into()),
+    }
   }
 }
 

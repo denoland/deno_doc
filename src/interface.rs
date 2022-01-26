@@ -188,7 +188,7 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
     Member(member_expr) => {
       let left = expr_to_name(&*member_expr.obj);
       let right = match &member_expr.prop {
-        MemberProp::Ident(ident) => format!(".{}", ident.sym.to_string()),
+        MemberProp::Ident(ident) => format!(".{}", ident.sym),
         MemberProp::Computed(_) | MemberProp::PrivateName(_) => {
           "[UNSUPPORTED]".to_string()
         }
