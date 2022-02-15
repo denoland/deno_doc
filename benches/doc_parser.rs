@@ -9,13 +9,18 @@ use deno_doc::DocNode;
 use deno_doc::DocParser;
 use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
+use deno_graph::source::Source;
 use deno_graph::ModuleSpecifier;
 
 async fn parse_with_reexports() -> Vec<DocNode> {
   let source = std::fs::read_to_string("./benches/fixtures/deno.d.ts").unwrap();
   let sources = vec![(
     "file:///test/fixtures/deno.d.ts",
-    Ok(("file:///test/fixtures/deno.d.ts", None, source.as_str())),
+    Source::Module {
+      specifier: "file:///test/fixtures/deno.d.ts",
+      maybe_headers: None,
+      content: source.as_str(),
+    },
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("file:///test/fixtures/deno.d.ts").unwrap();
