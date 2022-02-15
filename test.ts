@@ -65,6 +65,7 @@ Deno.test({
     const entries = await doc("https://example.com/a", {
       load(specifier) {
         return Promise.resolve({
+          kind: "module",
           specifier,
           headers: {
             "content-type": "application/typescript; charset=utf-8",

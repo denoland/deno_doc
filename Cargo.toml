@@ -27,6 +27,7 @@ serde_json = { version = "1.0.67", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
 wasm-bindgen = { version = "0.2.79", features = ["serde-serialize"], optional = true }
 wasm-bindgen-futures = { version = "0.4.28", optional = true }
+console_error_panic_hook = "0.1.6"
 
 [dev-dependencies]
 clap = "2.33.3"

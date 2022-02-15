@@ -2,10 +2,10 @@
 
 import { doc as jsDoc } from "./lib/deno_doc.generated.js";
 import type { DocNode } from "./lib/types.d.ts";
-import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.2.0/lib/loader.ts";
-import type { LoadResponse } from "https://deno.land/x/deno_graph@0.2.0/mod.ts";
+import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.23.0/lib/loader.ts";
+import type { LoadResponse } from "https://deno.land/x/deno_graph@0.23.0/mod.ts";
 
-export type { LoadResponse } from "https://deno.land/x/deno_graph@0.2.0/mod.ts";
+export type { LoadResponse } from "https://deno.land/x/deno_graph@0.23.0/mod.ts";
 
 export interface DocOptions {
   /** If `true` include all documentation nodes in the output, included private
