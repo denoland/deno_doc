@@ -30,7 +30,7 @@ impl Loader for SourceFileLoader {
       let path = specifier.to_file_path().unwrap();
       read_to_string(path)
         .map(|content| {
-          Some(LoadResponse {
+          Some(LoadResponse::Module {
             specifier: specifier.clone(),
             maybe_headers: None,
             content: Arc::new(content),
