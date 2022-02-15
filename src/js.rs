@@ -1,4 +1,6 @@
-// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
+// https://github.com/rustwasm/wasm-bindgen/issues/2774
+#![allow(clippy::unused_unit)]
 
 use crate::parser::DocParser;
 
@@ -92,6 +94,7 @@ pub async fn doc(
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
 ) -> Result<JsValue, JsValue> {
+  console_error_panic_hook::set_once();
   let root_specifier = ModuleSpecifier::parse(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   let mut loader = JsLoader::new(load);

@@ -1,9 +1,10 @@
-// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
 use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
+use deno_graph::source::Source;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
@@ -17,7 +18,16 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
 ) -> (ModuleGraph, ModuleSpecifier) {
   let sources = sources
     .into_iter()
-    .map(|(s, h, c)| (s, Ok((s, h, c))))
+    .map(|(s, h, c)| {
+      (
+        s,
+        Source::Module {
+          specifier: s,
+          maybe_headers: h,
+          content: c,
+        },
+      )
+    })
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
@@ -117,16 +127,16 @@ macro_rules! json_test {
 async fn content_type_handling() {
   let sources = vec![(
     "https://example.com/a",
-    Ok((
-      "https://example.com/a",
-      Some(vec![(
+    Source::Module {
+      specifier: "https://example.com/a",
+      maybe_headers: Some(vec![(
         "content-type",
         "application/typescript; charset=utf-8",
       )]),
-      r#"declare interface A {
+      content: r#"declare interface A {
       a: string;
     }"#,
-    )),
+    },
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
@@ -153,25 +163,25 @@ async fn types_header_handling() {
   let sources = vec![
     (
       "https://example.com/a.js",
-      Ok((
-        "https://example.com/a.js",
-        Some(vec![
+      Source::Module {
+        specifier: "https://example.com/a.js",
+        maybe_headers: Some(vec![
           ("content-type", "application/javascript; charset=utf-8"),
           ("x-typescript-types", "./a.d.ts"),
         ]),
-        r#"console.log("a");"#,
-      )),
+        content: r#"console.log("a");"#,
+      },
     ),
     (
       "https://example.com/a.d.ts",
-      Ok((
-        "https://example.com/a.d.ts",
-        Some(vec![(
+      Source::Module {
+        specifier: "https://example.com/a.d.ts",
+        maybe_headers: Some(vec![(
           "content-type",
           "application/typescript; charset=utf-8",
         )]),
-        r#"export const a: "a";"#,
-      )),
+        content: r#"export const a: "a";"#,
+      },
     ),
   ];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);

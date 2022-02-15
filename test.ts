@@ -1,4 +1,4 @@
-// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 import {
   assert,
@@ -65,6 +65,7 @@ Deno.test({
     const entries = await doc("https://example.com/a", {
       load(specifier) {
         return Promise.resolve({
+          kind: "module",
           specifier,
           headers: {
             "content-type": "application/typescript; charset=utf-8",

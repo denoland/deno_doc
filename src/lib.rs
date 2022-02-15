@@ -1,4 +1,4 @@
-// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 #![recursion_limit = "256"]
 

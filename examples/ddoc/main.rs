@@ -1,4 +1,4 @@
-// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use clap::App;
 use clap::Arg;
@@ -30,7 +30,7 @@ impl Loader for SourceFileLoader {
       let path = specifier.to_file_path().unwrap();
       read_to_string(path)
         .map(|content| {
-          Some(LoadResponse {
+          Some(LoadResponse::Module {
             specifier: specifier.clone(),
             maybe_headers: None,
             content: Arc::new(content),
