@@ -1,4 +1,4 @@
-// Copyright 2020-2021 the Deno authors. All rights reserved. MIT license.
+// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 import { doc as jsDoc } from "./lib/deno_doc.generated.js";
 import type { DocNode } from "./lib/types.d.ts";
