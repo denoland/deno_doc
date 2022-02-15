@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.30.0"
+version = "0.31.0"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -27,7 +27,7 @@ serde_json = { version = "1.0.67", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
 wasm-bindgen = { version = "0.2.79", features = ["serde-serialize"], optional = true }
 wasm-bindgen-futures = { version = "0.4.28", optional = true }
-console_error_panic_hook = "0.1.6"
+console_error_panic_hook = { version = "0.1.6", optional = true }
 
 [dev-dependencies]
 clap = "2.33.3"
@@ -38,7 +38,7 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["rust"]
 rust = []
-wasm = ["anyhow", "js-sys", "wasm-bindgen", "wasm-bindgen-futures"]
+wasm = ["anyhow", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
 
 [profile.release]
 codegen-units = 1
