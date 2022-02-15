@@ -1,4 +1,6 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
+// https://github.com/rustwasm/wasm-bindgen/issues/2774
+#![allow(clippy::unused_unit)]
 
 use crate::parser::DocParser;
 
@@ -85,8 +87,6 @@ impl Resolver for JsResolver {
   }
 }
 
-// https://github.com/rustwasm/wasm-bindgen/issues/2774
-#[allow(clippy::unused_unit)]
 #[wasm_bindgen]
 pub async fn doc(
   root_specifier: String,
