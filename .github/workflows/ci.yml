@@ -26,15 +26,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Install rust
-        uses: hecrj/setup-rust-action@v1.3.4
-        with:
-          rust-version: 1.57.0
-
-      - name: Install clippy and rustfmt
-        run: |
-          rustup component add clippy
-          rustup component add rustfmt
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v1
