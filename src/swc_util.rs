@@ -40,7 +40,7 @@ pub(crate) fn js_doc_for_span(
   let comments = parsed_source
     .comments()
     .get_leading(span.lo())
-    .unwrap_or_else(Vec::new);
+    .unwrap_or_default();
   if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {

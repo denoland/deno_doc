@@ -273,7 +273,7 @@ impl From<&TsTypeRef> for TsTypeDef {
 
 impl From<&TsExprWithTypeArgs> for TsTypeDef {
   fn from(other: &TsExprWithTypeArgs) -> TsTypeDef {
-    let type_name = ts_entity_name_to_name(&other.expr);
+    let type_name = expr_to_name(&other.expr);
 
     let type_params = if let Some(type_params_inst) = &other.type_args {
       let mut ts_type_defs = vec![];
@@ -1674,11 +1674,9 @@ impl Display for TsTypeDef {
             "{}",
             colors::yellow(&literal.number.unwrap().to_string())
           ),
-          LiteralDefKind::BigInt => write!(
-            f,
-            "{}",
-            colors::yellow(&literal.string.as_ref().unwrap().to_string())
-          ),
+          LiteralDefKind::BigInt => {
+            write!(f, "{}", colors::yellow(&literal.string.as_ref().unwrap()))
+          }
         }
       }
       TsTypeDefKind::Optional => {
