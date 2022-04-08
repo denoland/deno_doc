@@ -1164,7 +1164,7 @@ impl TsTypeDef {
       ts_types.push((get_span_from_type(ts_type), t, repr))
     }
     for quasi in quasis {
-      let repr = quasi.raw.value.to_string();
+      let repr = quasi.raw.to_string();
       let lit = LiteralDef {
         kind: LiteralDefKind::String,
         number: None,
