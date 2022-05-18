@@ -1,8 +1,8 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::SwcSourceRanged;
-use deno_ast::SourceRanged;
 use deno_ast::ParsedSource;
+use deno_ast::SourceRanged;
+use deno_ast::SwcSourceRanged;
 
 use crate::node::DeclarationKind;
 use crate::node::DocNode;

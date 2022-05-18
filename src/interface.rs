@@ -237,7 +237,8 @@ pub fn get_doc_for_ts_interface_decl(
 
     match &type_element {
       TsMethodSignature(ts_method_sig) => {
-        let method_js_doc = js_doc_for_range(parsed_source, &ts_method_sig.range());
+        let method_js_doc =
+          js_doc_for_range(parsed_source, &ts_method_sig.range());
 
         let mut params = vec![];
 
@@ -269,7 +270,8 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsGetterSignature(ts_getter_sig) => {
-        let method_js_doc = js_doc_for_range(parsed_source, &ts_getter_sig.range());
+        let method_js_doc =
+          js_doc_for_range(parsed_source, &ts_getter_sig.range());
         let name = expr_to_name(&*ts_getter_sig.key);
 
         let maybe_return_type =
@@ -289,7 +291,8 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsSetterSignature(ts_setter_sig) => {
-        let method_js_doc = js_doc_for_range(parsed_source, &ts_setter_sig.range());
+        let method_js_doc =
+          js_doc_for_range(parsed_source, &ts_setter_sig.range());
 
         let name = expr_to_name(&*ts_setter_sig.key);
 
@@ -341,7 +344,8 @@ pub fn get_doc_for_ts_interface_decl(
         properties.push(prop_def);
       }
       TsCallSignatureDecl(ts_call_sig) => {
-        let call_sig_js_doc = js_doc_for_range(parsed_source, &ts_call_sig.range());
+        let call_sig_js_doc =
+          js_doc_for_range(parsed_source, &ts_call_sig.range());
 
         let mut params = vec![];
         for param in &ts_call_sig.params {

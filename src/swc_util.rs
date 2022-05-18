@@ -1,12 +1,12 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::SourcePos;
-use deno_ast::SourceRange;
-use deno_ast::SwcSourceRanged;
 use deno_ast::swc::ast::ModuleExportName;
 use deno_ast::swc::common::comments::Comment;
 use deno_ast::swc::common::comments::CommentKind;
 use deno_ast::ParsedSource;
+use deno_ast::SourcePos;
+use deno_ast::SourceRange;
+use deno_ast::SwcSourceRanged;
 use regex::Regex;
 
 use crate::js_doc::JsDoc;

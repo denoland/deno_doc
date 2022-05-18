@@ -13,9 +13,9 @@ use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
 
+use deno_ast::swc::ast::*;
 use deno_ast::SourceRange;
 use deno_ast::SwcSourceRanged;
-use deno_ast::swc::ast::*;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;

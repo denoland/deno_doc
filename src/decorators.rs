@@ -6,8 +6,8 @@ use crate::swc_util::get_location;
 
 use deno_ast::swc::ast::Decorator;
 use deno_ast::swc::ast::Expr;
-use deno_ast::SwcSourceRanged;
 use deno_ast::ParsedSource;
+use deno_ast::SwcSourceRanged;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -51,7 +51,9 @@ impl DecoratorDef {
             let args = call_expr
               .args
               .iter()
-              .map(|a| parsed_source.text_info().range_text(&a.range()).to_string())
+              .map(|a| {
+                parsed_source.text_info().range_text(&a.range()).to_string()
+              })
               .collect();
             return Self {
               name: ident.sym.to_string(),

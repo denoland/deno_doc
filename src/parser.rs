@@ -14,7 +14,6 @@ use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
 
-use deno_ast::SwcSourceRanged;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportSpecifier;
@@ -24,6 +23,7 @@ use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
+use deno_ast::SwcSourceRanged;
 use deno_graph::MediaType;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -376,7 +376,8 @@ impl<'a> DocParser<'a> {
         )]
       }
       ModuleDecl::ExportDefaultDecl(export_default_decl) => {
-        let js_doc = js_doc_for_range(parsed_source, &export_default_decl.range());
+        let js_doc =
+          js_doc_for_range(parsed_source, &export_default_decl.range());
         let location = get_location(parsed_source, export_default_decl.start());
         let name = "default".to_string();
 
@@ -486,7 +487,8 @@ impl<'a> DocParser<'a> {
             parsed_source,
             ts_interface_decl,
           );
-        let js_doc = js_doc_for_range(parsed_source, &ts_interface_decl.range());
+        let js_doc =
+          js_doc_for_range(parsed_source, &ts_interface_decl.range());
         let location = get_location(parsed_source, ts_interface_decl.start());
         Some(DocNode::interface(
           name,
@@ -818,7 +820,8 @@ impl<'a> DocParser<'a> {
                   });
                 }
               } else {
-                let js_doc = js_doc_for_range(parsed_source, &export_expr.range());
+                let js_doc =
+                  js_doc_for_range(parsed_source, &export_expr.range());
                 let location = get_location(parsed_source, export_expr.start());
                 doc_entries.push(DocNode::variable(
                   String::from("default"),
