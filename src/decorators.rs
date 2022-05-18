@@ -6,7 +6,7 @@ use crate::swc_util::get_location;
 
 use deno_ast::swc::ast::Decorator;
 use deno_ast::swc::ast::Expr;
-use deno_ast::swc::common::Spanned;
+use deno_ast::SwcSourceRanged;
 use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
@@ -51,30 +51,30 @@ impl DecoratorDef {
             let args = call_expr
               .args
               .iter()
-              .map(|a| parsed_source.source().span_text(&a.span()).to_string())
+              .map(|a| parsed_source.text_info().range_text(&a.range()).to_string())
               .collect();
             return Self {
               name: ident.sym.to_string(),
               args,
-              location: get_location(parsed_source, ident.span.lo),
+              location: get_location(parsed_source, ident.start()),
             };
           }
         }
         Self {
           name: "[UNSUPPORTED]".to_string(),
           args: vec![],
-          location: get_location(parsed_source, call_expr.span.lo),
+          location: get_location(parsed_source, call_expr.start()),
         }
       }
       Expr::Ident(ident) => Self {
         name: ident.sym.to_string(),
         args: vec![],
-        location: get_location(parsed_source, ident.span.lo),
+        location: get_location(parsed_source, ident.start()),
       },
       _ => Self {
         name: "[UNSUPPORTED]".to_string(),
         args: vec![],
-        location: get_location(parsed_source, decorator.span.lo),
+        location: get_location(parsed_source, decorator.start()),
       },
     }
   }

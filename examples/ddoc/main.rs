@@ -16,7 +16,6 @@ use futures::executor::block_on;
 use futures::future;
 use std::env::current_dir;
 use std::fs::read_to_string;
-use std::sync::Arc;
 
 struct SourceFileLoader {}
 
@@ -33,7 +32,7 @@ impl Loader for SourceFileLoader {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
             maybe_headers: None,
-            content: Arc::new(content),
+            content: content.into(),
           })
         })
         .map_err(|err| err.into())

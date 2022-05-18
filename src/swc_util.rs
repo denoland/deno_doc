@@ -1,11 +1,11 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::SourcePos;
+use deno_ast::SourceRange;
+use deno_ast::SwcSourceRanged;
 use deno_ast::swc::ast::ModuleExportName;
 use deno_ast::swc::common::comments::Comment;
 use deno_ast::swc::common::comments::CommentKind;
-use deno_ast::swc::common::comments::Comments;
-use deno_ast::swc::common::BytePos;
-use deno_ast::swc::common::Span;
 use deno_ast::ParsedSource;
 use regex::Regex;
 
@@ -33,13 +33,14 @@ fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
   txt.into()
 }
 
-pub(crate) fn js_doc_for_span(
+pub(crate) fn js_doc_for_range(
   parsed_source: &ParsedSource,
-  span: &Span,
+  range: &SourceRange,
 ) -> JsDoc {
   let comments = parsed_source
     .comments()
-    .get_leading(span.lo())
+    .get_leading(range.start)
+    .cloned()
     .unwrap_or_default();
   if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
@@ -51,11 +52,11 @@ pub(crate) fn js_doc_for_span(
 }
 
 /// Inspects leading comments in the source and returns the first JSDoc comment
-/// with a `@module` tag along with its associated span, otherwise returns
+/// with a `@module` tag along with its associated range, otherwise returns
 /// `None`.
 pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
-) -> Option<(JsDoc, Span)> {
+) -> Option<(JsDoc, SourceRange)> {
   let comments = parsed_source.get_leading_comments();
   if let Some(js_doc_comment) = comments.iter().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
@@ -66,16 +67,16 @@ pub(crate) fn module_js_doc_for_source(
       .iter()
       .any(|tag| *tag == JsDocTag::Module)
     {
-      return Some((leading_js_doc, js_doc_comment.span));
+      return Some((leading_js_doc, js_doc_comment.range()));
     }
   }
   None
 }
 
-pub fn get_location(parsed_source: &ParsedSource, pos: BytePos) -> Location {
+pub fn get_location(parsed_source: &ParsedSource, pos: SourcePos) -> Location {
   // todo(#150): for some reason we're using a display indent width of 4
   let line_and_column_index = parsed_source
-    .source()
+    .text_info()
     .line_and_column_display_with_indent_width(pos, 4);
   Location {
     filename: parsed_source.specifier().to_string(),

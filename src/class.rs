@@ -1,6 +1,6 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::swc::common::Spanned;
+use deno_ast::SwcSourceRanged;
 use deno_ast::ParsedSource;
 use serde::Deserialize;
 use serde::Serialize;
@@ -17,7 +17,7 @@ use crate::params::param_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
-use crate::swc_util::js_doc_for_span;
+use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
 use crate::ts_type::ts_type_ann_to_def;
@@ -247,7 +247,7 @@ pub fn class_to_class_def(
 
     match member {
       Constructor(ctor) => {
-        let ctor_js_doc = js_doc_for_span(parsed_source, &ctor.span());
+        let ctor_js_doc = js_doc_for_range(parsed_source, &ctor.range());
         let constructor_name =
           prop_name_to_string(Some(parsed_source), &ctor.key);
 
@@ -279,13 +279,13 @@ pub fn class_to_class_def(
           accessibility: ctor.accessibility,
           name: constructor_name,
           params,
-          location: get_location(parsed_source, ctor.span.lo()),
+          location: get_location(parsed_source, ctor.start()),
         };
         constructors.push(constructor_def);
       }
       Method(class_method) => {
         let method_js_doc =
-          js_doc_for_span(parsed_source, &class_method.span());
+          js_doc_for_range(parsed_source, &class_method.range());
         let method_name =
           prop_name_to_string(Some(parsed_source), &class_method.key);
         let fn_def =
@@ -299,12 +299,12 @@ pub fn class_to_class_def(
           name: method_name,
           kind: class_method.kind,
           function_def: fn_def,
-          location: get_location(parsed_source, class_method.span.lo()),
+          location: get_location(parsed_source, class_method.start()),
         };
         methods.push(method_def);
       }
       ClassProp(class_prop) => {
-        let prop_js_doc = js_doc_for_span(parsed_source, &class_prop.span());
+        let prop_js_doc = js_doc_for_range(parsed_source, &class_prop.range());
 
         let ts_type = if let Some(type_ann) = &class_prop.type_ann {
           // if the property has a type annotation, use it
@@ -333,7 +333,7 @@ pub fn class_to_class_def(
           accessibility: class_prop.accessibility,
           name: prop_name,
           decorators,
-          location: get_location(parsed_source, class_prop.span.lo()),
+          location: get_location(parsed_source, class_prop.start()),
         };
         properties.push(prop_def);
       }
@@ -376,7 +376,7 @@ pub fn class_to_class_def(
   // JSDoc associated with the class may actually be a leading comment on a
   // decorator, and so we should parse out the JSDoc for the first decorator
   let js_doc = if !class.decorators.is_empty() {
-    js_doc_for_span(parsed_source, &class.decorators[0].span)
+    js_doc_for_range(parsed_source, &class.decorators[0].range())
   } else {
     JsDoc::default()
   };

@@ -7,13 +7,14 @@ use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
-use crate::swc_util::js_doc_for_span;
+use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
 use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
 
+use deno_ast::SwcSourceRanged;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportSpecifier;
@@ -98,7 +99,7 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
     media_type: MediaType,
-    source_code: Arc<String>,
+    source_code: Arc<str>,
   ) -> Result<ModuleDoc, DocError> {
     let parsed_source =
       self
@@ -158,7 +159,7 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
     media_type: MediaType,
-    source_code: Arc<String>,
+    source_code: Arc<str>,
   ) -> Result<Vec<DocNode>, DocError> {
     self
       .parse_module(specifier, media_type, source_code)
@@ -314,8 +315,8 @@ impl<'a> DocParser<'a> {
         import_decl,
       )) = node
       {
-        let js_doc = js_doc_for_span(parsed_source, &import_decl.span);
-        let location = get_location(parsed_source, import_decl.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &import_decl.range());
+        let location = get_location(parsed_source, import_decl.start());
         for specifier in &import_decl.specifiers {
           use deno_ast::swc::ast::ImportSpecifier::*;
 
@@ -375,8 +376,8 @@ impl<'a> DocParser<'a> {
         )]
       }
       ModuleDecl::ExportDefaultDecl(export_default_decl) => {
-        let js_doc = js_doc_for_span(parsed_source, &export_default_decl.span);
-        let location = get_location(parsed_source, export_default_decl.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &export_default_decl.range());
+        let location = get_location(parsed_source, export_default_decl.start());
         let name = "default".to_string();
 
         let doc_node = match &export_default_decl.decl {
@@ -444,8 +445,8 @@ impl<'a> DocParser<'a> {
         // declared classes cannot have decorators, so we ignore that return
         let (name, class_def, _) =
           super::class::get_doc_for_class_decl(parsed_source, class_decl);
-        let js_doc = js_doc_for_span(parsed_source, &class_decl.class.span);
-        let location = get_location(parsed_source, class_decl.class.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &class_decl.class.range());
+        let location = get_location(parsed_source, class_decl.class.start());
         Some(DocNode::class(
           name,
           location,
@@ -457,8 +458,8 @@ impl<'a> DocParser<'a> {
       Decl::Fn(fn_decl) => {
         let (name, function_def) =
           super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
-        let js_doc = js_doc_for_span(parsed_source, &fn_decl.function.span);
-        let location = get_location(parsed_source, fn_decl.function.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &fn_decl.function.range());
+        let location = get_location(parsed_source, fn_decl.function.start());
         Some(DocNode::function(
           name,
           location,
@@ -469,8 +470,8 @@ impl<'a> DocParser<'a> {
       }
       Decl::Var(var_decl) => {
         let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
-        let js_doc = js_doc_for_span(parsed_source, &var_decl.span);
-        let location = get_location(parsed_source, var_decl.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
+        let location = get_location(parsed_source, var_decl.start());
         Some(DocNode::variable(
           name,
           location,
@@ -485,8 +486,8 @@ impl<'a> DocParser<'a> {
             parsed_source,
             ts_interface_decl,
           );
-        let js_doc = js_doc_for_span(parsed_source, &ts_interface_decl.span);
-        let location = get_location(parsed_source, ts_interface_decl.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &ts_interface_decl.range());
+        let location = get_location(parsed_source, ts_interface_decl.start());
         Some(DocNode::interface(
           name,
           location,
@@ -501,8 +502,8 @@ impl<'a> DocParser<'a> {
             parsed_source,
             ts_type_alias,
           );
-        let js_doc = js_doc_for_span(parsed_source, &ts_type_alias.span);
-        let location = get_location(parsed_source, ts_type_alias.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &ts_type_alias.range());
+        let location = get_location(parsed_source, ts_type_alias.start());
         Some(DocNode::type_alias(
           name,
           location,
@@ -514,8 +515,8 @@ impl<'a> DocParser<'a> {
       Decl::TsEnum(ts_enum) => {
         let (name, enum_def) =
           super::r#enum::get_doc_for_ts_enum_decl(parsed_source, ts_enum);
-        let js_doc = js_doc_for_span(parsed_source, &ts_enum.span);
-        let location = get_location(parsed_source, ts_enum.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &ts_enum.range());
+        let location = get_location(parsed_source, ts_enum.start());
         Some(DocNode::r#enum(
           name,
           location,
@@ -530,8 +531,8 @@ impl<'a> DocParser<'a> {
           parsed_source,
           ts_module,
         );
-        let js_doc = js_doc_for_span(parsed_source, &ts_module.span);
-        let location = get_location(parsed_source, ts_module.span.lo);
+        let js_doc = js_doc_for_range(parsed_source, &ts_module.range());
+        let location = get_location(parsed_source, ts_module.start());
         Some(DocNode::namespace(
           name,
           location,
@@ -748,9 +749,9 @@ impl<'a> DocParser<'a> {
     let mut is_ambient = true;
 
     // check to see if there is a module level JSDoc for the source file
-    if let Some((js_doc, span)) = module_js_doc_for_source(parsed_source) {
+    if let Some((js_doc, range)) = module_js_doc_for_source(parsed_source) {
       let doc_node =
-        DocNode::module_doc(get_location(parsed_source, span.lo), js_doc);
+        DocNode::module_doc(get_location(parsed_source, range.start), js_doc);
       doc_entries.push(doc_node);
     }
 
@@ -817,8 +818,8 @@ impl<'a> DocParser<'a> {
                   });
                 }
               } else {
-                let js_doc = js_doc_for_span(parsed_source, &export_expr.span);
-                let location = get_location(parsed_source, export_expr.span.lo);
+                let js_doc = js_doc_for_range(parsed_source, &export_expr.range());
+                let location = get_location(parsed_source, export_expr.start());
                 doc_entries.push(DocNode::variable(
                   String::from("default"),
                   location,

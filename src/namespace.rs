@@ -1,13 +1,14 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ParsedSource;
+use deno_ast::SwcSourceRanged;
 use serde::{Deserialize, Serialize};
 
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::parser::DocParser;
 use crate::swc_util::get_location;
-use crate::swc_util::js_doc_for_span;
+use crate::swc_util::js_doc_for_range;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
@@ -19,8 +20,8 @@ pub fn get_doc_for_ts_namespace_decl(
   parsed_source: &ParsedSource,
   ts_namespace_decl: &deno_ast::swc::ast::TsNamespaceDecl,
 ) -> DocNode {
-  let js_doc = js_doc_for_span(parsed_source, &ts_namespace_decl.span);
-  let location = get_location(parsed_source, ts_namespace_decl.span.lo());
+  let js_doc = js_doc_for_range(parsed_source, &ts_namespace_decl.range());
+  let location = get_location(parsed_source, ts_namespace_decl.start());
   let namespace_name = ts_namespace_decl.id.sym.to_string();
 
   use deno_ast::swc::ast::TsNamespaceBody::*;

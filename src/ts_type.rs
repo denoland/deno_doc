@@ -13,8 +13,9 @@ use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
 
+use deno_ast::SourceRange;
+use deno_ast::SwcSourceRanged;
 use deno_ast::swc::ast::*;
-use deno_ast::swc::common::Span;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -1088,42 +1089,42 @@ impl Display for TsTypePredicateDef {
   }
 }
 
-fn get_span_from_type(ts_type: &TsType) -> Span {
+fn get_range_from_type(ts_type: &TsType) -> SourceRange {
   use deno_ast::swc::ast::TsType::*;
 
   match ts_type {
-    TsArrayType(ref t) => get_span_from_type(t.elem_type.as_ref()),
-    TsConditionalType(ref t) => get_span_from_type(t.check_type.as_ref()),
+    TsArrayType(ref t) => get_range_from_type(t.elem_type.as_ref()),
+    TsConditionalType(ref t) => get_range_from_type(t.check_type.as_ref()),
     TsFnOrConstructorType(ref t) => {
       if let Some(t) = t.clone().ts_constructor_type() {
-        t.span
+        t.range()
       } else if let Some(t) = t.clone().ts_fn_type() {
-        t.span
+        t.range()
       } else {
         unreachable!("no type found")
       }
     }
-    TsImportType(ref t) => t.span,
-    TsIndexedAccessType(ref t) => get_span_from_type(&t.index_type),
-    TsInferType(t) => t.span,
-    TsKeywordType(t) => t.span,
-    TsLitType(t) => t.span,
-    TsMappedType(t) => t.span,
-    TsOptionalType(t) => t.span,
-    TsParenthesizedType(t) => t.span,
-    TsRestType(t) => t.span,
-    TsThisType(t) => t.span,
-    TsTupleType(t) => t.span,
-    TsTypeLit(t) => t.span,
-    TsTypeOperator(t) => t.span,
-    TsTypePredicate(t) => t.span,
-    TsTypeQuery(t) => t.span,
-    TsTypeRef(t) => t.span,
+    TsImportType(ref t) => t.range(),
+    TsIndexedAccessType(ref t) => get_range_from_type(&t.index_type),
+    TsInferType(t) => t.range(),
+    TsKeywordType(t) => t.range(),
+    TsLitType(t) => t.range(),
+    TsMappedType(t) => t.range(),
+    TsOptionalType(t) => t.range(),
+    TsParenthesizedType(t) => t.range(),
+    TsRestType(t) => t.range(),
+    TsThisType(t) => t.range(),
+    TsTupleType(t) => t.range(),
+    TsTypeLit(t) => t.range(),
+    TsTypeOperator(t) => t.range(),
+    TsTypePredicate(t) => t.range(),
+    TsTypeQuery(t) => t.range(),
+    TsTypeRef(t) => t.range(),
     TsUnionOrIntersectionType(t) => {
       if let Some(t) = t.clone().ts_intersection_type() {
-        t.span
+        t.range()
       } else if let Some(t) = t.clone().ts_union_type() {
-        t.span
+        t.range()
       } else {
         unreachable!("no type found")
       }
@@ -1157,11 +1158,11 @@ impl TsTypeDef {
   }
 
   pub fn tpl_literal(types: &[Box<TsType>], quasis: &[TplElement]) -> Self {
-    let mut ts_types: Vec<(Span, Self, String)> = Vec::new();
+    let mut ts_types: Vec<(SourceRange, Self, String)> = Vec::new();
     for ts_type in types {
       let t: Self = ts_type.as_ref().into();
       let repr = format!("${{{}}}", t);
-      ts_types.push((get_span_from_type(ts_type), t, repr))
+      ts_types.push((get_range_from_type(ts_type), t, repr))
     }
     for quasi in quasis {
       let repr = quasi.raw.to_string();
@@ -1172,7 +1173,7 @@ impl TsTypeDef {
         ts_types: None,
         boolean: None,
       };
-      ts_types.push((quasi.span, Self::literal(repr.clone(), lit), repr));
+      ts_types.push((quasi.range(), Self::literal(repr.clone(), lit), repr));
     }
     ts_types.sort_by(|(a, _, _), (b, _, _)| a.cmp(b));
     let repr = ts_types

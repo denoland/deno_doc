@@ -1,24 +1,25 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::swc::common::Spanned;
+use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRanged;
 use deno_ast::ParsedSource;
 
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::parser::DocParser;
 use crate::swc_util::get_location;
-use crate::swc_util::js_doc_for_span;
+use crate::swc_util::js_doc_for_range;
 
 pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   export_decl: &deno_ast::swc::ast::ExportDecl,
 ) -> DocNode {
-  let export_span = export_decl.span();
   use deno_ast::swc::ast::Decl;
 
-  let js_doc = js_doc_for_span(parsed_source, &export_span);
-  let location = get_location(parsed_source, export_span.lo());
+  let export_range = export_decl.range();
+  let js_doc = js_doc_for_range(parsed_source, &export_range);
+  let location = get_location(parsed_source, export_range.start());
 
   match &export_decl.decl {
     Decl::Class(class_decl) => {
