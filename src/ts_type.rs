@@ -15,7 +15,7 @@ use crate::ParamDef;
 
 use deno_ast::swc::ast::*;
 use deno_ast::SourceRange;
-use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;

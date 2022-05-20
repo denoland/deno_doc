@@ -6,7 +6,7 @@ use deno_ast::swc::common::comments::CommentKind;
 use deno_ast::ParsedSource;
 use deno_ast::SourcePos;
 use deno_ast::SourceRange;
-use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use regex::Regex;
 
 use crate::js_doc::JsDoc;

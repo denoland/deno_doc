@@ -2,7 +2,7 @@
 
 use deno_ast::ParsedSource;
 use deno_ast::SourceRanged;
-use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRangedForSpanned;
 
 use crate::node::DeclarationKind;
 use crate::node::DocNode;

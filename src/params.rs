@@ -11,7 +11,7 @@ use deno_ast::swc::ast::ObjectPatProp;
 use deno_ast::swc::ast::Pat;
 use deno_ast::swc::ast::TsFnParam;
 use deno_ast::ParsedSource;
-use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;

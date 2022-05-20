@@ -23,7 +23,7 @@ use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
-use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use deno_graph::MediaType;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;

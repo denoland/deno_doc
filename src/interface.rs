@@ -1,7 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ParsedSource;
-use deno_ast::SwcSourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
