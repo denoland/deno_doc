@@ -1,6 +1,8 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 #![recursion_limit = "256"]
+#![deny(clippy::disallowed_methods)]
+#![deny(clippy::disallowed_types)]
 
 #[macro_use]
 extern crate cfg_if;

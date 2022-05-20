@@ -1,6 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ParsedSource;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -10,7 +11,7 @@ use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
 use crate::swc_util::is_false;
-use crate::swc_util::js_doc_for_span;
+use crate::swc_util::js_doc_for_range;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -236,7 +237,8 @@ pub fn get_doc_for_ts_interface_decl(
 
     match &type_element {
       TsMethodSignature(ts_method_sig) => {
-        let method_js_doc = js_doc_for_span(parsed_source, &ts_method_sig.span);
+        let method_js_doc =
+          js_doc_for_range(parsed_source, &ts_method_sig.range());
 
         let mut params = vec![];
 
@@ -258,7 +260,7 @@ pub fn get_doc_for_ts_interface_decl(
           name,
           kind: deno_ast::swc::ast::MethodKind::Method,
           js_doc: method_js_doc,
-          location: get_location(parsed_source, ts_method_sig.span.lo()),
+          location: get_location(parsed_source, ts_method_sig.start()),
           computed: ts_method_sig.computed,
           optional: ts_method_sig.optional,
           params,
@@ -268,7 +270,8 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsGetterSignature(ts_getter_sig) => {
-        let method_js_doc = js_doc_for_span(parsed_source, &ts_getter_sig.span);
+        let method_js_doc =
+          js_doc_for_range(parsed_source, &ts_getter_sig.range());
         let name = expr_to_name(&*ts_getter_sig.key);
 
         let maybe_return_type =
@@ -278,7 +281,7 @@ pub fn get_doc_for_ts_interface_decl(
           name,
           kind: deno_ast::swc::ast::MethodKind::Getter,
           js_doc: method_js_doc,
-          location: get_location(parsed_source, ts_getter_sig.span.lo()),
+          location: get_location(parsed_source, ts_getter_sig.start()),
           computed: ts_getter_sig.computed,
           optional: ts_getter_sig.optional,
           params: vec![],
@@ -288,7 +291,8 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsSetterSignature(ts_setter_sig) => {
-        let method_js_doc = js_doc_for_span(parsed_source, &ts_setter_sig.span);
+        let method_js_doc =
+          js_doc_for_range(parsed_source, &ts_setter_sig.range());
 
         let name = expr_to_name(&*ts_setter_sig.key);
 
@@ -300,7 +304,7 @@ pub fn get_doc_for_ts_interface_decl(
           name,
           kind: deno_ast::swc::ast::MethodKind::Setter,
           js_doc: method_js_doc,
-          location: get_location(parsed_source, ts_setter_sig.span.lo()),
+          location: get_location(parsed_source, ts_setter_sig.start()),
           computed: ts_setter_sig.computed,
           optional: ts_setter_sig.optional,
           params,
@@ -310,7 +314,7 @@ pub fn get_doc_for_ts_interface_decl(
         methods.push(method_def);
       }
       TsPropertySignature(ts_prop_sig) => {
-        let prop_js_doc = js_doc_for_span(parsed_source, &ts_prop_sig.span);
+        let prop_js_doc = js_doc_for_range(parsed_source, &ts_prop_sig.range());
         let name = expr_to_name(&*ts_prop_sig.key);
 
         let mut params = vec![];
@@ -329,7 +333,7 @@ pub fn get_doc_for_ts_interface_decl(
         let prop_def = InterfacePropertyDef {
           name,
           js_doc: prop_js_doc,
-          location: get_location(parsed_source, ts_prop_sig.span.lo()),
+          location: get_location(parsed_source, ts_prop_sig.start()),
           params,
           ts_type,
           readonly: ts_prop_sig.readonly,
@@ -340,7 +344,8 @@ pub fn get_doc_for_ts_interface_decl(
         properties.push(prop_def);
       }
       TsCallSignatureDecl(ts_call_sig) => {
-        let call_sig_js_doc = js_doc_for_span(parsed_source, &ts_call_sig.span);
+        let call_sig_js_doc =
+          js_doc_for_range(parsed_source, &ts_call_sig.range());
 
         let mut params = vec![];
         for param in &ts_call_sig.params {
@@ -356,7 +361,7 @@ pub fn get_doc_for_ts_interface_decl(
 
         let call_sig_def = InterfaceCallSignatureDef {
           js_doc: call_sig_js_doc,
-          location: get_location(parsed_source, ts_call_sig.span.lo()),
+          location: get_location(parsed_source, ts_call_sig.start()),
           params,
           ts_type,
           type_params,
@@ -385,7 +390,7 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
         let construct_js_doc =
-          js_doc_for_span(parsed_source, &ts_construct_sig.span);
+          js_doc_for_range(parsed_source, &ts_construct_sig.range());
 
         let mut params = vec![];
 
@@ -407,7 +412,7 @@ pub fn get_doc_for_ts_interface_decl(
           name: "new".to_string(),
           kind: deno_ast::swc::ast::MethodKind::Method,
           js_doc: construct_js_doc,
-          location: get_location(parsed_source, ts_construct_sig.span.lo()),
+          location: get_location(parsed_source, ts_construct_sig.start()),
           computed: false,
           optional: false,
           params,

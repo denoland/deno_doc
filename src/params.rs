@@ -11,6 +11,7 @@ use deno_ast::swc::ast::ObjectPatProp;
 use deno_ast::swc::ast::Pat;
 use deno_ast::swc::ast::TsFnParam;
 use deno_ast::ParsedSource;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -304,7 +305,7 @@ pub fn prop_name_to_string(
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => parsed_source
-      .map(|s| s.source().span_text(&comp_prop_name.span).to_string())
+      .map(|s| comp_prop_name.text_fast(&s.text_info()).to_string())
       .unwrap_or_else(|| "<UNAVAILABLE>".to_string()),
   }
 }

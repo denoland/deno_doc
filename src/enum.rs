@@ -1,11 +1,12 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ParsedSource;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::js_doc::JsDoc;
-use crate::swc_util::js_doc_for_span;
+use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::TsTypeDef;
 
@@ -35,7 +36,7 @@ pub fn get_doc_for_ts_enum_decl(
   for enum_member in &enum_decl.members {
     use deno_ast::swc::ast::TsEnumMemberId::*;
 
-    let js_doc = js_doc_for_span(parsed_source, &enum_member.span);
+    let js_doc = js_doc_for_range(parsed_source, &enum_member.range());
     let name = match &enum_member.id {
       Ident(ident) => ident.sym.to_string(),
       Str(str_) => str_.value.to_string(),
