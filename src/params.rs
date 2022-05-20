@@ -305,11 +305,7 @@ pub fn prop_name_to_string(
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => parsed_source
-      .map(|s| {
-        s.text_info()
-          .range_text(&comp_prop_name.range())
-          .to_string()
-      })
+      .map(|s| comp_prop_name.text_fast(&s.text_info()).to_string())
       .unwrap_or_else(|| "<UNAVAILABLE>".to_string()),
   }
 }
