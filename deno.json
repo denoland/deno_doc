@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "build": "deno run --unstable -A https://deno.land/x/wasmbuild@0.7.1/main.ts --no-default-features --features wasm"
+  }
+}
