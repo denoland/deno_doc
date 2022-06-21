@@ -1,11 +1,11 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-import { doc as jsDoc } from "./lib/deno_doc.generated.js";
+import { instantiate } from "./lib/deno_doc.generated.js";
 import type { DocNode } from "./lib/types.d.ts";
-import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.23.0/lib/loader.ts";
-import type { LoadResponse } from "https://deno.land/x/deno_graph@0.23.0/mod.ts";
+import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.28.0/lib/loader.ts";
+import type { LoadResponse } from "https://deno.land/x/deno_graph@0.28.0/mod.ts";
 
-export type { LoadResponse } from "https://deno.land/x/deno_graph@0.23.0/mod.ts";
+export type { LoadResponse } from "https://deno.land/x/deno_graph@0.28.0/mod.ts";
 
 export interface DocOptions {
   /** If `true` include all documentation nodes in the output, included private
@@ -61,10 +61,11 @@ export interface DocOptions {
  * @param options A set of options for generating the documentation
  * @returns A promise that resolves with an array of documentation nodes
  */
-export function doc(
+export async function doc(
   specifier: string,
   options: DocOptions = {},
 ): Promise<Array<DocNode>> {
   const { load = defaultLoad, includeAll = false, resolve } = options;
-  return jsDoc(specifier, includeAll, load, resolve);
+  const wasm = await instantiate();
+  return wasm.doc(specifier, includeAll, load, resolve);
 }

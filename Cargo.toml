@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.35.0"
+version = "0.36.0"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -16,17 +16,17 @@ name = "ddoc"
 [dependencies]
 anyhow = { version = "1.0.43", optional = true }
 cfg-if = "1.0.0"
-deno_ast = "0.15.0"
-deno_graph = "0.27.0"
+deno_ast = "0.16.0"
+deno_graph = "0.28.0"
 futures = "0.3.17"
-js-sys = { version = "0.3.55", optional = true }
+js-sys = { version = "0.3.58", optional = true }
 lazy_static = "1.4.0"
 regex = "1.5.4"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = { version = "1.0.67", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
-wasm-bindgen = { version = "0.2.79", features = ["serde-serialize"], optional = true }
-wasm-bindgen-futures = { version = "0.4.28", optional = true }
+wasm-bindgen = { version = "0.2.81", features = ["serde-serialize"], optional = true }
+wasm-bindgen-futures = { version = "0.4.31", optional = true }
 console_error_panic_hook = { version = "0.1.6", optional = true }
 
 [dev-dependencies]

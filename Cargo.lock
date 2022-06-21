@@ -337,21 +337,25 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.15.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2989afff97ba7da10f186e9a45e946b4ef943b9d4babd2ee7b4b24cc9906b69"
+checksum = "4ea41a91147a29a7fcd201af38db548dc22aa6ea5e5e13deff5d57dbf678133c"
 dependencies = [
  "data-url",
  "dprint-swc-ext",
  "serde",
- "swc_ecmascript",
+ "swc_atoms",
+ "swc_common",
+ "swc_ecma_ast",
+ "swc_ecma_dep_graph",
+ "swc_ecma_parser",
  "text_lines",
  "url",
 ]
 
 [[package]]
 name = "deno_doc"
-version = "0.35.0"
+version = "0.36.0"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -375,9 +379,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.27.0"
+version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99110bbe6cc90fc653a6bd51cf56d8545cd210f3da913aab63d7e362ab9dbaa4"
+checksum = "8deca521e5c0bfeb3c8f4f646f790f33cd5516610128a4396283d01b32d9d9de"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -403,16 +407,17 @@ checksum = "0e25ea47919b1560c4e3b7fe0aaab9becf5b84a10325ddf7db0f0ba5e1026499"
 
 [[package]]
 name = "dprint-swc-ext"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3df529037ff02f1c43ae8c6cce54d9ad85546ff89cb5c1988f56130c16e16a48"
+checksum = "9f31482d7839d23d2df252d84a7ba82bd012e338109e9c851793a9d46722d6c6"
 dependencies = [
  "bumpalo",
  "num-bigint",
  "rustc-hash",
  "swc_atoms",
  "swc_common",
- "swc_ecmascript",
+ "swc_ecma_ast",
+ "swc_ecma_parser",
  "text_lines",
 ]
 
@@ -652,9 +657,9 @@ checksum = "1aab8fc367588b89dcee83ab0fd66b72b50b72fa1904d7095045ace2b0c81c35"
 
 [[package]]
 name = "js-sys"
-version = "0.3.56"
+version = "0.3.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a38fc24e30fd564ce974c02bf1d337caddff65be6cc4735a1f7eab22a7440f04"
+checksum = "c3fac17f7123a73ca62df411b1bf727ccc805daa070338fda671c86dac1bdc27"
 dependencies = [
  "wasm-bindgen",
 ]
@@ -1358,19 +1363,22 @@ checksum = "6446ced80d6c486436db5c078dde11a9f73d42b57fb273121e160b84f63d894c"
 
 [[package]]
 name = "swc_atoms"
-version = "0.2.11"
+version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba8735ce37e421749498e038955abc1135eec6a4af0b54a173e55d2e5542d472"
+checksum = "4447e91cfebfe09f630f909358998fe6621afd10389ba5d6d7711e26105dc87c"
 dependencies = [
+ "once_cell",
+ "rustc-hash",
+ "serde",
  "string_cache",
  "string_cache_codegen",
 ]
 
 [[package]]
 name = "swc_common"
-version = "0.18.5"
+version = "0.18.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "269446a3916d32071ca4c1adb39761fd067bc352ba40e40fca11de881ece8007"
+checksum = "a7fd4917e5f1f563e475d7adf1cb343f9275ffa602f168b896b0ea8f35d70895"
 dependencies = [
  "ahash",
  "ast_node",
@@ -1394,10 +1402,11 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_ast"
-version = "0.78.1"
+version = "0.79.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21f40169fe465e9a93cda5fe397c3afcb69be5ba2f76c4ab22137af6effaebcc"
+checksum = "f559057f0a573fe3575605cdb5f6d6523b090995e0022444c24e4d206eb4bd57"
 dependencies = [
+ "bitflags",
  "is-macro",
  "num-bigint",
  "scoped-tls",
@@ -1410,9 +1419,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_dep_graph"
-version = "0.76.0"
+version = "0.77.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "553628795fd79a45f3e23b1a732684d887356f9177128cd8c3e90c3631075116"
+checksum = "713bf2fd11a92c6ad3cd8a75d89bbc4df6269d35c92f998d1b91cc8e4ae5cdd4"
 dependencies = [
  "swc_atoms",
  "swc_common",
@@ -1422,9 +1431,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.104.0"
+version = "0.105.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efb97dc6efc95313dedc5158055cc811da77395ef7b54be61948b5ad097a3671"
+checksum = "30288866d2daf61a05bfb8fefdf53abb9028775c89ffda999bd572c9f885ab69"
 dependencies = [
  "either",
  "enum_kind",
@@ -1437,14 +1446,13 @@ dependencies = [
  "swc_ecma_ast",
  "tracing",
  "typed-arena",
- "unicode-id",
 ]
 
 [[package]]
 name = "swc_ecma_visit"
-version = "0.64.0"
+version = "0.65.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2d3783a0dd1e301ae2945ab1241405f913427f9512ec62756d3d2072f7c21bb"
+checksum = "066077ce3279b593cbdbbb379735e230a794df7aef7206ba142850eb7197e91f"
 dependencies = [
  "num-bigint",
  "swc_atoms",
@@ -1452,17 +1460,6 @@ dependencies = [
  "swc_ecma_ast",
  "swc_visit",
  "tracing",
-]
-
-[[package]]
-name = "swc_ecmascript"
-version = "0.157.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd35679e1dc392f776b691b125692d90a7bebd5d23ec96699cfe37d8ae8633b1"
-dependencies = [
- "swc_ecma_ast",
- "swc_ecma_dep_graph",
- "swc_ecma_parser",
 ]
 
 [[package]]
@@ -1749,9 +1746,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.79"
+version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25f1af7423d8588a3d840681122e72e6a24ddbcb3f0ec385cac0d12d24256c06"
+checksum = "7c53b543413a17a202f4be280a7e5c62a1c69345f5de525ee64f8cfdbc954994"
 dependencies = [
  "cfg-if",
  "serde",
@@ -1761,9 +1758,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
-version = "0.2.79"
+version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b21c0df030f5a177f3cba22e9bc4322695ec43e7257d865302900290bcdedca"
+checksum = "5491a68ab4500fa6b4d726bd67408630c3dbe9c4fe7bda16d5c82a1fd8c7340a"
 dependencies = [
  "bumpalo",
  "lazy_static",
@@ -1776,9 +1773,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-futures"
-version = "0.4.29"
+version = "0.4.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2eb6ec270a31b1d3c7e266b999739109abce8b6c87e4b31fcfcd788b65267395"
+checksum = "de9a9cec1733468a8c657e57fa2413d2ae2c0129b95e87c5b72b8ace4d13f31f"
 dependencies = [
  "cfg-if",
  "js-sys",
@@ -1788,9 +1785,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.79"
+version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f4203d69e40a52ee523b2529a773d5ffc1dc0071801c87b3d270b471b80ed01"
+checksum = "c441e177922bc58f1e12c022624b6216378e5febc2f0533e41ba443d505b80aa"
 dependencies = [
  "quote",
  "wasm-bindgen-macro-support",
@@ -1798,9 +1795,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.79"
+version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfa8a30d46208db204854cadbb5d4baf5fcf8071ba5bf48190c3e59937962ebc"
+checksum = "7d94ac45fcf608c1f45ef53e748d35660f168490c10b23704c7779ab8f5c3048"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1811,9 +1808,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.79"
+version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d958d035c4438e28c70e4321a2911302f10135ce78a9c7834c0cab4123d06a2"
+checksum = "6a89911bd99e5f3659ec4acf9c4d93b0a90fe4a2a11f15328472058edc5261be"
 
 [[package]]
 name = "web-sys"
