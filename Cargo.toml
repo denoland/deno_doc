@@ -20,6 +20,7 @@ deno_ast = "0.16.0"
 deno_graph = "0.28.0"
 futures = "0.3.17"
 js-sys = { version = "0.3.58", optional = true }
+import_map = "0.11.0"
 lazy_static = "1.4.0"
 regex = "1.5.4"
 serde = { version = "1.0.130", features = ["derive"] }
