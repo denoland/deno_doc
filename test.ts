@@ -107,3 +107,38 @@ Deno.test({
     );
   },
 });
+
+Deno.test({
+  name: "doc() - with import map",
+  async fn() {
+    const entries = await doc("https://example.com/a.ts", {
+      importMap: "https://example.com/import_map.json",
+      load(specifier) {
+        let content = "";
+        switch (specifier) {
+          case "https://example.com/import_map.json":
+            content = JSON.stringify({
+              imports: { "b": "https://example.com/b.ts" },
+            });
+            break;
+          case "https://example.com/a.ts":
+            content = `export { B } from "b";\n`;
+            break;
+          case "https://example.com/b.ts":
+            content = `export class B {
+              b: string;
+            }`;
+            break;
+        }
+        return Promise.resolve({
+          kind: "module",
+          specifier,
+          content,
+        });
+      },
+    });
+    assertEquals(entries.length, 1);
+    assertEquals(entries[0].kind, "class");
+    assertEquals(entries[0].name, "B");
+  },
+});

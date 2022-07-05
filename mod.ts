@@ -8,6 +8,13 @@ import type { LoadResponse } from "https://deno.land/x/deno_graph@0.28.0/mod.ts"
 export type { LoadResponse } from "https://deno.land/x/deno_graph@0.28.0/mod.ts";
 
 export interface DocOptions {
+  /** An optional URL string which provides a location of an import map to be
+   * loaded and used to resolve module specifiers. This should be an absolute
+   * value.
+   *
+   * When a `resolve()` function is also specified, a warning will be issued
+   * and the import map will be used instead of the `resolve()` function. */
+  importMap?: string;
   /** If `true` include all documentation nodes in the output, included private
    * (non-exported) nodes. The default is `false`.  Use the `declarationKind`
    * of the `DocNode` to determine if the doc node is private, exported,
@@ -37,7 +44,10 @@ export interface DocOptions {
    * module graph to be "overridden". This is intended to allow items like an
    * import map to be used with the module graph. The callback takes the string
    * of the module specifier from the referrer and the string URL of the
-   * referrer. The callback then returns a resolved URL string specifier. */
+   * referrer. The callback then returns a resolved URL string specifier.
+   *
+   * When an `importMap` URL string and this method is specifier, a warning
+   * will be issued and the import map will be used. */
   resolve?(specifier: string, referrer: string): string;
 }
 
@@ -65,7 +75,8 @@ export async function doc(
   specifier: string,
   options: DocOptions = {},
 ): Promise<Array<DocNode>> {
-  const { load = defaultLoad, includeAll = false, resolve } = options;
+  const { load = defaultLoad, includeAll = false, resolve, importMap } =
+    options;
   const wasm = await instantiate();
-  return wasm.doc(specifier, includeAll, load, resolve);
+  return wasm.doc(specifier, includeAll, load, resolve, importMap);
 }

@@ -8,12 +8,24 @@ use anyhow::anyhow;
 use anyhow::Result;
 use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
+use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::source::ResolveResponse;
 use deno_graph::source::Resolver;
 use deno_graph::ModuleSpecifier;
+use import_map::ImportMap;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
+
+#[wasm_bindgen]
+extern "C" {
+  #[wasm_bindgen(js_namespace = console)]
+  fn warn(s: &str);
+}
+
+macro_rules! console_warn {
+  ($($t:tt)*) => (warn(&format_args!($($t)*).to_string()))
+}
 
 struct JsLoader {
   load: js_sys::Function,
@@ -45,6 +57,28 @@ impl Loader for JsLoader {
         .map_err(|_| anyhow!("load rejected or errored"))
     };
     Box::pin(f)
+  }
+}
+
+#[derive(Debug)]
+pub struct ImportMapResolver(ImportMap);
+
+impl ImportMapResolver {
+  pub fn new(import_map: ImportMap) -> Self {
+    Self(import_map)
+  }
+}
+
+impl Resolver for ImportMapResolver {
+  fn resolve(
+    &self,
+    specifier: &str,
+    referrer: &ModuleSpecifier,
+  ) -> ResolveResponse {
+    match self.0.resolve(specifier, referrer) {
+      Ok(resolved_specifier) => ResolveResponse::Specifier(resolved_specifier),
+      Err(err) => ResolveResponse::Err(err.into()),
+    }
   }
 }
 
@@ -93,18 +127,53 @@ pub async fn doc(
   include_all: bool,
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
+  maybe_import_map: Option<String>,
 ) -> Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
   let root_specifier = ModuleSpecifier::parse(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   let mut loader = JsLoader::new(load);
-  let maybe_resolver = maybe_resolve.map(JsResolver::new);
+  let maybe_resolver: Option<Box<dyn Resolver>> = if let Some(import_map) =
+    maybe_import_map
+  {
+    if maybe_resolve.is_some() {
+      console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
+    }
+    let import_map_specifier = ModuleSpecifier::parse(&import_map)
+      .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+    if let Some(LoadResponse::Module {
+      content, specifier, ..
+    }) = loader
+      .load(&import_map_specifier, false)
+      .await
+      .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?
+    {
+      let result = import_map::parse_from_json(&specifier, content.as_ref())
+        .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+      if !result.diagnostics.is_empty() {
+        console_warn!(
+          "Import map diagnostics:\n{}",
+          result
+            .diagnostics
+            .into_iter()
+            .map(|d| format!("  - {}", d))
+            .collect::<Vec<_>>()
+            .join("\n")
+        );
+      }
+      Some(Box::new(ImportMapResolver::new(result.import_map)))
+    } else {
+      None
+    }
+  } else {
+    maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
+  };
   let graph = create_type_graph(
     vec![root_specifier.clone()],
     false,
     None,
     &mut loader,
-    maybe_resolver.as_ref().map(|r| r as &dyn Resolver),
+    maybe_resolver.as_ref().map(|r| r.as_ref()),
     None,
     None,
     None,
