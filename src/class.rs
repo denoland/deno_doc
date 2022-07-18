@@ -242,11 +242,15 @@ pub fn class_to_class_def(
     .map(|expr| expr.into())
     .collect::<Vec<TsTypeDef>>();
 
-  for member in &class.body {
+  for (i, member) in class.body.iter().enumerate() {
     use deno_ast::swc::ast::ClassMember::*;
 
     match member {
       Constructor(ctor) => {
+        if i > 0 && matches!(class.body.get(i - 1), Some(Constructor(_))) && ctor.body.is_some() {
+          continue; // skip internal implementation signatures
+        }
+
         let ctor_js_doc = js_doc_for_range(parsed_source, &ctor.range());
         let constructor_name =
           prop_name_to_string(Some(parsed_source), &ctor.key);
@@ -284,6 +288,15 @@ pub fn class_to_class_def(
         constructors.push(constructor_def);
       }
       Method(class_method) => {
+        if i > 0 {
+          if let Some(Method(previous_method)) = class.body.get(i - 1) {
+            // todo: fix this as it's not correct
+            if class_method.function.body.is_some() && class_method.key == previous_method.key {
+              continue; // skip internal implementation signatures
+            }
+          }
+        }
+
         let method_js_doc =
           js_doc_for_range(parsed_source, &class_method.range());
         let method_name =

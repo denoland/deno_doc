@@ -715,12 +715,34 @@ impl<'a> DocParser<'a> {
   ) -> HashMap<String, DocNode> {
     let mut symbols = HashMap::new();
 
-    for node in module_body.iter() {
+    for (i, node) in module_body.iter().enumerate() {
       let doc_node = match node {
         ModuleItem::Stmt(Stmt::Decl(decl)) => {
+          if i > 0 {
+            if let Some(fn_decl) = &decl.as_fn_decl() {
+              if let Some(ModuleItem::Stmt(Stmt::Decl(Decl::Fn(prev_fn_decl)))) = module_body.get(i - 1) {
+                if fn_decl.function.body.is_some() && prev_fn_decl.ident.sym == fn_decl.ident.sym {
+                  continue; // skip internal implementation signature
+                }
+              }
+            }
+          }
+
           self.get_doc_node_for_decl(parsed_source, decl)
         }
         ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
+          if i > 0 {
+            if let Some(fn_decl) = &export_decl.decl.as_fn_decl() {
+              if let Some(ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(prev_decl))) = module_body.get(i - 1) {
+                if let Some(prev_fn_decl) = prev_decl.decl.as_fn_decl() {
+                  if fn_decl.function.body.is_some() && prev_fn_decl.ident.sym == fn_decl.ident.sym {
+                    continue; // skip internal implementation signature
+                  }
+                }
+              }
+            }
+          }
+
           Some(super::module::get_doc_node_for_export_decl(
             self,
             parsed_source,
@@ -757,9 +779,19 @@ impl<'a> DocParser<'a> {
       doc_entries.push(doc_node);
     }
 
-    for node in module_body.iter() {
+    for (i, node) in module_body.iter().enumerate() {
       match node {
         ModuleItem::Stmt(stmt) => {
+          if i > 0 {
+            if let Stmt::Decl(Decl::Fn(fn_decl)) = &stmt {
+              if let Some(ModuleItem::Stmt(Stmt::Decl(Decl::Fn(prev_fn_decl)))) = module_body.get(i - 1) {
+                if fn_decl.function.body.is_some() && prev_fn_decl.ident.sym == fn_decl.ident.sym {
+                  continue; // skip internal implementation signature
+                }
+              }
+            }
+          }
+
           if let Stmt::Decl(decl) = stmt {
             if let Some(mut doc_node) =
               self.get_doc_node_for_decl(parsed_source, decl)
@@ -781,6 +813,8 @@ impl<'a> DocParser<'a> {
         }
 
         ModuleItem::ModuleDecl(module_decl) => {
+          // todo: this
+
           // If it has imports/exports, it isn't ambient.
           is_ambient = false;
 
