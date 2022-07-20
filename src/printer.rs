@@ -69,16 +69,34 @@ impl<'a> DocPrinter<'a> {
     });
 
     for node in &sorted {
-      write!(
-        w,
-        "{}",
-        colors::italic_gray(&format!(
-          "Defined in {}:{}:{}\n\n",
-          node.location.filename, node.location.line, node.location.col
-        ))
-      )?;
+      let has_overloads = if node.kind == DocNodeKind::Function {
+        sorted
+          .iter()
+          .filter(|n| n.kind == DocNodeKind::Function && n.name == node.name)
+          .count()
+          > 1
+      } else {
+        false
+      };
 
-      self.format_signature(w, node, indent)?;
+      if !has_overloads
+        || node
+          .function_def
+          .as_ref()
+          .map(|def| !def.has_body)
+          .unwrap_or(false)
+      {
+        write!(
+          w,
+          "{}",
+          colors::italic_gray(&format!(
+            "Defined in {}:{}:{}\n\n",
+            node.location.filename, node.location.line, node.location.col
+          ))
+        )?;
+      }
+
+      self.format_signature(w, node, indent, has_overloads)?;
 
       self.format_jsdoc(w, &node.js_doc, indent + 1)?;
       writeln!(w)?;
@@ -118,10 +136,13 @@ impl<'a> DocPrinter<'a> {
     w: &mut Formatter<'_>,
     node: &DocNode,
     indent: i64,
+    has_overloads: bool,
   ) -> FmtResult {
     match node.kind {
       DocNodeKind::ModuleDoc => self.format_module_doc(w, node, indent),
-      DocNodeKind::Function => self.format_function_signature(w, node, indent),
+      DocNodeKind::Function => {
+        self.format_function_signature(w, node, indent, has_overloads)
+      }
       DocNodeKind::Variable => self.format_variable_signature(w, node, indent),
       DocNodeKind::Class => self.format_class_signature(w, node, indent),
       DocNodeKind::Enum => self.format_enum_signature(w, node, indent),
@@ -326,9 +347,12 @@ impl<'a> DocPrinter<'a> {
 
   fn format_class(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {
     let class_def = node.class_def.as_ref().unwrap();
+    let has_overloads = class_def.constructors.len() > 1;
     for node in &class_def.constructors {
-      writeln!(w, "{}{}", Indent(1), node,)?;
-      self.format_jsdoc(w, &node.js_doc, 2)?;
+      if !has_overloads || !node.has_body {
+        writeln!(w, "{}{}", Indent(1), node,)?;
+        self.format_jsdoc(w, &node.js_doc, 2)?;
+      }
     }
     for node in class_def.properties.iter().filter(|node| {
       self.private
@@ -353,11 +377,19 @@ impl<'a> DocPrinter<'a> {
           .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
           != deno_ast::swc::ast::Accessibility::Private
     }) {
-      for d in &node.function_def.decorators {
-        writeln!(w, "{}{}", Indent(1), d)?;
+      let has_overloads = class_def
+        .methods
+        .iter()
+        .filter(|n| n.name == node.name)
+        .count()
+        > 1;
+      if !has_overloads || !node.function_def.has_body {
+        for d in &node.function_def.decorators {
+          writeln!(w, "{}{}", Indent(1), d)?;
+        }
+        writeln!(w, "{}{}", Indent(1), node,)?;
+        self.format_jsdoc(w, &node.js_doc, 2)?;
       }
-      writeln!(w, "{}{}", Indent(1), node,)?;
-      self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     writeln!(w)
   }
@@ -399,7 +431,16 @@ impl<'a> DocPrinter<'a> {
   ) -> FmtResult {
     let elements = &node.namespace_def.as_ref().unwrap().elements;
     for node in elements {
-      self.format_signature(w, node, 1)?;
+      let has_overloads = if node.kind == DocNodeKind::Function {
+        elements
+          .iter()
+          .filter(|n| n.kind == DocNodeKind::Function && n.name == node.name)
+          .count()
+          > 1
+      } else {
+        false
+      };
+      self.format_signature(w, node, 1, has_overloads)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     writeln!(w)
@@ -474,33 +515,37 @@ impl<'a> DocPrinter<'a> {
     w: &mut Formatter<'_>,
     node: &DocNode,
     indent: i64,
+    has_overloads: bool,
   ) -> FmtResult {
     let function_def = node.function_def.as_ref().unwrap();
-    write!(
-      w,
-      "{}{}{}{} {}",
-      Indent(indent),
-      display_async(function_def.is_async),
-      colors::magenta("function"),
-      display_generator(function_def.is_generator),
-      colors::bold(&node.name)
-    )?;
-    if !function_def.type_params.is_empty() {
+    if !has_overloads || !function_def.has_body {
       write!(
         w,
-        "<{}>",
-        SliceDisplayer::new(&function_def.type_params, ", ", false)
+        "{}{}{}{} {}",
+        Indent(indent),
+        display_async(function_def.is_async),
+        colors::magenta("function"),
+        display_generator(function_def.is_generator),
+        colors::bold(&node.name)
       )?;
+      if !function_def.type_params.is_empty() {
+        write!(
+          w,
+          "<{}>",
+          SliceDisplayer::new(&function_def.type_params, ", ", false)
+        )?;
+      }
+      write!(
+        w,
+        "({})",
+        SliceDisplayer::new(&function_def.params, ", ", false)
+      )?;
+      if let Some(return_type) = &function_def.return_type {
+        write!(w, ": {}", return_type)?;
+      }
+      writeln!(w)?;
     }
-    write!(
-      w,
-      "({})",
-      SliceDisplayer::new(&function_def.params, ", ", false)
-    )?;
-    if let Some(return_type) = &function_def.return_type {
-      write!(w, ": {}", return_type)?;
-    }
-    writeln!(w)
+    Ok(())
   }
 
   fn format_interface_signature(

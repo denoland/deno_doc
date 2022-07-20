@@ -98,6 +98,8 @@ export interface ClassDef {
 export interface ClassConstructorDef {
   jsDoc?: JsDoc;
   accessibility?: Accessibility;
+  isOptional?: boolean;
+  hasBody?: boolean;
   name: string;
   params: ParamDef[];
   location: Location;
@@ -156,6 +158,7 @@ export interface EnumMemberDef {
 export interface FunctionDef {
   params: ParamDef[];
   returnType?: TsTypeDef;
+  hasBody?: boolean;
   isAsync: boolean;
   isGenerator: boolean;
   typeParams: TsTypeParamDef[];
