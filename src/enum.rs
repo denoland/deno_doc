@@ -6,9 +6,11 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::js_doc::JsDoc;
+use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::TsTypeDef;
+use crate::Location;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -18,6 +20,7 @@ pub struct EnumMemberDef {
   pub init: Option<TsTypeDef>,
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
+  pub location: Location,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -47,7 +50,12 @@ pub fn get_doc_for_ts_enum_decl(
       None
     };
 
-    let member_def = EnumMemberDef { name, init, js_doc };
+    let member_def = EnumMemberDef {
+      name,
+      init,
+      js_doc,
+      location: get_location(parsed_source, enum_member.start()),
+    };
     members.push(member_def);
   }
 

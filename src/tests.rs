@@ -863,7 +863,12 @@ declare namespace RootNs {
                           "kind": "number",
                           "number": 1.0,
                         }
-                      }
+                      },
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 9,
+                        "col": 8,
+                      },
                     },
                     {
                       "name": "b",
@@ -874,7 +879,12 @@ declare namespace RootNs {
                           "kind": "number",
                           "number": 2.0,
                         }
-                      }
+                      },
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 10,
+                        "col": 8,
+                      },
                     },
                     {
                       "name": "c",
@@ -885,7 +895,12 @@ declare namespace RootNs {
                           "kind": "number",
                           "number": 3.0,
                         }
-                      }
+                      },
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 11,
+                        "col": 8,
+                      },
                     }
                   ]
                 }
@@ -2377,6 +2392,11 @@ export enum Hello {
               "string": "world",
             }
           },
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 6,
+            "col": 4,
+          }
         },
         {
           "name": "Fizz",
@@ -2390,6 +2410,11 @@ export enum Hello {
           },
           "jsDoc": {
             "doc": "There is a JsDoc"
+          },
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 8,
+            "col": 4,
           }
         },
         {
@@ -2402,6 +2427,11 @@ export enum Hello {
               "string": "buzz",
             }
           },
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 9,
+            "col": 4,
+          }
         }
       ]
     }
@@ -3144,6 +3174,11 @@ export namespace RootNs {
                           "number": 1.0,
                         }
                       },
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 9,
+                        "col": 8,
+                      }
                     },
                     {
                       "name": "b",
@@ -3155,6 +3190,11 @@ export namespace RootNs {
                           "number": 2.0,
                         }
                       },
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 10,
+                        "col": 8,
+                      }
                     },
                     {
                       "name": "c",
@@ -3166,6 +3206,11 @@ export namespace RootNs {
                           "number": 3.0,
                         }
                       },
+                      "location": {
+                        "filename": "file:///test.ts",
+                        "line": 11,
+                        "col": 8,
+                      }
                     }
                   ]
                 }
