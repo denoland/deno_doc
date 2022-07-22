@@ -1076,6 +1076,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     protected protected1: number;
     public public1: boolean;
     public2: number;
+    override public3: string;
     m = new Map<string, string>();
     s = "foo";
     a = [1, "foo"];
@@ -1093,6 +1094,8 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     bar?(): void {
         //
     }
+
+    override s() {}
 }
   "#;
   [{
@@ -1171,7 +1174,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           ],
           "location": {
             "filename": "file:///test.ts",
-            "line": 14,
+            "line": 15,
             "col": 4
           }
         }
@@ -1251,6 +1254,25 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
         },
         {
           "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "isOverride": true,
+          "name": "public3",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 8,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
             "repr": "Map",
             "kind": "typeRef",
             "typeRef": {
@@ -1277,7 +1299,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "name": "m",
           "location": {
             "filename": "file:///test.ts",
-            "line": 8,
+            "line": 9,
             "col": 4,
           }
         },
@@ -1295,7 +1317,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "name": "s",
           "location": {
             "filename": "file:///test.ts",
-            "line": 9,
+            "line": 10,
             "col": 4,
           }
         },
@@ -1327,7 +1349,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "name": "a",
           "location": {
             "filename": "file:///test.ts",
-            "line": 10,
+            "line": 11,
             "col": 4,
           }
         },
@@ -1365,7 +1387,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "name": "fn",
           "location": {
             "filename": "file:///test.ts",
-            "line": 11,
+            "line": 12,
             "col": 4,
           },
         }
@@ -1404,7 +1426,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 17,
+            "line": 18,
             "col": 4
           }
         },
@@ -1431,8 +1453,29 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 22,
+            "line": 23,
             "col": 4
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "isOverride": true,
+          "name": "s",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": [],
+          },
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 27,
+            "col": 4,
           }
         }
       ]
@@ -4329,6 +4372,17 @@ export class Class {
     "#;
     "get a(): void",
     "set b(_v: void)"
+  );
+
+  contains_test!(class_override_prop_method,
+    r#"
+export class C extends B {
+  override a(): void {}
+  override b: string;
+}
+    "#;
+    "override a(): void",
+    "override b: string"
   );
 
   contains_test!(class_index_signature,

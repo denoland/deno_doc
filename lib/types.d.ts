@@ -115,6 +115,7 @@ export interface ClassMethodDef {
   optional: boolean;
   isAbstract: boolean;
   isStatic: boolean;
+  isOverride?: boolean;
   name: string;
   kind: MethodKind;
   functionDef: FunctionDef;
@@ -129,6 +130,7 @@ export interface ClassPropertyDef {
   optional: boolean;
   isAbstract: boolean;
   isStatic: boolean;
+  isOverride?: boolean;
   name: string;
   decorators?: DecoratorDef[];
   location: Location;
