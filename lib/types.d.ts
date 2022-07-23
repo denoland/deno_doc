@@ -148,6 +148,7 @@ export interface EnumMemberDef {
   name: string;
   init?: TsTypeDef;
   jsDoc?: JsDoc;
+  location: Location;
 }
 
 export interface FunctionDef {
