@@ -60,6 +60,7 @@ impl From<InterfaceMethodDef> for DocNode {
       FunctionDef {
         params: def.params,
         return_type: def.return_type,
+        has_body: false,
         is_async: false,
         is_generator: false,
         type_params: def.type_params,

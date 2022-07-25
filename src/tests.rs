@@ -327,6 +327,7 @@ export function fooFn(a: number) {
         ],
         "typeParams": [],
         "returnType": null,
+        "hasBody": true,
         "isAsync": false,
         "isGenerator": false
       },
@@ -975,6 +976,7 @@ export class A {
             ],
           },
           "accessibility": null,
+          "hasBody": true,
           "name": "constructor",
           "params": [
             {
@@ -1050,6 +1052,7 @@ export class A {
           "functionDef": {
             "params": [],
             "returnType": null,
+            "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
             "typeParams": [],
@@ -1139,6 +1142,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
             "doc": "Constructor js doc",
           },
           "accessibility": null,
+          "hasBody": true,
           "name": "constructor",
           "params": [
             {
@@ -1421,6 +1425,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
                 }
             },
             "typeParams": [],
+            "hasBody": true,
             "isAsync": true,
             "isGenerator": false
           },
@@ -1447,6 +1452,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
               "kind": "keyword",
               "keyword": "void"
             },
+            "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
             "typeParams": []
@@ -1468,6 +1474,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "functionDef": {
             "params": [],
             "returnType": null,
+            "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
             "typeParams": [],
@@ -1561,6 +1568,7 @@ export class A {
             "functionDef": {
               "params": [],
               "returnType": null,
+              "hasBody": true,
               "isAsync": false,
               "isGenerator": false,
               "typeParams": [],
@@ -1593,6 +1601,7 @@ export class A {
             "functionDef": {
               "params": [],
               "returnType": null,
+              "hasBody": true,
               "isAsync": false,
               "isGenerator": false,
               "typeParams": [],
@@ -1646,6 +1655,7 @@ export class A {
                 }
               ],
               "returnType": null,
+              "hasBody": true,
               "isAsync": false,
               "isGenerator": false,
               "typeParams": [],
@@ -2205,6 +2215,7 @@ export default class Foobar {
               "doc": "Constructor js doc",
             },
             "accessibility": null,
+            "hasBody": true,
             "name": "constructor",
             "params": [
               {
@@ -2280,6 +2291,7 @@ export default function foo(a: number) {
           }
       ],
       "returnType": null,
+      "hasBody": true,
       "isAsync": false,
       "isGenerator": false,
       "typeParams": []
@@ -2518,6 +2530,7 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
       },
     }, {
       "functionDef": {
+        "hasBody": true,
         "isAsync": false,
         "isGenerator": false,
         "typeParams": [],
@@ -2629,6 +2642,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
     "#;
   [{
     "functionDef": {
+      "hasBody": true,
       "isAsync": false,
       "isGenerator": false,
       "typeParams": [],
@@ -3321,6 +3335,7 @@ export { hello, say, foo as bar };
           "kind": "keyword",
           "keyword": "void"
         },
+        "hasBody": true,
         "isAsync": false,
         "isGenerator": false,
         "typeParams": []
@@ -3342,6 +3357,7 @@ export { hello, say, foo as bar };
           "kind": "keyword",
           "keyword": "void"
         },
+        "hasBody": true,
         "isAsync": false,
         "isGenerator": false,
         "typeParams": []
@@ -3398,6 +3414,7 @@ export function bar() {};
         "functionDef": {
           "params": [],
           "returnType": null,
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -3428,6 +3445,7 @@ export default foo;
             "kind": "keyword",
             "keyword": "void"
           },
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -3458,6 +3476,7 @@ export { foo as bar };
             "kind": "keyword",
             "keyword": "void"
           },
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -3479,6 +3498,7 @@ export { foo as bar };
             "kind": "keyword",
             "keyword": "void"
           },
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -3517,6 +3537,7 @@ export { foo as bar };
         ],
         "typeParams": [],
         "returnType": null,
+        "hasBody": true,
         "isAsync": false,
         "isGenerator": false
       }
@@ -3773,6 +3794,7 @@ export function foo(bar: A | B): bar is A {}
               }
             }
           },
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -3844,6 +3866,7 @@ export function foo(bar: A | B): asserts bar is B {}
               }
             }
           },
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -3901,6 +3924,7 @@ export class C {
                     },
                   },
                 },
+                "hasBody": true,
                 "isAsync": false,
                 "isGenerator": false,
                 "typeParams": [],
@@ -3960,6 +3984,7 @@ export function foo(bar: any): asserts bar {}
               "type": null,
             }
           },
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": []
@@ -4164,6 +4189,7 @@ export function adopt<T>(p: import("./module.ts").Pet<T>) {
             }
           ],
           "returnType": null,
+          "hasBody": true,
           "isAsync": false,
           "isGenerator": false,
           "typeParams": [
@@ -4267,6 +4293,214 @@ export namespace Tabs {
         }
   ]
     );
+
+  json_test!(overloads,
+  r#"
+export function a(b: string): string;
+export function a(b: number): number;
+export function a(b: string | number): string | number {
+  //
+}
+    "#;
+  [{
+    "kind": "function",
+    "name": "a",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [{
+        "kind": "identifier",
+        "name": "b",
+        "optional": false,
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string",
+        },
+      }],
+      "returnType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string",
+      },
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": [],
+    }
+  }, {
+    "kind": "function",
+    "name": "a",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [{
+        "kind": "identifier",
+        "name": "b",
+        "optional": false,
+        "tsType": {
+          "repr": "number",
+          "kind": "keyword",
+          "keyword": "number",
+        },
+      }],
+      "returnType": {
+        "repr": "number",
+        "kind": "keyword",
+        "keyword": "number",
+      },
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": [],
+    }
+  }, {
+    "kind": "function",
+    "name": "a",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 4,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [{
+        "kind": "identifier",
+        "name": "b",
+        "optional": false,
+        "tsType": {
+          "repr": "",
+          "kind": "union",
+          "union": [{
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string",
+          }, {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          }]
+        }
+      }],
+      "returnType": {
+        "repr": "",
+        "kind": "union",
+        "union": [{
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        }, {
+          "repr": "number",
+          "kind": "keyword",
+          "keyword": "number"
+        }]
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": [],
+    }
+  }]);
+
+  json_test!(ctor_overloads,
+  r#"
+export class A {
+  constructor (a: string);
+  constructor (a: number);
+  constructor (a: string | number) {
+    //
+  }
+}"#;
+  [{
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0,
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [{
+        "accessibility": null,
+        "name": "constructor",
+        "params": [{
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string",
+          }
+        }],
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 3,
+          "col": 2,
+        }
+      }, {
+        "accessibility": null,
+        "name": "constructor",
+        "params": [{
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number",
+          }
+        }],
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 4,
+          "col": 2,
+        }
+      }, {
+        "accessibility": null,
+        "hasBody": true,
+        "name": "constructor",
+        "params": [{
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [{
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string",
+            }, {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number",
+            }]
+          }
+        }],
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 5,
+          "col": 2,
+        }
+      }],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": [],
+    }
+  }]);
 }
 
 mod printer {
@@ -4487,6 +4721,17 @@ export class A {
     "@enumerable(false)"
   );
 
+  contains_test!(class_method_overloads,
+    r#"export class A {
+      a(b: string): string;
+      a(b: number): number;
+      a(b: string | number): string | number {}
+    }"#;
+    "a(b: string): string",
+    "a(b: number): number";
+    "a(b: string | number): string | number"
+  );
+
   contains_test!(const_declaration,
   "export const Const = 0;";
     "const Const"
@@ -4590,6 +4835,18 @@ export { hello, say, foo as bar };
     "pet is Fish"
   );
   */
+
+  contains_test!(function_overloads,
+    r#"
+export function a(b: string): string;
+export function a(b: number): number;
+export function a(b: string | number): string | number {}
+"#;
+    "function a(b: string): string",
+    "function a(b: number): number";
+    "function a(b: string | number): string | number"
+  );
+
   contains_test!(generic_instantiated_with_tuple_type,
     r#"
 interface Generic<T> {}
@@ -4808,6 +5065,19 @@ export namespace Namespace {
     "Doc comment 2",
     "Details 1",
     "Details 2"
+  );
+
+  contains_test!(namespace_fn_overloads,
+    r#"
+export namespace Namespace {
+  export function a(b: string): string;
+  export function a(b: number): number;
+  export function a(b: number | string): number | string {}
+}
+"#;
+    "function a(b: string): string",
+    "function a(b: number): number";
+    "function a(b: number | string): number | string"
   );
 
   contains_test!(type_alias,

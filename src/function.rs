@@ -3,6 +3,7 @@
 use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
 use crate::params::param_to_param_def;
+use crate::swc_util::is_false;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -16,6 +17,8 @@ use serde::{Deserialize, Serialize};
 pub struct FunctionDef {
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub has_body: bool,
   pub is_async: bool,
   pub is_generator: bool,
   pub type_params: Vec<TsTypeParamDef>,
@@ -38,11 +41,14 @@ pub fn function_to_function_def(
   let type_params =
     maybe_type_param_decl_to_type_param_defs(function.type_params.as_ref());
 
+  let has_body = function.body.is_some();
+
   let decorators = decorators_to_defs(parsed_source, &function.decorators);
 
   FunctionDef {
     params,
     return_type: maybe_return_type,
+    has_body,
     is_async: function.is_async,
     is_generator: function.is_generator,
     type_params,

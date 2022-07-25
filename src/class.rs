@@ -56,6 +56,10 @@ pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub is_optional: bool,
+  #[serde(skip_serializing_if = "is_false")]
+  pub has_body: bool,
   pub name: String,
   pub params: Vec<ParamDef>,
   pub location: Location,
@@ -284,6 +288,8 @@ pub fn class_to_class_def(
         let constructor_def = ClassConstructorDef {
           js_doc: ctor_js_doc,
           accessibility: ctor.accessibility,
+          is_optional: ctor.is_optional,
+          has_body: ctor.body.is_some(),
           name: constructor_name,
           params,
           location: get_location(parsed_source, ctor.start()),
