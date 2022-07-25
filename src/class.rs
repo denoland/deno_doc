@@ -17,6 +17,7 @@ use crate::params::param_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
+use crate::swc_util::is_false;
 use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
@@ -38,6 +39,7 @@ cfg_if! {
     use crate::display::display_generator;
     use crate::display::display_method;
     use crate::display::display_optional;
+    use crate::display::display_override;
     use crate::display::display_readonly;
     use crate::display::display_static;
     use crate::display::SliceDisplayer;
@@ -85,6 +87,8 @@ pub struct ClassPropertyDef {
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
+  #[serde(skip_serializing_if = "is_false")]
+  pub is_override: bool,
   pub name: String,
   pub location: Location,
 }
@@ -109,8 +113,9 @@ impl Display for ClassPropertyDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}{}{}{}{}{}",
+      "{}{}{}{}{}{}{}",
       display_abstract(self.is_abstract),
+      display_override(self.is_override),
       display_accessibility(self.accessibility),
       display_static(self.is_static),
       display_readonly(self.readonly),
@@ -157,6 +162,8 @@ pub struct ClassMethodDef {
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
+  #[serde(skip_serializing_if = "is_false")]
+  pub is_override: bool,
   pub name: String,
   pub kind: deno_ast::swc::ast::MethodKind,
   pub function_def: FunctionDef,
@@ -180,8 +187,9 @@ impl Display for ClassMethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}{}{}{}{}{}{}{}({})",
+      "{}{}{}{}{}{}{}{}{}({})",
       display_abstract(self.is_abstract),
+      display_override(self.is_override),
       display_accessibility(self.accessibility),
       display_static(self.is_static),
       display_async(self.function_def.is_async),
@@ -201,7 +209,6 @@ impl Display for ClassMethodDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassDef {
-  // TODO(bartlomieju): decorators
   pub is_abstract: bool,
   pub constructors: Vec<ClassConstructorDef>,
   pub properties: Vec<ClassPropertyDef>,
@@ -296,6 +303,7 @@ pub fn class_to_class_def(
           optional: class_method.is_optional,
           is_abstract: class_method.is_abstract,
           is_static: class_method.is_static,
+          is_override: class_method.is_override,
           name: method_name,
           kind: class_method.kind,
           function_def: fn_def,
@@ -330,6 +338,7 @@ pub fn class_to_class_def(
           optional: class_prop.is_optional,
           is_abstract: class_prop.is_abstract,
           is_static: class_prop.is_static,
+          is_override: class_prop.is_override,
           accessibility: class_prop.accessibility,
           name: prop_name,
           decorators,

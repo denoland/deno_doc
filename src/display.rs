@@ -96,6 +96,10 @@ cfg_if! {
       })
     }
 
+    pub(crate) fn display_override(is_override: bool) -> impl Display {
+      colors::magenta(if is_override { "override "} else { "" })
+    }
+
     pub(crate) fn display_static(is_static: bool) -> impl Display {
       colors::magenta(if is_static { "static " } else { "" })
     }
