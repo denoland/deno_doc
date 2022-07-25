@@ -1474,6 +1474,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           "functionDef": {
             "params": [],
             "returnType": null,
+            "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
             "typeParams": [],
