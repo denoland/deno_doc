@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.38.0"
+version = "0.39.0"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -14,21 +14,21 @@ name = "deno_doc"
 name = "ddoc"
 
 [dependencies]
-anyhow = { version = "1.0.43", optional = true }
+anyhow = { version = "1.0.58", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.17.0"
 deno_graph = "0.29.0"
 futures = "0.3.17"
 js-sys = { version = "0.3.58", optional = true }
-import_map = "0.11.0"
+import_map = "0.12.1"
 lazy_static = "1.4.0"
-regex = "1.5.4"
-serde = { version = "1.0.130", features = ["derive"] }
-serde_json = { version = "1.0.67", features = [ "preserve_order" ] }
+regex = "1.6.0"
+serde = { version = "1.0.140", features = ["derive"] }
+serde_json = { version = "1.0.82", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
 wasm-bindgen = { version = "0.2.81", features = ["serde-serialize"], optional = true }
 wasm-bindgen-futures = { version = "0.4.31", optional = true }
-console_error_panic_hook = { version = "0.1.6", optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
 
 [dev-dependencies]
 clap = "2.33.3"
