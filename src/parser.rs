@@ -62,13 +62,13 @@ impl From<deno_ast::Diagnostic> for DocError {
   }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 enum ImportKind {
   Namespace(String),
   Named(String, Option<String>),
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct Import {
   src: String,
   kind: ImportKind,
@@ -673,8 +673,13 @@ impl<'a> DocParser<'a> {
                       Some(node::Reexport {
                         src: import.src.clone(),
                         kind: match &import.kind {
-                          ImportKind::Named(orig, _) => {
-                            ReexportKind::Named(orig.clone(), Some(name))
+                          ImportKind::Named(orig, maybe_export) => {
+                            ReexportKind::Named(
+                              maybe_export
+                                .clone()
+                                .unwrap_or_else(|| orig.clone()),
+                              Some(name),
+                            )
                           }
                           ImportKind::Namespace(_) => {
                             ReexportKind::Namespace(name)

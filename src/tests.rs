@@ -645,6 +645,129 @@ async fn exports_imported_earlier() {
 }
 
 #[tokio::test]
+async fn exports_imported_earlier_renamed() {
+  let foo_source_code = r#"export const foo: string = "foo";"#;
+  let test_source_code = r#"
+  import { foo as f } from "./foo.ts";
+
+  export { f };
+  "#;
+
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![
+      ("file:///foo.ts", None, foo_source_code),
+      ("file:///test.ts", None, test_source_code),
+    ],
+  )
+  .await;
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
+    .parse_with_reexports(&specifier)
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "f",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "declarationKind": "export",
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "import",
+      "name": "f",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2
+      },
+      "declarationKind": "private",
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "foo"
+      }
+    }
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+}
+
+#[tokio::test]
+async fn exports_imported_earlier_default() {
+  let foo_source_code = r#"const foo: string = "foo";
+  export default foo;"#;
+  let test_source_code = r#"
+  import foo from "./foo.ts";
+
+  export { foo };
+  "#;
+
+  let (graph, specifier) = setup(
+    "file:///test.ts",
+    vec![
+      ("file:///foo.ts", None, foo_source_code),
+      ("file:///test.ts", None, test_source_code),
+    ],
+  )
+  .await;
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
+    .parse_with_reexports(&specifier)
+    .unwrap();
+  assert_eq!(entries.len(), 2);
+
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "foo",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 1,
+        "col": 0
+      },
+      "declarationKind": "export",
+      "variableDef": {
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "import",
+      "name": "foo",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 2
+      },
+      "declarationKind": "private",
+      "importDef": {
+        "src": "file:///foo.ts",
+        "imported": "default"
+      }
+    }
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
+}
+
+#[tokio::test]
 async fn exports_imported_earlier_private() {
   let foo_source_code = r#"export const foo: string = "foo";"#;
   let test_source_code = r#"
