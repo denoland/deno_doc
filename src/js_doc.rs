@@ -87,7 +87,7 @@ pub enum JsDocTag {
   /// `@category comment`
   Category {
     #[serde(skip_serializing_if = "Option::is_none")]
-    doc: Option<String>
+    doc: Option<String>,
   },
   /// `@constructor` or `@class`
   Constructor,
