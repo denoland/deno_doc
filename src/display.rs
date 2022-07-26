@@ -67,13 +67,14 @@ cfg_if! {
     }
 
     pub(crate) fn display_accessibility(
-      accessibility: Option<deno_ast::swc::ast::Accessibility>,
+      accessibility: Option<deno_ast::swc::ast::Accessibility>, show_public: bool
     ) -> impl Display {
       colors::magenta(
-        match accessibility.unwrap_or(deno_ast::swc::ast::Accessibility::Public) {
-          deno_ast::swc::ast::Accessibility::Public => "",
-          deno_ast::swc::ast::Accessibility::Protected => "protected ",
-          deno_ast::swc::ast::Accessibility::Private => "private ",
+        match accessibility {
+          None => "",
+          Some(deno_ast::swc::ast::Accessibility::Public) => if show_public { "public " } else { "" },
+          Some(deno_ast::swc::ast::Accessibility::Protected) => "protected ",
+          Some(deno_ast::swc::ast::Accessibility::Private) => "private ",
         },
       )
     }
