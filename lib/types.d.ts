@@ -95,13 +95,19 @@ export interface ClassDef {
   decorators?: DecoratorDef[];
 }
 
+export type ClassConstructorParamDef = ParamDef & {
+  accessibility?: Accessibility;
+  isOverride?: boolean;
+  readonly?: boolean;
+};
+
 export interface ClassConstructorDef {
   jsDoc?: JsDoc;
   accessibility?: Accessibility;
   isOptional?: boolean;
   hasBody?: boolean;
   name: string;
-  params: ParamDef[];
+  params: ClassConstructorParamDef[];
   location: Location;
 }
 

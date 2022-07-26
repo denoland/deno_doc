@@ -1279,6 +1279,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
               }
             },
             {
+              "accessibility": "private",
               "name": "private2",
               "kind": "identifier",
               "optional": false,
@@ -1289,6 +1290,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
               }
             },
             {
+              "accessibility": "protected",
               "name": "protected2",
               "kind": "identifier",
               "optional": false,
@@ -2306,6 +2308,79 @@ export let tpl = `foobarbaz`;
     ]
   );
 
+  json_test!(export_class_ctor_properties,
+  r#"
+export class A {
+  constructor(public readonly name: string, private private: number, public override public: boolean) {}
+}"#;
+  [{
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0,
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [{
+        "accessibility": null,
+        "hasBody": true,
+        "name": "constructor",
+        "params": [
+          {
+            "accessibility": "public",
+            "kind": "identifier",
+            "name": "name",
+            "optional": false,
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string",
+            },
+            "readonly": true,
+          },
+          {
+            "accessibility": "private",
+            "kind": "identifier",
+            "name": "private",
+            "optional": false,
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number",
+            },
+          },
+          {
+            "accessibility": "public",
+            "isOverride": true,
+            "kind": "identifier",
+            "name": "public",
+            "optional": false,
+            "tsType": {
+              "repr": "boolean",
+              "kind": "keyword",
+              "keyword": "boolean",
+            }
+          }
+        ],
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 3,
+          "col": 2,
+        },
+      }],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": [],
+    }
+  }]);
+
   json_test!(export_default_class,
     r#"
 /** Class doc */
@@ -2352,6 +2427,7 @@ export default class Foobar {
                 }
               },
               {
+                "accessibility": "private",
                 "name": "private2",
                 "kind": "identifier",
                 "optional": false,
@@ -2362,6 +2438,7 @@ export default class Foobar {
                 }
               },
               {
+                "accessibility": "protected",
                 "name": "protected2",
                 "kind": "identifier",
                 "optional": false,
@@ -4655,10 +4732,10 @@ export class Class {
   contains_test!(class_constructor,
     r#"
 export class Class {
-  constructor(a, b) {}
+  constructor(public a, readonly b) {}
 }
     "#;
-    "constructor(a, b)"
+    "constructor(public a, readonly b)"
   );
 
   contains_test!(class_details,

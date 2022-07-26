@@ -52,6 +52,33 @@ cfg_if! {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct ClassConstructorParamDef {
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  #[serde(skip_serializing_if = "is_false")]
+  pub is_override: bool,
+  #[serde(flatten)]
+  pub param: ParamDef,
+  #[serde(skip_serializing_if = "is_false")]
+  pub readonly: bool,
+}
+
+#[cfg(feature = "rust")]
+impl Display for ClassConstructorParamDef {
+  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+    write!(
+      f,
+      "{}{}{}{}",
+      display_override(self.is_override),
+      display_accessibility(self.accessibility, true),
+      display_readonly(self.readonly),
+      self.param
+    )
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
@@ -61,7 +88,7 @@ pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "is_false")]
   pub has_body: bool,
   pub name: String,
-  pub params: Vec<ParamDef>,
+  pub params: Vec<ClassConstructorParamDef>,
   pub location: Location,
 }
 
@@ -71,7 +98,7 @@ impl Display for ClassConstructorDef {
     write!(
       f,
       "{}{}({})",
-      display_accessibility(self.accessibility),
+      display_accessibility(self.accessibility, false),
       colors::magenta("constructor"),
       SliceDisplayer::new(&self.params, ", ", false),
     )
@@ -120,7 +147,7 @@ impl Display for ClassPropertyDef {
       "{}{}{}{}{}{}{}",
       display_abstract(self.is_abstract),
       display_override(self.is_override),
-      display_accessibility(self.accessibility),
+      display_accessibility(self.accessibility, false),
       display_static(self.is_static),
       display_readonly(self.readonly),
       colors::bold(&self.name),
@@ -194,7 +221,7 @@ impl Display for ClassMethodDef {
       "{}{}{}{}{}{}{}{}{}({})",
       display_abstract(self.is_abstract),
       display_override(self.is_override),
-      display_accessibility(self.accessibility),
+      display_accessibility(self.accessibility, false),
       display_static(self.is_static),
       display_async(self.function_def.is_async),
       display_method(self.kind),
@@ -268,17 +295,29 @@ pub fn class_to_class_def(
           use deno_ast::swc::ast::ParamOrTsParamProp::*;
 
           let param_def = match param {
-            Param(param) => param_to_param_def(parsed_source, param),
+            Param(param) => ClassConstructorParamDef {
+              accessibility: None,
+              is_override: false,
+              param: param_to_param_def(parsed_source, param),
+              readonly: false,
+            },
             TsParamProp(ts_param_prop) => {
               use deno_ast::swc::ast::TsParamPropParam;
 
-              match &ts_param_prop.param {
+              let param = match &ts_param_prop.param {
                 TsParamPropParam::Ident(ident) => {
                   ident_to_param_def(Some(parsed_source), ident)
                 }
                 TsParamPropParam::Assign(assign_pat) => {
                   assign_pat_to_param_def(Some(parsed_source), assign_pat)
                 }
+              };
+
+              ClassConstructorParamDef {
+                accessibility: ts_param_prop.accessibility,
+                is_override: ts_param_prop.is_override,
+                param,
+                readonly: ts_param_prop.readonly,
               }
             }
           };
