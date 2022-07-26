@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(deprecated|example)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(category|deprecated|example)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|module|public|private|protected|readonly)"#).unwrap();
@@ -81,6 +81,11 @@ pub enum JsDocTag {
   /// `@callback Predicate comment`
   Callback {
     name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    doc: Option<String>,
+  },
+  /// `@category comment`
+  Category {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
@@ -232,6 +237,7 @@ impl From<String> for JsDocTag {
       let kind = caps.get(1).unwrap().as_str();
       let doc = caps.get(2).map(|m| m.as_str().to_string());
       match kind {
+        "category" => Self::Category { doc },
         "deprecated" => Self::Deprecated { doc },
         "example" => Self::Example { doc },
         _ => unreachable!("kind unexpected: {}", kind),
@@ -484,6 +490,26 @@ if (true) {
 
   #[test]
   fn test_js_doc_tag_maybe_doc() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@category".to_string())).unwrap(),
+      json!({
+        "tags": [{
+          "kind": "category",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@category Functional Components".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "category",
+          "doc": "Functional Components",
+        }]
+      })
+    );
     assert_eq!(
       serde_json::to_value(JsDoc::from("@deprecated".to_string())).unwrap(),
       json!({

@@ -212,6 +212,10 @@ impl<'a> DocPrinter<'a> {
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
+      JsDocTag::Category { doc } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("category"))?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
       JsDocTag::Constructor => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("constructor"))
       }

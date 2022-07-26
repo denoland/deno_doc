@@ -230,6 +230,7 @@ export interface JsDoc {
 
 export type JsDocTagKind =
   | "callback"
+  | "category"
   | "constructor"
   | "deprecated"
   | "enum"
@@ -274,7 +275,7 @@ export interface JsDocTagOnly extends JsDocTagBase {
 }
 
 export interface JsDocTagDoc extends JsDocTagBase {
-  kind: "deprecated" | "example";
+  kind: "category" | "deprecated" | "example";
   doc?: string;
 }
 
