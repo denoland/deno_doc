@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(category|deprecated|example)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(category|deprecated|example|tags)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|module|public|private|protected|readonly)"#).unwrap();
@@ -148,6 +148,10 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
+  /// `@tags allow-read, allow-write`
+  Tags {
+    tags: Vec<String>,
+  },
   /// `@template T comment`
   Template {
     name: String,
@@ -240,6 +244,11 @@ impl From<String> for JsDocTag {
         "category" => Self::Category { doc },
         "deprecated" => Self::Deprecated { doc },
         "example" => Self::Example { doc },
+        "tags" => Self::Tags {
+          tags: doc
+            .map(|s| s.split(',').map(|i| i.trim().to_string()).collect())
+            .unwrap_or_default(),
+        },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
@@ -547,6 +556,18 @@ if (true) {
         "tags": [{
           "kind": "example",
           "doc": "const a = \"a\";"
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@tags allow-read, allow-write".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind":"tags",
+          "tags": ["allow-read", "allow-write"],
         }]
       })
     );

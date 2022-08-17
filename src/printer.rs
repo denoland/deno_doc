@@ -298,6 +298,15 @@ impl<'a> DocPrinter<'a> {
         }
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
+      JsDocTag::Tags { tags } => {
+        writeln!(
+          w,
+          "{}@{} {}",
+          Indent(indent),
+          colors::magenta("tags"),
+          tags.join(", "),
+        )
+      }
       JsDocTag::Template { name, doc } => {
         writeln!(
           w,
