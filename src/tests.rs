@@ -5323,6 +5323,7 @@ export const sym = Symbol("hello");
 export const m = new Map<string, string>();
 export const fn1 = (a: string): void => {};
 export const fn2 = function (a:string): void {};
+export const s3 = "VGhpcyBpcyBhIHJlYWxseSBsb25nIHN0cmluZyB0byB0cnkgdG8gZmluZCBvdXQgaWYgd2UgY2FuIHNraXAgaW5mZXJyaW5nIGEgcmVhbGx5IGxhcmdlIHZhbHVlIGZvciBhIGNvbnN0IHN0cmluZyB2YXJpYWJsZSB3aXRob3V0IGEgdHlwZSBhbm5vdGF0aW9uLg==";
     "#;
     "const s: \"hello\"",
     "const n: 123",
@@ -5337,7 +5338,8 @@ export const fn2 = function (a:string): void {};
     "const sym: symbol",
     "const m: Map<string, string>",
     "const fn1: (a: string) => void",
-    "const fn2: (a: string) => void"
+    "const fn2: (a: string) => void",
+    "const s3: string"
   );
 
   contains_test!(infer_simple_ts_arr_types,
