@@ -479,6 +479,86 @@ async fn deep_reexports() {
 }
 
 #[tokio::test]
+async fn reexport_module_doc() {
+  let mod_doc_source_code = r#"
+/**
+ * This is some module doc.
+ * 
+ * @module
+ */
+
+/** a variable */
+export const a = "a";
+"#;
+  let ns_source_code = r#"
+export * as b from "./mod_doc.ts";
+"#;
+  let (graph, specifier) = setup(
+    "file:///ns.ts",
+    vec![
+      ("file:///ns.ts", None, ns_source_code),
+      ("file:///mod_doc.ts", None, mod_doc_source_code),
+    ],
+  )
+  .await;
+  let source_parser = deno_graph::DefaultSourceParser::new();
+  let entries = DocParser::new(graph, false, &source_parser)
+    .parse_with_reexports(&specifier)
+    .unwrap();
+
+  let actual = serde_json::to_value(&entries).unwrap();
+  let expected = json!([
+    {
+      "kind": "namespace",
+      "name": "b",
+      "location": {
+        "filename": "./mod_doc.ts",
+        "line": 1,
+        "col": 0
+      },
+      "declarationKind": "export",
+      "jsDoc": {
+        "doc": "This is some module doc.\n",
+        "tags": [
+          {
+            "kind": "module"
+          }
+        ]
+      },
+      "namespaceDef": {
+        "elements": [
+          {
+            "kind": "variable",
+            "name": "a",
+            "location": {
+              "filename": "file:///mod_doc.ts",
+              "line": 9,
+              "col": 0
+            },
+            "declarationKind": "export",
+            "jsDoc": {
+              "doc": "a variable"
+            },
+            "variableDef": {
+              "tsType": {
+                "repr": "a",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "a"
+                }
+              },
+              "kind": "const"
+            }
+          }
+        ]
+      }
+    }
+  ]);
+  assert_eq!(actual, expected);
+}
+
+#[tokio::test]
 async fn filter_nodes_by_name() {
   use crate::find_nodes_by_name_recursively;
   use crate::DocNodeKind;
