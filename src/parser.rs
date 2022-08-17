@@ -5,6 +5,7 @@ use crate::namespace::NamespaceDef;
 use crate::node;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
+use crate::node::DocNodeKind;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
@@ -198,8 +199,19 @@ impl<'a> DocParser<'a> {
             processed_reexports.extend(doc_nodes.clone())
           }
           node::ReexportKind::Namespace(ns_name) => {
+            // hoist any module doc to be the exported namespaces module doc
+            let mut js_doc = JsDoc::default();
+            for doc_node in &doc_nodes {
+              if matches!(doc_node.kind, DocNodeKind::ModuleDoc) {
+                js_doc = doc_node.js_doc.clone();
+              }
+            }
             let ns_def = NamespaceDef {
-              elements: doc_nodes.clone(),
+              elements: doc_nodes
+                .iter()
+                .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
+                .cloned()
+                .collect(),
             };
             let ns_doc_node = DocNode::namespace(
               ns_name.to_string(),
@@ -209,7 +221,7 @@ impl<'a> DocParser<'a> {
                 col: 0,
               },
               DeclarationKind::Export,
-              JsDoc::default(),
+              js_doc,
               ns_def,
             );
             processed_reexports.push(ns_doc_node);
