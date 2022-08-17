@@ -1437,7 +1437,7 @@ fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
       }
     }
     Lit::Str(str_) => {
-      if is_const {
+      if is_const && str_.value.len() < 100 {
         Some(TsTypeDef::string_literal(str_))
       } else {
         Some(TsTypeDef::string_with_repr("string"))
