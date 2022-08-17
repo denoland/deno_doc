@@ -244,6 +244,7 @@ export type JsDocTagKind =
   | "protected"
   | "readonly"
   | "return"
+  | "tags"
   | "template"
   | "this"
   | "typedef"
@@ -258,6 +259,7 @@ export type JsDocTag =
   | JsDocTagNamedTyped
   | JsDocTagParam
   | JsDocTagReturn
+  | JsDocTagTags
   | JsDocTagUnsupported;
 
 export interface JsDocTagBase {
@@ -309,6 +311,11 @@ export interface JsDocTagReturn extends JsDocTagBase {
   kind: "return";
   type?: string;
   doc?: string;
+}
+
+export interface JsDocTagTags extends JsDocTagBase {
+  kind: "tags";
+  tags: string[];
 }
 
 export interface JsDocTagUnsupported extends JsDocTagBase {
