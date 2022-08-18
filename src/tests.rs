@@ -5,6 +5,7 @@ use crate::printer::DocPrinter;
 use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
+use deno_graph::RefCellCapturingParsedSourceAnalyzer;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
@@ -15,7 +16,7 @@ type MaybeHeaders<S> = Option<Vec<(S, S)>>;
 pub(crate) async fn setup<S: AsRef<str> + Copy>(
   root: S,
   sources: Vec<(S, MaybeHeaders<S>, S)>,
-) -> (ModuleGraph, ModuleSpecifier) {
+) -> (ModuleGraph, RefCellCapturingParsedSourceAnalyzer, ModuleSpecifier) {
   let sources = sources
     .into_iter()
     .map(|(s, h, c)| {
@@ -31,6 +32,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
+  let analyzer = RefCellCapturingParsedSourceAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
     false,
@@ -38,11 +40,11 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     &mut memory_loader,
     None,
     None,
-    None,
+    Some(&analyzer),
     None,
   )
   .await;
-  (graph, root)
+  (graph, analyzer, root)
 }
 
 macro_rules! doc_test {
@@ -62,11 +64,10 @@ macro_rules! doc_test {
       let source_code = $source;
       let private = $private;
 
-      let (graph, specifier) = setup("file:///test.ts", vec![
+      let (graph, analyzer, specifier) = setup("file:///test.ts", vec![
         ("file:///test.ts", None, source_code)
       ]).await;
-      let source_parser = deno_graph::DefaultSourceParser::new();
-      let entries = DocParser::new(graph, private, &source_parser)
+      let entries = DocParser::new(graph, private, &analyzer)
         .parse(&specifier)
         .unwrap();
 
@@ -140,6 +141,7 @@ async fn content_type_handling() {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
+  let analyzer = RefCellCapturingParsedSourceAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
     false,
@@ -147,12 +149,11 @@ async fn content_type_handling() {
     &mut memory_loader,
     None,
     None,
-    None,
+    Some(&analyzer),
     None,
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&root)
     .unwrap();
   assert_eq!(entries.len(), 1);
@@ -186,6 +187,7 @@ async fn types_header_handling() {
   ];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
+  let analyzer = RefCellCapturingParsedSourceAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
     false,
@@ -193,12 +195,11 @@ async fn types_header_handling() {
     &mut memory_loader,
     None,
     None,
-    None,
+    Some(&analyzer),
     None,
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&root)
     .unwrap();
   assert_eq!(
@@ -256,7 +257,7 @@ export function fooFn(a: number) {
   return a;
 }
 "#;
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![
       ("file:///test.ts", None, test_source_code),
@@ -269,8 +270,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 3);
@@ -366,7 +366,7 @@ export class Hello {}
 export { Hello } from "./reexport.ts";
 "#;
 
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![
       ("file:///test.ts", None, test_source_code),
@@ -374,8 +374,7 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -435,7 +434,7 @@ async fn deep_reexports() {
   let bar_source_code = r#"export * from "./foo.ts""#;
   let baz_source_code = r#"export * from "./bar.ts""#;
 
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///baz.ts",
     vec![
       ("file:///foo.ts", None, foo_source_code),
@@ -444,8 +443,7 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 1);
@@ -483,7 +481,7 @@ async fn reexport_module_doc() {
   let mod_doc_source_code = r#"
 /**
  * This is some module doc.
- * 
+ *
  * @module
  */
 
@@ -493,7 +491,7 @@ export const a = "a";
   let ns_source_code = r#"
 export * as b from "./mod_doc.ts";
 "#;
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///ns.ts",
     vec![
       ("file:///ns.ts", None, ns_source_code),
@@ -501,8 +499,7 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
 
@@ -587,13 +584,12 @@ export namespace Deno {
   }
 }
 "#;
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse(&specifier)
     .unwrap();
 
@@ -672,7 +668,7 @@ async fn exports_imported_earlier() {
   export { foo };
   "#;
 
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![
       ("file:///foo.ts", None, foo_source_code),
@@ -680,8 +676,7 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -733,7 +728,7 @@ async fn exports_imported_earlier_renamed() {
   export { f };
   "#;
 
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![
       ("file:///foo.ts", None, foo_source_code),
@@ -741,8 +736,7 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -795,7 +789,7 @@ async fn exports_imported_earlier_default() {
   export { foo };
   "#;
 
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![
       ("file:///foo.ts", None, foo_source_code),
@@ -803,8 +797,7 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, false, &source_parser)
+  let entries = DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -856,7 +849,7 @@ async fn exports_imported_earlier_private() {
   export { foo };
   "#;
 
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///test.ts",
     vec![
       ("file:///foo.ts", None, foo_source_code),
@@ -864,8 +857,7 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, true, &source_parser)
+  let entries = DocParser::new(graph, true, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
   assert_eq!(entries.len(), 2);
@@ -910,7 +902,7 @@ async fn exports_imported_earlier_private() {
 
 #[tokio::test]
 async fn variable_syntax() {
-  let (graph, specifier) = setup(
+  let (graph, analyzer, specifier) = setup(
     "file:///foo.ts",
     vec![
       ("file:///foo.ts", None, "export * from './bar.tsx'"),
@@ -920,8 +912,7 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  DocParser::new(graph, false, &source_parser)
+  DocParser::new(graph, false, &analyzer)
     .parse_with_reexports(&specifier)
     .unwrap();
 }
