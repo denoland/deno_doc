@@ -6,6 +6,7 @@ use crate::parser::DocParser;
 
 use anyhow::anyhow;
 use anyhow::Result;
+use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
@@ -168,9 +169,7 @@ pub async fn doc(
   } else {
     maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
   };
-  let store = deno_graph::DefaultParsedSourceStore::default();
-  let parser = deno_graph::CapturingModuleParser::new(None, &store);
-  let analyzer = deno_graph::DefaultModuleAnalyzer::new(&parser);
+  let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root_specifier.clone()],
     false,
@@ -182,7 +181,7 @@ pub async fn doc(
     None,
   )
   .await;
-  let entries = DocParser::new(graph, include_all, &store)
+  let entries = DocParser::new(graph, include_all, &analyzer)
     .parse_with_reexports(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   JsValue::from_serde(&entries)
