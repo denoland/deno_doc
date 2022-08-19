@@ -10,7 +10,9 @@ use deno_doc::DocParser;
 use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
-use deno_graph::RefCellCapturingParsedSourceAnalyzer;
+use deno_graph::CapturingModuleParser;
+use deno_graph::DefaultModuleAnalyzer;
+use deno_graph::DefaultParsedSourceStore;
 use deno_graph::ModuleSpecifier;
 
 async fn parse_with_reexports() -> Vec<DocNode> {
@@ -25,7 +27,9 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("file:///test/fixtures/deno.d.ts").unwrap();
-  let analyzer = RefCellCapturingParsedSourceAnalyzer::default();
+  let store = DefaultParsedSourceStore::default();
+  let parser = CapturingModuleParser::new(None, &store);
+  let analyzer = DefaultModuleAnalyzer::new(&parser);
   let graph = create_type_graph(
     vec![root.clone()],
     false,
@@ -37,7 +41,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
     None,
   )
   .await;
-  DocParser::new(graph, false, &analyzer)
+  DocParser::new(graph, false, &store)
     .parse_with_reexports(&root)
     .unwrap()
 }

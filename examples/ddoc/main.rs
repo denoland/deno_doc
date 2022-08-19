@@ -10,7 +10,9 @@ use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::RefCellCapturingParsedSourceAnalyzer;
+use deno_graph::CapturingModuleParser;
+use deno_graph::DefaultModuleAnalyzer;
+use deno_graph::DefaultParsedSourceStore;
 use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
 use futures::future;
@@ -59,7 +61,9 @@ fn main() {
 
   let mut loader = SourceFileLoader {};
   let future = async move {
-    let analyzer = RefCellCapturingParsedSourceAnalyzer::default();
+    let store = DefaultParsedSourceStore::default();
+    let parser = CapturingModuleParser::new(None, &store);
+    let analyzer = DefaultModuleAnalyzer::new(&parser);
     let graph = create_type_graph(
       vec![source_file.clone()],
       false,
@@ -71,7 +75,7 @@ fn main() {
       None,
     )
     .await;
-    let parser = DocParser::new(graph, false, &analyzer);
+    let parser = DocParser::new(graph, false, &store);
     let parse_result = parser.parse_with_reexports(&source_file);
 
     let mut doc_nodes = match parse_result {

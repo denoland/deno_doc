@@ -1,6 +1,5 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use crate::DocNodeKind;
 use crate::js_doc::JsDoc;
 use crate::namespace::NamespaceDef;
 use crate::node;
@@ -11,6 +10,7 @@ use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
+use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
@@ -25,9 +25,9 @@ use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::CapturingParsedSourceAnalyzer;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::ParsedSourceStore;
 use deno_graph::Resolved;
 
 use std::collections::HashMap;
@@ -74,21 +74,21 @@ struct Import {
 }
 
 pub struct DocParser<'a> {
-  pub analyzer: &'a dyn CapturingParsedSourceAnalyzer,
   pub graph: ModuleGraph,
   pub private: bool,
+  pub store: &'a dyn ParsedSourceStore,
 }
 
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: ModuleGraph,
     private: bool,
-    analyzer: &'a dyn CapturingParsedSourceAnalyzer,
+    store: &'a dyn ParsedSourceStore,
   ) -> Self {
     DocParser {
-      analyzer,
       graph,
       private,
+      store,
     }
   }
 
@@ -98,10 +98,13 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<ModuleDoc, DocError> {
-    let parsed_source = self
-      .analyzer
-      .parsed_source(specifier)
-      .map_err(|err| DocError::Resolve(err.to_string()))?;
+    let parsed_source =
+      self.store.get_parsed_source(specifier).ok_or_else(|| {
+        DocError::Resolve(format!(
+          "Could not find module in store: {}",
+          specifier
+        ))
+      })?;
     let module = parsed_source.module();
     let mut definitions =
       self.get_doc_nodes_for_module_body(&parsed_source, module.body.clone());

@@ -168,7 +168,9 @@ pub async fn doc(
   } else {
     maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
   };
-  let analyzer = deno_graph::CapturingParsedSourceAnalyzer::default();
+  let store = deno_graph::DefaultParsedSourceStore::default();
+  let parser = deno_graph::CapturingModuleParser::new(None, &store);
+  let analyzer = deno_graph::DefaultModuleAnalyzer::new(&parser);
   let graph = create_type_graph(
     vec![root_specifier.clone()],
     false,
@@ -180,7 +182,7 @@ pub async fn doc(
     None,
   )
   .await;
-  let entries = DocParser::new(graph, include_all, &analyzer)
+  let entries = DocParser::new(graph, include_all, &store)
     .parse_with_reexports(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   JsValue::from_serde(&entries)
