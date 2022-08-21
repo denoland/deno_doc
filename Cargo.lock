@@ -380,9 +380,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.30.0"
+version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9f3c87eee6a5cf75a74f64d05ee34a3e17a13cec72c708c5b0251daf1423ef7"
+checksum = "f99778595687fca36ef4c28702b7e64f45508f2af0644ad9ad99fd12fa6d6e5f"
 dependencies = [
  "anyhow",
  "cfg-if",

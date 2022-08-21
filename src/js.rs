@@ -12,6 +12,7 @@ use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::source::ResolveResponse;
 use deno_graph::source::Resolver;
+use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::ModuleSpecifier;
 use import_map::ImportMap;
 use wasm_bindgen::prelude::*;
@@ -168,6 +169,7 @@ pub async fn doc(
   } else {
     maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
   };
+  let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root_specifier.clone()],
     false,
@@ -175,12 +177,11 @@ pub async fn doc(
     &mut loader,
     maybe_resolver.as_ref().map(|r| r.as_ref()),
     None,
-    None,
+    Some(&analyzer),
     None,
   )
   .await;
-  let source_parser = deno_graph::DefaultSourceParser::new();
-  let entries = DocParser::new(graph, include_all, &source_parser)
+  let entries = DocParser::new(graph, include_all, &analyzer)
     .parse_with_reexports(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   JsValue::from_serde(&entries)

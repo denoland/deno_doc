@@ -5,12 +5,12 @@ use crate::namespace::NamespaceDef;
 use crate::node;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
-use crate::node::DocNodeKind;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
+use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
@@ -25,16 +25,14 @@ use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::MediaType;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::ParsedSourceStore;
 use deno_graph::Resolved;
-use deno_graph::SourceParser;
 
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
-use std::sync::Arc;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -76,21 +74,21 @@ struct Import {
 }
 
 pub struct DocParser<'a> {
-  pub ast_parser: &'a dyn SourceParser,
   pub graph: ModuleGraph,
   pub private: bool,
+  pub store: &'a dyn ParsedSourceStore,
 }
 
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: ModuleGraph,
     private: bool,
-    ast_parser: &'a dyn SourceParser,
+    store: &'a dyn ParsedSourceStore,
   ) -> Self {
     DocParser {
-      ast_parser,
       graph,
       private,
+      store,
     }
   }
 
@@ -99,13 +97,14 @@ impl<'a> DocParser<'a> {
   pub fn parse_module(
     &self,
     specifier: &ModuleSpecifier,
-    media_type: MediaType,
-    source_code: Arc<str>,
   ) -> Result<ModuleDoc, DocError> {
     let parsed_source =
-      self
-        .ast_parser
-        .parse_module(specifier, source_code, media_type)?;
+      self.store.get_parsed_source(specifier).ok_or_else(|| {
+        DocError::Resolve(format!(
+          "Could not find module in store: {}",
+          specifier
+        ))
+      })?;
     let module = parsed_source.module();
     let mut definitions =
       self.get_doc_nodes_for_module_body(&parsed_source, module.body.clone());
@@ -123,48 +122,13 @@ impl<'a> DocParser<'a> {
     Ok(module_doc)
   }
 
-  /// Fetches `file_name` and parses it.
+  /// Fetches `file_name` and returns a list of exported items (no reexports).
   #[cfg(feature = "rust")]
   pub fn parse(
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
-    let module = self
-      .graph
-      .try_get(specifier)
-      .map_err(|err| DocError::Resolve(err.to_string()))?
-      .ok_or_else(|| {
-        DocError::Resolve(format!(
-          "Unable to load specifier: \"{}\"",
-          specifier
-        ))
-      })?;
-
-    if let Some(source_code) = &module.maybe_source {
-      self.parse_source(
-        &module.specifier,
-        module.media_type,
-        source_code.clone(),
-      )
-    } else {
-      Err(DocError::Resolve(format!(
-        "{} does not contain any source code",
-        specifier
-      )))
-    }
-  }
-
-  /// Parses a module and returns a list of exported items (no reexports).
-  #[cfg(feature = "rust")]
-  pub fn parse_source(
-    &self,
-    specifier: &ModuleSpecifier,
-    media_type: MediaType,
-    source_code: Arc<str>,
-  ) -> Result<Vec<DocNode>, DocError> {
-    self
-      .parse_module(specifier, media_type, source_code)
-      .map(|md| md.definitions)
+    self.parse_module(specifier).map(|md| md.definitions)
   }
 
   fn flatten_reexports(
@@ -289,29 +253,18 @@ impl<'a> DocParser<'a> {
       module
     };
 
-    if let Some(source_code) = &module.maybe_source {
-      let module_doc = self.parse_module(
-        &module.specifier,
-        module.media_type,
-        source_code.clone(),
-      )?;
+    let module_doc = self.parse_module(&module.specifier)?;
 
-      let flattened_docs = if !module_doc.reexports.is_empty() {
-        let mut flattened_reexports =
-          self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
-        flattened_reexports.extend(module_doc.definitions);
-        flattened_reexports
-      } else {
-        module_doc.definitions
-      };
-
-      Ok(flattened_docs)
+    let flattened_docs = if !module_doc.reexports.is_empty() {
+      let mut flattened_reexports =
+        self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
+      flattened_reexports.extend(module_doc.definitions);
+      flattened_reexports
     } else {
-      Err(DocError::Resolve(format!(
-        "{} is not a JavaScript/TypeScript module",
-        module.specifier
-      )))
-    }
+      module_doc.definitions
+    };
+
+    Ok(flattened_docs)
   }
 
   fn get_doc_nodes_for_module_imports(
