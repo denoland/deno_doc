@@ -2,10 +2,10 @@
 
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
+use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;

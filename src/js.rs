@@ -6,13 +6,13 @@ use crate::parser::DocParser;
 
 use anyhow::anyhow;
 use anyhow::Result;
-use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::source::ResolveResponse;
 use deno_graph::source::Resolver;
+use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::ModuleSpecifier;
 use import_map::ImportMap;
 use wasm_bindgen::prelude::*;
