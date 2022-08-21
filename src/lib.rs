@@ -32,6 +32,8 @@ mod type_alias;
 mod variable;
 
 pub use node::DocNode;
+pub use node::DocNodeKind;
+
 use node::ImportDef;
 use node::Location;
 use node::ReexportKind;
@@ -40,7 +42,6 @@ use params::ParamDef;
 cfg_if! {
   if #[cfg(feature = "rust")] {
     mod printer;
-    pub use node::DocNodeKind;
     pub use parser::DocError;
     pub use parser::DocParser;
     pub use printer::DocPrinter;
