@@ -71,7 +71,7 @@ fn main() {
       None,
     )
     .await;
-    let parser = DocParser::new(graph, false, &analyzer);
+    let parser = DocParser::new(graph, false, analyzer.as_capturing_parser());
     let parse_result = parser.parse_with_reexports(&source_file);
 
     let mut doc_nodes = match parse_result {

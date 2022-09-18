@@ -181,9 +181,10 @@ pub async fn doc(
     None,
   )
   .await;
-  let entries = DocParser::new(graph, include_all, &analyzer)
-    .parse_with_reexports(&root_specifier)
-    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+  let entries =
+    DocParser::new(graph, include_all, analyzer.as_capturing_parser())
+      .parse_with_reexports(&root_specifier)
+      .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
   JsValue::from_serde(&entries)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
 }
