@@ -25,9 +25,10 @@ use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::CapturingModuleParser;
 use deno_graph::ModuleGraph;
+use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
-use deno_graph::ParsedSourceStore;
 use deno_graph::Resolved;
 
 use std::collections::HashMap;
@@ -76,19 +77,19 @@ struct Import {
 pub struct DocParser<'a> {
   pub graph: ModuleGraph,
   pub private: bool,
-  pub store: &'a dyn ParsedSourceStore,
+  pub parser: CapturingModuleParser<'a>,
 }
 
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: ModuleGraph,
     private: bool,
-    store: &'a dyn ParsedSourceStore,
+    parser: CapturingModuleParser<'a>,
   ) -> Self {
     DocParser {
       graph,
       private,
-      store,
+      parser,
     }
   }
 
@@ -98,13 +99,7 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<ModuleDoc, DocError> {
-    let parsed_source =
-      self.store.get_parsed_source(specifier).ok_or_else(|| {
-        DocError::Resolve(format!(
-          "Could not find module in store: {}",
-          specifier
-        ))
-      })?;
+    let parsed_source = self.get_parsed_source(specifier)?;
     let module = parsed_source.module();
     let mut definitions =
       self.get_doc_nodes_for_module_body(&parsed_source, module.body.clone());
@@ -120,6 +115,29 @@ impl<'a> DocParser<'a> {
       reexports,
     };
     Ok(module_doc)
+  }
+
+  fn get_parsed_source(
+    &self,
+    specifier: &ModuleSpecifier,
+  ) -> Result<ParsedSource, DocError> {
+    let specifier = self.graph.resolve(specifier);
+    let module = self.graph.get(&specifier).ok_or_else(|| {
+      DocError::Resolve(format!(
+        "Could not find module in graph: {}",
+        specifier
+      ))
+    })?;
+    let source = module.maybe_source.clone().ok_or_else(|| {
+      DocError::Resolve(format!(
+        "Could not find module source in graph: {}",
+        specifier
+      ))
+    })?;
+    self
+      .parser
+      .parse_module(&specifier, source, module.media_type)
+      .map_err(DocError::Parse)
   }
 
   /// Fetches `file_name` and returns a list of exported items (no reexports).
