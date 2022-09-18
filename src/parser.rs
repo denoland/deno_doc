@@ -137,7 +137,7 @@ impl<'a> DocParser<'a> {
     self
       .parser
       .parse_module(&specifier, source, module.media_type)
-      .map_err(|diagnostic| DocError::Parse(diagnostic))
+      .map_err(DocError::Parse)
   }
 
   /// Fetches `file_name` and returns a list of exported items (no reexports).
