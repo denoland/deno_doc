@@ -352,11 +352,11 @@ impl<'a> DocParser<'a> {
   ) -> Vec<DocNode> {
     match module_decl {
       ModuleDecl::ExportDecl(export_decl) => {
-        vec![super::module::get_doc_node_for_export_decl(
+        super::module::get_doc_node_for_export_decl(
           self,
           parsed_source,
           export_decl,
-        )]
+        )
       }
       ModuleDecl::ExportDefaultDecl(export_default_decl) => {
         let js_doc =
@@ -423,7 +423,7 @@ impl<'a> DocParser<'a> {
     &self,
     parsed_source: &ParsedSource,
     decl: &Decl,
-  ) -> Option<DocNode> {
+  ) -> Option<Vec<DocNode>> {
     match decl {
       Decl::Class(class_decl) => {
         // declared classes cannot have decorators, so we ignore that return
@@ -431,39 +431,43 @@ impl<'a> DocParser<'a> {
           super::class::get_doc_for_class_decl(parsed_source, class_decl);
         let js_doc = js_doc_for_range(parsed_source, &class_decl.class.range());
         let location = get_location(parsed_source, class_decl.class.start());
-        Some(DocNode::class(
+        Some(vec![DocNode::class(
           name,
           location,
           DeclarationKind::Declare,
           js_doc,
           class_def,
-        ))
+        )])
       }
       Decl::Fn(fn_decl) => {
         let (name, function_def) =
           super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
         let js_doc = js_doc_for_range(parsed_source, &fn_decl.function.range());
         let location = get_location(parsed_source, fn_decl.function.start());
-        Some(DocNode::function(
+        Some(vec![DocNode::function(
           name,
           location,
           DeclarationKind::Declare,
           js_doc,
           function_def,
-        ))
+        )])
       }
-      Decl::Var(var_decl) => {
-        let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
-        let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
-        let location = get_location(parsed_source, var_decl.start());
-        Some(DocNode::variable(
-          name,
-          location,
-          DeclarationKind::Declare,
-          js_doc,
-          var_def,
-        ))
-      }
+      Decl::Var(var_decl) => Some(
+        super::variable::get_doc_for_var_decl(var_decl)
+          .into_iter()
+          .map(|(name, var_def)| {
+            let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
+            let location = get_location(parsed_source, var_decl.start());
+            DocNode::variable(
+              name,
+              location,
+              DeclarationKind::Declare,
+              js_doc,
+              var_def,
+            )
+          })
+          .collect(),
+      ),
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
           super::interface::get_doc_for_ts_interface_decl(
@@ -473,13 +477,13 @@ impl<'a> DocParser<'a> {
         let js_doc =
           js_doc_for_range(parsed_source, &ts_interface_decl.range());
         let location = get_location(parsed_source, ts_interface_decl.start());
-        Some(DocNode::interface(
+        Some(vec![DocNode::interface(
           name,
           location,
           DeclarationKind::Declare,
           js_doc,
           interface_def,
-        ))
+        )])
       }
       Decl::TsTypeAlias(ts_type_alias) => {
         let (name, type_alias_def) =
@@ -489,26 +493,26 @@ impl<'a> DocParser<'a> {
           );
         let js_doc = js_doc_for_range(parsed_source, &ts_type_alias.range());
         let location = get_location(parsed_source, ts_type_alias.start());
-        Some(DocNode::type_alias(
+        Some(vec![DocNode::type_alias(
           name,
           location,
           DeclarationKind::Declare,
           js_doc,
           type_alias_def,
-        ))
+        )])
       }
       Decl::TsEnum(ts_enum) => {
         let (name, enum_def) =
           super::r#enum::get_doc_for_ts_enum_decl(parsed_source, ts_enum);
         let js_doc = js_doc_for_range(parsed_source, &ts_enum.range());
         let location = get_location(parsed_source, ts_enum.start());
-        Some(DocNode::r#enum(
+        Some(vec![DocNode::r#enum(
           name,
           location,
           DeclarationKind::Declare,
           js_doc,
           enum_def,
-        ))
+        )])
       }
       Decl::TsModule(ts_module) => {
         let (name, namespace_def) = super::namespace::get_doc_for_ts_module(
@@ -518,13 +522,13 @@ impl<'a> DocParser<'a> {
         );
         let js_doc = js_doc_for_range(parsed_source, &ts_module.range());
         let location = get_location(parsed_source, ts_module.start());
-        Some(DocNode::namespace(
+        Some(vec![DocNode::namespace(
           name,
           location,
           DeclarationKind::Declare,
           js_doc,
           namespace_def,
-        ))
+        )])
       }
     }
   }
@@ -704,7 +708,7 @@ impl<'a> DocParser<'a> {
     let mut symbols = HashMap::new();
 
     for node in module_body.iter() {
-      let doc_node = match node {
+      let doc_nodes = match node {
         ModuleItem::Stmt(Stmt::Decl(decl)) => {
           self.get_doc_node_for_decl(parsed_source, decl)
         }
@@ -718,8 +722,10 @@ impl<'a> DocParser<'a> {
         _ => None,
       };
 
-      if let Some(doc_node) = doc_node {
-        symbols.insert(doc_node.name.clone(), doc_node);
+      if let Some(doc_nodes) = doc_nodes {
+        for doc_node in doc_nodes {
+          symbols.insert(doc_node.name.clone(), doc_node);
+        }
       }
     }
 
@@ -749,20 +755,22 @@ impl<'a> DocParser<'a> {
       match node {
         ModuleItem::Stmt(stmt) => {
           if let Stmt::Decl(decl) = stmt {
-            if let Some(mut doc_node) =
+            if let Some(doc_nodes) =
               self.get_doc_node_for_decl(parsed_source, decl)
             {
               let is_declared = self.get_declare_for_decl(decl);
-              if self.private {
-                doc_node.declaration_kind = if is_declared {
-                  DeclarationKind::Declare
-                } else {
-                  DeclarationKind::Private
-                };
-                doc_entries.push(doc_node);
-              } else if is_declared {
-                doc_node.declaration_kind = DeclarationKind::Declare;
-                ambient_entries.push(doc_node)
+              for mut doc_node in doc_nodes {
+                if self.private {
+                  doc_node.declaration_kind = if is_declared {
+                    DeclarationKind::Declare
+                  } else {
+                    DeclarationKind::Private
+                  };
+                  doc_entries.push(doc_node);
+                } else if is_declared {
+                  doc_node.declaration_kind = DeclarationKind::Declare;
+                  ambient_entries.push(doc_node)
+                }
               }
             }
           }

@@ -14,7 +14,7 @@ pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   export_decl: &deno_ast::swc::ast::ExportDecl,
-) -> DocNode {
+) -> Vec<DocNode> {
   use deno_ast::swc::ast::Decl;
 
   let export_range = export_decl.range();
@@ -30,36 +30,50 @@ pub fn get_doc_node_for_export_decl(
       } else {
         js_doc
       };
-      DocNode::class(name, location, DeclarationKind::Export, js_doc, class_def)
-    }
-    Decl::Fn(fn_decl) => {
-      let (name, fn_def) =
-        super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
-      DocNode::function(name, location, DeclarationKind::Export, js_doc, fn_def)
-    }
-    Decl::Var(var_decl) => {
-      let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
-      DocNode::variable(
+      vec![DocNode::class(
         name,
         location,
         DeclarationKind::Export,
         js_doc,
-        var_def,
-      )
+        class_def,
+      )]
     }
+    Decl::Fn(fn_decl) => {
+      let (name, fn_def) =
+        super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
+      vec![DocNode::function(
+        name,
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        fn_def,
+      )]
+    }
+    Decl::Var(var_decl) => super::variable::get_doc_for_var_decl(var_decl)
+      .into_iter()
+      .map(|(name, var_def)| {
+        DocNode::variable(
+          name,
+          location.clone(),
+          DeclarationKind::Export,
+          js_doc.clone(),
+          var_def,
+        )
+      })
+      .collect(),
     Decl::TsInterface(ts_interface_decl) => {
       let (name, interface_def) =
         super::interface::get_doc_for_ts_interface_decl(
           parsed_source,
           ts_interface_decl,
         );
-      DocNode::interface(
+      vec![DocNode::interface(
         name,
         location,
         DeclarationKind::Export,
         js_doc,
         interface_def,
-      )
+      )]
     }
     Decl::TsTypeAlias(ts_type_alias) => {
       let (name, type_alias_def) =
@@ -67,18 +81,24 @@ pub fn get_doc_node_for_export_decl(
           parsed_source,
           ts_type_alias,
         );
-      DocNode::type_alias(
+      vec![DocNode::type_alias(
         name,
         location,
         DeclarationKind::Export,
         js_doc,
         type_alias_def,
-      )
+      )]
     }
     Decl::TsEnum(ts_enum) => {
       let (name, enum_def) =
         super::r#enum::get_doc_for_ts_enum_decl(parsed_source, ts_enum);
-      DocNode::r#enum(name, location, DeclarationKind::Export, js_doc, enum_def)
+      vec![DocNode::r#enum(
+        name,
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        enum_def,
+      )]
     }
     Decl::TsModule(ts_module) => {
       let (name, namespace_def) = super::namespace::get_doc_for_ts_module(
@@ -86,13 +106,13 @@ pub fn get_doc_node_for_export_decl(
         parsed_source,
         ts_module,
       );
-      DocNode::namespace(
+      vec![DocNode::namespace(
         name,
         location,
         DeclarationKind::Export,
         js_doc,
         namespace_def,
-      )
+      )]
     }
   }
 }
