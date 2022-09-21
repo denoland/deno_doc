@@ -34,6 +34,33 @@ pub fn get_doc_for_var_decl(
         };
         items.push((var_name, variable_def));
       }
+      deno_ast::swc::ast::Pat::Object(pat) => {
+        let ts_type =
+          pat.type_ann.as_ref().map(ts_type_ann_to_def).or_else(|| {
+            infer_simple_ts_type_from_var_decl(
+              var_declarator,
+              var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
+            )
+          });
+
+        for prop in &pat.props {
+          let name = match prop {
+            deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => {
+              crate::params::prop_name_to_string(None, &kv.key)
+            }
+            deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
+              assign.key.sym.to_string()
+            }
+            deno_ast::swc::ast::ObjectPatProp::Rest(_) => todo!(),
+          };
+
+          let variable_def = VariableDef {
+            ts_type: ts_type.clone(), // TODO: get properties of ts_type
+            kind: var_decl.kind,
+          };
+          items.push((name, variable_def));
+        }
+      }
       _ => (),
     }
   }
