@@ -14,6 +14,7 @@ pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   export_decl: &deno_ast::swc::ast::ExportDecl,
+  previous_nodes: Vec<&DocNode>,
 ) -> Vec<DocNode> {
   use deno_ast::swc::ast::Decl;
 
@@ -49,18 +50,20 @@ pub fn get_doc_node_for_export_decl(
         fn_def,
       )]
     }
-    Decl::Var(var_decl) => super::variable::get_doc_for_var_decl(var_decl)
-      .into_iter()
-      .map(|(name, var_def)| {
-        DocNode::variable(
-          name,
-          location.clone(),
-          DeclarationKind::Export,
-          js_doc.clone(),
-          var_def,
-        )
-      })
-      .collect(),
+    Decl::Var(var_decl) => {
+      super::variable::get_doc_for_var_decl(var_decl, previous_nodes)
+        .into_iter()
+        .map(|(name, var_def)| {
+          DocNode::variable(
+            name,
+            location.clone(),
+            DeclarationKind::Export,
+            js_doc.clone(),
+            var_def,
+          )
+        })
+        .collect()
+    }
     Decl::TsInterface(ts_interface_decl) => {
       let (name, interface_def) =
         super::interface::get_doc_for_ts_interface_decl(

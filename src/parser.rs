@@ -349,6 +349,7 @@ impl<'a> DocParser<'a> {
     &self,
     parsed_source: &ParsedSource,
     module_decl: &ModuleDecl,
+    previous_doc_nodes: Vec<&DocNode>,
   ) -> Vec<DocNode> {
     match module_decl {
       ModuleDecl::ExportDecl(export_decl) => {
@@ -356,6 +357,7 @@ impl<'a> DocParser<'a> {
           self,
           parsed_source,
           export_decl,
+          previous_doc_nodes,
         )
       }
       ModuleDecl::ExportDefaultDecl(export_default_decl) => {
@@ -423,6 +425,7 @@ impl<'a> DocParser<'a> {
     &self,
     parsed_source: &ParsedSource,
     decl: &Decl,
+    previous_nodes: Vec<&DocNode>,
   ) -> Option<Vec<DocNode>> {
     match decl {
       Decl::Class(class_decl) => {
@@ -453,7 +456,7 @@ impl<'a> DocParser<'a> {
         )])
       }
       Decl::Var(var_decl) => Some(
-        super::variable::get_doc_for_var_decl(var_decl)
+        super::variable::get_doc_for_var_decl(var_decl, previous_nodes)
           .into_iter()
           .map(|(name, var_def)| {
             let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
@@ -709,14 +712,17 @@ impl<'a> DocParser<'a> {
 
     for node in module_body.iter() {
       let doc_nodes = match node {
-        ModuleItem::Stmt(Stmt::Decl(decl)) => {
-          self.get_doc_node_for_decl(parsed_source, decl)
-        }
+        ModuleItem::Stmt(Stmt::Decl(decl)) => self.get_doc_node_for_decl(
+          parsed_source,
+          decl,
+          symbols.values().collect(),
+        ),
         ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
           Some(super::module::get_doc_node_for_export_decl(
             self,
             parsed_source,
             export_decl,
+            symbols.values().collect(),
           ))
         }
         _ => None,
@@ -755,9 +761,11 @@ impl<'a> DocParser<'a> {
       match node {
         ModuleItem::Stmt(stmt) => {
           if let Stmt::Decl(decl) = stmt {
-            if let Some(doc_nodes) =
-              self.get_doc_node_for_decl(parsed_source, decl)
-            {
+            if let Some(doc_nodes) = self.get_doc_node_for_decl(
+              parsed_source,
+              decl,
+              doc_entries.iter().collect(),
+            ) {
               let is_declared = self.get_declare_for_decl(decl);
               for mut doc_node in doc_nodes {
                 if self.private {
@@ -780,9 +788,11 @@ impl<'a> DocParser<'a> {
           // If it has imports/exports, it isn't ambient.
           is_ambient = false;
 
-          doc_entries.extend(
-            self.get_doc_nodes_for_module_exports(parsed_source, module_decl),
-          );
+          doc_entries.extend(self.get_doc_nodes_for_module_exports(
+            parsed_source,
+            module_decl,
+            symbols.values().collect(),
+          ));
 
           match module_decl {
             ModuleDecl::ExportNamed(export_named) => {
