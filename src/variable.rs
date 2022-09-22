@@ -29,80 +29,62 @@ pub fn get_doc_for_var_decl(
         }
       });
 
-    match &var_declarator.name {
-      deno_ast::swc::ast::Pat::Ident(ident) => {
-        let var_name = ident.id.sym.to_string();
-        let maybe_ts_type =
-          ident.type_ann.as_ref().map(ts_type_ann_to_def).or_else(|| {
-            if let Some(ref_name) = ref_name {
-              previous_nodes.iter().find_map(|prev_node| {
-                if prev_node.name == ref_name {
-                  prev_node
-                    .variable_def
-                    .as_ref()
-                    .and_then(|prev_def| prev_def.ts_type.clone())
-                } else {
-                  None
-                }
-              })
+    let maybe_ts_type_ann = match &var_declarator.name {
+      deno_ast::swc::ast::Pat::Ident(ident) => ident.type_ann.as_ref(),
+      deno_ast::swc::ast::Pat::Object(pat) => pat.type_ann.as_ref(),
+      _ => None,
+    };
+    let maybe_ts_type = maybe_ts_type_ann
+      .map(ts_type_ann_to_def)
+      .or_else(|| {
+        if let Some(ref_name) = ref_name {
+          previous_nodes.iter().find_map(|prev_node| {
+            if prev_node.name == ref_name {
+              prev_node
+                .variable_def
+                .as_ref()
+                .and_then(|prev_def| prev_def.ts_type.clone())
             } else {
               None
             }
-          });
+          })
+        } else {
+          None
+        }
+      })
+      .or_else(|| {
+        infer_simple_ts_type_from_var_decl(
+          var_declarator,
+          var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
+        )
+      });
+
+    match &var_declarator.name {
+      deno_ast::swc::ast::Pat::Ident(ident) => {
+        let var_name = ident.id.sym.to_string();
         let variable_def = VariableDef {
-          ts_type: maybe_ts_type.or_else(|| {
-            infer_simple_ts_type_from_var_decl(
-              var_declarator,
-              var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
-            )
-          }),
+          ts_type: maybe_ts_type,
           kind: var_decl.kind,
         };
         items.push((var_name, variable_def));
       }
       deno_ast::swc::ast::Pat::Object(pat) => {
-        let obj_type = pat
-          .type_ann
-          .as_ref()
-          .map(ts_type_ann_to_def)
-          .or_else(|| {
-            if let Some(ref_name) = ref_name {
-              previous_nodes.iter().find_map(|prev_node| {
-                if prev_node.name == ref_name {
-                  prev_node
-                    .variable_def
-                    .as_ref()
-                    .and_then(|prev_def| prev_def.ts_type.clone())
-                } else {
-                  None
-                }
-              })
-            } else {
-              None
-            }
-          })
-          .or_else(|| {
-            infer_simple_ts_type_from_var_decl(
-              var_declarator,
-              var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
-            )
-          })
-          .and_then(|type_def| {
-            if let Some(type_def) = type_def.type_ref {
-              previous_nodes.iter().find_map(|prev_node| {
-                if prev_node.name == type_def.type_name {
-                  prev_node
-                    .type_alias_def
-                    .as_ref()
-                    .map(|ts_alias| ts_alias.ts_type.clone())
-                } else {
-                  None
-                }
-              })
-            } else {
-              Some(type_def)
-            }
-          });
+        let obj_type = maybe_ts_type.and_then(|type_def| {
+          if let Some(type_def) = type_def.type_ref {
+            previous_nodes.iter().find_map(|prev_node| {
+              if prev_node.name == type_def.type_name {
+                prev_node
+                  .type_alias_def
+                  .as_ref()
+                  .map(|ts_alias| ts_alias.ts_type.clone())
+              } else {
+                None
+              }
+            })
+          } else {
+            Some(type_def)
+          }
+        });
 
         for prop in &pat.props {
           let name = match prop {
