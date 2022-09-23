@@ -232,6 +232,7 @@ export type JsDocTagKind =
   | "callback"
   | "category"
   | "constructor"
+  | "default"
   | "deprecated"
   | "enum"
   | "example"
@@ -255,6 +256,7 @@ export type JsDocTag =
   | JsDocTagOnly
   | JsDocTagDoc
   | JsDocTagNamed
+  | JsDocTagValued
   | JsDocTagTyped
   | JsDocTagNamedTyped
   | JsDocTagParam
@@ -286,6 +288,13 @@ export interface JsDocTagNamed extends JsDocTagBase {
   name: string;
   doc?: string;
 }
+
+export interface JsDocTagValued extends JsDocTagBase {
+  kind: "default";
+  value: string;
+  doc?: string;
+}
+
 
 export interface JsDocTagTyped extends JsDocTagBase {
   kind: "enum" | "extends" | "this" | "type";
