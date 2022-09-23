@@ -219,6 +219,16 @@ impl<'a> DocPrinter<'a> {
       JsDocTag::Constructor => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("constructor"))
       }
+      JsDocTag::Default { value, doc } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("default"),
+          colors::italic_cyan(value)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
       JsDocTag::Deprecated { doc } => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("deprecated"))?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
