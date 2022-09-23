@@ -12,6 +12,7 @@ use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
+use std::collections::HashMap;
 
 use deno_ast::swc::ast::*;
 use deno_ast::SourceRange;
@@ -1228,6 +1229,33 @@ impl TsTypeDef {
     }
   }
 
+  pub fn object(entries: HashMap<String, Option<TsTypeDef>>) -> Self {
+    let properties = entries
+      .into_iter()
+      .map(|(name, ts_type)| LiteralPropertyDef {
+        name,
+        params: vec![],
+        readonly: false,
+        computed: false,
+        optional: false,
+        ts_type,
+        type_params: vec![],
+      })
+      .collect();
+
+    Self {
+      repr: "".to_string(),
+      kind: Some(TsTypeDefKind::TypeLiteral),
+      type_literal: Some(TsTypeLiteralDef {
+        methods: vec![],
+        properties,
+        call_signatures: vec![],
+        index_signatures: vec![],
+      }),
+      ..Default::default()
+    }
+  }
+
   pub fn keyword(keyword_str: &str) -> Self {
     Self::keyword_with_repr(keyword_str, keyword_str)
   }
@@ -1330,6 +1358,10 @@ pub fn infer_ts_type_from_expr(
     Expr::Call(expr) => {
       // e.g.) const value = Number(123);
       infer_ts_type_from_call_expr(expr)
+    }
+    Expr::Object(obj) => {
+      // e.g.) const value = {foo: "bar"};
+      infer_ts_type_from_obj(obj)
     }
     _ => None,
   }
@@ -1502,6 +1534,60 @@ fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
     }
     _ => None,
   }
+}
+
+fn infer_ts_type_from_obj(obj: &ObjectLit) -> Option<TsTypeDef> {
+  let entries = infer_ts_type_from_obj_inner(obj);
+  if entries.is_empty() {
+    None
+  } else {
+    Some(TsTypeDef::object(entries))
+  }
+}
+
+fn infer_ts_type_from_obj_inner(
+  obj: &ObjectLit,
+) -> HashMap<String, Option<TsTypeDef>> {
+  let mut entries = HashMap::<String, Option<TsTypeDef>>::new();
+  for objProp in &obj.props {
+    match objProp {
+      PropOrSpread::Prop(prop) => match &**prop {
+        Prop::Shorthand(shorthand) => {
+          entries.insert(shorthand.sym.to_string(), None);
+        }
+        Prop::KeyValue(kv) => {
+          let name = crate::params::prop_name_to_string(None, &kv.key);
+          let val = infer_ts_type_from_expr(&*kv.value, false);
+          entries.insert(name, val);
+        }
+        Prop::Assign(assignment) => {
+          let name = assignment.key.sym.to_string();
+          let val = infer_ts_type_from_expr(&*assignment.value, false);
+          entries.insert(name, val);
+        }
+        Prop::Getter(getter) => {
+          let name = crate::params::prop_name_to_string(None, &getter.key);
+          let val = getter.type_ann.as_ref().map(ts_type_ann_to_def);
+          entries.insert(name, val);
+        }
+        Prop::Setter(setter) => {
+          let name = crate::params::prop_name_to_string(None, &setter.key);
+          entries.insert(name, None);
+        }
+        Prop::Method(method) => {
+          let name = crate::params::prop_name_to_string(None, &method.key);
+          entries.insert(name, None);
+        }
+      },
+      PropOrSpread::Spread(spread) => {
+        if let Expr::Object(obj) = &*spread.expr {
+          let spread_entries = infer_ts_type_from_obj_inner(obj);
+          entries.extend(spread_entries.into_iter());
+        }
+      }
+    }
+  }
+  entries
 }
 
 fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> TsTypeDef {
