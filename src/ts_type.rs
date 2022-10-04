@@ -1549,8 +1549,8 @@ fn infer_ts_type_from_obj_inner(
   obj: &ObjectLit,
 ) -> HashMap<String, Option<TsTypeDef>> {
   let mut entries = HashMap::<String, Option<TsTypeDef>>::new();
-  for objProp in &obj.props {
-    match objProp {
+  for obj_prop in &obj.props {
+    match obj_prop {
       PropOrSpread::Prop(prop) => match &**prop {
         Prop::Shorthand(shorthand) => {
           entries.insert(shorthand.sym.to_string(), None);
