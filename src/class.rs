@@ -364,7 +364,7 @@ pub fn class_to_class_def(
           Some(ts_type_ann_to_def(type_ann))
         } else if let Some(value) = &class_prop.value {
           // else, if it has an initializer, try to infer the type
-          infer_ts_type_from_expr(&*value, false)
+          infer_ts_type_from_expr(value, false)
         } else {
           // else, none
           None
