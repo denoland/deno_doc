@@ -6,6 +6,7 @@ use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::GraphOptions;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
@@ -35,13 +36,11 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
-    false,
-    None,
     &mut memory_loader,
-    None,
-    None,
-    Some(&analyzer),
-    None,
+    GraphOptions {
+      module_analyzer: Some(&analyzer),
+      ..Default::default()
+    },
   )
   .await;
   (graph, analyzer, root)
@@ -144,13 +143,11 @@ async fn content_type_handling() {
   let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
-    false,
-    None,
     &mut memory_loader,
-    None,
-    None,
-    Some(&analyzer),
-    None,
+    GraphOptions {
+      module_analyzer: Some(&analyzer),
+      ..Default::default()
+    },
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
@@ -190,13 +187,11 @@ async fn types_header_handling() {
   let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
-    false,
-    None,
     &mut memory_loader,
-    None,
-    None,
-    Some(&analyzer),
-    None,
+    GraphOptions {
+      module_analyzer: Some(&analyzer),
+      ..Default::default()
+    },
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())

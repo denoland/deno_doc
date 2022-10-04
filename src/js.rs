@@ -13,6 +13,7 @@ use deno_graph::source::Loader;
 use deno_graph::source::ResolveResponse;
 use deno_graph::source::Resolver;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::GraphOptions;
 use deno_graph::ModuleSpecifier;
 use import_map::ImportMap;
 use wasm_bindgen::prelude::*;
@@ -172,13 +173,12 @@ pub async fn doc(
   let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root_specifier.clone()],
-    false,
-    None,
     &mut loader,
-    maybe_resolver.as_ref().map(|r| r.as_ref()),
-    None,
-    Some(&analyzer),
-    None,
+    GraphOptions {
+      module_analyzer: Some(&analyzer),
+      resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
+      ..Default::default()
+    },
   )
   .await;
   let entries =
