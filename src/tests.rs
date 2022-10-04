@@ -2236,6 +2236,95 @@ export const tpl2 = `Value: ${num}`;
     ]
   );
 
+  json_test!(export_const_destructured,
+    r#"const c = { a: "a", b: 2 };
+    const d: { f: string; g: number; } = { f: "f", g: 2 };
+
+    export const { a, b }: {
+      /** type alias doc */
+      a: string;
+      /** other doc */
+      b: number;
+    } = c;
+    
+    export const { f, g: h } = d;
+    "#;
+    [
+      {
+        "kind": "variable",
+        "name": "a",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 4,
+          "col": 4
+        },
+        "declarationKind": "export",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      },
+      {
+        "kind": "variable",
+        "name": "b",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 4,
+          "col": 4
+        },
+        "declarationKind": "export",
+        "variableDef": {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "kind": "const"
+        }
+      },
+      {
+        "kind": "variable",
+        "name": "f",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 11,
+          "col": 4
+        },
+        "declarationKind": "export",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      },
+      {
+        "kind": "variable",
+        "name": "h",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 11,
+          "col": 4
+        },
+        "declarationKind": "export",
+        "variableDef": {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "kind": "const"
+        }
+      }
+    ]
+  );
+
   json_test!(export_let,
     r#"
 export let str = "hello";
