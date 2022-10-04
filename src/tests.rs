@@ -4334,6 +4334,164 @@ export function foo(bar: any): asserts bar {}
     }
   ]);
 
+  json_test!(infer_object_literal,
+    r#"export const a = {
+      a: "a",
+      b: new Map<string, number>(),
+      c: { d: "d" },
+      d(e: string): void {},
+      f: (g: string): void => {},
+      get h(): string {
+        return "h";
+      },
+      set h(value: string) {
+    
+      },
+    };"#;
+    [
+      {
+        "kind": "variable",
+        "name": "a",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 1,
+          "col": 0
+        },
+        "declarationKind": "export",
+        "variableDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "typeLiteral",
+            "typeLiteral": {
+              "methods": [],
+              "properties": [
+                {
+                  "name": "a",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "b",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "Map",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": [
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        },
+                        {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      ],
+                      "typeName": "Map"
+                    }
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "h",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": null,
+                  "typeParams": []
+                },
+                {
+                  "name": "c",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "typeLiteral",
+                    "typeLiteral": {
+                      "methods": [],
+                      "properties": [
+                        {
+                          "name": "d",
+                          "params": [],
+                          "computed": false,
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "keyword": "string"
+                          },
+                          "typeParams": []
+                        }
+                      ],
+                      "callSignatures": [],
+                      "indexSignatures": []
+                    }
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "d",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": null,
+                  "typeParams": []
+                },
+                {
+                  "name": "f",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "fnOrConstructor",
+                    "fnOrConstructor": {
+                      "constructor": false,
+                      "tsType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "keyword": "void"
+                      },
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "g",
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "keyword": "string"
+                          }
+                        }
+                      ],
+                      "typeParams": []
+                    }
+                  },
+                  "typeParams": []
+                }
+              ],
+              "callSignatures": [],
+              "indexSignatures": []
+            }
+          },
+          "kind": "const"
+        }
+      }
+    ]
+  );
+
   json_test!(mapped_types,
   r#"
 export type MappedTypeWithNewProperties<Type> = {
