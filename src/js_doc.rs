@@ -15,7 +15,7 @@ lazy_static! {
   .unwrap();
   static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"(?s)^\s*@(\S+)"#).unwrap();
   static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r#"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+(.+))?"#).unwrap();
-  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?"#).unwrap();
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
@@ -91,6 +91,12 @@ pub enum JsDocTag {
   },
   /// `@constructor` or `@class`
   Constructor,
+  /// `@default {value} comment`
+  Default {
+    value: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    doc: Option<String>,
+  },
   /// `@deprecated comment`
   Deprecated {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -217,6 +223,10 @@ impl From<String> for JsDocTag {
         "extends" | "augments" => Self::Extends { type_ref, doc },
         "this" => Self::This { type_ref, doc },
         "type" => Self::TypeRef { type_ref, doc },
+        "default" => Self::Default {
+          value: type_ref,
+          doc,
+        },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_NAMED_TYPED_RE.captures(&value) {
@@ -384,6 +394,19 @@ if (true) {
 
   #[test]
   fn test_js_doc_tag_typed() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@default {true} more doc\n\nnew paragraph".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "default",
+          "value": "true",
+          "doc": "more doc\n\nnew paragraph"
+        }]
+      })
+    );
     assert_eq!(
       serde_json::to_value(JsDoc::from(
         "@enum {string} more doc\n\nnew paragraph".to_string()
@@ -742,6 +765,17 @@ multi-line
       serde_json::to_value(JsDocTag::Constructor).unwrap(),
       json!({
         "kind": "constructor",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Default {
+        value: "true".to_string(),
+        doc: None,
+      })
+      .unwrap(),
+      json!({
+        "kind": "default",
+        "value": "true",
       })
     );
     assert_eq!(
