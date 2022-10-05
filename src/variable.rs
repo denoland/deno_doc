@@ -87,12 +87,18 @@ pub fn get_doc_for_var_decl(
         });
 
         for prop in &pat.props {
-          let name = match prop {
-            deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => {
-              crate::params::prop_name_to_string(None, &kv.key)
-            }
+          let (name, reassign_name) = match prop {
+            deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
+              crate::params::prop_name_to_string(None, &kv.key),
+              match &*kv.value {
+                deno_ast::swc::ast::Pat::Ident(ident) => {
+                  Some(ident.sym.to_string())
+                }
+                _ => todo!("nested destructing"),
+              },
+            ),
             deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
-              assign.key.sym.to_string()
+              (assign.key.sym.to_string(), None)
             }
             deno_ast::swc::ast::ObjectPatProp::Rest(_) => todo!(),
           };
@@ -113,7 +119,7 @@ pub fn get_doc_for_var_decl(
             ts_type,
             kind: var_decl.kind,
           };
-          items.push((name, variable_def));
+          items.push((reassign_name.unwrap_or(name), variable_def));
         }
       }
       _ => (),
