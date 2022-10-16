@@ -10,7 +10,7 @@ lazy_static! {
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|module|public|private|protected|readonly)"#).unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
-    r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{([^}]+)\})?\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#
+    r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*)\s*=\s*(?P<default>[^]]+)\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?P<doc>.+))?"#
   )
   .unwrap();
   static ref JS_DOC_TAG_RE: Regex = Regex::new(r#"(?s)^\s*@(\S+)"#).unwrap();
@@ -123,11 +123,15 @@ pub enum JsDocTag {
   /// `@module`
   Module,
   /// `@param {type} name comment` or `@arg {type} name comment` or
-  /// `@argument {type} name comment`
+  /// `@argument {type} name comment` or `@param {type} [name=default] comment`
+  /// or `@arg {type} [name=default] comment` or
+  /// `@argument {type} [name=default] comment`
   Param {
     name: String,
     #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     type_ref: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    default: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
@@ -262,12 +266,19 @@ impl From<String> for JsDocTag {
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
-      let name = caps.get(2).unwrap().as_str().to_string();
-      let type_ref = caps.get(1).map(|m| m.as_str().to_string());
-      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      let name = caps
+        .name("name")
+        .or_else(|| caps.name("nameWithDefault"))
+        .unwrap()
+        .as_str()
+        .to_string();
+      let type_ref = caps.name("type").map(|m| m.as_str().to_string());
+      let default = caps.name("default").map(|m| m.as_str().to_string());
+      let doc = caps.name("doc").map(|m| m.as_str().to_string());
       Self::Param {
         name,
         type_ref,
+        default,
         doc,
       }
     } else if let Some(caps) = JS_DOC_TAG_RETURN_RE.captures(&value) {
@@ -638,6 +649,20 @@ if (true) {
     );
     assert_eq!(
       serde_json::to_value(JsDoc::from(
+        r#"@param {string} [a="foo"]"#.to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "type": "string",
+          "default": "\"foo\"",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
         "@arg {string} a maybe doc\n\nnew paragraph".to_string()
       ))
       .unwrap(),
@@ -814,6 +839,7 @@ multi-line
       serde_json::to_value(JsDocTag::Param {
         name: "arg".to_string(),
         type_ref: Some("number".to_string()),
+        default: Some("1".to_string()),
         doc: Some("comment".to_string()),
       })
       .unwrap(),
@@ -821,6 +847,7 @@ multi-line
         "kind": "param",
         "name": "arg",
         "type": "number",
+        "default": "1",
         "doc": "comment",
       })
     );
@@ -828,6 +855,7 @@ multi-line
       serde_json::to_value(JsDocTag::Param {
         name: "arg".to_string(),
         type_ref: None,
+        default: None,
         doc: Some("comment".to_string()),
       })
       .unwrap(),

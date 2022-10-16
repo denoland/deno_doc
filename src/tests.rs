@@ -5288,7 +5288,7 @@ export function C() {}
  * a is a function
  *
  * @param {string} b some doc
- * @param c additional doc
+ * @param [c=1] additional doc
  * @returns {string} returning doc
  */
 export function a(b, c) {}
@@ -5296,7 +5296,7 @@ export function a(b, c) {}
     "a is a function",
     "@param {string} b",
     "some doc",
-    "@param c",
+    "@param [1] c",
     "additional doc",
     "@return {string}",
     "returning doc"
