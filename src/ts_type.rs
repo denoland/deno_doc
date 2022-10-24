@@ -367,7 +367,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             .map(|rt| (&*rt.type_ann).into());
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            ts_method_sig.type_params.as_ref(),
+            ts_method_sig.type_params.as_deref(),
           );
           let name = expr_to_name(&*ts_method_sig.key);
           let method_def = LiteralMethodDef {
@@ -432,7 +432,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             .map(|rt| (&*rt.type_ann).into());
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            ts_prop_sig.type_params.as_ref(),
+            ts_prop_sig.type_params.as_deref(),
           );
           let prop_def = LiteralPropertyDef {
             name,
@@ -458,7 +458,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             .map(|rt| (&*rt.type_ann).into());
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            ts_call_sig.type_params.as_ref(),
+            ts_call_sig.type_params.as_deref(),
           );
 
           let call_sig_def = LiteralCallSignatureDef {
@@ -495,7 +495,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           }
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            ts_construct_sig.type_params.as_ref(),
+            ts_construct_sig.type_params.as_deref(),
           );
 
           let maybe_return_type = ts_construct_sig
@@ -608,7 +608,7 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
         }
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
-          ts_fn_type.type_params.as_ref(),
+          ts_fn_type.type_params.as_deref(),
         );
 
         TsFnOrConstructorDef {
@@ -627,7 +627,7 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
         }
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
-          ctor_type.type_params.as_ref(),
+          ctor_type.type_params.as_deref(),
         );
         TsFnOrConstructorDef {
           constructor: true,
@@ -735,11 +735,11 @@ impl From<&deno_ast::swc::ast::ArrowExpr> for TsFnOrConstructorDef {
       .collect();
     let ts_type = expr
       .return_type
-      .as_ref()
+      .as_deref()
       .map(ts_type_ann_to_def)
       .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
     let type_params =
-      maybe_type_param_decl_to_type_param_defs(expr.type_params.as_ref());
+      maybe_type_param_decl_to_type_param_defs(expr.type_params.as_deref());
 
     Self {
       constructor: false,
@@ -761,11 +761,11 @@ impl From<&deno_ast::swc::ast::FnExpr> for TsFnOrConstructorDef {
     let ts_type = expr
       .function
       .return_type
-      .as_ref()
+      .as_deref()
       .map(ts_type_ann_to_def)
       .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
     let type_params = maybe_type_param_decl_to_type_param_defs(
-      expr.function.type_params.as_ref(),
+      expr.function.type_params.as_deref(),
     );
 
     Self {
