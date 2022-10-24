@@ -19,7 +19,7 @@ pub fn get_doc_for_ts_type_alias_decl(
   let alias_name = type_alias_decl.id.sym.to_string();
   let ts_type = type_alias_decl.type_ann.as_ref().into();
   let type_params = maybe_type_param_decl_to_type_param_defs(
-    type_alias_decl.type_params.as_ref(),
+    type_alias_decl.type_params.as_deref(),
   );
   let type_alias_def = TypeAliasDef {
     ts_type,

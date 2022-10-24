@@ -147,7 +147,7 @@ pub fn ident_to_param_def(
   _parsed_source: Option<&ParsedSource>,
   ident: &deno_ast::swc::ast::BindingIdent,
 ) -> ParamDef {
-  let ts_type = ident.type_ann.as_ref().map(ts_type_ann_to_def);
+  let ts_type = ident.type_ann.as_deref().map(ts_type_ann_to_def);
 
   ParamDef {
     pattern: ParamPatternDef::Identifier {
@@ -163,7 +163,7 @@ fn rest_pat_to_param_def(
   parsed_source: Option<&ParsedSource>,
   rest_pat: &deno_ast::swc::ast::RestPat,
 ) -> ParamDef {
-  let ts_type = rest_pat.type_ann.as_ref().map(ts_type_ann_to_def);
+  let ts_type = rest_pat.type_ann.as_deref().map(ts_type_ann_to_def);
 
   ParamDef {
     pattern: ParamPatternDef::Rest {
@@ -202,7 +202,7 @@ fn object_pat_to_param_def(
     .iter()
     .map(|prop| object_pat_prop_to_def(parsed_source, prop))
     .collect::<Vec<_>>();
-  let ts_type = object_pat.type_ann.as_ref().map(ts_type_ann_to_def);
+  let ts_type = object_pat.type_ann.as_deref().map(ts_type_ann_to_def);
 
   ParamDef {
     pattern: ParamPatternDef::Object {
@@ -223,7 +223,7 @@ fn array_pat_to_param_def(
     .iter()
     .map(|elem| elem.as_ref().map(|e| pat_to_param_def(parsed_source, e)))
     .collect::<Vec<Option<_>>>();
-  let ts_type = array_pat.type_ann.as_ref().map(ts_type_ann_to_def);
+  let ts_type = array_pat.type_ann.as_deref().map(ts_type_ann_to_def);
 
   ParamDef {
     pattern: ParamPatternDef::Array {
@@ -239,7 +239,7 @@ pub fn assign_pat_to_param_def(
   parsed_source: Option<&ParsedSource>,
   assign_pat: &deno_ast::swc::ast::AssignPat,
 ) -> ParamDef {
-  let ts_type = assign_pat.type_ann.as_ref().map(ts_type_ann_to_def);
+  let ts_type = assign_pat.type_ann.as_deref().map(ts_type_ann_to_def);
 
   ParamDef {
     pattern: ParamPatternDef::Assign {
