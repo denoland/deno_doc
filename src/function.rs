@@ -36,7 +36,8 @@ pub fn function_to_function_def(
     .map(|param| param_to_param_def(parsed_source, param))
     .collect();
 
-  let maybe_return_type = function.return_type.as_deref().map(ts_type_ann_to_def);
+  let maybe_return_type =
+    function.return_type.as_deref().map(ts_type_ann_to_def);
 
   let type_params =
     maybe_type_param_decl_to_type_param_defs(function.type_params.as_deref());
