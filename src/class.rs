@@ -364,7 +364,7 @@ pub fn class_to_class_def(
           Some(ts_type_ann_to_def(type_ann))
         } else if let Some(value) = &class_prop.value {
           // else, if it has an initializer, try to infer the type
-          infer_ts_type_from_expr(&*value, false)
+          infer_ts_type_from_expr(value, false)
         } else {
           // else, none
           None
@@ -419,10 +419,10 @@ pub fn class_to_class_def(
   }
 
   let type_params =
-    maybe_type_param_decl_to_type_param_defs(class.type_params.as_ref());
+    maybe_type_param_decl_to_type_param_defs(class.type_params.as_deref());
 
   let super_type_params = maybe_type_param_instantiation_to_type_defs(
-    class.super_type_params.as_ref(),
+    class.super_type_params.as_deref(),
   );
 
   let decorators = decorators_to_defs(parsed_source, &class.decorators);

@@ -263,11 +263,18 @@ impl<'a> DocPrinter<'a> {
       JsDocTag::Param {
         name,
         type_ref,
+        optional,
+        default,
         doc,
       } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("param"))?;
         if let Some(type_ref) = type_ref {
           write!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+        }
+        if *optional {
+          write!(w, " [?]")?;
+        } else if let Some(default) = default {
+          write!(w, " [{}]", colors::italic_cyan(default))?;
         }
         writeln!(w, " {}", colors::bold(name))?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)

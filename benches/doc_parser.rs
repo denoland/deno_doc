@@ -11,6 +11,7 @@ use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::GraphOptions;
 use deno_graph::ModuleSpecifier;
 
 async fn parse_with_reexports() -> Vec<DocNode> {
@@ -28,13 +29,11 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   let analyzer = CapturingModuleAnalyzer::default();
   let graph = create_type_graph(
     vec![root.clone()],
-    false,
-    None,
     &mut memory_loader,
-    None,
-    None,
-    Some(&analyzer),
-    None,
+    GraphOptions {
+      module_analyzer: Some(&analyzer),
+      ..Default::default()
+    },
   )
   .await;
   DocParser::new(graph, false, analyzer.as_capturing_parser())
