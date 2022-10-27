@@ -1567,7 +1567,10 @@ fn infer_ts_type_from_obj_inner(
         }
         Prop::Getter(getter) => {
           let name = crate::params::prop_name_to_string(None, &getter.key);
-          let val = getter.type_ann.as_ref().map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
+          let val = getter
+            .type_ann
+            .as_ref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
           entries.insert(name, val);
         }
         Prop::Setter(setter) => {
