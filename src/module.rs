@@ -50,34 +50,36 @@ pub fn get_doc_node_for_export_decl(
         fn_def,
       )]
     }
-    Decl::Var(var_decl) => {
-      super::variable::get_doc_for_var_decl(parsed_source, var_decl, previous_nodes)
-        .into_iter()
-        .map(|(name, var_def, maybe_range)| {
-          let js_doc = if js_doc.is_empty() {
-            js_doc_for_range(
-              parsed_source,
-              &maybe_range.unwrap_or_else(|| var_decl.range()),
-            )
-          } else {
-            js_doc.clone()
-          };
-          let location = get_location(
-            parsed_source,
-            maybe_range
-              .map(|range| range.start)
-              .unwrap_or_else(|| var_decl.start()),
-          );
-          DocNode::variable(
-            name,
-            location,
-            DeclarationKind::Export,
-            js_doc,
-            var_def,
-          )
-        })
-        .collect()
-    }
+    Decl::Var(var_decl) => super::variable::get_doc_for_var_decl(
+      parsed_source,
+      var_decl,
+      previous_nodes,
+    )
+    .into_iter()
+    .map(|(name, var_def, maybe_range)| {
+      let js_doc = if js_doc.is_empty() {
+        js_doc_for_range(
+          parsed_source,
+          &maybe_range.unwrap_or_else(|| var_decl.range()),
+        )
+      } else {
+        js_doc.clone()
+      };
+      let location = get_location(
+        parsed_source,
+        maybe_range
+          .map(|range| range.start)
+          .unwrap_or_else(|| var_decl.start()),
+      );
+      DocNode::variable(
+        name,
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        var_def,
+      )
+    })
+    .collect(),
     Decl::TsInterface(ts_interface_decl) => {
       let (name, interface_def) =
         super::interface::get_doc_for_ts_interface_decl(

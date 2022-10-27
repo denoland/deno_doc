@@ -6,6 +6,7 @@ use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
+use crate::params::param_to_param_def;
 use crate::params::pat_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
@@ -1579,42 +1580,62 @@ fn infer_ts_type_from_obj_inner(
         }
         Prop::Assign(_) => unreachable!("This is invalid for object literal!"),
         Prop::Getter(getter) => {
-          // let name = crate::params::prop_name_to_string(
-          //   Some(parsed_source),
-          //   &getter.key,
-          // );
-          // let val = getter
-          //   .type_ann
-          //   .as_ref()
-          //   .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
-          // entries.insert(name, val);
-        }
-        Prop::Setter(setter) => {
-          // let name = crate::params::prop_name_to_string(
-          //   Some(parsed_source),
-          //   &setter.key,
-          // );
-          // if !entries.contains_key(&name) {
-          //   entries.insert(name, None);
-          // }
-        }
-        Prop::Method(method) => {
-          let name = prop_name_to_string(Some(parsed_source), &method.key);
-          let computed = method.key.is_computed();
-          //
-          let return_type = method
-            .function
-            .return_type
+          let name = prop_name_to_string(Some(parsed_source), &getter.key);
+          let computed = getter.key.is_computed();
+          let return_type = getter
+            .type_ann
             .as_ref()
             .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
           methods.push(LiteralMethodDef {
             name,
-            kind: MethodKind::Method,
+            kind: MethodKind::Getter,
             params: vec![],
             computed,
             optional: false,
             return_type,
             type_params: vec![],
+          });
+        }
+        Prop::Setter(setter) => {
+          let name = prop_name_to_string(Some(parsed_source), &setter.key);
+          let computed = setter.key.is_computed();
+          let param =
+            pat_to_param_def(Some(parsed_source), setter.param.as_ref());
+          methods.push(LiteralMethodDef {
+            name,
+            kind: MethodKind::Setter,
+            params: vec![param],
+            computed,
+            optional: false,
+            return_type: None,
+            type_params: vec![],
+          });
+        }
+        Prop::Method(method) => {
+          let name = prop_name_to_string(Some(parsed_source), &method.key);
+          let computed = method.key.is_computed();
+          let params = method
+            .function
+            .params
+            .iter()
+            .map(|param| param_to_param_def(parsed_source, param))
+            .collect();
+          let return_type = method
+            .function
+            .return_type
+            .as_ref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            method.function.type_params.as_deref(),
+          );
+          methods.push(LiteralMethodDef {
+            name,
+            kind: MethodKind::Method,
+            params,
+            computed,
+            optional: false,
+            return_type,
+            type_params,
           });
         }
       },

@@ -456,20 +456,24 @@ impl<'a> DocParser<'a> {
         )])
       }
       Decl::Var(var_decl) => Some(
-        super::variable::get_doc_for_var_decl(parsed_source, var_decl, previous_nodes)
-          .into_iter()
-          .map(|(name, var_def, _)| {
-            let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
-            let location = get_location(parsed_source, var_decl.start());
-            DocNode::variable(
-              name,
-              location,
-              DeclarationKind::Declare,
-              js_doc,
-              var_def,
-            )
-          })
-          .collect(),
+        super::variable::get_doc_for_var_decl(
+          parsed_source,
+          var_decl,
+          previous_nodes,
+        )
+        .into_iter()
+        .map(|(name, var_def, _)| {
+          let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
+          let location = get_location(parsed_source, var_decl.start());
+          DocNode::variable(
+            name,
+            location,
+            DeclarationKind::Declare,
+            js_doc,
+            var_def,
+          )
+        })
+        .collect(),
       ),
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =

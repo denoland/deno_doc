@@ -4435,15 +4435,10 @@ export function foo(bar: any): asserts bar {}
     const t: symbol = Symbol.for("t");
 
     export const a = {
-      /** some doc for a */
       a: "a",
-      /** some doc for b */
       b: new Map<string, number>(),
-      /** some doc for c */
       c: { d: "d" },
-      /** some doc for d */
       d(e: string): void {},
-      /** some doc for f */
       f: (g: string): void => {},
       get h(): string {
         return "h";
@@ -4451,9 +4446,7 @@ export function foo(bar: any): asserts bar {}
       set h(value: string) {
     
       },
-      /** some doc for s */
       [s]: [1, 2, 3, "a"],
-      /** some doc for t */
       [t](u: string): void {},
     };"#;
     [
@@ -4463,7 +4456,7 @@ export function foo(bar: any): asserts bar {}
         "location": {
           "filename": "file:///test.ts",
           "line": 5,
-          "col": 4
+          "col": 17
         },
         "declarationKind": "export",
         "variableDef": {
@@ -4471,7 +4464,86 @@ export function foo(bar: any): asserts bar {}
             "repr": "",
             "kind": "typeLiteral",
             "typeLiteral": {
-              "methods": [],
+              "methods": [
+                {
+                  "name": "d",
+                  "kind": "method",
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "e",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "optional": false,
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "h",
+                  "kind": "getter",
+                  "params": [],
+                  "optional": false,
+                  "returnType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "h",
+                  "kind": "setter",
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "value",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "optional": false,
+                  "returnType": null,
+                  "typeParams": []
+                },
+                {
+                  "name": "[t]",
+                  "kind": "method",
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "u",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "computed": true,
+                  "optional": false,
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
+                  "typeParams": []
+                }
+              ],
               "properties": [
                 {
                   "name": "a",
@@ -4542,14 +4614,6 @@ export function foo(bar: any): asserts bar {}
                   "typeParams": []
                 },
                 {
-                  "name": "d",
-                  "params": [],
-                  "computed": false,
-                  "optional": false,
-                  "tsType": null,
-                  "typeParams": []
-                },
-                {
                   "name": "f",
                   "params": [],
                   "computed": false,
@@ -4581,6 +4645,33 @@ export function foo(bar: any): asserts bar {}
                   },
                   "typeParams": []
                 },
+                {
+                  "name": "[s]",
+                  "params": [],
+                  "computed": true,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "array",
+                    "array": {
+                      "repr": "",
+                      "kind": "union",
+                      "union": [
+                        {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        },
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "typeParams": []
+                }
               ],
               "callSignatures": [],
               "indexSignatures": []
