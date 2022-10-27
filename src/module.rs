@@ -53,12 +53,26 @@ pub fn get_doc_node_for_export_decl(
     Decl::Var(var_decl) => {
       super::variable::get_doc_for_var_decl(var_decl, previous_nodes)
         .into_iter()
-        .map(|(name, var_def)| {
+        .map(|(name, var_def, maybe_range)| {
+          let js_doc = if js_doc.is_empty() {
+            js_doc_for_range(
+              parsed_source,
+              &maybe_range.unwrap_or_else(|| var_decl.range()),
+            )
+          } else {
+            js_doc.clone()
+          };
+          let location = get_location(
+            parsed_source,
+            maybe_range
+              .map(|range| range.start)
+              .unwrap_or_else(|| var_decl.start()),
+          );
           DocNode::variable(
             name,
-            location.clone(),
+            location,
             DeclarationKind::Export,
-            js_doc.clone(),
+            js_doc,
             var_def,
           )
         })

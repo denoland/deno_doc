@@ -205,7 +205,7 @@ async fn types_header_handling() {
       "location": {
         "filename": "https://example.com/a.d.ts",
         "line": 1,
-        "col": 0
+        "col": 13
       },
       "declarationKind": "export",
       "variableDef": {
@@ -277,7 +277,7 @@ export function fooFn(a: number) {
       "location": {
         "filename": "file:///reexport.ts",
         "line": 7,
-        "col": 0
+        "col": 13
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -450,7 +450,7 @@ async fn deep_reexports() {
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
-        "col": 0
+        "col": 13
       },
       "declarationKind": "export",
       "variableDef": {
@@ -525,7 +525,7 @@ export * as b from "./mod_doc.ts";
             "location": {
               "filename": "file:///mod_doc.ts",
               "line": 9,
-              "col": 0
+              "col": 13
             },
             "declarationKind": "export",
             "jsDoc": {
@@ -683,7 +683,7 @@ async fn exports_imported_earlier() {
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
-        "col": 0
+        "col": 13
       },
       "declarationKind": "export",
       "variableDef": {
@@ -743,7 +743,7 @@ async fn exports_imported_earlier_renamed() {
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
-        "col": 0
+        "col": 13
       },
       "declarationKind": "export",
       "variableDef": {
@@ -864,7 +864,7 @@ async fn exports_imported_earlier_private() {
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
-        "col": 0
+        "col": 13
       },
       "declarationKind": "export",
       "variableDef": {
@@ -1968,7 +1968,7 @@ export const tpl2 = `Value: ${num}`;
     "location":{
       "filename":"file:///test.ts",
       "line":3,
-      "col":0
+      "col":13
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -1992,7 +1992,7 @@ export const tpl2 = `Value: ${num}`;
     "location":{
       "filename":"file:///test.ts",
       "line":5,
-      "col":0
+      "col":13
     },
     "declarationKind": "export",
     "variableDef":{
@@ -2081,7 +2081,7 @@ export const tpl2 = `Value: ${num}`;
       "location": {
         "filename":"file:///test.ts",
         "line":13,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2102,7 +2102,7 @@ export const tpl2 = `Value: ${num}`;
       "location":{
         "filename":"file:///test.ts",
         "line":14,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2123,7 +2123,7 @@ export const tpl2 = `Value: ${num}`;
       "location":{
         "filename":"file:///test.ts",
         "line":15,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2144,7 +2144,7 @@ export const tpl2 = `Value: ${num}`;
       "location":{
         "filename":"file:///test.ts",
         "line":16,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2165,7 +2165,7 @@ export const tpl2 = `Value: ${num}`;
       "location":{
         "filename":"file:///test.ts",
         "line":17,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2186,7 +2186,7 @@ export const tpl2 = `Value: ${num}`;
       "location":{
         "filename":"file:///test.ts",
         "line":18,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2216,7 +2216,7 @@ export const tpl2 = `Value: ${num}`;
       "location":{
         "filename":"file:///test.ts",
         "line":19,
-        "col":0
+        "col":13
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2235,7 +2235,12 @@ export const tpl2 = `Value: ${num}`;
     r#"const c = { a: "a", b: 2 };
     const d: { f: string; g: number; } = { f: "f", g: 2 };
 
-    export const { a, b }: {
+    export const {
+      /** export a doc */
+      a,
+      /** export b doc */
+      b,
+    }: {
       /** type alias doc */
       a: string;
       /** other doc */
@@ -2250,10 +2255,13 @@ export const tpl2 = `Value: ${num}`;
         "name": "a",
         "location": {
           "filename": "file:///test.ts",
-          "line": 4,
-          "col": 4
+          "line": 6,
+          "col": 6,
         },
         "declarationKind": "export",
+        "jsDoc": {
+          "doc": "export a doc",
+        },
         "variableDef": {
           "tsType": {
             "repr": "string",
@@ -2268,10 +2276,13 @@ export const tpl2 = `Value: ${num}`;
         "name": "b",
         "location": {
           "filename": "file:///test.ts",
-          "line": 4,
-          "col": 4
+          "line": 8,
+          "col": 6
         },
         "declarationKind": "export",
+        "jsDoc": {
+          "doc": "export b doc",
+        },
         "variableDef": {
           "tsType": {
             "repr": "number",
@@ -2286,8 +2297,8 @@ export const tpl2 = `Value: ${num}`;
         "name": "f",
         "location": {
           "filename": "file:///test.ts",
-          "line": 11,
-          "col": 4
+          "line": 16,
+          "col": 19
         },
         "declarationKind": "export",
         "variableDef": {
@@ -2304,8 +2315,8 @@ export const tpl2 = `Value: ${num}`;
         "name": "h",
         "location": {
           "filename": "file:///test.ts",
-          "line": 11,
-          "col": 4
+          "line": 16,
+          "col": 11
         },
         "declarationKind": "export",
         "variableDef": {
@@ -2337,7 +2348,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":2,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2355,7 +2366,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":3,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2373,7 +2384,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":4,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2391,7 +2402,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":5,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2409,7 +2420,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":6,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2430,7 +2441,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":7,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -2448,7 +2459,7 @@ export let tpl = `foobarbaz`;
       "location":{
         "filename":"file:///test.ts",
         "line":8,
-        "col":0
+        "col":11
       },
       "declarationKind": "export",
       "variableDef":{
@@ -3536,7 +3547,7 @@ export namespace RootNs {
           "location": {
             "filename": "file:///test.ts",
             "line": 4,
-            "col": 4
+            "col": 17
           },
           "declarationKind": "export",
           "variableDef": {

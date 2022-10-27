@@ -458,7 +458,7 @@ impl<'a> DocParser<'a> {
       Decl::Var(var_decl) => Some(
         super::variable::get_doc_for_var_decl(var_decl, previous_nodes)
           .into_iter()
-          .map(|(name, var_def)| {
+          .map(|(name, var_def, _)| {
             let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
             let location = get_location(parsed_source, var_decl.start());
             DocNode::variable(

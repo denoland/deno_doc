@@ -1,4 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
+
+use deno_ast::SourceRange;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -16,9 +19,9 @@ pub struct VariableDef {
 pub fn get_doc_for_var_decl(
   var_decl: &deno_ast::swc::ast::VarDecl,
   previous_nodes: Vec<&crate::DocNode>,
-) -> Vec<(String, VariableDef)> {
+) -> Vec<(String, VariableDef, Option<SourceRange>)> {
   assert!(!var_decl.decls.is_empty());
-  let mut items = Vec::<(String, VariableDef)>::new();
+  let mut items = Vec::<(String, VariableDef, Option<SourceRange>)>::new();
   for var_declarator in &var_decl.decls {
     let ref_name: Option<String> =
       var_declarator.init.as_ref().and_then(|init| {
@@ -66,7 +69,7 @@ pub fn get_doc_for_var_decl(
           ts_type: maybe_ts_type,
           kind: var_decl.kind,
         };
-        items.push((var_name, variable_def));
+        items.push((var_name, variable_def, Some(var_declarator.range())));
       }
       deno_ast::swc::ast::Pat::Object(pat) => {
         let obj_type = maybe_ts_type.and_then(|type_def| {
@@ -87,7 +90,7 @@ pub fn get_doc_for_var_decl(
         });
 
         for prop in &pat.props {
-          let (name, reassign_name) = match prop {
+          let (name, reassign_name, maybe_range) = match prop {
             deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
               crate::params::prop_name_to_string(None, &kv.key),
               match &*kv.value {
@@ -96,9 +99,10 @@ pub fn get_doc_for_var_decl(
                 }
                 _ => todo!("nested destructing"),
               },
+              None,
             ),
             deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
-              (assign.key.sym.to_string(), None)
+              (assign.key.sym.to_string(), None, Some(assign.range()))
             }
             deno_ast::swc::ast::ObjectPatProp::Rest(_) => todo!(),
           };
@@ -119,7 +123,11 @@ pub fn get_doc_for_var_decl(
             ts_type,
             kind: var_decl.kind,
           };
-          items.push((reassign_name.unwrap_or(name), variable_def));
+          items.push((
+            reassign_name.unwrap_or(name),
+            variable_def,
+            maybe_range,
+          ));
         }
       }
       _ => (),
