@@ -4330,11 +4330,20 @@ export function foo(bar: any): asserts bar {}
   ]);
 
   json_test!(infer_object_literal,
-    r#"export const a = {
+    r#"
+    const s: symbol = Symbol.for("s");
+    const t: symbol = Symbol.for("t");
+
+    export const a = {
+      /** some doc for a */
       a: "a",
+      /** some doc for b */
       b: new Map<string, number>(),
+      /** some doc for c */
       c: { d: "d" },
+      /** some doc for d */
       d(e: string): void {},
+      /** some doc for f */
       f: (g: string): void => {},
       get h(): string {
         return "h";
@@ -4342,6 +4351,10 @@ export function foo(bar: any): asserts bar {}
       set h(value: string) {
     
       },
+      /** some doc for s */
+      [s]: [1, 2, 3, "a"],
+      /** some doc for t */
+      [t](u: string): void {},
     };"#;
     [
       {
@@ -4349,8 +4362,8 @@ export function foo(bar: any): asserts bar {}
         "name": "a",
         "location": {
           "filename": "file:///test.ts",
-          "line": 1,
-          "col": 0
+          "line": 5,
+          "col": 4
         },
         "declarationKind": "export",
         "variableDef": {
@@ -4466,14 +4479,6 @@ export function foo(bar: any): asserts bar {}
                       "typeParams": []
                     }
                   },
-                  "typeParams": []
-                },
-                {
-                  "name": "h",
-                  "params": [],
-                  "computed": false,
-                  "optional": false,
-                  "tsType": null,
                   "typeParams": []
                 },
               ],

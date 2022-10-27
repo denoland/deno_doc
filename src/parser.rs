@@ -453,7 +453,8 @@ impl<'a> DocParser<'a> {
         ))
       }
       Decl::Var(var_decl) => {
-        let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
+        let (name, var_def) =
+          super::variable::get_doc_for_var_decl(parsed_source, var_decl);
         let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
         let location = get_location(parsed_source, var_decl.start());
         Some(DocNode::variable(
@@ -819,6 +820,7 @@ impl<'a> DocParser<'a> {
                   super::variable::VariableDef {
                     kind: deno_ast::swc::ast::VarDeclKind::Var,
                     ts_type: super::ts_type::infer_ts_type_from_expr(
+                      parsed_source,
                       export_expr.expr.as_ref(),
                       true,
                     ),

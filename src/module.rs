@@ -38,7 +38,8 @@ pub fn get_doc_node_for_export_decl(
       DocNode::function(name, location, DeclarationKind::Export, js_doc, fn_def)
     }
     Decl::Var(var_decl) => {
-      let (name, var_def) = super::variable::get_doc_for_var_decl(var_decl);
+      let (name, var_def) =
+        super::variable::get_doc_for_var_decl(parsed_source, var_decl);
       DocNode::variable(
         name,
         location,
