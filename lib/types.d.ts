@@ -313,6 +313,8 @@ export interface JsDocTagParam extends JsDocTagBase {
   kind: "param";
   name: string;
   type?: string;
+  optional?: true;
+  default?: string;
   doc?: string;
 }
 

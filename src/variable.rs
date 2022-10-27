@@ -35,7 +35,7 @@ pub fn get_doc_for_var_decl(
       _ => None,
     };
     let maybe_ts_type = maybe_ts_type_ann
-      .map(ts_type_ann_to_def)
+      .map(|def| ts_type_ann_to_def(def.as_ref()))
       .or_else(|| {
         if let Some(ref_name) = ref_name {
           previous_nodes.iter().find_map(|prev_node| {

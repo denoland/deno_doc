@@ -11,6 +11,7 @@ use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::GraphOptions;
 use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
 use futures::future;
@@ -62,13 +63,11 @@ fn main() {
     let analyzer = CapturingModuleAnalyzer::default();
     let graph = create_type_graph(
       vec![source_file.clone()],
-      false,
-      None,
       &mut loader,
-      None,
-      None,
-      Some(&analyzer),
-      None,
+      GraphOptions {
+        module_analyzer: Some(&analyzer),
+        ..Default::default()
+      },
     )
     .await;
     let parser = DocParser::new(graph, false, analyzer.as_capturing_parser());
