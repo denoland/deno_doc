@@ -12,11 +12,11 @@ use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
-use std::collections::HashMap;
 
 use deno_ast::swc::ast::*;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
+use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -1229,7 +1229,7 @@ impl TsTypeDef {
     }
   }
 
-  pub fn object(entries: HashMap<String, Option<TsTypeDef>>) -> Self {
+  pub fn object(entries: IndexMap<String, Option<TsTypeDef>>) -> Self {
     let properties = entries
       .into_iter()
       .map(|(name, ts_type)| LiteralPropertyDef {
@@ -1547,8 +1547,8 @@ fn infer_ts_type_from_obj(obj: &ObjectLit) -> Option<TsTypeDef> {
 
 fn infer_ts_type_from_obj_inner(
   obj: &ObjectLit,
-) -> HashMap<String, Option<TsTypeDef>> {
-  let mut entries = HashMap::<String, Option<TsTypeDef>>::new();
+) -> IndexMap<String, Option<TsTypeDef>> {
+  let mut entries = IndexMap::<String, Option<TsTypeDef>>::new();
   for obj_prop in &obj.props {
     match obj_prop {
       PropOrSpread::Prop(prop) => match &**prop {

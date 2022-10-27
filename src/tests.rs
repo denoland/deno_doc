@@ -4399,14 +4399,6 @@ export function foo(bar: any): asserts bar {}
                   "typeParams": []
                 },
                 {
-                  "name": "h",
-                  "params": [],
-                  "computed": false,
-                  "optional": false,
-                  "tsType": null,
-                  "typeParams": []
-                },
-                {
                   "name": "c",
                   "params": [],
                   "computed": false,
@@ -4475,7 +4467,15 @@ export function foo(bar: any): asserts bar {}
                     }
                   },
                   "typeParams": []
-                }
+                },
+                {
+                  "name": "h",
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": null,
+                  "typeParams": []
+                },
               ],
               "callSignatures": [],
               "indexSignatures": []
