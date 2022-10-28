@@ -8,6 +8,7 @@ use serde::Serialize;
 use crate::ts_type::infer_simple_ts_type_from_var_decl;
 use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
+use deno_ast::ParsedSource;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -17,6 +18,7 @@ pub struct VariableDef {
 }
 
 pub fn get_doc_for_var_decl(
+  parsed_source: &ParsedSource,
   var_decl: &deno_ast::swc::ast::VarDecl,
   previous_nodes: Vec<&crate::DocNode>,
 ) -> Vec<(String, VariableDef, Option<SourceRange>)> {
@@ -57,6 +59,7 @@ pub fn get_doc_for_var_decl(
       })
       .or_else(|| {
         infer_simple_ts_type_from_var_decl(
+          parsed_source,
           var_declarator,
           var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
         )

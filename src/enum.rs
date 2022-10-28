@@ -45,7 +45,7 @@ pub fn get_doc_for_ts_enum_decl(
       Str(str_) => str_.value.to_string(),
     };
     let init = if let Some(expr) = &enum_member.init {
-      infer_ts_type_from_expr(expr, true)
+      infer_ts_type_from_expr(parsed_source, expr, true)
     } else {
       None
     };

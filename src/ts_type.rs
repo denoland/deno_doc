@@ -6,7 +6,9 @@ use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
+use crate::params::param_to_param_def;
 use crate::params::pat_to_param_def;
+use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
@@ -14,6 +16,7 @@ use crate::ts_type_param::TsTypeParamDef;
 use crate::ParamDef;
 
 use deno_ast::swc::ast::*;
+use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
@@ -928,7 +931,7 @@ impl Display for LiteralIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
   pub methods: Vec<LiteralMethodDef>,
@@ -1228,6 +1231,22 @@ impl TsTypeDef {
     }
   }
 
+  pub fn object(
+    methods: Vec<LiteralMethodDef>,
+    properties: Vec<LiteralPropertyDef>,
+  ) -> Self {
+    Self {
+      repr: "".to_string(),
+      kind: Some(TsTypeDefKind::TypeLiteral),
+      type_literal: Some(TsTypeLiteralDef {
+        methods,
+        properties,
+        ..Default::default()
+      }),
+      ..Default::default()
+    }
+  }
+
   pub fn keyword(keyword_str: &str) -> Self {
     Self::keyword_with_repr(keyword_str, keyword_str)
   }
@@ -1295,13 +1314,14 @@ pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
 }
 
 pub fn infer_ts_type_from_expr(
+  parsed_source: &ParsedSource,
   expr: &Expr,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   match expr {
     Expr::Array(arr_lit) => {
       // e.g.) const n = ["a", 1];
-      infer_ts_type_from_arr_lit(arr_lit, false)
+      infer_ts_type_from_arr_lit(parsed_source, arr_lit, false)
     }
     Expr::Arrow(expr) => {
       // e.g.) const f = (a: string): void => {};
@@ -1325,35 +1345,43 @@ pub fn infer_ts_type_from_expr(
     }
     Expr::TsConstAssertion(assertion) => {
       // e.g.) const s = [] as const;
-      infer_ts_type_from_const_assertion(assertion)
+      infer_ts_type_from_const_assertion(parsed_source, assertion)
     }
     Expr::Call(expr) => {
       // e.g.) const value = Number(123);
       infer_ts_type_from_call_expr(expr)
+    }
+    Expr::Object(obj) => {
+      // e.g.) const value = {foo: "bar"};
+      infer_ts_type_from_obj(parsed_source, obj)
     }
     _ => None,
   }
 }
 
 pub fn infer_simple_ts_type_from_var_decl(
+  parsed_source: &ParsedSource,
   decl: &VarDeclarator,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   if let Some(init_expr) = &decl.init {
-    infer_ts_type_from_expr(init_expr.as_ref(), is_const)
+    infer_ts_type_from_expr(parsed_source, init_expr.as_ref(), is_const)
   } else {
     None
   }
 }
 
 fn infer_ts_type_from_arr_lit(
+  parsed_source: &ParsedSource,
   arr_lit: &ArrayLit,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   let mut defs = Vec::new();
   for expr in arr_lit.elems.iter().flatten() {
     if expr.spread.is_none() {
-      if let Some(ts_type) = infer_ts_type_from_expr(&expr.expr, is_const) {
+      if let Some(ts_type) =
+        infer_ts_type_from_expr(parsed_source, &expr.expr, is_const)
+      {
         if !defs.contains(&ts_type) {
           defs.push(ts_type);
         }
@@ -1416,14 +1444,15 @@ fn infer_ts_type_from_fn_expr(expr: &FnExpr) -> Option<TsTypeDef> {
 }
 
 fn infer_ts_type_from_const_assertion(
+  parsed_source: &ParsedSource,
   assertion: &TsConstAssertion,
 ) -> Option<TsTypeDef> {
   match &*assertion.expr {
     Expr::Array(arr_lit) => {
       // e.g.) const n = ["a", 1] as const;
-      infer_ts_type_from_arr_lit(arr_lit, true)
+      infer_ts_type_from_arr_lit(parsed_source, arr_lit, true)
     }
-    _ => infer_ts_type_from_expr(&*assertion.expr, true),
+    _ => infer_ts_type_from_expr(parsed_source, &*assertion.expr, true),
   }
 }
 
@@ -1502,6 +1531,125 @@ fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
     }
     _ => None,
   }
+}
+
+fn infer_ts_type_from_obj(
+  parsed_source: &ParsedSource,
+  obj: &ObjectLit,
+) -> Option<TsTypeDef> {
+  let (methods, properties) = infer_ts_type_from_obj_inner(parsed_source, obj);
+  if methods.is_empty() && properties.is_empty() {
+    None
+  } else {
+    Some(TsTypeDef::object(methods, properties))
+  }
+}
+
+fn infer_ts_type_from_obj_inner(
+  parsed_source: &ParsedSource,
+  obj: &ObjectLit,
+) -> (Vec<LiteralMethodDef>, Vec<LiteralPropertyDef>) {
+  let mut methods = Vec::<LiteralMethodDef>::new();
+  let mut properties = Vec::<LiteralPropertyDef>::new();
+  for obj_prop in &obj.props {
+    match obj_prop {
+      PropOrSpread::Prop(prop) => match &**prop {
+        Prop::Shorthand(shorthand) => {
+          // TODO(@crowlKats) we should pass previous nodes and take the type
+          // from the previous symbol.
+          properties.push(LiteralPropertyDef {
+            name: shorthand.sym.to_string(),
+            params: vec![],
+            readonly: false,
+            computed: false,
+            optional: false,
+            ts_type: None,
+            type_params: vec![],
+          });
+        }
+        Prop::KeyValue(kv) => {
+          properties.push(LiteralPropertyDef {
+            name: prop_name_to_string(Some(parsed_source), &kv.key),
+            params: vec![],
+            readonly: false,
+            computed: kv.key.is_computed(),
+            optional: false,
+            ts_type: infer_ts_type_from_expr(parsed_source, &*kv.value, false),
+            type_params: vec![],
+          });
+        }
+        Prop::Assign(_) => unreachable!("This is invalid for object literal!"),
+        Prop::Getter(getter) => {
+          let name = prop_name_to_string(Some(parsed_source), &getter.key);
+          let computed = getter.key.is_computed();
+          let return_type = getter
+            .type_ann
+            .as_ref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
+          methods.push(LiteralMethodDef {
+            name,
+            kind: MethodKind::Getter,
+            params: vec![],
+            computed,
+            optional: false,
+            return_type,
+            type_params: vec![],
+          });
+        }
+        Prop::Setter(setter) => {
+          let name = prop_name_to_string(Some(parsed_source), &setter.key);
+          let computed = setter.key.is_computed();
+          let param =
+            pat_to_param_def(Some(parsed_source), setter.param.as_ref());
+          methods.push(LiteralMethodDef {
+            name,
+            kind: MethodKind::Setter,
+            params: vec![param],
+            computed,
+            optional: false,
+            return_type: None,
+            type_params: vec![],
+          });
+        }
+        Prop::Method(method) => {
+          let name = prop_name_to_string(Some(parsed_source), &method.key);
+          let computed = method.key.is_computed();
+          let params = method
+            .function
+            .params
+            .iter()
+            .map(|param| param_to_param_def(parsed_source, param))
+            .collect();
+          let return_type = method
+            .function
+            .return_type
+            .as_ref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            method.function.type_params.as_deref(),
+          );
+          methods.push(LiteralMethodDef {
+            name,
+            kind: MethodKind::Method,
+            params,
+            computed,
+            optional: false,
+            return_type,
+            type_params,
+          });
+        }
+      },
+      PropOrSpread::Spread(spread) => {
+        if let Expr::Object(obj) = &*spread.expr {
+          let (spread_methods, spread_properties) =
+            infer_ts_type_from_obj_inner(parsed_source, obj);
+          methods.extend(spread_methods);
+          properties.extend(spread_properties);
+        }
+      }
+    }
+  }
+  (methods, properties)
 }
 
 fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> TsTypeDef {
