@@ -372,7 +372,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let type_params = maybe_type_param_decl_to_type_param_defs(
             ts_method_sig.type_params.as_deref(),
           );
-          let name = expr_to_name(&*ts_method_sig.key);
+          let name = expr_to_name(&ts_method_sig.key);
           let method_def = LiteralMethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Method,
@@ -390,7 +390,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             .as_ref()
             .map(|rt| (&*rt.type_ann).into());
 
-          let name = expr_to_name(&*ts_getter_sig.key);
+          let name = expr_to_name(&ts_getter_sig.key);
           let method_def = LiteralMethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Getter,
@@ -403,7 +403,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           methods.push(method_def);
         }
         TsSetterSignature(ts_setter_sig) => {
-          let name = expr_to_name(&*ts_setter_sig.key);
+          let name = expr_to_name(&ts_setter_sig.key);
 
           let params =
             vec![ts_fn_param_to_param_def(None, &ts_setter_sig.param)];
@@ -420,7 +420,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           methods.push(method_def);
         }
         TsPropertySignature(ts_prop_sig) => {
-          let name = expr_to_name(&*ts_prop_sig.key);
+          let name = expr_to_name(&ts_prop_sig.key);
 
           let mut params = vec![];
 
@@ -1452,7 +1452,7 @@ fn infer_ts_type_from_const_assertion(
       // e.g.) const n = ["a", 1] as const;
       infer_ts_type_from_arr_lit(parsed_source, arr_lit, true)
     }
-    _ => infer_ts_type_from_expr(parsed_source, &*assertion.expr, true),
+    _ => infer_ts_type_from_expr(parsed_source, &assertion.expr, true),
   }
 }
 
@@ -1574,7 +1574,7 @@ fn infer_ts_type_from_obj_inner(
             readonly: false,
             computed: kv.key.is_computed(),
             optional: false,
-            ts_type: infer_ts_type_from_expr(parsed_source, &*kv.value, false),
+            ts_type: infer_ts_type_from_expr(parsed_source, &kv.value, false),
             type_params: vec![],
           });
         }

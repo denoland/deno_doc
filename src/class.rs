@@ -265,7 +265,7 @@ pub fn class_to_class_def(
   let extends: Option<String> = match &class.super_class {
     Some(boxed) => {
       use deno_ast::swc::ast::Expr;
-      let expr: &Expr = &**boxed;
+      let expr: &Expr = boxed;
       match expr {
         Expr::Ident(ident) => Some(ident.sym.to_string()),
         _ => None,
