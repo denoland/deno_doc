@@ -678,7 +678,7 @@ impl From<&TsType> for TsTypeDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
   pub type_params: Option<Vec<TsTypeDef>>,
@@ -713,14 +713,14 @@ pub struct LiteralDef {
   pub boolean: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeOperatorDef {
   pub operator: String,
   pub ts_type: TsTypeDef,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsFnOrConstructorDef {
   pub constructor: bool,
@@ -780,7 +780,7 @@ impl From<&deno_ast::swc::ast::FnExpr> for TsFnOrConstructorDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConditionalDef {
   pub check_type: Box<TsTypeDef>,
@@ -789,13 +789,13 @@ pub struct TsConditionalDef {
   pub false_type: Box<TsTypeDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsInferDef {
   pub type_param: Box<TsTypeParamDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsImportTypeDef {
   pub specifier: String,
@@ -805,7 +805,7 @@ pub struct TsImportTypeDef {
   pub type_params: Option<Vec<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsIndexedAccessDef {
   pub readonly: bool,
@@ -825,7 +825,7 @@ pub struct TsIndexedAccessDef {
 /// - `optional` = `None`
 /// - `ts_type` = `Some(TsTypeDef)` (`Type[Properties]`)
 ///
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsMappedTypeDef {
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -839,7 +839,7 @@ pub struct TsMappedTypeDef {
   pub ts_type: Option<Box<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
@@ -868,7 +868,7 @@ impl Display for LiteralMethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralPropertyDef {
   pub name: String,
@@ -890,7 +890,7 @@ impl Display for LiteralPropertyDef {
     Ok(())
   }
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralCallSignatureDef {
   pub params: Vec<ParamDef>,
@@ -908,7 +908,7 @@ impl Display for LiteralCallSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralIndexSignatureDef {
   pub readonly: bool,
@@ -931,7 +931,7 @@ impl Display for LiteralIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
   pub methods: Vec<LiteralMethodDef>,
@@ -966,7 +966,7 @@ pub enum TsTypeDefKind {
   ImportType,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeDef {
   pub repr: String,
@@ -1061,7 +1061,7 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
 ///                           ^^^^^^^ ^^^^^    ^^^^^^^^
 ///                           (1)     (2)      (3)
 /// ```
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypePredicateDef {
   /// (1) Whether the predicate includes `asserts` keyword or not
