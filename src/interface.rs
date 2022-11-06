@@ -188,7 +188,7 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
   match expr {
     Ident(ident) => ident.sym.to_string(),
     Member(member_expr) => {
-      let left = expr_to_name(&*member_expr.obj);
+      let left = expr_to_name(&member_expr.obj);
       let right = match &member_expr.prop {
         MemberProp::Ident(ident) => format!(".{}", ident.sym),
         MemberProp::Computed(_) | MemberProp::PrivateName(_) => {
@@ -248,7 +248,7 @@ pub fn get_doc_for_ts_interface_decl(
           params.push(param_def);
         }
 
-        let name = expr_to_name(&*ts_method_sig.key);
+        let name = expr_to_name(&ts_method_sig.key);
 
         let maybe_return_type =
           ts_method_sig.type_ann.as_deref().map(ts_type_ann_to_def);
@@ -273,7 +273,7 @@ pub fn get_doc_for_ts_interface_decl(
       TsGetterSignature(ts_getter_sig) => {
         let method_js_doc =
           js_doc_for_range(parsed_source, &ts_getter_sig.range());
-        let name = expr_to_name(&*ts_getter_sig.key);
+        let name = expr_to_name(&ts_getter_sig.key);
 
         let maybe_return_type =
           ts_getter_sig.type_ann.as_deref().map(ts_type_ann_to_def);
@@ -295,7 +295,7 @@ pub fn get_doc_for_ts_interface_decl(
         let method_js_doc =
           js_doc_for_range(parsed_source, &ts_setter_sig.range());
 
-        let name = expr_to_name(&*ts_setter_sig.key);
+        let name = expr_to_name(&ts_setter_sig.key);
 
         let param_def =
           ts_fn_param_to_param_def(Some(parsed_source), &ts_setter_sig.param);
@@ -316,7 +316,7 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsPropertySignature(ts_prop_sig) => {
         let prop_js_doc = js_doc_for_range(parsed_source, &ts_prop_sig.range());
-        let name = expr_to_name(&*ts_prop_sig.key);
+        let name = expr_to_name(&ts_prop_sig.key);
 
         let mut params = vec![];
 

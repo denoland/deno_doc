@@ -372,7 +372,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           let type_params = maybe_type_param_decl_to_type_param_defs(
             ts_method_sig.type_params.as_deref(),
           );
-          let name = expr_to_name(&*ts_method_sig.key);
+          let name = expr_to_name(&ts_method_sig.key);
           let method_def = LiteralMethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Method,
@@ -390,7 +390,7 @@ impl From<&TsTypeLit> for TsTypeDef {
             .as_ref()
             .map(|rt| (&*rt.type_ann).into());
 
-          let name = expr_to_name(&*ts_getter_sig.key);
+          let name = expr_to_name(&ts_getter_sig.key);
           let method_def = LiteralMethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Getter,
@@ -403,7 +403,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           methods.push(method_def);
         }
         TsSetterSignature(ts_setter_sig) => {
-          let name = expr_to_name(&*ts_setter_sig.key);
+          let name = expr_to_name(&ts_setter_sig.key);
 
           let params =
             vec![ts_fn_param_to_param_def(None, &ts_setter_sig.param)];
@@ -420,7 +420,7 @@ impl From<&TsTypeLit> for TsTypeDef {
           methods.push(method_def);
         }
         TsPropertySignature(ts_prop_sig) => {
-          let name = expr_to_name(&*ts_prop_sig.key);
+          let name = expr_to_name(&ts_prop_sig.key);
 
           let mut params = vec![];
 
@@ -678,7 +678,7 @@ impl From<&TsType> for TsTypeDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
   pub type_params: Option<Vec<TsTypeDef>>,
@@ -713,14 +713,14 @@ pub struct LiteralDef {
   pub boolean: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeOperatorDef {
   pub operator: String,
   pub ts_type: TsTypeDef,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsFnOrConstructorDef {
   pub constructor: bool,
@@ -780,7 +780,7 @@ impl From<&deno_ast::swc::ast::FnExpr> for TsFnOrConstructorDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsConditionalDef {
   pub check_type: Box<TsTypeDef>,
@@ -789,13 +789,13 @@ pub struct TsConditionalDef {
   pub false_type: Box<TsTypeDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsInferDef {
   pub type_param: Box<TsTypeParamDef>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsImportTypeDef {
   pub specifier: String,
@@ -805,7 +805,7 @@ pub struct TsImportTypeDef {
   pub type_params: Option<Vec<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsIndexedAccessDef {
   pub readonly: bool,
@@ -825,7 +825,7 @@ pub struct TsIndexedAccessDef {
 /// - `optional` = `None`
 /// - `ts_type` = `Some(TsTypeDef)` (`Type[Properties]`)
 ///
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsMappedTypeDef {
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -839,7 +839,7 @@ pub struct TsMappedTypeDef {
   pub ts_type: Option<Box<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
@@ -868,7 +868,7 @@ impl Display for LiteralMethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralPropertyDef {
   pub name: String,
@@ -890,7 +890,7 @@ impl Display for LiteralPropertyDef {
     Ok(())
   }
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralCallSignatureDef {
   pub params: Vec<ParamDef>,
@@ -908,7 +908,7 @@ impl Display for LiteralCallSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralIndexSignatureDef {
   pub readonly: bool,
@@ -931,7 +931,7 @@ impl Display for LiteralIndexSignatureDef {
   }
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
   pub methods: Vec<LiteralMethodDef>,
@@ -966,7 +966,7 @@ pub enum TsTypeDefKind {
   ImportType,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeDef {
   pub repr: String,
@@ -1061,7 +1061,7 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
 ///                           ^^^^^^^ ^^^^^    ^^^^^^^^
 ///                           (1)     (2)      (3)
 /// ```
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypePredicateDef {
   /// (1) Whether the predicate includes `asserts` keyword or not
@@ -1452,7 +1452,7 @@ fn infer_ts_type_from_const_assertion(
       // e.g.) const n = ["a", 1] as const;
       infer_ts_type_from_arr_lit(parsed_source, arr_lit, true)
     }
-    _ => infer_ts_type_from_expr(parsed_source, &*assertion.expr, true),
+    _ => infer_ts_type_from_expr(parsed_source, &assertion.expr, true),
   }
 }
 
@@ -1574,7 +1574,7 @@ fn infer_ts_type_from_obj_inner(
             readonly: false,
             computed: kv.key.is_computed(),
             optional: false,
-            ts_type: infer_ts_type_from_expr(parsed_source, &*kv.value, false),
+            ts_type: infer_ts_type_from_expr(parsed_source, &kv.value, false),
             type_params: vec![],
           });
         }

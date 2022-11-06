@@ -18,7 +18,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "kind")]
 enum ParamPatternDef {
@@ -43,7 +43,7 @@ enum ParamPatternDef {
   },
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ParamDef {
   #[serde(flatten)]
@@ -118,7 +118,7 @@ impl Display for ParamDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "kind")]
 pub enum ObjectPatPropDef {
@@ -167,7 +167,7 @@ fn rest_pat_to_param_def(
 
   ParamDef {
     pattern: ParamPatternDef::Rest {
-      arg: Box::new(pat_to_param_def(parsed_source, &*rest_pat.arg)),
+      arg: Box::new(pat_to_param_def(parsed_source, &rest_pat.arg)),
     },
     decorators: Vec::new(),
     ts_type,
@@ -185,10 +185,10 @@ fn object_pat_prop_to_def(
     },
     ObjectPatProp::KeyValue(keyvalue) => ObjectPatPropDef::KeyValue {
       key: prop_name_to_string(parsed_source, &keyvalue.key),
-      value: Box::new(pat_to_param_def(parsed_source, &*keyvalue.value)),
+      value: Box::new(pat_to_param_def(parsed_source, &keyvalue.value)),
     },
     ObjectPatProp::Rest(rest) => ObjectPatPropDef::Rest {
-      arg: Box::new(pat_to_param_def(parsed_source, &*rest.arg)),
+      arg: Box::new(pat_to_param_def(parsed_source, &rest.arg)),
     },
   }
 }
@@ -243,7 +243,7 @@ pub fn assign_pat_to_param_def(
 
   ParamDef {
     pattern: ParamPatternDef::Assign {
-      left: Box::new(pat_to_param_def(parsed_source, &*assign_pat.left)),
+      left: Box::new(pat_to_param_def(parsed_source, &assign_pat.left)),
       right: "[UNSUPPORTED]".to_string(),
     },
     decorators: Vec::new(),
