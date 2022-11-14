@@ -276,12 +276,6 @@ impl From<String> for JsDocTag {
         .to_string();
       let type_ref = caps.name("type").map(|m| m.as_str().to_string());
       let default = caps.name("default").map(|m| m.as_str().to_string());
-      println!(
-        "{:?} {:?} {:?}",
-        name_with_maybe_default.is_some(),
-        default,
-        name_with_maybe_default.is_some() && default.is_none()
-      );
       let doc = caps.name("doc").map(|m| m.as_str().to_string());
       Self::Param {
         name,
