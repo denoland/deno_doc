@@ -27,6 +27,7 @@ use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
 use deno_graph::CapturingModuleParser;
 use deno_graph::ModuleGraph;
+use deno_graph::ModuleKind;
 use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
 use deno_graph::Resolved;
@@ -270,6 +271,11 @@ impl<'a> DocParser<'a> {
     } else {
       module
     };
+
+    if module.kind == ModuleKind::Asserted {
+      // for now, don't display anything for json modules
+      return Ok(Vec::new());
+    }
 
     let module_doc = self.parse_module(&module.specifier)?;
 

@@ -910,6 +910,28 @@ async fn variable_syntax() {
   DocParser::new(graph, false, analyzer.as_capturing_parser())
     .parse_with_reexports(&specifier)
     .unwrap();
+
+
+}
+
+
+#[tokio::test]
+async fn json_module() {
+  let (graph, analyzer, specifier) = setup(
+    "file:///foo.ts",
+    vec![
+      ("file:///foo.ts", None, "export { default as configFile } from './bar.json' assert { type: 'json' };"),
+      ("file:///bar.json", None, r#"{ "test": 5 }"#),
+    ],
+  )
+  .await;
+
+  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .parse_with_reexports(&specifier)
+    .unwrap();
+
+  // in the future, we should probably show the json module
+  assert_eq!(entries.len(), 0);
 }
 
 mod serialization {
@@ -2246,7 +2268,7 @@ export const tpl2 = `Value: ${num}`;
       /** other doc */
       b: number;
     } = c;
-    
+
     export const { f, g: h } = d;
     "#;
     [
@@ -4444,7 +4466,7 @@ export function foo(bar: any): asserts bar {}
         return "h";
       },
       set h(value: string) {
-    
+
       },
       [s]: [1, 2, 3, "a"],
       [t](u: string): void {},
