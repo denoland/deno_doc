@@ -910,10 +910,7 @@ async fn variable_syntax() {
   DocParser::new(graph, false, analyzer.as_capturing_parser())
     .parse_with_reexports(&specifier)
     .unwrap();
-
-
 }
-
 
 #[tokio::test]
 async fn json_module() {
