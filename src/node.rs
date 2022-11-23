@@ -22,7 +22,10 @@ pub enum DocNodeKind {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Location {
   pub filename: String,
+  /// The 1-indexed display line.
+  /// todo(#150): why is one of these 0-indexed and the other 1-indexed?
   pub line: usize,
+  /// The 0-indexed display column.
   pub col: usize,
 }
 

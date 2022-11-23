@@ -10,6 +10,11 @@ use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
+use crate::ts_type::LiteralPropertyDef;
+use crate::ts_type::TsTypeDef;
+use crate::ts_type::TsTypeDefKind;
+use crate::ts_type::TsTypeLiteralDef;
+use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
@@ -23,6 +28,8 @@ use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
+use deno_ast::swc::ast::VarDeclKind;
+use deno_ast::MediaType;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
 use deno_graph::CapturingModuleParser;
@@ -273,7 +280,14 @@ impl<'a> DocParser<'a> {
     };
 
     if module.kind == ModuleKind::Asserted {
-      // for now, don't display anything for json modules
+      if module.media_type == MediaType::Json {
+        if let Some(source) = &module.maybe_source {
+          if let Ok(value) = serde_json::from_str(source) {
+            return Ok(vec![parse_json_module(&module.specifier, &value)]);
+          }
+        }
+      }
+      // no doc nodes
       return Ok(Vec::new());
     }
 
@@ -878,5 +892,66 @@ impl<'a> DocParser<'a> {
       Decl::TsTypeAlias(ts_type_alias_decl) => ts_type_alias_decl.declare,
       Decl::Var(var_decl) => var_decl.declare,
     }
+  }
+}
+
+fn parse_json_module(
+  specifier: &ModuleSpecifier,
+  value: &serde_json::Value,
+) -> DocNode {
+  DocNode {
+    kind: DocNodeKind::Variable,
+    name: "default".to_string(),
+    location: Location {
+      filename: specifier.to_string(),
+      col: 0,
+      line: 1,
+    },
+    declaration_kind: DeclarationKind::Export,
+    variable_def: Some(VariableDef {
+      kind: VarDeclKind::Var,
+      ts_type: Some(parse_json_module_type(value)),
+    }),
+    ..Default::default()
+  }
+}
+
+fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
+  match value {
+    serde_json::Value::Null => TsTypeDef::keyword("null"),
+    serde_json::Value::Bool(value) => TsTypeDef::bool_value(*value),
+    serde_json::Value::String(value) => {
+      TsTypeDef::string_value(value.to_string())
+    }
+    serde_json::Value::Number(value) => match value.as_f64() {
+      Some(value) => TsTypeDef::number_value(value),
+      None => TsTypeDef::keyword("number"),
+    },
+    serde_json::Value::Array(_) => TsTypeDef {
+      repr: "unknown[]".to_string(),
+      kind: Some(TsTypeDefKind::Array),
+      array: Some(Box::new(TsTypeDef::keyword("unknown"))),
+      ..Default::default()
+    },
+    serde_json::Value::Object(obj) => TsTypeDef {
+      repr: "".to_string(),
+      kind: Some(TsTypeDefKind::TypeLiteral),
+      type_literal: Some(TsTypeLiteralDef {
+        properties: obj
+          .iter()
+          .map(|(key, value)| LiteralPropertyDef {
+            name: key.to_string(),
+            ts_type: Some(parse_json_module_type(value)),
+            params: Vec::new(),
+            readonly: false,
+            computed: false,
+            optional: false,
+            type_params: Vec::new(),
+          })
+          .collect(),
+        ..Default::default()
+      }),
+      ..Default::default()
+    },
   }
 }

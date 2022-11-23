@@ -855,7 +855,6 @@ async fn exports_imported_earlier_private() {
   let entries = DocParser::new(graph, true, analyzer.as_capturing_parser())
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -918,7 +917,7 @@ async fn json_module() {
     "file:///foo.ts",
     vec![
       ("file:///foo.ts", None, "export { default as configFile } from './bar.json' assert { type: 'json' };"),
-      ("file:///bar.json", None, r#"{ "test": 5 }"#),
+      ("file:///bar.json", None, r#"{ "a": 5, "b": "text", "c": null, "d": [1, 2], "e": { "a": 1 } }"#),
     ],
   )
   .await;
@@ -927,8 +926,117 @@ async fn json_module() {
     .parse_with_reexports(&specifier)
     .unwrap();
 
-  // in the future, we should probably show the json module
-  assert_eq!(entries.len(), 0);
+  let expected_json = json!([
+    {
+      "kind": "variable",
+      "name": "configFile",
+      "location": {
+        "filename": "file:///bar.json",
+        "line": 1,
+        "col": 0
+      },
+      "declarationKind": "export",
+      "variableDef": {
+        "tsType": {
+          "repr": "",
+          "kind": "typeLiteral",
+          "typeLiteral": {
+            "methods": [],
+            "properties": [{
+              "name": "a",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "5",
+                "kind": "literal",
+                "literal": {
+                  "kind": "number",
+                  "number": 5.0,
+                },
+              },
+              "typeParams": []
+            }, {
+              "name": "b",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "text",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "text",
+                },
+              },
+              "typeParams": []
+            }, {
+              "name": "c",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "null",
+                "kind": "keyword",
+                "keyword": "null",
+              },
+              "typeParams": []
+            }, {
+              "name": "d",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "unknown[]",
+                "kind": "array",
+                "array": {
+                  "repr": "unknown",
+                  "kind": "keyword",
+                  "keyword": "unknown",
+                },
+              },
+              "typeParams": []
+            }, {
+              "name": "e",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "typeLiteral",
+                "typeLiteral": {
+                  "methods": [],
+                  "properties": [{
+                    "name": "a",
+                    "params": [],
+                    "computed": false,
+                    "optional": false,
+                    "tsType": {
+                      "repr": "1",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "number",
+                        "number": 1.0,
+                      },
+                    },
+                    "typeParams": []
+                  }],
+                  "callSignatures": [],
+                  "indexSignatures": [],
+                },
+              },
+              "typeParams": []
+            }],
+            "callSignatures": [],
+            "indexSignatures": [],
+          },
+        },
+        "kind": "var",
+      },
+    },
+  ]);
+  let actual = serde_json::to_value(&entries).unwrap();
+  assert_eq!(actual, expected_json);
 }
 
 mod serialization {

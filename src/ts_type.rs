@@ -1137,10 +1137,14 @@ fn get_range_from_type(ts_type: &TsType) -> SourceRange {
 
 impl TsTypeDef {
   pub fn number_literal(num: &Number) -> Self {
-    let repr = format!("{}", num.value);
+    Self::number_value(num.value)
+  }
+
+  pub fn number_value(value: f64) -> Self {
+    let repr = format!("{}", value);
     let lit = LiteralDef {
       kind: LiteralDefKind::Number,
-      number: Some(num.value),
+      number: Some(value),
       string: None,
       ts_types: None,
       boolean: None,
@@ -1148,12 +1152,16 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn string_literal(str_: &Str) -> Self {
-    let repr = str_.value.to_string();
+  pub fn string_literal(str_node: &Str) -> Self {
+    Self::string_value(str_node.value.to_string())
+  }
+
+  pub fn string_value(value: String) -> Self {
+    let repr = value.clone();
     let lit = LiteralDef {
       kind: LiteralDefKind::String,
       number: None,
-      string: Some(str_.value.to_string()),
+      string: Some(value),
       ts_types: None,
       boolean: None,
     };
@@ -1195,24 +1203,28 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn bool_literal(bool_: &Bool) -> Self {
-    let repr = bool_.value.to_string();
+  pub fn bool_literal(bool_node: &Bool) -> Self {
+    Self::bool_value(bool_node.value)
+  }
+
+  pub fn bool_value(value: bool) -> Self {
+    let repr = value.to_string();
     let lit = LiteralDef {
       kind: LiteralDefKind::Boolean,
       number: None,
       string: None,
       ts_types: None,
-      boolean: Some(bool_.value),
+      boolean: Some(value),
     };
     Self::literal(repr, lit)
   }
 
-  pub fn bigint_literal(bigint_: &BigInt) -> Self {
-    let repr = bigint_.value.to_string();
+  pub fn bigint_literal(bigint_node: &BigInt) -> Self {
+    let repr = bigint_node.value.to_string();
     let lit = LiteralDef {
       kind: LiteralDefKind::BigInt,
       number: None,
-      string: Some(bigint_.value.to_string()),
+      string: Some(bigint_node.value.to_string()),
       ts_types: None,
       boolean: None,
     };
