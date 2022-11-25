@@ -100,14 +100,16 @@ pub fn get_doc_for_var_decl(
                 deno_ast::swc::ast::Pat::Ident(ident) => {
                   Some(ident.sym.to_string())
                 }
-                _ => todo!("nested destructing"),
+                _ => None, // TODO: properly implement
               },
               None,
             ),
             deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
               (assign.key.sym.to_string(), None, Some(assign.range()))
             }
-            deno_ast::swc::ast::ObjectPatProp::Rest(_) => todo!(),
+            deno_ast::swc::ast::ObjectPatProp::Rest(_) => {
+              ("".to_string(), None, None)
+            } // TODO: properly implement
           };
 
           let ts_type = obj_type.as_ref().and_then(|ts_type| {
