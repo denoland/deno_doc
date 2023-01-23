@@ -17,7 +17,7 @@ name = "ddoc"
 anyhow = { version = "1.0.58", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.23.1"
-deno_graph = "0.41.0"
+deno_graph = "0.42.0"
 futures = "0.3.17"
 js-sys = { version = "=0.3.58", optional = true }
 import_map = "0.13.0"
