@@ -10,7 +10,6 @@ use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::source::ResolveResponse;
 use deno_graph::source::Resolver;
 use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphOptions;
@@ -76,11 +75,8 @@ impl Resolver for ImportMapResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> ResolveResponse {
-    match self.0.resolve(specifier, referrer) {
-      Ok(resolved_specifier) => ResolveResponse::Specifier(resolved_specifier),
-      Err(err) => ResolveResponse::Err(err.into()),
-    }
+  ) -> Result<ModuleSpecifier> {
+    Ok(self.0.resolve(specifier, referrer)?)
   }
 }
 
@@ -100,26 +96,19 @@ impl Resolver for JsResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> ResolveResponse {
+  ) -> Result<ModuleSpecifier> {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
     let arg1 = JsValue::from(referrer.to_string());
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
-      Err(_) => {
-        return ResolveResponse::Err(anyhow!(
-          "JavaScript resolve() function threw."
-        ))
-      }
+      Err(_) => return Err(anyhow!("JavaScript resolve() function threw.")),
     };
     let value: String = match value.into_serde() {
       Ok(value) => value,
-      Err(err) => return ResolveResponse::Err(err.into()),
+      Err(err) => return Err(err.into()),
     };
-    match ModuleSpecifier::parse(&value) {
-      Ok(specifier) => ResolveResponse::Specifier(specifier),
-      Err(err) => ResolveResponse::Err(err.into()),
-    }
+    Ok(ModuleSpecifier::parse(&value)?)
   }
 }
 
