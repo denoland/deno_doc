@@ -8,7 +8,7 @@ lazy_static! {
   static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(category|deprecated|example|tags)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
-  static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|module|public|private|protected|readonly)"#).unwrap();
+  static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|ignore|module|public|private|protected|readonly)"#).unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
     r#"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?P<doc>.+))?"#
   )
@@ -120,6 +120,8 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
+  /// `@ignore`
+  Ignore,
   /// `@module`
   Module,
   /// `@param`, `@arg` or `argument`, in format of `@param {type} name comment`
@@ -203,6 +205,7 @@ impl From<String> for JsDocTag {
       let kind = caps.get(1).unwrap().as_str();
       match kind {
         "constructor" | "class" => Self::Constructor,
+        "ignore" => Self::Ignore,
         "module" => Self::Module,
         "public" => Self::Public,
         "private" => Self::Private,
