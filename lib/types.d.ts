@@ -237,6 +237,7 @@ export type JsDocTagKind =
   | "enum"
   | "example"
   | "extends"
+  | "ignore"
   | "module"
   | "param"
   | "public"
@@ -271,6 +272,7 @@ export interface JsDocTagBase {
 export interface JsDocTagOnly extends JsDocTagBase {
   kind:
     | "constructor"
+    | "ignore"
     | "module"
     | "public"
     | "private"

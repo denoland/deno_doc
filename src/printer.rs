@@ -257,6 +257,9 @@ impl<'a> DocPrinter<'a> {
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
+      JsDocTag::Ignore => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("ignore"))
+      }
       JsDocTag::Module => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("module"))
       }
