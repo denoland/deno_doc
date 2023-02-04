@@ -313,6 +313,14 @@ mod tests {
       json!({ "tags": [ { "kind": "constructor" } ] }),
     );
     assert_eq!(
+      serde_json::to_value(JsDoc::from("@ignore more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "ignore" } ] }),
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@module more".to_string())).unwrap(),
+      json!({ "tags": [ { "kind": "module" } ] }),
+    );
+    assert_eq!(
       serde_json::to_value(JsDoc::from("@public more".to_string())).unwrap(),
       json!({ "tags": [ { "kind": "public" } ] }),
     );
