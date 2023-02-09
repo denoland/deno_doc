@@ -2,11 +2,11 @@
 
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use deno_graph::create_type_graph;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
+use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::GraphOptions;
+use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use pretty_assertions::assert_eq;
@@ -34,15 +34,17 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
   let analyzer = CapturingModuleAnalyzer::default();
-  let graph = create_type_graph(
-    vec![root.clone()],
-    &mut memory_loader,
-    GraphOptions {
-      module_analyzer: Some(&analyzer),
-      ..Default::default()
-    },
-  )
-  .await;
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![root.clone()],
+      &mut memory_loader,
+      BuildOptions {
+        module_analyzer: Some(&analyzer),
+        ..Default::default()
+      },
+    )
+    .await;
   (graph, analyzer, root)
 }
 
@@ -141,15 +143,17 @@ async fn content_type_handling() {
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
   let analyzer = CapturingModuleAnalyzer::default();
-  let graph = create_type_graph(
-    vec![root.clone()],
-    &mut memory_loader,
-    GraphOptions {
-      module_analyzer: Some(&analyzer),
-      ..Default::default()
-    },
-  )
-  .await;
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![root.clone()],
+      &mut memory_loader,
+      BuildOptions {
+        module_analyzer: Some(&analyzer),
+        ..Default::default()
+      },
+    )
+    .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
     .parse_with_reexports(&root)
     .unwrap();
@@ -185,15 +189,17 @@ async fn types_header_handling() {
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
   let analyzer = CapturingModuleAnalyzer::default();
-  let graph = create_type_graph(
-    vec![root.clone()],
-    &mut memory_loader,
-    GraphOptions {
-      module_analyzer: Some(&analyzer),
-      ..Default::default()
-    },
-  )
-  .await;
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![root.clone()],
+      &mut memory_loader,
+      BuildOptions {
+        module_analyzer: Some(&analyzer),
+        ..Default::default()
+      },
+    )
+    .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
     .parse_with_reexports(&root)
     .unwrap();

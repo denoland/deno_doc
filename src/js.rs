@@ -6,13 +6,14 @@ use crate::parser::DocParser;
 
 use anyhow::anyhow;
 use anyhow::Result;
-use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::source::Resolver;
+use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::GraphOptions;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use import_map::ImportMap;
 use wasm_bindgen::prelude::*;
@@ -160,16 +161,18 @@ pub async fn doc(
     maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
   };
   let analyzer = CapturingModuleAnalyzer::default();
-  let graph = create_type_graph(
-    vec![root_specifier.clone()],
-    &mut loader,
-    GraphOptions {
-      module_analyzer: Some(&analyzer),
-      resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
-      ..Default::default()
-    },
-  )
-  .await;
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![root_specifier.clone()],
+      &mut loader,
+      BuildOptions {
+        module_analyzer: Some(&analyzer),
+        resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
+        ..Default::default()
+      },
+    )
+    .await;
   let entries =
     DocParser::new(graph, include_all, analyzer.as_capturing_parser())
       .parse_with_reexports(&root_specifier)
