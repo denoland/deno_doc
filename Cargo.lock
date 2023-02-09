@@ -313,9 +313,9 @@ checksum = "8d7439c3735f405729d52c3fbbe4de140eaf938a1fe47d227c27f8254d4302a5"
 
 [[package]]
 name = "deno_ast"
-version = "0.23.1"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90e2990b93da2131e197c8e8f3d559b946c24467dc4af3ca967082a4bd85ad1b"
+checksum = "76e007f9f03be5484596ea6bed86ffdc6357ba9660cb8da20845baf2ce079722"
 dependencies = [
  "data-url",
  "dprint-swc-ext",
@@ -356,12 +356,11 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.42.0"
+version = "0.43.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f469b4a0694cb7e7fd512f23bc10d32398d7228cd2581a262109359c8e263940"
+checksum = "f71bb48b14950d62552aee1d05d0b90c203319b293b36358021ec77e05eaf9a4"
 dependencies = [
  "anyhow",
- "cfg-if",
  "data-url",
  "deno_ast",
  "futures",
@@ -381,9 +380,9 @@ checksum = "0e25ea47919b1560c4e3b7fe0aaab9becf5b84a10325ddf7db0f0ba5e1026499"
 
 [[package]]
 name = "dprint-swc-ext"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba1b7bac9133524358ec340b52b30a72df03c6252e327c22ad230637cc357306"
+checksum = "0e2dc99247101e0132a17680c5afbba9a7334477b47738dd3431c13f5e2c9a84"
 dependencies = [
  "bumpalo",
  "num-bigint",
@@ -726,9 +725,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.120"
+version = "0.2.139"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad5c14e80759d0939d013e6ca49930e59fc53dd8e5009132f76240c179380c09"
+checksum = "201de327520df007757c1f0adce6e827fe8562fbc28bfd9c15571c66ca1f5f79"
 
 [[package]]
 name = "lock_api"
@@ -765,25 +764,14 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.8.1"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ba42135c6a5917b9db9cd7b293e5409e1c6b041e6f9825e92e55a894c63b6f8"
+checksum = "e5d732bc30207a6423068df043e3d02e0735b155ad7ce1a6f76fe2baa5b158de"
 dependencies = [
  "libc",
  "log",
- "miow",
- "ntapi",
  "wasi 0.11.0+wasi-snapshot-preview1",
- "winapi",
-]
-
-[[package]]
-name = "miow"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
-dependencies = [
- "winapi",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -791,15 +779,6 @@ name = "new_debug_unreachable"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
-
-[[package]]
-name = "ntapi"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c28774a7fd2fbb4f0babd8237ce554b73af68021b5f695a3cebd6c59bac0980f"
-dependencies = [
- "winapi",
-]
 
 [[package]]
 name = "num-bigint"
@@ -883,7 +862,7 @@ dependencies = [
  "libc",
  "redox_syscall",
  "smallvec",
- "windows-sys",
+ "windows-sys 0.32.0",
 ]
 
 [[package]]
@@ -1283,9 +1262,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "swc_atoms"
-version = "0.4.32"
+version = "0.4.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ad59af21529fcd3f4f8fa6b1ae399c2b183ec42c68347d76d68d6e5b657956e"
+checksum = "731cf66bd8e11030f056f91f9d8af77f83ec4377ff04d1670778a57d1607402a"
 dependencies = [
  "once_cell",
  "rustc-hash",
@@ -1297,9 +1276,9 @@ dependencies = [
 
 [[package]]
 name = "swc_common"
-version = "0.29.25"
+version = "0.29.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "506321cad7393893018aac83a3b3bd25203883e8c47ab0864bb43195d43b22dd"
+checksum = "a97e491d31418cd33fea58e9f893316fc04b30e2b5d0e750c066e2ba4907ae54"
 dependencies = [
  "ahash",
  "ast_node",
@@ -1324,9 +1303,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_ast"
-version = "0.95.9"
+version = "0.96.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cc936f04c4e671ae5918b573a50945c5189d3dcdd57e4faddd47889717e1416"
+checksum = "a887102d5595b557261aa4bde35f3d71906fba674d4b79cd5c59b4155b12ee2d"
 dependencies = [
  "bitflags",
  "is-macro",
@@ -1341,9 +1320,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_dep_graph"
-version = "0.95.13"
+version = "0.96.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42a9122bcff80fba41cadd123fc9136424755144de16dfabeee4031144d204a9"
+checksum = "8fa847768c9ffb0b44085c881bc8931b3cb17f8eb0b81c65bf9068c0e9cbdc02"
 dependencies = [
  "swc_atoms",
  "swc_common",
@@ -1353,9 +1332,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.123.13"
+version = "0.124.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22225f792dcbcd3d3e77498d6e6fb86161cdd05ba4e24456361768dc41ee2948"
+checksum = "9e75888eabf1ad8a8968e3befc7cd20c10e4721254d3344285bd5c3a42f58dc1"
 dependencies = [
  "either",
  "enum_kind",
@@ -1372,9 +1351,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_visit"
-version = "0.81.9"
+version = "0.82.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ebf5de90444c90b1905b7618800a7572fc757faa8c90cc1c6031d1f6ca179df"
+checksum = "6b2ee0f4b61d6c426189d0d9da1333705ff3bc4513fb63633ca254595a700f75"
 dependencies = [
  "num-bigint",
  "swc_atoms",
@@ -1410,9 +1389,9 @@ dependencies = [
 
 [[package]]
 name = "swc_visit"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82f2bcb7223e185c4c7cbf5e0c1207dec6d2bfd5e72e3fb7b3e8d179747e9130"
+checksum = "470a1963cf182fdcbbac46e3a7fd2caf7329da0e568d3668202da9501c880e16"
 dependencies = [
  "either",
  "swc_visit_macros",
@@ -1420,9 +1399,9 @@ dependencies = [
 
 [[package]]
 name = "swc_visit_macros"
-version = "0.5.4"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fb1f3561674d84947694d41fb6d5737d19539222779baeac1b3a071a2b29428"
+checksum = "6098b717cfd4c85f5cddec734af191dbce461c39975ed567c32ac6d0c6d61a6d"
 dependencies = [
  "Inflector",
  "pmutil",
@@ -1497,22 +1476,22 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.17.0"
+version = "1.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2af73ac49756f3f7c01172e34a23e5d0216f6c32333757c2c61feb2bbff5a5ee"
+checksum = "c8e00990ebabbe4c14c08aca901caed183ecd5c09562a12c824bb53d3c3fd3af"
 dependencies = [
+ "autocfg",
  "bytes",
  "libc",
  "memchr",
  "mio",
  "num_cpus",
- "once_cell",
  "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
  "tokio-macros",
- "winapi",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -1769,12 +1748,33 @@ version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3df6e476185f92a12c072be4a189a0210dcdcf512a1891d6dff9edb874deadc6"
 dependencies = [
- "windows_aarch64_msvc",
- "windows_i686_gnu",
- "windows_i686_msvc",
- "windows_x86_64_gnu",
- "windows_x86_64_msvc",
+ "windows_aarch64_msvc 0.32.0",
+ "windows_i686_gnu 0.32.0",
+ "windows_i686_msvc 0.32.0",
+ "windows_x86_64_gnu 0.32.0",
+ "windows_x86_64_msvc 0.32.0",
 ]
+
+[[package]]
+name = "windows-sys"
+version = "0.42.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a3e1820f08b8513f676f7ab6c1f99ff312fb97b553d30ff4dd86f9f15728aa7"
+dependencies = [
+ "windows_aarch64_gnullvm",
+ "windows_aarch64_msvc 0.42.1",
+ "windows_i686_gnu 0.42.1",
+ "windows_i686_msvc 0.42.1",
+ "windows_x86_64_gnu 0.42.1",
+ "windows_x86_64_gnullvm",
+ "windows_x86_64_msvc 0.42.1",
+]
+
+[[package]]
+name = "windows_aarch64_gnullvm"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c9864e83243fdec7fc9c5444389dcbbfd258f745e7853198f365e3c4968a608"
 
 [[package]]
 name = "windows_aarch64_msvc"
@@ -1783,10 +1783,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8e92753b1c443191654ec532f14c199742964a061be25d77d7a96f09db20bf5"
 
 [[package]]
+name = "windows_aarch64_msvc"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c8b1b673ffc16c47a9ff48570a9d85e25d265735c503681332589af6253c6c7"
+
+[[package]]
 name = "windows_i686_gnu"
 version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a711c68811799e017b6038e0922cb27a5e2f43a2ddb609fe0b6f3eeda9de615"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de3887528ad530ba7bdbb1faa8275ec7a1155a45ffa57c37993960277145d640"
 
 [[package]]
 name = "windows_i686_msvc"
@@ -1795,13 +1807,37 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "146c11bb1a02615db74680b32a68e2d61f553cc24c4eb5b4ca10311740e44172"
 
 [[package]]
+name = "windows_i686_msvc"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf4d1122317eddd6ff351aa852118a2418ad4214e6613a50e0191f7004372605"
+
+[[package]]
 name = "windows_x86_64_gnu"
 version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c912b12f7454c6620635bbff3450962753834be2a594819bd5e945af18ec64bc"
 
 [[package]]
+name = "windows_x86_64_gnu"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c1040f221285e17ebccbc2591ffdc2d44ee1f9186324dd3e84e99ac68d699c45"
+
+[[package]]
+name = "windows_x86_64_gnullvm"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "628bfdf232daa22b0d64fdb62b09fcc36bb01f05a3939e20ab73aaf9470d0463"
+
+[[package]]
 name = "windows_x86_64_msvc"
 version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "504a2476202769977a040c6364301a3f65d0cc9e3fb08600b2bda150a0488316"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.42.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "447660ad36a13288b1db4d4248e857b510e8c3a225c822ba4fb748c0aafecffd"

@@ -37,7 +37,6 @@ use deno_graph::ModuleGraph;
 use deno_graph::ModuleKind;
 use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
-use deno_graph::Resolved;
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -262,8 +261,11 @@ impl<'a> DocParser<'a> {
         ))
       })?;
 
-    let module = if let Some((_, Resolved::Ok { specifier, .. })) =
-      &module.maybe_types_dependency
+    let module = if let Some(specifier) = module
+      .maybe_types_dependency
+      .as_ref()
+      .and_then(|d| d.dependency.ok())
+      .map(|r| &r.specifier)
     {
       self
         .graph

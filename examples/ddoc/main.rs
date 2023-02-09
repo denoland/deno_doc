@@ -6,12 +6,13 @@ use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocPrinter;
-use deno_graph::create_type_graph;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::GraphOptions;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
 use futures::future;
@@ -61,15 +62,17 @@ fn main() {
   let mut loader = SourceFileLoader {};
   let future = async move {
     let analyzer = CapturingModuleAnalyzer::default();
-    let graph = create_type_graph(
-      vec![source_file.clone()],
-      &mut loader,
-      GraphOptions {
-        module_analyzer: Some(&analyzer),
-        ..Default::default()
-      },
-    )
-    .await;
+    let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+    graph
+      .build(
+        vec![source_file.clone()],
+        &mut loader,
+        BuildOptions {
+          module_analyzer: Some(&analyzer),
+          ..Default::default()
+        },
+      )
+      .await;
     let parser = DocParser::new(graph, false, analyzer.as_capturing_parser());
     let parse_result = parser.parse_with_reexports(&source_file);
 
