@@ -9,8 +9,10 @@ use deno_doc::DocNode;
 use deno_doc::DocParser;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
+use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::GraphOptions;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 
 async fn parse_with_reexports() -> Vec<DocNode> {

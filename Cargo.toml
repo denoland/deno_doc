@@ -33,7 +33,7 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 [dev-dependencies]
 clap = "2.33.3"
 criterion = { version = "0.3.5", features = ["async_futures", "html_reports"] }
-tokio = { version = "1.11.0", features = ["full"] }
+tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
 [features]
