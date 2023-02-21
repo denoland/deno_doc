@@ -29,12 +29,12 @@ use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::swc::ast::VarDeclKind;
-use deno_ast::MediaType;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
 use deno_graph::CapturingModuleParser;
+use deno_graph::EsmModule;
+use deno_graph::Module;
 use deno_graph::ModuleGraph;
-use deno_graph::ModuleKind;
 use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
 
@@ -128,6 +128,17 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<ParsedSource, DocError> {
+    let module = self.get_esm_module(specifier)?;
+    self
+      .parser
+      .parse_module(&specifier, module.source.clone(), module.media_type)
+      .map_err(DocError::Parse)
+  }
+
+  fn get_esm_module(
+    &self,
+    specifier: &ModuleSpecifier,
+  ) -> Result<&EsmModule, DocError> {
     let specifier = self.graph.resolve(specifier);
     let module = self.graph.get(&specifier).ok_or_else(|| {
       DocError::Resolve(format!(
@@ -135,16 +146,9 @@ impl<'a> DocParser<'a> {
         specifier
       ))
     })?;
-    let source = module.maybe_source.clone().ok_or_else(|| {
-      DocError::Resolve(format!(
-        "Could not find module source in graph: {}",
-        specifier
-      ))
-    })?;
-    self
-      .parser
-      .parse_module(&specifier, source, module.media_type)
-      .map_err(DocError::Parse)
+    module.esm().ok_or_else(|| {
+      DocError::Resolve(format!("Module was not ESM: {}", specifier))
+    })
   }
 
   /// Fetches `file_name` and returns a list of exported items (no reexports).
@@ -179,7 +183,7 @@ impl<'a> DocParser<'a> {
         .graph
         .resolve_dependency(specifier, referrer, true)
         .ok_or_else(|| DocError::Resolve(specifier.clone()))?;
-      let doc_nodes = self.parse_with_reexports(resolved_specifier)?;
+      let doc_nodes = self.parse_with_reexports(&resolved_specifier)?;
       let reexports_for_specifier = by_src.get(specifier).unwrap();
 
       for reexport in reexports_for_specifier {
@@ -261,12 +265,12 @@ impl<'a> DocParser<'a> {
         ))
       })?;
 
-    let module = if let Some(specifier) = module
-      .maybe_types_dependency
-      .as_ref()
-      .and_then(|d| d.dependency.ok())
-      .map(|r| &r.specifier)
-    {
+    let module = if let Some(specifier) = module.esm().and_then(|m| {
+      m.maybe_types_dependency
+        .as_ref()
+        .and_then(|d| d.dependency.ok())
+        .map(|r| &r.specifier)
+    }) {
       self
         .graph
         .try_get(specifier)
@@ -281,30 +285,31 @@ impl<'a> DocParser<'a> {
       module
     };
 
-    if module.kind == ModuleKind::Asserted {
-      if module.media_type == MediaType::Json {
-        if let Some(source) = &module.maybe_source {
-          if let Ok(value) = serde_json::from_str(source) {
-            return Ok(vec![parse_json_module(&module.specifier, &value)]);
-          }
+    match module {
+      Module::Json(module) => {
+        if let Ok(value) = serde_json::from_str(&module.source) {
+          Ok(vec![parse_json_module(&module.specifier, &value)])
+        } else {
+          // no doc nodes
+          Ok(Vec::new())
         }
       }
-      // no doc nodes
-      return Ok(Vec::new());
+      Module::Esm(module) => {
+        let module_doc = self.parse_module(&module.specifier)?;
+
+        let flattened_docs = if !module_doc.reexports.is_empty() {
+          let mut flattened_reexports =
+            self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
+          flattened_reexports.extend(module_doc.definitions);
+          flattened_reexports
+        } else {
+          module_doc.definitions
+        };
+
+        Ok(flattened_docs)
+      }
+      Module::Npm(_) | Module::External(_) => Ok(vec![]),
     }
-
-    let module_doc = self.parse_module(&module.specifier)?;
-
-    let flattened_docs = if !module_doc.reexports.is_empty() {
-      let mut flattened_reexports =
-        self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
-      flattened_reexports.extend(module_doc.definitions);
-      flattened_reexports
-    } else {
-      module_doc.definitions
-    };
-
-    Ok(flattened_docs)
   }
 
   fn get_doc_nodes_for_module_imports(
