@@ -17,7 +17,7 @@ name = "ddoc"
 anyhow = { version = "1.0.58", optional = true }
 cfg-if = "1.0.0"
 deno_ast = "0.24.0"
-deno_graph = "0.43.2"
+deno_graph = "0.44.0"
 futures = "0.3.26"
 js-sys = { version = "=0.3.58", optional = true }
 import_map = "0.13.0"
@@ -50,6 +50,3 @@ opt-level = "s"
 [[bench]]
 name = "doc_parser"
 harness = false
-
-[patch.crates-io]
-deno_graph = { path = "../deno_graph" }
