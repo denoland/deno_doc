@@ -308,7 +308,7 @@ impl<'a> DocParser<'a> {
 
         Ok(flattened_docs)
       }
-      Module::Npm(_) | Module::External(_) => Ok(vec![]),
+      Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(vec![]),
     }
   }
 
