@@ -131,7 +131,7 @@ impl<'a> DocParser<'a> {
     let module = self.get_esm_module(specifier)?;
     self
       .parser
-      .parse_module(&specifier, module.source.clone(), module.media_type)
+      .parse_module(specifier, module.source.clone(), module.media_type)
       .map_err(DocError::Parse)
   }
 
