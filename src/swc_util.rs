@@ -61,7 +61,7 @@ pub(crate) fn js_doc_for_range(
 /// `None`.
 pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
-) -> Option<(JsDoc, SourceRange)> {
+) -> Option<Option<(JsDoc, SourceRange)>> {
   let comments = parsed_source.get_leading_comments();
   if let Some(js_doc_comment) = comments.iter().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
@@ -69,8 +69,10 @@ pub(crate) fn module_js_doc_for_source(
     let leading_js_doc = parse_js_doc(js_doc_comment);
     if let Some(js_doc) = leading_js_doc {
       if js_doc.tags.contains(&JsDocTag::Module) {
-        return Some((js_doc, js_doc_comment.range()));
+        return Some(Some((js_doc, js_doc_comment.range())));
       }
+    } else {
+      return Some(None);
     }
   }
   None

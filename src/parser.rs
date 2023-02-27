@@ -824,13 +824,15 @@ impl<'a> DocParser<'a> {
     let mut is_ambient = true;
 
     // check to see if there is a module level JSDoc for the source file
-    if let Some((js_doc, range)) = module_js_doc_for_source(parsed_source) {
-      let doc_node =
-        DocNode::module_doc(get_location(parsed_source, range.start), js_doc);
-      doc_entries.push(doc_node);
+    if let Some(module_js_doc) = module_js_doc_for_source(parsed_source) {
+      if let Some((js_doc, range)) = module_js_doc {
+        let doc_node =
+          DocNode::module_doc(get_location(parsed_source, range.start), js_doc);
+        doc_entries.push(doc_node);
+      } else {
+        return vec![];
+      }
     }
-
-    // TODO: if module doc has an Ignore tag, we need to ignore the entire module's contentx
 
     for node in module_body.iter() {
       match node {
