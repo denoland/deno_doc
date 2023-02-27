@@ -10,7 +10,6 @@ use crate::decorators::DecoratorDef;
 use crate::function::function_to_function_def;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
-use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::params::assign_pat_to_param_def;
 use crate::params::ident_to_param_def;
@@ -286,9 +285,9 @@ pub fn class_to_class_def(
 
     match member {
       Constructor(ctor) => {
-        let ctor_js_doc = js_doc_for_range(parsed_source, &ctor.range());
-
-        if !ctor_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(ctor_js_doc) =
+          js_doc_for_range(parsed_source, &ctor.range())
+        {
           let constructor_name =
             prop_name_to_string(Some(parsed_source), &ctor.key);
 
@@ -340,9 +339,9 @@ pub fn class_to_class_def(
         }
       }
       Method(class_method) => {
-        let method_js_doc =
-          js_doc_for_range(parsed_source, &class_method.range());
-        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(method_js_doc) =
+          js_doc_for_range(parsed_source, &class_method.range())
+        {
           let method_name =
             prop_name_to_string(Some(parsed_source), &class_method.key);
           let fn_def =
@@ -363,9 +362,9 @@ pub fn class_to_class_def(
         }
       }
       ClassProp(class_prop) => {
-        let prop_js_doc = js_doc_for_range(parsed_source, &class_prop.range());
-
-        if !prop_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(prop_js_doc) =
+          js_doc_for_range(parsed_source, &class_prop.range())
+        {
           let ts_type = if let Some(type_ann) = &class_prop.type_ann {
             // if the property has a type annotation, use it
             Some(ts_type_ann_to_def(type_ann))
@@ -440,10 +439,11 @@ pub fn class_to_class_def(
   let js_doc = if !class.decorators.is_empty() {
     js_doc_for_range(parsed_source, &class.decorators[0].range())
   } else {
-    JsDoc::default()
+    Some(JsDoc::default())
   };
 
   // TODO
+  let js_doc = js_doc.unwrap_or_default();
 
   (
     ClassDef {

@@ -5,7 +5,7 @@ use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::js_doc::{JsDoc, JsDocTag};
+use crate::js_doc::JsDoc;
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
@@ -39,9 +39,8 @@ pub fn get_doc_for_ts_enum_decl(
   for enum_member in &enum_decl.members {
     use deno_ast::swc::ast::TsEnumMemberId::*;
 
-    let js_doc = js_doc_for_range(parsed_source, &enum_member.range());
-
-    if !js_doc.tags.contains(&JsDocTag::Ignore) {
+    if let Some(js_doc) = js_doc_for_range(parsed_source, &enum_member.range())
+    {
       let name = match &enum_member.id {
         Ident(ident) => ident.sym.to_string(),
         Str(str_) => str_.value.to_string(),

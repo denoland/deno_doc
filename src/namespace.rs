@@ -1,6 +1,5 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use crate::js_doc::JsDocTag;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
 use serde::{Deserialize, Serialize};
@@ -21,44 +20,45 @@ pub fn get_doc_for_ts_namespace_decl(
   parsed_source: &ParsedSource,
   ts_namespace_decl: &deno_ast::swc::ast::TsNamespaceDecl,
 ) -> Option<DocNode> {
-  let js_doc = js_doc_for_range(parsed_source, &ts_namespace_decl.range());
+  if let Some(js_doc) =
+    js_doc_for_range(parsed_source, &ts_namespace_decl.range())
+  {
+    let location = get_location(parsed_source, ts_namespace_decl.start());
+    let namespace_name = ts_namespace_decl.id.sym.to_string();
 
-  if js_doc.tags.contains(&JsDocTag::Ignore) {
-    return None;
-  }
+    use deno_ast::swc::ast::TsNamespaceBody::*;
 
-  let location = get_location(parsed_source, ts_namespace_decl.start());
-  let namespace_name = ts_namespace_decl.id.sym.to_string();
-
-  use deno_ast::swc::ast::TsNamespaceBody::*;
-
-  let elements = match &*ts_namespace_decl.body {
-    TsModuleBlock(ts_module_block) => doc_parser.get_doc_nodes_for_module_body(
-      parsed_source,
-      ts_module_block.body.clone(),
-    ),
-    TsNamespaceDecl(ts_namespace_decl) => {
-      if let Some(doc_node) = get_doc_for_ts_namespace_decl(
-        doc_parser,
-        parsed_source,
-        ts_namespace_decl,
-      ) {
-        vec![doc_node]
-      } else {
-        vec![]
+    let elements = match &*ts_namespace_decl.body {
+      TsModuleBlock(ts_module_block) => doc_parser
+        .get_doc_nodes_for_module_body(
+          parsed_source,
+          ts_module_block.body.clone(),
+        ),
+      TsNamespaceDecl(ts_namespace_decl) => {
+        if let Some(doc_node) = get_doc_for_ts_namespace_decl(
+          doc_parser,
+          parsed_source,
+          ts_namespace_decl,
+        ) {
+          vec![doc_node]
+        } else {
+          vec![]
+        }
       }
-    }
-  };
+    };
 
-  let ns_def = NamespaceDef { elements };
+    let ns_def = NamespaceDef { elements };
 
-  Some(DocNode::namespace(
-    namespace_name,
-    location,
-    DeclarationKind::Declare,
-    js_doc,
-    ns_def,
-  ))
+    Some(DocNode::namespace(
+      namespace_name,
+      location,
+      DeclarationKind::Declare,
+      js_doc,
+      ns_def,
+    ))
+  } else {
+    None
+  }
 }
 
 pub fn get_doc_for_ts_module(

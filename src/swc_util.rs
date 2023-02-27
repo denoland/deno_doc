@@ -21,7 +21,7 @@ pub(crate) fn is_false(b: &bool) -> bool {
   !b
 }
 
-fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
+fn parse_js_doc(js_doc_comment: &Comment) -> Option<JsDoc> {
   let txt = js_doc_comment
     .text
     .split('\n')
@@ -30,13 +30,18 @@ fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
     .join("\n")
     .trim()
     .to_string();
-  txt.into()
+  let js_doc: JsDoc = txt.into();
+  if js_doc.tags.contains(&JsDocTag::Ignore) {
+    None
+  } else {
+    Some(js_doc)
+  }
 }
 
 pub(crate) fn js_doc_for_range(
   parsed_source: &ParsedSource,
   range: &SourceRange,
-) -> JsDoc {
+) -> Option<JsDoc> {
   let comments = parsed_source
     .comments()
     .get_leading(range.start)
@@ -47,7 +52,7 @@ pub(crate) fn js_doc_for_range(
   }) {
     parse_js_doc(js_doc_comment)
   } else {
-    JsDoc::default()
+    Some(JsDoc::default())
   }
 }
 
@@ -62,12 +67,10 @@ pub(crate) fn module_js_doc_for_source(
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {
     let leading_js_doc = parse_js_doc(js_doc_comment);
-    if leading_js_doc
-      .tags
-      .iter()
-      .any(|tag| *tag == JsDocTag::Module)
-    {
-      return Some((leading_js_doc, js_doc_comment.range()));
+    if let Some(js_doc) = leading_js_doc {
+      if js_doc.tags.contains(&JsDocTag::Module) {
+        return Some((js_doc, js_doc_comment.range()));
+      }
     }
   }
   None

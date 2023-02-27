@@ -6,7 +6,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::function::FunctionDef;
-use crate::js_doc::{JsDoc, JsDocTag};
+use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
@@ -238,10 +238,9 @@ pub fn get_doc_for_ts_interface_decl(
 
     match &type_element {
       TsMethodSignature(ts_method_sig) => {
-        let method_js_doc =
-          js_doc_for_range(parsed_source, &ts_method_sig.range());
-
-        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(method_js_doc) =
+          js_doc_for_range(parsed_source, &ts_method_sig.range())
+        {
           let mut params = vec![];
 
           for param in &ts_method_sig.params {
@@ -274,10 +273,9 @@ pub fn get_doc_for_ts_interface_decl(
         }
       }
       TsGetterSignature(ts_getter_sig) => {
-        let method_js_doc =
-          js_doc_for_range(parsed_source, &ts_getter_sig.range());
-
-        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(method_js_doc) =
+          js_doc_for_range(parsed_source, &ts_getter_sig.range())
+        {
           let name = expr_to_name(&ts_getter_sig.key);
 
           let maybe_return_type =
@@ -298,10 +296,9 @@ pub fn get_doc_for_ts_interface_decl(
         }
       }
       TsSetterSignature(ts_setter_sig) => {
-        let method_js_doc =
-          js_doc_for_range(parsed_source, &ts_setter_sig.range());
-
-        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(method_js_doc) =
+          js_doc_for_range(parsed_source, &ts_setter_sig.range())
+        {
           let name = expr_to_name(&ts_setter_sig.key);
 
           let param_def =
@@ -323,9 +320,9 @@ pub fn get_doc_for_ts_interface_decl(
         }
       }
       TsPropertySignature(ts_prop_sig) => {
-        let prop_js_doc = js_doc_for_range(parsed_source, &ts_prop_sig.range());
-
-        if !prop_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(prop_js_doc) =
+          js_doc_for_range(parsed_source, &ts_prop_sig.range())
+        {
           let name = expr_to_name(&ts_prop_sig.key);
 
           let mut params = vec![];
@@ -357,10 +354,9 @@ pub fn get_doc_for_ts_interface_decl(
         }
       }
       TsCallSignatureDecl(ts_call_sig) => {
-        let call_sig_js_doc =
-          js_doc_for_range(parsed_source, &ts_call_sig.range());
-
-        if !call_sig_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(call_sig_js_doc) =
+          js_doc_for_range(parsed_source, &ts_call_sig.range())
+        {
           let mut params = vec![];
           for param in &ts_call_sig.params {
             let param_def =
@@ -405,10 +401,9 @@ pub fn get_doc_for_ts_interface_decl(
         index_signatures.push(index_sig_def);
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
-        let construct_js_doc =
-          js_doc_for_range(parsed_source, &ts_construct_sig.range());
-
-        if !construct_js_doc.tags.contains(&JsDocTag::Ignore) {
+        if let Some(construct_js_doc) =
+          js_doc_for_range(parsed_source, &ts_construct_sig.range())
+        {
           let mut params = vec![];
 
           for param in &ts_construct_sig.params {
