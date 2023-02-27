@@ -830,6 +830,8 @@ impl<'a> DocParser<'a> {
       doc_entries.push(doc_node);
     }
 
+    // TODO: if module doc has an Ignore tag, we need to ignore the entire module's contentx
+
     for node in module_body.iter() {
       match node {
         ModuleItem::Stmt(stmt) => {

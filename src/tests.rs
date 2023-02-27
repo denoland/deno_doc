@@ -1101,6 +1101,20 @@ export class A {}
     }
   ]);
 
+  json_test!(module_docs_ignore,
+  r#"/* a non-jsdoc comment */
+
+/**
+ * A leading JSDoc comment
+ * @module
+ * @ignore
+ */
+
+/** One associated with a class */
+export class A {}
+    "#;
+  []);
+
   json_test!(declare_namespace,
     r#"
 /** Namespace JSdoc */
