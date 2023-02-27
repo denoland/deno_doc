@@ -437,13 +437,10 @@ pub fn class_to_class_def(
   // JSDoc associated with the class may actually be a leading comment on a
   // decorator, and so we should parse out the JSDoc for the first decorator
   let js_doc = if !class.decorators.is_empty() {
-    js_doc_for_range(parsed_source, &class.decorators[0].range())
+    js_doc_for_range(parsed_source, &class.decorators[0].range()).unwrap()
   } else {
-    Some(JsDoc::default())
+    JsDoc::default()
   };
-
-  // TODO
-  let js_doc = js_doc.unwrap_or_default();
 
   (
     ClassDef {
