@@ -5,7 +5,7 @@ use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::js_doc::JsDoc;
+use crate::js_doc::{JsDoc, JsDocTag};
 use crate::swc_util::get_location;
 use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
@@ -40,23 +40,26 @@ pub fn get_doc_for_ts_enum_decl(
     use deno_ast::swc::ast::TsEnumMemberId::*;
 
     let js_doc = js_doc_for_range(parsed_source, &enum_member.range());
-    let name = match &enum_member.id {
-      Ident(ident) => ident.sym.to_string(),
-      Str(str_) => str_.value.to_string(),
-    };
-    let init = if let Some(expr) = &enum_member.init {
-      infer_ts_type_from_expr(parsed_source, expr, true)
-    } else {
-      None
-    };
 
-    let member_def = EnumMemberDef {
-      name,
-      init,
-      js_doc,
-      location: get_location(parsed_source, enum_member.start()),
-    };
-    members.push(member_def);
+    if !js_doc.tags.contains(&JsDocTag::Ignore) {
+      let name = match &enum_member.id {
+        Ident(ident) => ident.sym.to_string(),
+        Str(str_) => str_.value.to_string(),
+      };
+      let init = if let Some(expr) = &enum_member.init {
+        infer_ts_type_from_expr(parsed_source, expr, true)
+      } else {
+        None
+      };
+
+      let member_def = EnumMemberDef {
+        name,
+        init,
+        js_doc,
+        location: get_location(parsed_source, enum_member.start()),
+      };
+      members.push(member_def);
+    }
   }
 
   let enum_def = EnumDef { members };

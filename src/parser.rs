@@ -1,6 +1,6 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use crate::js_doc::JsDoc;
+use crate::js_doc::{JsDoc, JsDocTag};
 use crate::namespace::NamespaceDef;
 use crate::node;
 use crate::node::DeclarationKind;
@@ -326,6 +326,11 @@ impl<'a> DocParser<'a> {
       )) = node
       {
         let js_doc = js_doc_for_range(parsed_source, &import_decl.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return Ok(vec![]);
+        }
+
         let location = get_location(parsed_source, import_decl.start());
         for specifier in &import_decl.specifiers {
           use deno_ast::swc::ast::ImportSpecifier::*;
@@ -390,6 +395,11 @@ impl<'a> DocParser<'a> {
       ModuleDecl::ExportDefaultDecl(export_default_decl) => {
         let js_doc =
           js_doc_for_range(parsed_source, &export_default_decl.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return vec![];
+        }
+
         let location = get_location(parsed_source, export_default_decl.start());
         let name = "default".to_string();
 
@@ -460,6 +470,11 @@ impl<'a> DocParser<'a> {
         let (name, class_def, _) =
           super::class::get_doc_for_class_decl(parsed_source, class_decl);
         let js_doc = js_doc_for_range(parsed_source, &class_decl.class.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
         let location = get_location(parsed_source, class_decl.class.start());
         Some(vec![DocNode::class(
           name,
@@ -473,6 +488,11 @@ impl<'a> DocParser<'a> {
         let (name, function_def) =
           super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
         let js_doc = js_doc_for_range(parsed_source, &fn_decl.function.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
         let location = get_location(parsed_source, fn_decl.function.start());
         Some(vec![DocNode::function(
           name,
@@ -482,26 +502,29 @@ impl<'a> DocParser<'a> {
           function_def,
         )])
       }
-      Decl::Var(var_decl) => Some(
-        super::variable::get_doc_for_var_decl(
-          parsed_source,
-          var_decl,
-          previous_nodes,
-        )
-        .into_iter()
-        .map(|(name, var_def, _)| {
-          let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
-          let location = get_location(parsed_source, var_decl.start());
-          DocNode::variable(
-            name,
-            location,
-            DeclarationKind::Declare,
-            js_doc,
-            var_def,
-          )
-        })
-        .collect(),
-      ),
+      Decl::Var(var_decl) => super::variable::get_doc_for_var_decl(
+        parsed_source,
+        var_decl,
+        previous_nodes,
+      )
+      .into_iter()
+      .map(|(name, var_def, _)| {
+        let js_doc = js_doc_for_range(parsed_source, &var_decl.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
+        let location = get_location(parsed_source, var_decl.start());
+        Some(DocNode::variable(
+          name,
+          location,
+          DeclarationKind::Declare,
+          js_doc,
+          var_def,
+        ))
+      })
+      .collect(),
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
           super::interface::get_doc_for_ts_interface_decl(
@@ -510,6 +533,11 @@ impl<'a> DocParser<'a> {
           );
         let js_doc =
           js_doc_for_range(parsed_source, &ts_interface_decl.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
         let location = get_location(parsed_source, ts_interface_decl.start());
         Some(vec![DocNode::interface(
           name,
@@ -526,6 +554,11 @@ impl<'a> DocParser<'a> {
             ts_type_alias,
           );
         let js_doc = js_doc_for_range(parsed_source, &ts_type_alias.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
         let location = get_location(parsed_source, ts_type_alias.start());
         Some(vec![DocNode::type_alias(
           name,
@@ -539,6 +572,11 @@ impl<'a> DocParser<'a> {
         let (name, enum_def) =
           super::r#enum::get_doc_for_ts_enum_decl(parsed_source, ts_enum);
         let js_doc = js_doc_for_range(parsed_source, &ts_enum.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
         let location = get_location(parsed_source, ts_enum.start());
         Some(vec![DocNode::r#enum(
           name,
@@ -555,6 +593,11 @@ impl<'a> DocParser<'a> {
           ts_module,
         );
         let js_doc = js_doc_for_range(parsed_source, &ts_module.range());
+
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          return None;
+        }
+
         let location = get_location(parsed_source, ts_module.start());
         Some(vec![DocNode::namespace(
           name,
@@ -859,21 +902,25 @@ impl<'a> DocParser<'a> {
               } else {
                 let js_doc =
                   js_doc_for_range(parsed_source, &export_expr.range());
-                let location = get_location(parsed_source, export_expr.start());
-                doc_entries.push(DocNode::variable(
-                  String::from("default"),
-                  location,
-                  DeclarationKind::Export,
-                  js_doc,
-                  super::variable::VariableDef {
-                    kind: deno_ast::swc::ast::VarDeclKind::Var,
-                    ts_type: super::ts_type::infer_ts_type_from_expr(
-                      parsed_source,
-                      export_expr.expr.as_ref(),
-                      true,
-                    ),
-                  },
-                ));
+
+                if !js_doc.tags.contains(&JsDocTag::Ignore) {
+                  let location =
+                    get_location(parsed_source, export_expr.start());
+                  doc_entries.push(DocNode::variable(
+                    String::from("default"),
+                    location,
+                    DeclarationKind::Export,
+                    js_doc,
+                    super::variable::VariableDef {
+                      kind: deno_ast::swc::ast::VarDeclKind::Var,
+                      ts_type: super::ts_type::infer_ts_type_from_expr(
+                        parsed_source,
+                        export_expr.expr.as_ref(),
+                        true,
+                      ),
+                    },
+                  ));
+                }
               }
             }
             _ => {}

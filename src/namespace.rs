@@ -1,5 +1,6 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
+use crate::js_doc::JsDocTag;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
 use serde::{Deserialize, Serialize};
@@ -19,8 +20,13 @@ pub fn get_doc_for_ts_namespace_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   ts_namespace_decl: &deno_ast::swc::ast::TsNamespaceDecl,
-) -> DocNode {
+) -> Option<DocNode> {
   let js_doc = js_doc_for_range(parsed_source, &ts_namespace_decl.range());
+
+  if js_doc.tags.contains(&JsDocTag::Ignore) {
+    return None;
+  }
+
   let location = get_location(parsed_source, ts_namespace_decl.start());
   let namespace_name = ts_namespace_decl.id.sym.to_string();
 
@@ -32,23 +38,27 @@ pub fn get_doc_for_ts_namespace_decl(
       ts_module_block.body.clone(),
     ),
     TsNamespaceDecl(ts_namespace_decl) => {
-      vec![get_doc_for_ts_namespace_decl(
+      if let Some(doc_node) = get_doc_for_ts_namespace_decl(
         doc_parser,
         parsed_source,
         ts_namespace_decl,
-      )]
+      ) {
+        vec![doc_node]
+      } else {
+        vec![]
+      }
     }
   };
 
   let ns_def = NamespaceDef { elements };
 
-  DocNode::namespace(
+  Some(DocNode::namespace(
     namespace_name,
     location,
     DeclarationKind::Declare,
     js_doc,
     ns_def,
-  )
+  ))
 }
 
 pub fn get_doc_for_ts_module(
@@ -72,11 +82,15 @@ pub fn get_doc_for_ts_module(
           ts_module_block.body.clone(),
         ),
       TsNamespaceDecl(ts_namespace_decl) => {
-        vec![get_doc_for_ts_namespace_decl(
+        if let Some(doc_node) = get_doc_for_ts_namespace_decl(
           doc_parser,
           parsed_source,
           ts_namespace_decl,
-        )]
+        ) {
+          vec![doc_node]
+        } else {
+          vec![]
+        }
       }
     }
   } else {

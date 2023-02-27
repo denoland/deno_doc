@@ -1,5 +1,6 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
+use crate::js_doc::JsDocTag;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRanged;
 use deno_ast::SourceRangedForSpanned;
@@ -20,6 +21,11 @@ pub fn get_doc_node_for_export_decl(
 
   let export_range = export_decl.range();
   let js_doc = js_doc_for_range(parsed_source, &export_range);
+
+  if js_doc.tags.contains(&JsDocTag::Ignore) {
+    return vec![];
+  }
+
   let location = get_location(parsed_source, export_range.start());
 
   match &export_decl.decl {
@@ -56,7 +62,7 @@ pub fn get_doc_node_for_export_decl(
       previous_nodes,
     )
     .into_iter()
-    .map(|(name, var_def, maybe_range)| {
+    .filter_map(|(name, var_def, maybe_range)| {
       let js_doc = if js_doc.is_empty() {
         js_doc_for_range(
           parsed_source,
@@ -65,19 +71,25 @@ pub fn get_doc_node_for_export_decl(
       } else {
         js_doc.clone()
       };
-      let location = get_location(
-        parsed_source,
-        maybe_range
-          .map(|range| range.start)
-          .unwrap_or_else(|| var_decl.start()),
-      );
-      DocNode::variable(
-        name,
-        location,
-        DeclarationKind::Export,
-        js_doc,
-        var_def,
-      )
+
+      if js_doc.tags.contains(&JsDocTag::Ignore) {
+        None
+      } else {
+        let location = get_location(
+          parsed_source,
+          maybe_range
+            .map(|range| range.start)
+            .unwrap_or_else(|| var_decl.start()),
+        );
+
+        Some(DocNode::variable(
+          name,
+          location,
+          DeclarationKind::Export,
+          js_doc,
+          var_def,
+        ))
+      }
     })
     .collect(),
     Decl::TsInterface(ts_interface_decl) => {

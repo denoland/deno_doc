@@ -6,7 +6,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::function::FunctionDef;
-use crate::js_doc::JsDoc;
+use crate::js_doc::{JsDoc, JsDocTag};
 use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
 use crate::swc_util::get_location;
@@ -241,133 +241,148 @@ pub fn get_doc_for_ts_interface_decl(
         let method_js_doc =
           js_doc_for_range(parsed_source, &ts_method_sig.range());
 
-        let mut params = vec![];
+        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+          let mut params = vec![];
 
-        for param in &ts_method_sig.params {
-          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
-          params.push(param_def);
+          for param in &ts_method_sig.params {
+            let param_def =
+              ts_fn_param_to_param_def(Some(parsed_source), param);
+            params.push(param_def);
+          }
+
+          let name = expr_to_name(&ts_method_sig.key);
+
+          let maybe_return_type =
+            ts_method_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            ts_method_sig.type_params.as_deref(),
+          );
+
+          let method_def = InterfaceMethodDef {
+            name,
+            kind: deno_ast::swc::ast::MethodKind::Method,
+            js_doc: method_js_doc,
+            location: get_location(parsed_source, ts_method_sig.start()),
+            computed: ts_method_sig.computed,
+            optional: ts_method_sig.optional,
+            params,
+            return_type: maybe_return_type,
+            type_params,
+          };
+          methods.push(method_def);
         }
-
-        let name = expr_to_name(&ts_method_sig.key);
-
-        let maybe_return_type =
-          ts_method_sig.type_ann.as_deref().map(ts_type_ann_to_def);
-
-        let type_params = maybe_type_param_decl_to_type_param_defs(
-          ts_method_sig.type_params.as_deref(),
-        );
-
-        let method_def = InterfaceMethodDef {
-          name,
-          kind: deno_ast::swc::ast::MethodKind::Method,
-          js_doc: method_js_doc,
-          location: get_location(parsed_source, ts_method_sig.start()),
-          computed: ts_method_sig.computed,
-          optional: ts_method_sig.optional,
-          params,
-          return_type: maybe_return_type,
-          type_params,
-        };
-        methods.push(method_def);
       }
       TsGetterSignature(ts_getter_sig) => {
         let method_js_doc =
           js_doc_for_range(parsed_source, &ts_getter_sig.range());
-        let name = expr_to_name(&ts_getter_sig.key);
 
-        let maybe_return_type =
-          ts_getter_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+          let name = expr_to_name(&ts_getter_sig.key);
 
-        let method_def = InterfaceMethodDef {
-          name,
-          kind: deno_ast::swc::ast::MethodKind::Getter,
-          js_doc: method_js_doc,
-          location: get_location(parsed_source, ts_getter_sig.start()),
-          computed: ts_getter_sig.computed,
-          optional: ts_getter_sig.optional,
-          params: vec![],
-          return_type: maybe_return_type,
-          type_params: vec![],
-        };
-        methods.push(method_def);
+          let maybe_return_type =
+            ts_getter_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+
+          let method_def = InterfaceMethodDef {
+            name,
+            kind: deno_ast::swc::ast::MethodKind::Getter,
+            js_doc: method_js_doc,
+            location: get_location(parsed_source, ts_getter_sig.start()),
+            computed: ts_getter_sig.computed,
+            optional: ts_getter_sig.optional,
+            params: vec![],
+            return_type: maybe_return_type,
+            type_params: vec![],
+          };
+          methods.push(method_def);
+        }
       }
       TsSetterSignature(ts_setter_sig) => {
         let method_js_doc =
           js_doc_for_range(parsed_source, &ts_setter_sig.range());
 
-        let name = expr_to_name(&ts_setter_sig.key);
+        if !method_js_doc.tags.contains(&JsDocTag::Ignore) {
+          let name = expr_to_name(&ts_setter_sig.key);
 
-        let param_def =
-          ts_fn_param_to_param_def(Some(parsed_source), &ts_setter_sig.param);
-        let params = vec![param_def];
+          let param_def =
+            ts_fn_param_to_param_def(Some(parsed_source), &ts_setter_sig.param);
+          let params = vec![param_def];
 
-        let method_def = InterfaceMethodDef {
-          name,
-          kind: deno_ast::swc::ast::MethodKind::Setter,
-          js_doc: method_js_doc,
-          location: get_location(parsed_source, ts_setter_sig.start()),
-          computed: ts_setter_sig.computed,
-          optional: ts_setter_sig.optional,
-          params,
-          return_type: None,
-          type_params: vec![],
-        };
-        methods.push(method_def);
+          let method_def = InterfaceMethodDef {
+            name,
+            kind: deno_ast::swc::ast::MethodKind::Setter,
+            js_doc: method_js_doc,
+            location: get_location(parsed_source, ts_setter_sig.start()),
+            computed: ts_setter_sig.computed,
+            optional: ts_setter_sig.optional,
+            params,
+            return_type: None,
+            type_params: vec![],
+          };
+          methods.push(method_def);
+        }
       }
       TsPropertySignature(ts_prop_sig) => {
         let prop_js_doc = js_doc_for_range(parsed_source, &ts_prop_sig.range());
-        let name = expr_to_name(&ts_prop_sig.key);
 
-        let mut params = vec![];
+        if !prop_js_doc.tags.contains(&JsDocTag::Ignore) {
+          let name = expr_to_name(&ts_prop_sig.key);
 
-        for param in &ts_prop_sig.params {
-          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
-          params.push(param_def);
+          let mut params = vec![];
+
+          for param in &ts_prop_sig.params {
+            let param_def =
+              ts_fn_param_to_param_def(Some(parsed_source), param);
+            params.push(param_def);
+          }
+
+          let ts_type = ts_prop_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            ts_prop_sig.type_params.as_deref(),
+          );
+
+          let prop_def = InterfacePropertyDef {
+            name,
+            js_doc: prop_js_doc,
+            location: get_location(parsed_source, ts_prop_sig.start()),
+            params,
+            ts_type,
+            readonly: ts_prop_sig.readonly,
+            computed: ts_prop_sig.computed,
+            optional: ts_prop_sig.optional,
+            type_params,
+          };
+          properties.push(prop_def);
         }
-
-        let ts_type = ts_prop_sig.type_ann.as_deref().map(ts_type_ann_to_def);
-
-        let type_params = maybe_type_param_decl_to_type_param_defs(
-          ts_prop_sig.type_params.as_deref(),
-        );
-
-        let prop_def = InterfacePropertyDef {
-          name,
-          js_doc: prop_js_doc,
-          location: get_location(parsed_source, ts_prop_sig.start()),
-          params,
-          ts_type,
-          readonly: ts_prop_sig.readonly,
-          computed: ts_prop_sig.computed,
-          optional: ts_prop_sig.optional,
-          type_params,
-        };
-        properties.push(prop_def);
       }
       TsCallSignatureDecl(ts_call_sig) => {
         let call_sig_js_doc =
           js_doc_for_range(parsed_source, &ts_call_sig.range());
 
-        let mut params = vec![];
-        for param in &ts_call_sig.params {
-          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
-          params.push(param_def);
+        if !call_sig_js_doc.tags.contains(&JsDocTag::Ignore) {
+          let mut params = vec![];
+          for param in &ts_call_sig.params {
+            let param_def =
+              ts_fn_param_to_param_def(Some(parsed_source), param);
+            params.push(param_def);
+          }
+
+          let ts_type = ts_call_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            ts_call_sig.type_params.as_deref(),
+          );
+
+          let call_sig_def = InterfaceCallSignatureDef {
+            js_doc: call_sig_js_doc,
+            location: get_location(parsed_source, ts_call_sig.start()),
+            params,
+            ts_type,
+            type_params,
+          };
+          call_signatures.push(call_sig_def);
         }
-
-        let ts_type = ts_call_sig.type_ann.as_deref().map(ts_type_ann_to_def);
-
-        let type_params = maybe_type_param_decl_to_type_param_defs(
-          ts_call_sig.type_params.as_deref(),
-        );
-
-        let call_sig_def = InterfaceCallSignatureDef {
-          js_doc: call_sig_js_doc,
-          location: get_location(parsed_source, ts_call_sig.start()),
-          params,
-          ts_type,
-          type_params,
-        };
-        call_signatures.push(call_sig_def);
       }
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
@@ -393,35 +408,38 @@ pub fn get_doc_for_ts_interface_decl(
         let construct_js_doc =
           js_doc_for_range(parsed_source, &ts_construct_sig.range());
 
-        let mut params = vec![];
+        if !construct_js_doc.tags.contains(&JsDocTag::Ignore) {
+          let mut params = vec![];
 
-        for param in &ts_construct_sig.params {
-          let param_def = ts_fn_param_to_param_def(Some(parsed_source), param);
-          params.push(param_def);
+          for param in &ts_construct_sig.params {
+            let param_def =
+              ts_fn_param_to_param_def(Some(parsed_source), param);
+            params.push(param_def);
+          }
+
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            ts_construct_sig.type_params.as_deref(),
+          );
+
+          let maybe_return_type = ts_construct_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| (&*rt.type_ann).into());
+
+          let construct_sig_def = InterfaceMethodDef {
+            name: "new".to_string(),
+            kind: deno_ast::swc::ast::MethodKind::Method,
+            js_doc: construct_js_doc,
+            location: get_location(parsed_source, ts_construct_sig.start()),
+            computed: false,
+            optional: false,
+            params,
+            return_type: maybe_return_type,
+            type_params,
+          };
+
+          methods.push(construct_sig_def);
         }
-
-        let type_params = maybe_type_param_decl_to_type_param_defs(
-          ts_construct_sig.type_params.as_deref(),
-        );
-
-        let maybe_return_type = ts_construct_sig
-          .type_ann
-          .as_ref()
-          .map(|rt| (&*rt.type_ann).into());
-
-        let construct_sig_def = InterfaceMethodDef {
-          name: "new".to_string(),
-          kind: deno_ast::swc::ast::MethodKind::Method,
-          js_doc: construct_js_doc,
-          location: get_location(parsed_source, ts_construct_sig.start()),
-          computed: false,
-          optional: false,
-          params,
-          return_type: maybe_return_type,
-          type_params,
-        };
-
-        methods.push(construct_sig_def);
       }
     }
   }
