@@ -39,24 +39,26 @@ pub fn get_doc_for_ts_enum_decl(
   for enum_member in &enum_decl.members {
     use deno_ast::swc::ast::TsEnumMemberId::*;
 
-    let js_doc = js_doc_for_range(parsed_source, &enum_member.range());
-    let name = match &enum_member.id {
-      Ident(ident) => ident.sym.to_string(),
-      Str(str_) => str_.value.to_string(),
-    };
-    let init = if let Some(expr) = &enum_member.init {
-      infer_ts_type_from_expr(parsed_source, expr, true)
-    } else {
-      None
-    };
+    if let Some(js_doc) = js_doc_for_range(parsed_source, &enum_member.range())
+    {
+      let name = match &enum_member.id {
+        Ident(ident) => ident.sym.to_string(),
+        Str(str_) => str_.value.to_string(),
+      };
+      let init = if let Some(expr) = &enum_member.init {
+        infer_ts_type_from_expr(parsed_source, expr, true)
+      } else {
+        None
+      };
 
-    let member_def = EnumMemberDef {
-      name,
-      init,
-      js_doc,
-      location: get_location(parsed_source, enum_member.start()),
-    };
-    members.push(member_def);
+      let member_def = EnumMemberDef {
+        name,
+        init,
+        js_doc,
+        location: get_location(parsed_source, enum_member.start()),
+      };
+      members.push(member_def);
+    }
   }
 
   let enum_def = EnumDef { members };

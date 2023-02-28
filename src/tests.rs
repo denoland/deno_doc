@@ -1101,6 +1101,20 @@ export class A {}
     }
   ]);
 
+  json_test!(module_docs_ignore,
+  r#"/* a non-jsdoc comment */
+
+/**
+ * A leading JSDoc comment
+ * @module
+ * @ignore
+ */
+
+/** One associated with a class */
+export class A {}
+    "#;
+  []);
+
   json_test!(declare_namespace,
     r#"
 /** Namespace JSdoc */
@@ -1229,6 +1243,63 @@ declare namespace RootNs {
                 }
               }
             ]
+          }
+        }
+      ]
+    }
+  }]);
+
+  json_test!(declare_namespace_ignore,
+    r#"
+/** Namespace JSdoc */
+declare namespace RootNs {
+    declare const a = "a";
+
+    /** Nested namespace JSDoc
+     * @ignore
+     */
+    declare namespace NestedNs {
+      declare enum Foo {
+        a = 1,
+        b = 2,
+        c = 3,
+      }
+    }
+}
+    "#;
+    [{
+    "kind": "namespace",
+    "name": "RootNs",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "declare",
+    "jsDoc": {
+      "doc": "Namespace JSdoc",
+    },
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "variable",
+          "name": "a",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 4,
+            "col": 4
+          },
+          "declarationKind": "declare",
+          "variableDef": {
+            "tsType": {
+              "repr": "a",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "a"
+              }
+            },
+            "kind": "const"
           }
         }
       ]
@@ -1813,6 +1884,211 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     }
   }]);
 
+  json_test!(export_class_ignore,
+   r#"
+/** Class doc */
+export class Foobar extends Fizz implements Buzz, Aldrin {
+    /** @ignore */
+    private private1?: boolean;
+    protected protected1: number;
+    /** @ignore */
+    public public1: boolean;
+    public2: number;
+    /** @ignore */
+    override public3: string;
+    /** @ignore */
+    m = new Map<string, string>();
+    s = "foo";
+    a = [1, "foo"];
+    fn = (a: string): void => {};
+
+    /** Constructor js doc */
+    /** @ignore */
+    constructor(name: string, private private2: number, protected protected2: number) {}
+
+    /** Async foo method */
+    /** @ignore */
+    async foo(): Promise<void> {
+        //
+    }
+
+    /** Sync bar method */
+    /** @ignore */
+    bar?(): void {
+        //
+    }
+
+    /** @ignore */
+    override s() {}
+}
+  "#;
+  [{
+    "kind": "class",
+    "name": "Foobar",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Class doc",
+    },
+    "classDef": {
+      "isAbstract": false,
+      "extends": "Fizz",
+      "constructors": [],
+      "implements": [
+        {
+          "repr": "Buzz",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Buzz"
+          }
+        },
+        {
+          "repr": "Aldrin",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Aldrin"
+          }
+        }
+      ],
+      "typeParams": [],
+      "superTypeParams": [],
+      "properties": [
+        {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "readonly": false,
+          "accessibility": "protected",
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "protected1",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 6,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "public2",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 9,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string",
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "s",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 14,
+            "col": 4,
+          }
+        },
+        {
+          "tsType": {
+            "repr": "",
+            "kind": "array",
+            "array": {
+              "repr": "",
+              "kind": "union",
+              "union": [
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number",
+                }, {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string",
+                }
+              ]
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "a",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 15,
+            "col": 4,
+          }
+        },
+        {
+          "tsType": {
+            "repr": "",
+            "kind": "fnOrConstructor",
+            "fnOrConstructor": {
+              "constructor": false,
+              "tsType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void"
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string",
+                  }
+                }
+              ],
+              "typeParams": []
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "fn",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 16,
+            "col": 4,
+          },
+        }
+      ],
+      "indexSignatures": [],
+      "methods": []
+    }
+  }]);
+
   json_test!(export_class_decorators,
     r#"
 @sealed
@@ -2093,6 +2369,8 @@ export const regex = /hello/;
 export const date = new Date();
 export const tpl1 = `foo`;
 export const tpl2 = `Value: ${num}`;
+/** @ignore */
+export const tpl3 = `Value: ${num}`;
     "#;
   [
   {
@@ -2766,6 +3044,10 @@ export default class Foobar {
 export default function foo(a: number) {
   return a;
 }
+/** @ignore */
+export default function foo(a: number) {
+  return a;
+}
     "#;
     [{
     "kind": "function",
@@ -2919,6 +3201,9 @@ export enum Hello {
     World = "world",
     /** There is a JsDoc */
     Fizz = "fizz",
+    /** There is a JsDoc
+     * @ignore
+     */
     Buzz = "buzz",
 }
     "#;
@@ -2968,22 +3253,6 @@ export enum Hello {
           "location": {
             "filename": "file:///test.ts",
             "line": 8,
-            "col": 4,
-          }
-        },
-        {
-          "name": "Buzz",
-          "init": {
-            "repr": "buzz",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "buzz",
-            }
-          },
-          "location": {
-            "filename": "file:///test.ts",
-            "line": 9,
             "col": 4,
           }
         }

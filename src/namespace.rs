@@ -19,36 +19,46 @@ pub fn get_doc_for_ts_namespace_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   ts_namespace_decl: &deno_ast::swc::ast::TsNamespaceDecl,
-) -> DocNode {
-  let js_doc = js_doc_for_range(parsed_source, &ts_namespace_decl.range());
-  let location = get_location(parsed_source, ts_namespace_decl.start());
-  let namespace_name = ts_namespace_decl.id.sym.to_string();
+) -> Option<DocNode> {
+  if let Some(js_doc) =
+    js_doc_for_range(parsed_source, &ts_namespace_decl.range())
+  {
+    let location = get_location(parsed_source, ts_namespace_decl.start());
+    let namespace_name = ts_namespace_decl.id.sym.to_string();
 
-  use deno_ast::swc::ast::TsNamespaceBody::*;
+    use deno_ast::swc::ast::TsNamespaceBody::*;
 
-  let elements = match &*ts_namespace_decl.body {
-    TsModuleBlock(ts_module_block) => doc_parser.get_doc_nodes_for_module_body(
-      parsed_source,
-      ts_module_block.body.clone(),
-    ),
-    TsNamespaceDecl(ts_namespace_decl) => {
-      vec![get_doc_for_ts_namespace_decl(
-        doc_parser,
-        parsed_source,
-        ts_namespace_decl,
-      )]
-    }
-  };
+    let elements = match &*ts_namespace_decl.body {
+      TsModuleBlock(ts_module_block) => doc_parser
+        .get_doc_nodes_for_module_body(
+          parsed_source,
+          ts_module_block.body.clone(),
+        ),
+      TsNamespaceDecl(ts_namespace_decl) => {
+        if let Some(doc_node) = get_doc_for_ts_namespace_decl(
+          doc_parser,
+          parsed_source,
+          ts_namespace_decl,
+        ) {
+          vec![doc_node]
+        } else {
+          vec![]
+        }
+      }
+    };
 
-  let ns_def = NamespaceDef { elements };
+    let ns_def = NamespaceDef { elements };
 
-  DocNode::namespace(
-    namespace_name,
-    location,
-    DeclarationKind::Declare,
-    js_doc,
-    ns_def,
-  )
+    Some(DocNode::namespace(
+      namespace_name,
+      location,
+      DeclarationKind::Declare,
+      js_doc,
+      ns_def,
+    ))
+  } else {
+    None
+  }
 }
 
 pub fn get_doc_for_ts_module(
@@ -72,11 +82,15 @@ pub fn get_doc_for_ts_module(
           ts_module_block.body.clone(),
         ),
       TsNamespaceDecl(ts_namespace_decl) => {
-        vec![get_doc_for_ts_namespace_decl(
+        if let Some(doc_node) = get_doc_for_ts_namespace_decl(
           doc_parser,
           parsed_source,
           ts_namespace_decl,
-        )]
+        ) {
+          vec![doc_node]
+        } else {
+          vec![]
+        }
       }
     }
   } else {

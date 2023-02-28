@@ -285,111 +285,118 @@ pub fn class_to_class_def(
 
     match member {
       Constructor(ctor) => {
-        let ctor_js_doc = js_doc_for_range(parsed_source, &ctor.range());
-        let constructor_name =
-          prop_name_to_string(Some(parsed_source), &ctor.key);
+        if let Some(ctor_js_doc) =
+          js_doc_for_range(parsed_source, &ctor.range())
+        {
+          let constructor_name =
+            prop_name_to_string(Some(parsed_source), &ctor.key);
 
-        let mut params = vec![];
+          let mut params = vec![];
 
-        for param in &ctor.params {
-          use deno_ast::swc::ast::ParamOrTsParamProp::*;
+          for param in &ctor.params {
+            use deno_ast::swc::ast::ParamOrTsParamProp::*;
 
-          let param_def = match param {
-            Param(param) => ClassConstructorParamDef {
-              accessibility: None,
-              is_override: false,
-              param: param_to_param_def(parsed_source, param),
-              readonly: false,
-            },
-            TsParamProp(ts_param_prop) => {
-              use deno_ast::swc::ast::TsParamPropParam;
+            let param_def = match param {
+              Param(param) => ClassConstructorParamDef {
+                accessibility: None,
+                is_override: false,
+                param: param_to_param_def(parsed_source, param),
+                readonly: false,
+              },
+              TsParamProp(ts_param_prop) => {
+                use deno_ast::swc::ast::TsParamPropParam;
 
-              let param = match &ts_param_prop.param {
-                TsParamPropParam::Ident(ident) => {
-                  ident_to_param_def(Some(parsed_source), ident)
+                let param = match &ts_param_prop.param {
+                  TsParamPropParam::Ident(ident) => {
+                    ident_to_param_def(Some(parsed_source), ident)
+                  }
+                  TsParamPropParam::Assign(assign_pat) => {
+                    assign_pat_to_param_def(Some(parsed_source), assign_pat)
+                  }
+                };
+
+                ClassConstructorParamDef {
+                  accessibility: ts_param_prop.accessibility,
+                  is_override: ts_param_prop.is_override,
+                  param,
+                  readonly: ts_param_prop.readonly,
                 }
-                TsParamPropParam::Assign(assign_pat) => {
-                  assign_pat_to_param_def(Some(parsed_source), assign_pat)
-                }
-              };
-
-              ClassConstructorParamDef {
-                accessibility: ts_param_prop.accessibility,
-                is_override: ts_param_prop.is_override,
-                param,
-                readonly: ts_param_prop.readonly,
               }
-            }
-          };
-          params.push(param_def);
-        }
+            };
+            params.push(param_def);
+          }
 
-        let constructor_def = ClassConstructorDef {
-          js_doc: ctor_js_doc,
-          accessibility: ctor.accessibility,
-          is_optional: ctor.is_optional,
-          has_body: ctor.body.is_some(),
-          name: constructor_name,
-          params,
-          location: get_location(parsed_source, ctor.start()),
-        };
-        constructors.push(constructor_def);
+          let constructor_def = ClassConstructorDef {
+            js_doc: ctor_js_doc,
+            accessibility: ctor.accessibility,
+            is_optional: ctor.is_optional,
+            has_body: ctor.body.is_some(),
+            name: constructor_name,
+            params,
+            location: get_location(parsed_source, ctor.start()),
+          };
+          constructors.push(constructor_def);
+        }
       }
       Method(class_method) => {
-        let method_js_doc =
-          js_doc_for_range(parsed_source, &class_method.range());
-        let method_name =
-          prop_name_to_string(Some(parsed_source), &class_method.key);
-        let fn_def =
-          function_to_function_def(parsed_source, &class_method.function);
-        let method_def = ClassMethodDef {
-          js_doc: method_js_doc,
-          accessibility: class_method.accessibility,
-          optional: class_method.is_optional,
-          is_abstract: class_method.is_abstract,
-          is_static: class_method.is_static,
-          is_override: class_method.is_override,
-          name: method_name,
-          kind: class_method.kind,
-          function_def: fn_def,
-          location: get_location(parsed_source, class_method.start()),
-        };
-        methods.push(method_def);
+        if let Some(method_js_doc) =
+          js_doc_for_range(parsed_source, &class_method.range())
+        {
+          let method_name =
+            prop_name_to_string(Some(parsed_source), &class_method.key);
+          let fn_def =
+            function_to_function_def(parsed_source, &class_method.function);
+          let method_def = ClassMethodDef {
+            js_doc: method_js_doc,
+            accessibility: class_method.accessibility,
+            optional: class_method.is_optional,
+            is_abstract: class_method.is_abstract,
+            is_static: class_method.is_static,
+            is_override: class_method.is_override,
+            name: method_name,
+            kind: class_method.kind,
+            function_def: fn_def,
+            location: get_location(parsed_source, class_method.start()),
+          };
+          methods.push(method_def);
+        }
       }
       ClassProp(class_prop) => {
-        let prop_js_doc = js_doc_for_range(parsed_source, &class_prop.range());
+        if let Some(prop_js_doc) =
+          js_doc_for_range(parsed_source, &class_prop.range())
+        {
+          let ts_type = if let Some(type_ann) = &class_prop.type_ann {
+            // if the property has a type annotation, use it
+            Some(ts_type_ann_to_def(type_ann))
+          } else if let Some(value) = &class_prop.value {
+            // else, if it has an initializer, try to infer the type
+            infer_ts_type_from_expr(parsed_source, value, false)
+          } else {
+            // else, none
+            None
+          };
 
-        let ts_type = if let Some(type_ann) = &class_prop.type_ann {
-          // if the property has a type annotation, use it
-          Some(ts_type_ann_to_def(type_ann))
-        } else if let Some(value) = &class_prop.value {
-          // else, if it has an initializer, try to infer the type
-          infer_ts_type_from_expr(parsed_source, value, false)
-        } else {
-          // else, none
-          None
-        };
+          let prop_name =
+            prop_name_to_string(Some(parsed_source), &class_prop.key);
 
-        let prop_name =
-          prop_name_to_string(Some(parsed_source), &class_prop.key);
+          let decorators =
+            decorators_to_defs(parsed_source, &class_prop.decorators);
 
-        let decorators =
-          decorators_to_defs(parsed_source, &class_prop.decorators);
-
-        let prop_def = ClassPropertyDef {
-          js_doc: prop_js_doc,
-          ts_type,
-          readonly: class_prop.readonly,
-          optional: class_prop.is_optional,
-          is_abstract: class_prop.is_abstract,
-          is_static: class_prop.is_static,
-          is_override: class_prop.is_override,
-          accessibility: class_prop.accessibility,
-          name: prop_name,
-          decorators,
-          location: get_location(parsed_source, class_prop.start()),
-        };
-        properties.push(prop_def);
+          let prop_def = ClassPropertyDef {
+            js_doc: prop_js_doc,
+            ts_type,
+            readonly: class_prop.readonly,
+            optional: class_prop.is_optional,
+            is_abstract: class_prop.is_abstract,
+            is_static: class_prop.is_static,
+            is_override: class_prop.is_override,
+            accessibility: class_prop.accessibility,
+            name: prop_name,
+            decorators,
+            location: get_location(parsed_source, class_prop.start()),
+          };
+          properties.push(prop_def);
+        }
       }
       TsIndexSignature(ts_index_sig) => {
         let mut params = vec![];
@@ -430,7 +437,7 @@ pub fn class_to_class_def(
   // JSDoc associated with the class may actually be a leading comment on a
   // decorator, and so we should parse out the JSDoc for the first decorator
   let js_doc = if !class.decorators.is_empty() {
-    js_doc_for_range(parsed_source, &class.decorators[0].range())
+    js_doc_for_range(parsed_source, &class.decorators[0].range()).unwrap()
   } else {
     JsDoc::default()
   };
