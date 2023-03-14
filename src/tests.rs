@@ -1884,6 +1884,37 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     }
   }]);
 
+  json_test!(
+    export_class_object_extends,
+    r#"
+class Foo {}
+const obj = { Foo }
+    
+export class Bar extends obj.Foo {}
+  "#;
+  [{
+    "kind": "class",
+    "name": "Bar",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": "obj.Foo",
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }]
+  );
+
   json_test!(export_class_ignore,
    r#"
 /** Class doc */
