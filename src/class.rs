@@ -257,19 +257,34 @@ pub fn class_to_class_def(
   parsed_source: &ParsedSource,
   class: &deno_ast::swc::ast::Class,
 ) -> (ClassDef, JsDoc) {
+  use deno_ast::swc::ast::Expr;
+
   let mut constructors = vec![];
   let mut methods = vec![];
   let mut properties = vec![];
   let mut index_signatures = vec![];
 
+  fn walk_class_extends(expr: &Expr) -> Option<String> {
+    match expr {
+      Expr::Ident(ident) => Some(ident.sym.to_string()),
+      Expr::Member(member_expr) => {
+        let prop = member_expr.to_owned().prop.ident().unwrap().sym.to_string();
+        let obj = walk_class_extends(&member_expr.obj);
+
+        if obj.is_none() {
+          return None;
+        }
+
+        return Some(obj.unwrap() + "." + &prop);
+      }
+      _ => None,
+    }
+  }
+
   let extends: Option<String> = match &class.super_class {
     Some(boxed) => {
-      use deno_ast::swc::ast::Expr;
       let expr: &Expr = boxed;
-      match expr {
-        Expr::Ident(ident) => Some(ident.sym.to_string()),
-        _ => None,
-      }
+      walk_class_extends(expr)
     }
     None => None,
   };
