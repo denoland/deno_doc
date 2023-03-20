@@ -16,6 +16,7 @@ use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use import_map::ImportMap;
+use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
@@ -55,7 +56,7 @@ impl Loader for JsLoader {
         Err(err) => Err(err),
       };
       response
-        .map(|value| value.into_serde().unwrap())
+        .map(|value| serde_wasm_bindgen::from_value(value).unwrap())
         .map_err(|_| anyhow!("load rejected or errored"))
     };
     Box::pin(f)
@@ -105,10 +106,8 @@ impl Resolver for JsResolver {
       Ok(value) => value,
       Err(_) => return Err(anyhow!("JavaScript resolve() function threw.")),
     };
-    let value: String = match value.into_serde() {
-      Ok(value) => value,
-      Err(err) => return Err(err.into()),
-    };
+    let value: String = serde_wasm_bindgen::from_value(value)
+      .map_err(|err| anyhow!("{}", err))?;
     Ok(ModuleSpecifier::parse(&value)?)
   }
 }
@@ -177,6 +176,7 @@ pub async fn doc(
     DocParser::new(graph, include_all, analyzer.as_capturing_parser())
       .parse_with_reexports(&root_specifier)
       .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-  JsValue::from_serde(&entries)
-    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
+  let serializer =
+    serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+  Ok(entries.serialize(&serializer).unwrap())
 }
