@@ -273,7 +273,12 @@ pub fn class_to_class_def(
 
         obj.as_ref()?;
 
-        Some(obj.unwrap() + "." + &prop)
+        let mut string_path = obj.unwrap();
+
+        string_path.push_str(".");
+        string_path.push_str(&prop);
+
+        Some(string_path)
       }
       _ => None,
     }
