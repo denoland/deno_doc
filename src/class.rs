@@ -271,11 +271,9 @@ pub fn class_to_class_def(
         let prop = member_expr.to_owned().prop.ident().unwrap().sym.to_string();
         let obj = walk_class_extends(&member_expr.obj);
 
-        if obj.is_none() {
-          return None;
-        }
+        obj.as_ref()?;
 
-        return Some(obj.unwrap() + "." + &prop);
+        Some(obj.unwrap() + "." + &prop)
       }
       _ => None,
     }
