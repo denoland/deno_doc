@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(category|deprecated|example|tags)(?:\s+(.+))?"#).unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r#"(?s)^\s*@(category|deprecated|example|tags)(\s<caption>(.+)</caption>)?(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r#"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r#"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?"#).unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r#"^\s*@(constructor|class|ignore|module|public|private|protected|readonly)"#).unwrap();
@@ -109,7 +109,11 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
+  /// `@example`
+  /// or `@example <caption>name</caption>`
   Example {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<String>,
   },
@@ -257,11 +261,12 @@ impl From<String> for JsDocTag {
       }
     } else if let Some(caps) = JS_DOC_TAG_MAYBE_DOC_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
-      let doc = caps.get(2).map(|m| m.as_str().to_string());
+      let name = caps.get(3).map(|m| m.as_str().to_string());
+      let doc = caps.get(4).map(|m| m.as_str().to_string());
       match kind {
         "category" => Self::Category { doc },
         "deprecated" => Self::Deprecated { doc },
-        "example" => Self::Example { doc },
+        "example" => Self::Example { name, doc },
         "tags" => Self::Tags {
           tags: doc
             .map(|s| s.split(',').map(|i| i.trim().to_string()).collect())

@@ -283,6 +283,7 @@ export interface JsDocTagOnly extends JsDocTagBase {
 export interface JsDocTagDoc extends JsDocTagBase {
   kind: "category" | "deprecated" | "example";
   doc?: string;
+  name?: string;
 }
 
 export interface JsDocTagNamed extends JsDocTagBase {
