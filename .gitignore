@@ -1,4 +1,7 @@
 /target
+/js/deno_doc_bg.wasm
+/js/deno_doc.generated.js
+/js/LICENSE
 
 # IDE
 /.idea

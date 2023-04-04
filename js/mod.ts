@@ -1,7 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-import { instantiate } from "./lib/deno_doc.generated.js";
-import type { DocNode } from "./lib/types.d.ts";
+import { instantiate } from "./deno_doc.generated.js";
+import type { DocNode } from "./types.d.ts";
 import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.45.0/lib/loader.ts";
 import type { LoadResponse } from "https://deno.land/x/deno_graph@0.45.0/mod.ts";
 

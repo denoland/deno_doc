@@ -34,7 +34,7 @@ wasm-bindgen-futures = { version = "=0.4.34", optional = true }
 
 [dev-dependencies]
 clap = "2.33.3"
-criterion = { version = "0.3.5", features = ["async_futures", "html_reports"] }
+criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
 tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
