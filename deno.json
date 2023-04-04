@@ -7,5 +7,10 @@
     "files": {
       "exclude": ["target"]
     }
+  },
+  "lint": {
+    "files": {
+      "include": ["js"]
+    }
   }
 }

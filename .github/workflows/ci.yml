@@ -45,7 +45,7 @@ jobs:
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features --release --locked -- -D clippy::all
-          deno lint *.ts lib
+          deno lint
 
       - name: Build
         run: deno task build && cargo build --locked --release --all-targets --all-features
