@@ -40,7 +40,7 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: |
           cargo fmt -- --check
-          deno fmt --check *.ts *.md deno.json
+          deno fmt --check
 
       - name: Lint
         run: |
