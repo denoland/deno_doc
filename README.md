@@ -41,7 +41,8 @@ $ deno task test
 - If you are going to work on an issue, mention so in the issue comments
   _before_ you start working on the issue.
 
-- Please be professional in the forums. See our [Code of Conduct](https://github.com/denoland/deno/blob/main/.github/CODE_OF_CONDUCT.md).
+- Please be professional in the forums. See our
+  [Code of Conduct](https://github.com/denoland/deno/blob/main/.github/CODE_OF_CONDUCT.md).
 
 - Ask for help in the [community chat room](https://discord.gg/deno).
 
