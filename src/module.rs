@@ -86,6 +86,7 @@ pub fn get_doc_node_for_export_decl(
         }
       })
       .collect(),
+      Decl::Using(_) => Vec::new(),
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
           super::interface::get_doc_for_ts_interface_decl(

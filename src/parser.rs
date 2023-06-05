@@ -526,6 +526,7 @@ impl<'a> DocParser<'a> {
         }
       })
       .collect(),
+      Decl::Using(_) => None,
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
           super::interface::get_doc_for_ts_interface_decl(
@@ -944,6 +945,7 @@ impl<'a> DocParser<'a> {
       Decl::TsModule(ts_module_decl) => ts_module_decl.declare,
       Decl::TsTypeAlias(ts_type_alias_decl) => ts_type_alias_decl.declare,
       Decl::Var(var_decl) => var_decl.declare,
+      Decl::Using(_) => false,
     }
   }
 }
