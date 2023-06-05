@@ -19,7 +19,7 @@ cfg-if = "1.0.0"
 deno_ast = "0.27.0"
 deno_graph = "0.49.0"
 futures = "0.3.26"
-import_map = "0.13.0"
+import_map = "0.15.0"
 lazy_static = "1.4.0"
 regex = "1.6.0"
 serde = { version = "1.0.140", features = ["derive"] }
