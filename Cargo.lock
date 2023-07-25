@@ -350,9 +350,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.49.0"
+version = "0.50.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7e07fdff6c7dc1a9a7c03ce69435fda4b53641d2d6d3d3ed6d29cf67fefd3ea"
+checksum = "73502c4d93a17f259b6edee6d5a5ba063e2fcdcdaeb6ca1c6953129cc14be6a7"
 dependencies = [
  "anyhow",
  "data-url",
@@ -383,11 +383,12 @@ dependencies = [
 
 [[package]]
 name = "deno_semver"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e2d677702f75c9ff62afc3e06d24a4affa661d6a6cdbf3ca705af8a9170c71d"
+checksum = "96f99990457915af1f444900003ffd5a9d3ab2e5337b06d681e56ca371b3e11f"
 dependencies = [
  "monch",
+ "once_cell",
  "serde",
  "thiserror",
  "url",
@@ -820,9 +821,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.16.0"
+version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86f0b0d4bf799edbc74508c1e8bf170ff5f41238e5f8225603ca7caaae2b7860"
+checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
 name = "oorandom"
