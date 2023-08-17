@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: a78c4e668511034df59244a0cc1c891a474dd59c
+// source-hash: 9dd78dbfa1ad26c2414fe33156c3f66929cfb8f9
 let wasm;
 
 const cachedTextDecoder = typeof TextDecoder !== "undefined"
@@ -237,7 +237,7 @@ function makeMutClosure(arg0, arg1, dtor, f) {
   return real;
 }
 function __wbg_adapter_46(arg0, arg1, arg2) {
-  wasm.wasm_bindgen__convert__closures__invoke1_mut__h347c895cd867dc0f(
+  wasm.wasm_bindgen__convert__closures__invoke1_mut__h622e875789a0f5bc(
     arg0,
     arg1,
     addHeapObject(arg2),
@@ -293,7 +293,7 @@ function handleError(f, args) {
   }
 }
 function __wbg_adapter_104(arg0, arg1, arg2, arg3) {
-  wasm.wasm_bindgen__convert__closures__invoke2_mut__h092bab40953f84dc(
+  wasm.wasm_bindgen__convert__closures__invoke2_mut__h1c1b12eebfc691e9(
     arg0,
     arg1,
     addHeapObject(arg2),
@@ -312,7 +312,7 @@ const imports = {
     },
     __wbindgen_boolean_get: function (arg0) {
       const v = getObject(arg0);
-      const ret = typeof (v) === "boolean" ? (v ? 1 : 0) : 2;
+      const ret = typeof v === "boolean" ? (v ? 1 : 0) : 2;
       return ret;
     },
     __wbindgen_is_bigint: function (arg0) {
@@ -321,7 +321,7 @@ const imports = {
     },
     __wbindgen_number_get: function (arg0, arg1) {
       const obj = getObject(arg1);
-      const ret = typeof (obj) === "number" ? obj : undefined;
+      const ret = typeof obj === "number" ? obj : undefined;
       getFloat64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? 0 : ret;
       getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
     },
@@ -335,7 +335,7 @@ const imports = {
     },
     __wbindgen_string_get: function (arg0, arg1) {
       const obj = getObject(arg1);
-      const ret = typeof (obj) === "string" ? obj : undefined;
+      const ret = typeof obj === "string" ? obj : undefined;
       var ptr1 = isLikeNone(ret)
         ? 0
         : passStringToWasm0(
@@ -349,7 +349,7 @@ const imports = {
     },
     __wbindgen_is_object: function (arg0) {
       const val = getObject(arg0);
-      const ret = typeof (val) === "object" && val !== null;
+      const ret = typeof val === "object" && val !== null;
       return ret;
     },
     __wbindgen_in: function (arg0, arg1) {
@@ -364,7 +364,7 @@ const imports = {
       const ret = getStringFromWasm0(arg0, arg1);
       return addHeapObject(ret);
     },
-    __wbg_warn_de1b11215295df1f: function (arg0, arg1) {
+    __wbg_warn_966b7c53d9897433: function (arg0, arg1) {
       console.warn(getStringFromWasm0(arg0, arg1));
     },
     __wbg_new_abda76e883ba8a5f: function () {
@@ -596,7 +596,7 @@ const imports = {
     },
     __wbindgen_bigint_get_as_i64: function (arg0, arg1) {
       const v = getObject(arg1);
-      const ret = typeof (v) === "bigint" ? v : undefined;
+      const ret = typeof v === "bigint" ? v : undefined;
       getBigInt64Memory0()[arg0 / 8 + 1] = isLikeNone(ret) ? BigInt(0) : ret;
       getInt32Memory0()[arg0 / 4 + 0] = !isLikeNone(ret);
     },
@@ -618,7 +618,7 @@ const imports = {
       const ret = wasm.memory;
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper1109: function (arg0, arg1, arg2) {
+    __wbindgen_closure_wrapper1106: function (arg0, arg1, arg2) {
       const ret = makeMutClosure(arg0, arg1, 171, __wbg_adapter_46);
       return addHeapObject(ret);
     },
