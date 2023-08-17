@@ -239,15 +239,13 @@ pub fn assign_pat_to_param_def(
   parsed_source: Option<&ParsedSource>,
   assign_pat: &deno_ast::swc::ast::AssignPat,
 ) -> ParamDef {
-  let ts_type = assign_pat.type_ann.as_deref().map(ts_type_ann_to_def);
-
   ParamDef {
     pattern: ParamPatternDef::Assign {
       left: Box::new(pat_to_param_def(parsed_source, &assign_pat.left)),
       right: "[UNSUPPORTED]".to_string(),
     },
     decorators: Vec::new(),
-    ts_type,
+    ts_type: None,
   }
 }
 
