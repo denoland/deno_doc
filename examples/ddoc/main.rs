@@ -26,6 +26,7 @@ impl Loader for SourceFileLoader {
     &mut self,
     specifier: &ModuleSpecifier,
     _is_dynamic: bool,
+    _cache_setting: deno_graph::source::CacheSetting,
   ) -> LoadFuture {
     let result = if specifier.scheme() == "file" {
       let path = specifier.to_file_path().unwrap();

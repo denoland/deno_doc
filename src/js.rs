@@ -6,6 +6,7 @@ use crate::parser::DocParser;
 
 use anyhow::anyhow;
 use anyhow::Result;
+use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
@@ -45,11 +46,13 @@ impl Loader for JsLoader {
     &mut self,
     specifier: &ModuleSpecifier,
     is_dynamic: bool,
+    cache_setting: CacheSetting,
   ) -> LoadFuture {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
-    let result = self.load.call2(&this, &arg0, &arg1);
+    let arg2 = JsValue::from(cache_setting.as_js_str());
+    let result = self.load.call3(&this, &arg0, &arg1, &arg2);
     let f = async move {
       let response = match result {
         Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,
@@ -135,7 +138,7 @@ pub async fn doc(
     if let Some(LoadResponse::Module {
       content, specifier, ..
     }) = loader
-      .load(&import_map_specifier, false)
+      .load(&import_map_specifier, false, CacheSetting::Use)
       .await
       .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?
     {
