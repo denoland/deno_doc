@@ -6,10 +6,10 @@ use crate::parser::DocParser;
 
 use anyhow::anyhow;
 use anyhow::Result;
+use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::source::LoaderCacheSetting;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
@@ -42,21 +42,16 @@ impl JsLoader {
 }
 
 impl Loader for JsLoader {
-  fn load_with_cache_setting(
+  fn load(
     &mut self,
     specifier: &ModuleSpecifier,
     is_dynamic: bool,
-    cache_setting: LoaderCacheSetting,
+    cache_setting: CacheSetting,
   ) -> LoadFuture {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
-    let arg2 = JsValue::from(match cache_setting {
-      // note: keep these values aligned with deno_cache
-      LoaderCacheSetting::Only => "only",
-      LoaderCacheSetting::Prefer => "prefer",
-      LoaderCacheSetting::Reload => "reload",
-    });
+    let arg2 = JsValue::from(cache_setting.as_js_str());
     let result = self.load.call3(&this, &arg0, &arg1, &arg2);
     let f = async move {
       let response = match result {
@@ -143,7 +138,7 @@ pub async fn doc(
     if let Some(LoadResponse::Module {
       content, specifier, ..
     }) = loader
-      .load(&import_map_specifier, false)
+      .load(&import_map_specifier, false, CacheSetting::Use)
       .await
       .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?
     {
