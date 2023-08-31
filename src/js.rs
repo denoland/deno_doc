@@ -9,6 +9,7 @@ use anyhow::Result;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::source::LoaderCacheSetting;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
@@ -41,15 +42,22 @@ impl JsLoader {
 }
 
 impl Loader for JsLoader {
-  fn load(
+  fn load_with_cache_setting(
     &mut self,
     specifier: &ModuleSpecifier,
     is_dynamic: bool,
+    cache_setting: LoaderCacheSetting,
   ) -> LoadFuture {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
-    let result = self.load.call2(&this, &arg0, &arg1);
+    let arg2 = JsValue::from(match cache_setting {
+      // note: keep these values aligned with deno_cache
+      LoaderCacheSetting::Only => "only",
+      LoaderCacheSetting::Prefer => "prefer",
+      LoaderCacheSetting::Reload => "reload",
+    });
+    let result = self.load.call3(&this, &arg0, &arg1, &arg2);
     let f = async move {
       let response = match result {
         Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,

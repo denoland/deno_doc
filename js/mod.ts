@@ -2,10 +2,10 @@
 
 import { instantiate } from "./deno_doc.generated.js";
 import type { DocNode } from "./types.d.ts";
-import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.49.0/loader.ts";
-import type { LoadResponse } from "https://deno.land/x/deno_graph@0.49.0/mod.ts";
+import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.53.0/loader.ts";
+import type { LoadResponse, CacheSetting } from "https://deno.land/x/deno_graph@0.53.0/mod.ts";
 
-export type { LoadResponse } from "https://deno.land/x/deno_graph@0.49.0/mod.ts";
+export type { LoadResponse, CacheSetting } from "https://deno.land/x/deno_graph@0.53.0/mod.ts";
 
 export interface DocOptions {
   /** An optional URL string which provides a location of an import map to be
@@ -38,7 +38,8 @@ export interface DocOptions {
    */
   load?(
     specifier: string,
-    isDynamic: boolean,
+    isDynamic?: boolean,
+    cacheSetting?: CacheSetting
   ): Promise<LoadResponse | undefined>;
   /** An optional callback that allows the default resolution logic of the
    * module graph to be "overridden". This is intended to allow items like an

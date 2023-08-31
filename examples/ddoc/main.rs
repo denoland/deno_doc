@@ -22,10 +22,11 @@ use std::fs::read_to_string;
 struct SourceFileLoader {}
 
 impl Loader for SourceFileLoader {
-  fn load(
+  fn load_with_cache_setting(
     &mut self,
     specifier: &ModuleSpecifier,
     _is_dynamic: bool,
+    _cache_setting: deno_graph::source::LoaderCacheSetting,
   ) -> LoadFuture {
     let result = if specifier.scheme() == "file" {
       let path = specifier.to_file_path().unwrap();
