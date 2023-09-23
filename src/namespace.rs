@@ -30,10 +30,7 @@ pub fn get_doc_for_ts_namespace_decl(
 
     let elements = match &*ts_namespace_decl.body {
       TsModuleBlock(ts_module_block) => doc_parser
-        .get_doc_nodes_for_module_body(
-          parsed_source,
-          ts_module_block.body.clone(),
-        ),
+        .get_doc_nodes_for_module_body(parsed_source, &ts_module_block.body),
       TsNamespaceDecl(ts_namespace_decl) => {
         if let Some(doc_node) = get_doc_for_ts_namespace_decl(
           doc_parser,
@@ -77,10 +74,7 @@ pub fn get_doc_for_ts_module(
 
     match &body {
       TsModuleBlock(ts_module_block) => doc_parser
-        .get_doc_nodes_for_module_body(
-          parsed_source,
-          ts_module_block.body.clone(),
-        ),
+        .get_doc_nodes_for_module_body(parsed_source, &ts_module_block.body),
       TsNamespaceDecl(ts_namespace_decl) => {
         if let Some(doc_node) = get_doc_for_ts_namespace_decl(
           doc_parser,

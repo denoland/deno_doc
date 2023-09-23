@@ -11,14 +11,11 @@ repository = "https://github.com/denoland/deno_doc"
 crate-type = ["cdylib", "rlib"]
 name = "deno_doc"
 
-[[example]]
-name = "ddoc"
-
 [dependencies]
-anyhow = { version = "1.0.58", optional = true }
+anyhow = "1.0.58"
 cfg-if = "1.0.0"
-deno_ast = "0.29.0"
-deno_graph = "0.54.0"
+deno_ast = "0.29.1"
+deno_graph = { version = "0.55.0", features = ["type_tracing"], path = "../deno_graph" }
 futures = "0.3.26"
 import_map = "0.15.0"
 lazy_static = "1.4.0"
@@ -34,7 +31,6 @@ wasm-bindgen = { version = "=0.2.86", optional = true }
 wasm-bindgen-futures = { version = "=0.4.36", optional = true }
 
 [dev-dependencies]
-clap = "2.33.3"
 criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
 tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
@@ -42,7 +38,7 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["rust"]
 rust = []
-wasm = ["anyhow", "js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
+wasm = ["js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
 
 [profile.release]
 codegen-units = 1
