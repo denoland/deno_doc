@@ -131,7 +131,7 @@ pub async fn doc(
   let maybe_resolver: Option<Box<dyn Resolver>> = if let Some(import_map) =
     maybe_import_map
   {
-    if maybe_resolve.is_some() {
+    if print_import_map_diagnostics && maybe_resolve.is_some() {
       console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
     }
     let import_map_specifier = ModuleSpecifier::parse(&import_map)
