@@ -21,6 +21,11 @@ export interface DocOptions {
    * When a `resolve()` function is also specified, a warning will be issued
    * and the import map will be used instead of the `resolve()` function. */
   importMap?: string;
+  /** Print import map diagnostics.
+   *
+   * @default {true}
+   */
+  printImportMapDiagnostics?: boolean;
   /** If `true` include all documentation nodes in the output, included private
    * (non-exported) nodes. The default is `false`.  Use the `declarationKind`
    * of the `DocNode` to determine if the doc node is private, exported,
@@ -82,8 +87,21 @@ export async function doc(
   specifier: string,
   options: DocOptions = {},
 ): Promise<Array<DocNode>> {
-  const { load = defaultLoad, includeAll = false, resolve, importMap } =
-    options;
+  const {
+    load = defaultLoad,
+    includeAll = false,
+    resolve,
+    importMap,
+    printImportMapDiagnostics = true,
+  } = options;
+
   const wasm = await instantiate();
-  return wasm.doc(specifier, includeAll, load, resolve, importMap);
+  return wasm.doc(
+    specifier,
+    includeAll,
+    load,
+    resolve,
+    importMap,
+    printImportMapDiagnostics,
+  );
 }

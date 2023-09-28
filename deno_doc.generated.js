@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: fbcc61d1a29aadbfa274f60a421a866b32640888
+// source-hash: c341db9227cb9a7c11e5908b5ba58ed7b13fdfab
 let wasm;
 
 const cachedTextDecoder = typeof TextDecoder !== "undefined"
@@ -250,6 +250,7 @@ function __wbg_adapter_46(arg0, arg1, arg2) {
  * @param {Function} load
  * @param {Function | undefined} maybe_resolve
  * @param {string | undefined} maybe_import_map
+ * @param {boolean} print_import_map_diagnostics
  * @returns {Promise<any>}
  */
 export function doc(
@@ -258,6 +259,7 @@ export function doc(
   load,
   maybe_resolve,
   maybe_import_map,
+  print_import_map_diagnostics,
 ) {
   const ptr0 = passStringToWasm0(
     root_specifier,
@@ -281,6 +283,7 @@ export function doc(
     isLikeNone(maybe_resolve) ? 0 : addHeapObject(maybe_resolve),
     ptr1,
     len1,
+    print_import_map_diagnostics,
   );
   return takeObject(ret);
 }
@@ -307,7 +310,7 @@ const imports = {
       const ret = new Error(getStringFromWasm0(arg0, arg1));
       return addHeapObject(ret);
     },
-    __wbg_warn_c8a6b8fb0137ee7d: function (arg0, arg1) {
+    __wbg_warn_e8cb0d97e232ec5e: function (arg0, arg1) {
       console.warn(getStringFromWasm0(arg0, arg1));
     },
     __wbindgen_object_drop_ref: function (arg0) {
