@@ -128,6 +128,7 @@ pub async fn doc(
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
+  print_import_map_diagnostics: bool,
 ) -> anyhow::Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
   let root_specifier = ModuleSpecifier::parse(&root_specifier)
@@ -136,7 +137,7 @@ pub async fn doc(
   let maybe_resolver: Option<Box<dyn Resolver>> = if let Some(import_map) =
     maybe_import_map
   {
-    if maybe_resolve.is_some() {
+    if print_import_map_diagnostics && maybe_resolve.is_some() {
       console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
     }
     let import_map_specifier = ModuleSpecifier::parse(&import_map)
@@ -150,7 +151,7 @@ pub async fn doc(
     {
       let result = import_map::parse_from_json(&specifier, content.as_ref())
         .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-      if !result.diagnostics.is_empty() {
+      if print_import_map_diagnostics && !result.diagnostics.is_empty() {
         console_warn!(
           "Import map diagnostics:\n{}",
           result
