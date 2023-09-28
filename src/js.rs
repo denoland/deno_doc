@@ -5,11 +5,11 @@
 use crate::parser::DocParser;
 
 use anyhow::anyhow;
-use anyhow::Result;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::source::ResolveError;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
@@ -80,8 +80,11 @@ impl Resolver for ImportMapResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier> {
-    Ok(self.0.resolve(specifier, referrer)?)
+  ) -> Result<ModuleSpecifier, ResolveError> {
+    self
+      .0
+      .resolve(specifier, referrer)
+      .map_err(|err| ResolveError::Other(err.into()))
   }
 }
 
@@ -101,17 +104,20 @@ impl Resolver for JsResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier> {
+  ) -> Result<ModuleSpecifier, ResolveError> {
+    use ResolveError::*;
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
     let arg1 = JsValue::from(referrer.to_string());
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
-      Err(_) => return Err(anyhow!("JavaScript resolve() function threw.")),
+      Err(_) => {
+        return Err(Other(anyhow!("JavaScript resolve() function threw.")))
+      }
     };
     let value: String = serde_wasm_bindgen::from_value(value)
       .map_err(|err| anyhow!("{}", err))?;
-    Ok(ModuleSpecifier::parse(&value)?)
+    ModuleSpecifier::parse(&value).map_err(|err| Other(err.into()))
   }
 }
 
@@ -123,7 +129,7 @@ pub async fn doc(
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
   print_import_map_diagnostics: bool,
-) -> Result<JsValue, JsValue> {
+) -> anyhow::Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
   let root_specifier = ModuleSpecifier::parse(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
