@@ -44,7 +44,7 @@ pub enum ReexportKind {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Reexport {
-  pub name: String,
+  pub export_name: String,
   pub kind: ReexportKind,
   pub locations: Vec<Location>,
 }

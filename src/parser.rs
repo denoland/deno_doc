@@ -7,6 +7,7 @@ use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::swc_util::get_location;
+use crate::swc_util::get_text_info_location;
 use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
@@ -31,7 +32,7 @@ use deno_ast::swc::ast::Stmt;
 use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::type_tracer::ModuleSymbol;
+use deno_graph::type_tracer::ModuleSymbolRef;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
@@ -126,7 +127,7 @@ impl<'a> DocParser<'a> {
     specifier: &ModuleSpecifier,
   ) -> Result<ModuleDoc, DocError> {
     let module_symbol = self.get_module_symbol(specifier)?;
-    let parsed_source = module_symbol.source();
+    let parsed_source = module_symbol.esm().unwrap().source();
     let mut definitions = self.get_doc_nodes_for_module_body(
       parsed_source,
       &parsed_source.module().body,
@@ -145,7 +146,7 @@ impl<'a> DocParser<'a> {
   fn get_module_symbol(
     &self,
     specifier: &ModuleSpecifier,
-  ) -> Result<&ModuleSymbol, DocError> {
+  ) -> Result<ModuleSymbolRef, DocError> {
     match self.root_symbol.get_module_from_specifier(specifier) {
       Some(symbol) => Ok(symbol),
       None => Err(DocError::Resolve(format!(
@@ -170,31 +171,16 @@ impl<'a> DocParser<'a> {
     referrer: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
     let mut by_src: HashMap<String, Vec<node::Reexport>> = HashMap::new();
+    let mut doc_node_by_source: HashMap<String, Vec<DocNode>> = HashMap::new();
 
     let mut processed_reexports: Vec<DocNode> = vec![];
 
     for reexport in reexports {
-      if by_src.get(&reexport.src).is_none() {
-        by_src.insert(reexport.src.to_string(), vec![]);
-      }
-
-      let bucket = by_src.get_mut(&reexport.src).unwrap();
-      bucket.push(reexport.clone());
-    }
-
-    for specifier in by_src.keys() {
-      let resolved_specifier = self
-        .graph
-        .resolve_dependency(specifier, referrer, true)
-        .ok_or_else(|| DocError::Resolve(specifier.clone()))?;
-      let doc_nodes = self.parse_with_reexports(&resolved_specifier)?;
-      let reexports_for_specifier = by_src.get(specifier).unwrap();
-
-      for reexport in reexports_for_specifier {
+      for location in &reexport.locations {
+        let specifier = ModuleSpecifier::parse(&location.filename).unwrap();
+        // todo: this is extremely inefficient
+        let doc_nodes = self.parse_with_reexports(&specifier)?;
         match &reexport.kind {
-          node::ReexportKind::All => {
-            processed_reexports.extend(doc_nodes.clone())
-          }
           node::ReexportKind::Namespace => {
             // hoist any module doc to be the exported namespaces module doc
             let mut js_doc = JsDoc::default();
@@ -211,31 +197,30 @@ impl<'a> DocParser<'a> {
                 .collect(),
             };
             let ns_doc_node = DocNode::namespace(
-              reexport.name.to_string(),
-              Location {
-                filename: specifier.to_string(),
-                line: 1,
-                col: 0,
-              },
+              reexport.export_name.to_string(),
+              location.clone(),
               DeclarationKind::Export,
               js_doc,
               ns_def,
             );
             processed_reexports.push(ns_doc_node);
           }
-          node::ReexportKind::Named(ident, maybe_alias) => {
+          node::ReexportKind::Named => {
             // Try to find reexport.
             // NOTE: the reexport might actually be reexport from another
             // module; for now we're skipping nested reexports.
             let doc_nodes = doc_nodes
               .iter()
-              .filter(|node| &node.name == ident)
+              .filter(|node| {
+                node.location.line == location.line
+                  && node.location.col == location.col
+              })
               .collect::<Vec<_>>();
 
             for doc_node in doc_nodes {
               let doc_node = doc_node.clone();
               let doc_node = DocNode {
-                name: reexport.name,
+                name: reexport.export_name.clone(),
                 ..doc_node
               };
 
@@ -314,10 +299,13 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_nodes_for_module_imports(
     &self,
-    module_symbol: &ModuleSymbol,
+    module_symbol: ModuleSymbolRef,
   ) -> Result<Vec<DocNode>, DocError> {
-    let referrer = module_symbol.specifier();
+    let Some(module_symbol) = module_symbol.esm() else {
+      return Ok(Vec::new());
+    };
     let parsed_source = module_symbol.source();
+    let referrer = module_symbol.specifier();
     let mut imports = vec![];
 
     for node in &parsed_source.module().body {
@@ -659,33 +647,48 @@ impl<'a> DocParser<'a> {
 
   pub fn get_reexports_for_module_body(
     &self,
-    module_symbol: &ModuleSymbol,
+    module_symbol: ModuleSymbolRef,
   ) -> Vec<node::Reexport> {
-    let traced_re_exports = module_symbol.traced_re_exports();
-    let mut reexports: Vec<node::Reexport> =
-      Vec::with_capacity(traced_re_exports.len());
+    let Some(module_symbol) = module_symbol.esm() else {
+      return Vec::new();
+    };
 
-    for (name, unique_symbol) in traced_re_exports {
-      let re_export_module_symbol = self
-        .root_symbol
-        .get_module_from_id(unique_symbol.module_id)
-        .unwrap();
-      let re_export_symbol = re_export_module_symbol
-        .symbol(unique_symbol.symbol_id)
-        .unwrap();
+    // todo: capacity?
+    let mut reexports: Vec<node::Reexport> = Vec::new();
+    let exports = module_symbol.exports(&self.graph, &self.root_symbol);
+    for (export_name, (export_module, export_symbol_id)) in exports {
+      let export_symbol = export_module.symbol(export_symbol_id).unwrap();
+      let definitions = self.root_symbol.go_to_definitions(
+        &self.graph,
+        export_module,
+        export_symbol,
+      );
 
-      reexports.push(node::Reexport {
-        kind: match re_export_symbol.file_dep() {
-          Some(_) => node::ReexportKind::Namespace,
-          None => node::ReexportKind::Named,
-        },
-        locations: re_export_symbol
-          .ranges()
-          .map(|range| {
-            get_location(re_export_module_symbol.source(), range.start)
-          })
-          .collect(),
-      });
+      if let Some(first_def) = definitions.iter().next() {
+        if first_def.module.specifier() != module_symbol.specifier() {
+          reexports.push(node::Reexport {
+            export_name: export_name.clone(),
+            kind: match first_def.kind {
+              deno_graph::type_tracer::DefinitionKind::Definition => {
+                node::ReexportKind::Named
+              }
+              deno_graph::type_tracer::DefinitionKind::ExportStar(_) => {
+                node::ReexportKind::Namespace
+              }
+            },
+            locations: definitions
+              .iter()
+              .map(|definition| {
+                get_text_info_location(
+                  definition.module.specifier().as_str(),
+                  definition.module.text_info(),
+                  definition.range.start,
+                )
+              })
+              .collect(),
+          });
+        }
+      }
     }
 
     reexports
