@@ -517,9 +517,9 @@ export * as b from "./mod_doc.ts";
       "kind": "namespace",
       "name": "b",
       "location": {
-        "filename": "./mod_doc.ts",
-        "line": 1,
-        "col": 0
+        "filename": "file:///ns.ts",
+        "line": 2,
+        "col": 7
       },
       "declarationKind": "export",
       "jsDoc": {

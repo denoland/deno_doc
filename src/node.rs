@@ -41,6 +41,7 @@ pub enum ReexportKind {
   Named,
 }
 
+// todo: revert whatever I did to this
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Reexport {

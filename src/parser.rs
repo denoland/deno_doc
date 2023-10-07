@@ -170,6 +170,7 @@ impl<'a> DocParser<'a> {
     reexports: &[node::Reexport],
     referrer: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
+    // todo: should just rewrite this with type tracing
     let mut by_src: HashMap<String, Vec<node::Reexport>> = HashMap::new();
     let mut doc_node_by_source: HashMap<String, Vec<DocNode>> = HashMap::new();
 
@@ -281,15 +282,112 @@ impl<'a> DocParser<'a> {
       }
       Module::Esm(module) => {
         let module_doc = self.parse_module(&module.specifier)?;
+        let mut flattened_docs = module_doc.definitions;
 
-        let flattened_docs = if !module_doc.reexports.is_empty() {
-          let mut flattened_reexports =
-            self.flatten_reexports(&module_doc.reexports, &module.specifier)?;
-          flattened_reexports.extend(module_doc.definitions);
-          flattened_reexports
-        } else {
-          module_doc.definitions
-        };
+        let mut reexports: Vec<node::Reexport> = Vec::new();
+        let module_symbol = self.get_module_symbol(&module.specifier)?;
+        let exports = module_symbol.exports(&self.graph, &self.root_symbol);
+        for (export_name, (export_module, export_symbol_id)) in exports {
+          let export_symbol = export_module.symbol(export_symbol_id).unwrap();
+          let definitions = self.root_symbol.go_to_definitions(
+            &self.graph,
+            export_module,
+            export_symbol,
+          );
+
+          if let Some(first_def) = definitions.iter().next() {
+            use deno_graph::type_tracer::DefinitionKind;
+            match first_def.kind {
+              DefinitionKind::ExportStar(file_dep) => {
+                debug_assert_eq!(definitions.len(), 1);
+                let maybe_specifier = self.graph.resolve_dependency(
+                  &file_dep.specifier,
+                  first_def.module.specifier(),
+                  /* prefer types */ true,
+                );
+                // todo: handle can't resolve
+                if let Some(specifier) = maybe_specifier {
+                  // todo: handle circular deps
+                  let doc_nodes = self.parse_with_reexports(&specifier)?;
+                  // hoist any module doc to be the exported namespaces module doc
+                  let mut js_doc = JsDoc::default();
+                  for doc_node in &doc_nodes {
+                    if matches!(doc_node.kind, DocNodeKind::ModuleDoc) {
+                      js_doc = doc_node.js_doc.clone();
+                    }
+                  }
+                  let ns_def = NamespaceDef {
+                    elements: doc_nodes
+                      .iter()
+                      .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
+                      .cloned()
+                      .collect(),
+                  };
+                  let ns_doc_node = DocNode::namespace(
+                    export_name,
+                    definition_location(first_def),
+                    DeclarationKind::Export,
+                    js_doc,
+                    ns_def,
+                  );
+                  flattened_docs.push(ns_doc_node);
+                }
+              }
+              DefinitionKind::Definition => {
+                if first_def.module.specifier() != module_symbol.specifier() {
+                  let doc_nodes =
+                    self.parse_with_reexports(first_def.module.specifier())?;
+                  for definition in definitions {
+                    // todo: this is so bad, but good enough for porting for now
+                    let location = definition_location(&definition);
+                    let doc_nodes = doc_nodes
+                      .iter()
+                      .filter(|node| {
+                        node.location.line == location.line
+                          && node.location.col == location.col
+                      })
+                      .collect::<Vec<_>>();
+
+                    for doc_node in doc_nodes {
+                      let doc_node = doc_node.clone();
+                      let doc_node = DocNode {
+                        name: export_name.clone(),
+                        ..doc_node
+                      };
+
+                      flattened_docs.push(doc_node);
+                    }
+                  }
+                }
+              }
+            }
+
+            // if first_def.module.specifier() != module_symbol.specifier()
+            //   || matches!(first_def.kind, DefinitionKind::ExportStar(_))
+            // {
+            //   eprintln!("HERE");
+            //   reexports.push(node::Reexport {
+            //     export_name: export_name.clone(),
+            //     kind: match first_def.kind {
+            //       DefinitionKind::Definition => node::ReexportKind::Named,
+            //       DefinitionKind::ExportStar(_) => {
+            //         node::ReexportKind::Namespace
+            //       }
+            //     },
+            //     locations: definitions
+            //       .iter()
+            //       .map(|definition| {
+            //         get_text_info_location(
+            //           definition.module.specifier().as_str(),
+            //           definition.module.text_info(),
+            //           definition.range.start,
+            //         )
+            //       })
+            //       .collect(),
+            //   });
+            // }
+          }
+        }
 
         Ok(flattened_docs)
       }
@@ -665,27 +763,18 @@ impl<'a> DocParser<'a> {
       );
 
       if let Some(first_def) = definitions.iter().next() {
-        if first_def.module.specifier() != module_symbol.specifier() {
+        use deno_graph::type_tracer::DefinitionKind;
+        if first_def.module.specifier() != module_symbol.specifier()
+          || matches!(first_def.kind, DefinitionKind::ExportStar(_))
+        {
+          eprintln!("HERE");
           reexports.push(node::Reexport {
             export_name: export_name.clone(),
             kind: match first_def.kind {
-              deno_graph::type_tracer::DefinitionKind::Definition => {
-                node::ReexportKind::Named
-              }
-              deno_graph::type_tracer::DefinitionKind::ExportStar(_) => {
-                node::ReexportKind::Namespace
-              }
+              DefinitionKind::Definition => node::ReexportKind::Named,
+              DefinitionKind::ExportStar(_) => node::ReexportKind::Namespace,
             },
-            locations: definitions
-              .iter()
-              .map(|definition| {
-                get_text_info_location(
-                  definition.module.specifier().as_str(),
-                  definition.module.text_info(),
-                  definition.range.start,
-                )
-              })
-              .collect(),
+            locations: definitions.iter().map(definition_location).collect(),
           });
         }
       }
@@ -926,4 +1015,14 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
       ..Default::default()
     },
   }
+}
+
+fn definition_location(
+  definition: &deno_graph::type_tracer::Definition,
+) -> Location {
+  get_text_info_location(
+    definition.module.specifier().as_str(),
+    definition.module.text_info(),
+    definition.range.start,
+  )
 }
