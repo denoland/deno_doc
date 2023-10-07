@@ -336,15 +336,28 @@ impl<'a> DocParser<'a> {
                   let doc_nodes =
                     self.parse_with_reexports(first_def.module.specifier())?;
                   for definition in definitions {
+                    eprintln!("DEF: {}", definition.text());
                     // todo: this is so bad, but good enough for porting for now
                     let location = definition_location(&definition);
-                    let doc_nodes = doc_nodes
+                    let filtered_doc_nodes = doc_nodes
                       .iter()
                       .filter(|node| {
                         node.location.line == location.line
                           && node.location.col == location.col
                       })
                       .collect::<Vec<_>>();
+                    // todo: so bad. This is done because the locations
+                    // from doc nodes aren't exactly correct so it doesn't
+                    // always line up
+                    let doc_nodes = if filtered_doc_nodes.is_empty() {
+                      doc_nodes
+                        .iter()
+                        .filter(|node| node.location.line == location.line)
+                        .take(1)
+                        .collect::<Vec<_>>()
+                    } else {
+                      filtered_doc_nodes
+                    };
 
                     for doc_node in doc_nodes {
                       let doc_node = doc_node.clone();
