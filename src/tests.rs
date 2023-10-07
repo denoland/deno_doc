@@ -812,7 +812,6 @@ async fn exports_imported_earlier_default() {
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {

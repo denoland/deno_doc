@@ -282,9 +282,7 @@ impl<'a> DocParser<'a> {
       }
       Module::Esm(module) => {
         let module_doc = self.parse_module(&module.specifier)?;
-        let mut flattened_docs = module_doc.definitions;
-
-        let mut reexports: Vec<node::Reexport> = Vec::new();
+        let mut flattened_docs = Vec::new();
         let module_symbol = self.get_module_symbol(&module.specifier)?;
         let exports = module_symbol.exports(&self.graph, &self.root_symbol);
         for (export_name, (export_module, export_symbol_id)) in exports {
@@ -389,6 +387,7 @@ impl<'a> DocParser<'a> {
           }
         }
 
+        flattened_docs.extend(module_doc.definitions);
         Ok(flattened_docs)
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(vec![]),
@@ -767,7 +766,6 @@ impl<'a> DocParser<'a> {
         if first_def.module.specifier() != module_symbol.specifier()
           || matches!(first_def.kind, DefinitionKind::ExportStar(_))
         {
-          eprintln!("HERE");
           reexports.push(node::Reexport {
             export_name: export_name.clone(),
             kind: match first_def.kind {
