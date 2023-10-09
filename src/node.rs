@@ -1,6 +1,5 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use deno_graph::ModuleSpecifier;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -33,21 +32,21 @@ pub struct Location {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum ReexportKind {
+  /// export * from "./path/to/module.js";
+  All,
   /// export * as someNamespace from "./path/to/module.js";
-  Namespace,
+  Namespace(String),
   /// (identifier, optional alias)
   /// export { foo } from "./path/to/module.js";
   /// export { foo as bar } from "./path/to/module.js";
-  Named,
+  Named(String, Option<String>),
 }
 
-// todo: revert whatever I did to this
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Reexport {
-  pub export_name: String,
   pub kind: ReexportKind,
-  pub locations: Vec<Location>,
+  pub src: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

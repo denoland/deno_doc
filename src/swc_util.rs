@@ -3,7 +3,6 @@
 use deno_ast::swc::ast::ModuleExportName;
 use deno_ast::swc::common::comments::Comment;
 use deno_ast::swc::common::comments::CommentKind;
-use deno_ast::ModuleSpecifier;
 use deno_ast::ParsedSource;
 use deno_ast::SourcePos;
 use deno_ast::SourceRange;

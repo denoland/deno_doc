@@ -25,12 +25,14 @@ use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::Expr;
+use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::type_tracer::EsmModuleSymbol;
 use deno_graph::type_tracer::ModuleSymbolRef;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
@@ -66,6 +68,18 @@ impl From<deno_ast::Diagnostic> for DocError {
   fn from(error: deno_ast::Diagnostic) -> DocError {
     DocError::Parse(error)
   }
+}
+
+#[derive(Debug, Clone)]
+enum ImportKind {
+  Namespace(String),
+  Named(String, Option<String>),
+}
+
+#[derive(Debug, Clone)]
+struct Import {
+  src: String,
+  kind: ImportKind,
 }
 
 pub struct DocParser<'a> {
@@ -114,15 +128,8 @@ impl<'a> DocParser<'a> {
     specifier: &ModuleSpecifier,
   ) -> Result<ModuleDoc, DocError> {
     let module_symbol = self.get_module_symbol(specifier)?;
-    let parsed_source = module_symbol.esm().unwrap().source();
-    let mut definitions = self.get_doc_nodes_for_module_body(
-      parsed_source,
-      &parsed_source.module().body,
-    );
-    let import_doc_entries =
-      self.get_doc_nodes_for_module_imports(module_symbol)?;
-    definitions.extend(import_doc_entries);
-    let reexports = self.get_reexports_for_module_body(module_symbol);
+    let definitions = self.get_doc_nodes_for_module_symbol(module_symbol)?;
+    let reexports = self.get_reexports_for_module(module_symbol);
     let module_doc = ModuleDoc {
       definitions,
       reexports,
@@ -253,7 +260,6 @@ impl<'a> DocParser<'a> {
                   let doc_nodes =
                     self.parse_with_reexports(first_def.module.specifier())?;
                   for definition in definitions {
-                    eprintln!("DEF: {}", definition.text());
                     // todo: this is so bad, but good enough for porting for now
                     let location = definition_location(&definition);
                     let filtered_doc_nodes = doc_nodes
@@ -289,31 +295,6 @@ impl<'a> DocParser<'a> {
                 }
               }
             }
-
-            // if first_def.module.specifier() != module_symbol.specifier()
-            //   || matches!(first_def.kind, DefinitionKind::ExportStar(_))
-            // {
-            //   eprintln!("HERE");
-            //   reexports.push(node::Reexport {
-            //     export_name: export_name.clone(),
-            //     kind: match first_def.kind {
-            //       DefinitionKind::Definition => node::ReexportKind::Named,
-            //       DefinitionKind::ExportStar(_) => {
-            //         node::ReexportKind::Namespace
-            //       }
-            //     },
-            //     locations: definitions
-            //       .iter()
-            //       .map(|definition| {
-            //         get_text_info_location(
-            //           definition.module.specifier().as_str(),
-            //           definition.module.text_info(),
-            //           definition.range.start,
-            //         )
-            //       })
-            //       .collect(),
-            //   });
-            // }
           }
         }
 
@@ -326,11 +307,8 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_nodes_for_module_imports(
     &self,
-    module_symbol: ModuleSymbolRef,
+    module_symbol: &EsmModuleSymbol,
   ) -> Result<Vec<DocNode>, DocError> {
-    let Some(module_symbol) = module_symbol.esm() else {
-      return Ok(Vec::new());
-    };
     let parsed_source = module_symbol.source();
     let referrer = module_symbol.specifier();
     let mut imports = vec![];
@@ -625,39 +603,172 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  pub fn get_reexports_for_module_body(
+  fn get_imports_for_module_body(
+    &self,
+    module_body: &[deno_ast::swc::ast::ModuleItem],
+  ) -> HashMap<String, Import> {
+    let mut imports = HashMap::new();
+
+    for node in module_body.iter() {
+      if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
+        for specifier in &import_decl.specifiers {
+          let import = match specifier {
+            ImportSpecifier::Named(named_specifier) => Import {
+              kind: ImportKind::Named(
+                named_specifier.local.sym.to_string(),
+                named_specifier
+                  .imported
+                  .as_ref()
+                  .map(module_export_name_value),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+            ImportSpecifier::Default(default_specifier) => Import {
+              kind: ImportKind::Named(
+                default_specifier.local.sym.to_string(),
+                Some("default".to_string()),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+            ImportSpecifier::Namespace(namespace_specifier) => Import {
+              kind: ImportKind::Namespace(
+                namespace_specifier.local.sym.to_string(),
+              ),
+              src: import_decl.src.value.to_string(),
+            },
+          };
+
+          let name = match import.kind.clone() {
+            ImportKind::Named(name, _) | ImportKind::Namespace(name) => name,
+          };
+
+          imports.insert(name, import);
+        }
+      }
+    }
+
+    imports
+  }
+
+  pub fn get_reexports_for_module(
     &self,
     module_symbol: ModuleSymbolRef,
   ) -> Vec<node::Reexport> {
     let Some(module_symbol) = module_symbol.esm() else {
       return Vec::new();
     };
+    let module_body = &module_symbol.source().module().body;
 
-    // todo: capacity?
-    let mut reexports: Vec<node::Reexport> = Vec::new();
-    let exports = module_symbol.exports(&self.graph, &self.root_symbol);
-    for (export_name, (export_module, export_symbol_id)) in exports {
-      let export_symbol = export_module.symbol(export_symbol_id).unwrap();
-      let definitions = self.root_symbol.go_to_definitions(
-        &self.graph,
-        export_module,
-        export_symbol,
-      );
+    let imports = self.get_imports_for_module_body(module_body);
 
-      if let Some(first_def) = definitions.first() {
-        use deno_graph::type_tracer::DefinitionKind;
-        if first_def.module.specifier() != module_symbol.specifier()
-          || matches!(first_def.kind, DefinitionKind::ExportStar(_))
-        {
-          reexports.push(node::Reexport {
-            export_name: export_name.clone(),
-            kind: match first_def.kind {
-              DefinitionKind::Definition => node::ReexportKind::Named,
-              DefinitionKind::ExportStar(_) => node::ReexportKind::Namespace,
-            },
-            locations: definitions.iter().map(definition_location).collect(),
-          });
-        }
+    let mut reexports: Vec<node::Reexport> = vec![];
+
+    if self.private {
+      reexports.extend(imports.values().cloned().map(|import| node::Reexport {
+        src: import.src,
+        kind: match import.kind {
+          ImportKind::Named(orig, exported) => {
+            ReexportKind::Named(orig, exported)
+          }
+          ImportKind::Namespace(name) => ReexportKind::Namespace(name),
+        },
+      }))
+    }
+
+    for node in module_body.iter() {
+      if let deno_ast::swc::ast::ModuleItem::ModuleDecl(module_decl) = node {
+        let r = match module_decl {
+          ModuleDecl::ExportNamed(named_export) => {
+            if let Some(src) = &named_export.src {
+              let src_str = src.value.to_string();
+              named_export
+                .specifiers
+                .iter()
+                .map(|export_specifier| match export_specifier {
+                  ExportSpecifier::Namespace(ns_export) => node::Reexport {
+                    kind: node::ReexportKind::Namespace(
+                      module_export_name_value(&ns_export.name),
+                    ),
+                    src: src_str.to_string(),
+                  },
+                  ExportSpecifier::Default(specifier) => node::Reexport {
+                    kind: node::ReexportKind::Named(
+                      "default".to_string(),
+                      Some(specifier.exported.sym.to_string()),
+                    ),
+                    src: src_str.to_string(),
+                  },
+                  ExportSpecifier::Named(named_export) => {
+                    let export_name =
+                      module_export_name_value(&named_export.orig);
+                    let maybe_alias = named_export
+                      .exported
+                      .as_ref()
+                      .map(module_export_name_value);
+                    let kind =
+                      node::ReexportKind::Named(export_name, maybe_alias);
+                    node::Reexport {
+                      kind,
+                      src: src_str.to_string(),
+                    }
+                  }
+                })
+                .collect::<Vec<node::Reexport>>()
+            } else {
+              named_export
+                .specifiers
+                .iter()
+                .filter_map(|specifier| {
+                  if let ExportSpecifier::Named(specifier) = specifier {
+                    if let Some(import) =
+                      imports.get(&module_export_name_value(&specifier.orig))
+                    {
+                      // If it has the same name as the original import and private values are exported,
+                      // don't export this again and document the same value twice.
+                      if self.private && specifier.exported.is_none() {
+                        return None;
+                      }
+
+                      let name = module_export_name_value(
+                        specifier.exported.as_ref().unwrap_or(&specifier.orig),
+                      );
+                      Some(node::Reexport {
+                        src: import.src.clone(),
+                        kind: match &import.kind {
+                          ImportKind::Named(orig, maybe_export) => {
+                            ReexportKind::Named(
+                              maybe_export
+                                .clone()
+                                .unwrap_or_else(|| orig.clone()),
+                              Some(name),
+                            )
+                          }
+                          ImportKind::Namespace(_) => {
+                            ReexportKind::Namespace(name)
+                          }
+                        },
+                      })
+                    } else {
+                      None
+                    }
+                  } else {
+                    None
+                  }
+                })
+                .collect()
+            }
+          }
+          ModuleDecl::ExportAll(export_all) => {
+            let reexport = node::Reexport {
+              kind: node::ReexportKind::All,
+              src: export_all.src.value.to_string(),
+            };
+            vec![reexport]
+          }
+          _ => vec![],
+        };
+
+        reexports.extend(r);
       }
     }
 
@@ -697,6 +808,23 @@ impl<'a> DocParser<'a> {
     }
 
     symbols
+  }
+
+  fn get_doc_nodes_for_module_symbol(
+    &self,
+    module_symbol: ModuleSymbolRef,
+  ) -> Result<Vec<DocNode>, DocError> {
+    let Some(module_symbol) = module_symbol.esm() else {
+      return Ok(Vec::new());
+    };
+    let parsed_source = module_symbol.source();
+    let mut definitions = self.get_doc_nodes_for_module_body(
+      parsed_source,
+      &parsed_source.module().body,
+    );
+    definitions.extend(self.get_doc_nodes_for_module_imports(module_symbol)?);
+
+    Ok(definitions)
   }
 
   pub fn get_doc_nodes_for_module_body(
