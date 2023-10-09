@@ -40,6 +40,7 @@ use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
 
@@ -164,6 +165,17 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
+    self.parse_with_reexports_inner(specifier, HashSet::new())
+  }
+
+  fn parse_with_reexports_inner(
+    &self,
+    specifier: &ModuleSpecifier,
+    mut visited: HashSet<ModuleSpecifier>,
+  ) -> Result<Vec<DocNode>, DocError> {
+    if !visited.insert(specifier.clone()) {
+      return Ok(Vec::new()); // circular
+    }
     let module = self
       .graph
       .try_get(specifier)
@@ -229,8 +241,8 @@ impl<'a> DocParser<'a> {
                 );
                 // todo: handle can't resolve
                 if let Some(specifier) = maybe_specifier {
-                  // todo: handle circular deps
-                  let doc_nodes = self.parse_with_reexports(&specifier)?;
+                  let doc_nodes = self
+                    .parse_with_reexports_inner(&specifier, visited.clone())?;
                   // hoist any module doc to be the exported namespaces module doc
                   let mut js_doc = JsDoc::default();
                   for doc_node in &doc_nodes {
@@ -257,8 +269,10 @@ impl<'a> DocParser<'a> {
               }
               DefinitionKind::Definition => {
                 if first_def.module.specifier() != module_symbol.specifier() {
-                  let doc_nodes =
-                    self.parse_with_reexports(first_def.module.specifier())?;
+                  let doc_nodes = self.parse_with_reexports_inner(
+                    first_def.module.specifier(),
+                    visited.clone(),
+                  )?;
                   for definition in definitions {
                     // todo: this is so bad, but good enough for porting for now
                     let location = definition_location(&definition);
