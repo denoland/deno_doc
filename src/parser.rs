@@ -234,38 +234,34 @@ impl<'a> DocParser<'a> {
             match first_def.kind {
               DefinitionKind::ExportStar(file_dep) => {
                 debug_assert_eq!(definitions.len(), 1);
-                let maybe_specifier = self.graph.resolve_dependency(
+                let specifier = self.resolve_dependency(
                   &file_dep.specifier,
                   first_def.module.specifier(),
-                  /* prefer types */ true,
-                );
-                // todo: handle can't resolve
-                if let Some(specifier) = maybe_specifier {
-                  let doc_nodes = self
-                    .parse_with_reexports_inner(&specifier, visited.clone())?;
-                  // hoist any module doc to be the exported namespaces module doc
-                  let mut js_doc = JsDoc::default();
-                  for doc_node in &doc_nodes {
-                    if matches!(doc_node.kind, DocNodeKind::ModuleDoc) {
-                      js_doc = doc_node.js_doc.clone();
-                    }
+                )?;
+                let doc_nodes = self
+                  .parse_with_reexports_inner(&specifier, visited.clone())?;
+                // hoist any module doc to be the exported namespaces module doc
+                let mut js_doc = JsDoc::default();
+                for doc_node in &doc_nodes {
+                  if matches!(doc_node.kind, DocNodeKind::ModuleDoc) {
+                    js_doc = doc_node.js_doc.clone();
                   }
-                  let ns_def = NamespaceDef {
-                    elements: doc_nodes
-                      .iter()
-                      .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
-                      .cloned()
-                      .collect(),
-                  };
-                  let ns_doc_node = DocNode::namespace(
-                    export_name,
-                    definition_location(first_def),
-                    DeclarationKind::Export,
-                    js_doc,
-                    ns_def,
-                  );
-                  flattened_docs.push(ns_doc_node);
                 }
+                let ns_def = NamespaceDef {
+                  elements: doc_nodes
+                    .iter()
+                    .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
+                    .cloned()
+                    .collect(),
+                };
+                let ns_doc_node = DocNode::namespace(
+                  export_name,
+                  definition_location(first_def),
+                  DeclarationKind::Export,
+                  js_doc,
+                  ns_def,
+                );
+                flattened_docs.push(ns_doc_node);
               }
               DefinitionKind::Definition => {
                 if first_def.module.specifier() != module_symbol.specifier() {
@@ -361,10 +357,7 @@ impl<'a> DocParser<'a> {
               ),
             };
 
-            let resolved_specifier = self
-              .graph
-              .resolve_dependency(&src, referrer, true)
-              .ok_or_else(|| DocError::Resolve(src.clone()))?;
+            let resolved_specifier = self.resolve_dependency(&src, referrer)?;
             let import_def = ImportDef {
               src: resolved_specifier.to_string(),
               imported: maybe_imported_name,
@@ -976,6 +969,22 @@ impl<'a> DocParser<'a> {
       Decl::Var(var_decl) => var_decl.declare,
       Decl::Using(_) => false,
     }
+  }
+
+  fn resolve_dependency(
+    &self,
+    specifier: &str,
+    referrer: &ModuleSpecifier,
+  ) -> Result<ModuleSpecifier, DocError> {
+    self
+      .graph
+      .resolve_dependency(specifier, referrer, /* prefer_types */ true)
+      .ok_or_else(|| {
+        DocError::Resolve(format!(
+          "Failed resolving '{}' from '{}'.",
+          specifier, referrer
+        ))
+      })
   }
 }
 
