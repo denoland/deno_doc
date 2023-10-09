@@ -25,7 +25,6 @@ use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::Expr;
-use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
@@ -67,18 +66,6 @@ impl From<deno_ast::Diagnostic> for DocError {
   fn from(error: deno_ast::Diagnostic) -> DocError {
     DocError::Parse(error)
   }
-}
-
-#[derive(Debug, Clone)]
-enum ImportKind {
-  Namespace(String),
-  Named(String, Option<String>),
-}
-
-#[derive(Debug, Clone)]
-struct Import {
-  src: String,
-  kind: ImportKind,
 }
 
 pub struct DocParser<'a> {
@@ -165,76 +152,6 @@ impl<'a> DocParser<'a> {
     self.parse_module(specifier).map(|md| md.definitions)
   }
 
-  fn flatten_reexports(
-    &self,
-    reexports: &[node::Reexport],
-    referrer: &ModuleSpecifier,
-  ) -> Result<Vec<DocNode>, DocError> {
-    // todo: should just rewrite this with type tracing
-    let mut by_src: HashMap<String, Vec<node::Reexport>> = HashMap::new();
-    let mut doc_node_by_source: HashMap<String, Vec<DocNode>> = HashMap::new();
-
-    let mut processed_reexports: Vec<DocNode> = vec![];
-
-    for reexport in reexports {
-      for location in &reexport.locations {
-        let specifier = ModuleSpecifier::parse(&location.filename).unwrap();
-        // todo: this is extremely inefficient
-        let doc_nodes = self.parse_with_reexports(&specifier)?;
-        match &reexport.kind {
-          node::ReexportKind::Namespace => {
-            // hoist any module doc to be the exported namespaces module doc
-            let mut js_doc = JsDoc::default();
-            for doc_node in &doc_nodes {
-              if matches!(doc_node.kind, DocNodeKind::ModuleDoc) {
-                js_doc = doc_node.js_doc.clone();
-              }
-            }
-            let ns_def = NamespaceDef {
-              elements: doc_nodes
-                .iter()
-                .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
-                .cloned()
-                .collect(),
-            };
-            let ns_doc_node = DocNode::namespace(
-              reexport.export_name.to_string(),
-              location.clone(),
-              DeclarationKind::Export,
-              js_doc,
-              ns_def,
-            );
-            processed_reexports.push(ns_doc_node);
-          }
-          node::ReexportKind::Named => {
-            // Try to find reexport.
-            // NOTE: the reexport might actually be reexport from another
-            // module; for now we're skipping nested reexports.
-            let doc_nodes = doc_nodes
-              .iter()
-              .filter(|node| {
-                node.location.line == location.line
-                  && node.location.col == location.col
-              })
-              .collect::<Vec<_>>();
-
-            for doc_node in doc_nodes {
-              let doc_node = doc_node.clone();
-              let doc_node = DocNode {
-                name: reexport.export_name.clone(),
-                ..doc_node
-              };
-
-              processed_reexports.push(doc_node);
-            }
-          }
-        }
-      }
-    }
-
-    Ok(processed_reexports)
-  }
-
   /// Fetches `file_name`, parses it, and resolves its reexports.
   pub fn parse_with_reexports(
     &self,
@@ -293,7 +210,7 @@ impl<'a> DocParser<'a> {
             export_symbol,
           );
 
-          if let Some(first_def) = definitions.iter().next() {
+          if let Some(first_def) = definitions.first() {
             use deno_graph::type_tracer::DefinitionKind;
             match first_def.kind {
               DefinitionKind::ExportStar(file_dep) => {
@@ -708,53 +625,6 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  fn get_imports_for_module_body(
-    &self,
-    module_body: &[deno_ast::swc::ast::ModuleItem],
-  ) -> HashMap<String, Import> {
-    let mut imports = HashMap::new();
-
-    for node in module_body.iter() {
-      if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
-        for specifier in &import_decl.specifiers {
-          let import = match specifier {
-            ImportSpecifier::Named(named_specifier) => Import {
-              kind: ImportKind::Named(
-                named_specifier.local.sym.to_string(),
-                named_specifier
-                  .imported
-                  .as_ref()
-                  .map(module_export_name_value),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-            ImportSpecifier::Default(default_specifier) => Import {
-              kind: ImportKind::Named(
-                default_specifier.local.sym.to_string(),
-                Some("default".to_string()),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-            ImportSpecifier::Namespace(namespace_specifier) => Import {
-              kind: ImportKind::Namespace(
-                namespace_specifier.local.sym.to_string(),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-          };
-
-          let name = match import.kind.clone() {
-            ImportKind::Named(name, _) | ImportKind::Namespace(name) => name,
-          };
-
-          imports.insert(name, import);
-        }
-      }
-    }
-
-    imports
-  }
-
   pub fn get_reexports_for_module_body(
     &self,
     module_symbol: ModuleSymbolRef,
@@ -774,7 +644,7 @@ impl<'a> DocParser<'a> {
         export_symbol,
       );
 
-      if let Some(first_def) = definitions.iter().next() {
+      if let Some(first_def) = definitions.first() {
         use deno_graph::type_tracer::DefinitionKind;
         if first_def.module.specifier() != module_symbol.specifier()
           || matches!(first_def.kind, DefinitionKind::ExportStar(_))
