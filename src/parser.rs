@@ -270,7 +270,7 @@ impl<'a> DocParser<'a> {
                     visited.clone(),
                   )?;
                   for definition in definitions {
-                    // todo: this is so bad, but good enough for porting for now
+                    // todo(dsherret): this is so bad, but good enough for porting for now
                     let location = definition_location(&definition);
                     let filtered_doc_nodes = doc_nodes
                       .iter()
@@ -279,7 +279,7 @@ impl<'a> DocParser<'a> {
                           && node.location.col == location.col
                       })
                       .collect::<Vec<_>>();
-                    // todo: so bad. This is done because the locations
+                    // todo(dsherret): this is even worse. This is done because the locations
                     // from doc nodes aren't exactly correct so it doesn't
                     // always line up
                     let doc_nodes = if filtered_doc_nodes.is_empty() {
@@ -824,14 +824,29 @@ impl<'a> DocParser<'a> {
     let Some(module_symbol) = module_symbol.esm() else {
       return Ok(Vec::new());
     };
-    let parsed_source = module_symbol.source();
-    let mut definitions = self.get_doc_nodes_for_module_body(
-      parsed_source,
-      &parsed_source.module().body,
-    );
+    let mut definitions = self.get_doc_nodes_for_module_body_new(module_symbol);
     definitions.extend(self.get_doc_nodes_for_module_imports(module_symbol)?);
 
     Ok(definitions)
+  }
+
+  pub fn get_doc_nodes_for_module_body_new(
+    &self,
+    module_symbol: &EsmModuleSymbol,
+  ) -> Vec<DocNode> {
+    let exports = module_symbol.exports(&self.graph, &self.root_symbol);
+    let mut doc_nodes = Vec::new();
+    for (export_name, (export_module, export_symbol_id)) in exports {
+      let export_symbol = export_module.symbol(export_symbol_id).unwrap();
+      let definitions = self.root_symbol.go_to_definitions(
+        &self.graph,
+        export_module,
+        export_symbol,
+      );
+      // todo: get all the definition's actual declarations
+    }
+
+    doc_nodes
   }
 
   pub fn get_doc_nodes_for_module_body(
