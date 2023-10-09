@@ -243,7 +243,7 @@ export const bar = "bar";
 export default 42;
 "#;
   let reexport_source_code = r#"
-import { bar } from "./nested_reexport.ts";
+export { bar } from "./nested_reexport.ts";
 
 /**
  * JSDoc for const
@@ -253,7 +253,7 @@ export const foo = "foo";
 export const fizz = "fizz";
 "#;
   let test_source_code = r#"
-export { default, foo as fooConst } from "./reexport.ts";
+export { default, foo as fooConst, bar as barReExport } from "./reexport.ts";
 import { fizz as buzz } from "./reexport.ts";
 
 /** JSDoc for function */
@@ -278,7 +278,6 @@ export function fooFn(a: number) {
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 3);
 
   let expected_json = json!([
     {
@@ -300,6 +299,30 @@ export function fooFn(a: number) {
           "literal": {
             "kind": "string",
             "string": "foo"
+          }
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "variable",
+      "name": "barReExport",
+      "location": {
+        "filename": "file:///nested_reexport.ts",
+        "line": 5,
+        "col": 13
+      },
+      "declarationKind": "export",
+      "jsDoc": {
+        "doc": "JSDoc for bar",
+      },
+      "variableDef": {
+        "tsType": {
+          "repr": "bar",
+          "kind": "literal",
+          "literal": {
+            "kind": "string",
+            "string": "bar"
           }
         },
         "kind": "const"
