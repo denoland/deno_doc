@@ -14,7 +14,7 @@ pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   export_decl: &deno_ast::swc::ast::ExportDecl,
-  previous_nodes: Vec<&DocNode>,
+  previous_nodes: &[&DocNode],
 ) -> Vec<DocNode> {
   use deno_ast::swc::ast::Decl;
 
@@ -50,7 +50,7 @@ pub fn get_doc_node_for_export_decl(
           fn_def,
         )]
       }
-      Decl::Var(var_decl) => super::variable::get_doc_for_var_decl(
+      Decl::Var(var_decl) => super::variable::get_docs_for_var_decl(
         parsed_source,
         var_decl,
         previous_nodes,

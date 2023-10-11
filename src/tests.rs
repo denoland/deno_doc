@@ -4083,6 +4083,72 @@ export namespace RootNs {
     }
   }]);
 
+  json_test!(export_declaration_merged_namespace,
+    r#"
+namespace Namespace1 {
+  export class Test1 {}
+}
+namespace Namespace1 {
+  export class Test2 {}
+}
+
+export { Namespace1 };
+"#;
+    [{
+      "kind": "namespace",
+      "name": "Namespace1",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 5,
+        "col": 0,
+        "declarationKind": "export",
+        "namespaceDef": {
+          "elements": [{
+            "kind": "class",
+            "name": "Test1",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 2,
+              "column": 2,
+            },
+            "declarationKind": "export",
+            "classDef": {
+              "isAbstract": false,
+              "constructors": [],
+              "properties": [],
+              "indexSignatures": [],
+              "methods": [],
+              "extends": null,
+              "implements": [],
+              "typeParams": [],
+              "superTypeParams": []
+            }
+          }, {
+            "kind": "class",
+            "name": "Test2",
+            "location": {
+              "filename": "file:///test.ts",
+              "line": 6,
+              "column": 2,
+            },
+            "declarationKind": "export",
+            "classDef": {
+              "isAbstract": false,
+              "constructors": [],
+              "properties": [],
+              "indexSignatures": [],
+              "methods": [],
+              "extends": null,
+              "implements": [],
+              "typeParams": [],
+              "superTypeParams": []
+            }
+          }]
+        }
+      }
+    }]
+  );
+
   json_test!(exports_declared_earlier,
       r#"
 const hello = "world";
