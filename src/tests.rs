@@ -2385,7 +2385,7 @@ export class A {
     }
   ]);
 
-  json_test!(export_const,
+  json_test!(export_const_basic,
     r#"
 /** Something about fizzBuzz */
 export const fizzBuzz = "fizzBuzz";
