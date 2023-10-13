@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: c341db9227cb9a7c11e5908b5ba58ed7b13fdfab
+// source-hash: 20c6ff3ec68df3ab45067846978eada38d5b77ab
 let wasm;
 
 const cachedTextDecoder = typeof TextDecoder !== "undefined"
@@ -237,7 +237,7 @@ function makeMutClosure(arg0, arg1, dtor, f) {
   return real;
 }
 function __wbg_adapter_46(arg0, arg1, arg2) {
-  wasm.wasm_bindgen__convert__closures__invoke1_mut__hf6d3264690c6bfd5(
+  wasm.wasm_bindgen__convert__closures__invoke1_mut__h6b1ec33edc161677(
     arg0,
     arg1,
     addHeapObject(arg2),
@@ -296,7 +296,7 @@ function handleError(f, args) {
   }
 }
 function __wbg_adapter_106(arg0, arg1, arg2, arg3) {
-  wasm.wasm_bindgen__convert__closures__invoke2_mut__hdc9426a857a18f13(
+  wasm.wasm_bindgen__convert__closures__invoke2_mut__h5f6c1e4d72f075bd(
     arg0,
     arg1,
     addHeapObject(arg2),
@@ -310,7 +310,7 @@ const imports = {
       const ret = new Error(getStringFromWasm0(arg0, arg1));
       return addHeapObject(ret);
     },
-    __wbg_warn_e8cb0d97e232ec5e: function (arg0, arg1) {
+    __wbg_warn_53442d6f17e94eba: function (arg0, arg1) {
       console.warn(getStringFromWasm0(arg0, arg1));
     },
     __wbindgen_object_drop_ref: function (arg0) {
@@ -632,8 +632,8 @@ const imports = {
       const ret = wasm.memory;
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper1005: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 161, __wbg_adapter_46);
+    __wbindgen_closure_wrapper1003: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 156, __wbg_adapter_46);
       return addHeapObject(ret);
     },
   },
