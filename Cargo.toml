@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.68.0"
+version = "0.69.0"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -15,7 +15,7 @@ name = "deno_doc"
 anyhow = "1.0.58"
 cfg-if = "1.0.0"
 deno_ast = "0.29.3"
-deno_graph = { version = "0.56.3", features = ["type_tracing"], path = "../deno_graph" }
+deno_graph = { version = "0.57.0", features = ["type_tracing"] }
 futures = "0.3.26"
 import_map = "0.15.0"
 lazy_static = "1.4.0"
