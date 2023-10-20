@@ -406,7 +406,6 @@ export { Hello } from "./reexport.ts";
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -476,7 +475,6 @@ async fn deep_reexports() {
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 1);
 
   let expected_json = json!([
     {
@@ -712,7 +710,6 @@ async fn exports_imported_earlier() {
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -773,7 +770,6 @@ async fn exports_imported_earlier_renamed() {
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
