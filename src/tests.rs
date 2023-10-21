@@ -2759,7 +2759,7 @@ export const tpl3 = `Value: ${num}`;
         "location": {
           "filename": "file:///test.ts",
           "line": 16,
-          "col": 11
+          "col": 25
         },
         "declarationKind": "export",
         "variableDef": {

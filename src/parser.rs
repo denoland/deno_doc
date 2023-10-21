@@ -29,6 +29,7 @@ use deno_ast::swc::ast::ExportDefaultExpr;
 use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::Expr;
 use deno_ast::swc::ast::FnDecl;
+use deno_ast::swc::ast::Ident;
 use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::ModuleItem;
@@ -300,17 +301,18 @@ impl<'a> DocParser<'a> {
                         if let Some((node, parsed_source)) =
                           decl.maybe_node_and_source()
                         {
-                          let mut current_nodes = self
-                            .get_docs_for_symbol_node_ref(
+                          if let Some(mut doc_node) = self
+                            .get_doc_for_symbol_node_ref(
                               node,
                               parsed_source,
                               &symbols,
-                            );
-                          for node in &mut current_nodes {
-                            node.name = export_name.clone();
-                            node.declaration_kind = DeclarationKind::Export;
+                            )
+                          {
+                            doc_node.name = export_name.clone();
+                            doc_node.declaration_kind = DeclarationKind::Export;
+
+                            flattened_docs.push(doc_node);
                           }
-                          flattened_docs.extend(current_nodes);
                         }
                       }
                     }
@@ -496,35 +498,43 @@ impl<'a> DocParser<'a> {
       .collect()
   }
 
-  fn get_docs_for_var_declarator(
+  fn get_doc_for_var_declarator_ident(
     &self,
     parsed_source: &ParsedSource,
     var_decl: &VarDecl,
     var_declarator: &VarDeclarator,
+    ident: &Ident,
     full_range: &SourceRange,
     symbols: &HashMap<String, DocNode>,
-  ) -> Option<Vec<DocNode>> {
-    let js_doc = js_doc_for_range(parsed_source, full_range)?;
-    Some(
-      super::variable::get_docs_for_var_declarator(
-        parsed_source,
-        var_decl,
-        var_declarator,
-        symbols,
-      )
-      .into_iter()
-      .map(|(name, var_def, _)| {
-        let location = get_location(parsed_source, var_declarator.start());
-        DocNode::variable(
-          name,
-          location,
-          DeclarationKind::Declare,
-          js_doc.clone(),
-          var_def,
-        )
-      })
-      .collect(),
+  ) -> Option<DocNode> {
+    let full_range = if ident.start() != var_declarator.start() {
+      Cow::Owned(ident.range())
+    } else {
+      Cow::Borrowed(full_range)
+    };
+    let js_doc = js_doc_for_range(parsed_source, &full_range)?;
+    // todo(dsherret): it's not ideal to call this function over
+    // and over for the same var declarator when there are a lot
+    // of idents
+    super::variable::get_docs_for_var_declarator(
+      parsed_source,
+      var_decl,
+      var_declarator,
+      symbols,
     )
+    .into_iter()
+    .filter(|(name, _, _)| name.as_str() == &*ident.sym)
+    .next()
+    .map(|(name, var_def, _)| {
+      let location = get_location(parsed_source, ident.start());
+      DocNode::variable(
+        name,
+        location,
+        DeclarationKind::Declare,
+        js_doc.clone(),
+        var_def,
+      )
+    })
   }
 
   fn get_doc_for_class_decl(
@@ -1004,13 +1014,14 @@ impl<'a> DocParser<'a> {
         if let Some((node, parsed_source)) =
           definition.symbol_decl.maybe_node_and_source()
         {
-          let mut current_nodes =
-            self.get_docs_for_symbol_node_ref(node, parsed_source, &symbols);
-          for node in &mut current_nodes {
-            node.name = export_name.clone();
-            node.declaration_kind = DeclarationKind::Export;
+          if let Some(mut doc_node) =
+            self.get_doc_for_symbol_node_ref(node, parsed_source, &symbols)
+          {
+            doc_node.name = export_name.clone();
+            doc_node.declaration_kind = DeclarationKind::Export;
+
+            doc_nodes.push(doc_node);
           }
-          doc_nodes.extend(current_nodes);
         }
       }
     }
@@ -1028,20 +1039,17 @@ impl<'a> DocParser<'a> {
           if let Some(node) = decl.maybe_node() {
             let is_declared = self.get_declare_for_symbol_node(node);
             if is_declared || self.private {
-              let mut current_nodes = self.get_docs_for_symbol_node_ref(
-                node,
-                parsed_source,
-                &symbols,
-              );
-              for node in &mut current_nodes {
-                node.declaration_kind = if is_declared {
+              if let Some(mut doc_node) =
+                self.get_doc_for_symbol_node_ref(node, parsed_source, &symbols)
+              {
+                doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
                 } else {
                   debug_assert!(self.private);
                   DeclarationKind::Private
                 };
+                doc_nodes.push(doc_node);
               }
-              doc_nodes.extend(current_nodes);
             }
           }
         }
@@ -1051,91 +1059,76 @@ impl<'a> DocParser<'a> {
     doc_nodes
   }
 
-  fn get_docs_for_symbol_node_ref(
+  fn get_doc_for_symbol_node_ref(
     &self,
     node: SymbolNodeRef<'_>,
     parsed_source: &ParsedSource,
     symbols: &HashMap<String, DocNode>,
-  ) -> Vec<DocNode> {
+  ) -> Option<DocNode> {
     match node {
-      SymbolNodeRef::ClassDecl(n) => self
-        .get_doc_for_class_decl(parsed_source, n, &n.class.range())
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::ExportDefaultDecl(n) => self
-        .get_doc_for_export_default_decl(parsed_source, n)
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::ExportDefaultExprLit(n, _) => self
-        .get_doc_for_export_default_expr(parsed_source, n, symbols)
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::FnDecl(n) => self
-        .get_doc_for_fn_decl(parsed_source, n, &n.function.range())
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::TsEnum(n) => self
-        .get_doc_for_enum(parsed_source, n, &n.range())
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::TsInterface(n) => self
-        .get_doc_for_interface_decl(parsed_source, n, &n.range())
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::TsNamespace(n) => self
-        .get_doc_for_ts_namespace(parsed_source, n, &n.range())
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::TsTypeAlias(n) => self
-        .get_docs_for_type_alias(parsed_source, n, &n.range())
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      SymbolNodeRef::Var(parent_decl, n) => self
-        .get_docs_for_var_declarator(
+      SymbolNodeRef::ClassDecl(n) => {
+        self.get_doc_for_class_decl(parsed_source, n, &n.class.range())
+      }
+      SymbolNodeRef::ExportDefaultDecl(n) => {
+        self.get_doc_for_export_default_decl(parsed_source, n)
+      }
+      SymbolNodeRef::ExportDefaultExprLit(n, _) => {
+        self.get_doc_for_export_default_expr(parsed_source, n, symbols)
+      }
+      SymbolNodeRef::FnDecl(n) => {
+        self.get_doc_for_fn_decl(parsed_source, n, &n.function.range())
+      }
+      SymbolNodeRef::TsEnum(n) => {
+        self.get_doc_for_enum(parsed_source, n, &n.range())
+      }
+      SymbolNodeRef::TsInterface(n) => {
+        self.get_doc_for_interface_decl(parsed_source, n, &n.range())
+      }
+      SymbolNodeRef::TsNamespace(n) => {
+        self.get_doc_for_ts_namespace(parsed_source, n, &n.range())
+      }
+      SymbolNodeRef::TsTypeAlias(n) => {
+        self.get_docs_for_type_alias(parsed_source, n, &n.range())
+      }
+      SymbolNodeRef::Var(parent_decl, n, ident) => self
+        .get_doc_for_var_declarator_ident(
           parsed_source,
           parent_decl,
           n,
+          ident,
           &parent_decl.range(),
           symbols,
-        )
-        .unwrap_or_default(),
+        ),
       SymbolNodeRef::ExportDecl(export_decl, inner) => match inner {
-        ExportDeclRef::Class(n) => self
-          .get_doc_for_class_decl(parsed_source, n, &export_decl.range())
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-        ExportDeclRef::Fn(n) => self
-          .get_doc_for_fn_decl(parsed_source, n, &export_decl.range())
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-        ExportDeclRef::TsEnum(n) => self
-          .get_doc_for_enum(parsed_source, n, &export_decl.range())
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-        ExportDeclRef::TsModule(n) => self
-          .get_doc_for_ts_namespace(parsed_source, n, &export_decl.range())
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-        ExportDeclRef::TsInterface(n) => self
-          .get_doc_for_interface_decl(parsed_source, n, &export_decl.range())
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-        ExportDeclRef::TsTypeAlias(n) => self
-          .get_docs_for_type_alias(parsed_source, n, &export_decl.range())
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-        ExportDeclRef::Var(var_decl, var_declarator, id) => self
-          .get_docs_for_var_declarator(
+        ExportDeclRef::Class(n) => {
+          self.get_doc_for_class_decl(parsed_source, n, &export_decl.range())
+        }
+        ExportDeclRef::Fn(n) => {
+          self.get_doc_for_fn_decl(parsed_source, n, &export_decl.range())
+        }
+        ExportDeclRef::TsEnum(n) => {
+          self.get_doc_for_enum(parsed_source, n, &export_decl.range())
+        }
+        ExportDeclRef::TsModule(n) => {
+          self.get_doc_for_ts_namespace(parsed_source, n, &export_decl.range())
+        }
+        ExportDeclRef::TsInterface(n) => self.get_doc_for_interface_decl(
+          parsed_source,
+          n,
+          &export_decl.range(),
+        ),
+        ExportDeclRef::TsTypeAlias(n) => {
+          self.get_docs_for_type_alias(parsed_source, n, &export_decl.range())
+        }
+        ExportDeclRef::Var(var_decl, var_declarator, ident) => self
+          .get_doc_for_var_declarator_ident(
             parsed_source,
             var_decl,
             var_declarator,
+            ident,
             &export_decl.range(),
             symbols,
-          )
-          .unwrap_or_default()
-          .into_iter()
-          .filter(|n| n.name == *id.0)
-          .collect(),
+          ),
       },
     }
   }
@@ -1257,7 +1250,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::TsInterface(n) => n.declare,
       SymbolNodeRef::TsNamespace(n) => n.declare,
       SymbolNodeRef::TsTypeAlias(n) => n.declare,
-      SymbolNodeRef::Var(n, _) => n.declare,
+      SymbolNodeRef::Var(n, _, _) => n.declare,
     }
   }
 
