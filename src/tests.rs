@@ -4095,7 +4095,7 @@ export { Namespace1 };
       "name": "Namespace1",
       "location": {
         "filename": "file:///test.ts",
-        "line": 5,
+        "line": 2,
         "col": 0,
         "declarationKind": "export",
         "namespaceDef": {
@@ -4159,7 +4159,7 @@ export { hello, say, foo as bar };
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
-        "col": 0
+        "col": 6
       },
       "declarationKind": "export",
       "variableDef": {
@@ -4320,7 +4320,7 @@ export default foo;
     ]
   );
 
-  json_test!(reexport_existing_symbol,
+  json_test!(reexport_existing_export,
     r#"
 export function foo(): void {}
 export { foo as bar };

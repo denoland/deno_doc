@@ -115,8 +115,10 @@ impl<'a> DocParser<'a> {
     impl deno_graph::type_tracer::TypeTraceHandler for NullTypeTraceHandler {
       fn diagnostic(
         &self,
-        _diagnostic: deno_graph::type_tracer::TypeTraceDiagnostic,
+        diagnostic: deno_graph::type_tracer::TypeTraceDiagnostic,
       ) {
+        // todo(THIS PR): REMOVE THIS
+        eprintln!("DIAGNOSTIC: {:#?}", diagnostic)
       }
     }
 
@@ -227,11 +229,9 @@ impl<'a> DocParser<'a> {
       )),
       Module::Esm(module) => {
         let module_doc = self.parse_module(&module.specifier)?;
-        eprintln!("MODULE DOC: {:#?}", module_doc);
         let mut flattened_docs = Vec::new();
         let module_symbol = self.get_module_symbol(&module.specifier)?;
         let exports = module_symbol.exports(&self.graph, &self.root_symbol);
-        eprintln!("EXPORTS: {:#?}", exports);
         for (export_name, (export_module, export_symbol_id)) in exports {
           let export_symbol = export_module.symbol(export_symbol_id).unwrap();
           let definitions = self.root_symbol.go_to_definitions(
@@ -982,7 +982,7 @@ impl<'a> DocParser<'a> {
     );
 
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
-    let mut handled_symbols = HashSet::new();
+    eprintln!("EXPORTS: {:#?}", exports);
     for (export_name, (export_module, export_symbol_id)) in exports {
       let export_symbol = export_module.symbol(export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
@@ -991,22 +991,19 @@ impl<'a> DocParser<'a> {
         export_symbol,
       );
       for definition in definitions {
-        if !handled_symbols.insert(definition.symbol.symbol_id()) {
-          continue; // already handled
-        }
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
         }
-        for decl in definition.symbol.decls() {
-          if let Some((node, parsed_source)) = decl.maybe_node_and_source() {
-            let mut current_nodes =
-              self.get_docs_for_symbol_node_ref(node, parsed_source, &symbols);
-            for node in &mut current_nodes {
-              node.name = export_name.clone();
-              node.declaration_kind = DeclarationKind::Export;
-            }
-            doc_nodes.extend(current_nodes);
+        if let Some((node, parsed_source)) =
+          definition.symbol_decl.maybe_node_and_source()
+        {
+          let mut current_nodes =
+            self.get_docs_for_symbol_node_ref(node, parsed_source, &symbols);
+          for node in &mut current_nodes {
+            node.name = export_name.clone();
+            node.declaration_kind = DeclarationKind::Export;
           }
+          doc_nodes.extend(current_nodes);
         }
       }
 
