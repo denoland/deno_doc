@@ -52,6 +52,7 @@ use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
@@ -532,7 +533,13 @@ impl<'a> DocParser<'a> {
     class_decl: &ClassDecl,
     full_range: &SourceRange,
   ) -> Option<DocNode> {
-    let js_doc = js_doc_for_range(parsed_source, full_range)?;
+    let jsdoc_range = match class_decl.class.decorators.first() {
+      Some(decorator) if decorator.start() < full_range.start => {
+        Cow::Owned(SourceRange::new(decorator.start(), full_range.end))
+      }
+      _ => Cow::Borrowed(full_range),
+    };
+    let js_doc = js_doc_for_range(parsed_source, &jsdoc_range)?;
     // declared classes cannot have decorators, so we ignore that return
     let (name, class_def, _) =
       super::class::get_doc_for_class_decl(parsed_source, class_decl);
