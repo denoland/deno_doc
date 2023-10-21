@@ -930,6 +930,18 @@ impl<'a> DocParser<'a> {
     &self,
     module_symbol: &EsmModuleSymbol,
   ) -> Vec<DocNode> {
+    let mut doc_nodes = Vec::new();
+    let parsed_source = module_symbol.source();
+    // check to see if there is a module level JSDoc for the source file
+    if let Some(module_js_doc) = module_js_doc_for_source(parsed_source) {
+      if let Some((js_doc, range)) = module_js_doc {
+        let doc_node =
+          DocNode::module_doc(get_location(parsed_source, range.start), js_doc);
+        doc_nodes.push(doc_node);
+      } else {
+        return vec![];
+      }
+    }
     // todo(THIS PR): find a way to get rid of this
     let symbols = self.get_symbols_for_module_body(
       module_symbol.source(),
@@ -938,7 +950,6 @@ impl<'a> DocParser<'a> {
     let previous_nodes = symbols.values().collect::<Vec<_>>();
 
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
-    let mut doc_nodes = Vec::new();
     let mut handled_symbols = HashSet::new();
     for (export_name, (export_module, export_symbol_id)) in exports {
       let export_symbol = export_module.symbol(export_symbol_id).unwrap();
