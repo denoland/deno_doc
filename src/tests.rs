@@ -4090,6 +4090,8 @@ namespace Namespace1 {
 
 export { Namespace1 };
 "#;
+    // todo(dsherret): it would be more ideal to only show
+    // a single namespace here instead of multiple
     [{
       "kind": "namespace",
       "name": "Namespace1",
@@ -4097,50 +4099,62 @@ export { Namespace1 };
         "filename": "file:///test.ts",
         "line": 2,
         "col": 0,
-        "declarationKind": "export",
-        "namespaceDef": {
-          "elements": [{
-            "kind": "class",
-            "name": "Test1",
-            "location": {
-              "filename": "file:///test.ts",
-              "line": 2,
-              "column": 2,
-            },
-            "declarationKind": "export",
-            "classDef": {
-              "isAbstract": false,
-              "constructors": [],
-              "properties": [],
-              "indexSignatures": [],
-              "methods": [],
-              "extends": null,
-              "implements": [],
-              "typeParams": [],
-              "superTypeParams": []
-            }
-          }, {
-            "kind": "class",
-            "name": "Test2",
-            "location": {
-              "filename": "file:///test.ts",
-              "line": 6,
-              "column": 2,
-            },
-            "declarationKind": "export",
-            "classDef": {
-              "isAbstract": false,
-              "constructors": [],
-              "properties": [],
-              "indexSignatures": [],
-              "methods": [],
-              "extends": null,
-              "implements": [],
-              "typeParams": [],
-              "superTypeParams": []
-            }
-          }]
-        }
+      },
+      "declarationKind": "export",
+      "namespaceDef": {
+        "elements": [{
+          "kind": "class",
+          "name": "Test1",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 3,
+            "col": 2,
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }]
+      }
+    }, {
+      "kind": "namespace",
+      "name": "Namespace1",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 5,
+        "col": 0,
+      },
+      "declarationKind": "export",
+      "namespaceDef": {
+        "elements": [{
+          "kind": "class",
+          "name": "Test2",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 6,
+            "col": 2,
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }]
       }
     }]
   );
