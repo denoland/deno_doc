@@ -990,11 +990,11 @@ impl<'a> DocParser<'a> {
 
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
     eprintln!("EXPORTS: {:#?}", exports);
-    for (export_name, (export_module, export_symbol_id)) in exports {
-      let export_symbol = export_module.symbol(export_symbol_id).unwrap();
+    for (export_name, (export_module, export_symbol_id)) in &exports {
+      let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
         &self.graph,
-        export_module,
+        *export_module,
         export_symbol,
       );
       for definition in definitions {
@@ -1013,8 +1013,39 @@ impl<'a> DocParser<'a> {
           doc_nodes.extend(current_nodes);
         }
       }
+    }
 
-      // todo: handle ambient modules, which don't have imports or exports
+    if exports.is_empty() && !module_has_import(module_symbol) || self.private {
+      let mut handled_symbols =
+        exports.values().map(|n| n.1).collect::<HashSet<_>>();
+      // no exports or imports means it's ambient
+      for child_id in module_symbol.child_decls() {
+        if !handled_symbols.insert(child_id) {
+          continue; // already handled
+        }
+        let child_symbol = module_symbol.symbol(child_id).unwrap();
+        for decl in child_symbol.decls() {
+          if let Some(node) = decl.maybe_node() {
+            let is_declared = self.get_declare_for_symbol_node(node);
+            if is_declared || self.private {
+              let mut current_nodes = self.get_docs_for_symbol_node_ref(
+                node,
+                parsed_source,
+                &symbols,
+              );
+              for node in &mut current_nodes {
+                node.declaration_kind = if is_declared {
+                  DeclarationKind::Declare
+                } else {
+                  debug_assert!(self.private);
+                  DeclarationKind::Private
+                };
+              }
+              doc_nodes.extend(current_nodes);
+            }
+          }
+        }
+      }
     }
 
     doc_nodes
@@ -1215,6 +1246,21 @@ impl<'a> DocParser<'a> {
     doc_entries
   }
 
+  fn get_declare_for_symbol_node(&self, node: SymbolNodeRef) -> bool {
+    match node {
+      SymbolNodeRef::ClassDecl(n) => n.declare,
+      SymbolNodeRef::ExportDecl(n, _) => self.get_declare_for_decl(&n.decl),
+      SymbolNodeRef::ExportDefaultDecl(_) => false,
+      SymbolNodeRef::ExportDefaultExprLit(_, _) => false,
+      SymbolNodeRef::FnDecl(n) => n.declare,
+      SymbolNodeRef::TsEnum(n) => n.declare,
+      SymbolNodeRef::TsInterface(n) => n.declare,
+      SymbolNodeRef::TsNamespace(n) => n.declare,
+      SymbolNodeRef::TsTypeAlias(n) => n.declare,
+      SymbolNodeRef::Var(n, _) => n.declare,
+    }
+  }
+
   fn get_declare_for_decl(&self, decl: &Decl) -> bool {
     match decl {
       Decl::Class(class_decl) => class_decl.declare,
@@ -1309,6 +1355,17 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
       ..Default::default()
     },
   }
+}
+
+fn module_has_import(module_symbol: &EsmModuleSymbol) -> bool {
+  module_symbol.source().module().body.iter().any(|m| {
+    matches!(
+      m,
+      ModuleItem::ModuleDecl(
+        ModuleDecl::Import(_) | ModuleDecl::TsImportEquals(_)
+      )
+    )
+  })
 }
 
 fn definition_location(

@@ -1183,7 +1183,7 @@ declare namespace RootNs {
           "location": {
             "filename": "file:///test.ts",
             "line": 4,
-            "col": 4
+            "col": 18
           },
           "declarationKind": "declare",
           "variableDef": {
@@ -1319,7 +1319,7 @@ declare namespace RootNs {
           "location": {
             "filename": "file:///test.ts",
             "line": 4,
-            "col": 4
+            "col": 18
           },
           "declarationKind": "declare",
           "variableDef": {
@@ -4564,25 +4564,7 @@ export { foo };
         "location": {
           "filename": "file:///test.ts",
           "line": 2,
-          "col": 0
-        },
-        "declarationKind": "private",
-        "variableDef": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "kind": "const"
-        }
-      },
-      {
-        "kind": "variable",
-        "name": "foo",
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 2,
-          "col": 0
+          "col": 6
         },
         "declarationKind": "export",
         "variableDef": {
