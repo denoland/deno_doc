@@ -220,19 +220,16 @@ impl<'a> DocParser<'a> {
     };
 
     match module {
-      Module::Json(module) => {
-        if let Ok(value) = serde_json::from_str(&module.source) {
-          Ok(vec![parse_json_module(&module.specifier, &value)])
-        } else {
-          // no doc nodes
-          Ok(Vec::new())
-        }
-      }
+      Module::Json(module) => Ok(parse_json_module_doc_nodes(
+        &module.specifier,
+        &module.source,
+      )),
       Module::Esm(module) => {
         let module_doc = self.parse_module(&module.specifier)?;
         let mut flattened_docs = Vec::new();
         let module_symbol = self.get_module_symbol(&module.specifier)?;
         let exports = module_symbol.exports(&self.graph, &self.root_symbol);
+        eprintln!("EXPORTS: {:#?}", exports);
         for (export_name, (export_module, export_symbol_id)) in exports {
           let export_symbol = export_module.symbol(export_symbol_id).unwrap();
           let definitions = self.root_symbol.go_to_definitions(
@@ -277,29 +274,42 @@ impl<'a> DocParser<'a> {
               }
               DefinitionKind::Definition => {
                 if first_def.module.specifier() != module_symbol.specifier() {
-                  if let Some(module_symbol) = module_symbol.esm() {
-                    // todo(THIS PR): find a way to get rid of this
-                    let symbols = self.get_symbols_for_module_body(
-                      module_symbol.source(),
-                      &module_symbol.source().module().body,
-                    );
-                    let previous_nodes = symbols.values().collect::<Vec<_>>();
-                    for definition in definitions {
-                      for decl in definition.symbol.decls() {
-                        if let Some((node, parsed_source)) =
-                          decl.maybe_node_and_source()
-                        {
-                          let mut current_nodes = self
-                            .get_docs_for_symbol_node_ref(
-                              node,
-                              parsed_source,
-                              &previous_nodes,
-                            );
-                          for node in &mut current_nodes {
-                            node.name = export_name.clone();
-                            //node.declaration_kind = DeclarationKind::Export;
+                  match first_def.module {
+                    ModuleSymbolRef::Json(module_symbol) => {
+                      let mut current_nodes = parse_json_module_doc_nodes(
+                        module_symbol.specifier(),
+                        module_symbol.text_info().text_str(),
+                      );
+                      for node in &mut current_nodes {
+                        node.name = export_name.clone();
+                        node.declaration_kind = DeclarationKind::Export;
+                      }
+                      flattened_docs.extend(current_nodes);
+                    }
+                    ModuleSymbolRef::Esm(module_symbol) => {
+                      // todo(THIS PR): find a way to get rid of this
+                      let symbols = self.get_symbols_for_module_body(
+                        module_symbol.source(),
+                        &module_symbol.source().module().body,
+                      );
+                      let previous_nodes = symbols.values().collect::<Vec<_>>();
+                      for definition in definitions {
+                        for decl in definition.symbol.decls() {
+                          if let Some((node, parsed_source)) =
+                            decl.maybe_node_and_source()
+                          {
+                            let mut current_nodes = self
+                              .get_docs_for_symbol_node_ref(
+                                node,
+                                parsed_source,
+                                &previous_nodes,
+                              );
+                            for node in &mut current_nodes {
+                              node.name = export_name.clone();
+                              node.declaration_kind = DeclarationKind::Export;
+                            }
+                            flattened_docs.extend(current_nodes);
                           }
-                          flattened_docs.extend(current_nodes);
                         }
                       }
                     }
@@ -941,6 +951,9 @@ impl<'a> DocParser<'a> {
         if !handled_symbols.insert(definition.symbol.symbol_id()) {
           continue; // already handled
         }
+        if definition.module.specifier() != module_symbol.specifier() {
+          continue;
+        }
         for decl in definition.symbol.decls() {
           if let Some((node, parsed_source)) = decl.maybe_node_and_source() {
             let mut current_nodes = self.get_docs_for_symbol_node_ref(
@@ -969,7 +982,7 @@ impl<'a> DocParser<'a> {
     parsed_source: &ParsedSource,
     previous_nodes: &Vec<&DocNode>,
   ) -> Vec<DocNode> {
-    let mut current_nodes = match node {
+    match node {
       SymbolNodeRef::ClassDecl(n) => self
         .get_doc_for_class_decl(parsed_source, n, &n.class.range())
         .map(|n| vec![n])
@@ -1045,8 +1058,7 @@ impl<'a> DocParser<'a> {
           .filter(|n| n.name == *id.0)
           .collect(),
       },
-    };
-    current_nodes
+    }
   }
 
   pub fn get_doc_nodes_for_module_body(
@@ -1202,24 +1214,29 @@ impl<'a> DocParser<'a> {
   }
 }
 
-fn parse_json_module(
+fn parse_json_module_doc_nodes(
   specifier: &ModuleSpecifier,
-  value: &serde_json::Value,
-) -> DocNode {
-  DocNode {
-    kind: DocNodeKind::Variable,
-    name: "default".to_string(),
-    location: Location {
-      filename: specifier.to_string(),
-      col: 0,
-      line: 1,
-    },
-    declaration_kind: DeclarationKind::Export,
-    variable_def: Some(VariableDef {
-      kind: VarDeclKind::Var,
-      ts_type: Some(parse_json_module_type(value)),
-    }),
-    ..Default::default()
+  source: &str,
+) -> Vec<DocNode> {
+  if let Ok(value) = serde_json::from_str(source) {
+    vec![DocNode {
+      kind: DocNodeKind::Variable,
+      name: "default".to_string(),
+      location: Location {
+        filename: specifier.to_string(),
+        col: 0,
+        line: 1,
+      },
+      declaration_kind: DeclarationKind::Export,
+      variable_def: Some(VariableDef {
+        kind: VarDeclKind::Var,
+        ts_type: Some(parse_json_module_type(&value)),
+      }),
+      ..Default::default()
+    }]
+  } else {
+    // no doc nodes
+    Vec::new()
   }
 }
 
