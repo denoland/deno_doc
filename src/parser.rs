@@ -523,8 +523,7 @@ impl<'a> DocParser<'a> {
       symbols,
     )
     .into_iter()
-    .filter(|(name, _, _)| name.as_str() == &*ident.sym)
-    .next()
+    .find(|(name, _, _)| name.as_str() == &*ident.sym)
     .map(|(name, var_def, _)| {
       let location = get_location(parsed_source, ident.start());
       DocNode::variable(
@@ -728,15 +727,11 @@ impl<'a> DocParser<'a> {
     symbols: &HashMap<String, DocNode>,
   ) -> Option<DocNode> {
     if let Expr::Ident(ident) = export_expr.expr.as_ref() {
-      if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
-        Some(DocNode {
-          name: String::from("default"),
-          declaration_kind: DeclarationKind::Export,
-          ..doc_node.clone()
-        })
-      } else {
-        None
-      }
+      symbols.get(&ident.sym.to_string()).map(|doc_node| DocNode {
+        name: String::from("default"),
+        declaration_kind: DeclarationKind::Export,
+        ..doc_node.clone()
+      })
     } else if let Some(js_doc) =
       js_doc_for_range(parsed_source, &export_expr.range())
     {
