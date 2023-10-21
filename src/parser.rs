@@ -226,6 +226,7 @@ impl<'a> DocParser<'a> {
       )),
       Module::Esm(module) => {
         let module_doc = self.parse_module(&module.specifier)?;
+        eprintln!("MODULE DOC: {:#?}", module_doc);
         let mut flattened_docs = Vec::new();
         let module_symbol = self.get_module_symbol(&module.specifier)?;
         let exports = module_symbol.exports(&self.graph, &self.root_symbol);
@@ -294,22 +295,21 @@ impl<'a> DocParser<'a> {
                       );
                       let previous_nodes = symbols.values().collect::<Vec<_>>();
                       for definition in definitions {
-                        for decl in definition.symbol.decls() {
-                          if let Some((node, parsed_source)) =
-                            decl.maybe_node_and_source()
-                          {
-                            let mut current_nodes = self
-                              .get_docs_for_symbol_node_ref(
-                                node,
-                                parsed_source,
-                                &previous_nodes,
-                              );
-                            for node in &mut current_nodes {
-                              node.name = export_name.clone();
-                              node.declaration_kind = DeclarationKind::Export;
-                            }
-                            flattened_docs.extend(current_nodes);
+                        let decl = definition.symbol_decl;
+                        if let Some((node, parsed_source)) =
+                          decl.maybe_node_and_source()
+                        {
+                          let mut current_nodes = self
+                            .get_docs_for_symbol_node_ref(
+                              node,
+                              parsed_source,
+                              &previous_nodes,
+                            );
+                          for node in &mut current_nodes {
+                            node.name = export_name.clone();
+                            node.declaration_kind = DeclarationKind::Export;
                           }
+                          flattened_docs.extend(current_nodes);
                         }
                       }
                     }
@@ -1297,6 +1297,6 @@ fn definition_location(
   get_text_info_location(
     definition.module.specifier().as_str(),
     definition.module.text_info(),
-    definition.range.start,
+    definition.range().start,
   )
 }
