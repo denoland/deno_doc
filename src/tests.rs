@@ -136,7 +136,7 @@ async fn content_type_handling() {
         "content-type",
         "application/typescript; charset=utf-8",
       )]),
-      content: r#"declare interface A {
+      content: r#"export interface A {
       a: string;
     }"#,
     },
@@ -839,7 +839,7 @@ async fn exports_imported_earlier_default() {
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
-        "col": 0
+        "col": 6
       },
       "declarationKind": "export",
       "variableDef": {
