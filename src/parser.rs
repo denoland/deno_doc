@@ -25,6 +25,7 @@ use deno_ast::swc::ast::ClassDecl;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportDefaultDecl;
+use deno_ast::swc::ast::ExportDefaultExpr;
 use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::Expr;
 use deno_ast::swc::ast::FnDecl;
@@ -293,7 +294,6 @@ impl<'a> DocParser<'a> {
                         module_symbol.source(),
                         &module_symbol.source().module().body,
                       );
-                      let previous_nodes = symbols.values().collect::<Vec<_>>();
                       for definition in definitions {
                         let decl = definition.symbol_decl;
                         if let Some((node, parsed_source)) =
@@ -303,7 +303,7 @@ impl<'a> DocParser<'a> {
                             .get_docs_for_symbol_node_ref(
                               node,
                               parsed_source,
-                              &previous_nodes,
+                              &symbols,
                             );
                           for node in &mut current_nodes {
                             node.name = export_name.clone();
@@ -395,7 +395,7 @@ impl<'a> DocParser<'a> {
     &self,
     parsed_source: &ParsedSource,
     module_decl: &ModuleDecl,
-    previous_doc_nodes: &[&DocNode],
+    symbols: &HashMap<String, DocNode>,
   ) -> Vec<DocNode> {
     match module_decl {
       ModuleDecl::ExportDecl(export_decl) => {
@@ -403,7 +403,7 @@ impl<'a> DocParser<'a> {
           self,
           parsed_source,
           export_decl,
-          previous_doc_nodes,
+          symbols,
         )
       }
       ModuleDecl::ExportDefaultDecl(export_default_decl) => self
@@ -418,7 +418,7 @@ impl<'a> DocParser<'a> {
     &self,
     parsed_source: &ParsedSource,
     decl: &Decl,
-    previous_nodes: &[&DocNode],
+    symbols: &HashMap<String, DocNode>,
   ) -> Vec<DocNode> {
     match decl {
       Decl::Class(class_decl) => self
@@ -437,7 +437,7 @@ impl<'a> DocParser<'a> {
         parsed_source,
         var_decl,
         &var_decl.range(),
-        previous_nodes,
+        symbols,
       ),
       Decl::Using(_) => Vec::new(),
       Decl::TsInterface(ts_interface_decl) => self
@@ -472,31 +472,27 @@ impl<'a> DocParser<'a> {
     parsed_source: &ParsedSource,
     var_decl: &VarDecl,
     full_range: &SourceRange,
-    previous_nodes: &[&crate::DocNode],
+    symbols: &HashMap<String, crate::DocNode>,
   ) -> Vec<DocNode> {
-    super::variable::get_docs_for_var_decl(
-      parsed_source,
-      var_decl,
-      previous_nodes,
-    )
-    .into_iter()
-    .filter_map(|(name, var_def, maybe_range)| {
-      let js_doc = js_doc_for_range(parsed_source, full_range)?;
-      let location = get_location(
-        parsed_source,
-        maybe_range
-          .map(|m| m.start)
-          .unwrap_or_else(|| var_decl.start()),
-      );
-      Some(DocNode::variable(
-        name,
-        location,
-        DeclarationKind::Declare,
-        js_doc,
-        var_def,
-      ))
-    })
-    .collect()
+    super::variable::get_docs_for_var_decl(parsed_source, var_decl, symbols)
+      .into_iter()
+      .filter_map(|(name, var_def, maybe_range)| {
+        let js_doc = js_doc_for_range(parsed_source, full_range)?;
+        let location = get_location(
+          parsed_source,
+          maybe_range
+            .map(|m| m.start)
+            .unwrap_or_else(|| var_decl.start()),
+        );
+        Some(DocNode::variable(
+          name,
+          location,
+          DeclarationKind::Declare,
+          js_doc,
+          var_def,
+        ))
+      })
+      .collect()
   }
 
   fn get_docs_for_var_declarator(
@@ -505,7 +501,7 @@ impl<'a> DocParser<'a> {
     var_decl: &VarDecl,
     var_declarator: &VarDeclarator,
     full_range: &SourceRange,
-    previous_nodes: &[&DocNode],
+    symbols: &HashMap<String, DocNode>,
   ) -> Option<Vec<DocNode>> {
     let js_doc = js_doc_for_range(parsed_source, full_range)?;
     Some(
@@ -513,7 +509,7 @@ impl<'a> DocParser<'a> {
         parsed_source,
         var_decl,
         var_declarator,
-        previous_nodes,
+        symbols,
       )
       .into_iter()
       .map(|(name, var_def, _)| {
@@ -708,6 +704,45 @@ impl<'a> DocParser<'a> {
     Some(doc_node)
   }
 
+  fn get_doc_for_export_default_expr(
+    &self,
+    parsed_source: &ParsedSource,
+    export_expr: &ExportDefaultExpr,
+    symbols: &HashMap<String, DocNode>,
+  ) -> Option<DocNode> {
+    if let Expr::Ident(ident) = export_expr.expr.as_ref() {
+      if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
+        Some(DocNode {
+          name: String::from("default"),
+          declaration_kind: DeclarationKind::Export,
+          ..doc_node.clone()
+        })
+      } else {
+        None
+      }
+    } else if let Some(js_doc) =
+      js_doc_for_range(parsed_source, &export_expr.range())
+    {
+      let location = get_location(parsed_source, export_expr.start());
+      Some(DocNode::variable(
+        String::from("default"),
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        super::variable::VariableDef {
+          kind: deno_ast::swc::ast::VarDeclKind::Var,
+          ts_type: super::ts_type::infer_ts_type_from_expr(
+            parsed_source,
+            export_expr.expr.as_ref(),
+            true,
+          ),
+        },
+      ))
+    } else {
+      None
+    }
+  }
+
   fn get_imports_for_module_body(
     &self,
     module_body: &[deno_ast::swc::ast::ModuleItem],
@@ -889,17 +924,15 @@ impl<'a> DocParser<'a> {
 
     for node in module_body.iter() {
       let doc_nodes = match node {
-        ModuleItem::Stmt(Stmt::Decl(decl)) => self.get_doc_node_for_decl(
-          parsed_source,
-          decl,
-          &symbols.values().collect::<Vec<_>>(),
-        ),
+        ModuleItem::Stmt(Stmt::Decl(decl)) => {
+          self.get_doc_node_for_decl(parsed_source, decl, &symbols)
+        }
         ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
           super::module::get_doc_node_for_export_decl(
             self,
             parsed_source,
             export_decl,
-            &symbols.values().collect::<Vec<_>>(),
+            &symbols,
           )
         }
         _ => Vec::new(),
@@ -947,7 +980,6 @@ impl<'a> DocParser<'a> {
       module_symbol.source(),
       &module_symbol.source().module().body,
     );
-    let previous_nodes = symbols.values().collect::<Vec<_>>();
 
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
     let mut handled_symbols = HashSet::new();
@@ -967,11 +999,8 @@ impl<'a> DocParser<'a> {
         }
         for decl in definition.symbol.decls() {
           if let Some((node, parsed_source)) = decl.maybe_node_and_source() {
-            let mut current_nodes = self.get_docs_for_symbol_node_ref(
-              node,
-              parsed_source,
-              &previous_nodes,
-            );
+            let mut current_nodes =
+              self.get_docs_for_symbol_node_ref(node, parsed_source, &symbols);
             for node in &mut current_nodes {
               node.name = export_name.clone();
               node.declaration_kind = DeclarationKind::Export;
@@ -991,7 +1020,7 @@ impl<'a> DocParser<'a> {
     &self,
     node: SymbolNodeRef<'_>,
     parsed_source: &ParsedSource,
-    previous_nodes: &Vec<&DocNode>,
+    symbols: &HashMap<String, DocNode>,
   ) -> Vec<DocNode> {
     match node {
       SymbolNodeRef::ClassDecl(n) => self
@@ -1000,6 +1029,10 @@ impl<'a> DocParser<'a> {
         .unwrap_or_default(),
       SymbolNodeRef::ExportDefaultDecl(n) => self
         .get_doc_for_export_default_decl(parsed_source, n)
+        .map(|n| vec![n])
+        .unwrap_or_default(),
+      SymbolNodeRef::ExportDefaultExprLit(n, _) => self
+        .get_doc_for_export_default_expr(parsed_source, n, symbols)
         .map(|n| vec![n])
         .unwrap_or_default(),
       SymbolNodeRef::FnDecl(n) => self
@@ -1028,7 +1061,7 @@ impl<'a> DocParser<'a> {
           parent_decl,
           n,
           &parent_decl.range(),
-          previous_nodes,
+          symbols,
         )
         .unwrap_or_default(),
       SymbolNodeRef::ExportDecl(export_decl, inner) => match inner {
@@ -1062,7 +1095,7 @@ impl<'a> DocParser<'a> {
             var_decl,
             var_declarator,
             &export_decl.range(),
-            previous_nodes,
+            symbols,
           )
           .unwrap_or_default()
           .into_iter()
@@ -1102,7 +1135,10 @@ impl<'a> DocParser<'a> {
             let doc_nodes = self.get_doc_node_for_decl(
               parsed_source,
               decl,
-              &doc_entries.iter().collect::<Vec<_>>(),
+              &doc_entries
+                .iter()
+                .map(|d| (d.name.clone(), d.clone()))
+                .collect(),
             );
             let is_declared = self.get_declare_for_decl(decl);
             for mut doc_node in doc_nodes {
@@ -1128,7 +1164,7 @@ impl<'a> DocParser<'a> {
           doc_entries.extend(self.get_doc_nodes_for_module_exports(
             parsed_source,
             module_decl,
-            &symbols.values().collect::<Vec<_>>(),
+            &symbols,
           ));
 
           match module_decl {
@@ -1154,32 +1190,12 @@ impl<'a> DocParser<'a> {
               }
             }
             ModuleDecl::ExportDefaultExpr(export_expr) => {
-              if let Expr::Ident(ident) = export_expr.expr.as_ref() {
-                if let Some(doc_node) = symbols.get(&ident.sym.to_string()) {
-                  doc_entries.push(DocNode {
-                    name: String::from("default"),
-                    declaration_kind: DeclarationKind::Export,
-                    ..doc_node.clone()
-                  });
-                }
-              } else if let Some(js_doc) =
-                js_doc_for_range(parsed_source, &export_expr.range())
-              {
-                let location = get_location(parsed_source, export_expr.start());
-                doc_entries.push(DocNode::variable(
-                  String::from("default"),
-                  location,
-                  DeclarationKind::Export,
-                  js_doc,
-                  super::variable::VariableDef {
-                    kind: deno_ast::swc::ast::VarDeclKind::Var,
-                    ts_type: super::ts_type::infer_ts_type_from_expr(
-                      parsed_source,
-                      export_expr.expr.as_ref(),
-                      true,
-                    ),
-                  },
-                ));
+              if let Some(doc_node) = self.get_doc_for_export_default_expr(
+                parsed_source,
+                export_expr,
+                &symbols,
+              ) {
+                doc_entries.push(doc_node);
               }
             }
             _ => {}

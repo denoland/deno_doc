@@ -1,5 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
+use std::collections::HashMap;
+
 use deno_ast::ParsedSource;
 use deno_ast::SourceRanged;
 use deno_ast::SourceRangedForSpanned;
@@ -14,7 +16,7 @@ pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,
   parsed_source: &ParsedSource,
   export_decl: &deno_ast::swc::ast::ExportDecl,
-  previous_nodes: &[&DocNode],
+  symbols: &HashMap<String, DocNode>,
 ) -> Vec<DocNode> {
   use deno_ast::swc::ast::Decl;
 
@@ -50,42 +52,40 @@ pub fn get_doc_node_for_export_decl(
           fn_def,
         )]
       }
-      Decl::Var(var_decl) => super::variable::get_docs_for_var_decl(
-        parsed_source,
-        var_decl,
-        previous_nodes,
-      )
-      .into_iter()
-      .filter_map(|(name, var_def, maybe_range)| {
-        let js_doc = if js_doc.is_empty() {
-          js_doc_for_range(
-            parsed_source,
-            &maybe_range.unwrap_or_else(|| var_decl.range()),
-          )
-        } else {
-          Some(js_doc.clone())
-        };
+      Decl::Var(var_decl) => {
+        super::variable::get_docs_for_var_decl(parsed_source, var_decl, symbols)
+          .into_iter()
+          .filter_map(|(name, var_def, maybe_range)| {
+            let js_doc = if js_doc.is_empty() {
+              js_doc_for_range(
+                parsed_source,
+                &maybe_range.unwrap_or_else(|| var_decl.range()),
+              )
+            } else {
+              Some(js_doc.clone())
+            };
 
-        if let Some(js_doc) = js_doc {
-          let location = get_location(
-            parsed_source,
-            maybe_range
-              .map(|range| range.start)
-              .unwrap_or_else(|| var_decl.start()),
-          );
+            if let Some(js_doc) = js_doc {
+              let location = get_location(
+                parsed_source,
+                maybe_range
+                  .map(|range| range.start)
+                  .unwrap_or_else(|| var_decl.start()),
+              );
 
-          Some(DocNode::variable(
-            name,
-            location,
-            DeclarationKind::Export,
-            js_doc,
-            var_def,
-          ))
-        } else {
-          None
-        }
-      })
-      .collect(),
+              Some(DocNode::variable(
+                name,
+                location,
+                DeclarationKind::Export,
+                js_doc,
+                var_def,
+              ))
+            } else {
+              None
+            }
+          })
+          .collect()
+      }
       Decl::Using(_) => Vec::new(),
       Decl::TsInterface(ts_interface_decl) => {
         let (name, interface_def) =
