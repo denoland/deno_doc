@@ -36,7 +36,7 @@ Deno.test({
 Deno.test({
   name: "doc() - timings",
   async fn() {
-    const fixture = new URL("./benches/fixtures/deno.d.ts", import.meta.url)
+    const fixture = new URL("../benches/fixtures/deno.d.ts", import.meta.url)
       .toString();
 
     const start = Date.now();

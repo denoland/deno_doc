@@ -54,7 +54,7 @@ declare interface PerformanceMeasureOptions {
   detail?: any;
 
   /** Timestamp to be used as the start time or string to be used as start
-   * mark.*/
+   * mark. */
   start?: string | number;
 
   /** Duration between the start and end times. */
@@ -121,7 +121,7 @@ declare namespace Deno {
      * `only` set to true and fail the test suite. */
     only?: boolean;
     /** Check that the number of async completed ops after the test is the same
-     * as number of dispatched ops. Defaults to true.*/
+     * as number of dispatched ops. Defaults to true. */
     sanitizeOps?: boolean;
     /** Ensure the test case does not "leak" resources - ie. the resource table
      * after the test has exactly the same contents as before the test. Defaults
@@ -183,7 +183,7 @@ declare namespace Deno {
    *   assertEquals(decoder.decode(data), "Hello world");
    * });
    * ```
-   * */
+   */
   export function test(name: string, fn: () => void | Promise<void>): void;
 
   /** Exit the Deno process with optional exit code. If no exit code is supplied
@@ -295,7 +295,6 @@ declare namespace Deno {
   export function linkSync(oldpath: string, newpath: string): void;
 
   /**
-   *
    * Creates `newpath` as a hard link to `oldpath`.
    *
    * ```ts
@@ -840,7 +839,7 @@ declare namespace Deno {
      * any write calls on it will overwrite its contents, by default without
      * truncating it. */
     write?: boolean;
-    /**Sets the option for the append mode. This option, when `true`, means that
+    /** Sets the option for the append mode. This option, when `true`, means that
      * writes will append to a file instead of overwriting previous contents.
      * Note that setting `{ write: true, append: true }` has the same effect as
      * setting only `{ append: true }`. */
@@ -875,7 +874,6 @@ declare namespace Deno {
   }
 
   /**
-   *
    *  Check if a given resource id (`rid`) is a TTY.
    *
    * ```ts
@@ -1510,7 +1508,7 @@ declare namespace Deno {
    *
    * Requires `allow-read` permission for the target path.
    * Also requires `allow-read` permission for the CWD if the target path is
-   * relative.*/
+   * relative. */
   export function realPathSync(path: string | URL): string;
 
   /** Resolves to the absolute normalized path, with symbolic links resolved.
@@ -1526,7 +1524,7 @@ declare namespace Deno {
    *
    * Requires `allow-read` permission for the target path.
    * Also requires `allow-read` permission for the CWD if the target path is
-   * relative.*/
+   * relative. */
   export function realPath(path: string | URL): Promise<string>;
 
   export interface DirEntry {
@@ -1888,7 +1886,7 @@ declare namespace Deno {
    *    console.log(">>>> event", event);
    *    // { kind: "create", paths: [ "/foo.txt" ] }
    * }
-   *```
+   * ```
    *
    * Requires `allow-read` permission.
    *
@@ -1942,7 +1940,7 @@ declare namespace Deno {
      * ]);
      * p.close();
      * ```
-     **/
+     */
     status(): Promise<ProcessStatus>;
     /** Buffer the stdout until EOF and return it as `Uint8Array`.
      *
@@ -2538,7 +2536,6 @@ declare class URLSearchParams {
    *   console.log(value, key, parent);
    * });
    * ```
-   *
    */
   forEach(
     callbackfn: (value: string, key: string, parent: this) => void,
@@ -2648,54 +2645,54 @@ interface EventInit {
 declare class Event {
   constructor(type: string, eventInitDict?: EventInit);
   /** Returns true or false depending on how event was initialized. True if
-     * event goes through its target's ancestors in reverse tree order, and
-     * false otherwise. */
+   * event goes through its target's ancestors in reverse tree order, and
+   * false otherwise. */
   readonly bubbles: boolean;
   cancelBubble: boolean;
   /** Returns true or false depending on how event was initialized. Its return
-     * value does not always carry meaning, but true can indicate that part of the
-     * operation during which event was dispatched, can be canceled by invoking
-     * the preventDefault() method. */
+   * value does not always carry meaning, but true can indicate that part of the
+   * operation during which event was dispatched, can be canceled by invoking
+   * the preventDefault() method. */
   readonly cancelable: boolean;
   /** Returns true or false depending on how event was initialized. True if
-     * event invokes listeners past a ShadowRoot node that is the root of its
-     * target, and false otherwise. */
+   * event invokes listeners past a ShadowRoot node that is the root of its
+   * target, and false otherwise. */
   readonly composed: boolean;
   /** Returns the object whose event listener's callback is currently being
-     * invoked. */
+   * invoked. */
   readonly currentTarget: EventTarget | null;
   /** Returns true if preventDefault() was invoked successfully to indicate
-     * cancellation, and false otherwise. */
+   * cancellation, and false otherwise. */
   readonly defaultPrevented: boolean;
   /** Returns the event's phase, which is one of NONE, CAPTURING_PHASE,
-     * AT_TARGET, and BUBBLING_PHASE. */
+   * AT_TARGET, and BUBBLING_PHASE. */
   readonly eventPhase: number;
   /** Returns true if event was dispatched by the user agent, and false
-     * otherwise. */
+   * otherwise. */
   readonly isTrusted: boolean;
   /** Returns the object to which event is dispatched (its target). */
   readonly target: EventTarget | null;
   /** Returns the event's timestamp as the number of milliseconds measured
-     * relative to the time origin. */
+   * relative to the time origin. */
   readonly timeStamp: number;
   /** Returns the type of event, e.g. "click", "hashchange", or "submit". */
   readonly type: string;
   /** Returns the invocation target objects of event's path (objects on which
-     * listeners will be invoked), except for any nodes in shadow trees of which
-     * the shadow root's mode is "closed" that are not reachable from event's
-     * currentTarget. */
+   * listeners will be invoked), except for any nodes in shadow trees of which
+   * the shadow root's mode is "closed" that are not reachable from event's
+   * currentTarget. */
   composedPath(): EventTarget[];
   /** If invoked when the cancelable attribute value is true, and while
-     * executing a listener for the event with passive set to false, signals to
-     * the operation that caused event to be dispatched that it needs to be
-     * canceled. */
+   * executing a listener for the event with passive set to false, signals to
+   * the operation that caused event to be dispatched that it needs to be
+   * canceled. */
   preventDefault(): void;
   /** Invoking this method prevents event from reaching any registered event
-     * listeners after the current one finishes running and, when dispatched in a
-     * tree, also prevents event from reaching any other objects. */
+   * listeners after the current one finishes running and, when dispatched in a
+   * tree, also prevents event from reaching any other objects. */
   stopImmediatePropagation(): void;
   /** When dispatched in a tree, invoking this method prevents event from
-     * reaching any objects other than the current object. */
+   * reaching any objects other than the current object. */
   stopPropagation(): void;
   readonly AT_TARGET: number;
   readonly BUBBLING_PHASE: number;
@@ -2708,9 +2705,9 @@ declare class Event {
 }
 
 /**
-   * EventTarget is a DOM interface implemented by objects that can receive events
-   * and may have listeners for them.
-   */
+ * EventTarget is a DOM interface implemented by objects that can receive events
+ * and may have listeners for them.
+ */
 declare class EventTarget {
   /** Appends an event listener for events whose type attribute value is type.
    * The callback argument sets the callback that will be invoked when the event
@@ -2866,7 +2863,7 @@ declare class AbortController {
   /** Returns the AbortSignal object associated with this object. */
   readonly signal: AbortSignal;
   /** Invoking this method will set this object's AbortSignal's aborted flag and
-    * signal to any observers that the associated activity is to be aborted. */
+   * signal to any observers that the associated activity is to be aborted. */
   abort(): void;
 }
 
@@ -2875,10 +2872,10 @@ interface AbortSignalEventMap {
 }
 
 /** A signal object that allows you to communicate with a DOM request (such as a
-  * Fetch) and abort it if required via an AbortController object. */
+ * Fetch) and abort it if required via an AbortController object. */
 interface AbortSignal extends EventTarget {
   /** Returns true if this AbortSignal's AbortController has signaled to abort,
-    * and false otherwise. */
+   * and false otherwise. */
   readonly aborted: boolean;
   onabort: ((this: AbortSignal, ev: Event) => any) | null;
   addEventListener<K extends keyof AbortSignalEventMap>(
@@ -5339,7 +5336,7 @@ declare namespace Deno {
     /** Waits for and resolves to the next connection to the `Listener`. */
     accept(): Promise<Conn>;
     /** Close closes the listener. Any pending accept promises will be rejected
-   * with errors. */
+     * with errors. */
     close(): void;
     /** Return the address of the `Listener`. */
     readonly addr: Addr;
@@ -5358,7 +5355,7 @@ declare namespace Deno {
     /** The resource ID of the connection. */
     readonly rid: number;
     /** Shuts down (`shutdown(2)`) the write side of the connection. Most
-   * callers should just use `close()`. */
+     * callers should just use `close()`. */
     closeWrite(): Promise<void>;
   }
 
@@ -5366,20 +5363,20 @@ declare namespace Deno {
     /** The port to listen on. */
     port: number;
     /** A literal IP address or host name that can be resolved to an IP address.
-   * If not specified, defaults to `0.0.0.0`. */
+     * If not specified, defaults to `0.0.0.0`. */
     hostname?: string;
   }
 
   /** Listen announces on the local transport address.
- *
- * ```ts
- * const listener1 = Deno.listen({ port: 80 })
- * const listener2 = Deno.listen({ hostname: "192.0.2.1", port: 80 })
- * const listener3 = Deno.listen({ hostname: "[2001:db8::1]", port: 80 });
- * const listener4 = Deno.listen({ hostname: "golang.org", port: 80, transport: "tcp" });
- * ```
- *
- * Requires `allow-net` permission. */
+   *
+   * ```ts
+   * const listener1 = Deno.listen({ port: 80 })
+   * const listener2 = Deno.listen({ hostname: "192.0.2.1", port: 80 })
+   * const listener3 = Deno.listen({ hostname: "[2001:db8::1]", port: 80 });
+   * const listener4 = Deno.listen({ hostname: "golang.org", port: 80, transport: "tcp" });
+   * ```
+   *
+   * Requires `allow-net` permission. */
   export function listen(
     options: ListenOptions & { transport?: "tcp" },
   ): Listener;
@@ -5395,74 +5392,74 @@ declare namespace Deno {
   }
 
   /** Listen announces on the local transport address over TLS (transport layer
- * security).
- *
- * ```ts
- * const lstnr = Deno.listenTls({ port: 443, certFile: "./server.crt", keyFile: "./server.key" });
- * ```
- *
- * Requires `allow-net` permission. */
+   * security).
+   *
+   * ```ts
+   * const lstnr = Deno.listenTls({ port: 443, certFile: "./server.crt", keyFile: "./server.key" });
+   * ```
+   *
+   * Requires `allow-net` permission. */
   export function listenTls(options: ListenTlsOptions): Listener;
 
   export interface ConnectOptions {
     /** The port to connect to. */
     port: number;
     /** A literal IP address or host name that can be resolved to an IP address.
-   * If not specified, defaults to `127.0.0.1`. */
+     * If not specified, defaults to `127.0.0.1`. */
     hostname?: string;
     transport?: "tcp";
   }
 
   /**
- * Connects to the hostname (default is "127.0.0.1") and port on the named
- * transport (default is "tcp"), and resolves to the connection (`Conn`).
- *
- * ```ts
- * const conn1 = await Deno.connect({ port: 80 });
- * const conn2 = await Deno.connect({ hostname: "192.0.2.1", port: 80 });
- * const conn3 = await Deno.connect({ hostname: "[2001:db8::1]", port: 80 });
- * const conn4 = await Deno.connect({ hostname: "golang.org", port: 80, transport: "tcp" });
- * ```
- *
- * Requires `allow-net` permission for "tcp". */
+   * Connects to the hostname (default is "127.0.0.1") and port on the named
+   * transport (default is "tcp"), and resolves to the connection (`Conn`).
+   *
+   * ```ts
+   * const conn1 = await Deno.connect({ port: 80 });
+   * const conn2 = await Deno.connect({ hostname: "192.0.2.1", port: 80 });
+   * const conn3 = await Deno.connect({ hostname: "[2001:db8::1]", port: 80 });
+   * const conn4 = await Deno.connect({ hostname: "golang.org", port: 80, transport: "tcp" });
+   * ```
+   *
+   * Requires `allow-net` permission for "tcp". */
   export function connect(options: ConnectOptions): Promise<Conn>;
 
   export interface ConnectTlsOptions {
     /** The port to connect to. */
     port: number;
     /** A literal IP address or host name that can be resolved to an IP address.
-   * If not specified, defaults to `127.0.0.1`. */
+     * If not specified, defaults to `127.0.0.1`. */
     hostname?: string;
     /** Server certificate file. */
     certFile?: string;
   }
 
   /** Establishes a secure connection over TLS (transport layer security) using
- * an optional cert file, hostname (default is "127.0.0.1") and port.  The
- * cert file is optional and if not included Mozilla's root certificates will
- * be used (see also https://github.com/ctz/webpki-roots for specifics)
- *
- * ```ts
- * const conn1 = await Deno.connectTls({ port: 80 });
- * const conn2 = await Deno.connectTls({ certFile: "./certs/my_custom_root_CA.pem", hostname: "192.0.2.1", port: 80 });
- * const conn3 = await Deno.connectTls({ hostname: "[2001:db8::1]", port: 80 });
- * const conn4 = await Deno.connectTls({ certFile: "./certs/my_custom_root_CA.pem", hostname: "golang.org", port: 80});
- * ```
- *
- * Requires `allow-net` permission.
- */
+   * an optional cert file, hostname (default is "127.0.0.1") and port.  The
+   * cert file is optional and if not included Mozilla's root certificates will
+   * be used (see also https://github.com/ctz/webpki-roots for specifics)
+   *
+   * ```ts
+   * const conn1 = await Deno.connectTls({ port: 80 });
+   * const conn2 = await Deno.connectTls({ certFile: "./certs/my_custom_root_CA.pem", hostname: "192.0.2.1", port: 80 });
+   * const conn3 = await Deno.connectTls({ hostname: "[2001:db8::1]", port: 80 });
+   * const conn4 = await Deno.connectTls({ certFile: "./certs/my_custom_root_CA.pem", hostname: "golang.org", port: 80});
+   * ```
+   *
+   * Requires `allow-net` permission.
+   */
   export function connectTls(options: ConnectTlsOptions): Promise<Conn>;
 
   /** Shutdown socket send operations.
- *
- * Matches behavior of POSIX shutdown(3).
- *
- * ```ts
- * const listener = Deno.listen({ port: 80 });
- * const conn = await listener.accept();
- * Deno.shutdown(conn.rid);
- * ```
- */
+   *
+   * Matches behavior of POSIX shutdown(3).
+   *
+   * ```ts
+   * const listener = Deno.listen({ port: 80 });
+   * const conn = await listener.accept();
+   * Deno.shutdown(conn.rid);
+   * ```
+   */
   export function shutdown(rid: number): Promise<void>;
 }
 
@@ -5579,7 +5576,7 @@ declare namespace WebAssembly {
     /**
      * Given a `Module` and string, returns a copy of the contents of all custom sections in the
      * module with the given string name.
-     * */
+     */
     static customSections(
       moduleObject: Module,
       sectionName: string,
@@ -5962,7 +5959,7 @@ declare interface PerformanceMeasureOptions {
   detail?: any;
 
   /** Timestamp to be used as the start time or string to be used as start
-   * mark.*/
+   * mark. */
   start?: string | number;
 
   /** Duration between the start and end times. */

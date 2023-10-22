@@ -5,17 +5,19 @@
 use crate::parser::DocParser;
 
 use anyhow::anyhow;
-use anyhow::Result;
-use deno_graph::create_type_graph;
+use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::source::ResolveResponse;
+use deno_graph::source::ResolveError;
 use deno_graph::source::Resolver;
+use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::GraphOptions;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use import_map::ImportMap;
+use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
@@ -44,18 +46,20 @@ impl Loader for JsLoader {
     &mut self,
     specifier: &ModuleSpecifier,
     is_dynamic: bool,
+    cache_setting: CacheSetting,
   ) -> LoadFuture {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
-    let result = self.load.call2(&this, &arg0, &arg1);
+    let arg2 = JsValue::from(cache_setting.as_js_str());
+    let result = self.load.call3(&this, &arg0, &arg1, &arg2);
     let f = async move {
       let response = match result {
         Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,
         Err(err) => Err(err),
       };
       response
-        .map(|value| value.into_serde().unwrap())
+        .map(|value| serde_wasm_bindgen::from_value(value).unwrap())
         .map_err(|_| anyhow!("load rejected or errored"))
     };
     Box::pin(f)
@@ -76,11 +80,12 @@ impl Resolver for ImportMapResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> ResolveResponse {
-    match self.0.resolve(specifier, referrer) {
-      Ok(resolved_specifier) => ResolveResponse::Specifier(resolved_specifier),
-      Err(err) => ResolveResponse::Err(err.into()),
-    }
+    _mode: deno_graph::source::ResolutionMode,
+  ) -> Result<ModuleSpecifier, ResolveError> {
+    self
+      .0
+      .resolve(specifier, referrer)
+      .map_err(|err| ResolveError::Other(err.into()))
   }
 }
 
@@ -100,26 +105,21 @@ impl Resolver for JsResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> ResolveResponse {
+    _mode: deno_graph::source::ResolutionMode,
+  ) -> Result<ModuleSpecifier, ResolveError> {
+    use ResolveError::*;
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
     let arg1 = JsValue::from(referrer.to_string());
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
       Err(_) => {
-        return ResolveResponse::Err(anyhow!(
-          "JavaScript resolve() function threw."
-        ))
+        return Err(Other(anyhow!("JavaScript resolve() function threw.")))
       }
     };
-    let value: String = match value.into_serde() {
-      Ok(value) => value,
-      Err(err) => return ResolveResponse::Err(err.into()),
-    };
-    match ModuleSpecifier::parse(&value) {
-      Ok(specifier) => ResolveResponse::Specifier(specifier),
-      Err(err) => ResolveResponse::Err(err.into()),
-    }
+    let value: String = serde_wasm_bindgen::from_value(value)
+      .map_err(|err| anyhow!("{}", err))?;
+    ModuleSpecifier::parse(&value).map_err(|err| Other(err.into()))
   }
 }
 
@@ -130,7 +130,8 @@ pub async fn doc(
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
-) -> Result<JsValue, JsValue> {
+  print_import_map_diagnostics: bool,
+) -> anyhow::Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
   let root_specifier = ModuleSpecifier::parse(&root_specifier)
     .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
@@ -138,7 +139,7 @@ pub async fn doc(
   let maybe_resolver: Option<Box<dyn Resolver>> = if let Some(import_map) =
     maybe_import_map
   {
-    if maybe_resolve.is_some() {
+    if print_import_map_diagnostics && maybe_resolve.is_some() {
       console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
     }
     let import_map_specifier = ModuleSpecifier::parse(&import_map)
@@ -146,13 +147,13 @@ pub async fn doc(
     if let Some(LoadResponse::Module {
       content, specifier, ..
     }) = loader
-      .load(&import_map_specifier, false)
+      .load(&import_map_specifier, false, CacheSetting::Use)
       .await
       .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?
     {
       let result = import_map::parse_from_json(&specifier, content.as_ref())
         .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-      if !result.diagnostics.is_empty() {
+      if print_import_map_diagnostics && !result.diagnostics.is_empty() {
         console_warn!(
           "Import map diagnostics:\n{}",
           result
@@ -171,20 +172,23 @@ pub async fn doc(
     maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
   };
   let analyzer = CapturingModuleAnalyzer::default();
-  let graph = create_type_graph(
-    vec![root_specifier.clone()],
-    &mut loader,
-    GraphOptions {
-      module_analyzer: Some(&analyzer),
-      resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
-      ..Default::default()
-    },
-  )
-  .await;
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![root_specifier.clone()],
+      &mut loader,
+      BuildOptions {
+        module_analyzer: Some(&analyzer),
+        resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
+        ..Default::default()
+      },
+    )
+    .await;
   let entries =
     DocParser::new(graph, include_all, analyzer.as_capturing_parser())
       .parse_with_reexports(&root_specifier)
       .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-  JsValue::from_serde(&entries)
-    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
+  let serializer =
+    serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+  Ok(entries.serialize(&serializer).unwrap())
 }

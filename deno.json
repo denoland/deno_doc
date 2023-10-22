@@ -1,6 +1,11 @@
 {
+  "lock": false,
   "tasks": {
-    "build": "deno run --unstable -A https://deno.land/x/wasmbuild@0.10.3/main.ts --no-default-features --features wasm",
+    "build": "cp LICENSE js/LICENSE && deno run --unstable -A https://deno.land/x/wasmbuild@0.14.1/main.ts --no-default-features --features wasm --out js",
     "test": "deno test --allow-read --allow-net"
-  }
+  },
+  "exclude": [
+    "target",
+    "benches/fixtures"
+  ]
 }
