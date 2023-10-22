@@ -971,6 +971,7 @@ impl<'a> DocParser<'a> {
     Ok(definitions)
   }
 
+  // todo(NEXT): now remove the old method
   pub fn get_doc_nodes_for_module_body_new(
     &self,
     module_symbol: &EsmModuleSymbol,
@@ -994,7 +995,6 @@ impl<'a> DocParser<'a> {
     );
 
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
-    eprintln!("EXPORTS: {:#?}", exports);
     for (export_name, (export_module, export_symbol_id)) in &exports {
       let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(

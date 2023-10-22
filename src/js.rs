@@ -139,6 +139,7 @@ pub async fn doc(
     load,
     maybe_resolve,
     maybe_import_map,
+    print_import_map_diagnostics,
   )
   .await
   .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
@@ -150,6 +151,7 @@ async fn inner_doc(
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
+  print_import_map_diagnostics: bool,
 ) -> Result<JsValue, anyhow::Error> {
   let root_specifier = ModuleSpecifier::parse(&root_specifier)?;
   let mut loader = JsLoader::new(load);
