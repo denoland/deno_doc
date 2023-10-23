@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.69.0"
+version = "0.69.1"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -25,10 +25,10 @@ serde_json = { version = "1.0.82", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
 
 console_error_panic_hook = { version = "0.1.7", optional = true }
-js-sys = { version = "=0.3.63", optional = true }
+js-sys = { version = "=0.3.64", optional = true }
 serde-wasm-bindgen = { version = "=0.5.0", optional = true }
-wasm-bindgen = { version = "=0.2.86", optional = true }
-wasm-bindgen-futures = { version = "=0.4.36", optional = true }
+wasm-bindgen = { version = "=0.2.87", optional = true }
+wasm-bindgen-futures = { version = "=0.4.37", optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
