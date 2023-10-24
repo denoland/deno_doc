@@ -27,7 +27,6 @@ use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportDefaultDecl;
 use deno_ast::swc::ast::ExportDefaultExpr;
 use deno_ast::swc::ast::ExportSpecifier;
-use deno_ast::swc::ast::Expr;
 use deno_ast::swc::ast::FnDecl;
 use deno_ast::swc::ast::Ident;
 use deno_ast::swc::ast::ImportSpecifier;
@@ -724,16 +723,8 @@ impl<'a> DocParser<'a> {
     &self,
     parsed_source: &ParsedSource,
     export_expr: &ExportDefaultExpr,
-    symbols: &HashMap<String, DocNode>,
   ) -> Option<DocNode> {
-    if let Expr::Ident(ident) = export_expr.expr.as_ref() {
-      symbols.get(&ident.sym.to_string()).map(|doc_node| DocNode {
-        name: String::from("default"),
-        declaration_kind: DeclarationKind::Export,
-        ..doc_node.clone()
-      })
-    } else if let Some(js_doc) =
-      js_doc_for_range(parsed_source, &export_expr.range())
+    if let Some(js_doc) = js_doc_for_range(parsed_source, &export_expr.range())
     {
       let location = get_location(parsed_source, export_expr.start());
       Some(DocNode::variable(
@@ -1068,7 +1059,7 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_export_default_decl(parsed_source, n)
       }
       SymbolNodeRef::ExportDefaultExprLit(n, _) => {
-        self.get_doc_for_export_default_expr(parsed_source, n, symbols)
+        self.get_doc_for_export_default_expr(parsed_source, n)
       }
       SymbolNodeRef::FnDecl(n) => {
         self.get_doc_for_fn_decl(parsed_source, n, &n.function.range())
@@ -1210,15 +1201,6 @@ impl<'a> DocParser<'a> {
                   ExportSpecifier::Default(_default_specifier) => {}
                   ExportSpecifier::Namespace(_namespace_specifier) => {}
                 }
-              }
-            }
-            ModuleDecl::ExportDefaultExpr(export_expr) => {
-              if let Some(doc_node) = self.get_doc_for_export_default_expr(
-                parsed_source,
-                export_expr,
-                &symbols,
-              ) {
-                doc_entries.push(doc_node);
               }
             }
             _ => {}
