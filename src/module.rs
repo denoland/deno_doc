@@ -1,10 +1,8 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use std::collections::HashMap;
-
-use deno_ast::ParsedSource;
 use deno_ast::SourceRanged;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::type_tracer::EsmModuleSymbol;
 
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
@@ -14,12 +12,12 @@ use crate::swc_util::js_doc_for_range;
 
 pub fn get_doc_node_for_export_decl(
   doc_parser: &DocParser,
-  parsed_source: &ParsedSource,
+  module_symbol: &EsmModuleSymbol,
   export_decl: &deno_ast::swc::ast::ExportDecl,
-  symbols: &HashMap<String, DocNode>,
 ) -> Vec<DocNode> {
   use deno_ast::swc::ast::Decl;
 
+  let parsed_source = module_symbol.source();
   let export_range = export_decl.range();
   if let Some(js_doc) = js_doc_for_range(parsed_source, &export_range) {
     let location = get_location(parsed_source, export_range.start());
@@ -53,7 +51,7 @@ pub fn get_doc_node_for_export_decl(
         )]
       }
       Decl::Var(var_decl) => {
-        super::variable::get_docs_for_var_decl(parsed_source, var_decl, symbols)
+        super::variable::get_docs_for_var_decl(module_symbol, var_decl)
           .into_iter()
           .filter_map(|(name, var_def, maybe_range)| {
             let js_doc = if js_doc.is_empty() {
@@ -129,7 +127,7 @@ pub fn get_doc_node_for_export_decl(
       Decl::TsModule(ts_module) => {
         let (name, namespace_def) = super::namespace::get_doc_for_ts_module(
           doc_parser,
-          parsed_source,
+          module_symbol,
           ts_module,
         );
         vec![DocNode::namespace(

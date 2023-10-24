@@ -224,10 +224,11 @@ impl<'a> DocParser<'a> {
     };
 
     match module {
-      Module::Json(module) => Ok(parse_json_module_doc_nodes(
-        &module.specifier,
-        &module.source,
-      )),
+      Module::Json(module) => Ok(
+        parse_json_module_doc_node(&module.specifier, &module.source)
+          .map(|n| vec![n])
+          .unwrap_or_default(),
+      ),
       Module::Esm(module) => {
         let module_doc = self.parse_module(&module.specifier)?;
         let mut flattened_docs = Vec::new();
@@ -279,34 +280,25 @@ impl<'a> DocParser<'a> {
                 if first_def.module.specifier() != module_symbol.specifier() {
                   match first_def.module {
                     ModuleSymbolRef::Json(module_symbol) => {
-                      let mut current_nodes = parse_json_module_doc_nodes(
+                      let maybe_node = parse_json_module_doc_node(
                         module_symbol.specifier(),
                         module_symbol.text_info().text_str(),
                       );
-                      for node in &mut current_nodes {
+                      if let Some(mut node) = maybe_node {
                         node.name = export_name.clone();
                         node.declaration_kind = DeclarationKind::Export;
+                        flattened_docs.push(node);
                       }
-                      flattened_docs.extend(current_nodes);
                     }
-                    ModuleSymbolRef::Esm(module_symbol) => {
-                      // todo(THIS PR): find a way to get rid of this
-                      let symbols = self.get_symbols_for_module_body(
-                        module_symbol.source(),
-                        &module_symbol.source().module().body,
-                      );
+                    ModuleSymbolRef::Esm(_) => {
                       for definition in definitions {
                         let decl = definition.symbol_decl;
                         if let Some((node, parsed_source)) =
                           decl.maybe_node_and_source()
                         {
-                          if let Some(mut doc_node) = self
-                            .get_doc_for_symbol_node_ref(
-                              node,
-                              parsed_source,
-                              &symbols,
-                            )
-                          {
+                          let maybe_doc =
+                            self.doc_for_node_and_source(node, parsed_source);
+                          if let Some(mut doc_node) = maybe_doc {
                             doc_node.name = export_name.clone();
                             doc_node.declaration_kind = DeclarationKind::Export;
 
@@ -395,21 +387,22 @@ impl<'a> DocParser<'a> {
 
   pub fn get_doc_nodes_for_module_exports(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     module_decl: &ModuleDecl,
-    symbols: &HashMap<String, DocNode>,
   ) -> Vec<DocNode> {
     match module_decl {
       ModuleDecl::ExportDecl(export_decl) => {
         super::module::get_doc_node_for_export_decl(
           self,
-          parsed_source,
+          module_symbol,
           export_decl,
-          symbols,
         )
       }
       ModuleDecl::ExportDefaultDecl(export_default_decl) => self
-        .get_doc_for_export_default_decl(parsed_source, export_default_decl)
+        .get_doc_for_export_default_decl(
+          module_symbol.source(),
+          export_default_decl,
+        )
         .map(|n| vec![n])
         .unwrap_or_default(),
       _ => vec![],
@@ -418,10 +411,10 @@ impl<'a> DocParser<'a> {
 
   pub fn get_doc_node_for_decl(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     decl: &Decl,
-    symbols: &HashMap<String, DocNode>,
   ) -> Vec<DocNode> {
+    let parsed_source = module_symbol.source();
     match decl {
       Decl::Class(class_decl) => self
         .get_doc_for_class_decl(
@@ -435,12 +428,9 @@ impl<'a> DocParser<'a> {
         .get_doc_for_fn_decl(parsed_source, fn_decl, &fn_decl.function.range())
         .map(|d| vec![d])
         .unwrap_or_default(),
-      Decl::Var(var_decl) => self.get_docs_for_var_decl(
-        parsed_source,
-        var_decl,
-        &var_decl.range(),
-        symbols,
-      ),
+      Decl::Var(var_decl) => {
+        self.get_docs_for_var_decl(module_symbol, var_decl, &var_decl.range())
+      }
       Decl::Using(_) => Vec::new(),
       Decl::TsInterface(ts_interface_decl) => self
         .get_doc_for_interface_decl(
@@ -463,7 +453,7 @@ impl<'a> DocParser<'a> {
         .map(|d| vec![d])
         .unwrap_or_default(),
       Decl::TsModule(ts_module) => self
-        .get_doc_for_ts_namespace(parsed_source, ts_module, &ts_module.range())
+        .get_doc_for_ts_namespace(module_symbol, ts_module, &ts_module.range())
         .map(|d| vec![d])
         .unwrap_or_default(),
     }
@@ -471,17 +461,16 @@ impl<'a> DocParser<'a> {
 
   fn get_docs_for_var_decl(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     var_decl: &VarDecl,
     full_range: &SourceRange,
-    symbols: &HashMap<String, crate::DocNode>,
   ) -> Vec<DocNode> {
-    super::variable::get_docs_for_var_decl(parsed_source, var_decl, symbols)
+    super::variable::get_docs_for_var_decl(module_symbol, var_decl)
       .into_iter()
       .filter_map(|(name, var_def, maybe_range)| {
-        let js_doc = js_doc_for_range(parsed_source, full_range)?;
+        let js_doc = js_doc_for_range(module_symbol.source(), full_range)?;
         let location = get_location(
-          parsed_source,
+          module_symbol.source(),
           maybe_range
             .map(|m| m.start)
             .unwrap_or_else(|| var_decl.start()),
@@ -499,32 +488,30 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_var_declarator_ident(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     var_decl: &VarDecl,
     var_declarator: &VarDeclarator,
     ident: &Ident,
     full_range: &SourceRange,
-    symbols: &HashMap<String, DocNode>,
   ) -> Option<DocNode> {
     let full_range = if ident.start() != var_declarator.start() {
       Cow::Owned(ident.range())
     } else {
       Cow::Borrowed(full_range)
     };
-    let js_doc = js_doc_for_range(parsed_source, &full_range)?;
+    let js_doc = js_doc_for_range(module_symbol.source(), &full_range)?;
     // todo(dsherret): it's not ideal to call this function over
     // and over for the same var declarator when there are a lot
     // of idents
     super::variable::get_docs_for_var_declarator(
-      parsed_source,
+      module_symbol,
       var_decl,
       var_declarator,
-      symbols,
     )
     .into_iter()
     .find(|(name, _, _)| name.as_str() == &*ident.sym)
     .map(|(name, var_def, _)| {
-      let location = get_location(parsed_source, ident.start());
+      let location = get_location(module_symbol.source(), ident.start());
       DocNode::variable(
         name,
         location,
@@ -644,14 +631,14 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_ts_namespace(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     ts_module: &TsModuleDecl,
     full_range: &SourceRange,
   ) -> Option<DocNode> {
-    let js_doc = js_doc_for_range(parsed_source, full_range)?;
+    let js_doc = js_doc_for_range(module_symbol.source(), full_range)?;
     let (name, namespace_def) =
-      super::namespace::get_doc_for_ts_module(self, parsed_source, ts_module);
-    let location = get_location(parsed_source, full_range.start);
+      super::namespace::get_doc_for_ts_module(self, module_symbol, ts_module);
+    let location = get_location(module_symbol.source(), full_range.start);
     Some(DocNode::namespace(
       name,
       location,
@@ -920,7 +907,7 @@ impl<'a> DocParser<'a> {
 
   fn get_symbols_for_module_body(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     module_body: &[deno_ast::swc::ast::ModuleItem],
   ) -> HashMap<String, DocNode> {
     let mut symbols = HashMap::new();
@@ -928,14 +915,13 @@ impl<'a> DocParser<'a> {
     for node in module_body {
       let doc_nodes = match node {
         ModuleItem::Stmt(Stmt::Decl(decl)) => {
-          self.get_doc_node_for_decl(parsed_source, decl, &symbols)
+          self.get_doc_node_for_decl(module_symbol, decl)
         }
         ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
           super::module::get_doc_node_for_export_decl(
             self,
-            parsed_source,
+            module_symbol,
             export_decl,
-            &symbols,
           )
         }
         _ => Vec::new(),
@@ -979,11 +965,6 @@ impl<'a> DocParser<'a> {
         return vec![];
       }
     }
-    // todo(THIS PR): find a way to get rid of this
-    let symbols = self.get_symbols_for_module_body(
-      module_symbol.source(),
-      &module_symbol.source().module().body,
-    );
 
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
     for (export_name, (export_module, export_symbol_id)) in &exports {
@@ -1000,9 +981,8 @@ impl<'a> DocParser<'a> {
         if let Some((node, parsed_source)) =
           definition.symbol_decl.maybe_node_and_source()
         {
-          if let Some(mut doc_node) =
-            self.get_doc_for_symbol_node_ref(node, parsed_source, &symbols)
-          {
+          let maybe_doc = self.doc_for_node_and_source(node, parsed_source);
+          if let Some(mut doc_node) = maybe_doc {
             doc_node.name = export_name.clone();
             doc_node.declaration_kind = DeclarationKind::Export;
 
@@ -1026,7 +1006,7 @@ impl<'a> DocParser<'a> {
             let is_declared = self.get_declare_for_symbol_node(node);
             if is_declared || self.private {
               if let Some(mut doc_node) =
-                self.get_doc_for_symbol_node_ref(node, parsed_source, &symbols)
+                self.get_doc_for_symbol_node_ref(module_symbol, node)
               {
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
@@ -1045,12 +1025,33 @@ impl<'a> DocParser<'a> {
     doc_nodes
   }
 
-  fn get_doc_for_symbol_node_ref(
+  fn doc_for_node_and_source(
     &self,
     node: SymbolNodeRef<'_>,
     parsed_source: &ParsedSource,
-    symbols: &HashMap<String, DocNode>,
   ) -> Option<DocNode> {
+    let module_symbol = self
+      .get_module_symbol(
+        &ModuleSpecifier::parse(parsed_source.specifier()).unwrap(),
+      )
+      .unwrap();
+    match module_symbol {
+      ModuleSymbolRef::Json(module_symbol) => parse_json_module_doc_node(
+        module_symbol.specifier(),
+        module_symbol.text_info().text_str(),
+      ),
+      ModuleSymbolRef::Esm(module_symbol) => {
+        self.get_doc_for_symbol_node_ref(module_symbol, node)
+      }
+    }
+  }
+
+  fn get_doc_for_symbol_node_ref(
+    &self,
+    module_symbol: &EsmModuleSymbol,
+    node: SymbolNodeRef<'_>,
+  ) -> Option<DocNode> {
+    let parsed_source = module_symbol.source();
     match node {
       SymbolNodeRef::ClassDecl(n) => {
         self.get_doc_for_class_decl(parsed_source, n, &n.class.range())
@@ -1071,19 +1072,18 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_interface_decl(parsed_source, n, &n.range())
       }
       SymbolNodeRef::TsNamespace(n) => {
-        self.get_doc_for_ts_namespace(parsed_source, n, &n.range())
+        self.get_doc_for_ts_namespace(module_symbol, n, &n.range())
       }
       SymbolNodeRef::TsTypeAlias(n) => {
         self.get_docs_for_type_alias(parsed_source, n, &n.range())
       }
       SymbolNodeRef::Var(parent_decl, n, ident) => self
         .get_doc_for_var_declarator_ident(
-          parsed_source,
+          module_symbol,
           parent_decl,
           n,
           ident,
           &parent_decl.range(),
-          symbols,
         ),
       SymbolNodeRef::ExportDecl(export_decl, inner) => match inner {
         ExportDeclRef::Class(n) => {
@@ -1096,7 +1096,7 @@ impl<'a> DocParser<'a> {
           self.get_doc_for_enum(parsed_source, n, &export_decl.range())
         }
         ExportDeclRef::TsModule(n) => {
-          self.get_doc_for_ts_namespace(parsed_source, n, &export_decl.range())
+          self.get_doc_for_ts_namespace(module_symbol, n, &export_decl.range())
         }
         ExportDeclRef::TsInterface(n) => self.get_doc_for_interface_decl(
           parsed_source,
@@ -1108,12 +1108,11 @@ impl<'a> DocParser<'a> {
         }
         ExportDeclRef::Var(var_decl, var_declarator, ident) => self
           .get_doc_for_var_declarator_ident(
-            parsed_source,
+            module_symbol,
             var_decl,
             var_declarator,
             ident,
             &export_decl.range(),
-            symbols,
           ),
       },
     }
@@ -1121,11 +1120,12 @@ impl<'a> DocParser<'a> {
 
   pub fn get_doc_nodes_for_module_body(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: &EsmModuleSymbol,
     module_body: &[deno_ast::swc::ast::ModuleItem],
   ) -> Vec<DocNode> {
-    let symbols = self.get_symbols_for_module_body(parsed_source, module_body);
+    let symbols = self.get_symbols_for_module_body(module_symbol, module_body);
 
+    let parsed_source = module_symbol.source();
     let mut doc_entries: Vec<DocNode> = Vec::new();
     let mut ambient_entries: Vec<DocNode> = Vec::new();
 
@@ -1146,14 +1146,7 @@ impl<'a> DocParser<'a> {
       match node {
         ModuleItem::Stmt(stmt) => {
           if let Stmt::Decl(decl) = stmt {
-            let doc_nodes = self.get_doc_node_for_decl(
-              parsed_source,
-              decl,
-              &doc_entries
-                .iter()
-                .map(|d| (d.name.clone(), d.clone()))
-                .collect(),
-            );
+            let doc_nodes = self.get_doc_node_for_decl(module_symbol, decl);
             let is_declared = self.get_declare_for_decl(decl);
             for mut doc_node in doc_nodes {
               if self.private {
@@ -1175,35 +1168,29 @@ impl<'a> DocParser<'a> {
           // If it has imports/exports, it isn't ambient.
           is_ambient = false;
 
-          doc_entries.extend(self.get_doc_nodes_for_module_exports(
-            parsed_source,
-            module_decl,
-            &symbols,
-          ));
+          doc_entries.extend(
+            self.get_doc_nodes_for_module_exports(module_symbol, module_decl),
+          );
 
-          match module_decl {
-            ModuleDecl::ExportNamed(export_named) => {
-              for specifier in &export_named.specifiers {
-                match specifier {
-                  ExportSpecifier::Named(named_specifier) => {
-                    let symbol =
-                      module_export_name_value(&named_specifier.orig);
-                    if let Some(doc_node) = symbols.get(&symbol) {
-                      let mut doc_node = doc_node.clone();
-                      if let Some(exported) = &named_specifier.exported {
-                        doc_node.name = module_export_name_value(exported)
-                      }
-                      doc_node.declaration_kind = DeclarationKind::Export;
-                      doc_entries.push(doc_node)
+          if let ModuleDecl::ExportNamed(export_named) = module_decl {
+            for specifier in &export_named.specifiers {
+              match specifier {
+                ExportSpecifier::Named(named_specifier) => {
+                  let symbol = module_export_name_value(&named_specifier.orig);
+                  if let Some(doc_node) = symbols.get(&symbol) {
+                    let mut doc_node = doc_node.clone();
+                    if let Some(exported) = &named_specifier.exported {
+                      doc_node.name = module_export_name_value(exported)
                     }
+                    doc_node.declaration_kind = DeclarationKind::Export;
+                    doc_entries.push(doc_node)
                   }
-                  // TODO(zhmushan)
-                  ExportSpecifier::Default(_default_specifier) => {}
-                  ExportSpecifier::Namespace(_namespace_specifier) => {}
                 }
+                // TODO(zhmushan)
+                ExportSpecifier::Default(_default_specifier) => {}
+                ExportSpecifier::Namespace(_namespace_specifier) => {}
               }
             }
-            _ => {}
           }
         }
       }
@@ -1261,12 +1248,12 @@ impl<'a> DocParser<'a> {
   }
 }
 
-fn parse_json_module_doc_nodes(
+fn parse_json_module_doc_node(
   specifier: &ModuleSpecifier,
   source: &str,
-) -> Vec<DocNode> {
+) -> Option<DocNode> {
   if let Ok(value) = serde_json::from_str(source) {
-    vec![DocNode {
+    Some(DocNode {
       kind: DocNodeKind::Variable,
       name: "default".to_string(),
       location: Location {
@@ -1280,10 +1267,10 @@ fn parse_json_module_doc_nodes(
         ts_type: Some(parse_json_module_type(&value)),
       }),
       ..Default::default()
-    }]
+    })
   } else {
     // no doc nodes
-    Vec::new()
+    None
   }
 }
 

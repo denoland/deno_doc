@@ -1,7 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::type_tracer::EsmModuleSymbol;
 use serde::{Deserialize, Serialize};
 
 use crate::node::DeclarationKind;
@@ -17,9 +17,10 @@ pub struct NamespaceDef {
 
 pub fn get_doc_for_ts_namespace_decl(
   doc_parser: &DocParser,
-  parsed_source: &ParsedSource,
+  module_symbol: &EsmModuleSymbol,
   ts_namespace_decl: &deno_ast::swc::ast::TsNamespaceDecl,
 ) -> Option<DocNode> {
+  let parsed_source = module_symbol.source();
   if let Some(js_doc) =
     js_doc_for_range(parsed_source, &ts_namespace_decl.range())
   {
@@ -30,11 +31,11 @@ pub fn get_doc_for_ts_namespace_decl(
 
     let elements = match &*ts_namespace_decl.body {
       TsModuleBlock(ts_module_block) => doc_parser
-        .get_doc_nodes_for_module_body(parsed_source, &ts_module_block.body),
+        .get_doc_nodes_for_module_body(module_symbol, &ts_module_block.body),
       TsNamespaceDecl(ts_namespace_decl) => {
         if let Some(doc_node) = get_doc_for_ts_namespace_decl(
           doc_parser,
-          parsed_source,
+          module_symbol,
           ts_namespace_decl,
         ) {
           vec![doc_node]
@@ -60,7 +61,7 @@ pub fn get_doc_for_ts_namespace_decl(
 
 pub fn get_doc_for_ts_module(
   doc_parser: &DocParser,
-  parsed_source: &ParsedSource,
+  module_symbol: &EsmModuleSymbol,
   ts_module_decl: &deno_ast::swc::ast::TsModuleDecl,
 ) -> (String, NamespaceDef) {
   use deno_ast::swc::ast::TsModuleName;
@@ -74,11 +75,11 @@ pub fn get_doc_for_ts_module(
 
     match &body {
       TsModuleBlock(ts_module_block) => doc_parser
-        .get_doc_nodes_for_module_body(parsed_source, &ts_module_block.body),
+        .get_doc_nodes_for_module_body(module_symbol, &ts_module_block.body),
       TsNamespaceDecl(ts_namespace_decl) => {
         if let Some(doc_node) = get_doc_for_ts_namespace_decl(
           doc_parser,
-          parsed_source,
+          module_symbol,
           ts_namespace_decl,
         ) {
           vec![doc_node]
