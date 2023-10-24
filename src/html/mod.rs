@@ -1,4 +1,5 @@
 use crate::DocNodeKind;
+use std::collections::HashMap;
 
 mod class;
 mod r#enum;
@@ -56,27 +57,50 @@ const HTML_TAIL: &str = r#"
 </html>"#;
 
 pub fn generate(doc_nodes: &[crate::DocNode]) -> String {
-  let mut parts = vec![HTML_HEAD.to_string()];
+  let mut parts = Vec::with_capacity(1024);
+  parts.push(HTML_HEAD.to_string());
 
-  parts.push(
-    r#"<table><thead><tr><th scope="col">Name</th><th scope="col">Kind</th></tr></thead><tbody>"#
-      .to_string(),
-  );
+  let partitions = partition_nodes_by_kind(doc_nodes);
 
-  for doc_node in doc_nodes {
-    parts.push(render_doc_node(doc_node));
+  for (kind, doc_nodes) in partitions.iter() {
+    parts.push(format!(r#"<h1>{:?}</h1>"#, kind));
+    parts.push(
+      r#"<table><thead><tr><th scope="col">Name</th><th></th></tr></thead><tbody>"#
+        .to_string(),
+    );
+    for doc_node in doc_nodes {
+      parts.push(render_doc_node(doc_node));
+    }
+    parts.push("</tbody></table>".to_string());
   }
 
-  parts.push("</tbody></table>".to_string());
   parts.push(HTML_TAIL.to_string());
 
   parts.join("")
 }
 
+fn partition_nodes_by_kind(
+  doc_nodes: &[crate::DocNode],
+) -> HashMap<DocNodeKind, Vec<crate::DocNode>> {
+  let mut partitions = HashMap::default();
+
+  for node in doc_nodes {
+    partitions
+      .entry(node.kind)
+      .or_insert(vec![])
+      .push(node.clone());
+  }
+
+  partitions
+}
+
 fn render_doc_node(doc_node: &crate::DocNode) -> String {
   let tpl = format!(
-    r#"<tr><th scope="row">{}</th><td scope="row">{:?}</td></tr>"#,
-    doc_node.name, doc_node.kind
+    r#"<tr>
+    <th scope="row">{}</th>
+    <td scope="row">{}:{}</td>
+  </tr>"#,
+    doc_node.name, doc_node.location.filename, doc_node.location.line
   );
 
   match doc_node.kind {

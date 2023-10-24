@@ -5,7 +5,7 @@ use serde::Serialize;
 
 use crate::js_doc::JsDoc;
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum DocNodeKind {
   ModuleDoc,
