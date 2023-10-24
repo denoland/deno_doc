@@ -306,23 +306,6 @@ checksum = "41b319d1b62ffbd002e057f36bebd1f42b9f97927c9577461d855f3513c4289f"
 
 [[package]]
 name = "deno_ast"
-version = "0.30.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52171349bf71cf79c91264d56ff097574ff9ddfdf665ce3c6cc737b51c416b58"
-dependencies = [
- "deno_media_type",
- "dprint-swc-ext",
- "serde",
- "swc_atoms",
- "swc_common",
- "swc_ecma_ast",
- "swc_ecma_parser",
- "swc_eq_ignore_macros",
- "text_lines",
-]
-
-[[package]]
-name = "deno_ast"
 version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e2cfd8ef0fe8a32192505c480e19456df1a2a057857243e1e65b8a877a26fb7"
@@ -349,7 +332,7 @@ dependencies = [
  "clap 2.34.0",
  "console_error_panic_hook",
  "criterion",
- "deno_ast 0.30.2",
+ "deno_ast",
  "deno_graph",
  "futures",
  "import_map",
@@ -375,7 +358,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "data-url",
- "deno_ast 0.31.0",
+ "deno_ast",
  "deno_semver",
  "futures",
  "import_map",
