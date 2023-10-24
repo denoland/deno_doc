@@ -306,9 +306,26 @@ checksum = "41b319d1b62ffbd002e057f36bebd1f42b9f97927c9577461d855f3513c4289f"
 
 [[package]]
 name = "deno_ast"
-version = "0.30.0"
+version = "0.30.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab72d91c08a358bc05c2b544bc60c38e1eb9f0715bedbda78da1fa0ad378a129"
+checksum = "52171349bf71cf79c91264d56ff097574ff9ddfdf665ce3c6cc737b51c416b58"
+dependencies = [
+ "deno_media_type",
+ "dprint-swc-ext",
+ "serde",
+ "swc_atoms",
+ "swc_common",
+ "swc_ecma_ast",
+ "swc_ecma_parser",
+ "swc_eq_ignore_macros",
+ "text_lines",
+]
+
+[[package]]
+name = "deno_ast"
+version = "0.31.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e2cfd8ef0fe8a32192505c480e19456df1a2a057857243e1e65b8a877a26fb7"
 dependencies = [
  "deno_media_type",
  "dprint-swc-ext",
@@ -332,7 +349,7 @@ dependencies = [
  "clap 2.34.0",
  "console_error_panic_hook",
  "criterion",
- "deno_ast",
+ "deno_ast 0.30.2",
  "deno_graph",
  "futures",
  "import_map",
@@ -351,14 +368,14 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.58.0"
+version = "0.59.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95542a83b6c071b2966f7b35a5ec90d56353ced1c2aaba4831377745db40935b"
+checksum = "8863c48f0d7c03beef9a64173557d5ba8e32a4a3f1b8830420c6ec47668fa4c6"
 dependencies = [
  "anyhow",
  "async-trait",
  "data-url",
- "deno_ast",
+ "deno_ast 0.31.0",
  "deno_semver",
  "futures",
  "import_map",
@@ -1283,9 +1300,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_dep_graph"
-version = "0.113.2"
+version = "0.113.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa26e30851f26478dda3f5ab9b6dcdd947aa7e5f1223bd6847441c0fad197cc3"
+checksum = "f3281df0c205727acf3584339533f093706205c9996e04964825625c932672db"
 dependencies = [
  "swc_atoms",
  "swc_common",
@@ -1295,9 +1312,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_parser"
-version = "0.141.2"
+version = "0.141.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97025b945d6d0b80089225de57a031bee01b3754a148eb5469b2d13a3b1dda48"
+checksum = "1a23445c5da841d4a5859b4e3a9cee0eb7c09a7b6fb0c0cc7eda2616b1204b12"
 dependencies = [
  "either",
  "num-bigint",
