@@ -26,11 +26,13 @@ use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportDefaultDecl;
 use deno_ast::swc::ast::ExportDefaultExpr;
+use deno_ast::swc::ast::ExportNamedSpecifier;
 use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::FnDecl;
 use deno_ast::swc::ast::Ident;
 use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
+use deno_ast::swc::ast::ModuleExportName;
 use deno_ast::swc::ast::ModuleItem;
 use deno_ast::swc::ast::Stmt;
 use deno_ast::swc::ast::TsEnumDecl;
@@ -905,36 +907,6 @@ impl<'a> DocParser<'a> {
     reexports
   }
 
-  fn get_symbols_for_module_body(
-    &self,
-    module_symbol: &EsmModuleSymbol,
-    module_body: &[deno_ast::swc::ast::ModuleItem],
-  ) -> HashMap<String, DocNode> {
-    let mut symbols = HashMap::new();
-
-    for node in module_body {
-      let doc_nodes = match node {
-        ModuleItem::Stmt(Stmt::Decl(decl)) => {
-          self.get_doc_node_for_decl(module_symbol, decl)
-        }
-        ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export_decl)) => {
-          super::module::get_doc_node_for_export_decl(
-            self,
-            module_symbol,
-            export_decl,
-          )
-        }
-        _ => Vec::new(),
-      };
-
-      for doc_node in doc_nodes {
-        symbols.insert(doc_node.name.clone(), doc_node);
-      }
-    }
-
-    symbols
-  }
-
   fn get_doc_nodes_for_module_symbol(
     &self,
     module_symbol: ModuleSymbolRef,
@@ -1123,8 +1095,6 @@ impl<'a> DocParser<'a> {
     module_symbol: &EsmModuleSymbol,
     module_body: &[deno_ast::swc::ast::ModuleItem],
   ) -> Vec<DocNode> {
-    let symbols = self.get_symbols_for_module_body(module_symbol, module_body);
-
     let parsed_source = module_symbol.source();
     let mut doc_entries: Vec<DocNode> = Vec::new();
     let mut ambient_entries: Vec<DocNode> = Vec::new();
@@ -1174,21 +1144,28 @@ impl<'a> DocParser<'a> {
 
           if let ModuleDecl::ExportNamed(export_named) = module_decl {
             for specifier in &export_named.specifiers {
-              match specifier {
-                ExportSpecifier::Named(named_specifier) => {
-                  let symbol = module_export_name_value(&named_specifier.orig);
-                  if let Some(doc_node) = symbols.get(&symbol) {
-                    let mut doc_node = doc_node.clone();
-                    if let Some(exported) = &named_specifier.exported {
-                      doc_node.name = module_export_name_value(exported)
+              if let ExportSpecifier::Named(ExportNamedSpecifier {
+                orig: ModuleExportName::Ident(orig),
+                exported,
+                ..
+              }) = specifier
+              {
+                if let Some(symbol) =
+                  module_symbol.symbol_from_swc(&orig.to_id())
+                {
+                  for decl in symbol.decls() {
+                    let maybe_doc = decl.maybe_node().and_then(|node_ref| {
+                      self.get_doc_for_symbol_node_ref(module_symbol, node_ref)
+                    });
+                    if let Some(mut doc_node) = maybe_doc {
+                      if let Some(exported) = &exported {
+                        doc_node.name = module_export_name_value(exported)
+                      }
+                      doc_node.declaration_kind = DeclarationKind::Export;
+                      doc_entries.push(doc_node)
                     }
-                    doc_node.declaration_kind = DeclarationKind::Export;
-                    doc_entries.push(doc_node)
                   }
                 }
-                // TODO(zhmushan)
-                ExportSpecifier::Default(_default_specifier) => {}
-                ExportSpecifier::Namespace(_namespace_specifier) => {}
               }
             }
           }

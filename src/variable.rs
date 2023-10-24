@@ -60,10 +60,9 @@ pub fn get_docs_for_var_declarator(
     .map(|def| ts_type_ann_to_def(def.as_ref()))
     .or_else(|| {
       if let Some(ref_name) = ref_name {
-        module_symbol.symbol_id_from_swc(&ref_name).and_then(|id| {
+        module_symbol.symbol_from_swc(&ref_name).and_then(|symbol| {
           // todo(dsherret): it would be better to go to the declaration
           // here, which is somewhat trivial with type tracing.
-          let symbol = module_symbol.symbol(id).unwrap();
           for decl in symbol.decls() {
             if let Some(SymbolNodeRef::Var(_, var_declarator, _)) =
               decl.maybe_node()
