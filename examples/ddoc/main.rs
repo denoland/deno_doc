@@ -108,58 +108,11 @@ fn main() {
 fn generate_docs_directory(
   doc_nodes: &[deno_doc::DocNode],
 ) -> Result<(), anyhow::Error> {
-  let html = generate_html(doc_nodes)?;
+  let html = deno_doc::html::generate(doc_nodes);
 
   // TODO: don't hardcode the path
   std::fs::create_dir("generated_docs/")?;
   // TODO: don't hardcode the path
   std::fs::write("generated_docs/foo.html", html)?;
   Ok(())
-}
-
-const HTML_HEAD: &str = r#"
-<html>
-<head></head>
-<body>
-"#;
-const HTML_TAIL: &str = r#"
-</body>
-<script>
-</script>
-</html>"#;
-
-fn generate_html(
-  doc_nodes: &[deno_doc::DocNode],
-) -> Result<String, anyhow::Error> {
-  let mut parts = vec![HTML_HEAD.to_string()];
-
-  parts.push("<ul>".to_string());
-
-  for doc_node in doc_nodes {
-    parts.push(render_doc_node(doc_node)?);
-  }
-
-  parts.push("</ul>".to_string());
-  parts.push(HTML_TAIL.to_string());
-  Ok(parts.join(""))
-}
-
-fn render_doc_node(
-  doc_node: &deno_doc::DocNode,
-) -> Result<String, anyhow::Error> {
-  let tpl = format!("<li>{} ({:?})</li>", doc_node.name, doc_node.kind);
-
-  match doc_node.kind {
-    DocNodeKind::ModuleDoc => {}
-    DocNodeKind::Function => {}
-    DocNodeKind::Variable => {}
-    DocNodeKind::Class => {}
-    DocNodeKind::Enum => {}
-    DocNodeKind::Interface => {}
-    DocNodeKind::TypeAlias => {}
-    DocNodeKind::Namespace => {}
-    DocNodeKind::Import => {}
-  }
-
-  Ok(tpl)
 }
