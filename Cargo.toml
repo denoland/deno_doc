@@ -14,8 +14,8 @@ name = "deno_doc"
 [dependencies]
 anyhow = "1.0.58"
 cfg-if = "1.0.0"
-deno_ast = "0.30.0"
-deno_graph = { version = "0.58.0", features = ["type_tracing"], path = "../deno_graph" }
+deno_ast = "0.31.0"
+deno_graph = { version = "0.59.0", features = ["type_tracing"] }
 futures = "0.3.26"
 import_map = "0.15.0"
 lazy_static = "1.4.0"
