@@ -934,7 +934,7 @@ impl<'a> DocParser<'a> {
   ) -> HashMap<String, DocNode> {
     let mut symbols = HashMap::new();
 
-    for node in module_body.iter() {
+    for node in module_body {
       let doc_nodes = match node {
         ModuleItem::Stmt(Stmt::Decl(decl)) => {
           self.get_doc_node_for_decl(parsed_source, decl, &symbols)
@@ -965,14 +965,14 @@ impl<'a> DocParser<'a> {
     let Some(module_symbol) = module_symbol.esm() else {
       return Ok(Vec::new());
     };
-    let mut definitions = self.get_doc_nodes_for_module_body_new(module_symbol);
+    let mut definitions =
+      self.get_doc_nodes_for_module_symbol_body(module_symbol);
     definitions.extend(self.get_doc_nodes_for_module_imports(module_symbol)?);
 
     Ok(definitions)
   }
 
-  // todo(NEXT): now remove the old method
-  pub fn get_doc_nodes_for_module_body_new(
+  fn get_doc_nodes_for_module_symbol_body(
     &self,
     module_symbol: &EsmModuleSymbol,
   ) -> Vec<DocNode> {
@@ -1021,10 +1021,10 @@ impl<'a> DocParser<'a> {
       }
     }
 
-    if exports.is_empty() && !module_has_import(module_symbol) || self.private {
+    let is_ambient = exports.is_empty() && !module_has_import(module_symbol);
+    if is_ambient || self.private {
       let mut handled_symbols =
         exports.values().map(|n| n.1).collect::<HashSet<_>>();
-      // no exports or imports means it's ambient
       for child_id in module_symbol.child_decls() {
         if !handled_symbols.insert(child_id) {
           continue; // already handled
