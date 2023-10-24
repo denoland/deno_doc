@@ -1,5 +1,6 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
+use anyhow;
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
@@ -48,11 +49,13 @@ impl Loader for SourceFileLoader {
 
 fn main() {
   let matches = App::new("ddoc")
+    .arg(Arg::with_name("html").long("html"))
     .arg(Arg::with_name("source_file").required(true))
     .arg(Arg::with_name("filter"))
     .get_matches();
 
   let source_file = matches.value_of("source_file").unwrap();
+  let html = matches.is_present("html");
   let maybe_filter = matches.value_of("filter");
   let source_file =
     ModuleSpecifier::from_directory_path(current_dir().unwrap())
@@ -89,9 +92,55 @@ fn main() {
     if let Some(filter) = maybe_filter {
       doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
     }
-    let result = DocPrinter::new(&doc_nodes, true, false);
-    println!("{}", result);
+
+    if !html {
+      let result = DocPrinter::new(&doc_nodes, true, false);
+      println!("{}", result);
+      return;
+    }
+
+    generate_docs_directory(&doc_nodes).unwrap();
   };
 
   block_on(future);
+}
+
+fn generate_docs_directory(
+  doc_nodes: &[deno_doc::DocNode],
+) -> Result<(), anyhow::Error> {
+  let html = generate_html(doc_nodes)?;
+
+  // TODO: don't hardcode the path
+  std::fs::create_dir("generated_docs/")?;
+  // TODO: don't hardcode the path
+  std::fs::write("generated_docs/foo.html", html)?;
+  Ok(())
+}
+
+const HTML_HEAD: &str = r#"
+<html>
+<head></head>
+<body>
+"#;
+const HTML_TAIL: &str = r#"
+</body>
+<script>
+</script>
+</html>"#;
+
+fn generate_html(
+  doc_nodes: &[deno_doc::DocNode],
+) -> Result<String, anyhow::Error> {
+  let mut parts = vec![HTML_HEAD.to_string()];
+
+  parts.push("<ul>".to_string());
+
+  for doc_node in doc_nodes {
+    let tpl = format!("<li>{} ({:?})</li>", doc_node.name, doc_node.kind);
+    parts.push(tpl);
+  }
+
+  parts.push("</ul>".to_string());
+  parts.push(HTML_TAIL.to_string());
+  Ok(parts.join(""))
 }
