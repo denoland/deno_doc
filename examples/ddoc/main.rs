@@ -136,11 +136,30 @@ fn generate_html(
   parts.push("<ul>".to_string());
 
   for doc_node in doc_nodes {
-    let tpl = format!("<li>{} ({:?})</li>", doc_node.name, doc_node.kind);
-    parts.push(tpl);
+    parts.push(render_doc_node(doc_node)?);
   }
 
   parts.push("</ul>".to_string());
   parts.push(HTML_TAIL.to_string());
   Ok(parts.join(""))
+}
+
+fn render_doc_node(
+  doc_node: &deno_doc::DocNode,
+) -> Result<String, anyhow::Error> {
+  let tpl = format!("<li>{} ({:?})</li>", doc_node.name, doc_node.kind);
+
+  match doc_node.kind {
+    DocNodeKind::ModuleDoc => {}
+    DocNodeKind::Function => {}
+    DocNodeKind::Variable => {}
+    DocNodeKind::Class => {}
+    DocNodeKind::Enum => {}
+    DocNodeKind::Interface => {}
+    DocNodeKind::TypeAlias => {}
+    DocNodeKind::Namespace => {}
+    DocNodeKind::Import => {}
+  }
+
+  Ok(tpl)
 }
