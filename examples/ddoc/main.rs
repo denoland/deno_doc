@@ -49,13 +49,19 @@ impl Loader for SourceFileLoader {
 
 fn main() {
   let matches = App::new("ddoc")
-    .arg(Arg::with_name("html").long("html"))
+    .arg(Arg::with_name("html").long("html").requires_all(&["name"]))
+    .arg(Arg::with_name("name").long("name").takes_value(true))
     .arg(Arg::with_name("source_file").required(true))
     .arg(Arg::with_name("filter"))
     .get_matches();
 
   let source_file = matches.value_of("source_file").unwrap();
   let html = matches.is_present("html");
+  let name = if html {
+    matches.value_of("name").unwrap().to_string()
+  } else {
+    "".to_string()
+  };
   let maybe_filter = matches.value_of("filter");
   let source_file =
     ModuleSpecifier::from_directory_path(current_dir().unwrap())
@@ -99,16 +105,17 @@ fn main() {
       return;
     }
 
-    generate_docs_directory(&doc_nodes).unwrap();
+    generate_docs_directory(name, &doc_nodes).unwrap();
   };
 
   block_on(future);
 }
 
 fn generate_docs_directory(
+  name: String,
   doc_nodes: &[deno_doc::DocNode],
 ) -> Result<(), anyhow::Error> {
-  let html = deno_doc::html::generate(doc_nodes);
+  let html = deno_doc::html::generate(name, doc_nodes);
 
   // TODO: don't hardcode the path
   let _ = std::fs::remove_dir_all("generated_docs/");

@@ -34,7 +34,10 @@ const HTML_TAIL: &str = r#"
 </script>
 </html>"#;
 
-pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
+pub fn generate(
+  name: String,
+  doc_nodes: &[crate::DocNode],
+) -> HashMap<String, String> {
   let mut files = HashMap::new();
 
   let mut sidepanel = String::with_capacity(1024);
@@ -42,6 +45,7 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
   let partitions = partition_nodes_by_kind(doc_nodes);
 
   sidepanel.push_str(r#"<div>"#);
+  sidepanel.push_str(&format!("<h2>{}</h2>", name));
   for (kind, doc_nodes) in partitions.iter() {
     sidepanel.push_str(&format!(r#"<h3>{:?}</h3><ul>"#, kind));
 
