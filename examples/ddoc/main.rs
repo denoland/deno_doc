@@ -115,6 +115,10 @@ fn generate_docs_directory(
   // TODO: don't hardcode the path
   std::fs::create_dir("generated_docs/")?;
   // TODO: don't hardcode the path
-  std::fs::write("generated_docs/index.html", html).unwrap();
+
+  for (name, content) in html {
+    std::fs::write(format!("generated_docs/{name}.html"), content).unwrap();
+  }
+
   Ok(())
 }

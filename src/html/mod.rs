@@ -213,45 +213,32 @@ const HTML_TAIL: &str = r#"
 </script>
 </html>"#;
 
-pub fn generate(doc_nodes: &[crate::DocNode]) -> String {
-  let mut parts = Vec::with_capacity(1024);
-  parts.push(HTML_HEAD.to_string());
+pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
+  let mut files = HashMap::new();
 
-  /*let partitions = partition_nodes_by_kind(doc_nodes);
-
-  for (kind, doc_nodes) in partitions.iter() {
-    parts.push(format!(r#"<h1>{:?}</h1>"#, kind));
-    parts.push(
-      r#"<table><thead><tr><th scope="col">Name</th><th></th></tr></thead><tbody>"#
-        .to_string(),
-    );
-    for doc_node in doc_nodes {
-      parts.push(render_doc_node(doc_node));
-    }
-    parts.push("</tbody></table>".to_string());
-  }*/
-
-  let name_partitions = partition_nodes_by_name(doc_nodes);
-
-  parts.push(r#"<div style="display: flex;"><ul>"#.to_string());
+  let mut sidepanel = String::with_capacity(1024);
+  sidepanel.push_str(r#"<ul>"#);
   for doc_node in doc_nodes {
-    parts.push(format!(
-      r##"<li><a href="#symbol_{}">{}</a></li>"##,
+    sidepanel.push_str(&format!(
+      r##"<li><a href="./{}.html">{}</a></li>"##,
       doc_node.name, doc_node.name
     ));
   }
-  parts.push(r#"</ul>"#.to_string());
 
-  parts.push(r#"<div style="padding: 30px;">"#.to_string());
+  sidepanel.push_str(r#"</ul>"#);
+
+  let name_partitions = partition_nodes_by_name(doc_nodes);
+
   for (name, doc_nodes) in name_partitions.iter() {
-    parts.push(symbol::render_symbol_group(doc_nodes.clone(), name));
-    parts.push(r#"<hr style="margin: 50px 0;" />"#.to_string());
+    files.insert(name.to_string(), format!(
+      r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;">{}</div></div>{HTML_TAIL}"##,
+      symbol::render_symbol_group(doc_nodes.clone(), name),
+    ));
   }
-  parts.push("</div></div>".to_string());
 
-  parts.push(HTML_TAIL.to_string());
+  files.insert("index".to_string(), sidepanel);
 
-  parts.join("")
+  files
 }
 
 fn partition_nodes_by_kind(
