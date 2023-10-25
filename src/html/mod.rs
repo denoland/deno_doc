@@ -218,6 +218,7 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
   let mut files = HashMap::new();
 
   let mut sidepanel = String::with_capacity(1024);
+  // FIXME(bartlomieju): functions can have duplicates because of overloads
   let mut partitions = partition_nodes_by_kind(doc_nodes);
 
   sidepanel.push_str(r#"<div>"#);
