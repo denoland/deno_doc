@@ -34,7 +34,6 @@ pub fn doc_entry(
   format!(
     r#"
     <div class="doc_item" id="{id}">
-      {}
       <div class="doc_entry">
         {}
         <span class="doc_entry_children">
@@ -42,12 +41,12 @@ pub fn doc_entry(
             <span style="font-weight: 700;">{name}</span><span style="font-weight: 500;">{content}</span>
           </code>
         </span>
-
       </div>
+      {}
     </div>
    "#,
-    jsdoc.map(markdown::to_html).unwrap_or_default(),
     anchor(id),
+    jsdoc.map(markdown::to_html).unwrap_or_default(),
   )
 }
 
