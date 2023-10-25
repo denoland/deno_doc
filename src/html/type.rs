@@ -112,8 +112,8 @@ pub fn render_type_def(def: &crate::ts_type::TsTypeDef) -> String {
       TsTypeDefKind::Mapped => {
         let mapped = def.mapped_type.as_ref().unwrap();
 
-        let optional = if let Some(optional) = mapped.readonly {
-          let char = match optional {
+        let readonly = if let Some(readonly) = mapped.readonly {
+          let char = match readonly {
             TruePlusMinus::True => "",
             TruePlusMinus::Plus => "+",
             TruePlusMinus::Minus => "-",
@@ -151,7 +151,7 @@ pub fn render_type_def(def: &crate::ts_type::TsTypeDef) -> String {
           .unwrap_or_default();
 
         format!(
-          "{optional}[{}{name_type}]{optional}{ts_type}",
+          "{readonly}[{}{name_type}]{optional}{ts_type}",
           type_param_summary(&mapped.type_param, "in")
         )
       }
