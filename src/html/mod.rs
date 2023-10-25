@@ -226,7 +226,7 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
     doc_nodes.sort_by_key(|n| n.name.to_string());
     for doc_node in doc_nodes {
       sidepanel.push_str(&format!(
-        r##"<li><a href="#symbol_{}">{}</a></li>"##,
+        r##"<li><a href="./{}.html">{}</a></li>"##,
         doc_node.name, doc_node.name
       ));
     }

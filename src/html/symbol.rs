@@ -103,7 +103,9 @@ fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
   }
 
   if !functions.is_empty() {
-    // TODO: functions
+    for function in functions {
+      content.push_str(&super::function::render_function(function));
+    }
   }
 
   format!("<div>{content}</div>")
