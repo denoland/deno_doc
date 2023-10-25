@@ -111,7 +111,7 @@ fn generate_docs_directory(
   let html = deno_doc::html::generate(doc_nodes);
 
   // TODO: don't hardcode the path
-  std::fs::remove_dir_all("generated_docs/")?;
+  let _ = std::fs::remove_dir_all("generated_docs/");
   // TODO: don't hardcode the path
   std::fs::create_dir("generated_docs/")?;
   // TODO: don't hardcode the path

@@ -217,15 +217,23 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
   let mut files = HashMap::new();
 
   let mut sidepanel = String::with_capacity(1024);
-  sidepanel.push_str(r#"<ul>"#);
-  for doc_node in doc_nodes {
-    sidepanel.push_str(&format!(
-      r##"<li><a href="./{}.html">{}</a></li>"##,
-      doc_node.name, doc_node.name
-    ));
-  }
+  let mut partitions = partition_nodes_by_kind(doc_nodes);
 
-  sidepanel.push_str(r#"</ul>"#);
+  sidepanel.push_str(r#"<div>"#);
+  for (kind, doc_nodes) in partitions.iter_mut() {
+    sidepanel.push_str(&format!(r#"<h3>{:?}</h3><ul>"#, kind));
+
+    doc_nodes.sort_by_key(|n| n.name.to_string());
+    for doc_node in doc_nodes {
+      sidepanel.push_str(&format!(
+        r##"<li><a href="#symbol_{}">{}</a></li>"##,
+        doc_node.name, doc_node.name
+      ));
+    }
+
+    sidepanel.push_str(r#"</ul>"#);
+  }
+  sidepanel.push_str(r#"</div>"#);
 
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
