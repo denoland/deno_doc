@@ -42,7 +42,7 @@ pub fn doc_entry(id: &str, name: &str, content: &str) -> String {
   )
 }
 
-fn anchor(name: &str) -> String {
+pub fn anchor(name: &str) -> String {
   // TODO: icon
   format!(
     r##"<a

@@ -1,4 +1,4 @@
-use crate::html::r#type::render_type_def;
+use crate::html::types::render_type_def;
 use crate::html::util::*;
 
 pub fn render_type_alias(doc_node: &crate::DocNode) -> String {

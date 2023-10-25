@@ -1,6 +1,10 @@
-use crate::html::parameters::render_params;
-use crate::ts_type::{LiteralDefKind, TsTypeDefKind};
-use deno_ast::swc::ast::{MethodKind, TruePlusMinus};
+use super::parameters::render_params;
+use super::util::*;
+use crate::ts_type::LiteralDefKind;
+use crate::ts_type::TsTypeDefKind;
+use crate::ts_type_param::TsTypeParamDef;
+use deno_ast::swc::ast::MethodKind;
+use deno_ast::swc::ast::TruePlusMinus;
 
 pub fn render_type_def(def: &crate::ts_type::TsTypeDef) -> String {
   if let Some(kind) = &def.kind {
@@ -79,7 +83,7 @@ pub fn render_type_def(def: &crate::ts_type::TsTypeDef) -> String {
           .unwrap_or_default();
 
         format!(
-          "{new}{} ({}) =&gt; {}",
+          "{new}{}({}) =&gt; {}",
           type_params_summary(&fn_or_constructor.type_params),
           render_params(&fn_or_constructor.params),
           render_type_def(&fn_or_constructor.ts_type),
@@ -356,9 +360,7 @@ fn type_def_tuple(union: &[crate::ts_type::TsTypeDef]) -> String {
   }
 }
 
-fn type_params_summary(
-  type_params: &[crate::ts_type_param::TsTypeParamDef],
-) -> String {
+pub fn type_params_summary(type_params: &[TsTypeParamDef]) -> String {
   if type_params.is_empty() {
     String::new()
   } else {
@@ -416,4 +418,43 @@ fn type_arguments(defs: &[crate::ts_type::TsTypeDef]) -> String {
 
     format!("&lt;{items}&gt;")
   }
+}
+
+pub fn render_type_params(type_params: &[TsTypeParamDef]) -> String {
+  if type_params.is_empty() {
+    return String::new();
+  }
+
+  let items = type_params
+    .iter()
+    .map(|type_param| {
+      let id = name_to_id("type_param", &type_param.name);
+
+      let constraint = type_param
+        .constraint
+        .as_ref()
+        .map(|constraint| {
+          format!(
+            r#"<span><span> extends </span>{}</span>"#,
+            render_type_def(constraint)
+          )
+        })
+        .unwrap_or_default();
+
+      let default = type_param
+        .default
+        .as_ref()
+        .map(|default| {
+          format!(
+            r#"<span><span> = </span>{}</span>"#,
+            render_type_def(default)
+          )
+        })
+        .unwrap_or_default();
+
+      doc_entry(&id, &type_param.name, &format!("{constraint}{default}"))
+    })
+    .collect::<String>();
+
+  section("Type Parameters", &items)
 }

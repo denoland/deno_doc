@@ -8,8 +8,8 @@ mod interface;
 mod namespace;
 mod parameters;
 mod symbol;
-mod r#type;
 mod type_alias;
+mod types;
 mod util;
 mod variable;
 
@@ -98,7 +98,7 @@ a {
 .section_title {
   font-size: 0.875rem; /* 14px */
   line-height: 1.5rem; /* 24px */
-  font-weight: 600;
+  font-weight: 500;
   color: rgb(156 163 175);
   padding-top: 0.25rem; /* 4px */
   padding-bottom: 0.25rem; /* 4px */

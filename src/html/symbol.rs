@@ -85,11 +85,15 @@ fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
       DocNodeKind::Variable => {
         content.push_str(&super::variable::render_variable(doc_node))
       }
-      DocNodeKind::Class => {}
+      DocNodeKind::Class => {
+        content.push_str(&super::class::render_class(doc_node))
+      }
       DocNodeKind::Enum => {
         content.push_str(&super::r#enum::render_enum(doc_node))
       }
-      DocNodeKind::Interface => {}
+      DocNodeKind::Interface => {
+        content.push_str(&super::interface::render_interface(doc_node))
+      }
       DocNodeKind::TypeAlias => {
         content.push_str(&super::type_alias::render_type_alias(doc_node))
       }
