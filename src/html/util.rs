@@ -10,7 +10,7 @@ fn section_title(title: &str) -> String {
   let id = TARGET_RE.replace_all(title, "_");
 
   format!(
-    r##"<h2 class="section_title" id={id}><a href="#{id}" aria-label="Anchor">{title}</a></h2>"##
+    r##"<h2 class="section_title" id="{id}"><a href="#{id}" aria-label="Anchor">{title}</a></h2>"##
   )
 }
 
@@ -23,19 +23,18 @@ pub fn section(title: &str, content: &str) -> String {
 }
 
 pub fn doc_entry(id: &str, name: &str, content: &str) -> String {
-  // TODO: jsdoc, sourceHref, font-mono
+  // TODO: jsdoc, sourceHref
   format!(
     r#"
     <div class="doc_item" id="{id}">
       {}
       <div class="doc_entry">
         <span class="doc_entry_children">
+          <code>
+            <span style="font-weight: 700;">{name}</span><span style="font-weight: 500;">{content}</span>
+          </code>
         </span>
 
-        <span class="font-mono">
-          <span class="font-weight: 700;">{name}</span>
-          <span style="font-weight: 500;">{content}</span>
-        </span>
       </div>
     </div>
    "#,

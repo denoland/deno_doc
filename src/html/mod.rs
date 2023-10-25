@@ -7,6 +7,7 @@ mod function;
 mod interface;
 mod namespace;
 mod parameters;
+mod symbol;
 mod r#type;
 mod type_alias;
 mod util;
@@ -61,8 +62,37 @@ a {
 
 /* doc classes */
 
+.symbol_group > * + * {
+  margin-top: 3rem; /* 48px */
+}
+
+.symbol > * + * {
+  margin-top: 2rem; /* 32px */
+}
+
+.symbol_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+
 .doc_block_items > * + * {
   margin-top: 1.75rem; /* 28px */
+}
+
+.doc_block_title {
+  font-weight: 500;
+  background-color: unset !important;
+}
+
+.doc_block_title > * + * {
+  margin-top: 0.25rem; /* 4px */
+}
+
+.doc_block_title > *:first-child {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.75rem; /* 28px */
 }
 
 .section_title {
@@ -104,7 +134,6 @@ a {
 }
 
 .anchor {
-  /* TODO: group-hover:block */
   float: left;
   line-height: 1;
   display: none;
@@ -117,6 +146,63 @@ a {
   display: block;
 }
 
+
+
+.kind_Function_text {
+  color: #056CF0;
+}
+
+.kind_Function_bg {
+  background-color: #026BEB1A;
+}
+
+.kind_Variable_text {
+  color: #7E57C0;
+}
+
+.kind_Variable_bg {
+  background-color: #7E57C01A;
+}
+
+.kind_Class_text {
+  color: #20B44B;
+}
+
+.kind_Class_bg {
+  background-color: #2FA8501A;
+}
+
+.kind_Enum_text {
+  color: #22ABB0;
+}
+
+.kind_Enum_bg {
+  background-color: #22ABB01A;
+}
+
+.kind_Interface_text {
+  color: #D2A064;
+}
+
+.kind_Interface_bg {
+  background-color: #D4A0681A;
+}
+
+.kind_TypeAlias_text {
+  color: #A4478C;
+}
+
+.kind_TypeAlias_bg {
+  background-color: #A4478C1A;
+}
+
+.kind_Namespace_text {
+  color: #D25646;
+}
+
+.kind_Namespace_bg {
+  background-color: #D256461A;
+}
 </style>
 </head>
 <body>
@@ -131,7 +217,7 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> String {
   let mut parts = Vec::with_capacity(1024);
   parts.push(HTML_HEAD.to_string());
 
-  let partitions = partition_nodes_by_kind(doc_nodes);
+  /*let partitions = partition_nodes_by_kind(doc_nodes);
 
   for (kind, doc_nodes) in partitions.iter() {
     parts.push(format!(r#"<h1>{:?}</h1>"#, kind));
@@ -143,17 +229,25 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> String {
       parts.push(render_doc_node(doc_node));
     }
     parts.push("</tbody></table>".to_string());
-  }
+  }*/
 
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
+  parts.push(r#"<div style="display: flex;"><ul>"#.to_string());
+  for doc_node in doc_nodes {
+    parts.push(format!(
+      r##"<li><a href="#symbol_{}">{}</a></li>"##,
+      doc_node.name, doc_node.name
+    ));
+  }
+  parts.push(r#"</ul>"#.to_string());
+
   parts.push(r#"<div style="padding: 30px;">"#.to_string());
   for (name, doc_nodes) in name_partitions.iter() {
-    parts.push(doc_block_title(name));
-    parts.push(doc_block(doc_nodes));
-    parts.push("<hr />".to_string());
+    parts.push(symbol::render_symbol_group(doc_nodes.clone(), name));
+    parts.push(r#"<hr style="margin: 50px 0;" />"#.to_string());
   }
-  parts.push("</div>".to_string());
+  parts.push("</div></div>".to_string());
 
   parts.push(HTML_TAIL.to_string());
 
@@ -212,39 +306,4 @@ fn render_doc_node(doc_node: &crate::DocNode) -> String {
   }
 
   tpl
-}
-
-fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
-  let mut content = String::new();
-  let mut functions = vec![];
-
-  for doc_node in doc_nodes {
-    match doc_node.kind {
-      DocNodeKind::ModuleDoc => {}
-      DocNodeKind::Function => functions.push(doc_node),
-      DocNodeKind::Variable => {
-        content.push_str(&variable::render_variable(doc_node))
-      }
-      DocNodeKind::Class => {}
-      DocNodeKind::Enum => content.push_str(&r#enum::render_enum(doc_node)),
-      DocNodeKind::Interface => {}
-      DocNodeKind::TypeAlias => {
-        content.push_str(&type_alias::render_type_alias(doc_node))
-      }
-      DocNodeKind::Namespace => {}
-      DocNodeKind::Import => {}
-    };
-  }
-
-  if !functions.is_empty() {
-    // TODO: functions
-  }
-
-  format!("<div>{content}</div>")
-}
-
-fn doc_block_title(name: &str) -> String {
-  format!(
-    r#"<div class="doc_block_title"><div><span class="font-bold">{name}</span></div></div>"#
-  )
 }
