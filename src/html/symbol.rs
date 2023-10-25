@@ -103,10 +103,25 @@ fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
   }
 
   if !functions.is_empty() {
-    for function in functions {
-      content.push_str(&super::function::render_function(function));
+    let grouped_functions = group_by_overloads(functions);
+    for function_group in grouped_functions {
+      content.push_str(&super::function::render_function(function_group));
     }
   }
 
   format!("<div>{content}</div>")
+}
+
+fn group_by_overloads(
+  functions: Vec<&crate::DocNode>,
+) -> Vec<Vec<&crate::DocNode>> {
+  let mut grouped: HashMap<String, Vec<&crate::DocNode>> = HashMap::default();
+  for function in functions {
+    grouped
+      .entry(function.name.to_string())
+      .or_insert(vec![])
+      .push(function);
+  }
+
+  grouped.values().cloned().collect()
 }
