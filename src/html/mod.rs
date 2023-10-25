@@ -55,42 +55,19 @@ pub fn generate(
 ) -> HashMap<String, String> {
   let mut files = HashMap::new();
 
-  let mut sidepanel = String::with_capacity(1024);
   // FIXME(bartlomieju): functions can have duplicates because of overloads
   let partitions = partition_nodes_by_kind(doc_nodes);
+  let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  sidepanel.push_str(r#"<div>"#);
-  sidepanel.push_str(&format!(
-    r#"<h2><a href="{}">{}</a></h2>"#,
-    ctx.base_url, ctx.package_name
-  ));
-  for (kind, doc_nodes) in partitions.iter() {
-    sidepanel.push_str(&format!(r#"<h3>{:?}</h3><ul>"#, kind));
-
-    for doc_node in doc_nodes {
-      sidepanel.push_str(&format!(
-        r##"<li><a href="{}.html">{}</a></li>"##,
-        ctx.url(doc_node.name.to_string()),
-        doc_node.name
-      ));
-    }
-
-    sidepanel.push_str(r#"</ul>"#);
-  }
-  sidepanel.push_str(r#"</div>"#);
-
+  let sidepanel = render_sidepanel(&ctx, &partitions);
   files.insert(
     "index".to_string(),
     render_index(&ctx, &sidepanel, partitions),
   );
 
-  let name_partitions = partition_nodes_by_name(doc_nodes);
-
   for (name, doc_nodes) in name_partitions.iter() {
-    files.insert(name.to_string(), format!(
-      r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{}</div></div>{HTML_TAIL}"##,
-      ctx.base_url, symbol::render_symbol_group(doc_nodes.clone(), name),
-    ));
+    let page = render_page(&ctx, &sidepanel, name, doc_nodes);
+    files.insert(name.to_string(), page);
   }
 
   files
@@ -162,26 +139,45 @@ fn partition_nodes_by_name(
   partitions
 }
 
-fn render_doc_node(doc_node: &crate::DocNode) -> String {
-  let tpl = format!(
-    r#"<tr>
-    <th scope="row">{}</th>
-    <td scope="row">{}:{}</td>
-  </tr>"#,
-    doc_node.name, doc_node.location.filename, doc_node.location.line
-  );
+fn render_page(
+  ctx: &GenerateCtx,
+  sidepanel: &str,
+  name: &str,
+  doc_nodes: &[crate::DocNode],
+) -> String {
+  format!(
+    r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{}</div></div>{HTML_TAIL}"##,
+    ctx.base_url,
+    // FIXME: don't clone here
+    symbol::render_symbol_group(doc_nodes.to_vec(), name),
+  )
+}
 
-  match doc_node.kind {
-    DocNodeKind::ModuleDoc => {}
-    DocNodeKind::Function => {}
-    DocNodeKind::Variable => {}
-    DocNodeKind::Class => {}
-    DocNodeKind::Enum => {}
-    DocNodeKind::Interface => {}
-    DocNodeKind::TypeAlias => {}
-    DocNodeKind::Namespace => {}
-    DocNodeKind::Import => {}
+fn render_sidepanel(
+  ctx: &GenerateCtx,
+  partitions: &IndexMap<DocNodeKind, Vec<crate::DocNode>>,
+) -> String {
+  let mut sidepanel = String::with_capacity(1024);
+
+  sidepanel.push_str(r#"<div>"#);
+  sidepanel.push_str(&format!(
+    r#"<h2><a href="{}">{}</a></h2>"#,
+    ctx.base_url, ctx.package_name
+  ));
+  for (kind, doc_nodes) in partitions.iter() {
+    sidepanel.push_str(&format!(r#"<h3>{:?}</h3><ul>"#, kind));
+
+    for doc_node in doc_nodes {
+      sidepanel.push_str(&format!(
+        r##"<li><a href="{}.html">{}</a></li>"##,
+        ctx.url(doc_node.name.to_string()),
+        doc_node.name
+      ));
+    }
+
+    sidepanel.push_str(r#"</ul>"#);
   }
+  sidepanel.push_str(r#"</div>"#);
 
-  tpl
+  sidepanel
 }

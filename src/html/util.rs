@@ -1,5 +1,3 @@
-use crate::js_doc::JsDoc;
-
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
 }

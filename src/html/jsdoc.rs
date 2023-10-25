@@ -1,4 +1,3 @@
-use super::util::*;
 use crate::js_doc::JsDoc;
 
 pub fn render_docs(js_doc: &JsDoc) -> String {
