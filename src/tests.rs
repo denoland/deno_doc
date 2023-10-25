@@ -3960,6 +3960,10 @@ export namespace RootNs {
       }
     }
 }
+
+export namespace RootNs.OtherNs {
+  export class Other {}
+}
     "#;
     [{
     "kind": "namespace",
@@ -4070,6 +4074,41 @@ export namespace RootNs {
                       }
                     }
                   ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "namespace",
+          "name": "OtherNs",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 16,
+            "col": 7
+          },
+          "declarationKind": "export",
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "class",
+                "name": "Other",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 17,
+                  "col": 2
+                },
+                "declarationKind": "export",
+                "classDef": {
+                  "isAbstract": false,
+                  "constructors": [],
+                  "properties": [],
+                  "indexSignatures": [],
+                  "methods": [],
+                  "extends": null,
+                  "implements": [],
+                  "typeParams": [],
+                  "superTypeParams": [],
                 }
               }
             ]

@@ -19,23 +19,6 @@ pub struct VariableDef {
   pub kind: deno_ast::swc::ast::VarDeclKind,
 }
 
-pub fn get_docs_for_var_decl(
-  module_symbol: &EsmModuleSymbol,
-  var_decl: &deno_ast::swc::ast::VarDecl,
-) -> Vec<(String, VariableDef, Option<SourceRange>)> {
-  assert!(!var_decl.decls.is_empty());
-  let mut items = Vec::<(String, VariableDef, Option<SourceRange>)>::new();
-  for var_declarator in &var_decl.decls {
-    items.extend(get_docs_for_var_declarator(
-      module_symbol,
-      var_decl,
-      var_declarator,
-    ))
-  }
-
-  items
-}
-
 pub fn get_docs_for_var_declarator(
   module_symbol: &EsmModuleSymbol,
   var_decl: &deno_ast::swc::ast::VarDecl,

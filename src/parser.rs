@@ -1,11 +1,11 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use crate::js_doc::JsDoc;
-use crate::namespace::NamespaceDef;
 use crate::node;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
+use crate::node::NamespaceDef;
 use crate::swc_util::get_location;
 use crate::swc_util::get_text_info_location;
 use crate::swc_util::js_doc_for_range;
@@ -24,20 +24,19 @@ use crate::ReexportKind;
 use deno_ast::swc::ast::ClassDecl;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
+use deno_ast::swc::ast::ExportDecl;
 use deno_ast::swc::ast::ExportDefaultDecl;
 use deno_ast::swc::ast::ExportDefaultExpr;
-use deno_ast::swc::ast::ExportNamedSpecifier;
 use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::FnDecl;
 use deno_ast::swc::ast::Ident;
 use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
-use deno_ast::swc::ast::ModuleExportName;
 use deno_ast::swc::ast::ModuleItem;
-use deno_ast::swc::ast::Stmt;
 use deno_ast::swc::ast::TsEnumDecl;
 use deno_ast::swc::ast::TsInterfaceDecl;
 use deno_ast::swc::ast::TsModuleDecl;
+use deno_ast::swc::ast::TsModuleName;
 use deno_ast::swc::ast::TsTypeAliasDecl;
 use deno_ast::swc::ast::VarDecl;
 use deno_ast::swc::ast::VarDeclKind;
@@ -48,6 +47,7 @@ use deno_ast::SourceRangedForSpanned;
 use deno_graph::type_tracer::EsmModuleSymbol;
 use deno_graph::type_tracer::ExportDeclRef;
 use deno_graph::type_tracer::ModuleSymbolRef;
+use deno_graph::type_tracer::Symbol;
 use deno_graph::type_tracer::SymbolNodeRef;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
@@ -298,8 +298,11 @@ impl<'a> DocParser<'a> {
                         if let Some((node, parsed_source)) =
                           decl.maybe_node_and_source()
                         {
-                          let maybe_doc =
-                            self.doc_for_node_and_source(node, parsed_source);
+                          let maybe_doc = self.doc_for_node(
+                            parsed_source,
+                            definition.symbol,
+                            node,
+                          );
                           if let Some(mut doc_node) = maybe_doc {
                             doc_node.name = export_name.clone();
                             doc_node.declaration_kind = DeclarationKind::Export;
@@ -385,107 +388,6 @@ impl<'a> DocParser<'a> {
     }
 
     Ok(imports)
-  }
-
-  pub fn get_doc_nodes_for_module_exports(
-    &self,
-    module_symbol: &EsmModuleSymbol,
-    module_decl: &ModuleDecl,
-  ) -> Vec<DocNode> {
-    match module_decl {
-      ModuleDecl::ExportDecl(export_decl) => {
-        super::module::get_doc_node_for_export_decl(
-          self,
-          module_symbol,
-          export_decl,
-        )
-      }
-      ModuleDecl::ExportDefaultDecl(export_default_decl) => self
-        .get_doc_for_export_default_decl(
-          module_symbol.source(),
-          export_default_decl,
-        )
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      _ => vec![],
-    }
-  }
-
-  pub fn get_doc_node_for_decl(
-    &self,
-    module_symbol: &EsmModuleSymbol,
-    decl: &Decl,
-  ) -> Vec<DocNode> {
-    let parsed_source = module_symbol.source();
-    match decl {
-      Decl::Class(class_decl) => self
-        .get_doc_for_class_decl(
-          parsed_source,
-          class_decl,
-          &class_decl.class.range(),
-        )
-        .map(|d| vec![d])
-        .unwrap_or_default(),
-      Decl::Fn(fn_decl) => self
-        .get_doc_for_fn_decl(parsed_source, fn_decl, &fn_decl.function.range())
-        .map(|d| vec![d])
-        .unwrap_or_default(),
-      Decl::Var(var_decl) => {
-        self.get_docs_for_var_decl(module_symbol, var_decl, &var_decl.range())
-      }
-      Decl::Using(_) => Vec::new(),
-      Decl::TsInterface(ts_interface_decl) => self
-        .get_doc_for_interface_decl(
-          parsed_source,
-          ts_interface_decl,
-          &ts_interface_decl.range(),
-        )
-        .map(|d| vec![d])
-        .unwrap_or_default(),
-      Decl::TsTypeAlias(ts_type_alias) => self
-        .get_docs_for_type_alias(
-          parsed_source,
-          ts_type_alias,
-          &ts_type_alias.range(),
-        )
-        .map(|d| vec![d])
-        .unwrap_or_default(),
-      Decl::TsEnum(ts_enum) => self
-        .get_doc_for_enum(parsed_source, ts_enum, &ts_enum.range())
-        .map(|d| vec![d])
-        .unwrap_or_default(),
-      Decl::TsModule(ts_module) => self
-        .get_doc_for_ts_namespace(module_symbol, ts_module, &ts_module.range())
-        .map(|d| vec![d])
-        .unwrap_or_default(),
-    }
-  }
-
-  fn get_docs_for_var_decl(
-    &self,
-    module_symbol: &EsmModuleSymbol,
-    var_decl: &VarDecl,
-    full_range: &SourceRange,
-  ) -> Vec<DocNode> {
-    super::variable::get_docs_for_var_decl(module_symbol, var_decl)
-      .into_iter()
-      .filter_map(|(name, var_def, maybe_range)| {
-        let js_doc = js_doc_for_range(module_symbol.source(), full_range)?;
-        let location = get_location(
-          module_symbol.source(),
-          maybe_range
-            .map(|m| m.start)
-            .unwrap_or_else(|| var_decl.start()),
-        );
-        Some(DocNode::variable(
-          name,
-          location,
-          DeclarationKind::Declare,
-          js_doc,
-          var_def,
-        ))
-      })
-      .collect()
   }
 
   fn get_doc_for_var_declarator_ident(
@@ -634,19 +536,103 @@ impl<'a> DocParser<'a> {
   fn get_doc_for_ts_namespace(
     &self,
     module_symbol: &EsmModuleSymbol,
+    symbol: &Symbol,
     ts_module: &TsModuleDecl,
     full_range: &SourceRange,
   ) -> Option<DocNode> {
+    let first_ns_decl = symbol
+      .decls()
+      .filter_map(|d| {
+        d.maybe_node().and_then(|n| match n {
+          SymbolNodeRef::ExportDecl(
+            ExportDecl {
+              decl: Decl::TsModule(n),
+              ..
+            },
+            _,
+          ) => Some(&**n),
+          SymbolNodeRef::TsNamespace(n) => Some(n),
+          _ => None,
+        })
+      })
+      .next()
+      .unwrap();
+    if first_ns_decl.range() != ts_module.range() {
+      return None; // we already analyzed this module
+    }
+
+    let namespace_name = match &ts_module.id {
+      TsModuleName::Ident(ident) => ident.sym.to_string(),
+      TsModuleName::Str(str_) => str_.value.to_string(),
+    };
+    let mut elements = Vec::new();
+
+    for (export_name, export_symbol_id) in symbol.exports() {
+      let export_symbol = module_symbol.symbol(*export_symbol_id).unwrap();
+      let definitions = self.root_symbol.go_to_definitions(
+        &self.graph,
+        ModuleSymbolRef::Esm(module_symbol),
+        export_symbol,
+      );
+      for definition in definitions {
+        if definition.module.specifier() != module_symbol.specifier() {
+          continue;
+        }
+        if let Some((node, parsed_source)) =
+          definition.symbol_decl.maybe_node_and_source()
+        {
+          let maybe_doc =
+            self.doc_for_node(parsed_source, definition.symbol, node);
+          if let Some(mut doc_node) = maybe_doc {
+            doc_node.name = export_name.to_string();
+            doc_node.declaration_kind = DeclarationKind::Export;
+
+            elements.push(doc_node);
+          }
+        }
+      }
+    }
+
+    let is_ambient = elements.is_empty() && !module_has_import(module_symbol);
+    if is_ambient || self.private {
+      let mut handled_symbols =
+        symbol.exports().values().copied().collect::<HashSet<_>>();
+      for child_id in module_symbol.child_decls() {
+        if !handled_symbols.insert(child_id) {
+          continue; // already handled
+        }
+        let child_symbol = module_symbol.symbol(child_id).unwrap();
+        for decl in child_symbol.decls() {
+          if let Some(node) = decl.maybe_node() {
+            let is_declared = self.get_declare_for_symbol_node(node);
+            if is_declared || self.private {
+              if let Some(mut doc_node) = self.get_doc_for_symbol_node_ref(
+                module_symbol,
+                child_symbol,
+                node,
+              ) {
+                doc_node.declaration_kind = if is_declared {
+                  DeclarationKind::Declare
+                } else {
+                  debug_assert!(self.private);
+                  DeclarationKind::Private
+                };
+                elements.push(doc_node);
+              }
+            }
+          }
+        }
+      }
+    }
+
     let js_doc = js_doc_for_range(module_symbol.source(), full_range)?;
-    let (name, namespace_def) =
-      super::namespace::get_doc_for_ts_module(self, module_symbol, ts_module);
     let location = get_location(module_symbol.source(), full_range.start);
     Some(DocNode::namespace(
-      name,
+      namespace_name,
       location,
       DeclarationKind::Declare,
       js_doc,
-      namespace_def,
+      NamespaceDef { elements },
     ))
   }
 
@@ -953,7 +939,8 @@ impl<'a> DocParser<'a> {
         if let Some((node, parsed_source)) =
           definition.symbol_decl.maybe_node_and_source()
         {
-          let maybe_doc = self.doc_for_node_and_source(node, parsed_source);
+          let maybe_doc =
+            self.doc_for_node(parsed_source, definition.symbol, node);
           if let Some(mut doc_node) = maybe_doc {
             doc_node.name = export_name.clone();
             doc_node.declaration_kind = DeclarationKind::Export;
@@ -977,9 +964,11 @@ impl<'a> DocParser<'a> {
           if let Some(node) = decl.maybe_node() {
             let is_declared = self.get_declare_for_symbol_node(node);
             if is_declared || self.private {
-              if let Some(mut doc_node) =
-                self.get_doc_for_symbol_node_ref(module_symbol, node)
-              {
+              if let Some(mut doc_node) = self.get_doc_for_symbol_node_ref(
+                module_symbol,
+                child_symbol,
+                node,
+              ) {
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
                 } else {
@@ -997,10 +986,11 @@ impl<'a> DocParser<'a> {
     doc_nodes
   }
 
-  fn doc_for_node_and_source(
+  fn doc_for_node(
     &self,
-    node: SymbolNodeRef<'_>,
     parsed_source: &ParsedSource,
+    symbol: &Symbol,
+    node: SymbolNodeRef<'_>,
   ) -> Option<DocNode> {
     let module_symbol = self
       .get_module_symbol(
@@ -1013,7 +1003,7 @@ impl<'a> DocParser<'a> {
         module_symbol.text_info().text_str(),
       ),
       ModuleSymbolRef::Esm(module_symbol) => {
-        self.get_doc_for_symbol_node_ref(module_symbol, node)
+        self.get_doc_for_symbol_node_ref(module_symbol, symbol, node)
       }
     }
   }
@@ -1021,6 +1011,7 @@ impl<'a> DocParser<'a> {
   fn get_doc_for_symbol_node_ref(
     &self,
     module_symbol: &EsmModuleSymbol,
+    symbol: &Symbol,
     node: SymbolNodeRef<'_>,
   ) -> Option<DocNode> {
     let parsed_source = module_symbol.source();
@@ -1044,7 +1035,7 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_interface_decl(parsed_source, n, &n.range())
       }
       SymbolNodeRef::TsNamespace(n) => {
-        self.get_doc_for_ts_namespace(module_symbol, n, &n.range())
+        self.get_doc_for_ts_namespace(module_symbol, symbol, n, &n.range())
       }
       SymbolNodeRef::TsTypeAlias(n) => {
         self.get_docs_for_type_alias(parsed_source, n, &n.range())
@@ -1067,9 +1058,12 @@ impl<'a> DocParser<'a> {
         ExportDeclRef::TsEnum(n) => {
           self.get_doc_for_enum(parsed_source, n, &export_decl.range())
         }
-        ExportDeclRef::TsModule(n) => {
-          self.get_doc_for_ts_namespace(module_symbol, n, &export_decl.range())
-        }
+        ExportDeclRef::TsModule(n) => self.get_doc_for_ts_namespace(
+          module_symbol,
+          symbol,
+          n,
+          &export_decl.range(),
+        ),
         ExportDeclRef::TsInterface(n) => self.get_doc_for_interface_decl(
           parsed_source,
           n,
@@ -1088,96 +1082,6 @@ impl<'a> DocParser<'a> {
           ),
       },
     }
-  }
-
-  pub fn get_doc_nodes_for_module_body(
-    &self,
-    module_symbol: &EsmModuleSymbol,
-    module_body: &[deno_ast::swc::ast::ModuleItem],
-  ) -> Vec<DocNode> {
-    let parsed_source = module_symbol.source();
-    let mut doc_entries: Vec<DocNode> = Vec::new();
-    let mut ambient_entries: Vec<DocNode> = Vec::new();
-
-    let mut is_ambient = true;
-
-    // check to see if there is a module level JSDoc for the source file
-    if let Some(module_js_doc) = module_js_doc_for_source(parsed_source) {
-      if let Some((js_doc, range)) = module_js_doc {
-        let doc_node =
-          DocNode::module_doc(get_location(parsed_source, range.start), js_doc);
-        doc_entries.push(doc_node);
-      } else {
-        return vec![];
-      }
-    }
-
-    for node in module_body {
-      match node {
-        ModuleItem::Stmt(stmt) => {
-          if let Stmt::Decl(decl) = stmt {
-            let doc_nodes = self.get_doc_node_for_decl(module_symbol, decl);
-            let is_declared = self.get_declare_for_decl(decl);
-            for mut doc_node in doc_nodes {
-              if self.private {
-                doc_node.declaration_kind = if is_declared {
-                  DeclarationKind::Declare
-                } else {
-                  DeclarationKind::Private
-                };
-                doc_entries.push(doc_node);
-              } else if is_declared {
-                doc_node.declaration_kind = DeclarationKind::Declare;
-                ambient_entries.push(doc_node)
-              }
-            }
-          }
-        }
-
-        ModuleItem::ModuleDecl(module_decl) => {
-          // If it has imports/exports, it isn't ambient.
-          is_ambient = false;
-
-          doc_entries.extend(
-            self.get_doc_nodes_for_module_exports(module_symbol, module_decl),
-          );
-
-          if let ModuleDecl::ExportNamed(export_named) = module_decl {
-            for specifier in &export_named.specifiers {
-              if let ExportSpecifier::Named(ExportNamedSpecifier {
-                orig: ModuleExportName::Ident(orig),
-                exported,
-                ..
-              }) = specifier
-              {
-                if let Some(symbol) =
-                  module_symbol.symbol_from_swc(&orig.to_id())
-                {
-                  for decl in symbol.decls() {
-                    let maybe_doc = decl.maybe_node().and_then(|node_ref| {
-                      self.get_doc_for_symbol_node_ref(module_symbol, node_ref)
-                    });
-                    if let Some(mut doc_node) = maybe_doc {
-                      if let Some(exported) = &exported {
-                        doc_node.name = module_export_name_value(exported)
-                      }
-                      doc_node.declaration_kind = DeclarationKind::Export;
-                      doc_entries.push(doc_node)
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if is_ambient {
-      doc_entries.extend(ambient_entries);
-    }
-
-    doc_entries
   }
 
   fn get_declare_for_symbol_node(&self, node: SymbolNodeRef) -> bool {
