@@ -29,7 +29,7 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: render constructor params
-      doc_entry(&id, name, &format!("()"))
+      doc_entry(&id, name, &format!("()"), constructor.js_doc.doc.as_deref())
     })
     .collect::<String>();
 

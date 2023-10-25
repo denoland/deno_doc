@@ -452,7 +452,12 @@ pub fn render_type_params(type_params: &[TsTypeParamDef]) -> String {
         })
         .unwrap_or_default();
 
-      doc_entry(&id, &type_param.name, &format!("{constraint}{default}"))
+      doc_entry(
+        &id,
+        &type_param.name,
+        &format!("{constraint}{default}"),
+        None,
+      )
     })
     .collect::<String>();
 

@@ -5,6 +5,7 @@ mod class;
 mod r#enum;
 mod function;
 mod interface;
+mod jsdoc;
 mod namespace;
 mod parameters;
 mod symbol;

@@ -37,7 +37,7 @@ pub fn render_symbol_group(
 fn render_symbol(doc_nodes: &[crate::DocNode], name: &str) -> String {
   let js_doc = doc_nodes
     .iter()
-    .find_map(|doc_node| doc_node.js_doc.doc.as_ref());
+    .find_map(|doc_node| doc_node.js_doc.doc.as_deref());
 
   let is_function = doc_nodes[0].kind == DocNodeKind::Function;
 

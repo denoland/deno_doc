@@ -19,6 +19,7 @@ pub fn render_enum(doc_node: &crate::DocNode) -> String {
           .as_ref()
           .map(|init| format!(" = {}", render_type_def(init)))
           .unwrap_or_default(),
+        member.js_doc.doc.as_deref(),
       )
     })
     .collect::<String>();

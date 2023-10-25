@@ -1,3 +1,5 @@
+use crate::js_doc::JsDoc;
+
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
 }
@@ -22,13 +24,19 @@ pub fn section(title: &str, content: &str) -> String {
   )
 }
 
-pub fn doc_entry(id: &str, name: &str, content: &str) -> String {
+pub fn doc_entry(
+  id: &str,
+  name: &str,
+  content: &str,
+  jsdoc: Option<&str>,
+) -> String {
   // TODO: jsdoc, sourceHref
   format!(
     r#"
     <div class="doc_item" id="{id}">
       {}
       <div class="doc_entry">
+        {}
         <span class="doc_entry_children">
           <code>
             <span style="font-weight: 700;">{name}</span><span style="font-weight: 500;">{content}</span>
@@ -38,6 +46,7 @@ pub fn doc_entry(id: &str, name: &str, content: &str) -> String {
       </div>
     </div>
    "#,
+    jsdoc.map(markdown::to_html).unwrap_or_default(),
     anchor(id),
   )
 }

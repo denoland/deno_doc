@@ -1,3 +1,4 @@
+use crate::html::jsdoc::render_docs;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 
@@ -13,13 +14,15 @@ pub fn render_variable(doc_node: &crate::DocNode) -> String {
   // TODO: examples
 
   format!(
-    r#"<div class="doc_block_items">{}</div>"#,
+    r#"<div class="doc_block_items">{}{}</div>"#,
+    render_docs(&doc_node.js_doc),
     section(
       "type",
       &doc_entry(
         &id,
         "",
-        &render_type_def(variable_def.ts_type.as_ref().unwrap())
+        &render_type_def(variable_def.ts_type.as_ref().unwrap()),
+        None,
       )
     )
   )

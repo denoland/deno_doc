@@ -14,6 +14,7 @@ pub fn render_type_alias(doc_node: &crate::DocNode) -> String {
       &id,
       "definition",
       &format!(": {}", render_type_def(&type_alias_def.ts_type)),
+      None,
     )
   )
 }

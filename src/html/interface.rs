@@ -78,6 +78,7 @@ fn render_call_signatures(
           super::types::type_params_summary(&call_signature.type_params),
           render_params(&call_signature.params),
         ),
+        call_signature.js_doc.doc.as_deref(),
       )
     })
     .collect::<String>();
@@ -128,6 +129,7 @@ fn render_properties(
           property.name.clone()
         },
         &format!("{ts_type}{default_value}",),
+        property.js_doc.doc.as_deref(),
       )
     })
     .collect::<String>();
@@ -169,6 +171,7 @@ fn render_methods(methods: &[crate::interface::InterfaceMethodDef]) -> String {
           render_type_params(&method.type_params),
           render_params(&method.params)
         ),
+        method.js_doc.doc.as_deref(),
       )
     })
     .collect::<String>();
