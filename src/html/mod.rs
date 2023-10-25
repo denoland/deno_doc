@@ -7,7 +7,9 @@ mod function;
 mod interface;
 mod namespace;
 mod parameters;
+mod r#type;
 mod type_alias;
+mod util;
 mod variable;
 
 const HTML_HEAD: &str = r#"
@@ -116,4 +118,31 @@ fn render_doc_node(doc_node: &crate::DocNode) -> String {
   }
 
   tpl
+}
+
+fn doc_block(doc_nodes: &[crate::DocNode], name: &str) -> String {
+  let mut content = String::new();
+  let mut functions = vec![];
+
+  for doc_node in doc_nodes {
+    match doc_node.kind {
+      DocNodeKind::ModuleDoc => {}
+      DocNodeKind::Function => functions.push(doc_node),
+      DocNodeKind::Variable => {}
+      DocNodeKind::Class => {}
+      DocNodeKind::Enum => {}
+      DocNodeKind::Interface => {}
+      DocNodeKind::TypeAlias => {}
+      DocNodeKind::Namespace => {
+        content.push_str(&r#enum::render_enum(doc_node))
+      }
+      DocNodeKind::Import => {}
+    };
+  }
+
+  if !functions.is_empty() {
+    // TODO: functions
+  }
+
+  format!("<div>{content}</div>")
 }

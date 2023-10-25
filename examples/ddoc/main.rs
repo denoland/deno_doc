@@ -111,12 +111,10 @@ fn generate_docs_directory(
   let html = deno_doc::html::generate(doc_nodes);
 
   // TODO: don't hardcode the path
-  if let Err(e) = std::fs::create_dir("generated_docs/") {
-    if e.kind() != std::io::ErrorKind::AlreadyExists {
-      return Err(e.into());
-    }
-  }
+  std::fs::remove_dir_all("generated_docs/")?;
   // TODO: don't hardcode the path
-  std::fs::write("generated_docs/foo.html", html).unwrap();
+  std::fs::create_dir("generated_docs/")?;
+  // TODO: don't hardcode the path
+  std::fs::write("generated_docs/index.html", html).unwrap();
   Ok(())
 }

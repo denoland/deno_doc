@@ -45,7 +45,11 @@ cfg_if! {
     pub use parser::DocError;
     pub use parser::DocParser;
     pub use printer::DocPrinter;
+  }
+}
 
+cfg_if! {
+  if #[cfg(feature = "html")] {
     pub mod html;
   }
 }
