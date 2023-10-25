@@ -53,6 +53,11 @@ td {
   text-align: center;
 }
 
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
 
 /* doc classes */
 
