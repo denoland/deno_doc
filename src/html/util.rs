@@ -52,9 +52,7 @@ fn anchor(name: &str) -> String {
       aria-label="Anchor"
       tabIndex=-1
     >
-      F
+      <div style="width: 14px; height: 14px; display: inline-block;">F</div>
     </a>"##
   )
 }
-
-// TODO: classes: section_title, section, doc_item, doc_entry, doc_entry_children, anchor

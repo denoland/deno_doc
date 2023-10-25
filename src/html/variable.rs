@@ -13,7 +13,7 @@ pub fn render_variable(doc_node: &crate::DocNode) -> String {
   // TODO: examples
 
   format!(
-    r#"<div class="docBlockItems">{}</div>"#,
+    r#"<div class="doc_block_items">{}</div>"#,
     section(
       "type",
       &doc_entry(
@@ -24,5 +24,3 @@ pub fn render_variable(doc_node: &crate::DocNode) -> String {
     )
   )
 }
-
-// TODO: classes: docBlockItems

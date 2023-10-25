@@ -9,16 +9,11 @@ pub fn render_type_alias(doc_node: &crate::DocNode) -> String {
   // TODO: tags, examples, TypeParamsDoc
 
   format!(
-    r#"<div class="docBlockItems">{}</div>"#,
-    section(
-      "type",
-      &doc_entry(
-        &id,
-        "definition",
-        &format!(": {}", render_type_def(&type_alias_def.ts_type)),
-      )
+    r#"<div class="doc_block_items">{}</div>"#,
+    doc_entry(
+      &id,
+      "definition",
+      &format!(": {}", render_type_def(&type_alias_def.ts_type)),
     )
   )
 }
-
-// TODO: classes: docBlockItems

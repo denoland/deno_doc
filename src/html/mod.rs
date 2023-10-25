@@ -16,6 +16,10 @@ const HTML_HEAD: &str = r#"
 <html>
 <head>
 <style>
+html {
+  font-family: sans-serif;
+}
+
 thead,
 tfoot {
   background-color: #3f87a6;
@@ -48,6 +52,66 @@ th {
 td {
   text-align: center;
 }
+
+
+/* doc classes */
+
+.doc_block_items > * + * {
+  margin-top: 1.75rem; /* 28px */
+}
+
+.section_title {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5rem; /* 24px */
+  font-weight: 600;
+  color: rgb(156 163 175);
+  padding-top: 0.25rem; /* 4px */
+  padding-bottom: 0.25rem; /* 4px */
+}
+
+.section {
+  margin-top: 0.5rem; /* 8px */
+}
+
+.section > * + * {
+  margin-top: 1.75rem; /* 28px */
+}
+
+.doc_item {
+  /* TODO: group */
+  position: relative;
+}
+
+.doc_item:hover .anchor {
+  display: block;
+}
+
+.doc_entry {
+  display: flex;
+  justify-content: space-between;
+}
+
+.doc_entry_children {
+  display: flex;
+  align-items: center;
+  overflow-wrap: break-word;
+  gap: 0.5rem; /* 8px */
+}
+
+.anchor {
+  /* TODO: group-hover:block */
+  float: left;
+  line-height: 1;
+  display: none;
+  color: rgb(75 85 99);
+  margin-left: -18px;
+  padding-right: 4px;
+}
+
+.anchor:hover {
+  display: block;
+}
+
 </style>
 </head>
 <body>
@@ -78,9 +142,13 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> String {
 
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  for (_name, doc_nodes) in name_partitions.iter() {
+  parts.push(r#"<div style="padding: 30px;">"#.to_string());
+  for (name, doc_nodes) in name_partitions.iter() {
+    parts.push(doc_block_title(name));
     parts.push(doc_block(doc_nodes));
+    parts.push("<hr />".to_string());
   }
+  parts.push("</div>".to_string());
 
   parts.push(HTML_TAIL.to_string());
 
@@ -168,4 +236,10 @@ fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
   }
 
   format!("<div>{content}</div>")
+}
+
+fn doc_block_title(name: &str) -> String {
+  format!(
+    r#"<div class="doc_block_title"><div><span class="font-bold">{name}</span></div></div>"#
+  )
 }
