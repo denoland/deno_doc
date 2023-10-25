@@ -76,6 +76,12 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> String {
     parts.push("</tbody></table>".to_string());
   }
 
+  let name_partitions = partition_nodes_by_name(doc_nodes);
+
+  for (_name, doc_nodes) in name_partitions.iter() {
+    parts.push(doc_block(doc_nodes));
+  }
+
   parts.push(HTML_TAIL.to_string());
 
   parts.join("")
@@ -89,6 +95,21 @@ fn partition_nodes_by_kind(
   for node in doc_nodes {
     partitions
       .entry(node.kind)
+      .or_insert(vec![])
+      .push(node.clone());
+  }
+
+  partitions
+}
+
+fn partition_nodes_by_name(
+  doc_nodes: &[crate::DocNode],
+) -> HashMap<String, Vec<crate::DocNode>> {
+  let mut partitions = HashMap::default();
+
+  for node in doc_nodes {
+    partitions
+      .entry(node.name.clone())
       .or_insert(vec![])
       .push(node.clone());
   }
@@ -120,7 +141,7 @@ fn render_doc_node(doc_node: &crate::DocNode) -> String {
   tpl
 }
 
-fn doc_block(doc_nodes: &[crate::DocNode], name: &str) -> String {
+fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
   let mut content = String::new();
   let mut functions = vec![];
 

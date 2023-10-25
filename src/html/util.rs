@@ -10,7 +10,7 @@ fn section_title(title: &str) -> String {
   let id = TARGET_RE.replace_all(title, "_");
 
   format!(
-    r#"<h2 class="section_title" id={id}><a href="\#{id}" aria-label="Anchor">{title}</a></h2>"#
+    r##"<h2 class="section_title" id={id}><a href="#{id}" aria-label="Anchor">{title}</a></h2>"##
   )
 }
 
@@ -46,14 +46,14 @@ pub fn doc_entry(id: &str, name: &str, content: &str) -> String {
 fn anchor(name: &str) -> String {
   // TODO: icon
   format!(
-    r#"<a
-      href="\#{name}"
+    r##"<a
+      href="#{name}"
       class="anchor"
       aria-label="Anchor"
       tabIndex=-1
     >
       F
-    </a>"#
+    </a>"##
   )
 }
 

@@ -13,6 +13,7 @@ name = "deno_doc"
 
 [[example]]
 name = "ddoc"
+required-features = ["html"]
 
 [dependencies]
 anyhow = { version = "1.0.58", optional = true }
