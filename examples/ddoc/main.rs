@@ -116,6 +116,11 @@ fn generate_docs_directory(
   std::fs::create_dir("generated_docs/")?;
   // TODO: don't hardcode the path
 
+  std::fs::write(
+    format!("generated_docs/{}", deno_doc::html::STYLESHEET_FILENAME),
+    deno_doc::html::STYLESHEET,
+  )
+  .unwrap();
   for (name, content) in html {
     std::fs::write(format!("generated_docs/{name}.html"), content).unwrap();
   }
