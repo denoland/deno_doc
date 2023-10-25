@@ -49,6 +49,24 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   (graph, analyzer, root)
 }
 
+macro_rules! assert_contains {
+  ($string:expr, $($test:expr),+ $(,)?) => {
+    let string = &$string; // This might be a function call or something
+    if !($(string.contains($test))||+) {
+      panic!("{:?} does not contain any of {:?}", string, [$($test),+]);
+    }
+  }
+}
+
+macro_rules! assert_not_contains {
+  ($string:expr, $($test:expr),+ $(,)?) => {
+    let string = &$string; // This might be a function call or something
+    if !($(!string.contains($test))||+) {
+      panic!("{:?} contained {:?}", string, [$($test),+]);
+    }
+  }
+}
+
 macro_rules! doc_test {
   ( $name:ident, $source:expr; $block:expr ) => {
     doc_test!($name, $source, false; $block);
@@ -97,11 +115,11 @@ macro_rules! contains_test {
     $( $contains:expr ),* $( ; $( $notcontains:expr ),* )? ) => {
     doc_test!($name, $source, $private; |_entries, doc: String| {
       $(
-        assert!(doc.contains($contains));
+        assert_contains!(doc, $contains);
       )*
       $(
         $(
-          assert!(!doc.contains($notcontains));
+          assert_not_contains!(doc, $notcontains);
         )*
       )?
     });
@@ -6403,6 +6421,18 @@ export class C {
     "asserts val3",
     "asserts val4 is NonNullable<T>",
     "this is Something"
+  );
+
+  contains_test!(import_equals,
+    "declare module Test {
+  export interface Options {
+  }
+}
+
+import Options = Test.Options;
+
+export { Options };";
+    "interface Options"
   );
 }
 
