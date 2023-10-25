@@ -1,5 +1,7 @@
-use crate::DocNodeKind;
+use indexmap::IndexMap;
 use std::collections::HashMap;
+
+use crate::DocNodeKind;
 
 mod class;
 mod r#enum;
@@ -13,6 +15,8 @@ mod type_alias;
 mod types;
 mod util;
 mod variable;
+
+use jsdoc::render_docs;
 
 pub const STYLESHEET: &str = include_str!("./styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -35,13 +39,12 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
 
   let mut sidepanel = String::with_capacity(1024);
   // FIXME(bartlomieju): functions can have duplicates because of overloads
-  let mut partitions = partition_nodes_by_kind(doc_nodes);
+  let partitions = partition_nodes_by_kind(doc_nodes);
 
   sidepanel.push_str(r#"<div>"#);
-  for (kind, doc_nodes) in partitions.iter_mut() {
+  for (kind, doc_nodes) in partitions.iter() {
     sidepanel.push_str(&format!(r#"<h3>{:?}</h3><ul>"#, kind));
 
-    doc_nodes.sort_by_key(|n| n.name.to_string());
     for doc_node in doc_nodes {
       sidepanel.push_str(&format!(
         r##"<li><a href="./{}.html">{}</a></li>"##,
@@ -53,24 +56,56 @@ pub fn generate(doc_nodes: &[crate::DocNode]) -> HashMap<String, String> {
   }
   sidepanel.push_str(r#"</div>"#);
 
+  files.insert("index".to_string(), render_index(&sidepanel, partitions));
+
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
   for (name, doc_nodes) in name_partitions.iter() {
+    // FIXME(bartlomieju): hardcoded path to index in `<a>`
     files.insert(name.to_string(), format!(
-      r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;">{}</div></div>{HTML_TAIL}"##,
+      r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="/generated_docs/"><- Index</a>{}</div></div>{HTML_TAIL}"##,
       symbol::render_symbol_group(doc_nodes.clone(), name),
     ));
   }
 
-  files.insert("index".to_string(), sidepanel);
-
   files
+}
+
+fn render_index(
+  sidepanel: &str,
+  partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
+) -> String {
+  let mut content = String::with_capacity(32 * 1024);
+
+  content.push_str(HTML_HEAD);
+  content.push_str(&format!(
+    r#"<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><h1>Index</h1>"#
+  ));
+
+  for (kind, doc_nodes) in partitions {
+    content.push_str(&format!(r#"<h2>{:?}</h2><ul>"#, kind));
+
+    for doc_node in doc_nodes {
+      content.push_str(&format!(
+        r##"<li><a href="./{}.html">{}</a>{}</li>"##,
+        doc_node.name,
+        doc_node.name,
+        render_docs(&doc_node.js_doc),
+      ));
+    }
+
+    content.push_str(r#"</ul>"#);
+  }
+
+  content.push_str(&format!(r#"</div></div>{HTML_TAIL}"#));
+
+  content
 }
 
 fn partition_nodes_by_kind(
   doc_nodes: &[crate::DocNode],
-) -> HashMap<DocNodeKind, Vec<crate::DocNode>> {
-  let mut partitions = HashMap::default();
+) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
+  let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
     partitions
@@ -79,13 +114,17 @@ fn partition_nodes_by_kind(
       .push(node.clone());
   }
 
+  for (_kind, nodes) in partitions.iter_mut() {
+    nodes.sort_by_key(|n| n.name.to_string());
+  }
+
   partitions
 }
 
 fn partition_nodes_by_name(
   doc_nodes: &[crate::DocNode],
-) -> HashMap<String, Vec<crate::DocNode>> {
-  let mut partitions = HashMap::default();
+) -> IndexMap<String, Vec<crate::DocNode>> {
+  let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
     partitions

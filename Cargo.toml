@@ -36,6 +36,7 @@ wasm-bindgen-futures = { version = "=0.4.37", optional = true }
 
 html-escape = { version = "0.2.13", optional = true }
 markdown = "1.0.0-alpha.14"
+indexmap = "2.0.2"
 
 [dev-dependencies]
 anyhow = { version = "1.0.58" }

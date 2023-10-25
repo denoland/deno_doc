@@ -9,9 +9,6 @@ pub fn render_function(doc_nodes: Vec<&crate::DocNode>) -> String {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut content = String::with_capacity(16 * 1024);
   for (i, doc_node) in doc_nodes.iter().enumerate() {
-    if doc_node.name == "removeEventListener" {
-      eprintln!("node {:#?}", doc_node);
-    }
     content.push_str(&format!("<h3>Overload {}</h3>", i));
     content.push_str(&render_single_function(doc_node));
   }
@@ -27,7 +24,7 @@ fn render_single_function(doc_node: &crate::DocNode) -> String {
         <div>{}</div>
         <div>{}</div>
     </div>"#,
-    render_docs(&doc_node.js_doc),
+    section("Docs", &render_docs(&doc_node.js_doc)),
     render_type_params(&function_def.type_params),
     render_function_params(function_def),
     render_function_return_type(function_def),

@@ -15,7 +15,7 @@ pub fn render_variable(doc_node: &crate::DocNode) -> String {
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    render_docs(&doc_node.js_doc),
+    section("Docs", &render_docs(&doc_node.js_doc)),
     section(
       "type",
       &doc_entry(
