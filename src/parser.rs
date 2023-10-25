@@ -118,10 +118,8 @@ impl<'a> DocParser<'a> {
     impl deno_graph::type_tracer::TypeTraceHandler for NullTypeTraceHandler {
       fn diagnostic(
         &self,
-        diagnostic: deno_graph::type_tracer::TypeTraceDiagnostic,
+        _diagnostic: deno_graph::type_tracer::TypeTraceDiagnostic,
       ) {
-        // todo(THIS PR): REMOVE THIS
-        eprintln!("DIAGNOSTIC: {:#?}", diagnostic)
       }
     }
 
@@ -280,37 +278,18 @@ impl<'a> DocParser<'a> {
               }
               DefinitionKind::Definition => {
                 if first_def.module.specifier() != module_symbol.specifier() {
-                  match first_def.module {
-                    ModuleSymbolRef::Json(module_symbol) => {
-                      let maybe_node = parse_json_module_doc_node(
-                        module_symbol.specifier(),
-                        module_symbol.text_info().text_str(),
-                      );
-                      if let Some(mut node) = maybe_node {
-                        node.name = export_name.clone();
-                        node.declaration_kind = DeclarationKind::Export;
-                        flattened_docs.push(node);
-                      }
-                    }
-                    ModuleSymbolRef::Esm(_) => {
-                      for definition in definitions {
-                        let decl = definition.symbol_decl;
-                        if let Some((node, parsed_source)) =
-                          decl.maybe_node_and_source()
-                        {
-                          let maybe_doc = self.doc_for_node(
-                            parsed_source,
-                            definition.symbol,
-                            node,
-                          );
-                          if let Some(mut doc_node) = maybe_doc {
-                            doc_node.name = export_name.clone();
-                            doc_node.declaration_kind = DeclarationKind::Export;
+                  for definition in definitions {
+                    let decl = definition.symbol_decl;
+                    let maybe_doc = self.doc_for_maybe_node(
+                      definition.module,
+                      definition.symbol,
+                      decl.maybe_node(),
+                    );
+                    if let Some(mut doc_node) = maybe_doc {
+                      doc_node.name = export_name.clone();
+                      doc_node.declaration_kind = DeclarationKind::Export;
 
-                            flattened_docs.push(doc_node);
-                          }
-                        }
-                      }
+                      flattened_docs.push(doc_node);
                     }
                   }
                 }
@@ -578,17 +557,17 @@ impl<'a> DocParser<'a> {
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
         }
-        if let Some((node, parsed_source)) =
-          definition.symbol_decl.maybe_node_and_source()
-        {
-          let maybe_doc =
-            self.doc_for_node(parsed_source, definition.symbol, node);
-          if let Some(mut doc_node) = maybe_doc {
-            doc_node.name = export_name.to_string();
-            doc_node.declaration_kind = DeclarationKind::Export;
 
-            elements.push(doc_node);
-          }
+        let maybe_doc = self.doc_for_maybe_node(
+          definition.module,
+          definition.symbol,
+          definition.symbol_decl.maybe_node(),
+        );
+        if let Some(mut doc_node) = maybe_doc {
+          doc_node.name = export_name.to_string();
+          doc_node.declaration_kind = DeclarationKind::Export;
+
+          elements.push(doc_node);
         }
       }
     }
@@ -597,7 +576,7 @@ impl<'a> DocParser<'a> {
     if is_ambient || self.private {
       let mut handled_symbols =
         symbol.exports().values().copied().collect::<HashSet<_>>();
-      for child_id in module_symbol.child_decls() {
+      for child_id in symbol.child_decls() {
         if !handled_symbols.insert(child_id) {
           continue; // already handled
         }
@@ -936,17 +915,16 @@ impl<'a> DocParser<'a> {
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
         }
-        if let Some((node, parsed_source)) =
-          definition.symbol_decl.maybe_node_and_source()
-        {
-          let maybe_doc =
-            self.doc_for_node(parsed_source, definition.symbol, node);
-          if let Some(mut doc_node) = maybe_doc {
-            doc_node.name = export_name.clone();
-            doc_node.declaration_kind = DeclarationKind::Export;
+        let maybe_doc = self.doc_for_maybe_node(
+          definition.module,
+          definition.symbol,
+          definition.symbol_decl.maybe_node(),
+        );
+        if let Some(mut doc_node) = maybe_doc {
+          doc_node.name = export_name.clone();
+          doc_node.declaration_kind = DeclarationKind::Export;
 
-            doc_nodes.push(doc_node);
-          }
+          doc_nodes.push(doc_node);
         }
       }
     }
@@ -986,24 +964,23 @@ impl<'a> DocParser<'a> {
     doc_nodes
   }
 
-  fn doc_for_node(
+  fn doc_for_maybe_node(
     &self,
-    parsed_source: &ParsedSource,
+    module_symbol: ModuleSymbolRef,
     symbol: &Symbol,
-    node: SymbolNodeRef<'_>,
+    maybe_node: Option<SymbolNodeRef<'_>>,
   ) -> Option<DocNode> {
-    let module_symbol = self
-      .get_module_symbol(
-        &ModuleSpecifier::parse(parsed_source.specifier()).unwrap(),
-      )
-      .unwrap();
     match module_symbol {
       ModuleSymbolRef::Json(module_symbol) => parse_json_module_doc_node(
         module_symbol.specifier(),
         module_symbol.text_info().text_str(),
       ),
       ModuleSymbolRef::Esm(module_symbol) => {
-        self.get_doc_for_symbol_node_ref(module_symbol, symbol, node)
+        if let Some(node) = maybe_node {
+          self.get_doc_for_symbol_node_ref(module_symbol, symbol, node)
+        } else {
+          None
+        }
       }
     }
   }

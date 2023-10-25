@@ -626,9 +626,8 @@ export namespace Deno {
   // Namespace
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno".to_string());
-  assert_eq!(found.len(), 2);
+  assert_eq!(found.len(), 1);
   assert_eq!(found[0].name, "Deno".to_string());
-  assert_eq!(found[1].name, "Deno".to_string());
 
   // Overloaded functions
   let found =
@@ -4118,6 +4117,73 @@ export namespace RootNs.OtherNs {
     }
   }]);
 
+  json_test!(export_namespace_enum_same_name,
+    r#"
+export namespace RootNs {
+  export namespace NestedNs {
+    export enum Foo {
+    }
+  }
+
+  export enum Foo {
+  }
+}
+    "#;
+    [{
+    "kind": "namespace",
+    "name": "RootNs",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "namespace",
+          "name": "NestedNs",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 3,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "enum",
+                "name": "Foo",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 4,
+                  "col": 4
+                },
+                "declarationKind": "export",
+                "enumDef": {
+                  "members": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "enum",
+          "name": "Foo",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 8,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "enumDef": {
+            "members": []
+          }
+        }
+      ]
+    }
+  }]);
+
   json_test!(export_declaration_merged_namespace,
     r#"
 namespace Namespace1 {
@@ -4129,8 +4195,6 @@ namespace Namespace1 {
 
 export { Namespace1 };
 "#;
-    // todo(dsherret): it would be more ideal to only show
-    // a single namespace here instead of multiple
     [{
       "kind": "namespace",
       "name": "Namespace1",
@@ -4161,19 +4225,7 @@ export { Namespace1 };
             "typeParams": [],
             "superTypeParams": []
           }
-        }]
-      }
-    }, {
-      "kind": "namespace",
-      "name": "Namespace1",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 5,
-        "col": 0,
-      },
-      "declarationKind": "export",
-      "namespaceDef": {
-        "elements": [{
+        }, {
           "kind": "class",
           "name": "Test2",
           "location": {
