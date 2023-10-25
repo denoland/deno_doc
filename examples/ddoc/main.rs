@@ -115,21 +115,28 @@ fn generate_docs_directory(
   name: String,
   doc_nodes: &[deno_doc::DocNode],
 ) -> Result<(), anyhow::Error> {
-  let html = deno_doc::html::generate(name, doc_nodes);
+  let ctx = deno_doc::html::GenerateCtx {
+    package_name: name,
+    // TODO: don't hardcode the path
+    base_url: "/generated_docs/".to_string(),
+  };
+  let html = deno_doc::html::generate(ctx.clone(), doc_nodes);
 
   // TODO: don't hardcode the path
-  let _ = std::fs::remove_dir_all("generated_docs/");
-  // TODO: don't hardcode the path
-  std::fs::create_dir("generated_docs/")?;
-  // TODO: don't hardcode the path
+  let base_path = format!(
+    "./{}",
+    &ctx.base_url.strip_prefix("/").unwrap_or(&ctx.base_url)
+  );
+  let _ = std::fs::remove_dir_all(&base_path);
+  std::fs::create_dir(&base_path)?;
 
   std::fs::write(
-    format!("generated_docs/{}", deno_doc::html::STYLESHEET_FILENAME),
+    format!("{base_path}/{}", deno_doc::html::STYLESHEET_FILENAME),
     deno_doc::html::STYLESHEET,
   )
   .unwrap();
   for (name, content) in html {
-    std::fs::write(format!("generated_docs/{name}.html"), content).unwrap();
+    std::fs::write(format!("{base_path}/{name}.html"), content).unwrap();
   }
 
   Ok(())

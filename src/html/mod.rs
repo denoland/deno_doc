@@ -34,8 +34,23 @@ const HTML_TAIL: &str = r#"
 </script>
 </html>"#;
 
+#[derive(Debug, Clone)]
+pub struct GenerateCtx {
+  /// The name that is shown is the top-left corner, eg. "deno_std".
+  pub package_name: String,
+
+  /// Pathname that all links will refer to, eg. "/docs".
+  pub base_url: String,
+}
+
+impl GenerateCtx {
+  fn url(&self, path: String) -> String {
+    format!("{}{}", self.base_url, path)
+  }
+}
+
 pub fn generate(
-  name: String,
+  ctx: GenerateCtx,
   doc_nodes: &[crate::DocNode],
 ) -> HashMap<String, String> {
   let mut files = HashMap::new();
@@ -45,14 +60,18 @@ pub fn generate(
   let partitions = partition_nodes_by_kind(doc_nodes);
 
   sidepanel.push_str(r#"<div>"#);
-  sidepanel.push_str(&format!("<h2>{}</h2>", name));
+  sidepanel.push_str(&format!(
+    r#"<h2><a href="{}">{}</a></h2>"#,
+    ctx.base_url, ctx.package_name
+  ));
   for (kind, doc_nodes) in partitions.iter() {
     sidepanel.push_str(&format!(r#"<h3>{:?}</h3><ul>"#, kind));
 
     for doc_node in doc_nodes {
       sidepanel.push_str(&format!(
-        r##"<li><a href="./{}.html">{}</a></li>"##,
-        doc_node.name, doc_node.name
+        r##"<li><a href="{}.html">{}</a></li>"##,
+        ctx.url(doc_node.name.to_string()),
+        doc_node.name
       ));
     }
 
@@ -60,15 +79,17 @@ pub fn generate(
   }
   sidepanel.push_str(r#"</div>"#);
 
-  files.insert("index".to_string(), render_index(&sidepanel, partitions));
+  files.insert(
+    "index".to_string(),
+    render_index(&ctx, &sidepanel, partitions),
+  );
 
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
   for (name, doc_nodes) in name_partitions.iter() {
-    // FIXME(bartlomieju): hardcoded path to index in `<a>`
     files.insert(name.to_string(), format!(
-      r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="/generated_docs/"><- Index</a>{}</div></div>{HTML_TAIL}"##,
-      symbol::render_symbol_group(doc_nodes.clone(), name),
+      r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{}</div></div>{HTML_TAIL}"##,
+      ctx.base_url, symbol::render_symbol_group(doc_nodes.clone(), name),
     ));
   }
 
@@ -76,6 +97,7 @@ pub fn generate(
 }
 
 fn render_index(
+  ctx: &GenerateCtx,
   sidepanel: &str,
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
 ) -> String {
@@ -91,8 +113,8 @@ fn render_index(
 
     for doc_node in doc_nodes {
       content.push_str(&format!(
-        r##"<li><a href="./{}.html">{}</a>{}</li>"##,
-        doc_node.name,
+        r##"<li><a href="{}.html">{}</a>{}</li>"##,
+        ctx.url(doc_node.name.to_string()),
         doc_node.name,
         render_docs(&doc_node.js_doc),
       ));
