@@ -130,12 +130,10 @@ fn doc_block(doc_nodes: &[crate::DocNode], name: &str) -> String {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {}
       DocNodeKind::Class => {}
-      DocNodeKind::Enum => {}
+      DocNodeKind::Enum => content.push_str(&r#enum::render_enum(doc_node)),
       DocNodeKind::Interface => {}
       DocNodeKind::TypeAlias => {}
-      DocNodeKind::Namespace => {
-        content.push_str(&r#enum::render_enum(doc_node))
-      }
+      DocNodeKind::Namespace => {}
       DocNodeKind::Import => {}
     };
   }
