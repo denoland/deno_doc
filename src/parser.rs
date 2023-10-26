@@ -129,10 +129,10 @@ pub struct DocParser {
 }
 
 impl DocParser {
-  pub fn new<'a>(
+  pub fn new(
     graph: ModuleGraph,
     private: bool,
-    parser: CapturingModuleParser<'a>,
+    parser: CapturingModuleParser,
   ) -> Result<Self, anyhow::Error> {
     struct NullTypeTraceHandler;
 
