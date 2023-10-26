@@ -18,6 +18,7 @@ use crate::display::Indent;
 use crate::display::SliceDisplayer;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
+use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::DocNodeKind;
 
@@ -491,8 +492,9 @@ impl<'a> DocPrinter<'a> {
     }
     write!(
       w,
-      "{}{}{} {}",
+      "{}{}{}{} {}",
       Indent(indent),
+      fmt_visibility(node.declaration_kind),
       display_abstract(class_def.is_abstract),
       colors::magenta("class"),
       colors::bold(&node.name),
@@ -536,8 +538,9 @@ impl<'a> DocPrinter<'a> {
   ) -> FmtResult {
     writeln!(
       w,
-      "{}{} {}",
+      "{}{}{} {}",
       Indent(indent),
+      fmt_visibility(node.declaration_kind),
       colors::magenta("enum"),
       colors::bold(&node.name)
     )
@@ -554,8 +557,9 @@ impl<'a> DocPrinter<'a> {
     if !has_overloads || !function_def.has_body {
       write!(
         w,
-        "{}{}{}{} {}",
+        "{}{}{}{}{} {}",
         Indent(indent),
+        fmt_visibility(node.declaration_kind),
         display_async(function_def.is_async),
         colors::magenta("function"),
         display_generator(function_def.is_generator),
@@ -590,8 +594,9 @@ impl<'a> DocPrinter<'a> {
     let interface_def = node.interface_def.as_ref().unwrap();
     write!(
       w,
-      "{}{} {}",
+      "{}{}{} {}",
       Indent(indent),
+      fmt_visibility(node.declaration_kind),
       colors::magenta("interface"),
       colors::bold(&node.name)
     )?;
@@ -636,8 +641,9 @@ impl<'a> DocPrinter<'a> {
     let type_alias_def = node.type_alias_def.as_ref().unwrap();
     write!(
       w,
-      "{}{} {}",
+      "{}{}{} {}",
       Indent(indent),
+      fmt_visibility(node.declaration_kind),
       colors::magenta("type"),
       colors::bold(&node.name),
     )?;
@@ -661,8 +667,9 @@ impl<'a> DocPrinter<'a> {
   ) -> FmtResult {
     writeln!(
       w,
-      "{}{} {}",
+      "{}{}{} {}",
       Indent(indent),
+      fmt_visibility(node.declaration_kind),
       colors::magenta("namespace"),
       colors::bold(&node.name)
     )
@@ -677,8 +684,9 @@ impl<'a> DocPrinter<'a> {
     let variable_def = node.variable_def.as_ref().unwrap();
     write!(
       w,
-      "{}{} {}",
+      "{}{}{} {}",
       Indent(indent),
+      fmt_visibility(node.declaration_kind),
       colors::magenta(match variable_def.kind {
         deno_ast::swc::ast::VarDeclKind::Const => "const",
         deno_ast::swc::ast::VarDeclKind::Let => "let",
@@ -697,4 +705,12 @@ impl<'a> Display for DocPrinter<'a> {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     self.format(f)
   }
+}
+
+fn fmt_visibility(decl_kind: DeclarationKind) -> impl std::fmt::Display {
+  colors::italic_gray(if decl_kind == DeclarationKind::Private {
+    "private "
+  } else {
+    ""
+  })
 }

@@ -297,7 +297,6 @@ export interface JsDocTagValued extends JsDocTagBase {
   doc?: string;
 }
 
-
 export interface JsDocTagTyped extends JsDocTagBase {
   kind: "enum" | "extends" | "this" | "type";
   type: string;

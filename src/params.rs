@@ -239,15 +239,13 @@ pub fn assign_pat_to_param_def(
   parsed_source: Option<&ParsedSource>,
   assign_pat: &deno_ast::swc::ast::AssignPat,
 ) -> ParamDef {
-  let ts_type = assign_pat.type_ann.as_deref().map(ts_type_ann_to_def);
-
   ParamDef {
     pattern: ParamPatternDef::Assign {
       left: Box::new(pat_to_param_def(parsed_source, &assign_pat.left)),
       right: "[UNSUPPORTED]".to_string(),
     },
     decorators: Vec::new(),
-    ts_type,
+    ts_type: None,
   }
 }
 
@@ -305,7 +303,7 @@ pub fn prop_name_to_string(
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => parsed_source
-      .map(|s| comp_prop_name.text_fast(&s.text_info()).to_string())
+      .map(|s| comp_prop_name.text_fast(s.text_info()).to_string())
       .unwrap_or_else(|| "<UNAVAILABLE>".to_string()),
   }
 }

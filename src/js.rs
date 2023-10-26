@@ -5,10 +5,11 @@
 use crate::parser::DocParser;
 
 use anyhow::anyhow;
-use anyhow::Result;
+use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::source::ResolveError;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
@@ -45,11 +46,13 @@ impl Loader for JsLoader {
     &mut self,
     specifier: &ModuleSpecifier,
     is_dynamic: bool,
+    cache_setting: CacheSetting,
   ) -> LoadFuture {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = JsValue::from(is_dynamic);
-    let result = self.load.call2(&this, &arg0, &arg1);
+    let arg2 = JsValue::from(cache_setting.as_js_str());
+    let result = self.load.call3(&this, &arg0, &arg1, &arg2);
     let f = async move {
       let response = match result {
         Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,
@@ -77,8 +80,12 @@ impl Resolver for ImportMapResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier> {
-    Ok(self.0.resolve(specifier, referrer)?)
+    _mode: deno_graph::source::ResolutionMode,
+  ) -> Result<ModuleSpecifier, ResolveError> {
+    self
+      .0
+      .resolve(specifier, referrer)
+      .map_err(|err| ResolveError::Other(err.into()))
   }
 }
 
@@ -98,17 +105,21 @@ impl Resolver for JsResolver {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier> {
+    _mode: deno_graph::source::ResolutionMode,
+  ) -> Result<ModuleSpecifier, ResolveError> {
+    use ResolveError::*;
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
     let arg1 = JsValue::from(referrer.to_string());
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
-      Err(_) => return Err(anyhow!("JavaScript resolve() function threw.")),
+      Err(_) => {
+        return Err(Other(anyhow!("JavaScript resolve() function threw.")))
+      }
     };
     let value: String = serde_wasm_bindgen::from_value(value)
       .map_err(|err| anyhow!("{}", err))?;
-    Ok(ModuleSpecifier::parse(&value)?)
+    ModuleSpecifier::parse(&value).map_err(|err| Other(err.into()))
   }
 }
 
@@ -119,29 +130,46 @@ pub async fn doc(
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
-) -> Result<JsValue, JsValue> {
+  print_import_map_diagnostics: bool,
+) -> anyhow::Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
-  let root_specifier = ModuleSpecifier::parse(&root_specifier)
-    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+  inner_doc(
+    root_specifier,
+    include_all,
+    load,
+    maybe_resolve,
+    maybe_import_map,
+    print_import_map_diagnostics,
+  )
+  .await
+  .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
+}
+
+async fn inner_doc(
+  root_specifier: String,
+  include_all: bool,
+  load: js_sys::Function,
+  maybe_resolve: Option<js_sys::Function>,
+  maybe_import_map: Option<String>,
+  print_import_map_diagnostics: bool,
+) -> Result<JsValue, anyhow::Error> {
+  let root_specifier = ModuleSpecifier::parse(&root_specifier)?;
   let mut loader = JsLoader::new(load);
   let maybe_resolver: Option<Box<dyn Resolver>> = if let Some(import_map) =
     maybe_import_map
   {
-    if maybe_resolve.is_some() {
+    if print_import_map_diagnostics && maybe_resolve.is_some() {
       console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
     }
-    let import_map_specifier = ModuleSpecifier::parse(&import_map)
-      .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+    let import_map_specifier = ModuleSpecifier::parse(&import_map)?;
     if let Some(LoadResponse::Module {
       content, specifier, ..
     }) = loader
-      .load(&import_map_specifier, false)
-      .await
-      .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?
+      .load(&import_map_specifier, false, CacheSetting::Use)
+      .await?
     {
-      let result = import_map::parse_from_json(&specifier, content.as_ref())
-        .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
-      if !result.diagnostics.is_empty() {
+      let result = import_map::parse_from_json(&specifier, content.as_ref())?;
+      if print_import_map_diagnostics && !result.diagnostics.is_empty() {
         console_warn!(
           "Import map diagnostics:\n{}",
           result
@@ -173,9 +201,8 @@ pub async fn doc(
     )
     .await;
   let entries =
-    DocParser::new(graph, include_all, analyzer.as_capturing_parser())
-      .parse_with_reexports(&root_specifier)
-      .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+    DocParser::new(&graph, include_all, analyzer.as_capturing_parser())?
+      .parse_with_reexports(&root_specifier)?;
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
   Ok(entries.serialize(&serializer).unwrap())

@@ -1,11 +1,17 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-import { instantiate } from "./lib/deno_doc.generated.js";
-import type { DocNode } from "./lib/types.d.ts";
-import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.45.0/lib/loader.ts";
-import type { LoadResponse } from "https://deno.land/x/deno_graph@0.45.0/mod.ts";
+import { instantiate } from "./deno_doc.generated.js";
+import type { DocNode } from "./types.d.ts";
+import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.53.0/loader.ts";
+import type {
+  CacheSetting,
+  LoadResponse,
+} from "https://deno.land/x/deno_graph@0.53.0/mod.ts";
 
-export type { LoadResponse } from "https://deno.land/x/deno_graph@0.45.0/mod.ts";
+export type {
+  CacheSetting,
+  LoadResponse,
+} from "https://deno.land/x/deno_graph@0.53.0/mod.ts";
 
 export interface DocOptions {
   /** An optional URL string which provides a location of an import map to be
@@ -15,6 +21,11 @@ export interface DocOptions {
    * When a `resolve()` function is also specified, a warning will be issued
    * and the import map will be used instead of the `resolve()` function. */
   importMap?: string;
+  /** Print import map diagnostics.
+   *
+   * @default {true}
+   */
+  printImportMapDiagnostics?: boolean;
   /** If `true` include all documentation nodes in the output, included private
    * (non-exported) nodes. The default is `false`.  Use the `declarationKind`
    * of the `DocNode` to determine if the doc node is private, exported,
@@ -38,7 +49,8 @@ export interface DocOptions {
    */
   load?(
     specifier: string,
-    isDynamic: boolean,
+    isDynamic?: boolean,
+    cacheSetting?: CacheSetting,
   ): Promise<LoadResponse | undefined>;
   /** An optional callback that allows the default resolution logic of the
    * module graph to be "overridden". This is intended to allow items like an
@@ -75,8 +87,21 @@ export async function doc(
   specifier: string,
   options: DocOptions = {},
 ): Promise<Array<DocNode>> {
-  const { load = defaultLoad, includeAll = false, resolve, importMap } =
-    options;
+  const {
+    load = defaultLoad,
+    includeAll = false,
+    resolve,
+    importMap,
+    printImportMapDiagnostics = true,
+  } = options;
+
   const wasm = await instantiate();
-  return wasm.doc(specifier, includeAll, load, resolve, importMap);
+  return wasm.doc(
+    specifier,
+    includeAll,
+    load,
+    resolve,
+    importMap,
+    printImportMapDiagnostics,
+  );
 }

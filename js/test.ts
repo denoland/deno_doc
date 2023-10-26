@@ -13,7 +13,7 @@ Deno.test({
     const entries = await doc(
       "https://deno.land/std@0.104.0/fmt/colors.ts",
     );
-    assertEquals(entries.length, 48);
+    assertEquals(entries.length, 49);
     const fnStripColor = entries.find((n) =>
       n.kind === "function" && n.name === "stripColor"
     );
@@ -36,7 +36,7 @@ Deno.test({
 Deno.test({
   name: "doc() - timings",
   async fn() {
-    const fixture = new URL("./benches/fixtures/deno.d.ts", import.meta.url)
+    const fixture = new URL("../benches/fixtures/deno.d.ts", import.meta.url)
       .toString();
 
     const start = Date.now();

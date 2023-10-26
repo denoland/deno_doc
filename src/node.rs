@@ -5,6 +5,11 @@ use serde::Serialize;
 
 use crate::js_doc::JsDoc;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct NamespaceDef {
+  pub elements: Vec<DocNode>,
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum DocNodeKind {
@@ -19,7 +24,7 @@ pub enum DocNodeKind {
   Import,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct Location {
   pub filename: String,
   /// The 1-indexed display line.
@@ -27,6 +32,24 @@ pub struct Location {
   pub line: usize,
   /// The 0-indexed display column.
   pub col: usize,
+}
+
+impl Ord for Location {
+  fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    match self.filename.cmp(&other.filename) {
+      core::cmp::Ordering::Equal => match self.line.cmp(&other.line) {
+        core::cmp::Ordering::Equal => self.col.cmp(&other.col),
+        ord => ord,
+      },
+      ord => ord,
+    }
+  }
+}
+
+impl PartialOrd for Location {
+  fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    Some(self.cmp(other))
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -63,7 +86,7 @@ pub struct ImportDef {
   pub imported: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum DeclarationKind {
   Private,
@@ -97,7 +120,7 @@ pub struct DocNode {
   pub type_alias_def: Option<super::type_alias::TypeAliasDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub namespace_def: Option<super::namespace::NamespaceDef>,
+  pub namespace_def: Option<NamespaceDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub interface_def: Option<super::interface::InterfaceDef>,
@@ -237,7 +260,7 @@ impl DocNode {
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
-    namespace_def: super::namespace::NamespaceDef,
+    namespace_def: NamespaceDef,
   ) -> Self {
     Self {
       kind: DocNodeKind::Namespace,
