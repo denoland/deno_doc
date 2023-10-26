@@ -108,7 +108,7 @@ macro_rules! doc_test {
         .map(|d| format!("{}:{}:{} {:?}", d.location.filename, d.location.line, d.location.col, d.kind))
         .collect::<Vec<_>>();
       let expected_diagnostics: Vec<&str> = $diagnostics;
-      assert_eq!(actual_diagnostics, expected_diagnostics);
+      assert_eq!(actual_diagnostics, expected_diagnostics, "Diagnostics match.");
     }
   };
 }
@@ -1949,6 +1949,67 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
       ]
     }
   }]);
+
+  json_test!(
+    export_class_object_extends,
+    r#"
+class Foo {}
+const obj = { Foo }
+    
+export class Bar extends obj.Foo {}
+  "#,
+  false;
+  [{
+    "kind": "class",
+    "name": "Bar",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": "obj.Foo",
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }, {
+    "kind": "variable",
+    "name": "obj",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 3,
+      "col": 6,
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [],
+          "properties": [{
+            "name": "Foo",
+            "params": [],
+            "computed": false,
+            "optional": false,
+            "tsType": null,
+            "typeParams": [],
+          }],
+          "callSignatures": [],
+          "indexSignatures": [],
+        },
+      },
+      "kind": "const",
+    },
+  }], vec!["file:///test.ts:3:6 PrivateTypeRef"]
+  );
 
   json_test!(export_class_ignore,
    r#"
