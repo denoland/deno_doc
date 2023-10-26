@@ -45,15 +45,15 @@ jobs:
 
       - name: Lint
         run: |
-          cargo clippy --all-targets --all-features --release --locked -- -D clippy::all
+          cargo clippy --all-targets --all-features --locked -- -D clippy::all
           deno lint
 
       - name: Build
-        run: deno task build && cargo build --locked --release --all-targets --all-features
+        run: deno task build && cargo build --locked --all-targets --all-features
 
       - name: Test
         run: |
-          cargo test --locked --release --all-targets --all-features
+          cargo test --locked --all-targets --all-features
           deno test --allow-read --allow-net
 
       - name: Publish
