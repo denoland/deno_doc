@@ -1,9 +1,11 @@
+use super::util::RenderContext;
 use crate::DocNodeKind;
 use std::collections::HashMap;
 
 pub fn render_symbol_group(
   mut doc_nodes: Vec<crate::DocNode>,
   name: &str,
+  context: &RenderContext,
 ) -> String {
   doc_nodes.sort_by(|a, b| a.kind.cmp(&b.kind));
 
@@ -26,7 +28,7 @@ pub fn render_symbol_group(
 
   let items = split_nodes
     .values()
-    .map(|doc_nodes| render_symbol(doc_nodes, name))
+    .map(|doc_nodes| render_symbol(doc_nodes, name, context))
     .collect::<String>();
 
   format!(
@@ -34,7 +36,11 @@ pub fn render_symbol_group(
   )
 }
 
-fn render_symbol(doc_nodes: &[crate::DocNode], name: &str) -> String {
+fn render_symbol(
+  doc_nodes: &[crate::DocNode],
+  name: &str,
+  context: &RenderContext,
+) -> String {
   let js_doc = doc_nodes
     .iter()
     .find_map(|doc_node| doc_node.js_doc.doc.as_deref());
@@ -53,7 +59,7 @@ fn render_symbol(doc_nodes: &[crate::DocNode], name: &str) -> String {
   {}
 </div>"#,
     doc_block_title(doc_nodes[0].kind, name),
-    doc_block(doc_nodes),
+    doc_block(doc_nodes, context),
   )
 }
 
@@ -74,7 +80,7 @@ fn doc_block_title(kind: DocNodeKind, name: &str) -> String {
   )
 }
 
-fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
+fn doc_block(doc_nodes: &[crate::DocNode], context: &RenderContext) -> String {
   let mut content = String::new();
   let mut functions = vec![];
 
@@ -103,25 +109,8 @@ fn doc_block(doc_nodes: &[crate::DocNode]) -> String {
   }
 
   if !functions.is_empty() {
-    let grouped_functions = group_by_overloads(functions);
-    for function_group in grouped_functions {
-      content.push_str(&super::function::render_function(function_group));
-    }
+    content.push_str(&super::function::render_function(functions, context));
   }
 
   format!("<div>{content}</div>")
-}
-
-fn group_by_overloads(
-  functions: Vec<&crate::DocNode>,
-) -> Vec<Vec<&crate::DocNode>> {
-  let mut grouped: HashMap<String, Vec<&crate::DocNode>> = HashMap::default();
-  for function in functions {
-    grouped
-      .entry(function.name.to_string())
-      .or_insert(vec![])
-      .push(function);
-  }
-
-  grouped.values().cloned().collect()
 }

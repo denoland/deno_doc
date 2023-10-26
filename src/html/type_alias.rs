@@ -9,7 +9,8 @@ pub fn render_type_alias(doc_node: &crate::DocNode) -> String {
   // TODO: tags, examples, TypeParamsDoc
 
   format!(
-    r#"<div class="doc_block_items">{}</div>"#,
+    r#"<div class="doc_block_items">{}{}</div>"#,
+    super::jsdoc::render_docs(&doc_node.js_doc),
     doc_entry(
       &id,
       "definition",

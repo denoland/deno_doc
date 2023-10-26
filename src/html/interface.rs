@@ -1,13 +1,13 @@
 use super::parameters::render_params;
 use super::util::*;
 use crate::html::types::render_type_params;
-use crate::js_doc::JsDocTag;
 
 pub fn render_interface(doc_node: &crate::DocNode) -> String {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
   format!(
-    r#"<div class="doc_block_items">{}{}{}{}</div>"#,
+    r#"<div class="doc_block_items">{}{}{}{}{}</div>"#,
+    super::jsdoc::render_docs(&doc_node.js_doc),
     render_type_params(&interface_def.type_params),
     render_index_signatures(&interface_def.index_signatures),
     render_properties(&interface_def.properties),
@@ -99,21 +99,8 @@ fn render_properties(
       let id = name_to_id("property", &property.name);
       // TODO: tags
 
-      let default_value = property
-        .js_doc
-        .tags
-        .iter()
-        .find_map(|tag| {
-          if let JsDocTag::Default { value, .. } = tag {
-            // TODO: font-normal
-            Some(format!(
-              r#"<span><span class="font-normal"> = </span>{value}</span>"#
-            ))
-          } else {
-            None
-          }
-        })
-        .unwrap_or_default();
+      let default_value =
+        super::jsdoc::get_default_value(&property.js_doc).unwrap_or_default();
 
       let ts_type = property
         .ts_type

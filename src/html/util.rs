@@ -32,8 +32,8 @@ pub fn doc_entry(
   format!(
     r#"
     <div class="doc_item" id="{id}">
+      {}
       <div class="doc_entry">
-        {}
         <span class="doc_entry_children">
           <code>
             <span style="font-weight: 700;">{name}</span><span style="font-weight: 500;">{content}</span>
@@ -60,4 +60,8 @@ pub fn anchor(name: &str) -> String {
       <div style="width: 14px; height: 14px; display: inline-block;">F</div>
     </a>"##
   )
+}
+
+pub struct RenderContext {
+  pub additional_css: std::cell::RefCell<String>,
 }

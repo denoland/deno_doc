@@ -104,6 +104,20 @@ a {
     gap: 0.5rem;
    /* 8px */
 }
+.function_overload_selectors > * + * {
+  margin-top: 0.5rem; /* 8px */
+}
+.function_overload_label {
+  display: block;
+  padding: 1rem; /* 16px */
+  border-radius: 0.5rem; /* 8px */
+  border: 1px solid rgb(209 213 219);
+  cursor: pointer;
+}
+.function_overload_label:hover {
+  border-color: rgb(243 244 246);
+}
+
 .anchor {
     float: left;
     line-height: 1;

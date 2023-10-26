@@ -48,7 +48,7 @@ fn render_param(param: &ParamDef, i: usize) -> String {
   format!("<span>{name}{question_mark}{ts_type}</span>")
 }
 
-fn param_name(param: &ParamDef, i: usize) -> String {
+pub fn param_name(param: &ParamDef, i: usize) -> String {
   match &param.pattern {
     ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => {
       format!(r#"<span class="italic">unnamed {i}</span>"#)

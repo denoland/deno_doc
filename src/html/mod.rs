@@ -145,11 +145,19 @@ fn render_page(
   name: &str,
   doc_nodes: &[crate::DocNode],
 ) -> String {
+  let context = util::RenderContext {
+    additional_css: std::cell::RefCell::new("".to_string()),
+  };
+
+  // FIXME: don't clone here
+  let symbol_group =
+    symbol::render_symbol_group(doc_nodes.to_vec(), name, &context);
+
   format!(
-    r##"{HTML_HEAD}<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{}</div></div>{HTML_TAIL}"##,
+    r##"{HTML_HEAD}<style>{}</style><div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{}</div></div>{HTML_TAIL}"##,
+    context.additional_css.into_inner(),
     ctx.base_url,
-    // FIXME: don't clone here
-    symbol::render_symbol_group(doc_nodes.to_vec(), name),
+    symbol_group,
   )
 }
 

@@ -26,5 +26,9 @@ pub fn render_enum(doc_node: &crate::DocNode) -> String {
 
   // TODO: examples
 
-  format!("<div>{}</div>", section("Members", &items))
+  format!(
+    r#"<div class="doc_block_items">{}{}</div>"#,
+    super::jsdoc::render_docs(&doc_node.js_doc),
+    section("Members", &items),
+  )
 }
