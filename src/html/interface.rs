@@ -7,7 +7,7 @@ pub fn render_interface(doc_node: &crate::DocNode) -> String {
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
     render_type_params(&interface_def.type_params),
     render_index_signatures(&interface_def.index_signatures),
     render_properties(&interface_def.properties),

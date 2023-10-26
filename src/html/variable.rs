@@ -10,11 +10,9 @@ pub fn render_variable(doc_node: &crate::DocNode) -> String {
 
   let id = name_to_id("variable", &doc_node.name);
 
-  // TODO: examples
-
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
     section(
       "type",
       &doc_entry(

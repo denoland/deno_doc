@@ -6,11 +6,11 @@ pub fn render_type_alias(doc_node: &crate::DocNode) -> String {
 
   let id = name_to_id("typeAlias", &doc_node.name);
 
-  // TODO: tags, examples, TypeParamsDoc
+  // TODO: tags, TypeParamsDoc
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
     doc_entry(
       &id,
       "definition",

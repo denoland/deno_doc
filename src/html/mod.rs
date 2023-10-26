@@ -54,7 +54,7 @@ pub fn generate(
   let mut files = HashMap::new();
 
   // FIXME(bartlomieju): functions can have duplicates because of overloads
-  let partitions = partition_nodes_by_kind(doc_nodes);
+  let partitions = namespace::partition_nodes_by_kind(doc_nodes);
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
   let sidepanel = render_sidepanel(&ctx, &partitions);
@@ -63,12 +63,55 @@ pub fn generate(
     render_index(&ctx, &sidepanel, partitions),
   );
 
-  for (name, doc_nodes) in name_partitions.iter() {
-    let page = render_page(&ctx, &sidepanel, name, doc_nodes);
-    files.insert(name.to_string(), page);
-  }
+  generate_pages(name_partitions, &mut files, &ctx, &sidepanel, None);
 
   files
+}
+
+fn generate_pages(
+  name_partitions: IndexMap<String, Vec<crate::DocNode>>,
+  files: &mut HashMap<String, String>,
+  ctx: &GenerateCtx,
+  sidepanel: &str,
+  base: Option<Vec<String>>,
+) {
+  for (name, doc_nodes) in name_partitions.iter() {
+    let file_name = base.as_ref().map_or(name.to_string(), |base| {
+      format!("{}/{name}", base.join("/"))
+    });
+    let symbol_name = base.as_ref().map_or(name.to_string(), |base| {
+      format!("{}.{name}", base.join("."))
+    });
+
+    let page = render_page(ctx, sidepanel, &symbol_name, doc_nodes);
+
+    files.insert(file_name, page);
+
+    if let Some(doc_node) = doc_nodes
+      .iter()
+      .find(|doc_node| doc_node.kind == DocNodeKind::Namespace)
+    {
+      let namespace = doc_node.namespace_def.as_ref().unwrap();
+
+      let namespace_name_partitions =
+        partition_nodes_by_name(&namespace.elements);
+
+      let new_base = if let Some(mut base) = base.clone() {
+        base.push(name.to_string());
+        base
+      } else {
+        vec![name.to_string()]
+      };
+
+      generate_pages(
+        namespace_name_partitions,
+        files,
+        ctx,
+        sidepanel,
+        Some(new_base),
+      );
+    }
+  }
 }
 
 fn render_index(
@@ -91,7 +134,7 @@ fn render_index(
         r##"<li><a href="{}.html">{}</a>{}</li>"##,
         ctx.url(doc_node.name.to_string()),
         doc_node.name,
-        jsdoc::render_docs(&doc_node.js_doc, false),
+        jsdoc::render_docs(&doc_node.js_doc, false, false),
       ));
     }
 
@@ -101,25 +144,6 @@ fn render_index(
   content.push_str(&format!(r#"</div></div>{HTML_TAIL}"#));
 
   content
-}
-
-fn partition_nodes_by_kind(
-  doc_nodes: &[crate::DocNode],
-) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
-  let mut partitions = IndexMap::default();
-
-  for node in doc_nodes {
-    partitions
-      .entry(node.kind)
-      .or_insert(vec![])
-      .push(node.clone());
-  }
-
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.name.to_string());
-  }
-
-  partitions
 }
 
 fn partition_nodes_by_name(
@@ -144,18 +168,22 @@ fn render_page(
   doc_nodes: &[crate::DocNode],
 ) -> String {
   let context = util::RenderContext {
-    additional_css: std::cell::RefCell::new("".to_string()),
+    additional_css: std::rc::Rc::new(std::cell::RefCell::new("".to_string())),
+    namespace: name
+      .rsplit_once('.')
+      .map(|(namespace, _symbol)| namespace.to_string()),
   };
 
   // FIXME: don't clone here
   let symbol_group =
     symbol::render_symbol_group(doc_nodes.to_vec(), name, &context);
 
+  let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
+
   format!(
-    r##"{HTML_HEAD}<style>{}</style><div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{}</div></div>{HTML_TAIL}"##,
-    context.additional_css.into_inner(),
+    r##"<html><head><link rel="stylesheet" href="./{backs}{STYLESHEET_FILENAME}"></head><style>{}</style><div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{symbol_group}</div></div>{HTML_TAIL}"##,
+    context.additional_css.borrow(),
     ctx.base_url,
-    symbol_group,
   )
 }
 

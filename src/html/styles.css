@@ -4,31 +4,6 @@ html {
 p {
   margin: 0;
 }
-thead, tfoot {
-    background-color: #3f87a6;
-    color: #fff;
-}
-tbody {
-    background-color: #e4f0f5;
-}
-caption {
-    padding: 10px;
-    caption-side: bottom;
-}
-table {
-    border-collapse: collapse;
-    border: 2px solid rgb(200, 200, 200);
-    letter-spacing: 1px;
-    font-family: sans-serif;
-    font-size: 0.8rem;
-}
-td, th {
-    border: 1px solid rgb(190, 190, 190);
-    padding: 5px 10px;
-}
-td {
-    text-align: center;
-}
 a {
     color: inherit;
     text-decoration: inherit;
@@ -121,6 +96,59 @@ a {
   border-color: rgb(243 244 246);
 }
 
+.symbol_section {
+  display: block;
+}
+
+.symbol_section > tr {
+  display: block;
+}
+
+.symbol_section_symbol {
+  display: block;
+  padding-top: 0.25rem; /* 4px */
+  padding-bottom: 0.25rem; /* 4px */
+  padding-right: 0.75rem; /* 12px */
+  font-weight: 700;
+}
+
+.symbol_section_symbol > div {
+  min-width: 13rem;
+  display: flex;
+  align-items: center;
+}
+
+.symbol_section_symbol > div > * + * {
+  margin-left: 0.5rem; /* 8px */
+}
+
+.symbol_section_doc {
+  display: block;
+  padding-top: 0.25rem; /* 4px */
+  padding-bottom: 0.25rem; /* 4px */
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  color: rgb(107 114 128);
+}
+
+@media (min-width: 1024px) {
+  .symbol_section {
+    display: table;
+  }
+
+  .symbol_section > tr {
+    display: table-row;
+  }
+
+  .symbol_section_symbol {
+    display: table-cell;
+  }
+
+  .symbol_section_doc {
+    display: table-cell;
+  }
+}
+
 .anchor {
     float: left;
     line-height: 1;
@@ -173,6 +201,20 @@ a {
 }
 .kind_Namespace_bg {
     background-color: #D256461A;
+}
+
+.symbol_kind {
+  border-radius: 50%;
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 /* markdown */

@@ -59,7 +59,7 @@ fn render_symbol(
   {}
 </div>"#,
     doc_block_title(doc_nodes[0].kind, name),
-    doc_block(doc_nodes, context),
+    doc_block(doc_nodes, context, name),
   )
 }
 
@@ -80,13 +80,16 @@ fn doc_block_title(kind: DocNodeKind, name: &str) -> String {
   )
 }
 
-fn doc_block(doc_nodes: &[crate::DocNode], context: &RenderContext) -> String {
+fn doc_block(
+  doc_nodes: &[crate::DocNode],
+  context: &RenderContext,
+  name: &str,
+) -> String {
   let mut content = String::new();
   let mut functions = vec![];
 
   for doc_node in doc_nodes {
     match doc_node.kind {
-      DocNodeKind::ModuleDoc => {}
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
         content.push_str(&super::variable::render_variable(doc_node))
@@ -103,7 +106,16 @@ fn doc_block(doc_nodes: &[crate::DocNode], context: &RenderContext) -> String {
       DocNodeKind::TypeAlias => {
         content.push_str(&super::type_alias::render_type_alias(doc_node))
       }
-      DocNodeKind::Namespace => {}
+      DocNodeKind::Namespace => {
+        content.push_str(&super::namespace::render_namespace(
+          doc_node,
+          &RenderContext {
+            additional_css: context.additional_css.clone(),
+            namespace: Some(name.to_string()),
+          },
+        ))
+      }
+      DocNodeKind::ModuleDoc => {}
       DocNodeKind::Import => {}
     };
   }

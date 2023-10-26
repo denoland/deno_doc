@@ -39,9 +39,13 @@ pub fn markdown_to_html(md: &str, summary: bool) -> String {
   )
 }
 
-pub fn render_docs(js_doc: &JsDoc, render_examples: bool) -> String {
+pub fn render_docs(
+  js_doc: &JsDoc,
+  render_examples: bool,
+  summary: bool,
+) -> String {
   let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
-    markdown_to_html(doc, false)
+    markdown_to_html(doc, summary)
   } else {
     "".to_string()
   };

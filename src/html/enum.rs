@@ -24,11 +24,9 @@ pub fn render_enum(doc_node: &crate::DocNode) -> String {
     })
     .collect::<String>();
 
-  // TODO: examples
-
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
     section("Members", &items),
   )
 }

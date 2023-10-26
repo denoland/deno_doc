@@ -127,16 +127,21 @@ fn generate_docs_directory(
     "./{}",
     &ctx.base_url.strip_prefix("/").unwrap_or(&ctx.base_url)
   );
-  let _ = std::fs::remove_dir_all(&base_path);
-  std::fs::create_dir(&base_path)?;
+  let path = std::path::Path::new(&base_path);
+  let _ = std::fs::remove_dir_all(path);
+  std::fs::create_dir(path)?;
 
   std::fs::write(
-    format!("{base_path}/{}", deno_doc::html::STYLESHEET_FILENAME),
+    path.join(deno_doc::html::STYLESHEET_FILENAME),
     deno_doc::html::STYLESHEET,
   )
   .unwrap();
   for (name, content) in html {
-    std::fs::write(format!("{base_path}/{name}.html"), content).unwrap();
+    let mut this_path = path.join(name);
+    this_path.set_extension("html");
+    let prefix = this_path.parent().unwrap();
+    std::fs::create_dir_all(prefix).unwrap();
+    std::fs::write(this_path, content).unwrap();
   }
 
   Ok(())
