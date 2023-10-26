@@ -201,7 +201,7 @@ async fn inner_doc(
     )
     .await;
   let entries =
-    DocParser::new(graph, include_all, analyzer.as_capturing_parser())?
+    DocParser::new(&graph, include_all, analyzer.as_capturing_parser())?
       .parse_with_reexports(&root_specifier)?;
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
