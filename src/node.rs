@@ -47,6 +47,18 @@ pub enum ReexportKind {
 pub struct Reexport {
   pub kind: ReexportKind,
   pub src: String,
+  /// True for symbols that are not re-exported, but should be visible,
+  /// eg.
+  /// ```
+  /// class Other {}
+  ///
+  /// export class Test {
+  ///     foo: string;
+  /// }
+  /// ```
+  ///
+  /// In the above example `Other` would have `implicit` equal to true.
+  pub implicit: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -63,7 +75,7 @@ pub struct ImportDef {
   pub imported: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum DeclarationKind {
   Private,
