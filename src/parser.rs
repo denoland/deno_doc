@@ -544,8 +544,10 @@ impl<'a> DocParser<'a> {
       TsModuleName::Str(str_) => str_.value.to_string(),
     };
     let mut elements = Vec::new();
+    let mut handled_symbols = HashSet::new();
 
     for (export_name, export_symbol_id) in symbol.exports() {
+      handled_symbols.insert(*export_symbol_id);
       let export_symbol = module_symbol.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
         &self.graph,
@@ -553,6 +555,7 @@ impl<'a> DocParser<'a> {
         export_symbol,
       );
       for definition in definitions {
+        handled_symbols.insert(definition.symbol.symbol_id());
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
         }
@@ -572,18 +575,17 @@ impl<'a> DocParser<'a> {
     }
 
     let is_ambient = elements.is_empty() && !module_has_import(module_symbol);
-    if is_ambient || self.private {
-      let mut handled_symbols =
-        symbol.exports().values().copied().collect::<HashSet<_>>();
-      for child_id in symbol.child_decls() {
-        if !handled_symbols.insert(child_id) {
-          continue; // already handled
-        }
-        let child_symbol = module_symbol.symbol(child_id).unwrap();
+    for child_id in symbol.child_decls() {
+      if !handled_symbols.insert(child_id) {
+        continue; // already handled
+      }
+      let child_symbol = module_symbol.symbol(child_id).unwrap();
+      if child_symbol.is_public() || is_ambient || self.private {
         for decl in child_symbol.decls() {
           if let Some(node) = decl.maybe_node() {
-            let is_declared = self.get_declare_for_symbol_node(node);
-            if is_declared || self.private {
+            let is_declared =
+              is_ambient && self.get_declare_for_symbol_node(node);
+            if child_symbol.is_public() || is_declared || self.private {
               if let Some(mut doc_node) = self.get_doc_for_symbol_node_ref(
                 module_symbol,
                 child_symbol,
@@ -592,7 +594,6 @@ impl<'a> DocParser<'a> {
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
                 } else {
-                  debug_assert!(self.private);
                   DeclarationKind::Private
                 };
                 elements.push(doc_node);
@@ -902,8 +903,10 @@ impl<'a> DocParser<'a> {
       }
     }
 
+    let mut handled_symbols = HashSet::new();
     let exports = module_symbol.exports(&self.graph, &self.root_symbol);
     for (export_name, (export_module, export_symbol_id)) in &exports {
+      handled_symbols.insert(*export_symbol_id);
       let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
         &self.graph,
@@ -914,6 +917,7 @@ impl<'a> DocParser<'a> {
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
         }
+        handled_symbols.insert(definition.symbol.symbol_id());
         let maybe_doc = self.doc_for_maybe_node(
           definition.module,
           definition.symbol,
@@ -929,18 +933,17 @@ impl<'a> DocParser<'a> {
     }
 
     let is_ambient = exports.is_empty() && !module_has_import(module_symbol);
-    if is_ambient || self.private {
-      let mut handled_symbols =
-        exports.values().map(|n| n.1).collect::<HashSet<_>>();
-      for child_id in module_symbol.child_decls() {
-        if !handled_symbols.insert(child_id) {
-          continue; // already handled
-        }
-        let child_symbol = module_symbol.symbol(child_id).unwrap();
+    for child_id in module_symbol.child_decls() {
+      if !handled_symbols.insert(child_id) {
+        continue; // already handled
+      }
+      let child_symbol = module_symbol.symbol(child_id).unwrap();
+      if child_symbol.is_public() || is_ambient || self.private {
         for decl in child_symbol.decls() {
           if let Some(node) = decl.maybe_node() {
-            let is_declared = self.get_declare_for_symbol_node(node);
-            if is_declared || self.private {
+            let is_declared =
+              is_ambient && self.get_declare_for_symbol_node(node);
+            if child_symbol.is_public() || is_declared || self.private {
               if let Some(mut doc_node) = self.get_doc_for_symbol_node_ref(
                 module_symbol,
                 child_symbol,
@@ -949,7 +952,6 @@ impl<'a> DocParser<'a> {
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
                 } else {
-                  debug_assert!(self.private);
                   DeclarationKind::Private
                 };
                 doc_nodes.push(doc_node);
