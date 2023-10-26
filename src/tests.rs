@@ -3450,7 +3450,6 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
     r#"
 interface AssignOpts {
   a: string;
-  b: number;
 }
 
 export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
@@ -3568,18 +3567,49 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
     "location": {
       "col": 0,
       "filename": "file:///test.ts",
-      "line": 7,
+      "line": 6,
     },
     "name": "foo",
+  }, {
+    "kind": "interface",
+    "name": "AssignOpts",
+    "location": {
+      "col": 0,
+      "filename": "file:///test.ts",
+      "line": 2,
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [{
+        "name": "a",
+        "location": {
+            "filename": "file:///test.ts",
+            "line": 3,
+            "col": 2,
+        },
+        "params": [],
+        "computed": false,
+        "optional": false,
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string",
+        },
+        "typeParams": [],
+      }],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": [],
+    }
   }]);
 
   json_test!(export_interface,
-    r#"
+        r#"
 interface Foo {
-  foo(): void;
 }
 interface Bar {
-  bar(): void;
 }
 /**
  * Interface js doc
@@ -3589,92 +3619,126 @@ export interface Reader extends Foo, Bar {
     read?(buf: Uint8Array, something: unknown): Promise<number>
 }
     "#;
-  [{
-      "kind": "interface",
-      "name": "Reader",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 11,
-        "col": 0
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Interface js doc",
-      },
-      "interfaceDef": {
-        "extends": [
-          {
-            "repr": "Foo",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Foo"
-            }
+      [{
+          "kind": "interface",
+          "name": "Reader",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 9,
+            "col": 0
           },
-          {
-            "repr": "Bar",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Bar"
-            }
-          }
-        ],
-        "methods": [
-          {
-            "name": "read",
-            "kind": "method",
-            "location": {
-              "filename": "file:///test.ts",
-              "line": 13,
-              "col": 4
-            },
-            "optional": true,
-            "jsDoc": {
-              "doc": "Read n bytes",
-            },
-            "params": [
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Interface js doc",
+          },
+          "interfaceDef": {
+            "extends": [
               {
-                "name": "buf",
-                "kind": "identifier",
-                "optional": false,
-                "tsType": {
-                  "repr": "Uint8Array",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Uint8Array"
-                  }
+                "repr": "Foo",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Foo"
                 }
               },
               {
-                "name": "something",
-                "kind": "identifier",
-                "optional": false,
-                "tsType": {
-                  "repr": "unknown",
-                  "kind": "keyword",
-                  "keyword": "unknown"
+                "repr": "Bar",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Bar"
                 }
               }
             ],
-            "typeParams": [],
-            "returnType": {
-              "repr": "Promise",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
+            "methods": [
+              {
+                "name": "read",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 11,
+                  "col": 4
+                },
+                "optional": true,
+                "jsDoc": {
+                  "doc": "Read n bytes",
+                },
+                "params": [
                   {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "keyword": "number"
+                    "name": "buf",
+                    "kind": "identifier",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "Uint8Array",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "Uint8Array"
+                      }
+                    }
+                  },
+                  {
+                    "name": "something",
+                    "kind": "identifier",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "unknown",
+                      "kind": "keyword",
+                      "keyword": "unknown"
+                    }
                   }
                 ],
-                "typeName": "Promise"
+                "typeParams": [],
+                "returnType": {
+                  "repr": "Promise",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "keyword": "number"
+                      }
+                    ],
+                    "typeName": "Promise"
+                  }
+                }
               }
-            }
-          }
-        ],
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [],
+        }
+      }, {
+        "kind": "interface",
+        "name": "Foo",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "declarationKind": "private",
+        "interfaceDef": {
+          "extends": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": [],
+      }
+    },  {
+      "kind": "interface",
+      "name": "Bar",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 4,
+        "col": 0
+      },
+      "declarationKind": "private",
+      "interfaceDef": {
+        "extends": [],
+        "methods": [],
         "properties": [],
         "callSignatures": [],
         "indexSignatures": [],
