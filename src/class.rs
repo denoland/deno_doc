@@ -268,14 +268,10 @@ pub fn class_to_class_def(
     match expr {
       Expr::Ident(ident) => Some(ident.sym.to_string()),
       Expr::Member(member_expr) => {
-        let prop = member_expr.to_owned().prop.ident().unwrap().sym.to_string();
-        let obj = walk_class_extends(&member_expr.obj);
+        let prop = member_expr.prop.as_ident()?.sym.to_string();
+        let mut string_path = walk_class_extends(&member_expr.obj)?;
 
-        obj.as_ref()?;
-
-        let mut string_path = obj.unwrap();
-
-        string_path.push_str(".");
+        string_path.push('.');
         string_path.push_str(&prop);
 
         Some(string_path)
