@@ -171,3 +171,45 @@ a {
 .kind_Namespace_bg {
     background-color: #D256461A;
 }
+
+/* jsdoc */
+.jsdoc :not(pre) > code {
+  /* TODO: font-mono */
+
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  padding: 0.25rem 0.375rem; /* 4px 6px */
+  border-radius: 0.25rem; /* 4px */
+  background-color: rgb(243 244 246);
+}
+
+.jsdoc pre {
+  /* TODO: font-mono */
+
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  padding: 0.625rem; /* 10px */
+  border-radius: 0.5rem; /* 8px */
+  color: black;
+  background-color: rgb(243 244 246);
+  overflow-x: auto;
+}
+
+.jsdoc p {
+  margin: 0.25rem 0; /* 4px */
+  text-align: left;
+}
+
+.jsdoc table {
+  table-layout: auto;
+}
+
+.jsdoc td {
+  padding: 0.5rem; /* 8px */
+  border: 1px solid rgb(107 114 128);
+}
+
+.jsdoc th {
+  font-weight: 700;
+  text-align: center;
+}

@@ -35,8 +35,8 @@ wasm-bindgen = { version = "=0.2.87", optional = true }
 wasm-bindgen-futures = { version = "=0.4.37", optional = true }
 
 html-escape = { version = "0.2.13", optional = true }
-markdown = "1.0.0-alpha.14"
-indexmap = "2.0.2"
+comrak = { version = "0.19.0", optional = true }
+indexmap = { version = "2.0.2", optional = true }
 
 [dev-dependencies]
 anyhow = { version = "1.0.58" }
@@ -48,7 +48,7 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["rust"]
 rust = []
-html = ["html-escape"]
+html = ["html-escape", "comrak", "indexmap"]
 wasm = ["anyhow", "js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
 
 [profile.release]

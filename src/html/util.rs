@@ -44,7 +44,9 @@ pub fn doc_entry(
     </div>
    "#,
     anchor(id),
-    jsdoc.map(markdown::to_html).unwrap_or_default(),
+    jsdoc
+      .map(super::jsdoc::markdown_to_html)
+      .unwrap_or_default(),
   )
 }
 
