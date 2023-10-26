@@ -49,7 +49,7 @@ pub struct Reexport {
   pub src: String,
   /// True for symbols that are not re-exported, but should be visible,
   /// eg.
-  /// ```
+  /// ```ignore
   /// class Other {}
   ///
   /// export class Test {
