@@ -68,7 +68,7 @@ pub struct ImportDef {
   pub imported: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum DeclarationKind {
   Private,
