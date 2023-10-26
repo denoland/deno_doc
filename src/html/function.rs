@@ -133,7 +133,7 @@ fn render_single_function(
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    super::jsdoc::render_docs(&doc_node.js_doc),
+    super::jsdoc::render_docs(&doc_node.js_doc, true),
     render_type_params(&function_def.type_params),
     section("Parameters", &params),
     section(

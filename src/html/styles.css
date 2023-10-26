@@ -1,6 +1,9 @@
 html {
     font-family: sans-serif;
 }
+p {
+  margin: 0;
+}
 thead, tfoot {
     background-color: #3f87a6;
     color: #fff;
@@ -172,8 +175,12 @@ a {
     background-color: #D256461A;
 }
 
-/* jsdoc */
-.jsdoc :not(pre) > code {
+/* markdown */
+.markdown > * + * {
+  margin-top: 1rem; /* 16px */
+}
+
+.markdown :not(pre) > code {
   /* TODO: font-mono */
 
   font-size: 0.875rem; /* 14px */
@@ -183,7 +190,7 @@ a {
   background-color: rgb(243 244 246);
 }
 
-.jsdoc pre {
+.markdown pre {
   /* TODO: font-mono */
 
   font-size: 0.875rem; /* 14px */
@@ -195,21 +202,44 @@ a {
   overflow-x: auto;
 }
 
-.jsdoc p {
+.markdown p {
   margin: 0.25rem 0; /* 4px */
   text-align: left;
 }
 
-.jsdoc table {
+.markdown table {
   table-layout: auto;
 }
 
-.jsdoc td {
+.markdown td {
   padding: 0.5rem; /* 8px */
   border: 1px solid rgb(107 114 128);
 }
 
-.jsdoc th {
+.markdown th {
   font-weight: 700;
   text-align: center;
+}
+
+.markdown_summary {
+  display: inline;
+  color: rgb(75 85 99);
+}
+
+.markdown_summary p {
+  display: inline-block;
+}
+
+.example > details > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px */
+  padding: 0.5rem  0.75rem; /* 8px 12px */
+  border-radius: 0.5rem; /* 8px */
+  width: 100%;
+  line-height: 1.5rem; /* 24px */
+}
+.example > details > summary::-webkit-details-marker {
+  display: none;
 }

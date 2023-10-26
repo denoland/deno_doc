@@ -16,8 +16,6 @@ mod types;
 mod util;
 mod variable;
 
-use jsdoc::render_docs;
-
 pub const STYLESHEET: &str = include_str!("./styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
 // TODO(bartlomieju): reference STYLESHEET_FILENAME below
@@ -93,7 +91,7 @@ fn render_index(
         r##"<li><a href="{}.html">{}</a>{}</li>"##,
         ctx.url(doc_node.name.to_string()),
         doc_node.name,
-        render_docs(&doc_node.js_doc),
+        jsdoc::render_docs(&doc_node.js_doc, false),
       ));
     }
 

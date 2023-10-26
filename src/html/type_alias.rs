@@ -10,7 +10,7 @@ pub fn render_type_alias(doc_node: &crate::DocNode) -> String {
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc),
+    super::jsdoc::render_docs(&doc_node.js_doc, true),
     doc_entry(
       &id,
       "definition",

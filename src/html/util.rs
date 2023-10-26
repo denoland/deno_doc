@@ -45,7 +45,7 @@ pub fn doc_entry(
    "#,
     anchor(id),
     jsdoc
-      .map(super::jsdoc::markdown_to_html)
+      .map(|doc| super::jsdoc::markdown_to_html(doc, false))
       .unwrap_or_default(),
   )
 }
@@ -66,4 +66,17 @@ pub fn anchor(name: &str) -> String {
 
 pub struct RenderContext {
   pub additional_css: std::cell::RefCell<String>,
+}
+
+pub fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
+  let newline = md.find("\n\n").unwrap_or(usize::MAX);
+  let codeblock = md.find("```").unwrap_or(usize::MAX);
+
+  let index = newline.min(codeblock).min(md.len());
+
+  match md.split_at(index) {
+    ("", body) => (None, body),
+    (title, "") => (None, title),
+    (title, body) => (Some(title), body),
+  }
 }
