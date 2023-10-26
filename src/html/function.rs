@@ -9,7 +9,7 @@ use crate::params::ParamPatternDef;
 
 pub fn render_function(
   doc_nodes: Vec<&crate::DocNode>,
-  context: &RenderContext,
+  ctx: &RenderContext,
 ) -> String {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut content = String::with_capacity(16 * 1024);
@@ -29,7 +29,7 @@ pub fn render_function(
       let id = name_to_id("function", &doc_node.name);
 
       {
-        context.additional_css.borrow_mut().push_str(&format!(
+        ctx.additional_css.borrow_mut().push_str(&format!(
           r#"
 #{overload_id} {{
   display: none;
@@ -59,11 +59,11 @@ pub fn render_function(
       <span style="font-weight: 700;">{}</span><span style="font-weight: 500;">{}</span>
     </code>
 </label>"#,
-        doc_node.name, render_function_summary(function_def),
+        doc_node.name, render_function_summary(function_def, ctx),
       ));
     }
 
-    content.push_str(&render_single_function(doc_node, &overload_id));
+    content.push_str(&render_single_function(doc_node, &overload_id, ctx));
   }
 
   format!(
@@ -71,23 +71,27 @@ pub fn render_function(
   )
 }
 
-fn render_function_summary(function_def: &FunctionDef) -> String {
+fn render_function_summary(
+  function_def: &FunctionDef,
+  ctx: &RenderContext,
+) -> String {
   let return_type = function_def
     .return_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ts_type)))
+    .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
     .unwrap_or_default();
 
   format!(
     "{}({}){return_type}",
-    type_params_summary(&function_def.type_params),
-    render_params(&function_def.params)
+    type_params_summary(&function_def.type_params, ctx),
+    render_params(&function_def.params, ctx)
   )
 }
 
 fn render_single_function(
   doc_node: &crate::DocNode,
   overload_id: &str,
+  ctx: &RenderContext,
 ) -> String {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
@@ -122,7 +126,7 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| format!(": {}", render_type_def(ts_type)))
+        .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
         .unwrap_or_default();
 
       // TODO: default_value
@@ -134,11 +138,16 @@ fn render_single_function(
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
     super::jsdoc::render_docs(&doc_node.js_doc, true, false),
-    render_type_params(&function_def.type_params),
+    render_type_params(&function_def.type_params, ctx),
     section("Parameters", &params),
     section(
       "Return Type",
-      &render_function_return_type(function_def, &doc_node.js_doc, overload_id)
+      &render_function_return_type(
+        function_def,
+        &doc_node.js_doc,
+        overload_id,
+        ctx
+      )
     ),
   )
 }
@@ -147,6 +156,7 @@ fn render_function_return_type(
   def: &FunctionDef,
   js_doc: &crate::js_doc::JsDoc,
   overload_id: &str,
+  ctx: &RenderContext,
 ) -> String {
   let Some(return_type) = def.return_type.as_ref() else {
     return "".to_string();
@@ -162,5 +172,5 @@ fn render_function_return_type(
     }
   });
 
-  doc_entry(&id, "", &render_type_def(return_type), return_type_doc)
+  doc_entry(&id, "", &render_type_def(return_type, ctx), return_type_doc)
 }

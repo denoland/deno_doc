@@ -82,7 +82,7 @@ fn doc_block_title(kind: DocNodeKind, name: &str) -> String {
 
 fn doc_block(
   doc_nodes: &[crate::DocNode],
-  context: &RenderContext,
+  ctx: &RenderContext,
   name: &str,
 ) -> String {
   let mut content = String::new();
@@ -92,25 +92,25 @@ fn doc_block(
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
-        content.push_str(&super::variable::render_variable(doc_node))
+        content.push_str(&super::variable::render_variable(doc_node, ctx))
       }
       DocNodeKind::Class => {
-        content.push_str(&super::class::render_class(doc_node))
+        content.push_str(&super::class::render_class(doc_node, ctx))
       }
       DocNodeKind::Enum => {
-        content.push_str(&super::r#enum::render_enum(doc_node))
+        content.push_str(&super::r#enum::render_enum(doc_node, ctx))
       }
       DocNodeKind::Interface => {
-        content.push_str(&super::interface::render_interface(doc_node))
+        content.push_str(&super::interface::render_interface(doc_node, ctx))
       }
       DocNodeKind::TypeAlias => {
-        content.push_str(&super::type_alias::render_type_alias(doc_node))
+        content.push_str(&super::type_alias::render_type_alias(doc_node, ctx))
       }
       DocNodeKind::Namespace => {
         content.push_str(&super::namespace::render_namespace(
           doc_node,
           &RenderContext {
-            additional_css: context.additional_css.clone(),
+            additional_css: ctx.additional_css.clone(),
             namespace: Some(name.to_string()),
           },
         ))
@@ -121,7 +121,7 @@ fn doc_block(
   }
 
   if !functions.is_empty() {
-    content.push_str(&super::function::render_function(functions, context));
+    content.push_str(&super::function::render_function(functions, ctx));
   }
 
   format!("<div>{content}</div>")

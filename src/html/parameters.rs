@@ -1,15 +1,16 @@
-use crate::html::types::render_type_def;
+use super::types::render_type_def;
+use super::util::*;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
 
-pub fn render_params(params: &[ParamDef]) -> String {
+pub fn render_params(params: &[ParamDef], ctx: &RenderContext) -> String {
   if params.is_empty() {
     String::new()
   } else if params.len() <= 3 {
     let items = params
       .iter()
       .enumerate()
-      .map(|(i, element)| render_param(element, i))
+      .map(|(i, element)| render_param(element, i, ctx))
       .collect::<Vec<String>>()
       .join(&format!("<span>, </span>"));
 
@@ -18,14 +19,14 @@ pub fn render_params(params: &[ParamDef]) -> String {
     let items = params
       .iter()
       .enumerate()
-      .map(|(i, def)| format!("<div>{}</div>", render_param(def, i)))
+      .map(|(i, def)| format!("<div>{}</div>", render_param(def, i, ctx)))
       .collect::<String>();
 
     format!(r#"<div class="ident">{items}</div>"#)
   }
 }
 
-fn render_param(param: &ParamDef, i: usize) -> String {
+fn render_param(param: &ParamDef, i: usize, ctx: &RenderContext) -> String {
   let name = param_name(param, i);
   let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern {
     left.ts_type.as_ref()
@@ -34,7 +35,9 @@ fn render_param(param: &ParamDef, i: usize) -> String {
   };
 
   let ts_type = ts_type
-    .map(|ts_type| format!(r#"<span>: {}</span>"#, render_type_def(ts_type)))
+    .map(|ts_type| {
+      format!(r#"<span>: {}</span>"#, render_type_def(ts_type, ctx))
+    })
     .unwrap_or_default();
 
   let question_mark = match param.pattern {

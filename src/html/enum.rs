@@ -1,7 +1,7 @@
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 
-pub fn render_enum(doc_node: &crate::DocNode) -> String {
+pub fn render_enum(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   let mut members = doc_node.enum_def.as_ref().unwrap().members.clone();
 
   members.sort_by(|a, b| a.name.cmp(&b.name));
@@ -17,7 +17,7 @@ pub fn render_enum(doc_node: &crate::DocNode) -> String {
         &member
           .init
           .as_ref()
-          .map(|init| format!(" = {}", render_type_def(init)))
+          .map(|init| format!(" = {}", render_type_def(init, ctx)))
           .unwrap_or_default(),
         member.js_doc.doc.as_deref(),
       )

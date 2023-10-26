@@ -1,7 +1,7 @@
 use super::util::*;
 use crate::html::parameters::render_params;
 
-pub fn render_class(doc_node: &crate::DocNode) -> String {
+pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
   // TODO: class items
@@ -10,8 +10,8 @@ pub fn render_class(doc_node: &crate::DocNode) -> String {
     r#"<div class="doc_block_items">{}{}{}{}</div>"#,
     super::jsdoc::render_docs(&doc_node.js_doc, true, false),
     render_constructors(&class_def.constructors, &doc_node.name),
-    super::types::render_type_params(&class_def.type_params),
-    render_index_signatures(&class_def.index_signatures),
+    super::types::render_type_params(&class_def.type_params, ctx),
+    render_index_signatures(&class_def.index_signatures, ctx),
   )
 }
 
@@ -39,6 +39,7 @@ fn render_constructors(
 
 fn render_index_signatures(
   index_signatures: &[crate::class::ClassIndexSignatureDef],
+  ctx: &RenderContext,
 ) -> String {
   if index_signatures.is_empty() {
     return String::new();
@@ -58,13 +59,15 @@ fn render_index_signatures(
       let ts_type = index_signature
         .ts_type
         .as_ref()
-        .map(|ts_type| format!(": {}", super::types::render_type_def(ts_type)))
+        .map(|ts_type| {
+          format!(": {}", super::types::render_type_def(ts_type, ctx))
+        })
         .unwrap_or_default();
 
       format!(
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         anchor(&id),
-        render_params(&index_signature.params),
+        render_params(&index_signature.params, ctx),
       )
     })
     .collect::<String>();
