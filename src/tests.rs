@@ -91,7 +91,7 @@ macro_rules! doc_test {
       let (graph, analyzer, specifier) = setup("file:///test.ts", vec![
         ("file:///test.ts", None, source_code)
       ]).await;
-      let parser = DocParser::new(graph, private, analyzer.as_capturing_parser()).unwrap();
+      let parser = DocParser::new(&graph, private, analyzer.as_capturing_parser()).unwrap();
       let entries = parser
         .parse(&specifier)
         .unwrap();
@@ -190,7 +190,7 @@ async fn content_type_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
@@ -237,7 +237,7 @@ async fn types_header_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
@@ -309,7 +309,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -437,7 +437,7 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -506,7 +506,7 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -562,7 +562,7 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -653,7 +653,7 @@ export namespace Deno {
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse(&specifier)
     .unwrap();
@@ -740,7 +740,7 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -800,7 +800,7 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -861,7 +861,7 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -921,7 +921,7 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, true, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, true, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -976,7 +976,7 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(graph, false, analyzer.as_capturing_parser())
+  DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -993,7 +993,7 @@ async fn json_module() {
   )
   .await;
 
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();

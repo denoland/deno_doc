@@ -121,16 +121,16 @@ struct Import {
   kind: ImportKind,
 }
 
-pub struct DocParser {
-  graph: ModuleGraph,
+pub struct DocParser<'a> {
+  graph: &'a ModuleGraph,
   private: bool,
   root_symbol: deno_graph::type_tracer::RootSymbol,
   private_types_in_public: RefCell<HashSet<Location>>,
 }
 
-impl DocParser {
+impl<'a> DocParser<'a> {
   pub fn new(
-    graph: ModuleGraph,
+    graph: &'a ModuleGraph,
     private: bool,
     parser: CapturingModuleParser,
   ) -> Result<Self, anyhow::Error> {
@@ -145,7 +145,7 @@ impl DocParser {
     }
 
     let root_symbol = deno_graph::type_tracer::trace_public_types(
-      &graph,
+      graph,
       &graph.roots,
       &parser,
       &NullTypeTraceHandler,
@@ -268,11 +268,11 @@ impl DocParser {
         let module_doc = self.parse_module(&module.specifier)?;
         let mut flattened_docs = Vec::new();
         let module_symbol = self.get_module_symbol(&module.specifier)?;
-        let exports = module_symbol.exports(&self.graph, &self.root_symbol);
+        let exports = module_symbol.exports(self.graph, &self.root_symbol);
         for (export_name, (export_module, export_symbol_id)) in exports {
           let export_symbol = export_module.symbol(export_symbol_id).unwrap();
           let definitions = self.root_symbol.go_to_definitions(
-            &self.graph,
+            self.graph,
             export_module,
             export_symbol,
           );
@@ -586,7 +586,7 @@ impl DocParser {
       handled_symbols.insert(*export_symbol_id);
       let export_symbol = module_symbol.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
-        &self.graph,
+        self.graph,
         ModuleSymbolRef::Esm(module_symbol),
         export_symbol,
       );
@@ -947,12 +947,12 @@ impl DocParser {
     }
 
     let mut handled_symbols = HashSet::new();
-    let exports = module_symbol.exports(&self.graph, &self.root_symbol);
+    let exports = module_symbol.exports(self.graph, &self.root_symbol);
     for (export_name, (export_module, export_symbol_id)) in &exports {
       handled_symbols.insert(*export_symbol_id);
       let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
-        &self.graph,
+        self.graph,
         *export_module,
         export_symbol,
       );
