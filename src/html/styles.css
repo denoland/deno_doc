@@ -30,6 +30,10 @@ a {
     color: inherit;
     text-decoration: inherit;
 }
+#sidepanel {
+    border-right: 1px solid;
+    padding: 3px;
+}
 /* doc classes */
 .symbol_group > * + * {
     margin-top: 3rem;

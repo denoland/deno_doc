@@ -159,7 +159,7 @@ fn render_sidepanel(
 ) -> String {
   let mut sidepanel = String::with_capacity(1024);
 
-  sidepanel.push_str(r#"<div>"#);
+  sidepanel.push_str(r#"<div id="sidepanel">"#);
   sidepanel.push_str(&format!(
     r#"<h2><a href="{}">{}</a></h2>"#,
     ctx.base_url, ctx.package_name
