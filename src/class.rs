@@ -272,7 +272,7 @@ pub fn class_to_class_def(
         let mut string_path = walk_class_extends(&member_expr.obj)?;
 
         string_path.push('.');
-        string_path.push_str(&prop);
+        string_path.push_str(prop);
 
         Some(string_path)
       }
