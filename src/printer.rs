@@ -398,13 +398,7 @@ impl<'a> DocPrinter<'a> {
       for d in &node.decorators {
         writeln!(w, "{}{}", Indent(1), d)?;
       }
-      writeln!(
-        w,
-        "{}{}{}",
-        Indent(1),
-        colors::italic_gray(if self.private { "private " } else { "" }),
-        node,
-      )?;
+      writeln!(w, "{}{}", Indent(1), node,)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
     }
     for index_sign_def in &class_def.index_signatures {
@@ -427,13 +421,7 @@ impl<'a> DocPrinter<'a> {
         for d in &node.function_def.decorators {
           writeln!(w, "{}{}", Indent(1), d)?;
         }
-        writeln!(
-          w,
-          "{}{}{}",
-          Indent(1),
-          colors::italic_gray(if self.private { "private " } else { "" }),
-          node,
-        )?;
+        writeln!(w, "{}{}", Indent(1), node,)?;
         self.format_jsdoc(w, &node.js_doc, 2)?;
       }
     }
