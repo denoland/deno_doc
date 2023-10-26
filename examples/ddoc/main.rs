@@ -50,10 +50,12 @@ fn main() {
   let matches = App::new("ddoc")
     .arg(Arg::with_name("source_file").required(true))
     .arg(Arg::with_name("filter"))
+    .arg(Arg::with_name("private").long("private"))
     .get_matches();
 
   let source_file = matches.value_of("source_file").unwrap();
   let maybe_filter = matches.value_of("filter");
+  let private = matches.is_present("private");
   let source_file =
     ModuleSpecifier::from_directory_path(current_dir().unwrap())
       .unwrap()
@@ -74,7 +76,7 @@ fn main() {
         },
       )
       .await;
-    let parser = DocParser::new(graph, false, analyzer.as_capturing_parser());
+    let parser = DocParser::new(graph, private, analyzer.as_capturing_parser());
     let parse_result = parser.parse_with_reexports(&source_file);
 
     let mut doc_nodes = match parse_result {
@@ -89,7 +91,7 @@ fn main() {
     if let Some(filter) = maybe_filter {
       doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
     }
-    let result = DocPrinter::new(&doc_nodes, true, false);
+    let result = DocPrinter::new(&doc_nodes, true, private);
     println!("{}", result);
   };
 
