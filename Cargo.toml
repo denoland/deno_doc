@@ -15,10 +15,10 @@ name = "deno_doc"
 name = "ddoc"
 
 [dependencies]
-anyhow = { version = "1.0.58", optional = true }
+anyhow = "1.0.58"
 cfg-if = "1.0.0"
 deno_ast = "0.31.0"
-deno_graph = "0.59.0"
+deno_graph = { version = "0.59.1", features = ["type_tracing"] }
 futures = "0.3.26"
 import_map = "0.15.0"
 lazy_static = "1.4.0"
@@ -42,7 +42,7 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["rust"]
 rust = []
-wasm = ["anyhow", "js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
+wasm = ["js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
 
 [profile.release]
 codegen-units = 1

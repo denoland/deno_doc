@@ -6,6 +6,7 @@ use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -33,7 +34,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let analyzer = create_analyzer();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -46,6 +47,24 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     )
     .await;
   (graph, analyzer, root)
+}
+
+macro_rules! assert_contains {
+  ($string:expr, $($test:expr),+ $(,)?) => {
+    let string = &$string; // This might be a function call or something
+    if !($(string.contains($test))||+) {
+      panic!("{:?} does not contain any of {:?}", string, [$($test),+]);
+    }
+  }
+}
+
+macro_rules! assert_not_contains {
+  ($string:expr, $($test:expr),+ $(,)?) => {
+    let string = &$string; // This might be a function call or something
+    if !($(!string.contains($test))||+) {
+      panic!("{:?} contained {:?}", string, [$($test),+]);
+    }
+  }
 }
 
 macro_rules! doc_test {
@@ -68,7 +87,7 @@ macro_rules! doc_test {
       let (graph, analyzer, specifier) = setup("file:///test.ts", vec![
         ("file:///test.ts", None, source_code)
       ]).await;
-      let entries = DocParser::new(graph, private, analyzer.as_capturing_parser())
+      let entries = DocParser::new(graph, private, analyzer.as_capturing_parser()).unwrap()
         .parse(&specifier)
         .unwrap();
 
@@ -96,11 +115,11 @@ macro_rules! contains_test {
     $( $contains:expr ),* $( ; $( $notcontains:expr ),* )? ) => {
     doc_test!($name, $source, $private; |_entries, doc: String| {
       $(
-        assert!(doc.contains($contains));
+        assert_contains!(doc, $contains);
       )*
       $(
         $(
-          assert!(!doc.contains($notcontains));
+          assert_not_contains!(doc, $notcontains);
         )*
       )?
     });
@@ -135,14 +154,14 @@ async fn content_type_handling() {
         "content-type",
         "application/typescript; charset=utf-8",
       )]),
-      content: r#"declare interface A {
+      content: r#"export interface A {
       a: string;
     }"#,
     },
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let analyzer = create_analyzer();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -155,6 +174,7 @@ async fn content_type_handling() {
     )
     .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
   assert_eq!(entries.len(), 1);
@@ -188,7 +208,7 @@ async fn types_header_handling() {
   ];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let analyzer = create_analyzer();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -201,6 +221,7 @@ async fn types_header_handling() {
     )
     .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
   assert_eq!(
@@ -240,7 +261,7 @@ export const bar = "bar";
 export default 42;
 "#;
   let reexport_source_code = r#"
-import { bar } from "./nested_reexport.ts";
+export { bar } from "./nested_reexport.ts";
 
 /**
  * JSDoc for const
@@ -250,7 +271,7 @@ export const foo = "foo";
 export const fizz = "fizz";
 "#;
   let test_source_code = r#"
-export { default, foo as fooConst } from "./reexport.ts";
+export { default, foo as fooConst, bar as barReExport } from "./reexport.ts";
 import { fizz as buzz } from "./reexport.ts";
 
 /** JSDoc for function */
@@ -272,9 +293,9 @@ export function fooFn(a: number) {
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 3);
 
   let expected_json = json!([
     {
@@ -296,6 +317,30 @@ export function fooFn(a: number) {
           "literal": {
             "kind": "string",
             "string": "foo"
+          }
+        },
+        "kind": "const"
+      }
+    },
+    {
+      "kind": "variable",
+      "name": "barReExport",
+      "location": {
+        "filename": "file:///nested_reexport.ts",
+        "line": 5,
+        "col": 13
+      },
+      "declarationKind": "export",
+      "jsDoc": {
+        "doc": "JSDoc for bar",
+      },
+      "variableDef": {
+        "tsType": {
+          "repr": "bar",
+          "kind": "literal",
+          "literal": {
+            "kind": "string",
+            "string": "bar"
           }
         },
         "kind": "const"
@@ -400,9 +445,9 @@ export { Hello } from "./reexport.ts";
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -469,9 +514,9 @@ async fn deep_reexports() {
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 1);
 
   let expected_json = json!([
     {
@@ -525,6 +570,7 @@ export * as b from "./mod_doc.ts";
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
 
@@ -534,9 +580,9 @@ export * as b from "./mod_doc.ts";
       "kind": "namespace",
       "name": "b",
       "location": {
-        "filename": "./mod_doc.ts",
-        "line": 1,
-        "col": 0
+        "filename": "file:///ns.ts",
+        "line": 2,
+        "col": 7
       },
       "declarationKind": "export",
       "jsDoc": {
@@ -615,15 +661,15 @@ export namespace Deno {
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse(&specifier)
     .unwrap();
 
   // Namespace
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno".to_string());
-  assert_eq!(found.len(), 2);
+  assert_eq!(found.len(), 1);
   assert_eq!(found[0].name, "Deno".to_string());
-  assert_eq!(found[1].name, "Deno".to_string());
 
   // Overloaded functions
   let found =
@@ -702,9 +748,9 @@ async fn exports_imported_earlier() {
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -762,9 +808,9 @@ async fn exports_imported_earlier_renamed() {
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -823,9 +869,9 @@ async fn exports_imported_earlier_default() {
   )
   .await;
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
-  assert_eq!(entries.len(), 2);
 
   let expected_json = json!([
     {
@@ -834,7 +880,7 @@ async fn exports_imported_earlier_default() {
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
-        "col": 0
+        "col": 6
       },
       "declarationKind": "export",
       "variableDef": {
@@ -883,6 +929,7 @@ async fn exports_imported_earlier_private() {
   )
   .await;
   let entries = DocParser::new(graph, true, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
 
@@ -937,6 +984,7 @@ async fn variable_syntax() {
 
   // This just needs to not throw a syntax error
   DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
 }
@@ -953,6 +1001,7 @@ async fn json_module() {
   .await;
 
   let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
 
@@ -1175,7 +1224,7 @@ declare namespace RootNs {
           "location": {
             "filename": "file:///test.ts",
             "line": 4,
-            "col": 4
+            "col": 18
           },
           "declarationKind": "declare",
           "variableDef": {
@@ -1311,7 +1360,7 @@ declare namespace RootNs {
           "location": {
             "filename": "file:///test.ts",
             "line": 4,
-            "col": 4
+            "col": 18
           },
           "declarationKind": "declare",
           "variableDef": {
@@ -2373,7 +2422,7 @@ export class A {
     }
   ]);
 
-  json_test!(export_const,
+  json_test!(export_const_basic,
     r#"
 /** Something about fizzBuzz */
 export const fizzBuzz = "fizzBuzz";
@@ -2751,7 +2800,7 @@ export const tpl3 = `Value: ${num}`;
         "location": {
           "filename": "file:///test.ts",
           "line": 16,
-          "col": 11
+          "col": 25
         },
         "declarationKind": "export",
         "variableDef": {
@@ -3425,7 +3474,6 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
     r#"
 interface AssignOpts {
   a: string;
-  b: number;
 }
 
 export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
@@ -3543,18 +3591,49 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
     "location": {
       "col": 0,
       "filename": "file:///test.ts",
-      "line": 7,
+      "line": 6,
     },
     "name": "foo",
+  }, {
+    "kind": "interface",
+    "name": "AssignOpts",
+    "location": {
+      "col": 0,
+      "filename": "file:///test.ts",
+      "line": 2,
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [{
+        "name": "a",
+        "location": {
+            "filename": "file:///test.ts",
+            "line": 3,
+            "col": 2,
+        },
+        "params": [],
+        "computed": false,
+        "optional": false,
+        "tsType": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string",
+        },
+        "typeParams": [],
+      }],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": [],
+    }
   }]);
 
   json_test!(export_interface,
-    r#"
+        r#"
 interface Foo {
-  foo(): void;
 }
 interface Bar {
-  bar(): void;
 }
 /**
  * Interface js doc
@@ -3564,92 +3643,126 @@ export interface Reader extends Foo, Bar {
     read?(buf: Uint8Array, something: unknown): Promise<number>
 }
     "#;
-  [{
-      "kind": "interface",
-      "name": "Reader",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 11,
-        "col": 0
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "Interface js doc",
-      },
-      "interfaceDef": {
-        "extends": [
-          {
-            "repr": "Foo",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Foo"
-            }
+      [{
+          "kind": "interface",
+          "name": "Reader",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 9,
+            "col": 0
           },
-          {
-            "repr": "Bar",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Bar"
-            }
-          }
-        ],
-        "methods": [
-          {
-            "name": "read",
-            "kind": "method",
-            "location": {
-              "filename": "file:///test.ts",
-              "line": 13,
-              "col": 4
-            },
-            "optional": true,
-            "jsDoc": {
-              "doc": "Read n bytes",
-            },
-            "params": [
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Interface js doc",
+          },
+          "interfaceDef": {
+            "extends": [
               {
-                "name": "buf",
-                "kind": "identifier",
-                "optional": false,
-                "tsType": {
-                  "repr": "Uint8Array",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Uint8Array"
-                  }
+                "repr": "Foo",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Foo"
                 }
               },
               {
-                "name": "something",
-                "kind": "identifier",
-                "optional": false,
-                "tsType": {
-                  "repr": "unknown",
-                  "kind": "keyword",
-                  "keyword": "unknown"
+                "repr": "Bar",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Bar"
                 }
               }
             ],
-            "typeParams": [],
-            "returnType": {
-              "repr": "Promise",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
+            "methods": [
+              {
+                "name": "read",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 11,
+                  "col": 4
+                },
+                "optional": true,
+                "jsDoc": {
+                  "doc": "Read n bytes",
+                },
+                "params": [
                   {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "keyword": "number"
+                    "name": "buf",
+                    "kind": "identifier",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "Uint8Array",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "Uint8Array"
+                      }
+                    }
+                  },
+                  {
+                    "name": "something",
+                    "kind": "identifier",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "unknown",
+                      "kind": "keyword",
+                      "keyword": "unknown"
+                    }
                   }
                 ],
-                "typeName": "Promise"
+                "typeParams": [],
+                "returnType": {
+                  "repr": "Promise",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "keyword": "number"
+                      }
+                    ],
+                    "typeName": "Promise"
+                  }
+                }
               }
-            }
-          }
-        ],
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [],
+        }
+      }, {
+        "kind": "interface",
+        "name": "Foo",
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 2,
+          "col": 0
+        },
+        "declarationKind": "private",
+        "interfaceDef": {
+          "extends": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": [],
+      }
+    },  {
+      "kind": "interface",
+      "name": "Bar",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 4,
+        "col": 0
+      },
+      "declarationKind": "private",
+      "interfaceDef": {
+        "extends": [],
+        "methods": [],
         "properties": [],
         "callSignatures": [],
         "indexSignatures": [],
@@ -3952,6 +4065,10 @@ export namespace RootNs {
       }
     }
 }
+
+export namespace RootNs.OtherNs {
+  export class Other {}
+}
     "#;
     [{
     "kind": "namespace",
@@ -4066,10 +4183,178 @@ export namespace RootNs {
               }
             ]
           }
+        },
+        {
+          "kind": "namespace",
+          "name": "OtherNs",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 16,
+            "col": 7
+          },
+          "declarationKind": "export",
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "class",
+                "name": "Other",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 17,
+                  "col": 2
+                },
+                "declarationKind": "export",
+                "classDef": {
+                  "isAbstract": false,
+                  "constructors": [],
+                  "properties": [],
+                  "indexSignatures": [],
+                  "methods": [],
+                  "extends": null,
+                  "implements": [],
+                  "typeParams": [],
+                  "superTypeParams": [],
+                }
+              }
+            ]
+          }
         }
       ]
     }
   }]);
+
+  json_test!(export_namespace_enum_same_name,
+    r#"
+export namespace RootNs {
+  export namespace NestedNs {
+    export enum Foo {
+    }
+  }
+
+  export enum Foo {
+  }
+}
+    "#;
+    [{
+    "kind": "namespace",
+    "name": "RootNs",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "namespace",
+          "name": "NestedNs",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 3,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "enum",
+                "name": "Foo",
+                "location": {
+                  "filename": "file:///test.ts",
+                  "line": 4,
+                  "col": 4
+                },
+                "declarationKind": "export",
+                "enumDef": {
+                  "members": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "enum",
+          "name": "Foo",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 8,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "enumDef": {
+            "members": []
+          }
+        }
+      ]
+    }
+  }]);
+
+  json_test!(export_declaration_merged_namespace,
+    r#"
+namespace Namespace1 {
+  export class Test1 {}
+}
+namespace Namespace1 {
+  export class Test2 {}
+}
+
+export { Namespace1 };
+"#;
+    [{
+      "kind": "namespace",
+      "name": "Namespace1",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 2,
+        "col": 0,
+      },
+      "declarationKind": "export",
+      "namespaceDef": {
+        "elements": [{
+          "kind": "class",
+          "name": "Test1",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 3,
+            "col": 2,
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }, {
+          "kind": "class",
+          "name": "Test2",
+          "location": {
+            "filename": "file:///test.ts",
+            "line": 6,
+            "col": 2,
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }]
+      }
+    }]
+  );
 
   json_test!(exports_declared_earlier,
       r#"
@@ -4085,7 +4370,7 @@ export { hello, say, foo as bar };
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
-        "col": 0
+        "col": 6
       },
       "declarationKind": "export",
       "variableDef": {
@@ -4246,7 +4531,7 @@ export default foo;
     ]
   );
 
-  json_test!(reexport_existing_symbol,
+  json_test!(reexport_existing_export,
     r#"
 export function foo(): void {}
 export { foo as bar };
@@ -4490,25 +4775,7 @@ export { foo };
         "location": {
           "filename": "file:///test.ts",
           "line": 2,
-          "col": 0
-        },
-        "declarationKind": "private",
-        "variableDef": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "kind": "const"
-        }
-      },
-      {
-        "kind": "variable",
-        "name": "foo",
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 2,
-          "col": 0
+          "col": 6
         },
         "declarationKind": "export",
         "variableDef": {
@@ -6243,4 +6510,21 @@ export class C {
     "asserts val4 is NonNullable<T>",
     "this is Something"
   );
+
+  contains_test!(import_equals,
+    "declare module Test {
+  export interface Options {
+  }
+}
+
+import Options = Test.Options;
+
+export { Options };";
+    "interface Options"
+  );
+}
+
+fn create_analyzer() -> CapturingModuleAnalyzer {
+  let source_parser = DefaultModuleParser::new_for_analysis();
+  CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None)
 }
