@@ -136,7 +136,7 @@ fn generate_docs_directory(
   .unwrap();
   std::fs::write(
     path.join(deno_doc::html::SEARCH_INDEX_FILENAME),
-    include_str!("./search_index.js"),
+    deno_doc::html::generate_search_index(doc_nodes)?,
   )
   .unwrap();
   std::fs::write(

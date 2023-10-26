@@ -58,6 +58,43 @@ impl GenerateCtx {
   }
 }
 
+pub fn generate_search_index(
+  doc_nodes: &[crate::DocNode],
+) -> Result<String, anyhow::Error> {
+  let mut search_index = serde_json::json!({
+    "nodes": doc_nodes
+  });
+
+  for el in search_index
+    .get_mut("nodes")
+    .unwrap()
+    .as_array_mut()
+    .unwrap()
+  {
+    el["jsDoc"].take();
+    match el.get("kind").unwrap().as_str().unwrap() {
+      "function" => el["functionDef"].take(),
+      "variable" => el["variableDef"].take(),
+      "enum" => el["enumDef"].take(),
+      "class" => el["classDef"].take(),
+      "typeAlias" => el["typeAliasDef"].take(),
+      "namespace" => el["namespaceDef"].take(),
+      "interface" => el["interfaceDef"].take(),
+      _ => serde_json::Value::Null,
+    };
+  }
+
+  let search_index_str = serde_json::to_string(&search_index)?;
+
+  let index = format!(
+    r#"(function () {{
+  window.DENO_DOC_SEARCH_INDEX = {};
+}})()"#,
+    search_index_str
+  );
+  Ok(index)
+}
+
 pub fn generate(
   ctx: GenerateCtx,
   doc_nodes: &[crate::DocNode],
