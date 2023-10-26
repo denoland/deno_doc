@@ -674,7 +674,6 @@ impl<'a> DocParser<'a> {
           }
           ImportKind::Namespace(name) => ReexportKind::Namespace(name),
         },
-        implicit: true,
       }))
     }
 
@@ -693,7 +692,6 @@ impl<'a> DocParser<'a> {
                       module_export_name_value(&ns_export.name),
                     ),
                     src: src_str.to_string(),
-                    implicit: false,
                   },
                   ExportSpecifier::Default(specifier) => node::Reexport {
                     kind: node::ReexportKind::Named(
@@ -701,7 +699,6 @@ impl<'a> DocParser<'a> {
                       Some(specifier.exported.sym.to_string()),
                     ),
                     src: src_str.to_string(),
-                    implicit: false,
                   },
                   ExportSpecifier::Named(named_export) => {
                     let export_name =
@@ -715,7 +712,6 @@ impl<'a> DocParser<'a> {
                     node::Reexport {
                       kind,
                       src: src_str.to_string(),
-                      implicit: false,
                     }
                   }
                 })
@@ -753,7 +749,6 @@ impl<'a> DocParser<'a> {
                             ReexportKind::Namespace(name)
                           }
                         },
-                        implicit: false,
                       })
                     } else {
                       None
@@ -769,7 +764,6 @@ impl<'a> DocParser<'a> {
             let reexport = node::Reexport {
               kind: node::ReexportKind::All,
               src: export_all.src.value.to_string(),
-              implicit: false,
             };
             vec![reexport]
           }
