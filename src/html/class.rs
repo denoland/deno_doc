@@ -1,5 +1,6 @@
 use super::util::*;
 use crate::html::parameters::render_params;
+use std::fmt::Write;
 
 pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   let class_def = doc_node.class_def.as_ref().unwrap();
@@ -30,7 +31,7 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: render constructor params
-      doc_entry(&id, name, &format!("()"), constructor.js_doc.doc.as_deref())
+      doc_entry(&id, name, "()", constructor.js_doc.doc.as_deref())
     })
     .collect::<String>();
 
@@ -45,10 +46,9 @@ fn render_index_signatures(
     return String::new();
   }
 
-  let items = index_signatures
-    .iter()
-    .enumerate()
-    .map(|(i, index_signature)| {
+  let items = index_signatures.iter().enumerate().fold(
+    String::new(),
+    |mut output, (i, index_signature)| {
       let id = name_to_id("index_signature", &i.to_string());
 
       let readonly = index_signature
@@ -64,13 +64,16 @@ fn render_index_signatures(
         })
         .unwrap_or_default();
 
-      format!(
+      write!(
+        output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         anchor(&id),
         render_params(&index_signature.params, ctx),
       )
-    })
-    .collect::<String>();
+      .unwrap();
+      output
+    },
+  );
 
   section("Index Signatures", &items)
 }

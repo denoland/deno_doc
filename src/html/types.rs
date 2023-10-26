@@ -5,6 +5,7 @@ use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
+use std::fmt::Write;
 
 pub fn render_type_def(
   def: &crate::ts_type::TsTypeDef,
@@ -152,7 +153,7 @@ pub fn render_type_def(
           .map(|name_type| {
             format!(
               "<span> in keyof </span>{}",
-              render_type_def(&name_type, ctx)
+              render_type_def(name_type, ctx)
             )
           })
           .unwrap_or_default();
@@ -171,7 +172,7 @@ pub fn render_type_def(
           .ts_type
           .as_ref()
           .map(|ts_type| {
-            format!("<span>: {}</span>", render_type_def(&ts_type, ctx))
+            format!("<span>: {}</span>", render_type_def(ts_type, ctx))
           })
           .unwrap_or_default();
 
@@ -183,10 +184,9 @@ pub fn render_type_def(
       TsTypeDefKind::TypeLiteral => {
         let type_literal = def.type_literal.as_ref().unwrap();
 
-        let index_signatures = type_literal
-          .index_signatures
-          .iter()
-          .map(|index_signature| {
+        let index_signatures = type_literal.index_signatures.iter().fold(
+          String::new(),
+          |mut output, index_signature| {
             let readonly = index_signature
               .readonly
               .then_some("<span>readonly </span>")
@@ -198,35 +198,39 @@ pub fn render_type_def(
               .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
               .unwrap_or_default();
 
-            format!(
+            write!(
+              output,
               "{readonly}[{}]{ts_type}; ",
               render_params(&index_signature.params, ctx)
             )
-          })
-          .collect::<String>();
+            .unwrap();
+            output
+          },
+        );
 
-        let call_signatures = type_literal
-          .call_signatures
-          .iter()
-          .map(|call_signature| {
+        let call_signatures = type_literal.call_signatures.iter().fold(
+          String::new(),
+          |mut output, call_signature| {
             let ts_type = call_signature
               .ts_type
               .as_ref()
               .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
               .unwrap_or_default();
 
-            format!(
+            write!(
+              output,
               "{}({}){ts_type}; ",
               type_params_summary(&call_signature.type_params, ctx),
               render_params(&call_signature.params, ctx)
             )
-          })
-          .collect::<String>();
+            .unwrap();
+            output
+          },
+        );
 
-        let properties = type_literal
-          .properties
-          .iter()
-          .map(|property| {
+        let properties = type_literal.properties.iter().fold(
+          String::new(),
+          |mut output, property| {
             let readonly = property
               .readonly
               .then_some("<span>readonly </span>")
@@ -246,14 +250,14 @@ pub fn render_type_def(
               .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
               .unwrap_or_default();
 
-            format!("{readonly}{name}{optional}{ts_type}; ")
-          })
-          .collect::<String>();
+            write!(output, "{readonly}{name}{optional}{ts_type}; ").unwrap();
+            output
+          },
+        );
 
-        let methods = type_literal
-          .methods
-          .iter()
-          .map(|method| {
+        let methods = type_literal.methods.iter().fold(
+          String::new(),
+          |mut output, method| {
             let kind = match method.kind {
               MethodKind::Method => "",
               MethodKind::Getter => "<span>get </span>",
@@ -276,13 +280,16 @@ pub fn render_type_def(
               .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
               .unwrap_or_default();
 
-            format!(
+            write!(
+              output,
               "{kind}{name}{optional}{}({}){return_type}; ",
               type_params_summary(&method.type_params, ctx),
               render_params(&method.params, ctx)
             )
-          })
-          .collect::<String>();
+            .unwrap();
+            output
+          },
+        );
 
         format!(
           "{{ {index_signatures}{call_signatures}{properties}{methods} }}"
@@ -307,7 +314,7 @@ pub fn render_type_def(
         let r#type = type_predicate
           .r#type
           .as_ref()
-          .map(|def| format!(" is {}", render_type_def(&def, ctx)))
+          .map(|def| format!(" is {}", render_type_def(def, ctx)))
           .unwrap_or_default();
 
         format!("{asserts}{param_type}{}", r#type)
@@ -352,15 +359,15 @@ fn type_def_join(
 
     format!("<span>{items}</span>")
   } else {
-    let items = union
-      .iter()
-      .map(|element| {
-        format!(
-          "<div><span> {join} </span>{}</div>",
-          render_type_def(element, ctx)
-        )
-      })
-      .collect::<String>();
+    let items = union.iter().fold(String::new(), |mut output, element| {
+      write!(
+        output,
+        "<div><span> {join} </span>{}</div>",
+        render_type_def(element, ctx)
+      )
+      .unwrap();
+      output
+    });
 
     format!(r#"<div class="indent">{items}</div>"#)
   }
@@ -379,10 +386,10 @@ fn type_def_tuple(
 
     format!("<span>[{items}]</span>")
   } else {
-    let items = union
-      .iter()
-      .map(|element| format!("<div>{}</div>, ", render_type_def(element, ctx)))
-      .collect::<String>();
+    let items = union.iter().fold(String::new(), |mut output, element| {
+      let _ = write!(output, "<div>{}</div>, ", render_type_def(element, ctx));
+      output
+    });
 
     format!(r#"<div class="indent">[{items}]</div>"#)
   }

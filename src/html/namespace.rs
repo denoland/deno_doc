@@ -1,6 +1,7 @@
 use crate::html::util::*;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
+use std::fmt::Write;
 
 pub fn render_namespace(
   doc_node: &crate::DocNode,
@@ -65,18 +66,20 @@ fn symbol_section(
   doc_nodes: Vec<crate::DocNode>,
   context: &RenderContext,
 ) -> String {
-  let content = doc_nodes
-    .into_iter()
-    .map(|doc_node| {
-      // TODO: linking, tags
+  let content =
+    doc_nodes
+      .into_iter()
+      .fold(String::new(), |mut output, doc_node| {
+        // TODO: linking, tags
 
-      let name = context.namespace.as_ref().map_or_else(
-        || doc_node.name.clone(),
-        |namespace| format!("{namespace}.{}", doc_node.name),
-      );
+        let name = context.namespace.as_ref().map_or_else(
+          || doc_node.name.clone(),
+          |namespace| format!("{namespace}.{}", doc_node.name),
+        );
 
-      format!(
-        r#"<tr>
+        write!(
+          output,
+          r#"<tr>
       <td class="symbol_section_symbol">
         <div>
           {}
@@ -87,11 +90,12 @@ fn symbol_section(
       {}
       </td>
       </tr>"#,
-        doc_node_kind_icon(doc_node.kind),
-        super::jsdoc::render_docs(&doc_node.js_doc, false, true),
-      )
-    })
-    .collect::<String>();
+          doc_node_kind_icon(doc_node.kind),
+          super::jsdoc::render_docs(&doc_node.js_doc, false, true),
+        )
+        .unwrap();
+        output
+      });
 
   format!(
     r#"<div>{}<table class="symbol_section">{content}</table></div>"#,

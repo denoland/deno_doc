@@ -1,6 +1,5 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
-use anyhow;
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
@@ -124,7 +123,7 @@ fn generate_docs_directory(
   // TODO: don't hardcode the path
   let base_path = format!(
     "./{}",
-    &ctx.base_url.strip_prefix("/").unwrap_or(&ctx.base_url)
+    &ctx.base_url.strip_prefix('/').unwrap_or(&ctx.base_url)
   );
   let path = std::path::Path::new(&base_path);
   let _ = std::fs::remove_dir_all(path);

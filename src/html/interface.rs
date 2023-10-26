@@ -1,6 +1,7 @@
 use super::parameters::render_params;
 use super::util::*;
 use crate::html::types::render_type_params;
+use std::fmt::Write;
 
 pub fn render_interface(
   doc_node: &crate::DocNode,
@@ -26,10 +27,9 @@ fn render_index_signatures(
     return String::new();
   }
 
-  let items = index_signatures
-    .iter()
-    .enumerate()
-    .map(|(i, index_signature)| {
+  let items = index_signatures.iter().enumerate().fold(
+    String::new(),
+    |mut output, (i, index_signature)| {
       let id = name_to_id("index_signature", &i.to_string());
 
       let readonly = index_signature
@@ -45,13 +45,16 @@ fn render_index_signatures(
         })
         .unwrap_or_default();
 
-      format!(
+      write!(
+        output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         anchor(&id),
         render_params(&index_signature.params, ctx),
       )
-    })
-    .collect::<String>();
+      .unwrap();
+      output
+    },
+  );
 
   section("Index Signatures", &items)
 }

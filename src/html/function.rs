@@ -115,7 +115,7 @@ fn render_single_function(
     .iter()
     .enumerate()
     .map(|(i, param)| {
-      let name = super::parameters::param_name(&param, i);
+      let name = super::parameters::param_name(param, i);
       let id = name_to_id(overload_id, &format!("parameters_{name}"));
 
       let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern

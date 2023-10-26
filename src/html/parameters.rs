@@ -2,6 +2,7 @@ use super::types::render_type_def;
 use super::util::*;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
+use std::fmt::Write;
 
 pub fn render_params(params: &[ParamDef], ctx: &RenderContext) -> String {
   if params.is_empty() {
@@ -12,15 +13,18 @@ pub fn render_params(params: &[ParamDef], ctx: &RenderContext) -> String {
       .enumerate()
       .map(|(i, element)| render_param(element, i, ctx))
       .collect::<Vec<String>>()
-      .join(&format!("<span>, </span>"));
+      .join("<span>, </span>");
 
     format!("<span>{items}</span>")
   } else {
-    let items = params
-      .iter()
-      .enumerate()
-      .map(|(i, def)| format!("<div>{}</div>", render_param(def, i, ctx)))
-      .collect::<String>();
+    let items =
+      params
+        .iter()
+        .enumerate()
+        .fold(String::new(), |mut output, (i, def)| {
+          write!(output, "<div>{}</div>", render_param(def, i, ctx)).unwrap();
+          output
+        });
 
     format!(r#"<div class="ident">{items}</div>"#)
   }
@@ -56,10 +60,10 @@ pub fn param_name(param: &ParamDef, i: usize) -> String {
     ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => {
       format!(r#"<span class="italic">unnamed {i}</span>"#)
     }
-    ParamPatternDef::Assign { left, .. } => param_name(&left, i),
+    ParamPatternDef::Assign { left, .. } => param_name(left, i),
     ParamPatternDef::Identifier { name, .. } => name.clone(),
     ParamPatternDef::Rest { arg } => {
-      format!("<span>...{}</span>", param_name(&arg, i))
+      format!("<span>...{}</span>", param_name(arg, i))
     }
   }
 }
