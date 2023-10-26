@@ -358,6 +358,30 @@ export function fooFn(a: number) {
 }
 
 #[tokio::test]
+async fn doc_printer_unsupported_tag() {
+  let test_source_code = r#"
+/**
+ * @customtagone
+ * @customtagtwo value
+ */
+export function noop() {
+}
+"#;
+  let (graph, analyzer, specifier) = setup(
+    "file:///test.ts",
+    vec![("file:///test.ts", None, test_source_code)],
+  )
+  .await;
+  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+    .parse_with_reexports(&specifier)
+    .unwrap();
+
+  let doc = DocPrinter::new(&entries, false, false).to_string();
+  assert!(doc.contains("@customtagone"));
+  assert!(doc.contains("@customtagtwo value"));
+}
+
+#[tokio::test]
 async fn reexports_has_same_name() {
   let reexport_source_code = r#"
 export interface Hello {}
