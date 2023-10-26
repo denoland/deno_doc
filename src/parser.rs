@@ -55,10 +55,32 @@ use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
+
+#[derive(Debug, Clone)]
+pub enum DocDiagnosticKind {
+  PrivateTypeRef,
+}
+
+impl std::fmt::Display for DocDiagnosticKind {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      DocDiagnosticKind::PrivateTypeRef => {
+        f.write_str("Type is not exported, but referenced by an exported type.")
+      }
+    }
+  }
+}
+
+#[derive(Debug, Clone)]
+pub struct DocDiagnostic {
+  pub location: Location,
+  pub kind: DocDiagnosticKind,
+}
 
 #[derive(Debug)]
 pub enum DocError {
@@ -99,15 +121,15 @@ struct Import {
   kind: ImportKind,
 }
 
-pub struct DocParser<'a> {
-  pub graph: ModuleGraph,
-  pub private: bool,
-  pub parser: CapturingModuleParser<'a>,
-  pub root_symbol: deno_graph::type_tracer::RootSymbol,
+pub struct DocParser {
+  graph: ModuleGraph,
+  private: bool,
+  root_symbol: deno_graph::type_tracer::RootSymbol,
+  private_types_in_public: RefCell<HashSet<Location>>,
 }
 
-impl<'a> DocParser<'a> {
-  pub fn new(
+impl DocParser {
+  pub fn new<'a>(
     graph: ModuleGraph,
     private: bool,
     parser: CapturingModuleParser<'a>,
@@ -132,9 +154,23 @@ impl<'a> DocParser<'a> {
     Ok(DocParser {
       graph,
       private,
-      parser,
       root_symbol,
+      private_types_in_public: Default::default(),
     })
+  }
+
+  /// Gets diagnostics found during any of the previous parses.
+  pub fn diagnostics(&self) -> Vec<DocDiagnostic> {
+    let private_types_in_public = self.private_types_in_public.borrow();
+    let mut diagnostics = Vec::with_capacity(private_types_in_public.len());
+    for location in private_types_in_public.iter() {
+      diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::PrivateTypeRef,
+      });
+    }
+    diagnostics.sort_by(|a, b| a.location.cmp(&b.location));
+    diagnostics
   }
 
   /// Parses a module into a list of exported items,
@@ -580,17 +616,24 @@ impl<'a> DocParser<'a> {
         continue; // already handled
       }
       let child_symbol = module_symbol.symbol(child_id).unwrap();
-      if child_symbol.is_public() || is_ambient || self.private {
+      let is_public = child_symbol.is_public();
+      if is_public || is_ambient || self.private {
         for decl in child_symbol.decls() {
           if let Some(node) = decl.maybe_node() {
             let is_declared =
               is_ambient && self.get_declare_for_symbol_node(node);
-            if child_symbol.is_public() || is_declared || self.private {
+            if is_public || is_declared || self.private {
               if let Some(mut doc_node) = self.get_doc_for_symbol_node_ref(
                 module_symbol,
                 child_symbol,
                 node,
               ) {
+                if is_public {
+                  self
+                    .private_types_in_public
+                    .borrow_mut()
+                    .insert(doc_node.location.clone());
+                }
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
                 } else {
@@ -938,17 +981,24 @@ impl<'a> DocParser<'a> {
         continue; // already handled
       }
       let child_symbol = module_symbol.symbol(child_id).unwrap();
-      if child_symbol.is_public() || is_ambient || self.private {
+      let is_public = child_symbol.is_public();
+      if is_public || is_ambient || self.private {
         for decl in child_symbol.decls() {
           if let Some(node) = decl.maybe_node() {
             let is_declared =
               is_ambient && self.get_declare_for_symbol_node(node);
-            if child_symbol.is_public() || is_declared || self.private {
+            if is_public || is_declared || self.private {
               if let Some(mut doc_node) = self.get_doc_for_symbol_node_ref(
                 module_symbol,
                 child_symbol,
                 node,
               ) {
+                if is_public {
+                  self
+                    .private_types_in_public
+                    .borrow_mut()
+                    .insert(doc_node.location.clone());
+                }
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
                 } else {
