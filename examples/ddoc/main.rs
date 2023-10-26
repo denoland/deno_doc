@@ -134,6 +134,16 @@ fn generate_docs_directory(
     deno_doc::html::STYLESHEET,
   )
   .unwrap();
+  std::fs::write(
+    path.join(deno_doc::html::SEARCH_INDEX_FILENAME),
+    include_str!("./search_index.js"),
+  )
+  .unwrap();
+  std::fs::write(
+    path.join(deno_doc::html::SEARCH_FILENAME),
+    deno_doc::html::SEARCH_JS,
+  )
+  .unwrap();
   for (name, content) in html {
     let mut this_path = path.join(name);
     this_path.set_extension("html");

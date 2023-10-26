@@ -18,6 +18,12 @@ mod variable;
 
 pub const STYLESHEET: &str = include_str!("./styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
+
+pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
+
+pub const SEARCH_JS: &str = include_str!("./search.js");
+pub const SEARCH_FILENAME: &str = "search.js";
+
 // TODO(bartlomieju): reference STYLESHEET_FILENAME below
 const HTML_HEAD: &str = r#"
 <html>
@@ -30,7 +36,12 @@ const HTML_TAIL: &str = r#"
 </body>
 <script>
 </script>
+<script type="module" src="./search_index.js" defer></script>
+<script type="module" src="./search.js" defer></script>
 </html>"#;
+const SEARCH_BAR: &str = r#"
+<input type="text" placeholder="Search..." id="searchbar" />
+"#;
 
 #[derive(Debug, Clone)]
 pub struct GenerateCtx {
@@ -123,9 +134,10 @@ fn render_index(
 
   content.push_str(HTML_HEAD);
   content.push_str(&format!(
-    r#"<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><h1>Index</h1>"#
+    r#"<div style="display: flex;">{sidepanel}<div style="padding: 30px;"><h1>Index</h1><div>{SEARCH_BAR}</div>"#
   ));
 
+  content.push_str(r#"<div id="mainContent">"#);
   for (kind, doc_nodes) in partitions {
     content.push_str(&format!(r#"<h2>{:?}</h2><ul>"#, kind));
 
@@ -140,6 +152,7 @@ fn render_index(
 
     content.push_str(r#"</ul>"#);
   }
+  content.push_str(r#"</div><div id="searchResults"></div>"#);
 
   content.push_str(&format!(r#"</div></div>{HTML_TAIL}"#));
 
@@ -181,7 +194,7 @@ fn render_page(
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
 
   format!(
-    r##"<html><head><link rel="stylesheet" href="./{backs}{STYLESHEET_FILENAME}"></head><style>{}</style><div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a>{symbol_group}</div></div>{HTML_TAIL}"##,
+    r##"<html><head><link rel="stylesheet" href="./{backs}{STYLESHEET_FILENAME}"></head><style>{}</style><div style="display: flex;">{sidepanel}<div style="padding: 30px;"><a href="{}"><- Index</a><div>{SEARCH_BAR}</div>{symbol_group}</div></div>{HTML_TAIL}"##,
     context.additional_css.borrow(),
     ctx.base_url,
   )
