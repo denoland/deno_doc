@@ -20,8 +20,6 @@ mod r#enum;
 mod function;
 mod interface;
 mod js_doc;
-mod module;
-mod namespace;
 mod node;
 mod params;
 mod parser;

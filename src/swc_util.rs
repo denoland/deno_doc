@@ -7,6 +7,7 @@ use deno_ast::ParsedSource;
 use deno_ast::SourcePos;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
+use deno_ast::SourceTextInfo;
 use regex::Regex;
 
 use crate::js_doc::JsDoc;
@@ -79,12 +80,23 @@ pub(crate) fn module_js_doc_for_source(
 }
 
 pub fn get_location(parsed_source: &ParsedSource, pos: SourcePos) -> Location {
+  get_text_info_location(
+    parsed_source.specifier(),
+    parsed_source.text_info(),
+    pos,
+  )
+}
+
+pub fn get_text_info_location(
+  specifier: &str,
+  text_info: &SourceTextInfo,
+  pos: SourcePos,
+) -> Location {
   // todo(#150): for some reason we're using a display indent width of 4
-  let line_and_column_index = parsed_source
-    .text_info()
-    .line_and_column_display_with_indent_width(pos, 4);
+  let line_and_column_index =
+    text_info.line_and_column_display_with_indent_width(pos, 4);
   Location {
-    filename: parsed_source.specifier().to_string(),
+    filename: specifier.to_string(),
     // todo(#150): make 0-indexed
     line: line_and_column_index.line_number,
     col: line_and_column_index.column_number - 1,

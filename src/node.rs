@@ -5,6 +5,11 @@ use serde::Serialize;
 
 use crate::js_doc::JsDoc;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct NamespaceDef {
+  pub elements: Vec<DocNode>,
+}
+
 #[derive(
   Debug,
   PartialEq,
@@ -74,7 +79,7 @@ pub struct ImportDef {
   pub imported: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum DeclarationKind {
   Private,
@@ -108,7 +113,7 @@ pub struct DocNode {
   pub type_alias_def: Option<super::type_alias::TypeAliasDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub namespace_def: Option<super::namespace::NamespaceDef>,
+  pub namespace_def: Option<NamespaceDef>,
 
   #[serde(skip_serializing_if = "Option::is_none")]
   pub interface_def: Option<super::interface::InterfaceDef>,
@@ -248,7 +253,7 @@ impl DocNode {
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
-    namespace_def: super::namespace::NamespaceDef,
+    namespace_def: NamespaceDef,
   ) -> Self {
     Self {
       kind: DocNodeKind::Namespace,

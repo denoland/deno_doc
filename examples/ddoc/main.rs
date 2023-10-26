@@ -47,14 +47,14 @@ impl Loader for SourceFileLoader {
   }
 }
 
-fn main() {
+async fn run() -> anyhow::Result<()> {
   let matches = App::new("ddoc")
     .arg(Arg::with_name("html").long("html").requires_all(&["name"]))
     .arg(Arg::with_name("name").long("name").takes_value(true))
     .arg(Arg::with_name("source_file").required(true))
     .arg(Arg::with_name("filter"))
+    .arg(Arg::with_name("private").long("private"))
     .get_matches();
-
   let source_file = matches.value_of("source_file").unwrap();
   let html = matches.is_present("html");
   let name = if html {
@@ -63,49 +63,48 @@ fn main() {
     "".to_string()
   };
   let maybe_filter = matches.value_of("filter");
+  let private = matches.is_present("private");
   let source_file =
     ModuleSpecifier::from_directory_path(current_dir().unwrap())
       .unwrap()
       .join(source_file)
       .unwrap();
-
   let mut loader = SourceFileLoader {};
+  let analyzer = CapturingModuleAnalyzer::default();
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![source_file.clone()],
+      &mut loader,
+      BuildOptions {
+        module_analyzer: Some(&analyzer),
+        ..Default::default()
+      },
+    )
+    .await;
+  let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
+  let mut doc_nodes = parser.parse_with_reexports(&source_file)?;
+
+  doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
+  if let Some(filter) = maybe_filter {
+    doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
+  }
+
+  if !html {
+    let result = DocPrinter::new(&doc_nodes, true, false);
+    println!("{}", result);
+    return Ok(());
+  }
+
+  generate_docs_directory(name, &doc_nodes)
+}
+
+fn main() {
   let future = async move {
-    let analyzer = CapturingModuleAnalyzer::default();
-    let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
-    graph
-      .build(
-        vec![source_file.clone()],
-        &mut loader,
-        BuildOptions {
-          module_analyzer: Some(&analyzer),
-          ..Default::default()
-        },
-      )
-      .await;
-    let parser = DocParser::new(graph, false, analyzer.as_capturing_parser());
-    let parse_result = parser.parse_with_reexports(&source_file);
-
-    let mut doc_nodes = match parse_result {
-      Ok(nodes) => nodes,
-      Err(e) => {
-        eprintln!("{}", e);
-        std::process::exit(1);
-      }
-    };
-
-    doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
-    if let Some(filter) = maybe_filter {
-      doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
+    if let Err(err) = run().await {
+      eprintln!("{}", err);
+      std::process::exit(1);
     }
-
-    if !html {
-      let result = DocPrinter::new(&doc_nodes, true, false);
-      println!("{}", result);
-      return;
-    }
-
-    generate_docs_directory(name, &doc_nodes).unwrap();
   };
 
   block_on(future);
