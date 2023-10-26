@@ -114,7 +114,6 @@ impl<'a> DocParser<'a> {
   ) -> Result<Self, anyhow::Error> {
     struct NullTypeTraceHandler;
 
-    // todo(dsherret): surface these diagnostics
     impl deno_graph::type_tracer::TypeTraceHandler for NullTypeTraceHandler {
       fn diagnostic(
         &self,
