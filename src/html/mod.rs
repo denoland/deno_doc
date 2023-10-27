@@ -318,6 +318,8 @@ struct SearchIndexNode {
   name: String,
   #[serde(skip_serializing_if = "Vec::is_empty")]
   ns_qualifiers: Vec<String>,
+  // TODO(bartlomieju): location should be processed based on the entry point of
+  // the graph to node include `file:///base/dir/other/dir/`.
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
 }
