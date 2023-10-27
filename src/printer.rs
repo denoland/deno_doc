@@ -374,11 +374,15 @@ impl<'a> DocPrinter<'a> {
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
       JsDocTag::Unsupported { value } => {
-        let mut name =
-          String::from(value.split_whitespace().next().unwrap_or("@"));
-        name.remove(0);
-        let value = &value[name.len() + 1..];
-        writeln!(w, "{}@{}{}", Indent(indent), colors::magenta(name), value)
+        let name = value.split_whitespace().next().unwrap_or("@");
+        let value = &value[name.len()..];
+        writeln!(
+          w,
+          "{}@{}{}",
+          Indent(indent),
+          colors::magenta(&name[1..]),
+          value
+        )
       }
     }
   }
