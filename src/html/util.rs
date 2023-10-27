@@ -1,4 +1,7 @@
 use crate::DocNodeKind;
+use std::cell::RefCell;
+use std::collections::HashSet;
+use std::rc::Rc;
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
 }
@@ -29,7 +32,7 @@ pub fn doc_entry(
   content: &str,
   jsdoc: Option<&str>,
 ) -> String {
-  // TODO: jsdoc, sourceHref
+  // TODO: sourceHref
   format!(
     r#"
     <div class="doc_item" id="{id}">
@@ -65,9 +68,50 @@ pub fn anchor(name: &str) -> String {
   )
 }
 
+#[derive(Debug, Clone)]
 pub struct RenderContext {
-  pub additional_css: std::rc::Rc<std::cell::RefCell<String>>,
+  pub additional_css: Rc<RefCell<String>>,
   pub namespace: Option<String>,
+  pub current_symbols: Rc<HashSet<Vec<String>>>,
+  pub current_type_params: HashSet<String>,
+}
+
+impl RenderContext {
+  pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
+    if let Some(namespace) = &self.namespace {
+      let mut parts = namespace
+        .split('.')
+        .map(String::from)
+        .collect::<Vec<String>>();
+      while !parts.is_empty() {
+        let mut current_parts = parts.clone();
+        current_parts.extend(target_symbol.split('.').map(String::from));
+
+        if self.current_symbols.contains(&current_parts) {
+          let backs = current_parts.iter().map(|_| "../").collect::<String>();
+
+          return Some(format!("./{backs}{}.html", current_parts.join("/")));
+        }
+
+        // TODO: global symbol handling
+
+        parts.pop();
+      }
+    }
+
+    let split_symbol = target_symbol
+      .split('.')
+      .map(String::from)
+      .collect::<Vec<String>>();
+
+    if self.current_symbols.contains(&split_symbol) {
+      return Some(format!("./{}.html", split_symbol.join("/")));
+    }
+
+    // TODO: handle currentImports
+
+    None
+  }
 }
 
 pub fn split_markdown_title(md: &str) -> (Option<&str>, &str) {

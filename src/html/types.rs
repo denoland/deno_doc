@@ -37,10 +37,20 @@ pub fn render_type_def(
       TsTypeDefKind::TypeRef => {
         let type_ref = def.type_ref.as_ref().unwrap();
 
-        // TODO: implement TypeRef links
+        let href = if ctx.current_type_params.contains(&type_ref.type_name) {
+          Some(format!(
+            "#{}",
+            name_to_id("type_param", &type_ref.type_name)
+          ))
+        } else {
+          ctx.lookup_symbol_href(&type_ref.type_name)
+        };
 
-        let name = if let Some(href) = None::<String> {
-          format!(r#"<a href={href} class="link">{}</a>"#, type_ref.type_name)
+        let name = if let Some(href) = href {
+          format!(
+            r#"<a href="{href}" class="link">{}</a>"#,
+            type_ref.type_name
+          )
         } else {
           format!(r#"<span>{}</span>"#, type_ref.type_name)
         };
@@ -53,9 +63,7 @@ pub fn render_type_def(
             .as_ref()
             .map(|type_params| type_arguments(type_params, ctx))
             .unwrap_or_default()
-        );
-
-        type_ref.type_name.clone()
+        )
       }
       TsTypeDefKind::Union => {
         type_def_join(def.union.as_ref().unwrap(), "|", ctx)
@@ -445,7 +453,7 @@ fn type_param_summary(
   )
 }
 
-fn type_arguments(
+pub fn type_arguments(
   defs: &[crate::ts_type::TsTypeDef],
   ctx: &RenderContext,
 ) -> String {
@@ -456,7 +464,7 @@ fn type_arguments(
       .iter()
       .map(|def| render_type_def(def, ctx))
       .collect::<Vec<String>>()
-      .join(", ");
+      .join("<span>, </span>");
 
     format!("&lt;{items}&gt;")
   }

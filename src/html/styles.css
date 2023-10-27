@@ -8,6 +8,15 @@ a {
     color: inherit;
     text-decoration: inherit;
 }
+.link {
+  color: rgb(37 99 235);
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 75ms;
+}
+.link:hover {
+  color: rgb(96 165 250);
+}
 #sidepanel {
     border-right: 1px solid;
     padding: 3px;
@@ -43,6 +52,17 @@ a {
    /* 20px */
     line-height: 1.75rem;
    /* 28px */
+}
+.doc_block_subtitle {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1rem; /* 16px */
+}
+.doc_block_subtitle > * + * {
+  margin-top: 0.125rem; /* 2px */
+}
+.doc_block_subtitle_text {
+  color: rgb(156 163 175);
+  font-style: italic;
 }
 .section_title {
     font-size: 0.875rem;

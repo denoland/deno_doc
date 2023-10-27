@@ -97,16 +97,3 @@ fn render_example(example: &str, i: usize) -> String {
     markdown_to_html(body, false),
   )
 }
-
-pub fn get_default_value(js_doc: &JsDoc) -> Option<String> {
-  js_doc.tags.iter().find_map(|tag| {
-    if let JsDocTag::Default { value, .. } = tag {
-      // TODO: font-normal
-      Some(format!(
-        r#"<span><span class="font-normal"> = </span>{value}</span>"#
-      ))
-    } else {
-      None
-    }
-  })
-}

@@ -53,13 +53,24 @@ pub fn render_function(
         (i == 0).then_some("checked").unwrap_or_default()
       ));
 
+      let summary_doc = if !(function_def.has_body && i == 0) {
+        format!(
+          r#"<div style="width: 100%;">{}</div>"#,
+          super::jsdoc::render_docs(&doc_node.js_doc, false, true)
+        )
+      } else {
+        String::new()
+      };
+
       overload_labels.push_str(&format!(
         r#"<label for="{overload_id}" class="function_overload_label">
     <code>
       <span style="font-weight: 700;">{}</span><span style="font-weight: 500;">{}</span>
     </code>
+    {summary_doc}
 </label>"#,
-        doc_node.name, render_function_summary(function_def, ctx),
+        doc_node.name,
+        render_function_summary(function_def, ctx),
       ));
     }
 
@@ -95,6 +106,15 @@ fn render_single_function(
 ) -> String {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
+  let ctx = &RenderContext {
+    current_type_params: function_def
+      .type_params
+      .iter()
+      .map(|def| def.name.clone())
+      .collect::<std::collections::HashSet<String>>(),
+    ..ctx.clone()
+  };
+
   // TODO: tags
 
   let param_docs = doc_node
@@ -129,7 +149,7 @@ fn render_single_function(
         .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
         .unwrap_or_default();
 
-      // TODO: default_value
+      // TODO: default_value, tags
 
       doc_entry(&id, &name, &ts_type, param_docs.get(i).copied())
     })

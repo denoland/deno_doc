@@ -1,6 +1,8 @@
+use super::types::render_type_def;
 use super::util::RenderContext;
 use crate::DocNodeKind;
 use std::collections::HashMap;
+use std::fmt::Write;
 
 pub fn render_symbol_group(
   mut doc_nodes: Vec<crate::DocNode>,
@@ -39,14 +41,8 @@ pub fn render_symbol_group(
 fn render_symbol(
   doc_nodes: &[crate::DocNode],
   name: &str,
-  context: &RenderContext,
+  ctx: &RenderContext,
 ) -> String {
-  let js_doc = doc_nodes
-    .iter()
-    .find_map(|doc_node| doc_node.js_doc.doc.as_deref());
-
-  let is_function = doc_nodes[0].kind == DocNodeKind::Function;
-
   // TODO: tags
 
   format!(
@@ -58,32 +54,112 @@ fn render_symbol(
   </div>
   {}
 </div>"#,
-    doc_block_title(doc_nodes[0].kind, name),
-    doc_block(doc_nodes, context, name),
+    doc_block_title(&doc_nodes[0], name, ctx),
+    doc_block(doc_nodes, name, ctx),
   )
 }
 
-fn doc_block_title(kind: DocNodeKind, name: &str) -> String {
-  let kind_str = match kind {
-    DocNodeKind::Function => "function",
-    DocNodeKind::Variable => "variable",
-    DocNodeKind::Class => "class",
-    DocNodeKind::Enum => "enum",
-    DocNodeKind::Interface => "interface",
-    DocNodeKind::TypeAlias => "type alias",
-    DocNodeKind::Namespace => "namespace",
+fn doc_block_title(
+  doc_node: &crate::DocNode,
+  name: &str,
+  ctx: &RenderContext,
+) -> String {
+  let (kind_str, subtitle) = match doc_node.kind {
+    DocNodeKind::Function => ("function", None),
+    DocNodeKind::Variable => ("variable", None),
+    DocNodeKind::Class => {
+      let class_def = doc_node.class_def.as_ref().unwrap();
+      let mut subtitle = String::new();
+
+      let ctx = &RenderContext {
+        current_type_params: class_def
+          .type_params
+          .iter()
+          .map(|def| def.name.clone())
+          .collect::<std::collections::HashSet<String>>(),
+        ..ctx.clone()
+      };
+
+      if !class_def.implements.is_empty() {
+        let implements = class_def
+          .implements
+          .iter()
+          .map(|extend| render_type_def(extend, ctx))
+          .collect::<Vec<String>>()
+          .join("<span>, </span>");
+
+        write!(
+          subtitle,
+          r#"<div><span class="doc_block_subtitle_text"> implements </span>{implements}</div>"#
+        ).unwrap();
+      }
+
+      if let Some(extends) = class_def.extends.as_ref() {
+        let extends = ctx.lookup_symbol_href(extends).map_or_else(
+          || format!("<span>{extends}</span>"),
+          |href| format!(r#"<a href="{href}" class="link">{extends}</a>"#),
+        );
+
+        write!(
+          subtitle,
+          r#"<div><span class="doc_block_subtitle_text"> extends </span>{extends}<span>{}</span></div>"#,
+          super::types::type_arguments(&class_def.super_type_params, ctx),
+        ).unwrap();
+      }
+
+      ("class", Some(subtitle))
+    }
+    DocNodeKind::Enum => ("enum", None),
+    DocNodeKind::Interface => {
+      let interface_def = doc_node.interface_def.as_ref().unwrap();
+
+      let subtitle = if !interface_def.extends.is_empty() {
+        let ctx = &RenderContext {
+          current_type_params: interface_def
+            .type_params
+            .iter()
+            .map(|def| def.name.clone())
+            .collect::<std::collections::HashSet<String>>(),
+          ..ctx.clone()
+        };
+
+        let extends = interface_def
+          .extends
+          .iter()
+          .map(|extend| render_type_def(extend, ctx))
+          .collect::<Vec<String>>()
+          .join("<span>, </span>");
+
+        Some(format!(
+          r#"<div><span class="doc_block_subtitle_text"> extends </span>{extends}</div>"#
+        ))
+      } else {
+        None
+      };
+
+      ("interface", subtitle)
+    }
+    DocNodeKind::TypeAlias => ("type alias", None),
+    DocNodeKind::Namespace => ("namespace", None),
     _ => unimplemented!(),
   };
 
+  let subtitle = subtitle.map_or_else(Default::default, |subtitle| {
+    format!(r#"<div class="doc_block_subtitle">{subtitle}</div>"#)
+  });
+
+  // TODO property drilldown
+
   format!(
-    r#"<div class="doc_block_title"><div><span class="kind_{kind:?}_text">{kind_str}</span> <span style="font-weight: 700;">{name}</span></div></div>"#
+    r#"<div class="doc_block_title"><div><span class="kind_{:?}_text">{kind_str}</span> <span style="font-weight: 700;">{name}</span></div>{subtitle}</div>"#,
+    doc_node.kind
   )
 }
 
 fn doc_block(
   doc_nodes: &[crate::DocNode],
-  ctx: &RenderContext,
   name: &str,
+  ctx: &RenderContext,
 ) -> String {
   let mut content = String::new();
   let mut functions = vec![];
@@ -110,8 +186,8 @@ fn doc_block(
         content.push_str(&super::namespace::render_namespace(
           doc_node,
           &RenderContext {
-            additional_css: ctx.additional_css.clone(),
             namespace: Some(name.to_string()),
+            ..ctx.clone()
           },
         ))
       }

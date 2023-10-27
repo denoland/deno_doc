@@ -72,9 +72,20 @@ fn symbol_section(
       .fold(String::new(), |mut output, doc_node| {
         // TODO: linking, tags
 
-        let name = context.namespace.as_ref().map_or_else(
-          || doc_node.name.clone(),
-          |namespace| format!("{namespace}.{}", doc_node.name),
+        let (name, path) = context.namespace.as_ref().map_or_else(
+          || (doc_node.name.clone(), doc_node.name.clone()),
+          |namespace| {
+            (
+              format!("{namespace}.{}", doc_node.name),
+              format!(
+                "{}/{}",
+                namespace
+                  .rsplit_once('.')
+                  .map_or(&**namespace, |(_prev, current)| current),
+                doc_node.name
+              ),
+            )
+          },
         );
 
         write!(
@@ -83,7 +94,7 @@ fn symbol_section(
       <td class="symbol_section_symbol">
         <div>
           {}
-          <a href="">{name}</a>
+          <a href="./{path}.html">{name}</a>
         </div>
       </td>
       <td class="symbol_section_doc">

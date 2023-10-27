@@ -1,5 +1,7 @@
 use indexmap::IndexMap;
-use std::collections::HashMap;
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
 use crate::DocNodeKind;
@@ -118,6 +120,8 @@ pub fn generate(
 
   let mut files = HashMap::new();
 
+  let current_symbols = get_current_symbols(doc_nodes, vec![]);
+
   // FIXME(bartlomieju): functions can have duplicates because of overloads
   let partitions = namespace::partition_nodes_by_kind(doc_nodes);
   let name_partitions = partition_nodes_by_name(doc_nodes);
@@ -134,7 +138,14 @@ pub fn generate(
     )?,
   );
 
-  generate_pages(name_partitions, &mut files, &ctx, &sidepanel, None);
+  generate_pages(
+    name_partitions,
+    &mut files,
+    &ctx,
+    &sidepanel,
+    None,
+    Rc::new(current_symbols),
+  );
 
   Ok(files)
 }
@@ -145,6 +156,7 @@ fn generate_pages(
   ctx: &GenerateCtx,
   sidepanel: &str,
   base: Option<Vec<String>>,
+  current_symbols: Rc<HashSet<Vec<String>>>,
 ) {
   for (name, doc_nodes) in name_partitions.iter() {
     let file_name = base.as_ref().map_or(name.to_string(), |base| {
@@ -154,7 +166,13 @@ fn generate_pages(
       format!("{}.{name}", base.join("."))
     });
 
-    let page = render_page(ctx, sidepanel, &symbol_name, doc_nodes);
+    let page = render_page(
+      ctx,
+      sidepanel,
+      &symbol_name,
+      doc_nodes,
+      current_symbols.clone(),
+    );
 
     files.insert(file_name, page);
 
@@ -180,6 +198,7 @@ fn generate_pages(
         ctx,
         sidepanel,
         Some(new_base),
+        current_symbols.clone(),
       );
     }
   }
@@ -234,17 +253,42 @@ fn partition_nodes_by_name(
   partitions
 }
 
+fn get_current_symbols(
+  doc_nodes: &[crate::DocNode],
+  base: Vec<String>,
+) -> HashSet<Vec<String>> {
+  let mut current_symbols = HashSet::new();
+
+  for doc_node in doc_nodes {
+    let mut name_path = base.clone();
+    name_path.push(doc_node.name.clone());
+
+    current_symbols.insert(name_path.clone());
+
+    if doc_node.kind == DocNodeKind::Namespace {
+      let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+      current_symbols
+        .extend(get_current_symbols(&namespace_def.elements, name_path))
+    }
+  }
+
+  current_symbols
+}
+
 fn render_page(
   ctx: &GenerateCtx,
   sidepanel: &str,
   name: &str,
   doc_nodes: &[crate::DocNode],
+  current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> String {
   let context = util::RenderContext {
-    additional_css: std::rc::Rc::new(std::cell::RefCell::new("".to_string())),
+    additional_css: Rc::new(RefCell::new("".to_string())),
     namespace: name
       .rsplit_once('.')
       .map(|(namespace, _symbol)| namespace.to_string()),
+    current_symbols,
+    current_type_params: Default::default(),
   };
 
   // FIXME: don't clone here

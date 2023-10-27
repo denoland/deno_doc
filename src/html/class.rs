@@ -5,6 +5,15 @@ use std::fmt::Write;
 pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
+  let ctx = &RenderContext {
+    current_type_params: class_def
+      .type_params
+      .iter()
+      .map(|def| def.name.clone())
+      .collect::<std::collections::HashSet<String>>(),
+    ..ctx.clone()
+  };
+
   // TODO: class items
 
   format!(
@@ -30,7 +39,7 @@ fn render_constructors(
     .map(|(i, constructor)| {
       let id = name_to_id("constructor", &i.to_string());
 
-      // TODO: render constructor params
+      // TODO: tags, render constructor params
       doc_entry(&id, name, "()", constructor.js_doc.doc.as_deref())
     })
     .collect::<String>();
