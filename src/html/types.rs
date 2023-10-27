@@ -510,6 +510,7 @@ pub fn render_type_params(
         &type_param.name,
         &format!("{constraint}{default}"),
         None,
+        ctx,
       )
     })
     .collect::<String>();

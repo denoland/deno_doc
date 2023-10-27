@@ -56,7 +56,7 @@ pub fn render_function(
       let summary_doc = if !(function_def.has_body && i == 0) {
         format!(
           r#"<div style="width: 100%;">{}</div>"#,
-          super::jsdoc::render_docs(&doc_node.js_doc, false, true)
+          super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx)
         )
       } else {
         String::new()
@@ -151,13 +151,13 @@ fn render_single_function(
 
       // TODO: default_value, tags
 
-      doc_entry(&id, &name, &ts_type, param_docs.get(i).copied())
+      doc_entry(&id, &name, &ts_type, param_docs.get(i).copied(), ctx)
     })
     .collect::<String>();
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
     render_type_params(&function_def.type_params, ctx),
     section("Parameters", &params),
     section(
@@ -192,5 +192,11 @@ fn render_function_return_type(
     }
   });
 
-  doc_entry(&id, "", &render_type_def(return_type, ctx), return_type_doc)
+  doc_entry(
+    &id,
+    "",
+    &render_type_def(return_type, ctx),
+    return_type_doc,
+    ctx,
+  )
 }

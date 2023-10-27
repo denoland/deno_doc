@@ -264,6 +264,16 @@ a {
   overflow-x: auto;
 }
 
+.markdown a {
+  color: rgb(37 99 235);
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 75ms;
+}
+.markdown a:hover {
+  color: rgb(96 165 250);
+}
+
 .markdown p {
   margin: 0.25rem 0; /* 4px */
   text-align: left;
@@ -290,6 +300,16 @@ a {
 
 .markdown_summary p {
   display: inline-block;
+}
+
+.markdown_summary a {
+  color: rgb(37 99 235);
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 75ms;
+}
+.markdown_summary a:hover {
+  color: rgb(96 165 250);
 }
 
 .example > details > summary {

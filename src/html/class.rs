@@ -18,8 +18,8 @@ pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
-    render_constructors(&class_def.constructors, &doc_node.name),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
+    render_constructors(&class_def.constructors, &doc_node.name, ctx),
     super::types::render_type_params(&class_def.type_params, ctx),
     render_index_signatures(&class_def.index_signatures, ctx),
   )
@@ -28,6 +28,7 @@ pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
 fn render_constructors(
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
+  ctx: &RenderContext,
 ) -> String {
   if constructors.is_empty() {
     return String::new();
@@ -40,7 +41,7 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: tags, render constructor params
-      doc_entry(&id, name, "()", constructor.js_doc.doc.as_deref())
+      doc_entry(&id, name, "()", constructor.js_doc.doc.as_deref(), ctx)
     })
     .collect::<String>();
 

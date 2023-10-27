@@ -4,6 +4,7 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
+use crate::html::util::RenderContext;
 use crate::DocNodeKind;
 
 mod class;
@@ -120,14 +121,15 @@ pub fn generate(
 
   let mut files = HashMap::new();
 
-  let current_symbols = get_current_symbols(doc_nodes, vec![]);
+  let current_symbols = Rc::new(get_current_symbols(doc_nodes, vec![]));
 
   // FIXME(bartlomieju): functions can have duplicates because of overloads
   let partitions = namespace::partition_nodes_by_kind(doc_nodes);
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
   let sidepanel = render_sidepanel(&ctx, &partitions);
-  let index_content = render_index(&ctx, &sidepanel, partitions);
+  let index_content =
+    render_index(&ctx, &sidepanel, partitions, current_symbols.clone());
   files.insert(
     "index".to_string(),
     tt.render(
@@ -144,7 +146,7 @@ pub fn generate(
     &ctx,
     &sidepanel,
     None,
-    Rc::new(current_symbols),
+    current_symbols,
   );
 
   Ok(files)
@@ -205,9 +207,10 @@ fn generate_pages(
 }
 
 fn render_index(
-  ctx: &GenerateCtx,
+  gen_ctx: &GenerateCtx,
   sidepanel: &str,
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
+  current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> String {
   let mut content = String::with_capacity(32 * 1024);
 
@@ -223,9 +226,19 @@ fn render_index(
     for doc_node in doc_nodes {
       content.push_str(&format!(
         r##"<li><a href="{}.html">{}</a>{}</li>"##,
-        ctx.url(doc_node.name.to_string()),
+        gen_ctx.url(doc_node.name.to_string()),
         doc_node.name,
-        jsdoc::render_docs(&doc_node.js_doc, false, false),
+        jsdoc::render_docs(
+          &doc_node.js_doc,
+          false,
+          false,
+          &RenderContext {
+            additional_css: Rc::new(RefCell::new("".to_string())),
+            namespace: None,
+            current_symbols: current_symbols.clone(),
+            current_type_params: Default::default(),
+          }
+        ),
       ));
     }
 
@@ -282,7 +295,7 @@ fn render_page(
   doc_nodes: &[crate::DocNode],
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> String {
-  let context = util::RenderContext {
+  let context = RenderContext {
     additional_css: Rc::new(RefCell::new("".to_string())),
     namespace: name
       .rsplit_once('.')

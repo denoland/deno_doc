@@ -15,7 +15,7 @@ pub fn render_variable(
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
     section(
       "type",
       &doc_entry(
@@ -23,6 +23,7 @@ pub fn render_variable(
         "",
         &render_type_def(variable_def.ts_type.as_ref().unwrap(), ctx),
         None,
+        ctx,
       )
     )
   )

@@ -20,7 +20,7 @@ pub fn render_interface(
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
     render_type_params(&interface_def.type_params, ctx),
     render_index_signatures(&interface_def.index_signatures, ctx),
     render_call_signatures(&interface_def.call_signatures, ctx),
@@ -101,6 +101,7 @@ fn render_call_signatures(
           render_params(&call_signature.params, ctx),
         ),
         call_signature.js_doc.doc.as_deref(),
+        ctx,
       )
     })
     .collect::<String>();
@@ -155,6 +156,7 @@ fn render_properties(
         },
         &format!("{ts_type}{default_value}"),
         property.js_doc.doc.as_deref(),
+        ctx,
       )
     })
     .collect::<String>();
@@ -202,6 +204,7 @@ fn render_methods(
           render_params(&method.params, ctx)
         ),
         method.js_doc.doc.as_deref(),
+        ctx,
       )
     })
     .collect::<String>();

@@ -5,7 +5,7 @@ use std::fmt::Write;
 
 pub fn render_namespace(
   doc_node: &crate::DocNode,
-  context: &RenderContext,
+  ctx: &RenderContext,
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
@@ -13,8 +13,8 @@ pub fn render_namespace(
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
-    doc_node_kind_sections(partitions, context)
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
+    doc_node_kind_sections(partitions, ctx)
   )
 }
 
@@ -39,7 +39,7 @@ pub fn partition_nodes_by_kind(
 
 fn doc_node_kind_sections(
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
-  context: &RenderContext,
+  ctx: &RenderContext,
 ) -> String {
   let mut content = String::new();
 
@@ -55,7 +55,7 @@ fn doc_node_kind_sections(
       DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
     };
 
-    content.push_str(&symbol_section(title, doc_nodes, context))
+    content.push_str(&symbol_section(title, doc_nodes, ctx))
   }
 
   content
@@ -64,7 +64,7 @@ fn doc_node_kind_sections(
 fn symbol_section(
   title: &str,
   doc_nodes: Vec<crate::DocNode>,
-  context: &RenderContext,
+  ctx: &RenderContext,
 ) -> String {
   let content =
     doc_nodes
@@ -72,7 +72,7 @@ fn symbol_section(
       .fold(String::new(), |mut output, doc_node| {
         // TODO: linking, tags
 
-        let (name, path) = context.namespace.as_ref().map_or_else(
+        let (name, path) = ctx.namespace.as_ref().map_or_else(
           || (doc_node.name.clone(), doc_node.name.clone()),
           |namespace| {
             (
@@ -102,7 +102,7 @@ fn symbol_section(
       </td>
       </tr>"#,
           doc_node_kind_icon(doc_node.kind),
-          super::jsdoc::render_docs(&doc_node.js_doc, false, true),
+          super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx),
         )
         .unwrap();
         output

@@ -2,7 +2,68 @@ use super::util::*;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 
-pub fn markdown_to_html(md: &str, summary: bool) -> String {
+lazy_static! {
+  static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
+    r"(?m)\{\s*@link(?<modifier>code|plain)?\s+(?<value>[^}]+)}"
+  )
+  .unwrap();
+  static ref LINK_RE: regex::Regex =
+    regex::Regex::new(r"(^\.{0,2}\/)|(^[A-Za-z]+:\S)").unwrap();
+}
+
+fn parse_links<'a>(
+  md: &'a str,
+  ctx: &RenderContext,
+) -> std::borrow::Cow<'a, str> {
+  JSDOC_LINK_RE.replace_all(md, |captures: &regex::Captures| {
+    let code = captures
+      .name("modifier")
+      .map_or("plain", |modifier_match| modifier_match.as_str())
+      == "code";
+    let value = captures.name("value").unwrap().as_str();
+
+    let (title, link) =
+      if let Some(index) = value.find('|').or_else(|| value.find(' ')) {
+        value.split_at(index)
+      } else {
+        ("", value)
+      };
+
+    let (title, link) = if let Some(href) = ctx.lookup_symbol_href(&link) {
+      let title = if title.is_empty() { link } else { title };
+
+      (title, href)
+    } else {
+      (title, link.to_string())
+    };
+
+    if LINK_RE.is_match(&link) {
+      if code {
+        format!("[`{title}`]({link})")
+      } else {
+        format!("[{title}]({link})")
+      }
+    } else {
+      let title = if !title.is_empty() {
+        format!(" | {title}")
+      } else {
+        String::new()
+      };
+
+      if code {
+        format!("`{link}`{title}")
+      } else {
+        format!("{link}{title}")
+      }
+    }
+  })
+}
+
+pub fn markdown_to_html(
+  md: &str,
+  summary: bool,
+  ctx: &RenderContext,
+) -> String {
   let mut extension_options = comrak::ExtensionOptions::default();
   extension_options.autolink = true;
   extension_options.description_lists = true;
@@ -12,7 +73,7 @@ pub fn markdown_to_html(md: &str, summary: bool) -> String {
   extension_options.tagfilter = true;
   extension_options.tasklist = true;
 
-  // TODO(@crowlKats): codeblock highlighting, link parsing
+  // TODO(@crowlKats): codeblock highlighting
 
   let md = if summary {
     let (title, body) = split_markdown_title(md);
@@ -22,7 +83,7 @@ pub fn markdown_to_html(md: &str, summary: bool) -> String {
   };
 
   let html = comrak::markdown_to_html(
-    md,
+    &parse_links(md, ctx),
     &comrak::Options {
       extension: extension_options,
       parse: Default::default(),
@@ -43,9 +104,10 @@ pub fn render_docs(
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
+  ctx: &RenderContext,
 ) -> String {
   let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
-    markdown_to_html(doc, summary)
+    markdown_to_html(doc, summary, ctx)
   } else {
     "".to_string()
   };
@@ -59,7 +121,7 @@ pub fn render_docs(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(doc, i);
+            let example = render_example(doc, i, ctx);
             i += 1;
             example
           })
@@ -77,7 +139,7 @@ pub fn render_docs(
   doc
 }
 
-fn render_example(example: &str, i: usize) -> String {
+fn render_example(example: &str, i: usize, ctx: &RenderContext) -> String {
   let id = name_to_id("example", &i.to_string());
 
   let (title, body) = split_markdown_title(example);
@@ -92,8 +154,9 @@ fn render_example(example: &str, i: usize) -> String {
         || format!("Example {}", i + 1),
         |summary| summary.to_string()
       ),
-      true
+      true,
+      ctx,
     ),
-    markdown_to_html(body, false),
+    markdown_to_html(body, false, ctx),
   )
 }

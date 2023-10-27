@@ -20,13 +20,14 @@ pub fn render_enum(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
           .map(|init| format!(" = {}", render_type_def(init, ctx)))
           .unwrap_or_default(),
         member.js_doc.doc.as_deref(),
+        ctx,
       )
     })
     .collect::<String>();
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
     section("Members", &items),
   )
 }

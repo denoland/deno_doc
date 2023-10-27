@@ -2,6 +2,7 @@ use crate::DocNodeKind;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
+
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
 }
@@ -31,6 +32,7 @@ pub fn doc_entry(
   name: &str,
   content: &str,
   jsdoc: Option<&str>,
+  ctx: &RenderContext,
 ) -> String {
   // TODO: sourceHref
   format!(
@@ -49,7 +51,7 @@ pub fn doc_entry(
    "#,
     anchor(id),
     jsdoc
-      .map(|doc| super::jsdoc::markdown_to_html(doc, false))
+      .map(|doc| super::jsdoc::markdown_to_html(doc, false, ctx))
       .unwrap_or_default(),
   )
 }
@@ -105,7 +107,13 @@ impl RenderContext {
       .collect::<Vec<String>>();
 
     if self.current_symbols.contains(&split_symbol) {
-      return Some(format!("./{}.html", split_symbol.join("/")));
+      let backs = if let Some(namespace) = &self.namespace {
+        namespace.split('.').map(|_| "../").collect::<String>()
+      } else {
+        String::new()
+      };
+
+      return Some(format!("./{backs}{}.html", split_symbol.join("/")));
     }
 
     // TODO: handle currentImports
