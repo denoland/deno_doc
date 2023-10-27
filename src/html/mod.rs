@@ -209,7 +209,7 @@ fn render_index(
 
     content.push_str(r#"</ul>"#);
   }
-  content.push_str(r#"</div><div id="searchResults"></div>"#);
+  content.push_str(r#"</main><div id="searchResults"></div>"#);
 
   content.push_str(&format!(r#"</div></div>{HTML_TAIL}"#));
 
