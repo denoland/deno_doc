@@ -34,7 +34,7 @@ pub fn render_symbol_group(
     .collect::<String>();
 
   format!(
-    r#"<article class="symbol_group" id="symbol_{name}">{items}</article>"#
+    r#"<main class="symbol_group" id="symbol_{name}">{items}</main>"#
   )
 }
 
@@ -46,14 +46,14 @@ fn render_symbol(
   // TODO: tags
 
   format!(
-    r#"<div class="symbol">
+    r#"<article class="symbol">
   <div class="symbol_header">
     <div>
       {}
     </div>
   </div>
   {}
-</div>"#,
+</article>"#,
     doc_block_title(&doc_nodes[0], name, ctx),
     doc_block(doc_nodes, name, ctx),
   )

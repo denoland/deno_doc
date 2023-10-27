@@ -21,6 +21,32 @@ a {
     border-right: 1px solid;
     padding: 3px;
 }
+#searchbar {
+  width: 100%;
+}
+#searchResults ul {
+  list-style: none;
+  padding: 0;
+}
+#searchResults ul li {
+  display: block;
+}
+#searchResults ul a {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  line-height: 1;
+}
+
+#searchResults ul a:hover {
+  background-color: rgb(243 244 246);
+}
+
+#searchResults ul > * + * {
+  border-top: 1px solid rgb(209 213 219);
+}
+
 /* doc classes */
 .symbol_group > * + * {
     margin-top: 3rem;
@@ -310,6 +336,15 @@ a {
 }
 .markdown_summary a:hover {
   color: rgb(96 165 250);
+}
+.markdown_summary :not(pre) > code {
+  /* TODO: font-mono */
+
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  padding: 0.125rem 0.25rem; /* 2px 4px */
+  border-radius: 0.25rem; /* 4px */
+  background-color: rgb(243 244 246);
 }
 
 .example > details > summary {

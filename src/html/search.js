@@ -1,6 +1,8 @@
 const searchInput = document.querySelector("#searchbar");
-const mainContentDiv = document.querySelector("#mainContent");
+const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
+
+searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
 
@@ -19,13 +21,17 @@ searchInput.addEventListener("input", (e) => {
 });
 
 function showPage() {
-    mainContentDiv.style.display = "block";
-    searchResultsDiv.style.display = "none";
+  for (const mainTag of mainContentTags) {
+    mainTag.style.display = "block";
+  }
+  searchResultsDiv.style.display = "none";
 }
 
 function showSearchResults() {
-    mainContentDiv.style.display = "none";
-    searchResultsDiv.style.display = "block";
+  for (const mainTag of mainContentTags) {
+    mainTag.style.display = "none";
+  }
+  searchResultsDiv.style.display = "block";
 }
 
 function renderResults(results) {
@@ -33,7 +39,8 @@ function renderResults(results) {
 
     for (const result of results) {
         console.log("result", result);
-        html += `<li>name: ${result.name}, kind: ${result.kind}</li>`;
+        const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
+        html += `<li><a href="${result.name.split(".").join("/")}.html"><div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">${symbol}</div><span>${result.name}</span></a></li>`;
     }
 
     html += `</ul>`;
@@ -46,4 +53,23 @@ function searchInIndex(val) {
         return node.name.toLowerCase().includes(valLower);
     });
     return results;
+}
+
+function docNodeKindToStringVariants(kind) {
+  switch (kind) {
+    case "function":
+      return ["Function", "Function", "f"]
+    case "variable":
+      return ["Variable", "Variable", "v"]
+    case "class":
+      return ["Class", "Class", "c"]
+    case "enum":
+      return ["Enum", "Enum", "E"]
+    case "interface":
+      return ["Interface", "Interface", "I"]
+    case "typeAlias":
+      return ["TypeAlias", "Type Alias", "T"]
+    case "namespace":
+      return ["Namespace", "Namespace", "N"]
+  }
 }
