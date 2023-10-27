@@ -77,6 +77,10 @@ macro_rules! doc_test {
   };
 
   ( $name:ident, $source:expr, $private:expr; $block:expr ) => {
+    doc_test!($name, $source, $private; $block, vec![]);
+  };
+
+  ( $name:ident, $source:expr, $private:expr; $block:expr, $diagnostics:expr ) => {
     #[tokio::test]
     async fn $name() {
       use super::setup;
@@ -87,7 +91,8 @@ macro_rules! doc_test {
       let (graph, analyzer, specifier) = setup("file:///test.ts", vec![
         ("file:///test.ts", None, source_code)
       ]).await;
-      let entries = DocParser::new(graph, private, analyzer.as_capturing_parser()).unwrap()
+      let parser = DocParser::new(&graph, private, analyzer.as_capturing_parser()).unwrap();
+      let entries = parser
         .parse(&specifier)
         .unwrap();
 
@@ -95,7 +100,15 @@ macro_rules! doc_test {
       let doc = DocPrinter::new(&entries, false, private).to_string();
 
       #[allow(clippy::redundant_closure_call)]
-      ($block)(entries, doc)
+      ($block)(entries, doc);
+
+      let actual_diagnostics = parser
+        .diagnostics()
+        .into_iter()
+        .map(|d| format!("{}:{}:{} {:?}", d.location.filename, d.location.line, d.location.col, d.kind))
+        .collect::<Vec<_>>();
+      let expected_diagnostics: Vec<&str> = $diagnostics;
+      assert_eq!(actual_diagnostics, expected_diagnostics, "Diagnostics match.");
     }
   };
 }
@@ -136,11 +149,15 @@ macro_rules! json_test {
   };
 
   ( $name:ident, $source:expr, $private:expr; $json:tt ) => {
+    json_test!($name, $source, $private; $json, vec![]);
+  };
+
+  ( $name:ident, $source:expr, $private:expr; $json:tt, $diagnostics:expr ) => {
     doc_test!($name, $source, $private; |entries, _doc| {
       let actual = serde_json::to_value(&entries).unwrap();
       let expected_json = json!($json);
       pretty_assertions::assert_eq!(actual, expected_json);
-    });
+    }, $diagnostics);
   };
 }
 
@@ -173,7 +190,7 @@ async fn content_type_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
@@ -220,7 +237,7 @@ async fn types_header_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
@@ -292,7 +309,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -420,7 +437,7 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -489,7 +506,7 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -545,7 +562,7 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -636,7 +653,7 @@ export namespace Deno {
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse(&specifier)
     .unwrap();
@@ -723,7 +740,7 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -783,7 +800,7 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -844,7 +861,7 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -904,7 +921,7 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let entries = DocParser::new(graph, true, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, true, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -959,7 +976,7 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(graph, false, analyzer.as_capturing_parser())
+  DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -976,7 +993,7 @@ async fn json_module() {
   )
   .await;
 
-  let entries = DocParser::new(graph, false, analyzer.as_capturing_parser())
+  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -1932,6 +1949,67 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
       ]
     }
   }]);
+
+  json_test!(
+    export_class_object_extends,
+    r#"
+class Foo {}
+const obj = { Foo }
+    
+export class Bar extends obj.Foo {}
+  "#,
+  false;
+  [{
+    "kind": "class",
+    "name": "Bar",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": "obj.Foo",
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }, {
+    "kind": "variable",
+    "name": "obj",
+    "location": {
+      "filename": "file:///test.ts",
+      "line": 3,
+      "col": 6,
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [],
+          "properties": [{
+            "name": "Foo",
+            "params": [],
+            "computed": false,
+            "optional": false,
+            "tsType": null,
+            "typeParams": [],
+          }],
+          "callSignatures": [],
+          "indexSignatures": [],
+        },
+      },
+      "kind": "const",
+    },
+  }], vec!["file:///test.ts:3:6 PrivateTypeRef"]
+  );
 
   json_test!(export_class_ignore,
    r#"
@@ -3455,7 +3533,8 @@ interface AssignOpts {
 export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
     console.log("Hello world");
 }
-    "#;
+    "#,
+    false;
   [{
     "functionDef": {
       "hasBody": true,
@@ -3603,7 +3682,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
       "indexSignatures": [],
       "typeParams": [],
     }
-  }]);
+  }], vec!["file:///test.ts:2:0 PrivateTypeRef"]);
 
   json_test!(export_interface,
         r#"
@@ -3618,7 +3697,8 @@ export interface Reader extends Foo, Bar {
     /** Read n bytes */
     read?(buf: Uint8Array, something: unknown): Promise<number>
 }
-    "#;
+    "#,
+      false;
       [{
           "kind": "interface",
           "name": "Reader",
@@ -3744,7 +3824,10 @@ export interface Reader extends Foo, Bar {
         "indexSignatures": [],
         "typeParams": [],
     }
-  }]);
+  }], vec![
+    "file:///test.ts:2:0 PrivateTypeRef",
+    "file:///test.ts:4:0 PrivateTypeRef"
+  ]);
 
   json_test!(export_interface2,
     r#"
@@ -6138,10 +6221,10 @@ export function a(b: string | number): string | number {}
 
   contains_test!(generic_instantiated_with_tuple_type,
     r#"
-interface Generic<T> {}
+export interface Generic<T> {}
 export function f(): Generic<[string, number]> { return {}; }
     "#;
-    "Generic<[string, number]>"
+    "function f(): Generic<[string, number]>"
   );
 
   contains_test!(type_literal_declaration,

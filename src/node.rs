@@ -24,7 +24,7 @@ pub enum DocNodeKind {
   Import,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct Location {
   pub filename: String,
   /// The 1-indexed display line.
@@ -32,6 +32,24 @@ pub struct Location {
   pub line: usize,
   /// The 0-indexed display column.
   pub col: usize,
+}
+
+impl Ord for Location {
+  fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    match self.filename.cmp(&other.filename) {
+      core::cmp::Ordering::Equal => match self.line.cmp(&other.line) {
+        core::cmp::Ordering::Equal => self.col.cmp(&other.col),
+        ord => ord,
+      },
+      ord => ord,
+    }
+  }
+}
+
+impl PartialOrd for Location {
+  fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    Some(self.cmp(other))
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

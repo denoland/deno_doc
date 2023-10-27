@@ -73,7 +73,7 @@ async fn run() -> anyhow::Result<()> {
       },
     )
     .await;
-  let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
+  let parser = DocParser::new(&graph, private, analyzer.as_capturing_parser())?;
   let mut doc_nodes = parser.parse_with_reexports(&source_file)?;
 
   doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
