@@ -1,10 +1,12 @@
 use indexmap::IndexMap;
+use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
 use crate::html::util::RenderContext;
+use crate::node::Location;
 use crate::DocNodeKind;
 
 mod class;
@@ -72,58 +74,6 @@ impl GenerateCtx {
   fn url(&self, path: String) -> String {
     format!("{}{}", self.base_url, path)
   }
-}
-
-pub fn generate_search_index(
-  doc_nodes: &[crate::DocNode],
-) -> Result<String, anyhow::Error> {
-  fn flatten_namespaces(doc_nodes: &[crate::DocNode]) -> Vec<crate::DocNode> {
-    let mut additional_nodes = vec![];
-    for doc_node in doc_nodes {
-      if matches!(doc_node.kind, DocNodeKind::Namespace) {
-        let ns = doc_node.namespace_def.as_ref().unwrap();
-        additional_nodes.extend_from_slice(&ns.elements);
-      }
-    }
-
-    let mut nodes = doc_nodes.to_vec();
-    nodes.extend_from_slice(&additional_nodes);
-    nodes
-  }
-
-  let doc_nodes = flatten_namespaces(doc_nodes);
-  let mut search_index = serde_json::json!({
-    "nodes": doc_nodes
-  });
-
-  for el in search_index
-    .get_mut("nodes")
-    .unwrap()
-    .as_array_mut()
-    .unwrap()
-  {
-    el["jsDoc"].take();
-    match el.get("kind").unwrap().as_str().unwrap() {
-      "function" => el["functionDef"].take(),
-      "variable" => el["variableDef"].take(),
-      "enum" => el["enumDef"].take(),
-      "class" => el["classDef"].take(),
-      "typeAlias" => el["typeAliasDef"].take(),
-      "namespace" => el["namespaceDef"].take(),
-      "interface" => el["interfaceDef"].take(),
-      _ => serde_json::Value::Null,
-    };
-  }
-
-  let search_index_str = serde_json::to_string(&search_index)?;
-
-  let index = format!(
-    r#"(function () {{
-  window.DENO_DOC_SEARCH_INDEX = {};
-}})()"#,
-    search_index_str
-  );
-  Ok(index)
 }
 
 pub fn generate(
@@ -359,4 +309,101 @@ fn render_sidepanel(
   sidepanel.push_str(r#"</div>"#);
 
   sidepanel
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SearchIndexNode {
+  kind: DocNodeKind,
+  name: String,
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  ns_qualifiers: Vec<String>,
+  location: Location,
+  declaration_kind: crate::node::DeclarationKind,
+}
+
+/// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
+/// node is flattened into a list of its elements.
+fn doc_node_into_search_index_nodes(
+  doc_node: &crate::DocNode,
+) -> Vec<SearchIndexNode> {
+  if !matches!(doc_node.kind, DocNodeKind::Namespace) {
+    return vec![SearchIndexNode {
+      kind: doc_node.kind,
+      name: doc_node.name.to_string(),
+      ns_qualifiers: vec![],
+      location: doc_node.location.clone(),
+      declaration_kind: doc_node.declaration_kind,
+    }];
+  }
+
+  let ns_def = doc_node.namespace_def.as_ref().unwrap();
+  let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
+  let ns_name = doc_node.name.to_string();
+
+  nodes.push(SearchIndexNode {
+    kind: doc_node.kind,
+    name: doc_node.name.to_string(),
+    ns_qualifiers: vec![],
+    location: doc_node.location.clone(),
+    declaration_kind: doc_node.declaration_kind,
+  });
+
+  // TODO(bartlomieju): doesn't handle nested namespaces
+  for el in &ns_def.elements {
+    nodes.push(SearchIndexNode {
+      kind: el.kind,
+      name: el.name.to_string(),
+      ns_qualifiers: vec![ns_name.to_string()],
+      location: el.location.clone(),
+      declaration_kind: el.declaration_kind,
+    });
+  }
+
+  nodes
+}
+
+pub fn generate_search_index(
+  doc_nodes: &[crate::DocNode],
+) -> Result<String, anyhow::Error> {
+  let doc_nodes = doc_nodes.iter().fold(
+    Vec::with_capacity(doc_nodes.len()),
+    |mut output, node| {
+      output.extend_from_slice(&doc_node_into_search_index_nodes(node));
+      output
+    },
+  );
+
+  let mut search_index = serde_json::json!({
+    "nodes": doc_nodes
+  });
+
+  for el in search_index
+    .get_mut("nodes")
+    .unwrap()
+    .as_array_mut()
+    .unwrap()
+  {
+    el["jsDoc"].take();
+    match el.get("kind").unwrap().as_str().unwrap() {
+      "function" => el["functionDef"].take(),
+      "variable" => el["variableDef"].take(),
+      "enum" => el["enumDef"].take(),
+      "class" => el["classDef"].take(),
+      "typeAlias" => el["typeAliasDef"].take(),
+      "namespace" => el["namespaceDef"].take(),
+      "interface" => el["interfaceDef"].take(),
+      _ => serde_json::Value::Null,
+    };
+  }
+
+  let search_index_str = serde_json::to_string(&search_index)?;
+
+  let index = format!(
+    r#"(function () {{
+  window.DENO_DOC_SEARCH_INDEX = {};
+}})()"#,
+    search_index_str
+  );
+  Ok(index)
 }

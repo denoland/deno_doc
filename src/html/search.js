@@ -40,7 +40,10 @@ function renderResults(results) {
     for (const result of results) {
         console.log("result", result);
         const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
-        html += `<li><a href="${result.name.split(".").join("/")}.html"><div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">${symbol}</div><span>${result.name}</span></a></li>`;
+        const label = result.nsQualifiers
+            ? `${result.nsQualifiers.join(".")}.${result.name}`
+            : result.name;
+        html += `<li><a href="${result.name.split(".").join("/")}.html"><div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">${symbol}</div><span>${label}</span></a></li>`;
     }
 
     html += `</ul>`;
@@ -50,7 +53,17 @@ function renderResults(results) {
 function searchInIndex(val) {
     const valLower = val.toLowerCase();
     const results = SEARCH_INDEX.nodes.filter((node) => {
-        return node.name.toLowerCase().includes(valLower);
+        const matches = node.name.toLowerCase().includes(valLower);
+        
+        if (matches) {
+            return matches;
+        }
+        
+        if (node.nsQualifiers) {
+            return node.nsQualifiers.some((nsName) => nsName.toLowerCase().includes(valLower))
+        }
+
+        return false;
     });
     return results;
 }
