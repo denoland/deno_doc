@@ -39,6 +39,7 @@ function doSearch(val) {
   console.log("Search event.target.value", val);
 
   if (!val) {
+    updateCurrentLocation(val);
     showPage();
   } else {
     const results = searchInIndex(val);
