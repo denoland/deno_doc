@@ -6581,6 +6581,23 @@ import Options = Test.Options;
 export { Options };";
     "interface Options"
   );
+
+  contains_test!(doc_printer_unsupported_tag,
+    r#"
+/**
+ * @customtagone
+ * @customtagtwo value
+ */
+export function noop() {
+}
+    "#;
+    "
+function noop()
+
+  @customtagone
+  @customtagtwo value
+"
+  );
 }
 
 fn create_analyzer() -> CapturingModuleAnalyzer {
