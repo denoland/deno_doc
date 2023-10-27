@@ -1,5 +1,6 @@
 use indexmap::IndexMap;
 use std::collections::HashMap;
+use tinytemplate::TinyTemplate;
 
 use crate::DocNodeKind;
 
@@ -23,6 +24,18 @@ pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
 pub const SEARCH_JS: &str = include_str!("./search.js");
 pub const SEARCH_FILENAME: &str = "search.js";
+
+const HTML_TEMPLATE: &str = r#"
+<html>
+<head>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  {content}
+</body>
+<script type="module" src="./search_index.js" defer></script>
+<script type="module" src="./search.js" defer></script>
+</html>"#;
 
 // TODO(bartlomieju): reference STYLESHEET_FILENAME below
 const HTML_HEAD: &str = r#"
@@ -98,7 +111,11 @@ pub fn generate_search_index(
 pub fn generate(
   ctx: GenerateCtx,
   doc_nodes: &[crate::DocNode],
-) -> HashMap<String, String> {
+) -> Result<HashMap<String, String>, anyhow::Error> {
+  let mut tt = TinyTemplate::new();
+  tt.set_default_formatter(&tinytemplate::format_unescaped);
+  tt.add_template("html", HTML_TEMPLATE)?;
+
   let mut files = HashMap::new();
 
   // FIXME(bartlomieju): functions can have duplicates because of overloads
@@ -106,14 +123,20 @@ pub fn generate(
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
   let sidepanel = render_sidepanel(&ctx, &partitions);
+  let index_content = render_index(&ctx, &sidepanel, partitions);
   files.insert(
     "index".to_string(),
-    render_index(&ctx, &sidepanel, partitions),
+    tt.render(
+      "html",
+      &serde_json::json!({
+        "content": index_content
+      }),
+    )?,
   );
 
   generate_pages(name_partitions, &mut files, &ctx, &sidepanel, None);
 
-  files
+  Ok(files)
 }
 
 fn generate_pages(

@@ -118,7 +118,7 @@ fn generate_docs_directory(
     // TODO: don't hardcode the path
     base_url: "/generated_docs/".to_string(),
   };
-  let html = deno_doc::html::generate(ctx.clone(), doc_nodes);
+  let html = deno_doc::html::generate(ctx.clone(), doc_nodes)?;
 
   // TODO: don't hardcode the path
   let base_path = format!(

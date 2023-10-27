@@ -555,6 +555,7 @@ dependencies = [
  "serde-wasm-bindgen",
  "serde_json",
  "termcolor",
+ "tinytemplate",
  "tokio",
  "wasm-bindgen",
  "wasm-bindgen-futures",
