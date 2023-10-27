@@ -77,6 +77,21 @@ impl GenerateCtx {
 pub fn generate_search_index(
   doc_nodes: &[crate::DocNode],
 ) -> Result<String, anyhow::Error> {
+  fn flatten_namespaces(doc_nodes: &[crate::DocNode]) -> Vec<crate::DocNode> {
+    let mut additional_nodes = vec![];
+    for doc_node in doc_nodes {
+      if matches!(doc_node.kind, DocNodeKind::Namespace) {
+        let ns = doc_node.namespace_def.as_ref().unwrap();
+        additional_nodes.extend_from_slice(&ns.elements);
+      }
+    }
+
+    let mut nodes = doc_nodes.to_vec();
+    nodes.extend_from_slice(&additional_nodes);
+    nodes
+  }
+
+  let doc_nodes = flatten_namespaces(doc_nodes);
   let mut search_index = serde_json::json!({
     "nodes": doc_nodes
   });
