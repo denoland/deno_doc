@@ -64,14 +64,15 @@ pub fn markdown_to_html(
   summary: bool,
   ctx: &RenderContext,
 ) -> String {
-  let mut extension_options = comrak::ExtensionOptions::default();
-  extension_options.autolink = true;
-  extension_options.description_lists = true;
-  extension_options.strikethrough = true;
-  extension_options.superscript = true;
-  extension_options.table = true;
-  extension_options.tagfilter = true;
-  extension_options.tasklist = true;
+  let mut options = comrak::Options::default();
+  options.extension.autolink = true;
+  options.extension.description_lists = true;
+  options.extension.strikethrough = true;
+  options.extension.superscript = true;
+  options.extension.table = true;
+  options.extension.tagfilter = true;
+  options.extension.tasklist = true;
+  options.render.escape = true;
 
   // TODO(@crowlKats): codeblock highlighting
 
@@ -82,14 +83,7 @@ pub fn markdown_to_html(
     md
   };
 
-  let html = comrak::markdown_to_html(
-    &parse_links(md, ctx),
-    &comrak::Options {
-      extension: extension_options,
-      parse: Default::default(),
-      render: Default::default(),
-    },
-  );
+  let html = comrak::markdown_to_html(&parse_links(md, ctx), &options);
   format!(
     r#"<div class="{}">{html}</div>"#,
     if summary {
