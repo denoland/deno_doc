@@ -31,14 +31,6 @@ pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 pub const SEARCH_JS: &str = include_str!("./search.js");
 pub const SEARCH_FILENAME: &str = "search.js";
 
-// TODO(bartlomieju): reference STYLESHEET_FILENAME below
-const HTML_TAIL: &str = r#"
-</body>
-<script>
-</script>
-<script type="module" src="./search_index.js" defer></script>
-<script type="module" src="./search.js" defer></script>
-</html>"#;
 const SEARCH_BAR: &str = r#"
 <input type="text" placeholder="Search..." id="searchbar" style="display: none;" />
 "#;
@@ -201,11 +193,15 @@ fn render_index(
   Ok(ctx.tt.render(
     "index_list.html",
     &json!({
+      // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "additional_css": "",
         "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
       },
-      "html_tail": {},
+      "html_tail": {
+        "url_search_index": format!("{}{}", ctx.base_url, SEARCH_INDEX_FILENAME),
+        "url_search": format!("{}{}", ctx.base_url, SEARCH_FILENAME),
+      },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "content": content
@@ -281,11 +277,15 @@ fn render_page(
   Ok(ctx.tt.render(
     "page.html",
     &json!({
+      // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
-        "additional_css": context.additional_css.borrow().to_string(),
+        "additional_css": "",
         "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
       },
-      "html_tail": {},
+      "html_tail": {
+        "url_search_index": format!("{}{}", ctx.base_url, SEARCH_INDEX_FILENAME),
+        "url_search": format!("{}{}", ctx.base_url, SEARCH_FILENAME),
+      },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "base_url": ctx.base_url,
