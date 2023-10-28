@@ -62,10 +62,7 @@ impl GenerateCtx {
   }
 }
 
-pub fn generate(
-  ctx: GenerateCtx,
-  doc_nodes: &[crate::DocNode],
-) -> Result<HashMap<String, String>, anyhow::Error> {
+fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template(
@@ -85,7 +82,14 @@ pub fn generate(
     include_str!("./templates/sidepanel.html"),
   )?;
   tt.add_template("page.html", include_str!("./templates/page.html"))?;
+  Ok(tt)
+}
 
+pub fn generate(
+  ctx: GenerateCtx,
+  doc_nodes: &[crate::DocNode],
+) -> Result<HashMap<String, String>, anyhow::Error> {
+  let tt = setup_tt()?;
   let mut files = HashMap::new();
 
   let current_symbols = Rc::new(get_current_symbols(doc_nodes, vec![]));
