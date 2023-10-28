@@ -68,7 +68,14 @@ pub fn generate(
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
-  tt.add_template("main.html", include_str!("./templates/main.html"))?;
+  tt.add_template(
+    "html_head.html",
+    include_str!("./templates/html_head.html"),
+  )?;
+  tt.add_template(
+    "html_tail.html",
+    include_str!("./templates/html_tail.html"),
+  )?;
   tt.add_template(
     "index_list.html",
     include_str!("./templates/index_list.html"),
@@ -88,14 +95,8 @@ pub fn generate(
 
   // TODO(bartlomieju): flatten all of this into a single template call
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
-  let index_content =
+  let index =
     render_index(&tt, &sidepanel_ctx, partitions, current_symbols.clone())?;
-  let index = tt.render(
-    "main.html",
-    &json!({
-      "content": index_content
-    }),
-  )?;
   files.insert("index".to_string(), index);
 
   let sidepanel = tt.render("sidepanel.html", &sidepanel_ctx)?;
@@ -184,6 +185,8 @@ fn render_index(
   Ok(tt.render(
     "index_list.html",
     &json!({
+      "html_head": "",
+      "html_tail": "",
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "content": content
