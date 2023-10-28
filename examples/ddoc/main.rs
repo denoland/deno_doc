@@ -113,17 +113,20 @@ fn generate_docs_directory(
   name: String,
   doc_nodes: &[deno_doc::DocNode],
 ) -> Result<(), anyhow::Error> {
-  let ctx = deno_doc::html::GenerateCtx {
+  let options = deno_doc::html::GenerateOptions {
     package_name: name,
     // TODO: don't hardcode the path
     base_url: "/generated_docs/".to_string(),
   };
-  let html = deno_doc::html::generate(ctx.clone(), doc_nodes)?;
+  let html = deno_doc::html::generate(options.clone(), doc_nodes)?;
 
   // TODO: don't hardcode the path
   let base_path = format!(
     "./{}",
-    &ctx.base_url.strip_prefix('/').unwrap_or(&ctx.base_url)
+    &options
+      .base_url
+      .strip_prefix('/')
+      .unwrap_or(&options.base_url)
   );
   let path = std::path::Path::new(&base_path);
   let _ = std::fs::remove_dir_all(path);

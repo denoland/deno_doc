@@ -44,7 +44,7 @@ const SEARCH_BAR: &str = r#"
 "#;
 
 #[derive(Debug, Clone)]
-pub struct GenerateCtx {
+pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
   pub package_name: String,
 
@@ -52,7 +52,13 @@ pub struct GenerateCtx {
   pub base_url: String,
 }
 
-impl GenerateCtx {
+struct GenerateCtx<'ctx> {
+  package_name: String,
+  base_url: String,
+  tt: TinyTemplate<'ctx>,
+}
+
+impl<'ctx> GenerateCtx<'ctx> {
   fn url(&self, path: String) -> String {
     format!("{}{}", self.base_url, path)
   }
@@ -86,10 +92,15 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
 }
 
 pub fn generate(
-  ctx: GenerateCtx,
+  options: GenerateOptions,
   doc_nodes: &[crate::DocNode],
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let tt = setup_tt()?;
+  let ctx = GenerateCtx {
+    package_name: options.package_name,
+    base_url: options.base_url,
+    tt,
+  };
   let mut files = HashMap::new();
 
   let current_symbols = Rc::new(get_current_symbols(doc_nodes, vec![]));
@@ -99,18 +110,12 @@ pub fn generate(
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
-  let index = render_index(
-    &ctx,
-    &tt,
-    &sidepanel_ctx,
-    partitions,
-    current_symbols.clone(),
-  )?;
+  let index =
+    render_index(&ctx, &sidepanel_ctx, partitions, current_symbols.clone())?;
   files.insert("index".to_string(), index);
 
   generate_pages(
     &ctx,
-    &tt,
     &sidepanel_ctx,
     name_partitions,
     &mut files,
@@ -123,7 +128,6 @@ pub fn generate(
 
 fn generate_pages(
   ctx: &GenerateCtx,
-  tt: &TinyTemplate,
   sidepanel_ctx: &SidepanelRenderCtx,
   name_partitions: IndexMap<String, Vec<crate::DocNode>>,
   files: &mut HashMap<String, String>,
@@ -140,7 +144,6 @@ fn generate_pages(
 
     let page = render_page(
       ctx,
-      tt,
       sidepanel_ctx,
       &symbol_name,
       doc_nodes,
@@ -167,7 +170,6 @@ fn generate_pages(
 
       generate_pages(
         ctx,
-        tt,
         sidepanel_ctx,
         namespace_name_partitions,
         files,
@@ -182,7 +184,6 @@ fn generate_pages(
 
 fn render_index(
   ctx: &GenerateCtx,
-  tt: &TinyTemplate,
   sidepanel_ctx: &SidepanelRenderCtx,
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
@@ -197,7 +198,7 @@ fn render_index(
     },
   );
 
-  Ok(tt.render(
+  Ok(ctx.tt.render(
     "index_list.html",
     &json!({
       "html_head": {
@@ -259,7 +260,6 @@ fn get_current_symbols(
 
 fn render_page(
   ctx: &GenerateCtx,
-  tt: &TinyTemplate,
   sidepanel_ctx: &SidepanelRenderCtx,
   name: &str,
   doc_nodes: &[crate::DocNode],
@@ -278,7 +278,7 @@ fn render_page(
   let symbol_group =
     symbol::render_symbol_group(doc_nodes.to_vec(), name, &context);
 
-  Ok(tt.render(
+  Ok(ctx.tt.render(
     "page.html",
     &json!({
       "html_head": {
