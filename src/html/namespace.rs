@@ -14,7 +14,7 @@ pub fn render_namespace(
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
     super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    doc_node_kind_sections(partitions, ctx)
+    doc_node_kind_sections(&partitions, ctx)
   )
 }
 
@@ -42,7 +42,7 @@ pub fn partition_nodes_by_kind(
 }
 
 pub fn doc_node_kind_sections(
-  partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
+  partitions: &IndexMap<DocNodeKind, Vec<crate::DocNode>>,
   ctx: &RenderContext,
 ) -> String {
   let mut content = String::new();
@@ -67,7 +67,7 @@ pub fn doc_node_kind_sections(
 
 fn symbol_section(
   title: &str,
-  doc_nodes: Vec<crate::DocNode>,
+  doc_nodes: &[crate::DocNode],
   ctx: &RenderContext,
 ) -> String {
   let content =

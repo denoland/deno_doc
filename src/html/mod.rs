@@ -118,21 +118,12 @@ pub fn generate(
   let name_partitions = partition_nodes_by_name(&doc_nodes);
 
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
-  let index = render_index(
-    &ctx,
-    &sidepanel_ctx,
-    partitions.clone(),
-    current_symbols.clone(),
-  )?;
+  let index =
+    render_index(&ctx, &sidepanel_ctx, &partitions, current_symbols.clone())?;
   files.insert("index".to_string(), index);
 
-  let compound_index = render_compound_index(
-    &ctx,
-    &sidepanel_ctx,
-    doc_nodes_by_url,
-    partitions,
-    current_symbols.clone(),
-  )?;
+  let compound_index =
+    render_compound_index(&ctx, &doc_nodes_by_url, &partitions)?;
   files.insert("compound_index".to_string(), compound_index);
 
   generate_pages(
@@ -205,10 +196,8 @@ fn generate_pages(
 
 fn render_compound_index(
   ctx: &GenerateCtx,
-  _sidepanel_ctx: &SidepanelRenderCtx,
   doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
-  partitions: IndexMap<DocNodeKind, Vec<DocNode>>,
-  _current_symbols: Rc<HashSet<Vec<String>>>,
+  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
     .keys()
@@ -254,11 +243,11 @@ fn render_compound_index(
 fn render_index(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
-  partitions: IndexMap<DocNodeKind, Vec<DocNode>>,
+  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
   let content = namespace::doc_node_kind_sections(
-    partitions,
+    &partitions,
     &RenderContext {
       additional_css: Rc::new(RefCell::new("".to_string())),
       namespace: None,
@@ -394,7 +383,7 @@ fn sidepanel_render_ctx(
   ctx: &GenerateCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> SidepanelRenderCtx {
-  let partitions: Vec<SidepanelPartition> = partitions
+  let mut partitions: Vec<SidepanelPartition> = partitions
     .into_iter()
     .map(|(kind, doc_nodes)| SidepanelPartition {
       kind: format!("{:?}", kind),
@@ -407,6 +396,7 @@ fn sidepanel_render_ctx(
         .collect::<Vec<_>>(),
     })
     .collect();
+  partitions.sort_by_key(|part| part.kind.to_string());
 
   SidepanelRenderCtx {
     base_url: ctx.base_url.to_string(),
@@ -428,16 +418,15 @@ struct SearchIndexNode {
   declaration_kind: crate::node::DeclarationKind,
 }
 
-/// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
-/// node is flattened into a list of its elements.
-fn doc_node_into_search_index_nodes(
+fn doc_node_into_search_index_nodes_inner(
   doc_node: &DocNode,
+  ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
   if !matches!(doc_node.kind, DocNodeKind::Namespace) {
     return vec![SearchIndexNode {
       kind: doc_node.kind,
       name: doc_node.name.to_string(),
-      ns_qualifiers: vec![],
+      ns_qualifiers: ns_qualifiers.clone(),
       location: doc_node.location.clone(),
       declaration_kind: doc_node.declaration_kind,
     }];
@@ -450,23 +439,40 @@ fn doc_node_into_search_index_nodes(
   nodes.push(SearchIndexNode {
     kind: doc_node.kind,
     name: doc_node.name.to_string(),
-    ns_qualifiers: vec![],
+    ns_qualifiers: ns_qualifiers.clone(),
     location: doc_node.location.clone(),
     declaration_kind: doc_node.declaration_kind,
   });
 
-  // TODO(bartlomieju): doesn't handle nested namespaces
   for el in &ns_def.elements {
+    let mut ns_qualifiers_ = ns_qualifiers.clone();
+    ns_qualifiers_.push(ns_name.to_string());
+
     nodes.push(SearchIndexNode {
       kind: el.kind,
       name: el.name.to_string(),
-      ns_qualifiers: vec![ns_name.to_string()],
+      ns_qualifiers: ns_qualifiers_,
       location: el.location.clone(),
       declaration_kind: el.declaration_kind,
     });
+
+    if el.kind == DocNodeKind::Namespace {
+      nodes.extend_from_slice(&doc_node_into_search_index_nodes_inner(
+        el,
+        ns_qualifiers.clone(),
+      ));
+    }
   }
 
   nodes
+}
+
+/// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
+/// node is flattened into a list of its elements.
+fn doc_node_into_search_index_nodes(
+  doc_node: &DocNode,
+) -> Vec<SearchIndexNode> {
+  doc_node_into_search_index_nodes_inner(doc_node, vec![])
 }
 
 pub fn generate_search_index(
