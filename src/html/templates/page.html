@@ -1,0 +1,14 @@
+{{ call html_head.html with html_head }}
+<div style="display: flex;">
+    {{ call sidepanel.html with sidepanel }}
+    <div style="padding: 30px; width: 100%;">
+        <a href="{base_url}"><- Index</a>
+    <div>
+    {search_bar}
+</div>
+
+{symbol_group}
+
+<div id="searchResults"></div>
+
+{{ call html_tail.html with html_tail }}

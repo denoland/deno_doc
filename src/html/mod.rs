@@ -84,6 +84,7 @@ pub fn generate(
     "sidepanel.html",
     include_str!("./templates/sidepanel.html"),
   )?;
+  tt.add_template("page.html", include_str!("./templates/page.html"))?;
 
   let mut files = HashMap::new();
 
@@ -93,33 +94,38 @@ pub fn generate(
   let partitions = namespace::partition_nodes_by_kind(doc_nodes);
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  // TODO(bartlomieju): flatten all of this into a single template call
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
-  let index =
-    render_index(&tt, &sidepanel_ctx, partitions, current_symbols.clone())?;
+  let index = render_index(
+    &ctx,
+    &tt,
+    &sidepanel_ctx,
+    partitions,
+    current_symbols.clone(),
+  )?;
   files.insert("index".to_string(), index);
 
-  let sidepanel = tt.render("sidepanel.html", &sidepanel_ctx)?;
   generate_pages(
+    &ctx,
+    &tt,
+    &sidepanel_ctx,
     name_partitions,
     &mut files,
-    &ctx,
-    &sidepanel,
     None,
     current_symbols,
-  );
+  )?;
 
   Ok(files)
 }
 
 fn generate_pages(
+  ctx: &GenerateCtx,
+  tt: &TinyTemplate,
+  sidepanel_ctx: &SidepanelRenderCtx,
   name_partitions: IndexMap<String, Vec<crate::DocNode>>,
   files: &mut HashMap<String, String>,
-  ctx: &GenerateCtx,
-  sidepanel: &str,
   base: Option<Vec<String>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
-) {
+) -> Result<(), anyhow::Error> {
   for (name, doc_nodes) in name_partitions.iter() {
     let file_name = base.as_ref().map_or(name.to_string(), |base| {
       format!("{}/{name}", base.join("/"))
@@ -130,11 +136,12 @@ fn generate_pages(
 
     let page = render_page(
       ctx,
-      sidepanel,
+      tt,
+      sidepanel_ctx,
       &symbol_name,
       doc_nodes,
       current_symbols.clone(),
-    );
+    )?;
 
     files.insert(file_name, page);
 
@@ -155,20 +162,24 @@ fn generate_pages(
       };
 
       generate_pages(
+        ctx,
+        tt,
+        sidepanel_ctx,
         namespace_name_partitions,
         files,
-        ctx,
-        sidepanel,
         Some(new_base),
         current_symbols.clone(),
-      );
+      )?;
     }
   }
+
+  Ok(())
 }
 
 fn render_index(
+  ctx: &GenerateCtx,
   tt: &TinyTemplate,
-  sidepanel_ctx: &serde_json::Value,
+  sidepanel_ctx: &SidepanelRenderCtx,
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
@@ -185,8 +196,11 @@ fn render_index(
   Ok(tt.render(
     "index_list.html",
     &json!({
-      "html_head": "",
-      "html_tail": "",
+      "html_head": {
+        "additional_css": "",
+        "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
+      },
+      "html_tail": {},
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "content": content
@@ -241,11 +255,12 @@ fn get_current_symbols(
 
 fn render_page(
   ctx: &GenerateCtx,
-  sidepanel: &str,
+  tt: &TinyTemplate,
+  sidepanel_ctx: &SidepanelRenderCtx,
   name: &str,
   doc_nodes: &[crate::DocNode],
   current_symbols: Rc<HashSet<Vec<String>>>,
-) -> String {
+) -> Result<String, anyhow::Error> {
   let context = RenderContext {
     additional_css: Rc::new(RefCell::new("".to_string())),
     namespace: name
@@ -259,55 +274,64 @@ fn render_page(
   let symbol_group =
     symbol::render_symbol_group(doc_nodes.to_vec(), name, &context);
 
-  let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
+  Ok(tt.render(
+    "page.html",
+    &json!({
+      "html_head": {
+        "additional_css": context.additional_css.borrow().to_string(),
+        "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
+      },
+      "html_tail": {},
+      "sidepanel": sidepanel_ctx,
+      "search_bar": SEARCH_BAR,
+      "base_url": ctx.base_url,
+      "symbol_group": symbol_group
+    }),
+  )?)
+}
 
-  format!(
-    r##"<html>
-<head>
-  <link rel="stylesheet" href="./{backs}{STYLESHEET_FILENAME}">
-</head>
-<style>{}</style>
-<div style="display: flex;">
-  {sidepanel}
-  <div style="padding: 30px; width: 100%;">
-    <a href="{}"><- Index</a>
-  <div>
-  {SEARCH_BAR}
-</div>
-{symbol_group}
-<div id="searchResults"></div>
-</div>
-</div>
-{HTML_TAIL}"##,
-    context.additional_css.borrow(),
-    ctx.base_url,
-  )
+#[derive(Debug, Serialize)]
+struct SidepanelPartitionNode {
+  url: String,
+  name: String,
+}
+
+#[derive(Debug, Serialize)]
+struct SidepanelPartition {
+  kind: String,
+  doc_nodes: Vec<SidepanelPartitionNode>,
+}
+
+#[derive(Debug, Serialize)]
+struct SidepanelRenderCtx {
+  base_url: String,
+  package_name: String,
+  partitions: Vec<SidepanelPartition>,
 }
 
 fn sidepanel_render_ctx(
   ctx: &GenerateCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
-) -> serde_json::Value {
-  let partitions: Vec<serde_json::Value> = partitions
+) -> SidepanelRenderCtx {
+  let partitions: Vec<SidepanelPartition> = partitions
     .into_iter()
-    .map(|(kind, doc_nodes)| {
-      serde_json::json!({
-        "kind": format!("{:?}", kind),
-        "doc_nodes": doc_nodes.iter().map(|doc_node| {
-          serde_json::json!({
-            "url": ctx.url_with_html(doc_node.name.to_string()),
-            "name": doc_node.name.to_string()
-          })
-        }).collect::<Vec<serde_json::Value>>()
-      })
+    .map(|(kind, doc_nodes)| SidepanelPartition {
+      kind: format!("{:?}", kind),
+      doc_nodes: doc_nodes
+        .iter()
+        .map(|doc_node| SidepanelPartitionNode {
+          url: ctx.url_with_html(doc_node.name.to_string()),
+          name: doc_node.name.to_string(),
+        })
+        .collect::<Vec<_>>(),
     })
     .collect();
 
-  json!({
-    "base_url": ctx.base_url.to_string(),
-    "package_name": ctx.package_name.to_string(),
-    "partitions": partitions,
-  })
+  SidepanelRenderCtx {
+    base_url: ctx.base_url.to_string(),
+    package_name: ctx.package_name.to_string(),
+    partitions,
+  }
 }
 
 #[derive(Clone, Debug, Serialize)]
