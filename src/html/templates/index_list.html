@@ -1,0 +1,13 @@
+<div style="display: flex;">
+    {{ call sidepanel.html with sidepanel }}
+    <div style="padding: 30px; width: 100%;">
+        <h1>Index</h1>
+    <div>
+    {search_bar}
+</div>
+
+<main>
+{#- TODO(bartlomieju): call into template here #}
+{ content }
+</main>
+<div id="searchResults"></div>

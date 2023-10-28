@@ -1,5 +1,6 @@
 use indexmap::IndexMap;
 use serde::Serialize;
+use serde_json::json;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
@@ -7,7 +8,7 @@ use tinytemplate::TinyTemplate;
 
 use crate::html::util::RenderContext;
 use crate::node::Location;
-use crate::DocNodeKind;
+use crate::{DocNode, DocNodeKind};
 
 mod class;
 mod r#enum;
@@ -55,6 +56,10 @@ impl GenerateCtx {
   fn url(&self, path: String) -> String {
     format!("{}{}", self.base_url, path)
   }
+
+  fn url_with_html(&self, path: String) -> String {
+    format!("{}{}.html", self.base_url, path)
+  }
 }
 
 pub fn generate(
@@ -64,6 +69,10 @@ pub fn generate(
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template("main.html", include_str!("./templates/main.html"))?;
+  tt.add_template(
+    "index_list.html",
+    include_str!("./templates/index_list.html"),
+  )?;
   tt.add_template(
     "sidepanel.html",
     include_str!("./templates/sidepanel.html"),
@@ -77,19 +86,19 @@ pub fn generate(
   let partitions = namespace::partition_nodes_by_kind(doc_nodes);
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  let sidepanel = render_sidepanel(&ctx, &mut tt, &partitions)?;
+  // TODO(bartlomieju): flatten all of this into a single template call
+  let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
   let index_content =
-    render_index(&sidepanel, partitions, current_symbols.clone());
-  files.insert(
-    "index".to_string(),
-    tt.render(
-      "main.html",
-      &serde_json::json!({
-        "content": index_content
-      }),
-    )?,
-  );
+    render_index(&tt, &sidepanel_ctx, partitions, current_symbols.clone())?;
+  let index = tt.render(
+    "main.html",
+    &json!({
+      "content": index_content
+    }),
+  )?;
+  files.insert("index".to_string(), index);
 
+  let sidepanel = tt.render("sidepanel.html", &sidepanel_ctx)?;
   generate_pages(
     name_partitions,
     &mut files,
@@ -157,18 +166,12 @@ fn generate_pages(
 }
 
 fn render_index(
-  sidepanel: &str,
+  tt: &TinyTemplate,
+  sidepanel_ctx: &serde_json::Value,
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
-) -> String {
-  let mut content = String::with_capacity(32 * 1024);
-
-  content.push_str(&format!(
-    r#"<div style="display: flex;">{sidepanel}<div style="padding: 30px; width: 100%;"><h1>Index</h1><div>{SEARCH_BAR}</div>"#
-  ));
-
-  content.push_str(r#"<main>"#);
-  content.push_str(&namespace::doc_node_kind_sections(
+) -> Result<String, anyhow::Error> {
+  let content = namespace::doc_node_kind_sections(
     partitions,
     &RenderContext {
       additional_css: Rc::new(RefCell::new("".to_string())),
@@ -176,12 +179,16 @@ fn render_index(
       current_symbols: current_symbols.clone(),
       current_type_params: Default::default(),
     },
-  ));
-  content.push_str(r#"</main><div id="searchResults"></div>"#);
+  );
 
-  content.push_str(&format!(r#"</div></div>"#));
-
-  content
+  Ok(tt.render(
+    "index_list.html",
+    &json!({
+      "sidepanel": sidepanel_ctx,
+      "search_bar": SEARCH_BAR,
+      "content": content
+    }),
+  )?)
 }
 
 fn partition_nodes_by_name(
@@ -274,11 +281,10 @@ fn render_page(
   )
 }
 
-fn render_sidepanel(
+fn sidepanel_render_ctx(
   ctx: &GenerateCtx,
-  tt: &mut tinytemplate::TinyTemplate,
-  partitions: &IndexMap<DocNodeKind, Vec<crate::DocNode>>,
-) -> Result<String, anyhow::Error> {
+  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+) -> serde_json::Value {
   let partitions: Vec<serde_json::Value> = partitions
     .into_iter()
     .map(|(kind, doc_nodes)| {
@@ -286,7 +292,7 @@ fn render_sidepanel(
         "kind": format!("{:?}", kind),
         "doc_nodes": doc_nodes.iter().map(|doc_node| {
           serde_json::json!({
-            "url": ctx.url(doc_node.name.to_string()),
+            "url": ctx.url_with_html(doc_node.name.to_string()),
             "name": doc_node.name.to_string()
           })
         }).collect::<Vec<serde_json::Value>>()
@@ -294,13 +300,11 @@ fn render_sidepanel(
     })
     .collect();
 
-  let render_ctx = serde_json::json!({
+  json!({
     "base_url": ctx.base_url.to_string(),
     "package_name": ctx.package_name.to_string(),
     "partitions": partitions,
-  });
-  let content = tt.render("sidepanel.html", &render_ctx)?;
-  Ok(content)
+  })
 }
 
 #[derive(Clone, Debug, Serialize)]
