@@ -24,6 +24,10 @@ pub fn partition_nodes_by_kind(
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
+    if node.kind == DocNodeKind::ModuleDoc {
+      continue;
+    }
+
     partitions
       .entry(node.kind)
       .or_insert(vec![])
@@ -37,7 +41,7 @@ pub fn partition_nodes_by_kind(
   partitions
 }
 
-fn doc_node_kind_sections(
+pub fn doc_node_kind_sections(
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
   ctx: &RenderContext,
 ) -> String {

@@ -33,9 +33,7 @@ pub fn render_symbol_group(
     .map(|doc_nodes| render_symbol(doc_nodes, name, context))
     .collect::<String>();
 
-  format!(
-    r#"<main class="symbol_group" id="symbol_{name}">{items}</main>"#
-  )
+  format!(r#"<main class="symbol_group" id="symbol_{name}">{items}</main>"#)
 }
 
 fn render_symbol(

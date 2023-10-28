@@ -79,7 +79,7 @@ pub fn generate(
 
   let sidepanel = render_sidepanel(&ctx, &mut tt, &partitions)?;
   let index_content =
-    render_index(&ctx, &sidepanel, partitions, current_symbols.clone());
+    render_index(&sidepanel, partitions, current_symbols.clone());
   files.insert(
     "index".to_string(),
     tt.render(
@@ -157,7 +157,6 @@ fn generate_pages(
 }
 
 fn render_index(
-  gen_ctx: &GenerateCtx,
   sidepanel: &str,
   partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
@@ -169,30 +168,15 @@ fn render_index(
   ));
 
   content.push_str(r#"<main>"#);
-  for (kind, doc_nodes) in partitions {
-    content.push_str(&format!(r#"<h2>{:?}</h2><ul>"#, kind));
-
-    for doc_node in doc_nodes {
-      content.push_str(&format!(
-        r##"<li><a href="{}.html">{}</a>{}</li>"##,
-        gen_ctx.url(doc_node.name.to_string()),
-        doc_node.name,
-        jsdoc::render_docs(
-          &doc_node.js_doc,
-          false,
-          false,
-          &RenderContext {
-            additional_css: Rc::new(RefCell::new("".to_string())),
-            namespace: None,
-            current_symbols: current_symbols.clone(),
-            current_type_params: Default::default(),
-          }
-        ),
-      ));
-    }
-
-    content.push_str(r#"</ul>"#);
-  }
+  content.push_str(&namespace::doc_node_kind_sections(
+    partitions,
+    &RenderContext {
+      additional_css: Rc::new(RefCell::new("".to_string())),
+      namespace: None,
+      current_symbols: current_symbols.clone(),
+      current_type_params: Default::default(),
+    },
+  ));
   content.push_str(r#"</main><div id="searchResults"></div>"#);
 
   content.push_str(&format!(r#"</div></div>"#));
@@ -206,6 +190,10 @@ fn partition_nodes_by_name(
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
+    if node.kind == DocNodeKind::ModuleDoc {
+      continue;
+    }
+
     partitions
       .entry(node.name.clone())
       .or_insert(vec![])
@@ -222,6 +210,10 @@ fn get_current_symbols(
   let mut current_symbols = HashSet::new();
 
   for doc_node in doc_nodes {
+    if doc_node.kind == DocNodeKind::ModuleDoc {
+      continue;
+    }
+
     let mut name_path = base.clone();
     name_path.push(doc_node.name.clone());
 
