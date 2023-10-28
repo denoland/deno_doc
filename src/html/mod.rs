@@ -33,7 +33,7 @@ pub const SEARCH_JS: &str = include_str!("./search.js");
 pub const SEARCH_FILENAME: &str = "search.js";
 
 const SEARCH_BAR: &str = r#"
-<input type="text" placeholder="Search..." id="searchbar" style="display: none;" />
+<input type="text" placeholder="Click or press 'S' to search..." id="searchbar" style="display: none;" />
 "#;
 
 #[derive(Debug, Clone)]

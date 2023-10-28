@@ -13,6 +13,17 @@ if (val) {
   doSearch(val);
 }
 
+window.addEventListener("load", function () {
+  document.addEventListener("keydown", function (event) {
+    if (event.key.toLowerCase() === "s") {
+      if (event.target !== searchInput) {
+        searchInput.focus();
+        event.preventDefault();
+      }
+    }
+  });
+});
+
 function debounce(func, delay) {
   let timerId;
 
@@ -75,6 +86,11 @@ function showSearchResults() {
 }
 
 function renderResults(results) {
+  if (results.length === 0) {
+    searchResultsDiv.innerHTML = `<span>No result</span>`;
+    return;
+  }
+
   let html = `<ul>`;
 
   for (const result of results) {
