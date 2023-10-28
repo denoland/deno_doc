@@ -1,3 +1,4 @@
+use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
@@ -80,12 +81,20 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/sidepanel.html"),
   )?;
   tt.add_template("page.html", include_str!("./templates/page.html"))?;
+  tt.add_template(
+    "compound_index.html",
+    include_str!("./templates/compound_index.html"),
+  )?;
+  tt.add_template(
+    "compound_sidepanel.html",
+    include_str!("./templates/compound_sidepanel.html"),
+  )?;
   Ok(tt)
 }
 
 pub fn generate(
   options: GenerateOptions,
-  doc_nodes: &[crate::DocNode],
+  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
@@ -95,16 +104,36 @@ pub fn generate(
   };
   let mut files = HashMap::new();
 
-  let current_symbols = Rc::new(get_current_symbols(doc_nodes, vec![]));
+  // TODO(bartlomieju): remove
+  let doc_nodes = doc_nodes_by_url
+    .values()
+    .cloned()
+    .flatten()
+    .collect::<Vec<_>>();
+
+  let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
   // FIXME(bartlomieju): functions can have duplicates because of overloads
-  let partitions = namespace::partition_nodes_by_kind(doc_nodes);
-  let name_partitions = partition_nodes_by_name(doc_nodes);
+  let partitions = namespace::partition_nodes_by_kind(&doc_nodes);
+  let name_partitions = partition_nodes_by_name(&doc_nodes);
 
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
-  let index =
-    render_index(&ctx, &sidepanel_ctx, partitions, current_symbols.clone())?;
+  let index = render_index(
+    &ctx,
+    &sidepanel_ctx,
+    partitions.clone(),
+    current_symbols.clone(),
+  )?;
   files.insert("index".to_string(), index);
+
+  let compound_index = render_compound_index(
+    &ctx,
+    &sidepanel_ctx,
+    doc_nodes_by_url,
+    partitions,
+    current_symbols.clone(),
+  )?;
+  files.insert("compound_index".to_string(), compound_index);
 
   generate_pages(
     &ctx,
@@ -121,7 +150,7 @@ pub fn generate(
 fn generate_pages(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
-  name_partitions: IndexMap<String, Vec<crate::DocNode>>,
+  name_partitions: IndexMap<String, Vec<DocNode>>,
   files: &mut HashMap<String, String>,
   base: Option<Vec<String>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
@@ -174,10 +203,58 @@ fn generate_pages(
   Ok(())
 }
 
+fn render_compound_index(
+  ctx: &GenerateCtx,
+  _sidepanel_ctx: &SidepanelRenderCtx,
+  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
+  partitions: IndexMap<DocNodeKind, Vec<DocNode>>,
+  _current_symbols: Rc<HashSet<Vec<String>>>,
+) -> Result<String, anyhow::Error> {
+  let files = doc_nodes_by_url
+    .keys()
+    .map(|url| url.as_str())
+    .collect::<Vec<_>>();
+
+  let sidepanel_ctx = json!({
+    "node_kinds": partitions.keys().map(|k| format!("{:?}", k)).collect::<Vec<_>>(),
+    "files": files,
+    "base_url": ctx.base_url.to_string(),
+    "package_name": ctx.package_name.to_string(),
+  });
+
+  let module_docs = doc_nodes_by_url
+    .iter()
+    .map(|(url, _nodes)| {
+      json!({
+        "url": url.as_str(),
+        "docs": "TODO(crowlKats) acquire jsdoc here for a module"
+      })
+    })
+    .collect::<Vec<_>>();
+
+  Ok(ctx.tt.render(
+    "compound_index.html",
+    &json!({
+      // TODO(bartlomieju): dedup with `render_page`
+      "html_head": {
+        "additional_css": "",
+        "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
+      },
+      "html_tail": {
+        "url_search_index": format!("{}{}", ctx.base_url, SEARCH_INDEX_FILENAME),
+        "url_search": format!("{}{}", ctx.base_url, SEARCH_FILENAME),
+      },
+      "sidepanel": sidepanel_ctx,
+      "search_bar": SEARCH_BAR,
+      "module_docs": module_docs
+    }),
+  )?)
+}
+
 fn render_index(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
-  partitions: IndexMap<DocNodeKind, Vec<crate::DocNode>>,
+  partitions: IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
   let content = namespace::doc_node_kind_sections(
@@ -210,8 +287,8 @@ fn render_index(
 }
 
 fn partition_nodes_by_name(
-  doc_nodes: &[crate::DocNode],
-) -> IndexMap<String, Vec<crate::DocNode>> {
+  doc_nodes: &[DocNode],
+) -> IndexMap<String, Vec<DocNode>> {
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
@@ -229,7 +306,7 @@ fn partition_nodes_by_name(
 }
 
 fn get_current_symbols(
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNode],
   base: Vec<String>,
 ) -> HashSet<Vec<String>> {
   let mut current_symbols = HashSet::new();
@@ -258,7 +335,7 @@ fn render_page(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
   name: &str,
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNode],
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
   let context = RenderContext {
@@ -354,7 +431,7 @@ struct SearchIndexNode {
 /// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
 /// node is flattened into a list of its elements.
 fn doc_node_into_search_index_nodes(
-  doc_node: &crate::DocNode,
+  doc_node: &DocNode,
 ) -> Vec<SearchIndexNode> {
   if !matches!(doc_node.kind, DocNodeKind::Namespace) {
     return vec![SearchIndexNode {
@@ -393,8 +470,15 @@ fn doc_node_into_search_index_nodes(
 }
 
 pub fn generate_search_index(
-  doc_nodes: &[crate::DocNode],
+  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
+  // TODO(bartlomieju): remove
+  let doc_nodes = doc_nodes_by_url
+    .values()
+    .cloned()
+    .flatten()
+    .collect::<Vec<_>>();
+
   let doc_nodes = doc_nodes.iter().fold(
     Vec::with_capacity(doc_nodes.len()),
     |mut output, node| {

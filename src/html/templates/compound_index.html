@@ -1,0 +1,22 @@
+{{ call html_head.html with html_head }}
+<div style="display: flex;">
+    {{ call compound_sidepanel.html with sidepanel }}
+    <div style="padding: 30px; width: 100%;">
+        <h1>Index</h1>
+    <div>
+    {search_bar}
+</div>
+
+<main>
+{#- TODO(bartlomieju): call into template here #}
+
+{{ for module_doc in module_docs }}
+    <section>
+        <h3>{ module_doc.url }</h3>
+        <pre>{ module_doc.docs }</pre>
+    </section>
+{{ endfor }}
+
+</main>
+<div id="searchResults"></div>
+{{ call html_tail.html with html_tail }}

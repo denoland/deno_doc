@@ -16,6 +16,7 @@ use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
 use futures::future;
+use std::collections::HashMap;
 use std::env::current_dir;
 use std::fs::read_to_string;
 
@@ -90,18 +91,18 @@ async fn run() -> anyhow::Result<()> {
     )
     .await;
   let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
-  let mut doc_nodes = Vec::with_capacity(1024);
 
   if html {
-    // TODO(bartlomieju): partition by URL and pass a hashmap to `generate_docs_directory`
+    let mut doc_nodes_by_url = HashMap::with_capacity(source_files.len());
     for source_file in source_files {
       let nodes = parser.parse_with_reexports(&source_file)?;
-      doc_nodes.extend_from_slice(&nodes);
+      doc_nodes_by_url.insert(source_file, nodes);
     }
-    generate_docs_directory(name, &doc_nodes)?;
+    generate_docs_directory(name, &doc_nodes_by_url)?;
     return Ok(());
   }
 
+  let mut doc_nodes = Vec::with_capacity(1024);
   for source_file in source_files {
     let nodes = parser.parse_with_reexports(&source_file)?;
     doc_nodes.extend_from_slice(&nodes);
@@ -130,14 +131,14 @@ fn main() {
 
 fn generate_docs_directory(
   name: String,
-  doc_nodes: &[deno_doc::DocNode],
+  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
 ) -> Result<(), anyhow::Error> {
   let options = deno_doc::html::GenerateOptions {
     package_name: name,
     // TODO: don't hardcode the path
     base_url: "/generated_docs/".to_string(),
   };
-  let html = deno_doc::html::generate(options.clone(), doc_nodes)?;
+  let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 
   // TODO: don't hardcode the path
   let base_path = format!(
@@ -158,7 +159,7 @@ fn generate_docs_directory(
   .unwrap();
   std::fs::write(
     path.join(deno_doc::html::SEARCH_INDEX_FILENAME),
-    deno_doc::html::generate_search_index(doc_nodes)?,
+    deno_doc::html::generate_search_index(doc_nodes_by_url)?,
   )
   .unwrap();
   std::fs::write(

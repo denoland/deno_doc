@@ -1,0 +1,20 @@
+<div id="sidepanel">
+    <h2><a href="{base_url}">{package_name}</a></h2>
+    <h3>APIs</h3>
+    <ul>
+        {{ for kind in node_kinds }}
+        <li>
+            <a href="{base_url}#{kind}s">{kind}</a>
+        </li>
+        {{ endfor }}
+    </ul>
+
+    <h3>Modules</h3>
+    <ul>
+        {{ for file in files }}
+        <li>
+            <a href="{base_url}">{file}</a>
+        </li>
+        {{ endfor }}
+    </ul>
+</div>
