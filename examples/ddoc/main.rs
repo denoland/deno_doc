@@ -51,7 +51,11 @@ async fn run() -> anyhow::Result<()> {
     .arg(Arg::with_name("html").long("html").requires_all(&["name"]))
     .arg(Arg::with_name("name").long("name").takes_value(true))
     .arg(Arg::with_name("source_files").required(true).multiple(true))
-    .arg(Arg::with_name("filter").long("filter"))
+    .arg(
+      Arg::with_name("filter")
+        .long("filter")
+        .conflicts_with("html"),
+    )
     .arg(Arg::with_name("private").long("private"))
     .get_matches();
   let source_files = matches.values_of("source_file").unwrap();
@@ -87,6 +91,17 @@ async fn run() -> anyhow::Result<()> {
     .await;
   let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
   let mut doc_nodes = Vec::with_capacity(1024);
+
+  if html {
+    // TODO(bartlomieju): partition by URL and pass a hashmap to `generate_docs_directory`
+    for source_file in source_files {
+      let nodes = parser.parse_with_reexports(&source_file)?;
+      doc_nodes.extend_from_slice(&nodes);
+    }
+    generate_docs_directory(name, &doc_nodes)?;
+    return Ok(());
+  }
+
   for source_file in source_files {
     let nodes = parser.parse_with_reexports(&source_file)?;
     doc_nodes.extend_from_slice(&nodes);
@@ -97,13 +112,9 @@ async fn run() -> anyhow::Result<()> {
     doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
   }
 
-  if !html {
-    let result = DocPrinter::new(&doc_nodes, true, false);
-    println!("{}", result);
-    return Ok(());
-  }
-
-  generate_docs_directory(name, &doc_nodes)
+  let result = DocPrinter::new(&doc_nodes, true, false);
+  println!("{}", result);
+  Ok(())
 }
 
 fn main() {
