@@ -1,0 +1,13 @@
+<div id="sidepanel">
+    <h2><a href="{base_url}">{package_name}</a></h2>
+    {{ for partition in partitions }}
+        <h3>{partition.kind}</h3>
+        <ul>
+        {{ for doc_node in partition.doc_nodes }}
+            <li>
+                <a href="{doc_node.url}">{doc_node.name}</a>
+            </li>
+        {{ endfor }}
+        </ul>
+    {{ endfor }}
+</div>
