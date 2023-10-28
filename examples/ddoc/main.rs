@@ -58,7 +58,7 @@ async fn run() -> anyhow::Result<()> {
     )
     .arg(Arg::with_name("private").long("private"))
     .get_matches();
-  let source_files = matches.values_of("source_file").unwrap();
+  let source_files = matches.values_of("source_files").unwrap();
   let html = matches.is_present("html");
   let name = if html {
     matches.value_of("name").unwrap().to_string()
