@@ -50,11 +50,11 @@ async fn run() -> anyhow::Result<()> {
   let matches = App::new("ddoc")
     .arg(Arg::with_name("html").long("html").requires_all(&["name"]))
     .arg(Arg::with_name("name").long("name").takes_value(true))
-    .arg(Arg::with_name("source_file").required(true))
-    .arg(Arg::with_name("filter"))
+    .arg(Arg::with_name("source_files").required(true).multiple(true))
+    .arg(Arg::with_name("filter").long("filter"))
     .arg(Arg::with_name("private").long("private"))
     .get_matches();
-  let source_file = matches.value_of("source_file").unwrap();
+  let source_files = matches.values_of("source_file").unwrap();
   let html = matches.is_present("html");
   let name = if html {
     matches.value_of("name").unwrap().to_string()
@@ -63,17 +63,21 @@ async fn run() -> anyhow::Result<()> {
   };
   let maybe_filter = matches.value_of("filter");
   let private = matches.is_present("private");
-  let source_file =
-    ModuleSpecifier::from_directory_path(current_dir().unwrap())
-      .unwrap()
-      .join(source_file)
-      .unwrap();
+  let source_files: Vec<ModuleSpecifier> = source_files
+    .into_iter()
+    .map(|source_file| {
+      ModuleSpecifier::from_directory_path(current_dir().unwrap())
+        .unwrap()
+        .join(source_file)
+        .unwrap()
+    })
+    .collect();
   let mut loader = SourceFileLoader {};
   let analyzer = CapturingModuleAnalyzer::default();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
-      vec![source_file.clone()],
+      source_files.clone(),
       &mut loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
@@ -82,7 +86,11 @@ async fn run() -> anyhow::Result<()> {
     )
     .await;
   let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
-  let mut doc_nodes = parser.parse_with_reexports(&source_file)?;
+  let mut doc_nodes = Vec::with_capacity(1024);
+  for source_file in source_files {
+    let nodes = parser.parse_with_reexports(&source_file)?;
+    doc_nodes.extend_from_slice(&nodes);
+  }
 
   doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
   if let Some(filter) = maybe_filter {
