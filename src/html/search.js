@@ -22,6 +22,17 @@ window.addEventListener("load", function () {
       }
     }
   });
+
+  const emptyPlaceholder = "Click or press 'S' to search...";
+  searchInput.placeholder = emptyPlaceholder;
+
+  searchInput.addEventListener("focus", function () {
+    searchInput.placeholder = "Type your query here...";
+  });
+
+  searchInput.addEventListener("blur", function () {
+    searchInput.placeholder = emptyPlaceholder;
+  });
 });
 
 function debounce(func, delay) {
