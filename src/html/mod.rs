@@ -122,20 +122,23 @@ pub fn generate(
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
   let index =
     render_index(&ctx, &sidepanel_ctx, &partitions, current_symbols.clone())?;
-  files.insert("index".to_string(), index);
+  files.insert("index.html".to_string(), index);
 
   let compound_index =
     render_compound_index(&ctx, doc_nodes_by_url, &partitions)?;
-  files.insert("compound_index".to_string(), compound_index);
+  files.insert("compound_index.html".to_string(), compound_index);
 
-  generate_pages(
+  let generated_pages = generate_pages(
     &ctx,
     &sidepanel_ctx,
     name_partitions,
-    &mut files,
     None,
     current_symbols,
   )?;
+
+  for (file_name, content) in generated_pages {
+    files.insert(file_name, content);
+  }
 
   Ok(files)
 }
@@ -144,13 +147,15 @@ fn generate_pages(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
   name_partitions: IndexMap<String, Vec<DocNode>>,
-  files: &mut HashMap<String, String>,
   base: Option<Vec<String>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
-) -> Result<(), anyhow::Error> {
+) -> Result<Vec<(String, String)>, anyhow::Error> {
+  let mut generated_pages =
+    Vec::with_capacity(name_partitions.values().len() * 2);
+
   for (name, doc_nodes) in name_partitions.iter() {
     let file_name = base.as_ref().map_or(name.to_string(), |base| {
-      format!("{}/{name}", base.join("/"))
+      format!("{}/{name}.html", base.join("/"))
     });
     let symbol_name = base.as_ref().map_or(name.to_string(), |base| {
       format!("{}.{name}", base.join("."))
@@ -164,7 +169,7 @@ fn generate_pages(
       current_symbols.clone(),
     )?;
 
-    files.insert(file_name, page);
+    generated_pages.push((file_name, page));
 
     if let Some(doc_node) = doc_nodes
       .iter()
@@ -182,18 +187,18 @@ fn generate_pages(
         vec![name.to_string()]
       };
 
-      generate_pages(
+      let generated = generate_pages(
         ctx,
         sidepanel_ctx,
         namespace_name_partitions,
-        files,
         Some(new_base),
         current_symbols.clone(),
       )?;
+      generated_pages.extend_from_slice(&generated);
     }
   }
 
-  Ok(())
+  Ok(generated_pages)
 }
 
 fn render_compound_index(

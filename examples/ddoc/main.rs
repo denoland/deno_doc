@@ -163,7 +163,6 @@ fn generate_docs_directory(
   // TODO: make `base_url` configurable?
   let base_url = format!("/{}/", output_dir_relative_str);
 
-  eprintln!("base_url {}", base_url);
   let options = deno_doc::html::GenerateOptions {
     package_name: name,
     base_url,
@@ -190,8 +189,7 @@ fn generate_docs_directory(
   )
   .unwrap();
   for (name, content) in html {
-    let mut this_path = path.join(name);
-    this_path.set_extension("html");
+    let this_path = path.join(name);
     let prefix = this_path.parent().unwrap();
     std::fs::create_dir_all(prefix).unwrap();
     std::fs::write(this_path, content).unwrap();
