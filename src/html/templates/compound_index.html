@@ -12,9 +12,12 @@
 
 {{ for module_doc in module_docs }}
     <section>
-        <h2><pre>{ module_doc.url }</pre></h2>
+        <h2>Module<pre>{ module_doc.url }</pre></h2>
         <pre>{ module_doc.docs }</pre>
     </section>
+    {{ if not @last }}
+        <hr>
+    {{ endif }}
 {{ endfor }}
 
 </main>

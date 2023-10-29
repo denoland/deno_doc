@@ -17,7 +17,6 @@ use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
 use futures::future;
 use indexmap::IndexMap;
-use std::collections::HashMap;
 use std::env::current_dir;
 use std::fs::read_to_string;
 

@@ -495,7 +495,7 @@ fn doc_node_into_search_index_nodes(
 }
 
 pub fn generate_search_index(
-  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   // TODO(bartlomieju): remove
   let doc_nodes = doc_nodes_by_url
