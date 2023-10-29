@@ -12,11 +12,13 @@ pub fn render_symbol_group(
   doc_nodes.sort_by(|a, b| a.kind.cmp(&b.kind));
 
   let mut split_nodes = HashMap::<DocNodeKind, Vec<crate::DocNode>>::default();
-  let mut is_reexport = false;
+  // TODO(bartlomieju): I'm not sure what this meant to do
+  // let mut is_reexport = false;
 
   for doc_node in doc_nodes {
     if doc_node.kind == DocNodeKind::Import {
-      is_reexport = true;
+      // TODO(bartlomieju): I'm not sure what this meant to do
+      // is_reexport = true;
       continue;
     }
 

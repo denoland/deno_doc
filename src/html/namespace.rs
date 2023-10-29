@@ -1,4 +1,5 @@
 use crate::html::util::*;
+use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use std::fmt::Write;
@@ -31,9 +32,8 @@ fn partition_nodes_by_kind_inner(
 
     let entry = partitions.entry(node.kind).or_insert(vec![]);
 
-    if !dedup_overloads {
-      entry.push(node.clone());
-    } else if !entry.iter().any(|n| n.name == node.name) {
+    if !dedup_overloads || !entry.iter().any(|n: &DocNode| n.name == node.name)
+    {
       entry.push(node.clone());
     }
   }
@@ -86,31 +86,30 @@ fn symbol_section(
   doc_nodes: &[crate::DocNode],
   ctx: &RenderContext,
 ) -> String {
-  let content =
-    doc_nodes
-      .into_iter()
-      .fold(String::new(), |mut output, doc_node| {
-        // TODO: linking, tags
+  let content = doc_nodes
+    .iter()
+    .fold(String::new(), |mut output, doc_node| {
+      // TODO: linking, tags
 
-        let (name, path) = ctx.namespace.as_ref().map_or_else(
-          || (doc_node.name.clone(), doc_node.name.clone()),
-          |namespace| {
-            (
-              format!("{namespace}.{}", doc_node.name),
-              format!(
-                "{}/{}",
-                namespace
-                  .rsplit_once('.')
-                  .map_or(&**namespace, |(_prev, current)| current),
-                doc_node.name
-              ),
-            )
-          },
-        );
+      let (name, path) = ctx.namespace.as_ref().map_or_else(
+        || (doc_node.name.clone(), doc_node.name.clone()),
+        |namespace| {
+          (
+            format!("{namespace}.{}", doc_node.name),
+            format!(
+              "{}/{}",
+              namespace
+                .rsplit_once('.')
+                .map_or(&**namespace, |(_prev, current)| current),
+              doc_node.name
+            ),
+          )
+        },
+      );
 
-        write!(
-          output,
-          r#"<tr>
+      write!(
+        output,
+        r#"<tr>
       <td class="symbol_section_symbol">
         <div>
           {}
@@ -121,12 +120,12 @@ fn symbol_section(
       {}
       </td>
       </tr>"#,
-          doc_node_kind_icon(doc_node.kind),
-          super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx),
-        )
-        .unwrap();
-        output
-      });
+        doc_node_kind_icon(doc_node.kind),
+        super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx),
+      )
+      .unwrap();
+      output
+    });
 
   format!(
     r#"<div>{}<table class="symbol_section">{content}</table></div>"#,

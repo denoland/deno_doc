@@ -53,6 +53,7 @@ struct GenerateCtx<'ctx> {
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
+  #[allow(dead_code)]
   fn url(&self, path: String) -> String {
     format!("{}{}", self.base_url, path)
   }
@@ -108,8 +109,8 @@ pub fn generate(
   // TODO(bartlomieju): remove
   let doc_nodes = doc_nodes_by_url
     .values()
-    .cloned()
     .flatten()
+    .cloned()
     .collect::<Vec<_>>();
 
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
@@ -124,7 +125,7 @@ pub fn generate(
   files.insert("index".to_string(), index);
 
   let compound_index =
-    render_compound_index(&ctx, &doc_nodes_by_url, &partitions)?;
+    render_compound_index(&ctx, doc_nodes_by_url, &partitions)?;
   files.insert("compound_index".to_string(), compound_index);
 
   generate_pages(
@@ -219,8 +220,7 @@ fn render_compound_index(
         .iter()
         .find(|node| node.kind == DocNodeKind::ModuleDoc);
       let docs_md = docs
-        .map(|node| node.js_doc.doc.clone())
-        .flatten()
+        .and_then(|node| node.js_doc.doc.clone())
         .unwrap_or_default();
       let rendered_docs = markdown_to_html(
         &docs_md,
@@ -266,7 +266,7 @@ fn render_index(
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
   let content = namespace::doc_node_kind_sections(
-    &partitions,
+    partitions,
     &RenderContext {
       additional_css: Rc::new(RefCell::new("".to_string())),
       namespace: None,
@@ -500,8 +500,8 @@ pub fn generate_search_index(
   // TODO(bartlomieju): remove
   let doc_nodes = doc_nodes_by_url
     .values()
-    .cloned()
     .flatten()
+    .cloned()
     .collect::<Vec<_>>();
 
   let doc_nodes = doc_nodes.iter().fold(

@@ -29,7 +29,7 @@ fn parse_links<'a>(
         ("", value)
       };
 
-    let (title, link) = if let Some(href) = ctx.lookup_symbol_href(&link) {
+    let (title, link) = if let Some(href) = ctx.lookup_symbol_href(link) {
       let title = if title.is_empty() { link } else { title };
 
       (title, href)
