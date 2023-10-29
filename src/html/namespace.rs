@@ -56,7 +56,7 @@ fn partition_nodes_by_kind_inner(
     .collect()
 }
 
-pub fn partition_nodes_by_kind_with_dedup(
+pub fn partition_nodes_by_kind_dedup_overloads(
   doc_nodes: &[crate::DocNode],
 ) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
   partition_nodes_by_kind_inner(doc_nodes, true)

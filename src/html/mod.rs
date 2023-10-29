@@ -116,7 +116,7 @@ pub fn generate(
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
   let partitions_by_kind =
-    namespace::partition_nodes_by_kind_with_dedup(&doc_nodes);
+    namespace::partition_nodes_by_kind_dedup_overloads(&doc_nodes);
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
 
   // Index page (list of all symbols in all files)
