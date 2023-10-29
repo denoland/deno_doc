@@ -114,7 +114,7 @@ pub fn generate(
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
   // FIXME(bartlomieju): functions can have duplicates because of overloads
-  let partitions = namespace::partition_nodes_by_kind(&doc_nodes);
+  let partitions = namespace::partition_nodes_by_kind_with_dedup(&doc_nodes);
   let name_partitions = partition_nodes_by_name(&doc_nodes);
 
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
@@ -213,10 +213,17 @@ fn render_compound_index(
 
   let module_docs = doc_nodes_by_url
     .iter()
-    .map(|(url, _nodes)| {
+    .map(|(url, nodes)| {
+      let docs = nodes
+        .iter()
+        .find(|node| node.kind == DocNodeKind::ModuleDoc);
+      let docs_str = docs
+        .map(|node| node.js_doc.doc.clone())
+        .flatten()
+        .unwrap_or_default();
       json!({
         "url": url.as_str(),
-        "docs": "TODO(crowlKats) acquire jsdoc here for a module"
+        "docs": docs_str,
       })
     })
     .collect::<Vec<_>>();

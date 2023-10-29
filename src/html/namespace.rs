@@ -18,8 +18,9 @@ pub fn render_namespace(
   )
 }
 
-pub fn partition_nodes_by_kind(
+fn partition_nodes_by_kind_inner(
   doc_nodes: &[crate::DocNode],
+  dedup_overloads: bool,
 ) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
   let mut partitions = IndexMap::default();
 
@@ -28,10 +29,13 @@ pub fn partition_nodes_by_kind(
       continue;
     }
 
-    partitions
-      .entry(node.kind)
-      .or_insert(vec![])
-      .push(node.clone());
+    let entry = partitions.entry(node.kind).or_insert(vec![]);
+
+    if !dedup_overloads {
+      entry.push(node.clone());
+    } else if !entry.iter().any(|n| n.name == node.name) {
+      entry.push(node.clone());
+    }
   }
 
   for (_kind, nodes) in partitions.iter_mut() {
@@ -39,6 +43,18 @@ pub fn partition_nodes_by_kind(
   }
 
   partitions
+}
+
+pub fn partition_nodes_by_kind_with_dedup(
+  doc_nodes: &[crate::DocNode],
+) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
+  partition_nodes_by_kind_inner(doc_nodes, true)
+}
+
+pub fn partition_nodes_by_kind(
+  doc_nodes: &[crate::DocNode],
+) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
+  partition_nodes_by_kind_inner(doc_nodes, true)
 }
 
 pub fn doc_node_kind_sections(
