@@ -44,14 +44,10 @@ fn partition_nodes_by_kind_inner(
   }
 
   partitions
-    .sorted_by(|key1, _value1, key2, _value2| {
-      if key1 > key2 {
-        return Ordering::Greater;
-      } else if key1 < key2 {
-        return Ordering::Less;
-      }
-
-      unreachable!()
+    .sorted_by(|key1, _value1, key2, _value2| match key1.cmp(key2) {
+      Ordering::Greater => Ordering::Greater,
+      Ordering::Less => Ordering::Less,
+      Ordering::Equal => unreachable!(),
     })
     .collect()
 }
