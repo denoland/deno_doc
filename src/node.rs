@@ -24,15 +24,17 @@ pub struct NamespaceDef {
 )]
 #[serde(rename_all = "camelCase")]
 pub enum DocNodeKind {
-  ModuleDoc,
-  Function,
-  Variable,
+  // NOTE(bartlomieju): Because of `derive(Ord), we must keep the variants
+  // in an alphabetical order.
   Class,
   Enum,
-  Interface,
-  TypeAlias,
-  Namespace,
+  Function,
   Import,
+  Interface,
+  ModuleDoc,
+  Namespace,
+  TypeAlias,
+  Variable,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]

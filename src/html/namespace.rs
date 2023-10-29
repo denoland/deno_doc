@@ -2,6 +2,7 @@ use crate::html::util::*;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
+use std::cmp::Ordering;
 use std::fmt::Write;
 
 pub fn render_namespace(
@@ -23,7 +24,7 @@ fn partition_nodes_by_kind_inner(
   doc_nodes: &[crate::DocNode],
   dedup_overloads: bool,
 ) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
-  let mut partitions = IndexMap::default();
+  let mut partitions: IndexMap<DocNodeKind, Vec<DocNode>> = IndexMap::default();
 
   for node in doc_nodes {
     if node.kind == DocNodeKind::ModuleDoc {
@@ -43,6 +44,16 @@ fn partition_nodes_by_kind_inner(
   }
 
   partitions
+    .sorted_by(|key1, _value1, key2, _value2| {
+      if key1 > key2 {
+        return Ordering::Greater;
+      } else if key1 < key2 {
+        return Ordering::Less;
+      }
+
+      unreachable!()
+    })
+    .collect()
 }
 
 pub fn partition_nodes_by_kind_with_dedup(
