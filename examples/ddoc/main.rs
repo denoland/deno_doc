@@ -49,8 +49,13 @@ impl Loader for SourceFileLoader {
 
 async fn run() -> anyhow::Result<()> {
   let matches = App::new("ddoc")
-    .arg(Arg::with_name("html").long("html").requires_all(&["name"]))
+    .arg(
+      Arg::with_name("html")
+        .long("html")
+        .requires_all(&["name", "output"]),
+    )
     .arg(Arg::with_name("name").long("name").takes_value(true))
+    .arg(Arg::with_name("output").long("output").takes_value(true))
     .arg(Arg::with_name("source_files").required(true).multiple(true))
     .arg(
       Arg::with_name("filter")
@@ -63,6 +68,11 @@ async fn run() -> anyhow::Result<()> {
   let html = matches.is_present("html");
   let name = if html {
     matches.value_of("name").unwrap().to_string()
+  } else {
+    "".to_string()
+  };
+  let output_dir = if html {
+    matches.value_of("output").unwrap().to_string()
   } else {
     "".to_string()
   };
@@ -101,7 +111,7 @@ async fn run() -> anyhow::Result<()> {
       let nodes = parser.parse_with_reexports(&source_file)?;
       doc_nodes_by_url.insert(source_file, nodes);
     }
-    generate_docs_directory(name, &doc_nodes_by_url)?;
+    generate_docs_directory(name, output_dir, &doc_nodes_by_url)?;
     return Ok(());
   }
 
@@ -134,24 +144,33 @@ fn main() {
 
 fn generate_docs_directory(
   name: String,
+  output_dir: String,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
 ) -> Result<(), anyhow::Error> {
+  let cwd = std::env::current_dir().unwrap();
+  let output_dir_resolved = cwd.join(output_dir);
+  let output_dir_relative = output_dir_resolved.strip_prefix(&cwd).unwrap();
+  let mut output_dir_relative_str =
+    output_dir_relative.to_string_lossy().to_string();
+  output_dir_relative_str = output_dir_relative_str
+    .strip_prefix('/')
+    .unwrap_or(&output_dir_relative_str)
+    .to_string();
+  output_dir_relative_str = output_dir_relative_str
+    .strip_suffix('/')
+    .unwrap_or(&output_dir_relative_str)
+    .to_string();
+  // TODO: make `base_url` configurable?
+  let base_url = format!("/{}/", output_dir_relative_str);
+
+  eprintln!("base_url {}", base_url);
   let options = deno_doc::html::GenerateOptions {
     package_name: name,
-    // TODO: don't hardcode the path
-    base_url: "/generated_docs/".to_string(),
+    base_url,
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 
-  // TODO: don't hardcode the path
-  let base_path = format!(
-    "./{}",
-    &options
-      .base_url
-      .strip_prefix('/')
-      .unwrap_or(&options.base_url)
-  );
-  let path = std::path::Path::new(&base_path);
+  let path = &output_dir_resolved;
   let _ = std::fs::remove_dir_all(path);
   std::fs::create_dir(path)?;
 
