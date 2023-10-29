@@ -90,7 +90,8 @@ async fn run() -> anyhow::Result<()> {
       },
     )
     .await;
-  let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
+
+  let parser = DocParser::new(&graph, private, analyzer.as_capturing_parser())?;
 
   if html {
     let mut source_files = source_files.clone();

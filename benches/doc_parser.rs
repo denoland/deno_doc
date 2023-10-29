@@ -40,7 +40,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       },
     )
     .await;
-  DocParser::new(graph, false, analyzer.as_capturing_parser())
+  DocParser::new(&graph, false, analyzer.as_capturing_parser())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap()
