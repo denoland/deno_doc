@@ -147,7 +147,38 @@ pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
     DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
   };
 
+  // TODO: already a template, dedupe
   format!(
     r#"<div class="symbol_kind kind_{kind:?}_text kind_{kind:?}_bg" title="{title}">{char}</div>"#
   )
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct DocNodeKindCtx {
+  kind: String,
+  char: char,
+  title: &'static str,
+  title_plural: &'static str,
+}
+
+impl From<&DocNodeKind> for DocNodeKindCtx {
+  fn from(kind: &DocNodeKind) -> Self {
+    let (char, title, title_plural) = match kind {
+      DocNodeKind::Function => ('f', "Function", "Functions"),
+      DocNodeKind::Variable => ('v', "Variable", "Variables"),
+      DocNodeKind::Class => ('c', "Class", "Classes"),
+      DocNodeKind::Enum => ('E', "Enum", "Enums"),
+      DocNodeKind::Interface => ('I', "Interface", "Interfaces"),
+      DocNodeKind::TypeAlias => ('T', "Type Alias", "Type Aliases"),
+      DocNodeKind::Namespace => ('N', "Namespace", "Namespaces"),
+      DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
+    };
+
+    Self {
+      kind: format!("{kind:?}"),
+      char,
+      title,
+      title_plural,
+    }
+  }
 }

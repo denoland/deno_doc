@@ -1,6 +1,9 @@
 html {
     font-family: sans-serif;
 }
+body {
+  margin: 0;
+}
 p {
   margin: 0;
 }
@@ -18,8 +21,28 @@ a {
   color: rgb(96 165 250);
 }
 #sidepanel {
-    border-right: 1px solid;
-    padding: 3px;
+  flex-shrink: 0;
+  background-color: rgb(243 244 246);
+  padding: 12px 0 12px 12px;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  width: fit-content;
+  overflow-y: scroll;
+  position: sticky;
+  box-sizing: border-box;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+}
+#sidepanel li {
+  display: block;
+}
+#sidepanel a {
+  display: block;
+  padding: 4px;
+}
+#sidepanel a:hover {
+  background-color: white;
 }
 #searchbar {
   width: 100%;

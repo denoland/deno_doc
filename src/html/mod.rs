@@ -91,6 +91,10 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     "compound_sidepanel.html",
     include_str!("./templates/compound_sidepanel.html"),
   )?;
+  tt.add_template(
+    "doc_node_kind_icon.html",
+    include_str!("./templates/doc_node_kind_icon.html"),
+  )?;
   Ok(tt)
 }
 
@@ -415,7 +419,7 @@ struct SidepanelPartitionNode {
 
 #[derive(Debug, Serialize)]
 struct SidepanelPartition {
-  kind: String,
+  kind: util::DocNodeKindCtx,
   doc_nodes: Vec<SidepanelPartitionNode>,
 }
 
@@ -433,7 +437,7 @@ fn sidepanel_render_ctx(
   let mut partitions: Vec<SidepanelPartition> = partitions
     .into_iter()
     .map(|(kind, doc_nodes)| SidepanelPartition {
-      kind: format!("{:?}", kind),
+      kind: kind.into(),
       doc_nodes: doc_nodes
         .iter()
         .map(|doc_node| SidepanelPartitionNode {

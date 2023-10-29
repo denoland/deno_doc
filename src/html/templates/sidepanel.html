@@ -1,8 +1,8 @@
 <div id="sidepanel">
     <h2><a href="{base_url}">{package_name}</a></h2>
     {{ for partition in partitions }}
-        <h3>{partition.kind}</h3>
-        <ul>
+        <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">{{ call doc_node_kind_icon.html with partition.kind }}<h3 class="kind_{partition.kind.kind}_text" style="margin: 0; line-height: 1;">{partition.kind.title_plural}</h3></div>
+        <ul style="list-style: none; padding-left: 16px;">
         {{ for doc_node in partition.doc_nodes }}
             <li>
                 <a href="{doc_node.url}">{doc_node.name}</a>
