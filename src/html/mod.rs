@@ -447,7 +447,7 @@ fn sidepanel_render_ctx(
         .collect::<Vec<_>>(),
     })
     .collect();
-  partitions.sort_by_key(|part| part.kind.to_string());
+  partitions.sort_by_key(|part| part.kind.kind.clone());
 
   SidepanelRenderCtx {
     base_url: ctx.base_url.to_string(),
