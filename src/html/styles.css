@@ -3,6 +3,14 @@ html {
 }
 body {
   margin: 0;
+  background-color: rgb(231 229 228);
+  display: flex;
+}
+#content {
+  padding: 30px;
+  width: 100%;
+  background-color: white;
+  border-radius: 10px 0 0 10px;
 }
 p {
   margin: 0;
@@ -22,28 +30,61 @@ a {
 }
 #sidepanel {
   flex-shrink: 0;
-  background-color: rgb(243 244 246);
+  background-color: rgb(231 229 228);
   padding: 12px 0 12px 12px;
   height: 100vh;
+  width: fit-content;
+  max-width: 22%;
   top: 0;
   left: 0;
-  width: fit-content;
   overflow-y: scroll;
   position: sticky;
   box-sizing: border-box;
   overscroll-behavior-y: contain;
   scrollbar-width: thin;
 }
+#sidepanel ul {
+  list-style: none;
+  padding-left: 16px;
+}
 #sidepanel li {
   display: block;
+  margin: -2px 0;
 }
 #sidepanel a {
   display: block;
-  padding: 4px;
+  padding: 8px 16px 8px 8px;
+  border-radius: 10px 0 0 10px;
+  position: relative;
 }
 #sidepanel a:hover {
   background-color: white;
 }
+#sidepanel a:hover::before {
+  content: "";
+  position: absolute;
+
+  background-color: transparent;
+  top: -20px;
+  right: 0;
+  height: 20px;
+  width: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 10px 0 0 white;
+}
+#sidepanel a:hover::after {
+  content: "";
+  position: absolute;
+
+  background-color: transparent;
+  bottom: -20px;
+  right: 0;
+  height: 20px;
+  width: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: 0 -10px 0 0 white;
+}
+
 #searchbar {
   width: 100%;
 }

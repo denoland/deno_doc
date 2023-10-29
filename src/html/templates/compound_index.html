@@ -1,25 +1,25 @@
 {{ call html_head.html with html_head }}
-<div style="display: flex;">
-    {{ call compound_sidepanel.html with sidepanel }}
-    <div style="padding: 30px; width: 100%;">
-        <h1>Index</h1>
-    <div>
-    {search_bar}
-</div>
 
-<main>
-{#- TODO(bartlomieju): call into template here #}
+{{ call compound_sidepanel.html with sidepanel }}
 
-{{ for module_doc in module_docs }}
+<div id="content">
+  <h1>Index</h1>
+  {search_bar}
+  <main>
+    {#- TODO(bartlomieju): call into template here #}
+
+    {{ for module_doc in module_docs }}
     <section>
-        <h2>Module<pre>{ module_doc.url }</pre></h2>
+      <h2>Module<pre>{ module_doc.url }</pre></h2>
       { module_doc.docs }
     </section>
     {{ if not @last }}
-        <hr>
+    <hr>
     {{ endif }}
-{{ endfor }}
+    {{ endfor }}
 
-</main>
-<div id="searchResults"></div>
+  </main>
+  <div id="searchResults"></div>
+<div>
+
 {{ call html_tail.html with html_tail }}
