@@ -95,6 +95,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     "doc_node_kind_icon.html",
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
+  tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
   Ok(tt)
 }
 
@@ -342,6 +343,12 @@ fn partition_nodes_by_name(
       .push(node.clone());
   }
 
+  for val in partitions.values_mut() {
+    val.sort_by_key(|n| n.name.to_string());
+  }
+
+  partitions.sort_by(|k1, _v1, k2, _v2| k1.cmp(k2));
+
   partitions
 }
 
@@ -378,7 +385,7 @@ fn render_page(
   doc_nodes: &[DocNode],
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let context = RenderContext {
+  let render_ctx = RenderContext {
     additional_css: Rc::new(RefCell::new("".to_string())),
     namespace: name
       .rsplit_once('.')
@@ -387,9 +394,8 @@ fn render_page(
     current_type_params: Default::default(),
   };
 
-  // FIXME: don't clone here
-  let symbol_group =
-    symbol::render_symbol_group(doc_nodes.to_vec(), name, &context);
+  // NOTE: `doc_nodes` should be sorted at this point.
+  let symbol_group = symbol::render_symbol_group(doc_nodes, name, &render_ctx);
 
   Ok(ctx.tt.render(
     "page.html",

@@ -1,16 +1,15 @@
 use super::types::render_type_def;
 use super::util::RenderContext;
+use crate::DocNode;
 use crate::DocNodeKind;
 use std::collections::HashMap;
 use std::fmt::Write;
 
 pub fn render_symbol_group(
-  mut doc_nodes: Vec<crate::DocNode>,
+  doc_nodes: &[DocNode],
   name: &str,
   context: &RenderContext,
 ) -> String {
-  doc_nodes.sort_by(|a, b| a.kind.cmp(&b.kind));
-
   let mut split_nodes = HashMap::<DocNodeKind, Vec<crate::DocNode>>::default();
   // TODO(bartlomieju): I'm not sure what this meant to do
   // let mut is_reexport = false;
@@ -25,7 +24,7 @@ pub fn render_symbol_group(
     split_nodes
       .entry(doc_node.kind)
       .or_insert(vec![])
-      .push(doc_node);
+      .push(doc_node.clone());
   }
 
   // TODO: property drilldown
