@@ -7,6 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
+use crate::html::jsdoc::markdown_to_html;
 use crate::html::util::RenderContext;
 use crate::node::Location;
 use crate::{DocNode, DocNodeKind};
@@ -94,7 +95,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
 
 pub fn generate(
   options: GenerateOptions,
-  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
@@ -196,7 +197,7 @@ fn generate_pages(
 
 fn render_compound_index(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
@@ -217,13 +218,24 @@ fn render_compound_index(
       let docs = nodes
         .iter()
         .find(|node| node.kind == DocNodeKind::ModuleDoc);
-      let docs_str = docs
+      let docs_md = docs
         .map(|node| node.js_doc.doc.clone())
         .flatten()
         .unwrap_or_default();
+      let rendered_docs = markdown_to_html(
+        &docs_md,
+        false,
+        &RenderContext {
+          additional_css: Rc::new(RefCell::new("".to_string())),
+          namespace: None,
+          current_symbols: Default::default(),
+          current_type_params: Default::default(),
+        },
+      );
+
       json!({
         "url": url.as_str(),
-        "docs": docs_str,
+        "docs": rendered_docs,
       })
     })
     .collect::<Vec<_>>();

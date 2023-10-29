@@ -16,6 +16,7 @@ use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use futures::executor::block_on;
 use futures::future;
+use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::env::current_dir;
 use std::fs::read_to_string;
@@ -93,7 +94,9 @@ async fn run() -> anyhow::Result<()> {
   let parser = DocParser::new(graph, private, analyzer.as_capturing_parser())?;
 
   if html {
-    let mut doc_nodes_by_url = HashMap::with_capacity(source_files.len());
+    let mut source_files = source_files.clone();
+    source_files.sort();
+    let mut doc_nodes_by_url = IndexMap::with_capacity(source_files.len());
     for source_file in source_files {
       let nodes = parser.parse_with_reexports(&source_file)?;
       doc_nodes_by_url.insert(source_file, nodes);
@@ -131,7 +134,7 @@ fn main() {
 
 fn generate_docs_directory(
   name: String,
-  doc_nodes_by_url: &HashMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
 ) -> Result<(), anyhow::Error> {
   let options = deno_doc::html::GenerateOptions {
     package_name: name,
