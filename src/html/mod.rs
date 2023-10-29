@@ -115,21 +115,35 @@ pub fn generate(
 
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
-  let partitions = namespace::partition_nodes_by_kind_with_dedup(&doc_nodes);
-  let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
-  let index =
-    render_index(&ctx, &sidepanel_ctx, &partitions, current_symbols.clone())?;
-  files.insert("index.html".to_string(), index);
+  let partitions_by_kind =
+    namespace::partition_nodes_by_kind_with_dedup(&doc_nodes);
+  let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
 
-  let compound_index =
-    render_compound_index(&ctx, doc_nodes_by_url, &partitions)?;
-  files.insert("compound_index.html".to_string(), compound_index);
+  // Index page (list of all symbols in all files)
+  {
+    let index = render_index(
+      &ctx,
+      &sidepanel_ctx,
+      &partitions_by_kind,
+      current_symbols.clone(),
+    )?;
+    files.insert("index.html".to_string(), index);
+  }
 
-  let generated_pages =
-    generate_pages(&ctx, &sidepanel_ctx, &doc_nodes, current_symbols)?;
+  // "Compound index" page (list of all files and symbol kinds)
+  {
+    let compound_index =
+      render_compound_index(&ctx, doc_nodes_by_url, &partitions_by_kind)?;
+    files.insert("compound_index.html".to_string(), compound_index);
+  }
 
-  for (file_name, content) in generated_pages {
-    files.insert(file_name, content);
+  // Pages for all discovered symbols
+  {
+    let generated_pages =
+      generate_pages(&ctx, &sidepanel_ctx, &doc_nodes, current_symbols)?;
+    for (file_name, content) in generated_pages {
+      files.insert(file_name, content);
+    }
   }
 
   Ok(files)
