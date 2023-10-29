@@ -115,10 +115,7 @@ pub fn generate(
 
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
-  // FIXME(bartlomieju): functions can have duplicates because of overloads
   let partitions = namespace::partition_nodes_by_kind_with_dedup(&doc_nodes);
-  let name_partitions = partition_nodes_by_name(&doc_nodes);
-
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions);
   let index =
     render_index(&ctx, &sidepanel_ctx, &partitions, current_symbols.clone())?;
@@ -128,13 +125,8 @@ pub fn generate(
     render_compound_index(&ctx, doc_nodes_by_url, &partitions)?;
   files.insert("compound_index.html".to_string(), compound_index);
 
-  let generated_pages = generate_pages(
-    &ctx,
-    &sidepanel_ctx,
-    name_partitions,
-    None,
-    current_symbols,
-  )?;
+  let generated_pages =
+    generate_pages(&ctx, &sidepanel_ctx, &doc_nodes, current_symbols)?;
 
   for (file_name, content) in generated_pages {
     files.insert(file_name, content);
@@ -143,7 +135,7 @@ pub fn generate(
   Ok(files)
 }
 
-fn generate_pages(
+fn generate_pages_inner(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
   name_partitions: IndexMap<String, Vec<DocNode>>,
@@ -187,7 +179,7 @@ fn generate_pages(
         vec![name.to_string()]
       };
 
-      let generated = generate_pages(
+      let generated = generate_pages_inner(
         ctx,
         sidepanel_ctx,
         namespace_name_partitions,
@@ -199,6 +191,23 @@ fn generate_pages(
   }
 
   Ok(generated_pages)
+}
+
+fn generate_pages(
+  ctx: &GenerateCtx,
+  sidepanel_ctx: &SidepanelRenderCtx,
+  doc_nodes: &[DocNode],
+  current_symbols: Rc<HashSet<Vec<String>>>,
+) -> Result<Vec<(String, String)>, anyhow::Error> {
+  let name_partitions = partition_nodes_by_name(doc_nodes);
+
+  generate_pages_inner(
+    ctx,
+    sidepanel_ctx,
+    name_partitions,
+    None,
+    current_symbols,
+  )
 }
 
 fn render_compound_index(
