@@ -114,7 +114,7 @@ impl DiagnosticsState {
     &mut self,
     module: &EsmModuleSymbol,
     symbol_id: SymbolId,
-    range: &SourceRange,
+    node_ref: SymbolNodeRef,
   ) {
     let unique_id = UniqueSymbolId {
       module_id: module.module_id(),
@@ -123,11 +123,44 @@ impl DiagnosticsState {
     if self.private_types_in_public.insert(unique_id) {
       self.diagnostics.push(DocDiagnostic {
         specifier: module.specifier().clone(),
-        range: *range,
+        range: get_ident_range_of_node(node_ref),
         kind: DocDiagnosticKind::PrivateTypeRef,
         source: module.source().text_info().clone(),
       })
     }
+  }
+}
+
+fn get_ident_range_of_node(node_ref: SymbolNodeRef) -> SourceRange {
+  match node_ref {
+    SymbolNodeRef::ClassDecl(n) => n.ident.range(),
+    SymbolNodeRef::ExportDecl(_, n) => match n {
+      ExportDeclRef::Class(n) => n.ident.range(),
+      ExportDeclRef::Fn(n) => n.ident.range(),
+      ExportDeclRef::Var(_, _, ident) => ident.range(),
+      ExportDeclRef::TsEnum(n) => n.id.range(),
+      ExportDeclRef::TsInterface(n) => n.id.range(),
+      ExportDeclRef::TsModule(n) => n.id.range(),
+      ExportDeclRef::TsTypeAlias(n) => n.id.range(),
+    },
+    SymbolNodeRef::ExportDefaultDecl(n) => match &n.decl {
+      DefaultDecl::Class(n) => match &n.ident {
+        Some(n) => n.range(),
+        None => SourceRange::new(n.start(), n.start() + "default".len()),
+      },
+      DefaultDecl::Fn(n) => match &n.ident {
+        Some(n) => n.range(),
+        None => SourceRange::new(n.start(), n.start() + "default".len()),
+      },
+      DefaultDecl::TsInterfaceDecl(n) => n.id.range(),
+    },
+    SymbolNodeRef::ExportDefaultExprLit(_, lit) => lit.range(),
+    SymbolNodeRef::FnDecl(n) => n.ident.range(),
+    SymbolNodeRef::TsEnum(n) => n.id.range(),
+    SymbolNodeRef::TsInterface(n) => n.id.range(),
+    SymbolNodeRef::TsNamespace(n) => n.id.range(),
+    SymbolNodeRef::TsTypeAlias(n) => n.id.range(),
+    SymbolNodeRef::Var(_, _, ident) => ident.range(),
   }
 }
 
@@ -170,18 +203,29 @@ struct Import {
   kind: ImportKind,
 }
 
+#[derive(Default, Clone)]
+pub struct DocParserOptions {
+  /// Whether diagnostics should be collected.
+  pub diagnostics: bool,
+  /// Included private nodes in the output.
+  ///
+  /// Note: Private nodes that are referenced by public nodes
+  /// are always included.
+  pub private: bool,
+}
+
 pub struct DocParser<'a> {
   graph: &'a ModuleGraph,
   private: bool,
   root_symbol: deno_graph::type_tracer::RootSymbol,
-  diagnostics: RefCell<DiagnosticsState>,
+  diagnostics: Option<RefCell<DiagnosticsState>>,
 }
 
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    private: bool,
-    parser: CapturingModuleParser,
+    parser: CapturingModuleParser<'a>,
+    options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
     struct NullTypeTraceHandler;
 
@@ -202,18 +246,30 @@ impl<'a> DocParser<'a> {
 
     Ok(DocParser {
       graph,
-      private,
+      private: options.private,
       root_symbol,
-      diagnostics: Default::default(),
+      diagnostics: if options.diagnostics {
+        Some(Default::default())
+      } else {
+        None
+      },
     })
   }
 
   /// Gets diagnostics found during any of the previous parses.
   pub fn take_diagnostics(&self) -> Vec<DocDiagnostic> {
-    let mut diagnostics = self.diagnostics.borrow_mut();
-    let inner = std::mem::take(&mut diagnostics.diagnostics);
-    *diagnostics = Default::default(); // reset
-    inner
+    if let Some(diagnostics) = &self.diagnostics {
+      let mut diagnostics = diagnostics.borrow_mut();
+      let inner = std::mem::take(&mut diagnostics.diagnostics);
+      *diagnostics = Default::default(); // reset
+      inner
+    } else {
+      debug_assert!(
+        self.diagnostics.is_some(),
+        "diagnostics were not enabled, but they were taken"
+      );
+      Vec::new()
+    }
   }
 
   /// Parses a module into a list of exported items,
@@ -302,15 +358,11 @@ impl<'a> DocParser<'a> {
     };
 
     match module {
-      Module::Json(module) => Ok(
-        parse_json_module_doc_node(&module.specifier, &module.source)
-          .map(|n| vec![n])
-          .unwrap_or_default(),
-      ),
-      Module::Esm(module) => {
-        let module_doc = self.parse_module(&module.specifier)?;
+      Module::Esm(_) | Module::Json(_) => {
+        let module_symbol = self.get_module_symbol(module.specifier())?;
+        let module_doc_nodes =
+          self.get_doc_nodes_for_module_symbol(module_symbol)?;
         let mut flattened_docs = Vec::new();
-        let module_symbol = self.get_module_symbol(&module.specifier)?;
         let exports = module_symbol.exports(self.graph, &self.root_symbol);
         for (export_name, (export_module, export_symbol_id)) in exports {
           let export_symbol = export_module.symbol(export_symbol_id).unwrap();
@@ -376,7 +428,7 @@ impl<'a> DocParser<'a> {
           }
         }
 
-        flattened_docs.extend(module_doc.definitions);
+        flattened_docs.extend(module_doc_nodes);
         Ok(flattened_docs)
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(vec![]),
@@ -672,11 +724,13 @@ impl<'a> DocParser<'a> {
                 node,
               ) {
                 if is_public {
-                  self.diagnostics.borrow_mut().add_private_type_in_public(
-                    module_symbol,
-                    symbol.symbol_id(),
-                    &decl.range,
-                  );
+                  if let Some(diagnostics) = &self.diagnostics {
+                    diagnostics.borrow_mut().add_private_type_in_public(
+                      module_symbol,
+                      symbol.symbol_id(),
+                      node,
+                    );
+                  }
                 }
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
@@ -963,14 +1017,24 @@ impl<'a> DocParser<'a> {
     &self,
     module_symbol: ModuleSymbolRef,
   ) -> Result<Vec<DocNode>, DocError> {
-    let Some(module_symbol) = module_symbol.esm() else {
-      return Ok(Vec::new());
-    };
-    let mut definitions =
-      self.get_doc_nodes_for_module_symbol_body(module_symbol);
-    definitions.extend(self.get_doc_nodes_for_module_imports(module_symbol)?);
+    match module_symbol {
+      ModuleSymbolRef::Json(module) => Ok(
+        parse_json_module_doc_node(
+          module.specifier(),
+          module.text_info().text_str(),
+        )
+        .map(|n| vec![n])
+        .unwrap_or_default(),
+      ),
+      ModuleSymbolRef::Esm(module_symbol) => {
+        let mut definitions =
+          self.get_doc_nodes_for_module_symbol_body(module_symbol);
+        definitions
+          .extend(self.get_doc_nodes_for_module_imports(module_symbol)?);
 
-    Ok(definitions)
+        Ok(definitions)
+      }
+    }
   }
 
   fn get_doc_nodes_for_module_symbol_body(
@@ -1038,11 +1102,13 @@ impl<'a> DocParser<'a> {
                 node,
               ) {
                 if is_public {
-                  self.diagnostics.borrow_mut().add_private_type_in_public(
-                    module_symbol,
-                    child_symbol.symbol_id(),
-                    &decl.range,
-                  );
+                  if let Some(diagnostics) = &self.diagnostics {
+                    diagnostics.borrow_mut().add_private_type_in_public(
+                      module_symbol,
+                      child_symbol.symbol_id(),
+                      node,
+                    );
+                  }
                 }
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare

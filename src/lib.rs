@@ -42,6 +42,7 @@ cfg_if! {
     mod printer;
     pub use parser::DocError;
     pub use parser::DocParser;
+    pub use parser::DocParserOptions;
     pub use printer::DocPrinter;
   }
 }

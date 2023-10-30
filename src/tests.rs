@@ -1,6 +1,7 @@
 // Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
 
 use crate::parser::DocParser;
+use crate::parser::DocParserOptions;
 use crate::printer::DocPrinter;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
@@ -91,7 +92,11 @@ macro_rules! doc_test {
       let (graph, analyzer, specifier) = setup("file:///test.ts", vec![
         ("file:///test.ts", None, source_code)
       ]).await;
-      let parser = DocParser::new(&graph, private, analyzer.as_capturing_parser()).unwrap();
+      let parser = DocParser::new(
+        &graph,
+        analyzer.as_capturing_parser(),
+        DocParserOptions { private, diagnostics: true }
+      ).unwrap();
       let entries = parser
         .parse(&specifier)
         .unwrap();
@@ -193,10 +198,14 @@ async fn content_type_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&root)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&root)
+  .unwrap();
   assert_eq!(entries.len(), 1);
 }
 
@@ -240,10 +249,14 @@ async fn types_header_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&root)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&root)
+  .unwrap();
   assert_eq!(
     serde_json::to_value(&entries).unwrap(),
     json!([{
@@ -312,10 +325,14 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -440,10 +457,14 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -509,10 +530,14 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -565,10 +590,14 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let actual = serde_json::to_value(&entries).unwrap();
   let expected = json!([
@@ -656,10 +685,14 @@ export namespace Deno {
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse(&specifier)
+  .unwrap();
 
   // Namespace
   let found =
@@ -743,10 +776,14 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -803,10 +840,14 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -864,10 +905,14 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -924,10 +969,17 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, true, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions {
+      private: true,
+      diagnostics: false,
+    },
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -979,10 +1031,14 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 }
 
 #[tokio::test]
@@ -996,10 +1052,14 @@ async fn json_module() {
   )
   .await;
 
-  let entries = DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&specifier)
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -3685,7 +3745,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
       "indexSignatures": [],
       "typeParams": [],
     }
-  }], vec!["file:///test.ts:2:1 PrivateTypeRef"]);
+  }], vec!["file:///test.ts:2:11 PrivateTypeRef"]);
 
   json_test!(export_interface,
         r#"
@@ -3828,8 +3888,8 @@ export interface Reader extends Foo, Bar {
         "typeParams": [],
     }
   }], vec![
-    "file:///test.ts:2:1 PrivateTypeRef",
-    "file:///test.ts:4:1 PrivateTypeRef"
+    "file:///test.ts:2:11 PrivateTypeRef",
+    "file:///test.ts:4:11 PrivateTypeRef"
   ]);
 
   json_test!(export_interface2,
