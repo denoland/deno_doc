@@ -111,8 +111,7 @@ macro_rules! doc_test {
         .take_diagnostics()
         .into_iter()
         .map(|d| {
-          let line_and_column = d.line_and_column_display();
-          format!("{}:{}:{} {:?}", d.specifier, line_and_column.line_number, line_and_column.column_number, d.kind)
+          format!("{}:{}:{} {:?}", d.location.filename, d.location.line, d.location.col + 1, d.kind)
         })
         .collect::<Vec<_>>();
       let expected_diagnostics: Vec<&str> = $diagnostics;

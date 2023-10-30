@@ -21,6 +21,7 @@ use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
 
+use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::ClassDecl;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
@@ -41,11 +42,9 @@ use deno_ast::swc::ast::TsTypeAliasDecl;
 use deno_ast::swc::ast::VarDecl;
 use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::swc::ast::VarDeclarator;
-use deno_ast::LineAndColumnDisplay;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_ast::SourceTextInfo;
 use deno_graph::type_tracer::EsmModuleSymbol;
 use deno_graph::type_tracer::ExportDeclRef;
 use deno_graph::type_tracer::ModuleSymbolRef;
@@ -67,12 +66,20 @@ use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DocDiagnosticKind {
+  MissingJsDoc,
+  MissingTypeRef,
   PrivateTypeRef,
 }
 
 impl std::fmt::Display for DocDiagnosticKind {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
+      DocDiagnosticKind::MissingJsDoc => {
+        f.write_str("Type is missing a JS documentation comment.")
+      }
+      DocDiagnosticKind::MissingTypeRef => f.write_str(
+        "Type reference could not be inferred. Add an explicit type to improve documentation.",
+      ),
       DocDiagnosticKind::PrivateTypeRef => {
         f.write_str("Type is not exported, but referenced by an exported type.")
       }
@@ -82,34 +89,37 @@ impl std::fmt::Display for DocDiagnosticKind {
 
 #[derive(Debug, Clone)]
 pub struct DocDiagnostic {
-  pub specifier: ModuleSpecifier,
-  pub range: SourceRange,
+  pub location: Location,
   pub kind: DocDiagnosticKind,
-  source: SourceTextInfo,
-}
-
-impl DocDiagnostic {
-  pub fn line_and_column_display(&self) -> LineAndColumnDisplay {
-    self.source.line_and_column_display(self.range.start)
-  }
-}
-
-impl PartialEq for DocDiagnostic {
-  fn eq(&self, other: &Self) -> bool {
-    // excludes the source
-    self.specifier == other.specifier
-      && self.range == other.range
-      && self.kind == other.kind
-  }
 }
 
 #[derive(Default)]
 struct DiagnosticsState {
-  private_types_in_public: HashSet<UniqueSymbolId>,
+  seen_private_types_in_public: HashSet<UniqueSymbolId>,
+  seen_jsdoc_missing: HashSet<Location>,
+  seen_missing_type_refs: HashSet<Location>,
   diagnostics: Vec<DocDiagnostic>,
 }
 
 impl DiagnosticsState {
+  pub fn add_missing_js_doc(&mut self, location: &Location) {
+    if self.seen_jsdoc_missing.insert(location.clone()) {
+      self.diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::MissingJsDoc,
+      })
+    }
+  }
+
+  pub fn add_missing_type_ref(&mut self, location: &Location) {
+    if self.seen_missing_type_refs.insert(location.clone()) {
+      self.diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::MissingTypeRef,
+      })
+    }
+  }
+
   pub fn add_private_type_in_public(
     &mut self,
     module: &EsmModuleSymbol,
@@ -120,12 +130,11 @@ impl DiagnosticsState {
       module_id: module.module_id(),
       symbol_id,
     };
-    if self.private_types_in_public.insert(unique_id) {
+    if self.seen_private_types_in_public.insert(unique_id) {
+      let ident_range = get_ident_range_of_node(node_ref);
       self.diagnostics.push(DocDiagnostic {
-        specifier: module.specifier().clone(),
-        range: get_ident_range_of_node(node_ref),
+        location: get_location(module.source(), ident_range.start),
         kind: DocDiagnosticKind::PrivateTypeRef,
-        source: module.source().text_info().clone(),
       })
     }
   }
@@ -280,6 +289,7 @@ impl<'a> DocParser<'a> {
   ) -> Result<ModuleDoc, DocError> {
     let module_symbol = self.get_module_symbol(specifier)?;
     let definitions = self.get_doc_nodes_for_module_symbol(module_symbol)?;
+    self.collect_diagnostics_for_nodes(&definitions);
     let reexports = self.get_reexports_for_module(module_symbol);
     let module_doc = ModuleDoc {
       definitions,
@@ -307,7 +317,10 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
-    self.parse_module(specifier).map(|md| md.definitions)
+    let module_symbol = self.get_module_symbol(specifier)?;
+    let doc_nodes = self.get_doc_nodes_for_module_symbol(module_symbol)?;
+    self.collect_diagnostics_for_nodes(&doc_nodes);
+    Ok(doc_nodes)
   }
 
   /// Fetches `file_name`, parses it, and resolves its reexports.
@@ -315,7 +328,22 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
-    self.parse_with_reexports_inner(specifier, HashSet::new())
+    let doc_nodes =
+      self.parse_with_reexports_inner(specifier, HashSet::new())?;
+    self.collect_diagnostics_for_nodes(&doc_nodes);
+    Ok(doc_nodes)
+  }
+
+  fn collect_diagnostics_for_nodes(&self, nodes: &[DocNode]) {
+    if let Some(diagnostics) = &self.diagnostics {
+      let mut diagnostics = diagnostics.borrow_mut();
+      let mut collector = DiagnosticsCollector {
+        diagnostics: &mut diagnostics,
+      };
+      for node in nodes {
+        collector.visit_doc_node(node);
+      }
+    }
   }
 
   fn parse_with_reexports_inner(
@@ -1353,4 +1381,133 @@ fn definition_location(
     definition.module.text_info(),
     definition.range().start,
   )
+}
+
+struct DiagnosticsCollector<'a> {
+  diagnostics: &'a mut DiagnosticsState,
+}
+
+impl<'a> DiagnosticsCollector<'a> {
+  pub fn visit_doc_node(&mut self, doc_node: &DocNode) {
+    fn is_js_docable_kind(kind: &DocNodeKind) -> bool {
+      match kind {
+        DocNodeKind::Class
+        | DocNodeKind::Enum
+        | DocNodeKind::Function
+        | DocNodeKind::Interface
+        | DocNodeKind::Namespace
+        | DocNodeKind::TypeAlias
+        | DocNodeKind::Variable => true,
+        DocNodeKind::Import | DocNodeKind::ModuleDoc => false,
+      }
+    }
+
+    if doc_node.declaration_kind == DeclarationKind::Private {
+      return; // skip, we don't do these diagnostics above private nodes
+    }
+
+    if doc_node.js_doc.doc.is_none() && is_js_docable_kind(&doc_node.kind) {
+      if self
+        .diagnostics
+        .seen_jsdoc_missing
+        .insert(doc_node.location.clone())
+      {
+        self.diagnostics.diagnostics.push(DocDiagnostic {
+          location: doc_node.location.clone(),
+          kind: DocDiagnosticKind::MissingJsDoc,
+        })
+      }
+    }
+
+    if let Some(def) = &doc_node.class_def {
+      self.visit_class_def(def);
+    }
+
+    if let Some(def) = &doc_node.function_def {
+      self.visit_function_def(doc_node, def);
+    }
+
+    if let Some(def) = &doc_node.interface_def {
+      self.visit_interface_def(doc_node, def);
+    }
+
+    if let Some(def) = &doc_node.namespace_def {
+      self.visit_namespace_def(def);
+    }
+
+    if let Some(def) = &doc_node.variable_def {
+      self.visit_variable_def(doc_node, def);
+    }
+  }
+
+  fn visit_class_def(&mut self, def: &crate::class::ClassDef) {
+    // ctors
+    if def.constructors.len() == 1 {
+      self.visit_class_ctor_def(&def.constructors[0]);
+    } else if !def.constructors.is_empty() {
+      // skip the first one
+      let ctors = &def.constructors[1..];
+      for ctor in ctors {
+        self.visit_class_ctor_def(ctor);
+      }
+    }
+
+    // properties
+    for prop in &def.properties {
+      if prop.accessibility == Some(Accessibility::Private) {
+        continue; // don't do diagnostics for private types
+      }
+      if prop.js_doc.doc.is_none() {
+        self.diagnostics.add_missing_js_doc(&prop.location);
+      }
+      if prop.ts_type.is_none() {
+        self.diagnostics.add_missing_type_ref(&prop.location)
+      }
+    }
+
+    // index signatures
+    for sig in &def.index_signatures {
+      if sig.js_doc.doc.is_none() {
+        self.diagnostics.add_missing_js_doc(&sig.location);
+      }
+      if sig.ts_type.is_none() {
+        self.diagnostics.add_missing_type_ref(&sig.location)
+      }
+    }
+
+    // methods
+    for method in &def.methods {}
+  }
+
+  fn visit_class_ctor_def(&mut self, ctor: &crate::class::ClassConstructorDef) {
+    if ctor.js_doc.doc.is_none() {
+      self.diagnostics.add_missing_js_doc(&ctor.location);
+    }
+  }
+
+  fn visit_function_def(
+    &mut self,
+    parent: &DocNode,
+    def: &crate::function::FunctionDef,
+  ) {
+  }
+
+  fn visit_interface_def(
+    &mut self,
+    parent: &DocNode,
+    def: &crate::interface::InterfaceDef,
+  ) {
+  }
+
+  fn visit_namespace_def(&mut self, def: &NamespaceDef) {
+    for element in &def.elements {
+      self.visit_doc_node(element);
+    }
+  }
+
+  fn visit_variable_def(&mut self, parent: &DocNode, def: &VariableDef) {
+    if def.ts_type.is_none() {
+      self.diagnostics.add_missing_type_ref(&parent.location);
+    }
+  }
 }
