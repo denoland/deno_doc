@@ -1447,7 +1447,7 @@ impl<'a> DiagnosticsCollector<'a> {
     }
 
     if let Some(def) = &doc_node.interface_def {
-      self.visit_interface_def(doc_node, def);
+      self.visit_interface_def(def);
     }
 
     if let Some(def) = &doc_node.namespace_def {
@@ -1532,27 +1532,9 @@ impl<'a> DiagnosticsCollector<'a> {
     }
   }
 
-  fn visit_interface_def(
-    &mut self,
-    parent: &DocNode,
-    def: &crate::interface::InterfaceDef,
-  ) {
-    // ctors
-    if def.constructors.len() == 1 {
-      self.visit_class_ctor_def(&def.constructors[0]);
-    } else if !def.constructors.is_empty() {
-      // skip the first one
-      let ctors = &def.constructors[1..];
-      for ctor in ctors {
-        self.visit_class_ctor_def(ctor);
-      }
-    }
-
+  fn visit_interface_def(&mut self, def: &crate::interface::InterfaceDef) {
     // properties
     for prop in &def.properties {
-      if prop.accessibility == Some(Accessibility::Private) {
-        continue; // don't do diagnostics for private types
-      }
       if prop.js_doc.doc.is_none() {
         self.diagnostics.add_missing_js_doc(&prop.location);
       }
