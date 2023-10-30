@@ -103,7 +103,7 @@ fn parse_spec(text: String) -> Spec {
   let mut current_file = None;
   let mut options: Option<SpecOptions> = None;
   for (i, line) in text.split('\n').enumerate() {
-    if i == 0 && line.starts_with("{") {
+    if i == 0 && line.starts_with('{') {
       options = Some(serde_json::from_str(line).unwrap());
       continue;
     }
