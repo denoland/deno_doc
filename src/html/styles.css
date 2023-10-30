@@ -11,6 +11,7 @@ body {
   width: 100%;
   background-color: white;
   border-radius: 10px 0 0 10px;
+  overflow-y: auto;
 }
 p {
   margin: 0;
