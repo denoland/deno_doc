@@ -1,29 +1,29 @@
-import { create, search, insertMultiple } from './orama.bundle.js'
+(async function () {
+  const { create, search, insertMultiple } = await import("./orama.bundle.js");
 
-const searchInput = document.querySelector("#searchbar");
-const mainContentTags = document.getElementsByTagName("main");
-const searchResultsDiv = document.querySelector("#searchResults");
+  const searchInput = document.querySelector("#searchbar");
+  const mainContentTags = document.getElementsByTagName("main");
+  const searchResultsDiv = document.querySelector("#searchResults");
 
-searchInput.removeAttribute("style");
+  searchInput.removeAttribute("style");
 
-const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
+  const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
 
-const db = await create({
-  schema: {
-    name: "string",
-    nsQualifiers: "string[]"
+  const db = await create({
+    schema: {
+      name: "string",
+      nsQualifiers: "string[]",
+    },
+  });
+  await insertMultiple(db, SEARCH_INDEX.nodes);
+
+  const loadedUrl = new URL(window.location.href);
+  const val = loadedUrl.searchParams.get("q");
+  if (val) {
+    searchInput.value = val;
+    await doSearch(val);
   }
-});
-await insertMultiple(db, SEARCH_INDEX.nodes);
 
-const loadedUrl = new URL(window.location.href);
-const val = loadedUrl.searchParams.get("q");
-if (val) {
-  searchInput.value = val;
-  await doSearch(val);
-}
-
-window.addEventListener("load", function () {
   document.addEventListener("keydown", function (event) {
     if (event.key.toLowerCase() === "s") {
       if (event.target !== searchInput) {
@@ -43,84 +43,85 @@ window.addEventListener("load", function () {
   searchInput.addEventListener("blur", function () {
     searchInput.placeholder = emptyPlaceholder;
   });
-});
 
-function debounce(func, delay) {
-  let timerId;
+  function debounce(func, delay) {
+    let timerId;
 
-  return function () {
-    const context = this;
-    const args = arguments;
+    return function () {
+      const context = this;
+      const args = arguments;
 
-    clearTimeout(timerId);
+      clearTimeout(timerId);
 
-    timerId = setTimeout(function () {
-      func.apply(context, args);
-    }, delay);
-  };
-}
-
-const debouncedSearch = debounce(doSearch, 250);
-
-searchInput.addEventListener("input", (e) => {
-  const val = e.target.value;
-  debouncedSearch(val);
-});
-
-async function doSearch(val) {
-  console.log("Search event.target.value", val);
-
-  if (!val) {
-    updateCurrentLocation(val);
-    showPage();
-  } else {
-    const results = await searchInIndex(val);
-    updateCurrentLocation(val);
-    console.log("results", results);
-    renderResults(results);
-    showSearchResults();
-  }
-}
-
-function updateCurrentLocation(val) {
-  const url = new URL(window.location.href);
-  if (val) {
-    url.searchParams.set("q", val);
-  } else {
-    url.searchParams.delete("q");
-  }
-  window.history.replaceState({}, "", url.href);
-}
-
-function showPage() {
-  for (const mainTag of mainContentTags) {
-    mainTag.style.display = "block";
-  }
-  searchResultsDiv.style.display = "none";
-}
-
-function showSearchResults() {
-  for (const mainTag of mainContentTags) {
-    mainTag.style.display = "none";
-  }
-  searchResultsDiv.style.display = "block";
-}
-
-function renderResults(results) {
-  if (results.length === 0) {
-    searchResultsDiv.innerHTML = `<span>No result</span>`;
-    return;
+      timerId = setTimeout(function () {
+        func.apply(context, args);
+      }, delay);
+    };
   }
 
-  let html = `<ul>`;
+  const debouncedSearch = debounce(doSearch, 250);
 
-  for (const result of results) {
-    console.log("result", result);
-    const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
-    const label = result.nsQualifiers
-      ? `${result.nsQualifiers.join(".")}.${result.name}`
-      : result.name;
-    html += `<li>
+  searchInput.addEventListener("input", (e) => {
+    const val = e.target.value;
+    debouncedSearch(val);
+  });
+
+  async function doSearch(val) {
+    console.log("Search event.target.value", val);
+
+    if (!val) {
+      updateCurrentLocation(val);
+      showPage();
+    } else {
+      const results = await searchInIndex(val);
+      updateCurrentLocation(val);
+      console.log("results", results);
+      renderResults(results);
+      showSearchResults();
+    }
+  }
+
+  function updateCurrentLocation(val) {
+    const url = new URL(window.location.href);
+    if (val) {
+      url.searchParams.set("q", val);
+    } else {
+      url.searchParams.delete("q");
+    }
+    window.history.replaceState({}, "", url.href);
+  }
+
+  function showPage() {
+    for (const mainTag of mainContentTags) {
+      mainTag.style.display = "block";
+    }
+    searchResultsDiv.style.display = "none";
+  }
+
+  function showSearchResults() {
+    for (const mainTag of mainContentTags) {
+      mainTag.style.display = "none";
+    }
+    searchResultsDiv.style.display = "block";
+  }
+
+  function renderResults(results) {
+    if (results.length === 0) {
+      searchResultsDiv.innerHTML = `<span>No result</span>`;
+      return;
+    }
+
+    let html = `<ul>`;
+
+    for (const result of results) {
+      console.log("result", result);
+      const [rustKind, title, symbol] = docNodeKindToStringVariants(
+        result.kind,
+      );
+      const label = result.nsQualifiers
+        ? `${result.nsQualifiers.join(".")}.${result.name}`
+        : result.name;
+      html += `<li>
 <a href="${result.name.split(".").join("/")}.html">
     <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
         ${symbol}
@@ -129,38 +130,38 @@ function renderResults(results) {
     <span style="position: absolute; right: 0; color: gray; font-style: italic;">${result.location.filename}:${result.location.line}</span>
 </a>
 </li>`;
+    }
+
+    html += `</ul>`;
+    searchResultsDiv.innerHTML = html;
   }
 
-  html += `</ul>`;
-  searchResultsDiv.innerHTML = html;
-}
+  async function searchInIndex(val) {
+    const valLower = val.toLowerCase();
+    const searchResults = await search(db, {
+      term: valLower,
+      tolerance: 2,
+    });
 
-async function searchInIndex(val) {
-  const valLower = val.toLowerCase();
-  const searchResults = await search(db, {
-    term: valLower,
-    tolerance: 2,
-  });
-  
-
-  return searchResults.hits.map(hit => hit.document);
-}
-
-function docNodeKindToStringVariants(kind) {
-  switch (kind) {
-    case "function":
-      return ["Function", "Function", "f"];
-    case "variable":
-      return ["Variable", "Variable", "v"];
-    case "class":
-      return ["Class", "Class", "c"];
-    case "enum":
-      return ["Enum", "Enum", "E"];
-    case "interface":
-      return ["Interface", "Interface", "I"];
-    case "typeAlias":
-      return ["TypeAlias", "Type Alias", "T"];
-    case "namespace":
-      return ["Namespace", "Namespace", "N"];
+    return searchResults.hits.map((hit) => hit.document);
   }
-}
+
+  function docNodeKindToStringVariants(kind) {
+    switch (kind) {
+      case "function":
+        return ["Function", "Function", "f"];
+      case "variable":
+        return ["Variable", "Variable", "v"];
+      case "class":
+        return ["Class", "Class", "c"];
+      case "enum":
+        return ["Enum", "Enum", "E"];
+      case "interface":
+        return ["Interface", "Interface", "I"];
+      case "typeAlias":
+        return ["TypeAlias", "Type Alias", "T"];
+      case "namespace":
+        return ["Namespace", "Namespace", "N"];
+    }
+  }
+})();
