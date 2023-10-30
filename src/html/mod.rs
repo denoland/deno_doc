@@ -30,6 +30,9 @@ pub const STYLESHEET_FILENAME: &str = "styles.css";
 
 pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
+pub const ORAMA_JS: &str = include_str!("./orama.bundle.js");
+pub const ORAMA_FILENAME: &str = "orama.bundle.js";
+
 pub const SEARCH_JS: &str = include_str!("./search.js");
 pub const SEARCH_FILENAME: &str = "search.js";
 

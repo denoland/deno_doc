@@ -188,6 +188,11 @@ fn generate_docs_directory(
     deno_doc::html::SEARCH_JS,
   )
   .unwrap();
+  std::fs::write(
+    path.join(deno_doc::html::ORAMA_FILENAME),
+    deno_doc::html::ORAMA_JS,
+  )
+  .unwrap();
   for (name, content) in html {
     let this_path = path.join(name);
     let prefix = this_path.parent().unwrap();

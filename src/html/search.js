@@ -1,4 +1,4 @@
-import { create, search, insertMultiple } from 'https://unpkg.com/@orama/orama@latest/dist/index.js'
+import { create, search, insertMultiple } from './orama.bundle.js'
 
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
