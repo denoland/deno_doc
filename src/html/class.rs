@@ -5,7 +5,7 @@ use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
-use itertools::Itertools;
+use std::collections::BTreeMap;
 use std::fmt::Write;
 
 pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
@@ -230,8 +230,8 @@ fn property_or_method_cmp(
 struct ClassItems {
   properties: Vec<PropertyOrMethod>,
   static_properties: Vec<PropertyOrMethod>,
-  methods: Vec<ClassMethodDef>,
-  static_methods: Vec<ClassMethodDef>,
+  methods: BTreeMap<String, Vec<ClassMethodDef>>,
+  static_methods: BTreeMap<String, Vec<ClassMethodDef>>,
 }
 
 fn partition_properties_and_classes(
@@ -240,8 +240,8 @@ fn partition_properties_and_classes(
 ) -> ClassItems {
   let mut out_properties = vec![];
   let mut out_static_properties = vec![];
-  let mut out_methods = vec![];
-  let mut out_static_methods = vec![];
+  let mut out_methods = BTreeMap::new();
+  let mut out_static_methods = BTreeMap::new();
 
   for property in properties {
     if property.is_static {
@@ -259,16 +259,18 @@ fn partition_properties_and_classes(
         out_properties.push(PropertyOrMethod::Method(method));
       }
     } else if method.is_static {
-      out_static_methods.push(method);
+      let entry = out_static_methods
+        .entry(method.name.clone())
+        .or_insert(vec![]);
+      entry.push(method);
     } else {
-      out_methods.push(method);
+      let entry = out_methods.entry(method.name.clone()).or_insert(vec![]);
+      entry.push(method);
     }
   }
 
   out_properties.sort_by(property_or_method_cmp);
   out_static_properties.sort_by(property_or_method_cmp);
-  out_methods.sort_by(|a, b| a.name.cmp(&b.name));
-  out_static_methods.sort_by(|a, b| a.name.cmp(&b.name));
 
   ClassItems {
     properties: out_properties,
@@ -401,26 +403,17 @@ fn render_class_properties(
 }
 
 fn render_class_methods(
-  methods: Vec<ClassMethodDef>,
+  methods: BTreeMap<String, Vec<ClassMethodDef>>,
   ctx: &RenderContext,
 ) -> String {
-  let mut methods = methods.into_iter().peekable();
-
-  let mut out = String::new();
-
-  while let Some(method) = methods.next() {
-    let method_name = method.name.clone();
-    out.push_str(
-      &std::iter::once(method)
-        .chain(
-          methods
-            .peeking_take_while(|take_method| method_name == take_method.name),
-        )
+  methods
+    .values()
+    .map(|methods| {
+      methods
+        .iter()
         .enumerate()
-        .map(|(i, method)| render_class_method(&method, i, ctx))
-        .collect::<String>(),
-    );
-  }
-
-  out
+        .map(|(i, method)| render_class_method(method, i, ctx))
+        .collect::<String>()
+    })
+    .collect()
 }
