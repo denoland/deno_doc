@@ -95,8 +95,8 @@ impl<'a> DocPrinter<'a> {
             node.location.filename,
             node.location.line,
             // todo(#150): for some reason the column is 0-indexed and the line
-            // is 1-indexed. Display them both with the same index so that vscode
-            // goes to the correct column when clicking this.
+            // is 1-indexed. Display them both as 1-indexed so that vscode goes
+            // to the correct column when clicking this.
             node.location.col + 1
           ))
         )?;
