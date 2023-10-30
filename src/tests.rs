@@ -3726,6 +3726,8 @@ interface Bar {
 export interface Reader extends Foo, Bar {
     /** Read n bytes */
     read?(buf: Uint8Array, something: unknown): Promise<number>
+    /** Test */
+    [key: string]: number;
 }
     "#,
       false;
@@ -3817,7 +3819,32 @@ export interface Reader extends Foo, Bar {
             ],
             "properties": [],
             "callSignatures": [],
-            "indexSignatures": [],
+            "indexSignatures": [{
+              "location": {
+                "filename": "file:///test.ts",
+                "line": 13,
+                "col": 4,
+              },
+              "jsDoc": {
+                "doc": "Test",
+              },
+              "readonly": false,
+              "params": [{
+                "kind": "identifier",
+                "name": "key",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string",
+                }
+              }],
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number",
+              }
+            }],
             "typeParams": [],
         }
       }, {

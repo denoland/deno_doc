@@ -138,9 +138,12 @@ impl Display for InterfacePropertyDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceIndexSignatureDef {
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  pub js_doc: JsDoc,
   pub readonly: bool,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
+  pub location: Location,
 }
 
 #[cfg(feature = "rust")]
@@ -381,24 +384,30 @@ pub fn get_doc_for_ts_interface_decl(
         }
       }
       TsIndexSignature(ts_index_sig) => {
-        let mut params = vec![];
-        for param in &ts_index_sig.params {
-          // todo(kitsonk): investigate why `None` is provided here
-          let param_def = ts_fn_param_to_param_def(None, param);
-          params.push(param_def);
+        if let Some(js_doc) =
+          js_doc_for_range(parsed_source, &ts_index_sig.range())
+        {
+          let mut params = vec![];
+          for param in &ts_index_sig.params {
+            // todo(kitsonk): investigate why `None` is provided here
+            let param_def = ts_fn_param_to_param_def(None, param);
+            params.push(param_def);
+          }
+
+          let ts_type = ts_index_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| (&*rt.type_ann).into());
+
+          let index_sig_def = InterfaceIndexSignatureDef {
+            location: get_location(parsed_source, ts_index_sig.start()),
+            js_doc,
+            readonly: ts_index_sig.readonly,
+            params,
+            ts_type,
+          };
+          index_signatures.push(index_sig_def);
         }
-
-        let ts_type = ts_index_sig
-          .type_ann
-          .as_ref()
-          .map(|rt| (&*rt.type_ann).into());
-
-        let index_sig_def = InterfaceIndexSignatureDef {
-          readonly: ts_index_sig.readonly,
-          params,
-          ts_type,
-        };
-        index_signatures.push(index_sig_def);
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
         if let Some(construct_js_doc) =
