@@ -163,11 +163,12 @@ impl Display for ClassPropertyDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassIndexSignatureDef {
-  pub location: Location,
+  #[serde(skip_serializing_if = "JsDoc::is_empty")]
   pub js_doc: JsDoc,
   pub readonly: bool,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
+  pub location: Location,
 }
 
 #[cfg(feature = "rust")]
