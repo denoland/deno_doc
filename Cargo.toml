@@ -27,6 +27,7 @@ regex = "1.6.0"
 serde = { version = "1.0.140", features = ["derive"] }
 serde_json = { version = "1.0.82", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
+itertools = "0.10.3"
 
 console_error_panic_hook = { version = "0.1.7", optional = true }
 js-sys = { version = "=0.3.64", optional = true }

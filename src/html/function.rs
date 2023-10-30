@@ -82,7 +82,7 @@ pub fn render_function(
   )
 }
 
-fn render_function_summary(
+pub fn render_function_summary(
   function_def: &FunctionDef,
   ctx: &RenderContext,
 ) -> String {

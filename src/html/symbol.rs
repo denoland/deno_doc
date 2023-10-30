@@ -10,7 +10,7 @@ pub fn render_symbol_group(
   name: &str,
   context: &RenderContext,
 ) -> String {
-  let mut split_nodes = HashMap::<DocNodeKind, Vec<crate::DocNode>>::default();
+  let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
   // TODO(bartlomieju): I'm not sure what this meant to do
   // let mut is_reexport = false;
 
@@ -38,7 +38,7 @@ pub fn render_symbol_group(
 }
 
 fn render_symbol(
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNode],
   name: &str,
   ctx: &RenderContext,
 ) -> String {
@@ -59,7 +59,7 @@ fn render_symbol(
 }
 
 fn doc_block_title(
-  doc_node: &crate::DocNode,
+  doc_node: &DocNode,
   name: &str,
   ctx: &RenderContext,
 ) -> String {
@@ -155,11 +155,7 @@ fn doc_block_title(
   )
 }
 
-fn doc_block(
-  doc_nodes: &[crate::DocNode],
-  name: &str,
-  ctx: &RenderContext,
-) -> String {
+fn doc_block(doc_nodes: &[DocNode], name: &str, ctx: &RenderContext) -> String {
   let mut content = String::new();
   let mut functions = vec![];
 

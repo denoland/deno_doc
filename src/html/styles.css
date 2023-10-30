@@ -6,6 +6,10 @@ body {
   background-color: rgb(231 229 228);
   display: flex;
 }
+table {
+  border-color: inherit;
+  border-collapse: collapse;
+}
 #content {
   padding: 30px;
   width: 100%;

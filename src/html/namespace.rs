@@ -21,13 +21,13 @@ pub fn render_namespace(
 }
 
 fn partition_nodes_by_kind_inner(
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNode],
   dedup_overloads: bool,
-) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
+) -> IndexMap<DocNodeKind, Vec<DocNode>> {
   let mut partitions: IndexMap<DocNodeKind, Vec<DocNode>> = IndexMap::default();
 
   for node in doc_nodes {
-    if node.kind == DocNodeKind::ModuleDoc {
+    if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import) {
       continue;
     }
 
@@ -53,19 +53,19 @@ fn partition_nodes_by_kind_inner(
 }
 
 pub fn partition_nodes_by_kind_dedup_overloads(
-  doc_nodes: &[crate::DocNode],
-) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
+  doc_nodes: &[DocNode],
+) -> IndexMap<DocNodeKind, Vec<DocNode>> {
   partition_nodes_by_kind_inner(doc_nodes, true)
 }
 
 pub fn partition_nodes_by_kind(
-  doc_nodes: &[crate::DocNode],
-) -> IndexMap<DocNodeKind, Vec<crate::DocNode>> {
+  doc_nodes: &[DocNode],
+) -> IndexMap<DocNodeKind, Vec<DocNode>> {
   partition_nodes_by_kind_inner(doc_nodes, true)
 }
 
 pub fn doc_node_kind_sections(
-  partitions: &IndexMap<DocNodeKind, Vec<crate::DocNode>>,
+  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   ctx: &RenderContext,
 ) -> String {
   let mut content = String::new();
@@ -90,7 +90,7 @@ pub fn doc_node_kind_sections(
 
 fn symbol_section(
   title: &str,
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNode],
   ctx: &RenderContext,
 ) -> String {
   let content = doc_nodes

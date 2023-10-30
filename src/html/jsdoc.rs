@@ -4,7 +4,7 @@ use crate::js_doc::JsDocTag;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
-    r"(?m)\{\s*@link(?<modifier>code|plain)?\s+(?<value>[^}]+)}"
+    r"(?m)\{\s*@link(?P<modifier>code|plain)?\s+(?P<value>[^}]+)}"
   )
   .unwrap();
   static ref LINK_RE: regex::Regex =
