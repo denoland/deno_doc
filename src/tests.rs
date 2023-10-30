@@ -72,16 +72,19 @@ macro_rules! doc_test {
   ( $name:ident, $source:expr; $block:expr ) => {
     doc_test!($name, $source, false; $block);
   };
+  ( $name:ident, $source:expr; $block:expr, $diagnostics:expr ) => {
+    doc_test!($name, $source, false; $block; $diagnostics);
+  };
 
   ( $name:ident, $source:expr, private; $block:expr ) => {
     doc_test!($name, $source, true; $block);
   };
 
   ( $name:ident, $source:expr, $private:expr; $block:expr ) => {
-    doc_test!($name, $source, $private; $block, vec![]);
+    doc_test!($name, $source, $private; $block; vec![]);
   };
 
-  ( $name:ident, $source:expr, $private:expr; $block:expr, $diagnostics:expr ) => {
+  ( $name:ident, $source:expr, $private:expr; $block:expr; $diagnostics:expr ) => {
     #[tokio::test]
     async fn $name() {
       use super::setup;
@@ -114,7 +117,7 @@ macro_rules! doc_test {
           format!("{}:{}:{} {:?}", d.location.filename, d.location.line, d.location.col + 1, d.kind)
         })
         .collect::<Vec<_>>();
-      let expected_diagnostics: Vec<&str> = $diagnostics;
+      let expected_diagnostics: &[&str] = &$diagnostics;
       assert_eq!(actual_diagnostics, expected_diagnostics, "Diagnostics match.");
     }
   };
@@ -151,6 +154,10 @@ macro_rules! json_test {
     json_test!($name, $source, false; $json);
   };
 
+  ( $name:ident, $source:expr; $json:tt, $diagnostics:expr ) => {
+    json_test!($name, $source, false; $json, $diagnostics);
+  };
+
   ( $name:ident, $source:expr, private; $json:tt ) => {
     json_test!($name, $source, true; $json);
   };
@@ -164,7 +171,7 @@ macro_rules! json_test {
       let actual = serde_json::to_value(&entries).unwrap();
       let expected_json = json!($json);
       pretty_assertions::assert_eq!(actual, expected_json);
-    }, $diagnostics);
+    }; $diagnostics);
   };
 }
 
@@ -2043,64 +2050,64 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
   }]);
 
   json_test!(
-    export_class_object_extends,
-    r#"
+      export_class_object_extends,
+      r#"
 class Foo {}
 const obj = { Foo }
     
 export class Bar extends obj.Foo {}
-  "#,
-  false;
-  [{
-    "kind": "class",
-    "name": "Bar",
-    "location": {
-      "filename": "file:///test.ts",
-      "line": 5,
-      "col": 0
-    },
-    "declarationKind": "export",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": "obj.Foo",
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  }, {
-    "kind": "variable",
-    "name": "obj",
-    "location": {
-      "filename": "file:///test.ts",
-      "line": 3,
-      "col": 6,
-    },
-    "declarationKind": "private",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "typeLiteral",
-        "typeLiteral": {
-          "methods": [],
-          "properties": [{
-            "name": "Foo",
-            "params": [],
-            "computed": false,
-            "optional": false,
-            "tsType": null,
-            "typeParams": [],
-          }],
-          "callSignatures": [],
-          "indexSignatures": [],
-        },
+  "#;
+    [{
+      "kind": "class",
+      "name": "Bar",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 5,
+        "col": 0
       },
-      "kind": "const",
-    },
-  }], vec!["file:///test.ts:3:7 PrivateTypeRef"]
+      "declarationKind": "export",
+      "classDef": {
+        "isAbstract": false,
+        "constructors": [],
+        "properties": [],
+        "indexSignatures": [],
+        "methods": [],
+        "extends": "obj.Foo",
+        "implements": [],
+        "typeParams": [],
+        "superTypeParams": []
+      }
+    }, {
+      "kind": "variable",
+      "name": "obj",
+      "location": {
+        "filename": "file:///test.ts",
+        "line": 3,
+        "col": 6,
+      },
+      "declarationKind": "private",
+      "variableDef": {
+        "tsType": {
+          "repr": "",
+          "kind": "typeLiteral",
+          "typeLiteral": {
+            "methods": [],
+            "properties": [{
+              "name": "Foo",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": null,
+              "typeParams": [],
+            }],
+            "callSignatures": [],
+            "indexSignatures": [],
+          },
+        },
+        "kind": "const",
+      },
+    }],
+    ["file:///test.ts:3:7 PrivateTypeRef"]
   );
 
   json_test!(export_class_ignore,
@@ -5037,7 +5044,8 @@ export function foo(bar: A | B): bar is A {}
           "typeParams": []
         }
       }
-    ]
+    ],
+    ["file:///test.ts:2:1 MissingJsDoc"]
   );
 
   json_test!(ts_type_predicate_2,
@@ -5109,7 +5117,8 @@ export function foo(bar: A | B): asserts bar is B {}
           "typeParams": []
         }
       }
-    ]
+    ],
+    ["file:///test.ts:2:1 MissingJsDoc"]
   );
 
   json_test!(ts_type_predicate_3,
@@ -5179,6 +5188,10 @@ export class C {
           "superTypeParams": []
         }
       }
+    ],
+    [
+      "file:///test.ts:2:1 MissingJsDoc",
+      "file:///test.ts:3:3 MissingJsDoc"
     ]
   );
 
