@@ -1,5 +1,3 @@
-import { create, search, insertMultiple } from 'https://unpkg.com/@orama/orama@latest/dist/index.js'
-
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
@@ -8,19 +6,11 @@ searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
 
-const db = await create({
-  schema: {
-    name: "string",
-    nsQualifiers: "string[]"
-  }
-});
-await insertMultiple(db, SEARCH_INDEX.nodes);
-
 const loadedUrl = new URL(window.location.href);
 const val = loadedUrl.searchParams.get("q");
 if (val) {
   searchInput.value = val;
-  await doSearch(val);
+  doSearch(val);
 }
 
 window.addEventListener("load", function () {
@@ -67,14 +57,14 @@ searchInput.addEventListener("input", (e) => {
   debouncedSearch(val);
 });
 
-async function doSearch(val) {
+function doSearch(val) {
   console.log("Search event.target.value", val);
 
   if (!val) {
     updateCurrentLocation(val);
     showPage();
   } else {
-    const results = await searchInIndex(val);
+    const results = searchInIndex(val);
     updateCurrentLocation(val);
     console.log("results", results);
     renderResults(results);
@@ -135,15 +125,24 @@ function renderResults(results) {
   searchResultsDiv.innerHTML = html;
 }
 
-async function searchInIndex(val) {
+function searchInIndex(val) {
   const valLower = val.toLowerCase();
-  const searchResults = await search(db, {
-    term: valLower,
-    tolerance: 2,
-  });
-  
+  const results = SEARCH_INDEX.nodes.filter((node) => {
+    const matches = node.name.toLowerCase().includes(valLower);
 
-  return searchResults.hits.map(hit => hit.document);
+    if (matches) {
+      return matches;
+    }
+
+    if (node.nsQualifiers) {
+      return node.nsQualifiers.some((nsName) =>
+        nsName.toLowerCase().includes(valLower)
+      );
+    }
+
+    return false;
+  });
+  return results;
 }
 
 function docNodeKindToStringVariants(kind) {
