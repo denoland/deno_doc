@@ -1476,7 +1476,14 @@ impl<'a> DiagnosticsCollector<'a> {
     }
 
     // methods
-    for method in &def.methods {}
+    for method in &def.methods {
+      if method.js_doc.doc.is_none() {
+        self.diagnostics.add_missing_js_doc(&method.location);
+      }
+      if method.function_def.return_type.is_none() {
+        self.diagnostics.add_missing_type_ref(&method.location)
+      }
+    }
   }
 
   fn visit_class_ctor_def(&mut self, ctor: &crate::class::ClassConstructorDef) {
