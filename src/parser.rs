@@ -340,9 +340,7 @@ impl<'a> DocParser<'a> {
       let mut collector = DiagnosticsCollector {
         diagnostics: &mut diagnostics,
       };
-      for node in nodes {
-        collector.visit_doc_node(node);
-      }
+      collector.visit_doc_nodes(nodes);
     }
   }
 
@@ -1388,7 +1386,28 @@ struct DiagnosticsCollector<'a> {
 }
 
 impl<'a> DiagnosticsCollector<'a> {
-  pub fn visit_doc_node(&mut self, doc_node: &DocNode) {
+  pub fn visit_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
+    let mut last_node: Option<&DocNode> = None;
+    for doc_node in doc_nodes {
+      if let Some(last_node) = last_node {
+        if doc_node.name == last_node.name {
+          if last_node.function_def.is_some() {
+            if let Some(current_fn) = &doc_node.function_def {
+              if current_fn.has_body {
+                continue; // it's an overload. Ignore it
+              }
+            }
+          }
+        }
+      }
+
+      self.visit_doc_node(doc_node);
+
+      last_node = Some(doc_node);
+    }
+  }
+
+  fn visit_doc_node(&mut self, doc_node: &DocNode) {
     fn is_js_docable_kind(kind: &DocNodeKind) -> bool {
       match kind {
         DocNodeKind::Class
@@ -1476,13 +1495,21 @@ impl<'a> DiagnosticsCollector<'a> {
     }
 
     // methods
+    let mut last_name: Option<&str> = None;
     for method in &def.methods {
+      if let Some(last_name) = last_name {
+        if method.name == last_name && method.function_def.has_body {
+          continue; // skip, it's the implementation signature
+        }
+      }
       if method.js_doc.doc.is_none() {
         self.diagnostics.add_missing_js_doc(&method.location);
       }
       if method.function_def.return_type.is_none() {
         self.diagnostics.add_missing_type_ref(&method.location)
       }
+
+      last_name = Some(&method.name);
     }
   }
 
@@ -1497,6 +1524,12 @@ impl<'a> DiagnosticsCollector<'a> {
     parent: &DocNode,
     def: &crate::function::FunctionDef,
   ) {
+    if parent.js_doc.doc.is_none() {
+      self.diagnostics.add_missing_js_doc(&parent.location);
+    }
+    if def.return_type.is_none() {
+      self.diagnostics.add_missing_type_ref(&parent.location)
+    }
   }
 
   fn visit_interface_def(
@@ -1504,12 +1537,53 @@ impl<'a> DiagnosticsCollector<'a> {
     parent: &DocNode,
     def: &crate::interface::InterfaceDef,
   ) {
+    // ctors
+    if def.constructors.len() == 1 {
+      self.visit_class_ctor_def(&def.constructors[0]);
+    } else if !def.constructors.is_empty() {
+      // skip the first one
+      let ctors = &def.constructors[1..];
+      for ctor in ctors {
+        self.visit_class_ctor_def(ctor);
+      }
+    }
+
+    // properties
+    for prop in &def.properties {
+      if prop.accessibility == Some(Accessibility::Private) {
+        continue; // don't do diagnostics for private types
+      }
+      if prop.js_doc.doc.is_none() {
+        self.diagnostics.add_missing_js_doc(&prop.location);
+      }
+      if prop.ts_type.is_none() {
+        self.diagnostics.add_missing_type_ref(&prop.location)
+      }
+    }
+
+    // index signatures
+    for sig in &def.index_signatures {
+      if sig.js_doc.doc.is_none() {
+        self.diagnostics.add_missing_js_doc(&sig.location);
+      }
+      if sig.ts_type.is_none() {
+        self.diagnostics.add_missing_type_ref(&sig.location)
+      }
+    }
+
+    // methods
+    for method in &def.methods {
+      if method.js_doc.doc.is_none() {
+        self.diagnostics.add_missing_js_doc(&method.location);
+      }
+      if method.return_type.is_none() {
+        self.diagnostics.add_missing_type_ref(&method.location)
+      }
+    }
   }
 
   fn visit_namespace_def(&mut self, def: &NamespaceDef) {
-    for element in &def.elements {
-      self.visit_doc_node(element);
-    }
+    self.visit_doc_nodes(&def.elements);
   }
 
   fn visit_variable_def(&mut self, parent: &DocNode, def: &VariableDef) {
