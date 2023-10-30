@@ -389,12 +389,15 @@ fn render_page(
     ..sidepanel_ctx.clone()
   };
 
+  let additional_css = render_ctx.additional_css.borrow();
+  let additional_css: &str = additional_css.as_ref();
+
   Ok(ctx.tt.render(
     "page.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
-        "additional_css": "",
+        "additional_css": additional_css,
         "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
       "html_tail": {
@@ -533,7 +536,7 @@ pub fn generate_search_index(
     },
   );
 
-  let search_index = serde_json::json!({
+  let search_index = json!({
     "nodes": doc_nodes
   });
   let search_index_str = serde_json::to_string(&search_index)?;
