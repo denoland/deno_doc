@@ -165,9 +165,10 @@ fn generate_pages_inner(
     Vec::with_capacity(name_partitions.values().len() * 2);
 
   for (name, doc_nodes) in name_partitions.iter() {
-    let file_name = base.as_ref().map_or(name.to_string(), |base| {
-      format!("{}/{name}.html", base.join("/"))
-    });
+    let file_name = base.as_ref().map_or_else(
+      || format!("{}.html", name),
+      |base| format!("{}/{name}.html", base.join("/")),
+    );
     let symbol_name = base.as_ref().map_or(name.to_string(), |base| {
       format!("{}.{name}", base.join("."))
     });
