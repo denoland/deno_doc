@@ -1,0 +1,13 @@
+{{ call html_head.html with html_head }}
+
+{{ call sidepanel.html with sidepanel }}
+
+<div id="content">
+  <a href="{base_url}">&#8592; Back to index</a>
+  {search_bar}
+
+  {symbol_group}
+  <div id="searchResults"></div>
+</div>
+
+{{ call html_tail.html with html_tail }}

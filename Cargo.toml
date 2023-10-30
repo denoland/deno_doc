@@ -13,6 +13,7 @@ name = "deno_doc"
 
 [[example]]
 name = "ddoc"
+required-features = ["html"]
 
 [dependencies]
 anyhow = "1.0.58"
@@ -33,7 +34,13 @@ serde-wasm-bindgen = { version = "=0.5.0", optional = true }
 wasm-bindgen = { version = "=0.2.87", optional = true }
 wasm-bindgen-futures = { version = "=0.4.37", optional = true }
 
+html-escape = { version = "0.2.13", optional = true }
+comrak = { version = "0.19.0", optional = true }
+indexmap = { version = "2.0.2", optional = true }
+tinytemplate = { version = "1.2.1", optional = true }
+
 [dev-dependencies]
+anyhow = { version = "1.0.58" }
 clap = "2.33.3"
 criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
 tokio = { version = "1.25.0", features = ["full"] }
@@ -42,6 +49,7 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["rust"]
 rust = []
+html = ["html-escape", "comrak", "indexmap", "tinytemplate"]
 wasm = ["js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
 
 [profile.release]

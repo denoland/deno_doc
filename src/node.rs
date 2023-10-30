@@ -10,18 +10,31 @@ pub struct NamespaceDef {
   pub elements: Vec<DocNode>,
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
+#[derive(
+  Debug,
+  PartialEq,
+  Eq,
+  PartialOrd,
+  Ord,
+  Hash,
+  Serialize,
+  Deserialize,
+  Clone,
+  Copy,
+)]
 #[serde(rename_all = "camelCase")]
 pub enum DocNodeKind {
-  ModuleDoc,
-  Function,
-  Variable,
+  // NOTE(bartlomieju): Because of `derive(Ord), we must keep the variants
+  // in an alphabetical order.
   Class,
   Enum,
-  Interface,
-  TypeAlias,
-  Namespace,
+  Function,
   Import,
+  Interface,
+  ModuleDoc,
+  Namespace,
+  TypeAlias,
+  Variable,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]

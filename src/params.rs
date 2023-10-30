@@ -21,7 +21,7 @@ use std::fmt::Result as FmtResult;
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[serde(tag = "kind")]
-enum ParamPatternDef {
+pub enum ParamPatternDef {
   Array {
     elements: Vec<Option<ParamDef>>,
     optional: bool,
@@ -47,10 +47,10 @@ enum ParamPatternDef {
 #[serde(rename_all = "camelCase")]
 pub struct ParamDef {
   #[serde(flatten)]
-  pattern: ParamPatternDef,
+  pub pattern: ParamPatternDef,
   #[serde(skip_serializing_if = "Vec::is_empty")]
-  decorators: Vec<DecoratorDef>,
-  ts_type: Option<TsTypeDef>,
+  pub decorators: Vec<DecoratorDef>,
+  pub ts_type: Option<TsTypeDef>,
 }
 
 impl Display for ParamDef {

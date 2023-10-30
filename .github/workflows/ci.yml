@@ -46,7 +46,7 @@ jobs:
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features --locked -- -D clippy::all
-          deno lint
+          deno lint --ignore=src/html,benches/fixtures,target/
 
       - name: Build
         run: deno task build && cargo build --locked --all-targets --all-features

@@ -47,6 +47,12 @@ cfg_if! {
 }
 
 cfg_if! {
+  if #[cfg(feature = "html")] {
+    pub mod html;
+  }
+}
+
+cfg_if! {
   if #[cfg(feature = "wasm")] {
     mod js;
     pub use js::doc;

@@ -1,0 +1,17 @@
+{{ call html_head.html with html_head }}
+
+{{ call sidepanel.html with sidepanel }}
+
+<div id="content">
+  <h1>Index</h1>
+
+  {search_bar}
+
+  <main>
+    {#- TODO(bartlomieju): call into template here #}
+    { content }
+  </main>
+  <div id="searchResults"></div>
+</div>
+
+{{ call html_tail.html with html_tail }}
