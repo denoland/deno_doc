@@ -1,3 +1,5 @@
+import { create, search, insertMultiple } from 'https://unpkg.com/@orama/orama@latest/dist/index.js'
+
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
@@ -6,11 +8,19 @@ searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
 
+const db = await create({
+  schema: {
+    name: "string",
+    nsQualifiers: "string[]"
+  }
+});
+await insertMultiple(db, SEARCH_INDEX.nodes);
+
 const loadedUrl = new URL(window.location.href);
 const val = loadedUrl.searchParams.get("q");
 if (val) {
   searchInput.value = val;
-  doSearch(val);
+  await doSearch(val);
 }
 
 window.addEventListener("load", function () {
@@ -57,14 +67,14 @@ searchInput.addEventListener("input", (e) => {
   debouncedSearch(val);
 });
 
-function doSearch(val) {
+async function doSearch(val) {
   console.log("Search event.target.value", val);
 
   if (!val) {
     updateCurrentLocation(val);
     showPage();
   } else {
-    const results = searchInIndex(val);
+    const results = await searchInIndex(val);
     updateCurrentLocation(val);
     console.log("results", results);
     renderResults(results);
@@ -125,24 +135,15 @@ function renderResults(results) {
   searchResultsDiv.innerHTML = html;
 }
 
-function searchInIndex(val) {
+async function searchInIndex(val) {
   const valLower = val.toLowerCase();
-  const results = SEARCH_INDEX.nodes.filter((node) => {
-    const matches = node.name.toLowerCase().includes(valLower);
-
-    if (matches) {
-      return matches;
-    }
-
-    if (node.nsQualifiers) {
-      return node.nsQualifiers.some((nsName) =>
-        nsName.toLowerCase().includes(valLower)
-      );
-    }
-
-    return false;
+  const searchResults = await search(db, {
+    term: valLower,
+    tolerance: 2,
   });
-  return results;
+  
+
+  return searchResults.hits.map(hit => hit.document);
 }
 
 function docNodeKindToStringVariants(kind) {
