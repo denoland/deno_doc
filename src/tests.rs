@@ -103,9 +103,12 @@ macro_rules! doc_test {
       ($block)(entries, doc);
 
       let actual_diagnostics = parser
-        .diagnostics()
+        .take_diagnostics()
         .into_iter()
-        .map(|d| format!("{}:{}:{} {:?}", d.location.filename, d.location.line, d.location.col, d.kind))
+        .map(|d| {
+          let line_and_column = d.line_and_column_display();
+          format!("{}:{}:{} {:?}", d.specifier, line_and_column.line_number, line_and_column.column_number, d.kind)
+        })
         .collect::<Vec<_>>();
       let expected_diagnostics: Vec<&str> = $diagnostics;
       assert_eq!(actual_diagnostics, expected_diagnostics, "Diagnostics match.");
@@ -2008,7 +2011,7 @@ export class Bar extends obj.Foo {}
       },
       "kind": "const",
     },
-  }], vec!["file:///test.ts:3:6 PrivateTypeRef"]
+  }], vec!["file:///test.ts:3:7 PrivateTypeRef"]
   );
 
   json_test!(export_class_ignore,
@@ -3682,7 +3685,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
       "indexSignatures": [],
       "typeParams": [],
     }
-  }], vec!["file:///test.ts:2:0 PrivateTypeRef"]);
+  }], vec!["file:///test.ts:2:1 PrivateTypeRef"]);
 
   json_test!(export_interface,
         r#"
@@ -3825,8 +3828,8 @@ export interface Reader extends Foo, Bar {
         "typeParams": [],
     }
   }], vec![
-    "file:///test.ts:2:0 PrivateTypeRef",
-    "file:///test.ts:4:0 PrivateTypeRef"
+    "file:///test.ts:2:1 PrivateTypeRef",
+    "file:///test.ts:4:1 PrivateTypeRef"
   ]);
 
   json_test!(export_interface2,

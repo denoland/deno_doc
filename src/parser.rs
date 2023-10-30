@@ -41,14 +41,18 @@ use deno_ast::swc::ast::TsTypeAliasDecl;
 use deno_ast::swc::ast::VarDecl;
 use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::swc::ast::VarDeclarator;
+use deno_ast::LineAndColumnDisplay;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
+use deno_ast::SourceTextInfo;
 use deno_graph::type_tracer::EsmModuleSymbol;
 use deno_graph::type_tracer::ExportDeclRef;
 use deno_graph::type_tracer::ModuleSymbolRef;
 use deno_graph::type_tracer::Symbol;
+use deno_graph::type_tracer::SymbolId;
 use deno_graph::type_tracer::SymbolNodeRef;
+use deno_graph::type_tracer::UniqueSymbolId;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
@@ -61,7 +65,7 @@ use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DocDiagnosticKind {
   PrivateTypeRef,
 }
@@ -78,8 +82,53 @@ impl std::fmt::Display for DocDiagnosticKind {
 
 #[derive(Debug, Clone)]
 pub struct DocDiagnostic {
-  pub location: Location,
+  pub specifier: ModuleSpecifier,
+  pub range: SourceRange,
   pub kind: DocDiagnosticKind,
+  source: SourceTextInfo,
+}
+
+impl DocDiagnostic {
+  pub fn line_and_column_display(&self) -> LineAndColumnDisplay {
+    self.source.line_and_column_display(self.range.start)
+  }
+}
+
+impl PartialEq for DocDiagnostic {
+  fn eq(&self, other: &Self) -> bool {
+    // excludes the source
+    self.specifier == other.specifier
+      && self.range == other.range
+      && self.kind == other.kind
+  }
+}
+
+#[derive(Default)]
+struct DiagnosticsState {
+  private_types_in_public: HashSet<UniqueSymbolId>,
+  diagnostics: Vec<DocDiagnostic>,
+}
+
+impl DiagnosticsState {
+  pub fn add_private_type_in_public(
+    &mut self,
+    module: &EsmModuleSymbol,
+    symbol_id: SymbolId,
+    range: &SourceRange,
+  ) {
+    let unique_id = UniqueSymbolId {
+      module_id: module.module_id(),
+      symbol_id,
+    };
+    if self.private_types_in_public.insert(unique_id) {
+      self.diagnostics.push(DocDiagnostic {
+        specifier: module.specifier().clone(),
+        range: *range,
+        kind: DocDiagnosticKind::PrivateTypeRef,
+        source: module.source().text_info().clone(),
+      })
+    }
+  }
 }
 
 #[derive(Debug)]
@@ -125,7 +174,7 @@ pub struct DocParser<'a> {
   graph: &'a ModuleGraph,
   private: bool,
   root_symbol: deno_graph::type_tracer::RootSymbol,
-  private_types_in_public: RefCell<HashSet<Location>>,
+  diagnostics: RefCell<DiagnosticsState>,
 }
 
 impl<'a> DocParser<'a> {
@@ -155,22 +204,16 @@ impl<'a> DocParser<'a> {
       graph,
       private,
       root_symbol,
-      private_types_in_public: Default::default(),
+      diagnostics: Default::default(),
     })
   }
 
   /// Gets diagnostics found during any of the previous parses.
-  pub fn diagnostics(&self) -> Vec<DocDiagnostic> {
-    let private_types_in_public = self.private_types_in_public.borrow();
-    let mut diagnostics = Vec::with_capacity(private_types_in_public.len());
-    for location in private_types_in_public.iter() {
-      diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::PrivateTypeRef,
-      });
-    }
-    diagnostics.sort_by(|a, b| a.location.cmp(&b.location));
-    diagnostics
+  pub fn take_diagnostics(&self) -> Vec<DocDiagnostic> {
+    let mut diagnostics = self.diagnostics.borrow_mut();
+    let inner = std::mem::take(&mut diagnostics.diagnostics);
+    *diagnostics = Default::default(); // reset
+    inner
   }
 
   /// Parses a module into a list of exported items,
@@ -629,10 +672,11 @@ impl<'a> DocParser<'a> {
                 node,
               ) {
                 if is_public {
-                  self
-                    .private_types_in_public
-                    .borrow_mut()
-                    .insert(doc_node.location.clone());
+                  self.diagnostics.borrow_mut().add_private_type_in_public(
+                    module_symbol,
+                    symbol.symbol_id(),
+                    &decl.range,
+                  );
                 }
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
@@ -994,10 +1038,11 @@ impl<'a> DocParser<'a> {
                 node,
               ) {
                 if is_public {
-                  self
-                    .private_types_in_public
-                    .borrow_mut()
-                    .insert(doc_node.location.clone());
+                  self.diagnostics.borrow_mut().add_private_type_in_public(
+                    module_symbol,
+                    child_symbol.symbol_id(),
+                    &decl.range,
+                  );
                 }
                 doc_node.declaration_kind = if is_declared {
                   DeclarationKind::Declare
