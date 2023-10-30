@@ -46,10 +46,10 @@ impl<'a> DocPrinter<'a> {
   }
 
   pub fn format(&self, w: &mut Formatter<'_>) -> FmtResult {
-    self.format_(w, self.doc_nodes, 0)
+    self.format_with_indent(w, self.doc_nodes, 0)
   }
 
-  fn format_(
+  fn format_with_indent(
     &self,
     w: &mut Formatter<'_>,
     doc_nodes: &[DocNode],
@@ -92,7 +92,12 @@ impl<'a> DocPrinter<'a> {
           "{}",
           colors::italic_gray(&format!(
             "Defined in {}:{}:{}\n\n",
-            node.location.filename, node.location.line, node.location.col
+            node.location.filename,
+            node.location.line,
+            // todo(#150): for some reason the column is 0-indexed and the line
+            // is 1-indexed. Display them both as 1-indexed so that vscode goes
+            // to the correct column when clicking this.
+            node.location.col + 1
           ))
         )?;
       }
