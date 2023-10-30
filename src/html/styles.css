@@ -61,6 +61,9 @@ a {
   padding: 8px 16px 8px 8px;
   border-radius: 10px 0 0 10px;
   position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 #sidepanel a:hover {
   background-color: white;

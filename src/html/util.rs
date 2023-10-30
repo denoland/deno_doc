@@ -153,7 +153,7 @@ pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
   )
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,
   char: char,
