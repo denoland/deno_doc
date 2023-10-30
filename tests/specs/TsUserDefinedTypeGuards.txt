@@ -1,0 +1,315 @@
+# mod.ts
+export function f1(val1: A | B): val1 is A {}
+export function f2(val2: any): asserts val2 is string {}
+export function f3(val3: any): asserts val3 {}
+export function assertIsDefined<T>(val4: T): asserts val4 is NonNullable<T> {
+  if (val === undefined || val === null) {
+    throw new AssertionError(
+      `Expected 'val' to be defined, but received ${val}`
+    );
+  }
+}
+export class C {
+  isSomething(): this is Something {
+    return this instanceof Something;
+  }
+}
+
+# output.txt
+Defined in file:///mod.ts:4:1
+
+function assertIsDefined<T>(val4: T): asserts val4 is NonNullable<T>
+
+Defined in file:///mod.ts:1:1
+
+function f1(val1: A | B): val1 is A
+
+Defined in file:///mod.ts:2:1
+
+function f2(val2: any): asserts val2 is string
+
+Defined in file:///mod.ts:3:1
+
+function f3(val3: any): asserts val3
+
+Defined in file:///mod.ts:11:1
+
+class C
+
+  isSomething(): this is Something
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "f1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "val1",
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "A",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "A"
+                }
+              },
+              {
+                "repr": "B",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "B"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "val1 is A",
+        "kind": "typePredicate",
+        "typePredicate": {
+          "asserts": false,
+          "param": {
+            "type": "identifier",
+            "name": "val1"
+          },
+          "type": {
+            "repr": "A",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "A"
+            }
+          }
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "f2",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "val2",
+          "optional": false,
+          "tsType": {
+            "repr": "any",
+            "kind": "keyword",
+            "keyword": "any"
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "asserts val2 is string",
+        "kind": "typePredicate",
+        "typePredicate": {
+          "asserts": true,
+          "param": {
+            "type": "identifier",
+            "name": "val2"
+          },
+          "type": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          }
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "f3",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "val3",
+          "optional": false,
+          "tsType": {
+            "repr": "any",
+            "kind": "keyword",
+            "keyword": "any"
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "asserts val3",
+        "kind": "typePredicate",
+        "typePredicate": {
+          "asserts": true,
+          "param": {
+            "type": "identifier",
+            "name": "val3"
+          },
+          "type": null
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "assertIsDefined",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "val4",
+          "optional": false,
+          "tsType": {
+            "repr": "T",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "T"
+            }
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "asserts val4 is NonNullable<T>",
+        "kind": "typePredicate",
+        "typePredicate": {
+          "asserts": true,
+          "param": {
+            "type": "identifier",
+            "name": "val4"
+          },
+          "type": {
+            "repr": "NonNullable",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": [
+                {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "T"
+                  }
+                }
+              ],
+              "typeName": "NonNullable"
+            }
+          }
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": [
+        {
+          "name": "T"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "class",
+    "name": "C",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 11,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "isSomething",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "this is Something",
+              "kind": "typePredicate",
+              "typePredicate": {
+                "asserts": false,
+                "param": {
+                  "type": "this"
+                },
+                "type": {
+                  "repr": "Something",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Something"
+                  }
+                }
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 12,
+            "col": 2
+          }
+        }
+      ],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

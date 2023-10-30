@@ -1,0 +1,47 @@
+# mod.ts
+export default function foo(a: number) {
+  return a;
+}
+/** @ignore */
+export default function foo(a: number) {
+  return a;
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+function default(a: number)
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "default",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          }
+        }
+      ],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]

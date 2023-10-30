@@ -1,0 +1,82 @@
+# mod.ts
+export interface Generic<T> {}
+export function f(): Generic<[string, number]> { return {}; }
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+function f(): Generic<[string, number]>
+
+Defined in file:///mod.ts:1:1
+
+interface Generic<T>
+
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "Generic",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": [
+        {
+          "name": "T"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "function",
+    "name": "f",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "Generic",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": [
+            {
+              "repr": "",
+              "kind": "tuple",
+              "tuple": [
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                },
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              ]
+            }
+          ],
+          "typeName": "Generic"
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]

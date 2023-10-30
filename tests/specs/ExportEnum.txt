@@ -1,0 +1,80 @@
+# mod.ts
+/**
+ * Some enum for good measure
+ */
+export enum Hello {
+    World = "world",
+    /** There is a JsDoc */
+    Fizz = "fizz",
+    /** There is a JsDoc
+     * @ignore
+     */
+    Buzz = "buzz",
+}
+
+# output.txt
+Defined in file:///mod.ts:4:1
+
+enum Hello
+  Some enum for good measure
+
+  World
+  Fizz
+    There is a JsDoc
+
+
+# output.json
+[
+  {
+    "kind": "enum",
+    "name": "Hello",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Some enum for good measure"
+    },
+    "enumDef": {
+      "members": [
+        {
+          "name": "World",
+          "init": {
+            "repr": "world",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "world"
+            }
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 4
+          }
+        },
+        {
+          "name": "Fizz",
+          "init": {
+            "repr": "fizz",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "fizz"
+            }
+          },
+          "jsDoc": {
+            "doc": "There is a JsDoc"
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 4
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,92 @@
+# mod.ts
+/** Class doc */
+export default class Foobar {
+    /** Constructor js doc */
+    constructor(name: string, private private2: number, protected protected2: number) {}
+}
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+class default
+  Class doc
+
+  constructor(name: string, private private2: number, protected protected2: number)
+    Constructor js doc
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "default",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Class doc"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [
+        {
+          "jsDoc": {
+            "doc": "Constructor js doc"
+          },
+          "accessibility": null,
+          "hasBody": true,
+          "name": "constructor",
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "name",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            },
+            {
+              "accessibility": "private",
+              "kind": "identifier",
+              "name": "private2",
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            },
+            {
+              "accessibility": "protected",
+              "kind": "identifier",
+              "name": "protected2",
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          ],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 4
+          }
+        }
+      ],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

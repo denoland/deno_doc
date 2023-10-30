@@ -1,0 +1,171 @@
+# mod.ts
+export let str = "hello";
+export let num = 100;
+export let bool = false;
+export let dateStr = Date();
+export let regex = RegExp("foobar");
+export let sym = Symbol("baz");
+export let tpl = `foobarbaz`;
+
+# output.txt
+Defined in file:///mod.ts:3:12
+
+let bool: boolean
+
+Defined in file:///mod.ts:4:12
+
+let dateStr: string
+
+Defined in file:///mod.ts:2:12
+
+let num: number
+
+Defined in file:///mod.ts:5:12
+
+let regex: RegExp
+
+Defined in file:///mod.ts:1:12
+
+let str: string
+
+Defined in file:///mod.ts:6:12
+
+let sym: symbol
+
+Defined in file:///mod.ts:7:12
+
+let tpl: string
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "str",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "num",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "number",
+        "kind": "keyword",
+        "keyword": "number"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "bool",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "boolean",
+        "kind": "keyword",
+        "keyword": "boolean"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "dateStr",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "Date",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "regex",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "RegExp",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "RegExp"
+        }
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "sym",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "Symbol",
+        "kind": "keyword",
+        "keyword": "symbol"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "tpl",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "let"
+    }
+  }
+]

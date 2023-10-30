@@ -1,0 +1,73 @@
+# mod.ts
+/** jsdoc */
+@sealed
+export class A {
+  a: string = "a";
+}
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+@sealed
+class A
+  jsdoc
+
+  a: string
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "jsdoc"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "a",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 2
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": [],
+      "decorators": [
+        {
+          "name": "sealed",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 1
+          }
+        }
+      ]
+    }
+  }
+]

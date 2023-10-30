@@ -1,0 +1,213 @@
+# mod.ts
+@sealed
+export class A {
+  #x = "x";
+
+  @format("Hello, %s")
+  greeting: string;
+
+  @configurable(false)
+  get x() {
+    return this.#x;
+  }
+
+  @enumerable(false)
+  greet() {
+    return "hello";
+  }
+
+  method(@readonly param: string) {}
+}
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+@sealed
+class A
+
+  @format("Hello, %s")
+  greeting: string
+  @configurable(false)
+  get x()
+  @enumerable(false)
+  greet()
+  method(@readonly param: string)
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "readonly": false,
+          "accessibility": null,
+          "decorators": [
+            {
+              "name": "format",
+              "args": [
+                "\"Hello, %s\""
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 3
+              }
+            }
+          ],
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "greeting",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 2
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "x",
+          "kind": "getter",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": [],
+            "decorators": [
+              {
+                "name": "configurable",
+                "args": [
+                  "false"
+                ],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 3
+                }
+              }
+            ]
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "greet",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": [],
+            "decorators": [
+              {
+                "name": "enumerable",
+                "args": [
+                  "false"
+                ],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 13,
+                  "col": 3
+                }
+              }
+            ]
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "method",
+          "kind": "method",
+          "functionDef": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "param",
+                "optional": false,
+                "decorators": [
+                  {
+                    "name": "readonly",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 18,
+                      "col": 10
+                    }
+                  }
+                ],
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              }
+            ],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 18,
+            "col": 2
+          }
+        }
+      ],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": [],
+      "decorators": [
+        {
+          "name": "sealed",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 1
+          }
+        }
+      ]
+    }
+  }
+]

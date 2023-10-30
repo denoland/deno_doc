@@ -1,0 +1,67 @@
+# mod.ts
+/** Namespace JSdoc */
+declare namespace RootNs {
+    declare const a = "a";
+
+    /** Nested namespace JSDoc
+     * @ignore
+     */
+    declare namespace NestedNs {
+      declare enum Foo {
+        a = 1,
+        b = 2,
+        c = 3,
+      }
+    }
+}
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+namespace RootNs
+  Namespace JSdoc
+
+  const a: "a"
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "RootNs",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "declare",
+    "jsDoc": {
+      "doc": "Namespace JSdoc"
+    },
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "variable",
+          "name": "a",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 18
+          },
+          "declarationKind": "declare",
+          "variableDef": {
+            "tsType": {
+              "repr": "a",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "a"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  }
+]

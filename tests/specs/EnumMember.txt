@@ -1,0 +1,53 @@
+# mod.ts
+export enum Enum {
+  First,
+  /** There is a JsDoc */
+  Second,
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+enum Enum
+
+  First
+  Second
+    There is a JsDoc
+
+
+# output.json
+[
+  {
+    "kind": "enum",
+    "name": "Enum",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "enumDef": {
+      "members": [
+        {
+          "name": "First",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          }
+        },
+        {
+          "name": "Second",
+          "jsDoc": {
+            "doc": "There is a JsDoc"
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 2
+          }
+        }
+      ]
+    }
+  }
+]
