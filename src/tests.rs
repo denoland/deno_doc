@@ -1606,6 +1606,11 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     a = [1, "foo"];
     fn = (a: string): void => {};
 
+    /** Test */
+    [prop: string]: number;
+    /** @ignore */
+    [prop: number]: number;
+
     /** Constructor js doc */
     constructor(name: string, private private2: number, protected protected2: number) {}
 
@@ -1701,7 +1706,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           ],
           "location": {
             "filename": "file:///test.ts",
-            "line": 15,
+            "line": 20,
             "col": 4
           }
         }
@@ -1919,7 +1924,32 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
         }
       ],
-      "indexSignatures": [],
+      "indexSignatures": [{
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 15,
+          "col": 4,
+        },
+        "jsDoc": {
+          "doc": "Test",
+        },
+        "readonly": false,
+        "params": [{
+          "kind": "identifier",
+          "name": "prop",
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string",
+          }
+        }],
+        "tsType": {
+          "repr": "number",
+          "kind": "keyword",
+          "keyword": "number",
+        }
+      }],
       "methods": [
         {
           "jsDoc": {
@@ -1954,7 +1984,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 18,
+            "line": 23,
             "col": 4
           }
         },
@@ -1982,7 +2012,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 23,
+            "line": 28,
             "col": 4
           }
         },
@@ -2004,7 +2034,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
           },
           "location": {
             "filename": "file:///test.ts",
-            "line": 27,
+            "line": 32,
             "col": 4,
           }
         }
