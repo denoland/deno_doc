@@ -1,3 +1,5 @@
+// deno-fmt-ignore-file
+// deno-lint-ignore-file
 /**
  * Fuse.js v7.0.0 - Lightweight fuzzy-search (http://fusejs.io)
  *

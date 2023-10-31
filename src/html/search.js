@@ -12,7 +12,7 @@ const fuse = new Fuse(SEARCH_INDEX.nodes, {
   keys: ["name", "nsQualifiers"],
   isCaseSensitive: false,
   minMatchCharLength: 2,
-  threshold: 0.4
+  threshold: 0.4,
 });
 
 const loadedUrl = new URL(window.location.href);
@@ -150,7 +150,7 @@ function searchInIndex(val) {
   //   return false;
   // });
   // return results;
-  return fuse.search(val).map(result => result.item);
+  return fuse.search(val).map((result) => result.item);
 }
 
 function docNodeKindToStringVariants(kind) {
