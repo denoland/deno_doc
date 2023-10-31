@@ -31,7 +31,7 @@ pub fn render_params(params: &[ParamDef], ctx: &RenderContext) -> String {
 }
 
 fn render_param(param: &ParamDef, i: usize, ctx: &RenderContext) -> String {
-  let name = param_name(param, i);
+  let (name, _str_name) = param_name(param, i);
   let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern {
     left.ts_type.as_ref()
   } else {
@@ -55,16 +55,18 @@ fn render_param(param: &ParamDef, i: usize, ctx: &RenderContext) -> String {
   format!("<span>{name}{question_mark}{ts_type}</span>")
 }
 
-pub fn param_name(param: &ParamDef, i: usize) -> String {
+pub fn param_name(param: &ParamDef, i: usize) -> (String, String) {
   match &param.pattern {
-    ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => {
-      format!(r#"<span class="italic">unnamed {i}</span>"#)
-    }
+    ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => (
+      format!(r#"<span class="italic">unnamed {i}</span>"#),
+      format!(r#"(unnamed {i})"#),
+    ),
     ParamPatternDef::Assign { left, .. } => param_name(left, i),
-    ParamPatternDef::Identifier { name, .. } => name.clone(),
-    ParamPatternDef::Rest { arg } => {
-      format!("<span>...{}</span>", param_name(arg, i))
-    }
+    ParamPatternDef::Identifier { name, .. } => (name.clone(), name.clone()),
+    ParamPatternDef::Rest { arg } => (
+      format!("<span>...{}</span>", param_name(arg, i).0),
+      format!("(...{})", param_name(arg, i).1),
+    ),
   }
 }
 

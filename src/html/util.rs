@@ -65,7 +65,7 @@ pub fn anchor(name: &str) -> String {
       aria-label="Anchor"
       tabIndex=-1
     >
-      <div style="width: 14px; height: 14px; display: inline-block;">F</div>
+      <div style="width: 14px; height: 14px; display: inline-block;">🔗</div>
     </a>"##
   )
 }

@@ -1,7 +1,7 @@
 <nav id="sidepanel">
     <h2><a href="{base_url}index.html">{package_name}</a></h2>
     {{ for partition in partitions }}
-        <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">{{ call doc_node_kind_icon.html with partition.kind }}<h3 class="kind_{partition.kind.kind}_text" style="margin: 0; line-height: 1;">{partition.kind.title_plural}</h3></div>
+        <div class="section_title">{{ call doc_node_kind_icon.html with partition.kind }}<h3 class="kind_{partition.kind.kind}_text">{partition.kind.title_plural}</h3></div>
         <ul>
         {{ for doc_node in partition.doc_nodes }}
             <li>
