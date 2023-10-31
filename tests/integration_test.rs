@@ -45,7 +45,7 @@ async fn test_doc_specs() {
           d.location.filename,
           d.location.line,
           d.location.col + 1,
-          d.kind.to_string()
+          d.kind,
         )
       })
       .collect::<Vec<_>>();

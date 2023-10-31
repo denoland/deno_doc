@@ -5,6 +5,7 @@ use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
+use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
