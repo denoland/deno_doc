@@ -269,7 +269,6 @@ fn render_compound_index(
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
-  // TODO(bartlomieju): strip prefix by using a common ancestor
   let files = doc_nodes_by_url
     .keys()
     .map(|url| ctx.url_to_short_path(url))
@@ -511,8 +510,6 @@ struct SearchIndexNode {
   name: String,
   #[serde(skip_serializing_if = "Vec::is_empty")]
   ns_qualifiers: Vec<String>,
-  // TODO(bartlomieju): location should be processed based on the entry point of
-  // the graph to node include `file:///base/dir/other/dir/`.
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
 }
