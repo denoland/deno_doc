@@ -84,6 +84,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
   tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
+  tt.add_template("symbol_group.html", include_str!("./templates/symbol_group.html"))?;
   Ok(tt)
 }
 
