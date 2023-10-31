@@ -4,6 +4,7 @@ use serde::Serialize;
 use serde_json::json;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
@@ -48,7 +49,28 @@ pub struct GenerateOptions {
 
 struct GenerateCtx<'ctx> {
   package_name: String,
+  common_ancestor: Option<PathBuf>,
   tt: TinyTemplate<'ctx>,
+}
+
+impl<'ctx> GenerateCtx<'ctx> {
+  fn url_to_short_path(&self, url: &ModuleSpecifier) -> String {
+    if url.scheme() != "file" {
+      return url.to_string();
+    }
+
+    let Some(common_ancestor) = &self.common_ancestor else {
+      return url.to_string();
+    };
+
+    let url_file_path = url.to_file_path().unwrap();
+
+    let stripped_path = url_file_path
+      .strip_prefix(common_ancestor)
+      .unwrap_or(&url_file_path);
+
+    stripped_path.to_string_lossy().to_string()
+  }
 }
 
 fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
@@ -84,6 +106,10 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
   tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
+  tt.add_template(
+    "symbol_group.html",
+    include_str!("./templates/symbol_group.html"),
+  )?;
   Ok(tt)
 }
 
@@ -91,9 +117,21 @@ pub fn generate(
   options: GenerateOptions,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
+  let file_paths: Vec<PathBuf> = doc_nodes_by_url
+    .keys()
+    .filter_map(|url| {
+      if url.scheme() == "file" {
+        Some(url.to_file_path().unwrap())
+      } else {
+        None
+      }
+    })
+    .collect();
+  let common_ancestor = find_common_ancestor(file_paths);
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
+    common_ancestor,
     tt,
   };
   let mut files = HashMap::new();
@@ -141,7 +179,7 @@ pub fn generate(
   files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
-    generate_search_index(doc_nodes_by_url)?,
+    generate_search_index(&ctx, doc_nodes_by_url)?,
   );
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
@@ -232,7 +270,7 @@ fn render_compound_index(
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
     .keys()
-    .map(|url| url.as_str())
+    .map(|url| ctx.url_to_short_path(url))
     .collect::<Vec<_>>();
 
   let sidepanel_ctx = json!({
@@ -241,6 +279,13 @@ fn render_compound_index(
     "base_url": "./".to_string(),
     "package_name": ctx.package_name.to_string(),
   });
+
+  let render_ctx = RenderContext {
+    additional_css: Rc::new(RefCell::new("".to_string())),
+    namespace: None,
+    current_symbols: Default::default(),
+    current_type_params: Default::default(),
+  };
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -251,30 +296,26 @@ fn render_compound_index(
       let docs_md = docs
         .and_then(|node| node.js_doc.doc.clone())
         .unwrap_or_default();
-      let rendered_docs = markdown_to_html(
-        &docs_md,
-        false,
-        &RenderContext {
-          additional_css: Rc::new(RefCell::new("".to_string())),
-          namespace: None,
-          current_symbols: Default::default(),
-          current_type_params: Default::default(),
-        },
-      );
+      let rendered_docs = markdown_to_html(&docs_md, false, &render_ctx);
 
       json!({
-        "url": url.as_str(),
+        "url": ctx.url_to_short_path(url),
         "docs": rendered_docs,
       })
     })
     .collect::<Vec<_>>();
+
+  let additional_css = render_ctx.additional_css.borrow();
+  let additional_css: &str = additional_css.as_ref();
 
   Ok(ctx.tt.render(
     "compound_index.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
-        "additional_css": "",
+        "title": format!("Index - {} documentation", ctx.package_name),
+        "current_symbol": "",
+        "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -295,22 +336,25 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let content = namespace::doc_node_kind_sections(
-    partitions,
-    &RenderContext {
-      additional_css: Rc::new(RefCell::new("".to_string())),
-      namespace: None,
-      current_symbols: current_symbols.clone(),
-      current_type_params: Default::default(),
-    },
-  );
+  let render_ctx = RenderContext {
+    additional_css: Rc::new(RefCell::new("".to_string())),
+    namespace: None,
+    current_symbols: current_symbols.clone(),
+    current_type_params: Default::default(),
+  };
+  let content = namespace::doc_node_kind_sections(partitions, &render_ctx);
+
+  let additional_css = render_ctx.additional_css.borrow();
+  let additional_css: &str = additional_css.as_ref();
 
   Ok(ctx.tt.render(
     "index_list.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
-        "additional_css": "",
+        "title": format!("Index - {} documentation", ctx.package_name),
+        "current_symbol": "",
+        "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -410,6 +454,8 @@ fn render_page(
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
+        "title": format!("{} - {} documentation", name, ctx.package_name),
+        "current_symbol": name,
         "additional_css": additional_css,
         "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
@@ -462,29 +508,40 @@ fn sidepanel_render_ctx(
   }
 }
 
+fn join_qualifiers<S>(qualifiers: &[String], s: S) -> Result<S::Ok, S::Error>
+where
+  S: serde::Serializer,
+{
+  s.serialize_str(&qualifiers.join("."))
+}
+
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchIndexNode {
   kind: DocNodeKind,
   name: String,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(serialize_with = "join_qualifiers")]
   ns_qualifiers: Vec<String>,
-  // TODO(bartlomieju): location should be processed based on the entry point of
-  // the graph to node include `file:///base/dir/other/dir/`.
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
 }
 
 fn doc_node_into_search_index_nodes_inner(
+  ctx: &GenerateCtx,
   doc_node: &DocNode,
   ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
   if !matches!(doc_node.kind, DocNodeKind::Namespace) {
+    let mut location = doc_node.location.clone();
+    let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
+    let location_url_str = ctx.url_to_short_path(&location_url);
+    location.filename = location_url_str;
+
     return vec![SearchIndexNode {
       kind: doc_node.kind,
       name: doc_node.name.to_string(),
       ns_qualifiers: ns_qualifiers.clone(),
-      location: doc_node.location.clone(),
+      location,
       declaration_kind: doc_node.declaration_kind,
     }];
   }
@@ -493,11 +550,16 @@ fn doc_node_into_search_index_nodes_inner(
   let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
   let ns_name = doc_node.name.to_string();
 
+  let mut location = doc_node.location.clone();
+  let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
+  let location_url_str = ctx.url_to_short_path(&location_url);
+  location.filename = location_url_str;
+
   nodes.push(SearchIndexNode {
     kind: doc_node.kind,
     name: doc_node.name.to_string(),
     ns_qualifiers: ns_qualifiers.clone(),
-    location: doc_node.location.clone(),
+    location,
     declaration_kind: doc_node.declaration_kind,
   });
 
@@ -505,16 +567,22 @@ fn doc_node_into_search_index_nodes_inner(
     let mut ns_qualifiers_ = ns_qualifiers.clone();
     ns_qualifiers_.push(ns_name.to_string());
 
+    let mut location = el.location.clone();
+    let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
+    let location_url_str = ctx.url_to_short_path(&location_url);
+    location.filename = location_url_str;
+
     nodes.push(SearchIndexNode {
       kind: el.kind,
       name: el.name.to_string(),
       ns_qualifiers: ns_qualifiers_,
-      location: el.location.clone(),
+      location,
       declaration_kind: el.declaration_kind,
     });
 
     if el.kind == DocNodeKind::Namespace {
       nodes.extend_from_slice(&doc_node_into_search_index_nodes_inner(
+        ctx,
         el,
         ns_qualifiers.clone(),
       ));
@@ -527,12 +595,14 @@ fn doc_node_into_search_index_nodes_inner(
 /// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
 /// node is flattened into a list of its elements.
 fn doc_node_into_search_index_nodes(
+  ctx: &GenerateCtx,
   doc_node: &DocNode,
 ) -> Vec<SearchIndexNode> {
-  doc_node_into_search_index_nodes_inner(doc_node, vec![])
+  doc_node_into_search_index_nodes_inner(ctx, doc_node, vec![])
 }
 
 fn generate_search_index(
+  ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   // TODO(bartlomieju): remove
@@ -545,7 +615,7 @@ fn generate_search_index(
   let doc_nodes = doc_nodes.iter().fold(
     Vec::with_capacity(doc_nodes.len()),
     |mut output, node| {
-      output.extend_from_slice(&doc_node_into_search_index_nodes(node));
+      output.extend_from_slice(&doc_node_into_search_index_nodes(ctx, node));
       output
     },
   );
@@ -562,4 +632,34 @@ fn generate_search_index(
     search_index_str
   );
   Ok(index)
+}
+
+fn find_common_ancestor(paths: Vec<PathBuf>) -> Option<PathBuf> {
+  assert!(!paths.is_empty());
+
+  let shortest_path = paths.iter().min_by_key(|path| path.components().count());
+
+  match shortest_path {
+    Some(shortest) => {
+      let mut common_ancestor = PathBuf::new();
+
+      for (index, component) in shortest.components().enumerate() {
+        if paths.iter().all(|path| {
+          path.components().count() > index
+            && path.components().nth(index) == Some(component)
+        }) {
+          common_ancestor.push(component);
+        } else {
+          break;
+        }
+      }
+
+      if common_ancestor.as_os_str().is_empty() {
+        None
+      } else {
+        Some(common_ancestor)
+      }
+    }
+    None => None, // No paths in the vector.
+  }
 }

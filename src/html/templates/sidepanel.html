@@ -1,11 +1,11 @@
 <nav id="sidepanel">
-    <h2><a href="{base_url}index.html">{package_name}</a></h2>
+    <h2><a href="{base_url}index.html"><span>{package_name}</span></a></h2>
     {{ for partition in partitions }}
         <div class="section_title">{{ call doc_node_kind_icon.html with partition.kind }}<h3 class="kind_{partition.kind.kind}_text">{partition.kind.title_plural}</h3></div>
         <ul>
         {{ for doc_node in partition.doc_nodes }}
             <li>
-                <a href="{base_url}{doc_node}.html" title="{doc_node}"><code>{doc_node}</code></a>
+                <a href="{base_url}{doc_node}.html" title="{doc_node}" class=""><span><code>{doc_node}</code></span></a>
             </li>
         {{ endfor }}
         </ul>

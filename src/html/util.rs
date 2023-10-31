@@ -65,7 +65,7 @@ pub fn anchor(name: &str) -> String {
       aria-label="Anchor"
       tabIndex=-1
     >
-      <div style="width: 14px; height: 14px; display: inline-block;">🔗</div>
+      <div style="width: 14px; height: 14px; display: inline-block;">&#128279;</div>
     </a>"##
   )
 }
@@ -158,19 +158,22 @@ pub struct DocNodeKindCtx {
   pub kind: String,
   char: char,
   title: &'static str,
+  title_lowercase: &'static str,
   title_plural: &'static str,
 }
 
 impl From<&DocNodeKind> for DocNodeKindCtx {
   fn from(kind: &DocNodeKind) -> Self {
-    let (char, title, title_plural) = match kind {
-      DocNodeKind::Function => ('f', "Function", "Functions"),
-      DocNodeKind::Variable => ('v', "Variable", "Variables"),
-      DocNodeKind::Class => ('c', "Class", "Classes"),
-      DocNodeKind::Enum => ('E', "Enum", "Enums"),
-      DocNodeKind::Interface => ('I', "Interface", "Interfaces"),
-      DocNodeKind::TypeAlias => ('T', "Type Alias", "Type Aliases"),
-      DocNodeKind::Namespace => ('N', "Namespace", "Namespaces"),
+    let (char, title, title_lowercase, title_plural) = match kind {
+      DocNodeKind::Function => ('f', "Function", "function", "Functions"),
+      DocNodeKind::Variable => ('v', "Variable", "variable", "Variables"),
+      DocNodeKind::Class => ('c', "Class", "class", "Classes"),
+      DocNodeKind::Enum => ('E', "Enum", "enum", "Enums"),
+      DocNodeKind::Interface => ('I', "Interface", "interface", "Interfaces"),
+      DocNodeKind::TypeAlias => {
+        ('T', "Type Alias", "type alias", "Type Aliases")
+      }
+      DocNodeKind::Namespace => ('N', "Namespace", "namespace", "Namespaces"),
       DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
     };
 
@@ -178,6 +181,7 @@ impl From<&DocNodeKind> for DocNodeKindCtx {
       kind: format!("{kind:?}"),
       char,
       title,
+      title_lowercase,
       title_plural,
     }
   }

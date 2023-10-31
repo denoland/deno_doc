@@ -2,14 +2,28 @@ use super::types::render_type_def;
 use super::util::RenderContext;
 use crate::DocNode;
 use crate::DocNodeKind;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt::Write;
+
+#[derive(Debug, Serialize, Clone)]
+pub struct SymbolGroupCtx {
+  name: String,
+  symbols: Vec<SymbolCtx>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct SymbolCtx {
+  kind: super::util::DocNodeKindCtx,
+  subtitle: Option<String>,
+  body: String,
+}
 
 pub fn render_symbol_group(
   doc_nodes: &[DocNode],
   name: &str,
-  context: &RenderContext,
-) -> String {
+  ctx: &RenderContext,
+) -> SymbolGroupCtx {
   let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
   // TODO(bartlomieju): I'm not sure what this meant to do
   // let mut is_reexport = false;
@@ -29,43 +43,28 @@ pub fn render_symbol_group(
 
   // TODO: property drilldown
 
-  let items = split_nodes
+  let symbols = split_nodes
     .values()
-    .map(|doc_nodes| render_symbol(doc_nodes, name, context))
-    .collect::<String>();
+    .map(|doc_nodes| SymbolCtx {
+      kind: (&doc_nodes[0].kind).into(),
+      subtitle: doc_block_subtitle(&doc_nodes[0], ctx),
+      body: doc_block(doc_nodes, name, ctx),
+    })
+    .collect();
 
-  format!(r#"<main class="symbol_group" id="symbol_{name}">{items}</main>"#)
+  SymbolGroupCtx {
+    name: name.to_string(),
+    symbols,
+  }
 }
 
-fn render_symbol(
-  doc_nodes: &[DocNode],
-  name: &str,
-  ctx: &RenderContext,
-) -> String {
-  // TODO: tags
-
-  format!(
-    r#"<article class="symbol">
-  <div class="symbol_header">
-    <div>
-      {}
-    </div>
-  </div>
-  {}
-</article>"#,
-    doc_block_title(&doc_nodes[0], name, ctx),
-    doc_block(doc_nodes, name, ctx),
-  )
-}
-
-fn doc_block_title(
+fn doc_block_subtitle(
   doc_node: &DocNode,
-  name: &str,
   ctx: &RenderContext,
-) -> String {
-  let (kind_str, subtitle) = match doc_node.kind {
-    DocNodeKind::Function => ("function", None),
-    DocNodeKind::Variable => ("variable", None),
+) -> Option<String> {
+  let subtitle = match doc_node.kind {
+    DocNodeKind::Function => None,
+    DocNodeKind::Variable => None,
     DocNodeKind::Class => {
       let class_def = doc_node.class_def.as_ref().unwrap();
       let mut subtitle = String::new();
@@ -106,9 +105,9 @@ fn doc_block_title(
         ).unwrap();
       }
 
-      ("class", Some(subtitle))
+      Some(subtitle)
     }
-    DocNodeKind::Enum => ("enum", None),
+    DocNodeKind::Enum => None,
     DocNodeKind::Interface => {
       let interface_def = doc_node.interface_def.as_ref().unwrap();
 
@@ -136,23 +135,16 @@ fn doc_block_title(
         None
       };
 
-      ("interface", subtitle)
+      subtitle
     }
-    DocNodeKind::TypeAlias => ("type alias", None),
-    DocNodeKind::Namespace => ("namespace", None),
+    DocNodeKind::TypeAlias => None,
+    DocNodeKind::Namespace => None,
     _ => unimplemented!(),
   };
 
-  let subtitle = subtitle.map_or_else(Default::default, |subtitle| {
+  subtitle.map(|subtitle| {
     format!(r#"<div class="doc_block_subtitle">{subtitle}</div>"#)
-  });
-
-  // TODO property drilldown
-
-  format!(
-    r#"<div class="doc_block_title"><div><span class="kind_{:?}_text">{kind_str}</span> <span style="font-weight: 700;">{name}</span></div>{subtitle}</div>"#,
-    doc_node.kind
-  )
+  })
 }
 
 fn doc_block(doc_nodes: &[DocNode], name: &str, ctx: &RenderContext) -> String {
@@ -195,5 +187,5 @@ fn doc_block(doc_nodes: &[DocNode], name: &str, ctx: &RenderContext) -> String {
     content.push_str(&super::function::render_function(functions, ctx));
   }
 
-  format!("<div>{content}</div>")
+  content
 }

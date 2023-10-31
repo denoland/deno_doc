@@ -3,13 +3,22 @@ const Fuse = window.Fuse;
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
-
+const currentSymbol =
+  document.querySelector("meta[name='doc-current-symbol']").attributes
+    .getNamedItem("content").value;
+const pathToRoot = currentSymbol.split(".").slice(1).map(() => "../").join("");
 searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
 
 const fuse = new Fuse(SEARCH_INDEX.nodes, {
-  keys: ["name", "nsQualifiers"],
+  keys: [{
+    name: "name",
+    weight: 2,
+  }, {
+    name: "nsQualifiers",
+    weight: 1,
+  }],
   isCaseSensitive: false,
   minMatchCharLength: 2,
   threshold: 0.4,
@@ -67,14 +76,12 @@ searchInput.addEventListener("input", (e) => {
 });
 
 function doSearch(val) {
-  console.log("Search event.target.value", val);
-
   if (!val) {
     updateCurrentLocation(val);
     showPage();
   } else {
     const results = searchInIndex(val);
-    console.log("results", results);
+    // console.log("results", results);
     updateCurrentLocation(val);
     renderResults(results);
     showSearchResults();
@@ -114,18 +121,20 @@ function renderResults(results) {
   let html = `<ul>`;
 
   for (const result of results) {
-    console.log("result", result);
+    // console.log("result", result);
     const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
     const label = result.nsQualifiers
-      ? `${result.nsQualifiers.join(".")}.${result.name}`
+      ? `${result.nsQualifiers}.${result.name}`
       : result.name;
     html += `<li>
-<a href="${result.name.split(".").join("/")}.html">
-    <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
-        ${symbol}
+<a href="${pathToRoot}${label.split(".").join("/")}.html">
+    <div>
+        <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
+            ${symbol}
+        </div>
+        <span>${label}</span>
     </div>
-    <span>${label}</span>
-    <span style="position: absolute; right: 0; color: gray; font-style: italic;">${result.location.filename}:${result.location.line}</span>
+    <div>${result.location.filename}:${result.location.line}</div>
 </a>
 </li>`;
   }
@@ -135,21 +144,6 @@ function renderResults(results) {
 }
 
 function searchInIndex(val) {
-  const valLower = val.toLowerCase();
-  // const results = SEARCH_INDEX.nodes.filter((node) => {
-  //   if (fuzzyFind(node.name.toLowerCase(), valLower)) {
-  //     return true;
-  //   }
-
-  //   if (node.nsQualifiers) {
-  //     return node.nsQualifiers.some((nsName) =>
-  //       fuzzyFind(nsName.toLowerCase().valLower)
-  //     );
-  //   }
-
-  //   return false;
-  // });
-  // return results;
   return fuse.search(val).map((result) => result.item);
 }
 
