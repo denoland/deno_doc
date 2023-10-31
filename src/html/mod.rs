@@ -230,6 +230,7 @@ fn render_compound_index(
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
+  // TODO(bartlomieju): strip prefix by using a common ancestor
   let files = doc_nodes_by_url
     .keys()
     .map(|url| url.as_str())
@@ -249,6 +250,7 @@ fn render_compound_index(
     current_type_params: Default::default(),
   };
 
+  // TODO(bartlomieju): strip prefix by using a common ancestor
   let module_docs = doc_nodes_by_url
     .iter()
     .map(|(url, nodes)| {

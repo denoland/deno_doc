@@ -67,14 +67,12 @@ searchInput.addEventListener("input", (e) => {
 });
 
 function doSearch(val) {
-  console.log("Search event.target.value", val);
-
   if (!val) {
     updateCurrentLocation(val);
     showPage();
   } else {
     const results = searchInIndex(val);
-    console.log("results", results);
+    // console.log("results", results);
     updateCurrentLocation(val);
     renderResults(results);
     showSearchResults();
@@ -114,11 +112,12 @@ function renderResults(results) {
   let html = `<ul>`;
 
   for (const result of results) {
-    console.log("result", result);
+    // console.log("result", result);
     const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
     const label = result.nsQualifiers
       ? `${result.nsQualifiers.join(".")}.${result.name}`
       : result.name;
+    // TODO(bartlomieju): use "common ancestor" for displaying location
     html += `<li>
 <a href="${result.name.split(".").join("/")}.html">
     <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
