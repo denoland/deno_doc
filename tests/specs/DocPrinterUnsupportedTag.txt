@@ -8,14 +8,13 @@ export function noop() {
 
 # diagnostics
 [
-  "file:///mod.ts:5:1 Missing JS documentation comment.",
-  "file:///mod.ts:5:1 Missing return type."
+  "file:///mod.ts:5:1 Missing JS documentation comment."
 ]
 
 # output.txt
 Defined in file:///mod.ts:5:1
 
-function noop()
+function noop(): void
 
   @customtagone
   @customtagtwo value
@@ -46,7 +45,11 @@ function noop()
     },
     "functionDef": {
       "params": [],
-      "returnType": null,
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
       "hasBody": true,
       "isAsync": false,
       "isGenerator": false,

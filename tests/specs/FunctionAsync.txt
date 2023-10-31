@@ -3,14 +3,13 @@ export async function a() {}
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:1:1 Missing return type."
+  "file:///mod.ts:1:1 Missing JS documentation comment."
 ]
 
 # output.txt
 Defined in file:///mod.ts:1:1
 
-async function a()
+async function a(): Promise<void>
 
 
 # output.json
@@ -26,7 +25,20 @@ async function a()
     "declarationKind": "export",
     "functionDef": {
       "params": [],
-      "returnType": null,
+      "returnType": {
+        "repr": "Promise",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": [
+            {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            }
+          ],
+          "typeName": "Promise"
+        }
+      },
       "hasBody": true,
       "isAsync": true,
       "isGenerator": false,

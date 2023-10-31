@@ -16,8 +16,7 @@ export namespace Namespace {
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:7:3 Missing return type."
+  "file:///mod.ts:1:1 Missing JS documentation comment."
 ]
 
 # output.txt
@@ -25,7 +24,7 @@ Defined in file:///mod.ts:1:1
 
 namespace Namespace
 
-  function a()
+  function a(): void
     Doc comment 1
     
     Details 1
@@ -62,7 +61,11 @@ namespace Namespace
           },
           "functionDef": {
             "params": [],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,

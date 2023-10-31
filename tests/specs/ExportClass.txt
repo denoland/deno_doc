@@ -42,8 +42,7 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
   "file:///mod.ts:9:5 Missing JS documentation comment.",
   "file:///mod.ts:10:5 Missing JS documentation comment.",
   "file:///mod.ts:11:5 Missing JS documentation comment.",
-  "file:///mod.ts:31:5 Missing JS documentation comment.",
-  "file:///mod.ts:31:5 Missing return type."
+  "file:///mod.ts:31:5 Missing JS documentation comment."
 ]
 
 # output.txt
@@ -67,7 +66,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
     Async foo method
   bar?(): void
     Sync bar method
-  override s()
+  override s(): void
 
 
 # output.json
@@ -455,7 +454,11 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "kind": "method",
           "functionDef": {
             "params": [],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,

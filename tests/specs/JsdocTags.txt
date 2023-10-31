@@ -9,15 +9,10 @@
  */
 export function a(b, c, d) {}
 
-# diagnostics
-[
-  "file:///mod.ts:9:1 Missing return type."
-]
-
 # output.txt
 Defined in file:///mod.ts:9:1
 
-function a(b, c, d)
+function a(b, c, d): void
   a is a function
 
   @param {string} b
@@ -94,7 +89,11 @@ function a(b, c, d)
           "tsType": null
         }
       ],
-      "returnType": null,
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
       "hasBody": true,
       "isAsync": false,
       "isGenerator": false,

@@ -23,8 +23,7 @@ export class A {
 # diagnostics
 [
   "file:///mod.ts:4:3 Missing JS documentation comment.",
-  "file:///mod.ts:19:3 Missing JS documentation comment.",
-  "file:///mod.ts:19:3 Missing return type."
+  "file:///mod.ts:19:3 Missing JS documentation comment."
 ]
 
 # output.txt
@@ -49,7 +48,7 @@ class A
   p: boolean
 
     @private
-  a()
+  a(): void
 
     @return {Promise<void>}
 
@@ -171,7 +170,11 @@ class A
           "kind": "method",
           "functionDef": {
             "params": [],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,

@@ -10,11 +10,8 @@ export class Class {
 [
   "file:///mod.ts:1:1 Missing JS documentation comment.",
   "file:///mod.ts:2:3 Missing JS documentation comment.",
-  "file:///mod.ts:2:3 Missing return type.",
   "file:///mod.ts:3:3 Missing JS documentation comment.",
-  "file:///mod.ts:3:3 Missing return type.",
-  "file:///mod.ts:4:3 Missing JS documentation comment.",
-  "file:///mod.ts:4:3 Missing return type."
+  "file:///mod.ts:4:3 Missing JS documentation comment."
 ]
 
 # output.txt
@@ -22,9 +19,9 @@ Defined in file:///mod.ts:1:1
 
 class Class
 
-  private pri()
-  protected pro()
-  pub()
+  private pri(): void
+  protected pro(): void
+  pub(): void
 
 
 # output.json
@@ -53,7 +50,11 @@ class Class
           "kind": "method",
           "functionDef": {
             "params": [],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
@@ -74,7 +75,11 @@ class Class
           "kind": "method",
           "functionDef": {
             "params": [],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
@@ -95,7 +100,11 @@ class Class
           "kind": "method",
           "functionDef": {
             "params": [],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
