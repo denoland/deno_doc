@@ -135,21 +135,6 @@ function renderResults(results) {
 }
 
 function searchInIndex(val) {
-  const valLower = val.toLowerCase();
-  // const results = SEARCH_INDEX.nodes.filter((node) => {
-  //   if (fuzzyFind(node.name.toLowerCase(), valLower)) {
-  //     return true;
-  //   }
-
-  //   if (node.nsQualifiers) {
-  //     return node.nsQualifiers.some((nsName) =>
-  //       fuzzyFind(nsName.toLowerCase().valLower)
-  //     );
-  //   }
-
-  //   return false;
-  // });
-  // return results;
   return fuse.search(val).map((result) => result.item);
 }
 
