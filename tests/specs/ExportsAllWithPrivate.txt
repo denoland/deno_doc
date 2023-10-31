@@ -12,7 +12,6 @@ namespace H {}
 # diagnostics
 [
   "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:1:1 Missing return type.",
   "file:///mod.ts:3:1 Missing JS documentation comment.",
   "file:///mod.ts:5:1 Missing JS documentation comment.",
   "file:///mod.ts:7:1 Missing JS documentation comment."
@@ -21,11 +20,11 @@ namespace H {}
 # output.txt
 Defined in file:///mod.ts:1:1
 
-function a()
+function a(): void
 
 Defined in file:///mod.ts:2:1
 
-private function b()
+private function b(): void
 
 Defined in file:///mod.ts:3:1
 
@@ -71,7 +70,11 @@ private namespace H
     "declarationKind": "export",
     "functionDef": {
       "params": [],
-      "returnType": null,
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
       "hasBody": true,
       "isAsync": false,
       "isGenerator": false,
@@ -141,7 +144,11 @@ private namespace H
     "declarationKind": "private",
     "functionDef": {
       "params": [],
-      "returnType": null,
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
       "hasBody": true,
       "isAsync": false,
       "isGenerator": false,

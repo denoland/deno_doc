@@ -1,35 +1,117 @@
 # mod.ts
 export let s = "hello";
-    export let n = 123;
-    export let b = false;
-    export let bi = 100n;
-    export let re = /hello/;
-    export let tpl = `foobar`;
+export let n = 123;
+export let b = false;
+export let bi = 100n;
+export let re = /hello/;
+export let tpl = `foobar`;
+
+export function test() {
+  console.log("hello");
+}
+
+export async function testAsync() {
+  await Promise.resolve(2);
+}
+
+export function cannotInfer() {
+  return something();
+}
+
+export async function cannotInferAsync() {
+  return await something();
+}
+
+export function* cannotInferGenerator() {
+}
+
+export class MyClass {
+  infer() {
+  }
+  async inferAync() {
+  }
+
+  cannotInfer() {
+    return something();
+  }
+
+  async cannotInferAsync() {
+    return await something();
+  }
+
+  *cannotInferGenerator() {
+  }
+}
+
+export namespace MyNamespace {
+  // should not infer because does not have a body
+  declare function cannotInfer();
+}
 
 # diagnostics
 [
   "file:///mod.ts:1:12 Missing JS documentation comment.",
-  "file:///mod.ts:2:16 Missing JS documentation comment.",
-  "file:///mod.ts:3:16 Missing JS documentation comment.",
-  "file:///mod.ts:4:16 Missing JS documentation comment.",
-  "file:///mod.ts:5:16 Missing JS documentation comment.",
-  "file:///mod.ts:6:16 Missing JS documentation comment."
+  "file:///mod.ts:2:12 Missing JS documentation comment.",
+  "file:///mod.ts:3:12 Missing JS documentation comment.",
+  "file:///mod.ts:4:12 Missing JS documentation comment.",
+  "file:///mod.ts:5:12 Missing JS documentation comment.",
+  "file:///mod.ts:6:12 Missing JS documentation comment.",
+  "file:///mod.ts:8:1 Missing JS documentation comment.",
+  "file:///mod.ts:12:1 Missing JS documentation comment.",
+  "file:///mod.ts:16:1 Missing JS documentation comment.",
+  "file:///mod.ts:16:1 Missing return type.",
+  "file:///mod.ts:20:1 Missing JS documentation comment.",
+  "file:///mod.ts:20:1 Missing return type.",
+  "file:///mod.ts:24:1 Missing JS documentation comment.",
+  "file:///mod.ts:24:1 Missing return type.",
+  "file:///mod.ts:27:1 Missing JS documentation comment.",
+  "file:///mod.ts:28:3 Missing JS documentation comment.",
+  "file:///mod.ts:30:3 Missing JS documentation comment.",
+  "file:///mod.ts:33:3 Missing JS documentation comment.",
+  "file:///mod.ts:33:3 Missing return type.",
+  "file:///mod.ts:37:3 Missing JS documentation comment.",
+  "file:///mod.ts:37:3 Missing return type.",
+  "file:///mod.ts:41:3 Missing JS documentation comment.",
+  "file:///mod.ts:41:3 Missing return type.",
+  "file:///mod.ts:45:1 Missing JS documentation comment.",
+  "file:///mod.ts:46:3 Missing JS documentation comment.",
+  "file:///mod.ts:46:3 Missing return type."
 ]
 
 # output.txt
-Defined in file:///mod.ts:3:16
+Defined in file:///mod.ts:16:1
+
+function cannotInfer()
+
+Defined in file:///mod.ts:20:1
+
+async function cannotInferAsync()
+
+Defined in file:///mod.ts:24:1
+
+function* cannotInferGenerator()
+
+Defined in file:///mod.ts:8:1
+
+function test(): void
+
+Defined in file:///mod.ts:12:1
+
+async function testAsync(): Promise<void>
+
+Defined in file:///mod.ts:3:12
 
 let b: boolean
 
-Defined in file:///mod.ts:4:16
+Defined in file:///mod.ts:4:12
 
 let bi: bigint
 
-Defined in file:///mod.ts:2:16
+Defined in file:///mod.ts:2:12
 
 let n: number
 
-Defined in file:///mod.ts:5:16
+Defined in file:///mod.ts:5:12
 
 let re: RegExp
 
@@ -37,9 +119,25 @@ Defined in file:///mod.ts:1:12
 
 let s: string
 
-Defined in file:///mod.ts:6:16
+Defined in file:///mod.ts:6:12
 
 let tpl: string
+
+Defined in file:///mod.ts:27:1
+
+class MyClass
+
+  infer(): void
+  async inferAync(): Promise<void>
+  cannotInfer()
+  async cannotInferAsync()
+  *cannotInferGenerator()
+
+Defined in file:///mod.ts:45:1
+
+namespace MyNamespace
+
+  function cannotInfer()
 
 
 # output.json
@@ -68,7 +166,7 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 15
+      "col": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -86,7 +184,7 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 15
+      "col": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -104,7 +202,7 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 15
+      "col": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -122,7 +220,7 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 15
+      "col": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -143,7 +241,7 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 15
+      "col": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -153,6 +251,288 @@ let tpl: string
         "keyword": "string"
       },
       "kind": "let"
+    }
+  },
+  {
+    "kind": "function",
+    "name": "test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "testAsync",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 12,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "Promise",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": [
+            {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            }
+          ],
+          "typeName": "Promise"
+        }
+      },
+      "hasBody": true,
+      "isAsync": true,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "cannotInfer",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 16,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "cannotInferAsync",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 20,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": true,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "cannotInferGenerator",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 24,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": true,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "MyClass",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 27,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "infer",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 28,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "inferAync",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "hasBody": true,
+            "isAsync": true,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 30,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "cannotInfer",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 33,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "cannotInferAsync",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": true,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 37,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "cannotInferGenerator",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": true,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 41,
+            "col": 2
+          }
+        }
+      ],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "namespace",
+    "name": "MyNamespace",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 45,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "function",
+          "name": "cannotInfer",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 46,
+            "col": 2
+          },
+          "declarationKind": "declare",
+          "functionDef": {
+            "params": [],
+            "returnType": null,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
     }
   }
 ]

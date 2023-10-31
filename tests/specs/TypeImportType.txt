@@ -3,14 +3,13 @@ export function adopt<T>(p: import("./module.ts").Pet<T>) { }
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:1:1 Missing return type."
+  "file:///mod.ts:1:1 Missing JS documentation comment."
 ]
 
 # output.txt
 Defined in file:///mod.ts:1:1
 
-function adopt<T>(p: import("./module.ts").Pet<T>)
+function adopt<T>(p: import("./module.ts").Pet<T>): void
 
 
 # output.json
@@ -50,7 +49,11 @@ function adopt<T>(p: import("./module.ts").Pet<T>)
           }
         }
       ],
-      "returnType": null,
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
       "hasBody": true,
       "isAsync": false,
       "isGenerator": false,

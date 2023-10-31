@@ -4,14 +4,13 @@ export function bar() {};
 
 # diagnostics
 [
-  "file:///mod.ts:2:1 Missing JS documentation comment.",
-  "file:///mod.ts:2:1 Missing return type."
+  "file:///mod.ts:2:1 Missing JS documentation comment."
 ]
 
 # output.txt
 Defined in file:///mod.ts:2:1
 
-function bar()
+function bar(): void
 
 
 # output.json
@@ -27,7 +26,11 @@ function bar()
     "declarationKind": "export",
     "functionDef": {
       "params": [],
-      "returnType": null,
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
       "hasBody": true,
       "isAsync": false,
       "isGenerator": false,

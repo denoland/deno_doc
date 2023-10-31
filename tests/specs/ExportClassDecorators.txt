@@ -27,8 +27,7 @@ export class A {
   "file:///mod.ts:8:3 Missing return type.",
   "file:///mod.ts:13:3 Missing JS documentation comment.",
   "file:///mod.ts:13:3 Missing return type.",
-  "file:///mod.ts:18:3 Missing JS documentation comment.",
-  "file:///mod.ts:18:3 Missing return type."
+  "file:///mod.ts:18:3 Missing JS documentation comment."
 ]
 
 # output.txt
@@ -43,7 +42,7 @@ class A
   get x()
   @enumerable(false)
   greet()
-  method(@readonly param: string)
+  method(@readonly param: string): void
 
 
 # output.json
@@ -193,7 +192,11 @@ class A
                 }
               }
             ],
-            "returnType": null,
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
             "hasBody": true,
             "isAsync": false,
             "isGenerator": false,
