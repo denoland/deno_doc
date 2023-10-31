@@ -314,6 +314,7 @@ fn render_compound_index(
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "title": format!("Index - {} documentation", ctx.package_name),
+        "current_symbol": "",
         "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
@@ -352,6 +353,7 @@ fn render_index(
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "title": format!("Index - {} documentation", ctx.package_name),
+        "current_symbol": "",
         "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
@@ -453,6 +455,7 @@ fn render_page(
       // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
         "title": format!("{} - {} documentation", name, ctx.package_name),
+        "current_symbol": name,
         "additional_css": additional_css,
         "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
