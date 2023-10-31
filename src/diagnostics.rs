@@ -348,12 +348,5 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
 }
 
 fn has_internal_js_doc_tag(js_doc: &JsDoc) -> bool {
-  js_doc.tags.iter().any(|t| match t {
-    JsDocTag::Unsupported { value }
-      if value == "@internal" || value.starts_with("@internal ") =>
-    {
-      true
-    }
-    _ => false,
-  })
+  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
 }
