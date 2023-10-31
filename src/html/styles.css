@@ -66,6 +66,13 @@ a {
   border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
   position: relative;
 }
+#sidepanel a span {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 #sidepanel a:hover, #sidepanel a .active {
   background-color: white;
 }
