@@ -454,6 +454,12 @@ a {
   background-color: rgb(243 244 246);
 }
 
+.example > details .arrow_toggle {
+  color: rgb(75 85 99);
+}
+.example > details[open] .arrow_toggle {
+  transform: rotate(90deg);
+}
 .example > details > summary {
   list-style: none;
   display: flex;

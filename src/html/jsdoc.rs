@@ -141,7 +141,7 @@ fn render_example(example: &str, i: usize, ctx: &RenderContext) -> String {
   // TODO: icons
 
   format!(
-    r#"<div class="example">{}<details id={id}><summary>{}</summary>{}</details></div>"#,
+    r#"<div class="example">{}<details id={id}><summary><div class="arrow_toggle">&#x25B6;</div>{}</summary>{}</details></div>"#,
     anchor(&id),
     markdown_to_html(
       &title.map_or_else(
