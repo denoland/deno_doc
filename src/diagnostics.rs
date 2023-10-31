@@ -64,10 +64,15 @@ pub struct DiagnosticsCollector {
 impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
+    doc_node: &DocNode,
     module: &EsmModuleSymbol,
     symbol_id: SymbolId,
     range: SourceRange,
   ) {
+    if has_internal_js_doc_tag(&doc_node.js_doc) {
+      return; // ignore
+    }
+
     let unique_id = UniqueSymbolId {
       module_id: module.module_id(),
       symbol_id,
@@ -155,7 +160,9 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
         }
       }
 
-      self.visit_doc_node(doc_node);
+      if !has_internal_js_doc_tag(&doc_node.js_doc) {
+        self.visit_doc_node(doc_node);
+      }
 
       last_node = Some(doc_node);
     }
