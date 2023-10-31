@@ -1,0 +1,474 @@
+# mod.ts
+export * from "./other.ts";
+
+// there was a bug where it was missing some diagnostics
+// here because of clashing 
+class Internal1 {}
+class Internal2 {}
+
+/** Test */
+export class MyClass {
+  /** Test */
+  internal: Internal1;
+  /** Test */
+  internal2: Internal2;
+}
+
+# other.ts
+/** Test */
+export const Test1 = 1;
+/** Test */
+export const Test2 = 1;
+/** Test */
+export const Test3 = 1;
+/** Test */
+export const Test4 = 1;
+/** Test */
+export const Test5 = 1;
+/** Test */
+export const Test6 = 1;
+/** Test */
+export const Test7 = 1;
+/** Test */
+export const Test8 = 1;
+/** Test */
+export const Test9 = 1;
+/** Test */
+export const Test10 = 1;
+
+# diagnostics
+[
+  "file:///mod.ts:5:1 Type is not exported, but referenced by an exported type.",
+  "file:///mod.ts:6:1 Type is not exported, but referenced by an exported type."
+]
+
+# output.txt
+Defined in file:///other.ts:2:14
+
+const Test1: 1
+  Test
+
+Defined in file:///other.ts:20:14
+
+const Test10: 1
+  Test
+
+Defined in file:///other.ts:4:14
+
+const Test2: 1
+  Test
+
+Defined in file:///other.ts:6:14
+
+const Test3: 1
+  Test
+
+Defined in file:///other.ts:8:14
+
+const Test4: 1
+  Test
+
+Defined in file:///other.ts:10:14
+
+const Test5: 1
+  Test
+
+Defined in file:///other.ts:12:14
+
+const Test6: 1
+  Test
+
+Defined in file:///other.ts:14:14
+
+const Test7: 1
+  Test
+
+Defined in file:///other.ts:16:14
+
+const Test8: 1
+  Test
+
+Defined in file:///other.ts:18:14
+
+const Test9: 1
+  Test
+
+Defined in file:///mod.ts:5:1
+
+private class Internal1
+
+
+Defined in file:///mod.ts:6:1
+
+private class Internal2
+
+
+Defined in file:///mod.ts:9:1
+
+class MyClass
+  Test
+
+  internal: Internal1
+    Test
+  internal2: Internal2
+    Test
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "Test1",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 2,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test2",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 4,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test3",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 6,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test4",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 8,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test5",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 10,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test6",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 12,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test7",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 14,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test8",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 16,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test9",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 18,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "Test10",
+    "location": {
+      "filename": "file:///other.ts",
+      "line": 20,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "class",
+    "name": "MyClass",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "jsDoc": {
+            "doc": "Test"
+          },
+          "tsType": {
+            "repr": "Internal1",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Internal1"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "internal",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 2
+          }
+        },
+        {
+          "jsDoc": {
+            "doc": "Test"
+          },
+          "tsType": {
+            "repr": "Internal2",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Internal2"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "internal2",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 2
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "Internal1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "Internal2",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

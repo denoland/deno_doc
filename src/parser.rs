@@ -968,7 +968,7 @@ impl<'a> DocParser<'a> {
     let mut handled_symbols = HashSet::new();
     let exports = module_symbol.exports(self.graph, &self.root_symbol);
     for (export_name, (export_module, export_symbol_id)) in &exports {
-      handled_symbols.insert(*export_symbol_id);
+      handled_symbols.insert((export_module.module_id(), *export_symbol_id));
       let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
       let definitions = self.root_symbol.go_to_definitions(
         self.graph,
@@ -979,7 +979,10 @@ impl<'a> DocParser<'a> {
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
         }
-        handled_symbols.insert(definition.symbol.symbol_id());
+        handled_symbols.insert((
+          definition.module.module_id(),
+          definition.symbol.symbol_id(),
+        ));
         let maybe_doc = self.doc_for_maybe_node(
           definition.module,
           definition.symbol,
@@ -996,7 +999,7 @@ impl<'a> DocParser<'a> {
 
     let is_ambient = exports.is_empty() && !module_has_import(module_symbol);
     for child_id in module_symbol.child_decls() {
-      if !handled_symbols.insert(child_id) {
+      if !handled_symbols.insert((module_symbol.module_id(), child_id)) {
         continue; // already handled
       }
       let child_symbol = module_symbol.symbol(child_id).unwrap();
@@ -1012,6 +1015,12 @@ impl<'a> DocParser<'a> {
                 child_symbol,
                 node,
               ) {
+                doc_node.declaration_kind = if is_declared {
+                  DeclarationKind::Declare
+                } else {
+                  DeclarationKind::Private
+                };
+
                 if is_public {
                   if let Some(diagnostics) = &self.diagnostics {
                     diagnostics.borrow_mut().add_private_type_in_public(
@@ -1022,11 +1031,7 @@ impl<'a> DocParser<'a> {
                     );
                   }
                 }
-                doc_node.declaration_kind = if is_declared {
-                  DeclarationKind::Declare
-                } else {
-                  DeclarationKind::Private
-                };
+
                 doc_nodes.push(doc_node);
               }
             }
