@@ -30,6 +30,9 @@ pub const STYLESHEET_FILENAME: &str = "styles.css";
 
 pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
+pub const FUSE_JS: &str = include_str!("./fuse.js");
+pub const FUSE_FILENAME: &str = "fuse.js";
+
 pub const SEARCH_JS: &str = include_str!("./search.js");
 pub const SEARCH_FILENAME: &str = "search.js";
 
@@ -268,6 +271,7 @@ fn render_compound_index(
       },
       "html_tail": {
         "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
+        "fuse_js": format!("./{}", FUSE_FILENAME),
         "url_search": format!("./{}", SEARCH_FILENAME),
       },
       "sidepanel": sidepanel_ctx,
@@ -303,6 +307,7 @@ fn render_index(
       },
       "html_tail": {
         "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
+        "fuse_js": format!("./{}", FUSE_FILENAME),
         "url_search": format!("./{}", SEARCH_FILENAME),
       },
       "sidepanel": sidepanel_ctx,
@@ -402,6 +407,7 @@ fn render_page(
       },
       "html_tail": {
         "url_search_index": format!("./{backs}{SEARCH_INDEX_FILENAME}"),
+        "fuse_js": format!("./{backs}{FUSE_FILENAME}"),
         "url_search": format!("./{backs}{SEARCH_FILENAME}"),
       },
       "sidepanel": sidepanel_ctx,

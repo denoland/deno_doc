@@ -168,6 +168,11 @@ fn generate_docs_directory(
   )
   .unwrap();
   std::fs::write(
+    path.join(deno_doc::html::FUSE_FILENAME),
+    deno_doc::html::FUSE_JS,
+  )
+  .unwrap();
+  std::fs::write(
     path.join(deno_doc::html::SEARCH_FILENAME),
     deno_doc::html::SEARCH_JS,
   )

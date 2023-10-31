@@ -1,3 +1,5 @@
+const Fuse = window.Fuse;
+
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
@@ -5,6 +7,13 @@ const searchResultsDiv = document.querySelector("#searchResults");
 searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
+
+const fuse = new Fuse(SEARCH_INDEX.nodes, {
+  keys: ["name", "nsQualifiers"],
+  isCaseSensitive: false,
+  minMatchCharLength: 2,
+  threshold: 0.4
+});
 
 const loadedUrl = new URL(window.location.href);
 const val = loadedUrl.searchParams.get("q");
@@ -65,8 +74,8 @@ function doSearch(val) {
     showPage();
   } else {
     const results = searchInIndex(val);
-    updateCurrentLocation(val);
     console.log("results", results);
+    updateCurrentLocation(val);
     renderResults(results);
     showSearchResults();
   }
@@ -127,22 +136,21 @@ function renderResults(results) {
 
 function searchInIndex(val) {
   const valLower = val.toLowerCase();
-  const results = SEARCH_INDEX.nodes.filter((node) => {
-    const matches = node.name.toLowerCase().includes(valLower);
+  // const results = SEARCH_INDEX.nodes.filter((node) => {
+  //   if (fuzzyFind(node.name.toLowerCase(), valLower)) {
+  //     return true;
+  //   }
 
-    if (matches) {
-      return matches;
-    }
+  //   if (node.nsQualifiers) {
+  //     return node.nsQualifiers.some((nsName) =>
+  //       fuzzyFind(nsName.toLowerCase().valLower)
+  //     );
+  //   }
 
-    if (node.nsQualifiers) {
-      return node.nsQualifiers.some((nsName) =>
-        nsName.toLowerCase().includes(valLower)
-      );
-    }
-
-    return false;
-  });
-  return results;
+  //   return false;
+  // });
+  // return results;
+  return fuse.search(val).map(result => result.item);
 }
 
 function docNodeKindToStringVariants(kind) {
@@ -161,5 +169,7 @@ function docNodeKindToStringVariants(kind) {
       return ["TypeAlias", "Type Alias", "T"];
     case "namespace":
       return ["Namespace", "Namespace", "N"];
+    default:
+      return [];
   }
 }
