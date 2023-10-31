@@ -119,14 +119,13 @@ pub fn generate(
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let file_paths: Vec<PathBuf> = doc_nodes_by_url
     .keys()
-    .map(|url| {
+    .filter_map(|url| {
       if url.scheme() == "file" {
         Some(url.to_file_path().unwrap())
       } else {
         None
       }
     })
-    .flatten()
     .collect();
   let common_ancestor = find_common_ancestor(file_paths);
   let tt = setup_tt()?;
@@ -643,9 +642,9 @@ fn find_common_ancestor(paths: Vec<PathBuf>) -> Option<PathBuf> {
       }
 
       if common_ancestor.as_os_str().is_empty() {
-        return None; // No common ancestor found.
+        None
       } else {
-        return Some(common_ancestor);
+        Some(common_ancestor)
       }
     }
     None => None, // No paths in the vector.
