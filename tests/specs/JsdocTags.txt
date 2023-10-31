@@ -11,8 +11,9 @@ export function a(b, c, d) {}
 
 # diagnostics
 [
-  "file:///mod.ts:9:1 Missing explicit type."
+  "file:///mod.ts:9:1 Missing return type."
 ]
+
 # output.txt
 Defined in file:///mod.ts:9:1
 

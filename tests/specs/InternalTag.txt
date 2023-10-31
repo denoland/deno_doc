@@ -1,33 +1,48 @@
-{ "private": true }
 # mod.ts
-export class Class {
-  private property = "";
+// the internal tag will suppress diagnostics
+
+/** @internal */
+type PrivateType = string;
+
+/** @internal */
+export class MyClass {
+  test: string;
 }
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Missing JS documentation comment."
+  "file:///mod.ts:8:3 Missing JS documentation comment."
 ]
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:7:1
 
-class Class
+class MyClass
 
-  private property: string
+  @internal
+
+  test: string
 
 
 # output.json
 [
   {
     "kind": "class",
-    "name": "Class",
+    "name": "MyClass",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 1,
+      "line": 7,
       "col": 0
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "unsupported",
+          "value": "@internal"
+        }
+      ]
+    },
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -39,14 +54,14 @@ class Class
             "keyword": "string"
           },
           "readonly": false,
-          "accessibility": "private",
+          "accessibility": null,
           "optional": false,
           "isAbstract": false,
           "isStatic": false,
-          "name": "property",
+          "name": "test",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
+            "line": 8,
             "col": 2
           }
         }

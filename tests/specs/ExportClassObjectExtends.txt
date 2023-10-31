@@ -9,6 +9,7 @@ export class Bar extends obj.Foo {}
   "file:///mod.ts:2:7 Type is not exported, but referenced by an exported type.",
   "file:///mod.ts:4:1 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:2:7
 

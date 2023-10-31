@@ -24,6 +24,7 @@ export class C {
   "file:///mod.ts:11:1 Missing JS documentation comment.",
   "file:///mod.ts:12:3 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:4:1
 

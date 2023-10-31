@@ -17,6 +17,7 @@ export let tpl = `foobarbaz`;
   "file:///mod.ts:6:12 Missing JS documentation comment.",
   "file:///mod.ts:7:12 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:3:12
 

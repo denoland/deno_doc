@@ -24,6 +24,7 @@ export namespace RootNs.OtherNs {
   "file:///mod.ts:15:8 Missing JS documentation comment.",
   "file:///mod.ts:16:3 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:2:1
 

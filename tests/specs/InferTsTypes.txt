@@ -15,6 +15,7 @@ export let s = "hello";
   "file:///mod.ts:5:16 Missing JS documentation comment.",
   "file:///mod.ts:6:16 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:3:16
 
