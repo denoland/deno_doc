@@ -35,6 +35,14 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     override s() {}
 }
 
+# diagnostics
+[
+  "file:///mod.ts:5:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:8:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:13:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:14:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:15:5 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -216,49 +224,5 @@ class Foobar extends Fizz implements Buzz, Aldrin
       "typeParams": [],
       "superTypeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 13,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 14,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 15,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

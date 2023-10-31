@@ -6,6 +6,15 @@ export let s = "hello";
     export let re = /hello/;
     export let tpl = `foobar`;
 
+# diagnostics
+[
+  "file:///mod.ts:1:12 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:16 Type is missing a JS documentation comment.",
+  "file:///mod.ts:3:16 Type is missing a JS documentation comment.",
+  "file:///mod.ts:4:16 Type is missing a JS documentation comment.",
+  "file:///mod.ts:5:16 Type is missing a JS documentation comment.",
+  "file:///mod.ts:6:16 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:3:16
 
@@ -144,57 +153,5 @@ let tpl: string
       },
       "kind": "let"
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 11
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 15
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 15
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 15
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 15
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 6,
-      "col": 15
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

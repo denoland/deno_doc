@@ -17,6 +17,13 @@ export namespace RootNs.OtherNs {
   export class Other {}
 }
 
+# diagnostics
+[
+  "file:///mod.ts:3:18 Type is missing a JS documentation comment.",
+  "file:///mod.ts:7:7 Type is missing a JS documentation comment.",
+  "file:///mod.ts:15:8 Type is missing a JS documentation comment.",
+  "file:///mod.ts:16:3 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -182,41 +189,5 @@ namespace RootNs
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 17
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 6
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 15,
-      "col": 7
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

@@ -16,7 +16,6 @@ export function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, .
      */
     console.log("Hello world");
 }
-
 # output.txt
 Defined in file:///mod.ts:1:1
 

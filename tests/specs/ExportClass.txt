@@ -32,6 +32,19 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
     override s() {}
 }
 
+# diagnostics
+[
+  "file:///mod.ts:4:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:5:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:6:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:7:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:8:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:9:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:10:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:11:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:31:5 Type is missing a JS documentation comment.",
+  "file:///mod.ts:31:5 Missing explicit type. Add one to improve documentation and type checking performance."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -476,89 +489,5 @@ class Foobar extends Fizz implements Buzz, Aldrin
       "typeParams": [],
       "superTypeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 6,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 9,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 10,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 11,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 31,
-      "col": 4
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 31,
-      "col": 4
-    },
-    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
   }
 ]

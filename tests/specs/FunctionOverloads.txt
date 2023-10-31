@@ -3,6 +3,11 @@ export function a(b: string): string;
 export function a(b: number): number;
 export function a(b: string | number): string | number {}
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -134,25 +139,5 @@ function a(b: number): number
       "isGenerator": false,
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

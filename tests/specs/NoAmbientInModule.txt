@@ -2,6 +2,11 @@
 declare function foo(): number;
 export function bar() {};
 
+# diagnostics
+[
+  "file:///mod.ts:2:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:1 Missing explicit type. Add one to improve documentation and type checking performance."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -27,25 +32,5 @@ function bar()
       "isGenerator": false,
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0
-    },
-    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
   }
 ]

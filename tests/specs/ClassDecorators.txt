@@ -17,6 +17,15 @@ export class A {
   }
 }
 
+# diagnostics
+[
+  "file:///mod.ts:2:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:5:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:8:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:8:3 Missing explicit type. Add one to improve documentation and type checking performance.",
+  "file:///mod.ts:13:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:13:3 Missing explicit type. Add one to improve documentation and type checking performance."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -164,57 +173,5 @@ class A
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 2
-    },
-    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 13,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 13,
-      "col": 2
-    },
-    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
   }
 ]

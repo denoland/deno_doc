@@ -4,6 +4,12 @@ export class Class {
   optproperty: bigint;
 }
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:3:3 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -75,33 +81,5 @@ class Class
       "typeParams": [],
       "superTypeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

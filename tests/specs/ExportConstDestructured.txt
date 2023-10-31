@@ -16,6 +16,11 @@ const c = { a: "a", b: 2 };
 
     export const { f, g: h } = d;
 
+# diagnostics
+[
+  "file:///mod.ts:16:20 Type is missing a JS documentation comment.",
+  "file:///mod.ts:16:26 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:6:7
 
@@ -115,25 +120,5 @@ const h: number
       },
       "kind": "const"
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 19
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 25
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

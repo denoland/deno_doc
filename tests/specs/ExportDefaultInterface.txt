@@ -6,7 +6,6 @@ export default interface Reader {
     /** Read n bytes */
     read?(buf: Uint8Array, something: unknown): Promise<number>
 }
-
 # output.txt
 Defined in file:///mod.ts:4:1
 

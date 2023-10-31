@@ -3,6 +3,10 @@
 const foo: string = "foo";
 export { foo };
 
+# diagnostics
+[
+  "file:///mod.ts:1:7 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:7
 
@@ -28,17 +32,5 @@ const foo: string
       },
       "kind": "const"
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 6
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

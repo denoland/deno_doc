@@ -8,6 +8,10 @@ import Options = Test.Options;
 
 export { Options };
 
+# diagnostics
+[
+  "file:///mod.ts:2:3 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:3
 
@@ -34,17 +38,5 @@ interface Options
       "indexSignatures": [],
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

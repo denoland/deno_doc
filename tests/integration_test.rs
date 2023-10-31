@@ -40,11 +40,13 @@ async fn test_doc_specs() {
       .diagnostics
       .iter()
       .map(|d| {
-        serde_json::to_value(serde_json::json!({
-          "location": d.location,
-          "kind": d.kind.to_string(),
-        }))
-        .unwrap()
+        format!(
+          "{}:{}:{} {}",
+          d.location.filename,
+          d.location.line,
+          d.location.col + 1,
+          d.kind.to_string()
+        )
       })
       .collect::<Vec<_>>();
     let spec = if update_var.as_ref().map(|v| v.as_str()) == Ok("1") {

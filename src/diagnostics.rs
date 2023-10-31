@@ -35,7 +35,7 @@ impl std::fmt::Display for DocDiagnosticKind {
         f.write_str("Type is missing a JS documentation comment.")
       }
       DocDiagnosticKind::MissingTypeRef => f.write_str(
-        "Type reference could not be inferred. Add an explicit type to improve documentation.",
+        "Missing explicit type. Add one to improve documentation and type checking performance.",
       ),
       DocDiagnosticKind::PrivateTypeRef => {
         f.write_str("Type is not exported, but referenced by an exported type.")

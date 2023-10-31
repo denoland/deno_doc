@@ -1,6 +1,10 @@
 # mod.ts
 export function foo(bar: any): asserts bar {}
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -48,17 +52,5 @@ function foo(bar: any): asserts bar
       "isGenerator": false,
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

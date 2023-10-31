@@ -20,6 +20,12 @@ export class A {
   a() {}
 }
 
+# diagnostics
+[
+  "file:///mod.ts:4:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:19:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:19:3 Missing explicit type. Add one to improve documentation and type checking performance."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -182,33 +188,5 @@ class A
       "typeParams": [],
       "superTypeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 19,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 19,
-      "col": 2
-    },
-    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
   }
 ]

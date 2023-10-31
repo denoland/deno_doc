@@ -1,6 +1,10 @@
 # mod.ts
 export interface Interface<V> extends Iterable<V> {}
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -49,17 +53,5 @@ interface Interface<V> extends Iterable<V>
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

@@ -8,7 +8,6 @@
 
 /** One associated with a class */
 export class A {}
-
 # output.txt
 Defined in file:///mod.ts:3:1
 

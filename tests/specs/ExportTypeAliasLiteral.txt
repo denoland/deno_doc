@@ -7,6 +7,10 @@ export type A = {
   set c(v: number);
 };
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -119,17 +123,5 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
       },
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

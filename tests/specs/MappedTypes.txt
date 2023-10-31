@@ -3,6 +3,10 @@ export type MappedTypeWithNewProperties<Type> = {
   readonly [Properties in keyof Type as NewKeyType]?: Type[Properties];
 };
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -84,17 +88,5 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

@@ -20,6 +20,17 @@ export const tpl2 = `Value: ${num}`;
 /** @ignore */
 export const tpl3 = `Value: ${num}`;
 
+# diagnostics
+[
+  "file:///mod.ts:4:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:12:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:13:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:14:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:15:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:16:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:17:14 Type is missing a JS documentation comment.",
+  "file:///mod.ts:18:14 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:14:14
 
@@ -328,73 +339,5 @@ const tpl2: string
       },
       "kind": "const"
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 12,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 13,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 14,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 15,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 17,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 18,
-      "col": 13
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

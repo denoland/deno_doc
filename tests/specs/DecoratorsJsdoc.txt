@@ -5,6 +5,10 @@ export class A {
   a: string = "a";
 }
 
+# diagnostics
+[
+  "file:///mod.ts:4:3 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:3:1
 
@@ -69,17 +73,5 @@ class A
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

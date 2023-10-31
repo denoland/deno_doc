@@ -3,6 +3,11 @@ export interface Interface {
   readonly [index: number]: Interface;
 }
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:3 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -59,25 +64,5 @@ interface Interface
       ],
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

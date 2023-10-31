@@ -18,6 +18,10 @@ export interface B {}
  */
 export function C() {}
 
+# diagnostics
+[
+  "file:///mod.ts:18:1 Missing explicit type. Add one to improve documentation and type checking performance."
+]
 # output.txt
 Defined in file:///mod.ts:18:1
 
@@ -110,17 +114,5 @@ interface B
       "isGenerator": false,
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 18,
-      "col": 0
-    },
-    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
   }
 ]

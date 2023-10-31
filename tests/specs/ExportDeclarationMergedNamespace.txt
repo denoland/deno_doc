@@ -8,6 +8,12 @@ namespace Namespace1 {
 
 export { Namespace1 };
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:3 Type is missing a JS documentation comment.",
+  "file:///mod.ts:5:3 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -74,33 +80,5 @@ namespace Namespace1
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 2
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

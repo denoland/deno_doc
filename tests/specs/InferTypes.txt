@@ -1,6 +1,10 @@
 # mod.ts
 export type Flatten<T> = T extends Array<infer U> ? U : T;
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -73,17 +77,5 @@ type Flatten<T> = T extends Array<infer U> ? U : T
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

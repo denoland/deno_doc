@@ -4,6 +4,11 @@ const obj = { Foo }
     
 export class Bar extends obj.Foo {}
 
+# diagnostics
+[
+  "file:///mod.ts:2:7 Type is not exported, but referenced by an exported type.",
+  "file:///mod.ts:4:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:7
 
@@ -69,25 +74,5 @@ class Bar extends obj.Foo
       },
       "kind": "const"
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 6
-    },
-    "kind": "Type is not exported, but referenced by an exported type."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

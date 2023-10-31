@@ -13,6 +13,11 @@ declare namespace RootNs {
     }
 }
 
+# diagnostics
+[
+  "file:///mod.ts:3:19 Type is missing a JS documentation comment.",
+  "file:///mod.ts:7:7 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -142,25 +147,5 @@ namespace RootNs
         }
       ]
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 18
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 6
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]

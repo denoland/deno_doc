@@ -5,6 +5,14 @@ export type tplLit = `text`;
 export type tplLitArg = `test${number}`;
 export type numLit = 5;
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:2:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:3:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:4:1 Type is missing a JS documentation comment.",
+  "file:///mod.ts:5:1 Type is missing a JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -164,49 +172,5 @@ type tplLitArg = `test${number}`
       },
       "typeParams": []
     }
-  }
-]
-
-# diagnostics
-[
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
-  },
-  {
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0
-    },
-    "kind": "Type is missing a JS documentation comment."
   }
 ]
