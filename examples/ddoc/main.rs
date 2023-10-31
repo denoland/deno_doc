@@ -147,47 +147,16 @@ fn generate_docs_directory(
   output_dir: String,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
 ) -> Result<(), anyhow::Error> {
-  let cwd = std::env::current_dir().unwrap();
+  let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);
-  let output_dir_relative = output_dir_resolved.strip_prefix(&cwd).unwrap();
-  let mut output_dir_relative_str =
-    output_dir_relative.to_string_lossy().to_string();
-  output_dir_relative_str = output_dir_relative_str
-    .strip_prefix('/')
-    .unwrap_or(&output_dir_relative_str)
-    .to_string();
-  output_dir_relative_str = output_dir_relative_str
-    .strip_suffix('/')
-    .unwrap_or(&output_dir_relative_str)
-    .to_string();
-  // TODO: make `base_url` configurable?
-  let base_url = format!("/{}/", output_dir_relative_str);
 
-  let options = deno_doc::html::GenerateOptions {
-    package_name: name,
-    base_url,
-  };
+  let options = deno_doc::html::GenerateOptions { package_name: name };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 
   let path = &output_dir_resolved;
   let _ = std::fs::remove_dir_all(path);
   std::fs::create_dir(path)?;
 
-  std::fs::write(
-    path.join(deno_doc::html::STYLESHEET_FILENAME),
-    deno_doc::html::STYLESHEET,
-  )
-  .unwrap();
-  std::fs::write(
-    path.join(deno_doc::html::SEARCH_INDEX_FILENAME),
-    deno_doc::html::generate_search_index(doc_nodes_by_url)?,
-  )
-  .unwrap();
-  std::fs::write(
-    path.join(deno_doc::html::SEARCH_FILENAME),
-    deno_doc::html::SEARCH_JS,
-  )
-  .unwrap();
   for (name, content) in html {
     let this_path = path.join(name);
     let prefix = this_path.parent().unwrap();

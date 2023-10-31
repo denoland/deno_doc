@@ -6,11 +6,16 @@ body {
   background-color: rgb(231 229 228);
   display: flex;
 }
+table {
+  border-color: inherit;
+  border-collapse: collapse;
+}
 #content {
   padding: 30px;
   width: 100%;
   background-color: white;
   border-radius: 10px 0 0 10px;
+  overflow-y: auto;
 }
 p {
   margin: 0;
@@ -34,6 +39,7 @@ a {
   padding: 12px 0 12px 12px;
   height: 100vh;
   width: fit-content;
+  min-width: 12%;
   max-width: 22%;
   top: 0;
   left: 0;
@@ -83,6 +89,16 @@ a {
   width: 10px;
   border-top-right-radius: 10px;
   box-shadow: 0 -10px 0 0 white;
+}
+#sidepanel .section_title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 20px 10px 0;
+}
+#sidepanel .section_title h3 {
+  margin: 0;
+  line-height: 1;
 }
 
 #searchbar {

@@ -25,13 +25,16 @@ mod types;
 mod util;
 mod variable;
 
-pub const STYLESHEET: &str = include_str!("./styles.css");
-pub const STYLESHEET_FILENAME: &str = "styles.css";
+const STYLESHEET: &str = include_str!("./styles.css");
+const STYLESHEET_FILENAME: &str = "styles.css";
 
-pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
+const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
-pub const SEARCH_JS: &str = include_str!("./search.js");
-pub const SEARCH_FILENAME: &str = "search.js";
+const FUSE_JS: &str = include_str!("./fuse.js");
+const FUSE_FILENAME: &str = "fuse.js";
+
+const SEARCH_JS: &str = include_str!("./search.js");
+const SEARCH_FILENAME: &str = "search.js";
 
 const SEARCH_BAR: &str = r#"
 <input type="text" id="searchbar" style="display: none;" />
@@ -41,26 +44,11 @@ const SEARCH_BAR: &str = r#"
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
   pub package_name: String,
-
-  /// Pathname that all links will refer to, eg. "/docs".
-  pub base_url: String,
 }
 
 struct GenerateCtx<'ctx> {
   package_name: String,
-  base_url: String,
   tt: TinyTemplate<'ctx>,
-}
-
-impl<'ctx> GenerateCtx<'ctx> {
-  #[allow(dead_code)]
-  fn url(&self, path: String) -> String {
-    format!("{}{}", self.base_url, path)
-  }
-
-  fn url_with_html(&self, path: String) -> String {
-    format!("{}{}.html", self.base_url, path)
-  }
 }
 
 fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
@@ -106,7 +94,6 @@ pub fn generate(
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
-    base_url: options.base_url,
     tt,
   };
   let mut files = HashMap::new();
@@ -151,6 +138,14 @@ pub fn generate(
     }
   }
 
+  files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
+  files.insert(
+    SEARCH_INDEX_FILENAME.into(),
+    generate_search_index(doc_nodes_by_url)?,
+  );
+  files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
+  files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+
   Ok(files)
 }
 
@@ -165,9 +160,10 @@ fn generate_pages_inner(
     Vec::with_capacity(name_partitions.values().len() * 2);
 
   for (name, doc_nodes) in name_partitions.iter() {
-    let file_name = base.as_ref().map_or(name.to_string(), |base| {
-      format!("{}/{name}.html", base.join("/"))
-    });
+    let file_name = base.as_ref().map_or_else(
+      || format!("{}.html", name),
+      |base| format!("{}/{name}.html", base.join("/")),
+    );
     let symbol_name = base.as_ref().map_or(name.to_string(), |base| {
       format!("{}.{name}", base.join("."))
     });
@@ -242,7 +238,7 @@ fn render_compound_index(
   let sidepanel_ctx = json!({
     "node_kinds": partitions.keys().map(|k| format!("{:?}", k)).collect::<Vec<_>>(),
     "files": files,
-    "base_url": ctx.base_url.to_string(),
+    "base_url": "./".to_string(),
     "package_name": ctx.package_name.to_string(),
   });
 
@@ -279,11 +275,12 @@ fn render_compound_index(
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "additional_css": "",
-        "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
+        "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
-        "url_search_index": format!("{}{}", ctx.base_url, SEARCH_INDEX_FILENAME),
-        "url_search": format!("{}{}", ctx.base_url, SEARCH_FILENAME),
+        "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
+        "fuse_js": format!("./{}", FUSE_FILENAME),
+        "url_search": format!("./{}", SEARCH_FILENAME),
       },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
@@ -314,11 +311,12 @@ fn render_index(
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "additional_css": "",
-        "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
+        "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
-        "url_search_index": format!("{}{}", ctx.base_url, SEARCH_INDEX_FILENAME),
-        "url_search": format!("{}{}", ctx.base_url, SEARCH_FILENAME),
+        "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
+        "fuse_js": format!("./{}", FUSE_FILENAME),
+        "url_search": format!("./{}", SEARCH_FILENAME),
       },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
@@ -397,39 +395,44 @@ fn render_page(
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group = symbol::render_symbol_group(doc_nodes, name, &render_ctx);
 
+  let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
+
+  let sidepanel_ctx = SidepanelRenderCtx {
+    base_url: backs.clone(),
+    ..sidepanel_ctx.clone()
+  };
+
+  let additional_css = render_ctx.additional_css.borrow();
+  let additional_css: &str = additional_css.as_ref();
+
   Ok(ctx.tt.render(
     "page.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
-        "additional_css": "",
-        "stylesheet_url": format!("{}{}", ctx.base_url, STYLESHEET_FILENAME),
+        "additional_css": additional_css,
+        "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
       "html_tail": {
-        "url_search_index": format!("{}{}", ctx.base_url, SEARCH_INDEX_FILENAME),
-        "url_search": format!("{}{}", ctx.base_url, SEARCH_FILENAME),
+        "url_search_index": format!("./{backs}{SEARCH_INDEX_FILENAME}"),
+        "fuse_js": format!("./{backs}{FUSE_FILENAME}"),
+        "url_search": format!("./{backs}{SEARCH_FILENAME}"),
       },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
-      "base_url": ctx.base_url,
+      "base_url": format!("./{backs}index.html"),
       "symbol_group": symbol_group
     }),
   )?)
 }
 
-#[derive(Debug, Serialize)]
-struct SidepanelPartitionNode {
-  url: String,
-  name: String,
-}
-
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct SidepanelPartition {
   kind: util::DocNodeKindCtx,
-  doc_nodes: Vec<SidepanelPartitionNode>,
+  doc_nodes: Vec<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct SidepanelRenderCtx {
   base_url: String,
   package_name: String,
@@ -446,17 +449,14 @@ fn sidepanel_render_ctx(
       kind: kind.into(),
       doc_nodes: doc_nodes
         .iter()
-        .map(|doc_node| SidepanelPartitionNode {
-          url: ctx.url_with_html(doc_node.name.to_string()),
-          name: doc_node.name.to_string(),
-        })
+        .map(|doc_node| doc_node.name.to_string())
         .collect::<Vec<_>>(),
     })
     .collect();
   partitions.sort_by_key(|part| part.kind.kind.clone());
 
   SidepanelRenderCtx {
-    base_url: ctx.base_url.to_string(),
+    base_url: "./".to_string(),
     package_name: ctx.package_name.to_string(),
     partitions,
   }
@@ -532,7 +532,7 @@ fn doc_node_into_search_index_nodes(
   doc_node_into_search_index_nodes_inner(doc_node, vec![])
 }
 
-pub fn generate_search_index(
+fn generate_search_index(
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   // TODO(bartlomieju): remove
@@ -550,7 +550,7 @@ pub fn generate_search_index(
     },
   );
 
-  let search_index = serde_json::json!({
+  let search_index = json!({
     "nodes": doc_nodes
   });
   let search_index_str = serde_json::to_string(&search_index)?;

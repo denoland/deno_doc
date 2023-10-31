@@ -65,7 +65,7 @@ pub fn anchor(name: &str) -> String {
       aria-label="Anchor"
       tabIndex=-1
     >
-      <div style="width: 14px; height: 14px; display: inline-block;">F</div>
+      <div style="width: 14px; height: 14px; display: inline-block;">🔗</div>
     </a>"##
   )
 }
@@ -153,7 +153,7 @@ pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
   )
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,
   char: char,
