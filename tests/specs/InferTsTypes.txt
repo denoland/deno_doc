@@ -15,11 +15,15 @@ export async function testAsync() {
 }
 
 export function cannotInfer() {
-  return something();
+  if (true) {
+    return something();
+  }
 }
 
 export async function cannotInferAsync() {
-  return await something();
+  for (var test of testing) {
+    return await something();
+  }
 }
 
 export function* cannotInferGenerator() {
@@ -32,7 +36,9 @@ export class MyClass {
   }
 
   cannotInfer() {
-    return something();
+    for (var i = 0; i < 10; i++) {
+      return something();
+    }
   }
 
   async cannotInferAsync() {
@@ -60,22 +66,22 @@ export namespace MyNamespace {
   "file:///mod.ts:12:1 Missing JS documentation comment.",
   "file:///mod.ts:16:1 Missing JS documentation comment.",
   "file:///mod.ts:16:1 Missing return type.",
-  "file:///mod.ts:20:1 Missing JS documentation comment.",
-  "file:///mod.ts:20:1 Missing return type.",
-  "file:///mod.ts:24:1 Missing JS documentation comment.",
-  "file:///mod.ts:24:1 Missing return type.",
-  "file:///mod.ts:27:1 Missing JS documentation comment.",
-  "file:///mod.ts:28:3 Missing JS documentation comment.",
-  "file:///mod.ts:30:3 Missing JS documentation comment.",
-  "file:///mod.ts:33:3 Missing JS documentation comment.",
-  "file:///mod.ts:33:3 Missing return type.",
+  "file:///mod.ts:22:1 Missing JS documentation comment.",
+  "file:///mod.ts:22:1 Missing return type.",
+  "file:///mod.ts:28:1 Missing JS documentation comment.",
+  "file:///mod.ts:28:1 Missing return type.",
+  "file:///mod.ts:31:1 Missing JS documentation comment.",
+  "file:///mod.ts:32:3 Missing JS documentation comment.",
+  "file:///mod.ts:34:3 Missing JS documentation comment.",
   "file:///mod.ts:37:3 Missing JS documentation comment.",
   "file:///mod.ts:37:3 Missing return type.",
-  "file:///mod.ts:41:3 Missing JS documentation comment.",
-  "file:///mod.ts:41:3 Missing return type.",
-  "file:///mod.ts:45:1 Missing JS documentation comment.",
-  "file:///mod.ts:46:3 Missing JS documentation comment.",
-  "file:///mod.ts:46:3 Missing return type."
+  "file:///mod.ts:43:3 Missing JS documentation comment.",
+  "file:///mod.ts:43:3 Missing return type.",
+  "file:///mod.ts:47:3 Missing JS documentation comment.",
+  "file:///mod.ts:47:3 Missing return type.",
+  "file:///mod.ts:51:1 Missing JS documentation comment.",
+  "file:///mod.ts:53:3 Missing JS documentation comment.",
+  "file:///mod.ts:53:3 Missing return type."
 ]
 
 # output.txt
@@ -83,11 +89,11 @@ Defined in file:///mod.ts:16:1
 
 function cannotInfer()
 
-Defined in file:///mod.ts:20:1
+Defined in file:///mod.ts:22:1
 
 async function cannotInferAsync()
 
-Defined in file:///mod.ts:24:1
+Defined in file:///mod.ts:28:1
 
 function* cannotInferGenerator()
 
@@ -123,7 +129,7 @@ Defined in file:///mod.ts:6:12
 
 let tpl: string
 
-Defined in file:///mod.ts:27:1
+Defined in file:///mod.ts:31:1
 
 class MyClass
 
@@ -133,7 +139,7 @@ class MyClass
   async cannotInferAsync()
   *cannotInferGenerator()
 
-Defined in file:///mod.ts:45:1
+Defined in file:///mod.ts:51:1
 
 namespace MyNamespace
 
@@ -329,7 +335,7 @@ namespace MyNamespace
     "name": "cannotInferAsync",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 20,
+      "line": 22,
       "col": 0
     },
     "declarationKind": "export",
@@ -347,7 +353,7 @@ namespace MyNamespace
     "name": "cannotInferGenerator",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 24,
+      "line": 28,
       "col": 0
     },
     "declarationKind": "export",
@@ -365,7 +371,7 @@ namespace MyNamespace
     "name": "MyClass",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 27,
+      "line": 31,
       "col": 0
     },
     "declarationKind": "export",
@@ -396,7 +402,7 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 28,
+            "line": 32,
             "col": 2
           }
         },
@@ -430,7 +436,7 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 30,
+            "line": 34,
             "col": 2
           }
         },
@@ -451,7 +457,7 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 33,
+            "line": 37,
             "col": 2
           }
         },
@@ -472,7 +478,7 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 37,
+            "line": 43,
             "col": 2
           }
         },
@@ -493,7 +499,7 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 41,
+            "line": 47,
             "col": 2
           }
         }
@@ -509,7 +515,7 @@ namespace MyNamespace
     "name": "MyNamespace",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 45,
+      "line": 51,
       "col": 0
     },
     "declarationKind": "export",
@@ -520,7 +526,7 @@ namespace MyNamespace
           "name": "cannotInfer",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 46,
+            "line": 53,
             "col": 2
           },
           "declarationKind": "declare",

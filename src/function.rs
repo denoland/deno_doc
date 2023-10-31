@@ -90,14 +90,14 @@ pub fn get_doc_for_fn_decl(
   (name, fn_def)
 }
 
-fn get_return_stmt_from_function<'a>(
-  func: &'a deno_ast::swc::ast::Function,
-) -> Option<&'a ReturnStmt> {
+fn get_return_stmt_from_function(
+  func: &deno_ast::swc::ast::Function,
+) -> Option<&ReturnStmt> {
   let body = func.body.as_ref()?;
   get_return_stmt_from_stmts(&body.stmts)
 }
 
-fn get_return_stmt_from_stmts<'a>(stmts: &'a [Stmt]) -> Option<&'a ReturnStmt> {
+fn get_return_stmt_from_stmts(stmts: &[Stmt]) -> Option<&ReturnStmt> {
   for stmt in stmts {
     if let Some(return_stmt) = get_return_stmt_from_stmt(stmt) {
       return Some(return_stmt);
@@ -107,7 +107,7 @@ fn get_return_stmt_from_stmts<'a>(stmts: &'a [Stmt]) -> Option<&'a ReturnStmt> {
   None
 }
 
-fn get_return_stmt_from_stmt<'a>(stmt: &'a Stmt) -> Option<&'a ReturnStmt> {
+fn get_return_stmt_from_stmt(stmt: &Stmt) -> Option<&ReturnStmt> {
   match stmt {
     Stmt::Block(n) => get_return_stmt_from_stmts(&n.stmts),
     Stmt::With(n) => get_return_stmt_from_stmt(&n.body),
