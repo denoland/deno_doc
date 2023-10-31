@@ -130,10 +130,20 @@ a {
 }
 #searchResults ul a {
   display: flex;
-  gap: 10px;
+  gap: 1rem;
   align-items: center;
   padding: 10px 12px;
+  justify-content: space-between;
   line-height: 1;
+}
+#searchResults ul a div:first-child {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+#searchResults ul a div:last-child {
+  color: gray;
+  font-style: italic;
 }
 
 #searchResults ul a:hover {

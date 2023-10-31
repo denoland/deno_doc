@@ -120,11 +120,13 @@ function renderResults(results) {
     // TODO(bartlomieju): use "common ancestor" for displaying location
     html += `<li>
 <a href="${result.name.split(".").join("/")}.html">
-    <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
-        ${symbol}
+    <div>
+        <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
+            ${symbol}
+        </div>
+        <span>${label}</span>
     </div>
-    <span>${label}</span>
-    <span style="position: absolute; right: 0; color: gray; font-style: italic;">${result.location.filename}:${result.location.line}</span>
+    <div>${result.location.filename}:${result.location.line}</div>
 </a>
 </li>`;
   }
