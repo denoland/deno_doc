@@ -313,6 +313,7 @@ fn render_compound_index(
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
+        "title": format!("Index - {}", ctx.package_name),
         "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
@@ -350,6 +351,7 @@ fn render_index(
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
+        "title": format!("Index - {}", ctx.package_name),
         "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
@@ -450,6 +452,7 @@ fn render_page(
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
+        "title": format!("{} - {}", name, ctx.package_name),
         "additional_css": additional_css,
         "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
