@@ -242,6 +242,13 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
+  let render_ctx = RenderContext {
+    additional_css: Rc::new(RefCell::new("".to_string())),
+    namespace: None,
+    current_symbols: Default::default(),
+    current_type_params: Default::default(),
+  };
+
   let module_docs = doc_nodes_by_url
     .iter()
     .map(|(url, nodes)| {
@@ -251,16 +258,7 @@ fn render_compound_index(
       let docs_md = docs
         .and_then(|node| node.js_doc.doc.clone())
         .unwrap_or_default();
-      let rendered_docs = markdown_to_html(
-        &docs_md,
-        false,
-        &RenderContext {
-          additional_css: Rc::new(RefCell::new("".to_string())),
-          namespace: None,
-          current_symbols: Default::default(),
-          current_type_params: Default::default(),
-        },
-      );
+      let rendered_docs = markdown_to_html(&docs_md, false, &render_ctx);
 
       json!({
         "url": url.as_str(),
@@ -269,12 +267,15 @@ fn render_compound_index(
     })
     .collect::<Vec<_>>();
 
+  let additional_css = render_ctx.additional_css.borrow();
+  let additional_css: &str = additional_css.as_ref();
+
   Ok(ctx.tt.render(
     "compound_index.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
-        "additional_css": "",
+        "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -295,22 +296,23 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let content = namespace::doc_node_kind_sections(
-    partitions,
-    &RenderContext {
-      additional_css: Rc::new(RefCell::new("".to_string())),
-      namespace: None,
-      current_symbols: current_symbols.clone(),
-      current_type_params: Default::default(),
-    },
-  );
+  let render_ctx = RenderContext {
+    additional_css: Rc::new(RefCell::new("".to_string())),
+    namespace: None,
+    current_symbols: current_symbols.clone(),
+    current_type_params: Default::default(),
+  };
+  let content = namespace::doc_node_kind_sections(partitions, &render_ctx);
+
+  let additional_css = render_ctx.additional_css.borrow();
+  let additional_css: &str = additional_css.as_ref();
 
   Ok(ctx.tt.render(
     "index_list.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
-        "additional_css": "",
+        "additional_css": additional_css,
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {

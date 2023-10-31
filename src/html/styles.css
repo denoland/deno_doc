@@ -1,5 +1,6 @@
-html {
-    font-family: sans-serif;
+:root {
+  font-family: sans-serif;
+  --general-border-radius: 10px;
 }
 body {
   margin: 0;
@@ -14,8 +15,11 @@ table {
   padding: 30px;
   width: 100%;
   background-color: white;
-  border-radius: 10px 0 0 10px;
+  border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
   overflow-y: auto;
+}
+#content > h2 {
+  margin: 0;
 }
 p {
   margin: 0;
@@ -35,7 +39,6 @@ a {
 }
 #sidepanel {
   flex-shrink: 0;
-  background-color: rgb(231 229 228);
   padding: 12px 0 12px 12px;
   height: 100vh;
   width: fit-content;
@@ -60,35 +63,35 @@ a {
 #sidepanel a {
   display: block;
   padding: 8px 16px 8px 8px;
-  border-radius: 10px 0 0 10px;
+  border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
   position: relative;
 }
-#sidepanel a:hover {
+#sidepanel a:hover, #sidepanel a .active {
   background-color: white;
 }
-#sidepanel a:hover::before {
+#sidepanel a:hover::before, #sidepanel a .active::before {
   content: "";
   position: absolute;
 
   background-color: transparent;
-  top: -20px;
+  top: calc(var(--general-border-radius) * -2);
   right: 0;
-  height: 20px;
-  width: 10px;
-  border-bottom-right-radius: 10px;
-  box-shadow: 0 10px 0 0 white;
+  height: calc(var(--general-border-radius) * 2);
+  width: var(--general-border-radius);
+  border-bottom-right-radius: var(--general-border-radius);
+  box-shadow: 0 var(--general-border-radius) 0 0 white;
 }
-#sidepanel a:hover::after {
+#sidepanel a:hover::after, #sidepanel a .active::after {
   content: "";
   position: absolute;
 
   background-color: transparent;
-  bottom: -20px;
+  bottom: calc(var(--general-border-radius) * -2);
   right: 0;
-  height: 20px;
-  width: 10px;
-  border-top-right-radius: 10px;
-  box-shadow: 0 -10px 0 0 white;
+  height: calc(var(--general-border-radius) * 2);
+  width: var(--general-border-radius);
+  border-top-right-radius: var(--general-border-radius);
+  box-shadow: 0 calc(var(--general-border-radius) * -1) 0 0 white;
 }
 #sidepanel .section_title {
   display: flex;
@@ -103,6 +106,13 @@ a {
 
 #searchbar {
   width: 100%;
+  padding: 0.575rem;
+  box-sizing: border-box;
+  border: none;
+  background-color: rgb(231 229 228);
+  border-radius: 10px;
+  font-size: 1rem;
+  margin: 1.5rem 0;
 }
 #searchResults ul {
   list-style: none;
