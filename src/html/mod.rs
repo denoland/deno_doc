@@ -4,7 +4,6 @@ use serde::Serialize;
 use serde_json::json;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
@@ -49,7 +48,6 @@ pub struct GenerateOptions {
 
 struct GenerateCtx<'ctx> {
   package_name: String,
-  common_ancestor: Option<PathBuf>,
   tt: TinyTemplate<'ctx>,
 }
 
@@ -89,51 +87,13 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   Ok(tt)
 }
 
-fn common_ancestor(paths: Vec<PathBuf>) -> Option<PathBuf> {
-  assert!(!paths.is_empty());
-
-  let shortest_path = paths.iter().min_by_key(|path| path.components().count());
-
-  match shortest_path {
-    Some(shortest) => {
-      let mut common_ancestor = PathBuf::new();
-
-      for (index, component) in shortest.components().enumerate() {
-        if paths.iter().all(|path| {
-          path.components().count() > index
-            && path.components().nth(index) == Some(component)
-        }) {
-          common_ancestor.push(component);
-        } else {
-          break;
-        }
-      }
-
-      if common_ancestor.as_os_str().is_empty() {
-        return None; // No common ancestor found.
-      } else {
-        return Some(common_ancestor);
-      }
-    }
-    None => None, // No paths in the vector.
-  }
-}
-
 pub fn generate(
   options: GenerateOptions,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
-  let urls: Vec<ModuleSpecifier> = doc_nodes_by_url.keys().cloned().collect();
-  let file_paths: Vec<std::path::PathBuf> = urls
-    .into_iter()
-    .map(|u| u.to_file_path().unwrap())
-    .collect();
-  let common_ancestor = common_ancestor(file_paths);
-
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
-    common_ancestor,
     tt,
   };
   let mut files = HashMap::new();
@@ -181,7 +141,7 @@ pub fn generate(
   files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
-    generate_search_index(&ctx, doc_nodes_by_url)?,
+    generate_search_index(doc_nodes_by_url)?,
   );
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
@@ -270,20 +230,10 @@ fn render_compound_index(
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
+  // TODO(bartlomieju): strip prefix by using a common ancestor
   let files = doc_nodes_by_url
     .keys()
-    .map(|url| url.to_file_path().unwrap())
-    .map(|path| {
-      if let Some(ancestor) = ctx.common_ancestor.as_ref() {
-        path
-          .strip_prefix(ancestor)
-          .unwrap()
-          .to_string_lossy()
-          .to_string()
-      } else {
-        path.to_string_lossy().to_string()
-      }
-    })
+    .map(|url| url.as_str())
     .collect::<Vec<_>>();
 
   let sidepanel_ctx = json!({
@@ -312,18 +262,8 @@ fn render_compound_index(
         .unwrap_or_default();
       let rendered_docs = markdown_to_html(&docs_md, false, &render_ctx);
 
-      let url = if let Some(ancestor) = ctx.common_ancestor.as_ref() {
-        let p = url.to_file_path().unwrap();
-        p.strip_prefix(ancestor)
-          .unwrap()
-          .to_string_lossy()
-          .to_string()
-      } else {
-        url.to_string()
-      };
-
       json!({
-        "url": url,
+        "url": url.as_str(),
         "docs": rendered_docs,
       })
     })
@@ -540,34 +480,15 @@ struct SearchIndexNode {
 }
 
 fn doc_node_into_search_index_nodes_inner(
-  ctx: &GenerateCtx,
   doc_node: &DocNode,
   ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
   if !matches!(doc_node.kind, DocNodeKind::Namespace) {
-    let mut location = doc_node.location.clone();
-    if let Some(ancestor) = &ctx.common_ancestor {
-      let mut fn_ = location
-        .filename
-        .strip_prefix("file://")
-        .unwrap()
-        .to_string();
-
-      eprintln!("fn {}", fn_);
-
-      fn_ = fn_
-        .strip_prefix(&ancestor.to_string_lossy().to_string())
-        .unwrap()
-        .to_string();
-
-      location.filename = fn_.strip_prefix('/').unwrap_or(&fn_).to_string();
-    }
-
     return vec![SearchIndexNode {
       kind: doc_node.kind,
       name: doc_node.name.to_string(),
       ns_qualifiers: ns_qualifiers.clone(),
-      location,
+      location: doc_node.location.clone(),
       declaration_kind: doc_node.declaration_kind,
     }];
   }
@@ -576,39 +497,17 @@ fn doc_node_into_search_index_nodes_inner(
   let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
   let ns_name = doc_node.name.to_string();
 
-  let mut location = doc_node.location.clone();
-  if let Some(ancestor) = &ctx.common_ancestor {
-    location.filename = location
-      .filename
-      .strip_prefix("file:///")
-      .unwrap()
-      .strip_prefix(&ancestor.to_string_lossy().to_string())
-      .unwrap()
-      .to_string();
-  }
-
   nodes.push(SearchIndexNode {
     kind: doc_node.kind,
     name: doc_node.name.to_string(),
     ns_qualifiers: ns_qualifiers.clone(),
-    location,
+    location: doc_node.location.clone(),
     declaration_kind: doc_node.declaration_kind,
   });
 
   for el in &ns_def.elements {
     let mut ns_qualifiers_ = ns_qualifiers.clone();
     ns_qualifiers_.push(ns_name.to_string());
-
-    let mut location = el.location.clone();
-    if let Some(ancestor) = &ctx.common_ancestor {
-      location.filename = location
-        .filename
-        .strip_prefix("file:///")
-        .unwrap()
-        .strip_prefix(&ancestor.to_string_lossy().to_string())
-        .unwrap()
-        .to_string();
-    }
 
     nodes.push(SearchIndexNode {
       kind: el.kind,
@@ -620,7 +519,6 @@ fn doc_node_into_search_index_nodes_inner(
 
     if el.kind == DocNodeKind::Namespace {
       nodes.extend_from_slice(&doc_node_into_search_index_nodes_inner(
-        ctx,
         el,
         ns_qualifiers.clone(),
       ));
@@ -633,14 +531,12 @@ fn doc_node_into_search_index_nodes_inner(
 /// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
 /// node is flattened into a list of its elements.
 fn doc_node_into_search_index_nodes(
-  ctx: &GenerateCtx,
   doc_node: &DocNode,
 ) -> Vec<SearchIndexNode> {
-  doc_node_into_search_index_nodes_inner(ctx, doc_node, vec![])
+  doc_node_into_search_index_nodes_inner(doc_node, vec![])
 }
 
 fn generate_search_index(
-  ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   // TODO(bartlomieju): remove
@@ -653,7 +549,7 @@ fn generate_search_index(
   let doc_nodes = doc_nodes.iter().fold(
     Vec::with_capacity(doc_nodes.len()),
     |mut output, node| {
-      output.extend_from_slice(&doc_node_into_search_index_nodes(ctx, node));
+      output.extend_from_slice(&doc_node_into_search_index_nodes(node));
       output
     },
   );
