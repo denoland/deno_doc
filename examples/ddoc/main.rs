@@ -5,6 +5,7 @@ use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
+use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
@@ -101,7 +102,14 @@ async fn run() -> anyhow::Result<()> {
     )
     .await;
 
-  let parser = DocParser::new(&graph, private, analyzer.as_capturing_parser())?;
+  let parser = DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions {
+      diagnostics: false,
+      private,
+    },
+  )?;
 
   if html {
     let mut source_files = source_files.clone();

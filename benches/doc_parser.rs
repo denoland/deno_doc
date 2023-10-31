@@ -7,6 +7,7 @@ use criterion::Criterion;
 
 use deno_doc::DocNode;
 use deno_doc::DocParser;
+use deno_doc::DocParserOptions;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::BuildOptions;
@@ -40,10 +41,14 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       },
     )
     .await;
-  DocParser::new(&graph, false, analyzer.as_capturing_parser())
-    .unwrap()
-    .parse_with_reexports(&root)
-    .unwrap()
+  DocParser::new(
+    &graph,
+    analyzer.as_capturing_parser(),
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse_with_reexports(&root)
+  .unwrap()
 }
 
 fn doc_parser(c: &mut Criterion) {

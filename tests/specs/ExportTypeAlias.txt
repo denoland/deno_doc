@@ -1,7 +1,6 @@
 # mod.ts
 /** Array holding numbers */
 export type NumberArray = Array<number>;
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

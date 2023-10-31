@@ -2,6 +2,11 @@
 export interface Generic<T> {}
 export function f(): Generic<[string, number]> { return {}; }
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Missing JS documentation comment.",
+  "file:///mod.ts:2:1 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 

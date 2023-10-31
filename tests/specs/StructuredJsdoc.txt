@@ -20,6 +20,12 @@ export class A {
   a() {}
 }
 
+# diagnostics
+[
+  "file:///mod.ts:4:3 Missing JS documentation comment.",
+  "file:///mod.ts:19:3 Missing JS documentation comment.",
+  "file:///mod.ts:19:3 Missing explicit type."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 

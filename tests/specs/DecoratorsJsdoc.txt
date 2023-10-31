@@ -5,6 +5,10 @@ export class A {
   a: string = "a";
 }
 
+# diagnostics
+[
+  "file:///mod.ts:4:3 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:3:1
 

@@ -3,6 +3,7 @@
 use deno_ast::ModuleSpecifier;
 use deno_doc::DocDiagnostic;
 use deno_doc::DocParser;
+use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
 use deno_graph::source::MemoryLoader;
 use deno_graph::BuildOptions;
@@ -59,13 +60,19 @@ impl TestBuilder {
         },
       )
       .await;
-    let parser =
-      DocParser::new(&graph, self.private, analyzer.as_capturing_parser())
-        .unwrap();
+    let parser = DocParser::new(
+      &graph,
+      analyzer.as_capturing_parser(),
+      DocParserOptions {
+        private: self.private,
+        diagnostics: true,
+      },
+    )
+    .unwrap();
     let entries = parser.parse(&entry_point_url).unwrap();
 
     let doc = DocPrinter::new(&entries, false, self.private).to_string();
-    let diagnostics = parser.diagnostics();
+    let diagnostics = parser.take_diagnostics();
 
     BuildResult {
       diagnostics,

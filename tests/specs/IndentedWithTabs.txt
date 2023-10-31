@@ -25,7 +25,6 @@ export namespace Tabs {
 		property: string;
 	}
 }
-
 # output.txt
 Defined in file:///mod.ts:8:1
 

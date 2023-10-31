@@ -13,6 +13,11 @@ declare namespace RootNs {
     }
 }
 
+# diagnostics
+[
+  "file:///mod.ts:3:19 Missing JS documentation comment.",
+  "file:///mod.ts:7:7 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 

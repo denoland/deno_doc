@@ -6,6 +6,14 @@ export interface I {
   [pc]: string;
 }
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Missing JS documentation comment.",
+  "file:///mod.ts:2:3 Missing JS documentation comment.",
+  "file:///mod.ts:3:3 Missing JS documentation comment.",
+  "file:///mod.ts:4:3 Missing JS documentation comment.",
+  "file:///mod.ts:5:3 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 

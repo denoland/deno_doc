@@ -4,7 +4,6 @@ export default class Foobar {
     /** Constructor js doc */
     constructor(name: string, private private2: number, protected protected2: number) {}
 }
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

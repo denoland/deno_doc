@@ -20,6 +20,17 @@ export const tpl2 = `Value: ${num}`;
 /** @ignore */
 export const tpl3 = `Value: ${num}`;
 
+# diagnostics
+[
+  "file:///mod.ts:4:14 Missing JS documentation comment.",
+  "file:///mod.ts:12:14 Missing JS documentation comment.",
+  "file:///mod.ts:13:14 Missing JS documentation comment.",
+  "file:///mod.ts:14:14 Missing JS documentation comment.",
+  "file:///mod.ts:15:14 Missing JS documentation comment.",
+  "file:///mod.ts:16:14 Missing JS documentation comment.",
+  "file:///mod.ts:17:14 Missing JS documentation comment.",
+  "file:///mod.ts:18:14 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:14:14
 

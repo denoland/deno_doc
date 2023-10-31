@@ -9,7 +9,6 @@
 
 /** One associated with a class */
 export class A {}
-
 # output.txt
 
 # output.json

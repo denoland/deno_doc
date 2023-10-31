@@ -1,6 +1,11 @@
 # mod.ts
 export function* g() {}
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Missing JS documentation comment.",
+  "file:///mod.ts:1:1 Missing explicit type."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 

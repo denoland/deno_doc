@@ -16,6 +16,11 @@ const c = { a: "a", b: 2 };
 
     export const { f, g: h } = d;
 
+# diagnostics
+[
+  "file:///mod.ts:16:20 Missing JS documentation comment.",
+  "file:///mod.ts:16:26 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:6:7
 

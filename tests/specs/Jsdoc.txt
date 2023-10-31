@@ -18,6 +18,10 @@ export interface B {}
  */
 export function C() {}
 
+# diagnostics
+[
+  "file:///mod.ts:18:1 Missing explicit type."
+]
 # output.txt
 Defined in file:///mod.ts:18:1
 

@@ -19,6 +19,17 @@ export class A {
   method(@readonly param: string) {}
 }
 
+# diagnostics
+[
+  "file:///mod.ts:2:1 Missing JS documentation comment.",
+  "file:///mod.ts:5:3 Missing JS documentation comment.",
+  "file:///mod.ts:8:3 Missing JS documentation comment.",
+  "file:///mod.ts:8:3 Missing explicit type.",
+  "file:///mod.ts:13:3 Missing JS documentation comment.",
+  "file:///mod.ts:13:3 Missing explicit type.",
+  "file:///mod.ts:18:3 Missing JS documentation comment.",
+  "file:///mod.ts:18:3 Missing explicit type."
+]
 # output.txt
 Defined in file:///mod.ts:2:1
 

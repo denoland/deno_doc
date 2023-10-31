@@ -18,6 +18,10 @@ const s: symbol = Symbol.for("s");
       [t](u: string): void {},
     };
 
+# diagnostics
+[
+  "file:///mod.ts:4:18 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:4:18
 

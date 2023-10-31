@@ -2,6 +2,10 @@
 function foo(): void {}
 export default foo;
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 

@@ -15,6 +15,7 @@ extern crate serde_json;
 mod class;
 mod colors;
 mod decorators;
+mod diagnostics;
 mod display;
 mod r#enum;
 mod function;
@@ -40,9 +41,11 @@ use params::ParamDef;
 cfg_if! {
   if #[cfg(feature = "rust")] {
     mod printer;
-    pub use parser::DocDiagnostic;
+    pub use diagnostics::DocDiagnostic;
+    pub use diagnostics::DocDiagnosticKind;
     pub use parser::DocError;
     pub use parser::DocParser;
+    pub use parser::DocParserOptions;
     pub use printer::DocPrinter;
   }
 }

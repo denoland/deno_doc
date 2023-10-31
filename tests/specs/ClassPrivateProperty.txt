@@ -4,6 +4,10 @@ export class Class {
   private property = "";
 }
 
+# diagnostics
+[
+  "file:///mod.ts:1:1 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:1
 

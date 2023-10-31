@@ -3,6 +3,10 @@
 const foo: string = "foo";
 export { foo };
 
+# diagnostics
+[
+  "file:///mod.ts:1:7 Missing JS documentation comment."
+]
 # output.txt
 Defined in file:///mod.ts:1:7
 

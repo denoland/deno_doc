@@ -6,6 +6,11 @@
 export function noop() {
 }
 
+# diagnostics
+[
+  "file:///mod.ts:5:1 Missing JS documentation comment.",
+  "file:///mod.ts:5:1 Missing explicit type."
+]
 # output.txt
 Defined in file:///mod.ts:5:1
 
