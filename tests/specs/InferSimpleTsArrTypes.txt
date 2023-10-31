@@ -1,0 +1,292 @@
+# mod.ts
+export const a = [1];
+      export const b = [true];
+      export const c = ["c"];
+      export const d = [2, "d"];
+      export const e = [1, 2, 3];
+      export const f = ["a", 1, e];
+      export const g = ["a", 1, true] as const;
+
+# output.txt
+Defined in file:///mod.ts:1:14
+
+const a: number[]
+
+Defined in file:///mod.ts:2:20
+
+const b: boolean[]
+
+Defined in file:///mod.ts:3:20
+
+const c: string[]
+
+Defined in file:///mod.ts:4:20
+
+const d: (number | string)[]
+
+Defined in file:///mod.ts:5:20
+
+const e: number[]
+
+Defined in file:///mod.ts:6:20
+
+const f: any[]
+
+Defined in file:///mod.ts:7:20
+
+const g: ("a" | 1 | true)[]
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "a",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "array",
+        "array": {
+          "repr": "number",
+          "kind": "keyword",
+          "keyword": "number"
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "b",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "array",
+        "array": {
+          "repr": "boolean",
+          "kind": "keyword",
+          "keyword": "boolean"
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "c",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "array",
+        "array": {
+          "repr": "string",
+          "kind": "keyword",
+          "keyword": "string"
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "d",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "array",
+        "array": {
+          "repr": "",
+          "kind": "union",
+          "union": [
+            {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number"
+            },
+            {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            }
+          ]
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "e",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "array",
+        "array": {
+          "repr": "number",
+          "kind": "keyword",
+          "keyword": "number"
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "f",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "any[]",
+        "kind": "array",
+        "array": {
+          "repr": "any",
+          "kind": "keyword",
+          "keyword": "any"
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "g",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "array",
+        "array": {
+          "repr": "",
+          "kind": "union",
+          "union": [
+            {
+              "repr": "a",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "a"
+              }
+            },
+            {
+              "repr": "1",
+              "kind": "literal",
+              "literal": {
+                "kind": "number",
+                "number": 1.0
+              }
+            },
+            {
+              "repr": "true",
+              "kind": "literal",
+              "literal": {
+                "kind": "boolean",
+                "boolean": true
+              }
+            }
+          ]
+        }
+      },
+      "kind": "const"
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 13
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 19
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 19
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 19
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 19
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 19
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 19
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

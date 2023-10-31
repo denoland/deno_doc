@@ -1,0 +1,166 @@
+# mod.ts
+export interface I {
+  m(a, b);
+  mo?(c);
+  [mc](d);
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+interface I
+
+  m(a, b)
+  mo?(c)
+  [mc](d)
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "I",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [
+        {
+          "name": "m",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          },
+          "optional": false,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "a",
+              "optional": false,
+              "tsType": null
+            },
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": null
+            }
+          ],
+          "returnType": null,
+          "typeParams": []
+        },
+        {
+          "name": "mo",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 2
+          },
+          "optional": true,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "c",
+              "optional": false,
+              "tsType": null
+            }
+          ],
+          "returnType": null,
+          "typeParams": []
+        },
+        {
+          "name": "mc",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 2
+          },
+          "computed": true,
+          "optional": false,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "d",
+              "optional": false,
+              "tsType": null
+            }
+          ],
+          "returnType": null,
+          "typeParams": []
+        }
+      ],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 2
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 2
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  }
+]

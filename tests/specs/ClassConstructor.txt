@@ -1,0 +1,84 @@
+# mod.ts
+export class Class {
+  constructor(public a, readonly b) {}
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+class Class
+
+  constructor(public a, readonly b)
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Class",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [
+        {
+          "accessibility": null,
+          "hasBody": true,
+          "name": "constructor",
+          "params": [
+            {
+              "accessibility": "public",
+              "kind": "identifier",
+              "name": "a",
+              "optional": false,
+              "tsType": null
+            },
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": null,
+              "readonly": true
+            }
+          ],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          }
+        }
+      ],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

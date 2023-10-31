@@ -1,0 +1,51 @@
+# mod.ts
+declare function foo(): number;
+export function bar() {};
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+function bar()
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "bar",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  }
+]

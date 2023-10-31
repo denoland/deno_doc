@@ -1,0 +1,80 @@
+# mod.ts
+export function adopt<T>(p: import("./module.ts").Pet<T>) {
+  console.log(`Adopting ${p.name}...`);
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+function adopt<T>(p: import("./module.ts").Pet<T>)
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "adopt",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "p",
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "importType",
+            "importType": {
+              "specifier": "./module.ts",
+              "qualifier": "Pet",
+              "typeParams": [
+                {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "T"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": [
+        {
+          "name": "T"
+        }
+      ]
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  }
+]

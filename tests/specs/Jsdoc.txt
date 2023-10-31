@@ -1,0 +1,126 @@
+# mod.ts
+/**
+ * A is a class
+ *
+ * Nothing more
+ */
+export class A {}
+/**
+ * B is an interface
+ *
+ * Should be
+ */
+export interface B {}
+/**
+ * C is a function
+ *
+ * Summarised
+ */
+export function C() {}
+
+# output.txt
+Defined in file:///mod.ts:18:1
+
+function C()
+  C is a function
+  
+  Summarised
+
+Defined in file:///mod.ts:6:1
+
+class A
+  A is a class
+  
+  Nothing more
+
+
+Defined in file:///mod.ts:12:1
+
+interface B
+  B is an interface
+  
+  Should be
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "A is a class\n\nNothing more"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "B",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 12,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "B is an interface\n\nShould be"
+    },
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "C",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 18,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "C is a function\n\nSummarised"
+    },
+    "functionDef": {
+      "params": [],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 18,
+      "col": 0
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  }
+]

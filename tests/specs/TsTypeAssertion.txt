@@ -1,0 +1,64 @@
+# mod.ts
+export function foo(bar: any): asserts bar {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+function foo(bar: any): asserts bar
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "foo",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "bar",
+          "optional": false,
+          "tsType": {
+            "repr": "any",
+            "kind": "keyword",
+            "keyword": "any"
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "asserts bar",
+        "kind": "typePredicate",
+        "typePredicate": {
+          "asserts": true,
+          "param": {
+            "type": "identifier",
+            "name": "bar"
+          },
+          "type": null
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

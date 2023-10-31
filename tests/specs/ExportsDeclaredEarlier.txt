@@ -1,0 +1,127 @@
+# mod.ts
+const hello = "world";
+function say(words: string): void { }
+function foo(): void { }
+export { hello, say, foo as bar };
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+function bar(): void
+
+Defined in file:///mod.ts:2:1
+
+function say(words: string): void
+
+Defined in file:///mod.ts:1:7
+
+const hello: "world"
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "hello",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 6
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "world",
+        "kind": "literal",
+        "literal": {
+          "kind": "string",
+          "string": "world"
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "function",
+    "name": "say",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "words",
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "bar",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 6
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

@@ -1,0 +1,83 @@
+# mod.ts
+export class C {
+  [key: string]: number;
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+class C
+
+  [key: string]: number
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "C",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [
+        {
+          "readonly": false,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "key",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          }
+        }
+      ],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

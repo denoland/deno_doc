@@ -1,0 +1,50 @@
+# mod.ts
+declare module Test {
+  export interface Options {
+  }
+}
+
+import Options = Test.Options;
+
+export { Options };
+
+# output.txt
+Defined in file:///mod.ts:2:3
+
+interface Options
+
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "Options",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

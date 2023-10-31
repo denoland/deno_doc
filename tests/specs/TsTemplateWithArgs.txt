@@ -1,0 +1,67 @@
+# mod.ts
+export const tpl: `test${number}` = `test1`;
+
+# output.txt
+Defined in file:///mod.ts:1:14
+
+const tpl: `test${number}`
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "tpl",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 13
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "test${number}",
+        "kind": "literal",
+        "literal": {
+          "kind": "template",
+          "tsTypes": [
+            {
+              "repr": "test",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "test"
+              }
+            },
+            {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number"
+            },
+            {
+              "repr": "",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": ""
+              }
+            }
+          ]
+        }
+      },
+      "kind": "const"
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 13
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

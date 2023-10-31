@@ -1,0 +1,38 @@
+# mod.ts
+export namespace Namespace {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+namespace Namespace
+
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "Namespace",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

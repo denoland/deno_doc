@@ -1,0 +1,93 @@
+# mod.ts
+class Foo {}
+const obj = { Foo }
+    
+export class Bar extends obj.Foo {}
+
+# output.txt
+Defined in file:///mod.ts:2:7
+
+private const obj: { Foo; }
+
+Defined in file:///mod.ts:4:1
+
+class Bar extends obj.Foo
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Bar",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": "obj.Foo",
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "obj",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 6
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [],
+          "properties": [
+            {
+              "name": "Foo",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": null,
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": []
+        }
+      },
+      "kind": "const"
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 6
+    },
+    "kind": "Type is not exported, but referenced by an exported type."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

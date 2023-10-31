@@ -1,0 +1,47 @@
+# mod.ts
+export interface Interface<T> {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+interface Interface<T>
+
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "Interface",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": [
+        {
+          "name": "T"
+        }
+      ]
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

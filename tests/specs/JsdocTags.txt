@@ -1,0 +1,111 @@
+# mod.ts
+/**
+ * a is a function
+ *
+ * @param {string} b some doc
+ * @param [c=1] additional doc
+ * @param [d] more doc
+ * @returns {string} returning doc
+ */
+export function a(b, c, d) {}
+
+# output.txt
+Defined in file:///mod.ts:9:1
+
+function a(b, c, d)
+  a is a function
+
+  @param {string} b
+      some doc
+
+  @param [1] c
+      additional doc
+
+  @param [?] d
+      more doc
+
+  @return {string}
+      returning doc
+
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "a",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "a is a function\n",
+      "tags": [
+        {
+          "kind": "param",
+          "name": "b",
+          "type": "string",
+          "doc": "some doc"
+        },
+        {
+          "kind": "param",
+          "name": "c",
+          "default": "1",
+          "doc": "additional doc"
+        },
+        {
+          "kind": "param",
+          "name": "d",
+          "optional": true,
+          "doc": "more doc"
+        },
+        {
+          "kind": "return",
+          "type": "string",
+          "doc": "returning doc"
+        }
+      ]
+    },
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "b",
+          "optional": false,
+          "tsType": null
+        },
+        {
+          "kind": "identifier",
+          "name": "c",
+          "optional": false,
+          "tsType": null
+        },
+        {
+          "kind": "identifier",
+          "name": "d",
+          "optional": false,
+          "tsType": null
+        }
+      ],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  }
+]

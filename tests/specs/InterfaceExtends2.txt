@@ -1,0 +1,60 @@
+# mod.ts
+export interface Interface extends Iterator, Iterable {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+interface Interface extends Iterator, Iterable
+
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "Interface",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [
+        {
+          "repr": "Iterator",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Iterator"
+          }
+        },
+        {
+          "repr": "Iterable",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Iterable"
+          }
+        }
+      ],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

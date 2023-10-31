@@ -1,0 +1,108 @@
+# mod.ts
+/**
+ * Line 1
+ *
+ * Line 2
+ *
+ * 	Indented
+ */
+export namespace Tabs {
+	/**
+	 * Line 1
+	 *
+	 * Line 2
+	 *
+	 * 	Indented
+	 */
+	export interface Tabs{
+		/**
+		 * Line 1
+		 *
+		 * Line 2
+		 *
+		 * 	Indented
+		 */
+		property: string;
+	}
+}
+
+# output.txt
+Defined in file:///mod.ts:8:1
+
+namespace Tabs
+  Line 1
+  
+  Line 2
+  
+  	Indented
+
+  interface Tabs
+    Line 1
+    
+    Line 2
+    
+    	Indented
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "Tabs",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Line 1\n\nLine 2\n\n\tIndented"
+    },
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "interface",
+          "name": "Tabs",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 16,
+            "col": 4
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Line 1\n\nLine 2\n\n\tIndented"
+          },
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "property",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 24,
+                  "col": 8
+                },
+                "jsDoc": {
+                  "doc": "Line 1\n\nLine 2\n\n\tIndented"
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  }
+]

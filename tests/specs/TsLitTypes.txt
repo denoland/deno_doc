@@ -1,0 +1,212 @@
+# mod.ts
+export type boolLit = false;
+export type strLit = "text";
+export type tplLit = `text`;
+export type tplLitArg = `test${number}`;
+export type numLit = 5;
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+type boolLit = false
+
+Defined in file:///mod.ts:5:1
+
+type numLit = 5
+
+Defined in file:///mod.ts:2:1
+
+type strLit = "text"
+
+Defined in file:///mod.ts:3:1
+
+type tplLit = `text`
+
+Defined in file:///mod.ts:4:1
+
+type tplLitArg = `test${number}`
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "boolLit",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "false",
+        "kind": "literal",
+        "literal": {
+          "kind": "boolean",
+          "boolean": false
+        }
+      },
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "typeAlias",
+    "name": "strLit",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "text",
+        "kind": "literal",
+        "literal": {
+          "kind": "string",
+          "string": "text"
+        }
+      },
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "typeAlias",
+    "name": "tplLit",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "text",
+        "kind": "literal",
+        "literal": {
+          "kind": "template",
+          "tsTypes": [
+            {
+              "repr": "text",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "text"
+              }
+            }
+          ]
+        }
+      },
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "typeAlias",
+    "name": "tplLitArg",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "test${number}",
+        "kind": "literal",
+        "literal": {
+          "kind": "template",
+          "tsTypes": [
+            {
+              "repr": "test",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "test"
+              }
+            },
+            {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number"
+            },
+            {
+              "repr": "",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": ""
+              }
+            }
+          ]
+        }
+      },
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "typeAlias",
+    "name": "numLit",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "5",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 5.0
+        }
+      },
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

@@ -1,0 +1,264 @@
+# mod.ts
+/** Class doc */
+export class Foobar extends Fizz implements Buzz, Aldrin {
+    /** @ignore */
+    private private1?: boolean;
+    protected protected1: number;
+    /** @ignore */
+    public public1: boolean;
+    public2: number;
+    /** @ignore */
+    override public3: string;
+    /** @ignore */
+    m = new Map<string, string>();
+    s = "foo";
+    a = [1, "foo"];
+    fn = (a: string): void => {};
+
+    /** Constructor js doc */
+    /** @ignore */
+    constructor(name: string, private private2: number, protected protected2: number) {}
+
+    /** Async foo method */
+    /** @ignore */
+    async foo(): Promise<void> {
+        //
+    }
+
+    /** Sync bar method */
+    /** @ignore */
+    bar?(): void {
+        //
+    }
+
+    /** @ignore */
+    override s() {}
+}
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+class Foobar extends Fizz implements Buzz, Aldrin
+  Class doc
+
+  protected protected1: number
+  public2: number
+  s: string
+  a: (number | string)[]
+  fn: (a: string) => void
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Foobar",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Class doc"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "readonly": false,
+          "accessibility": "protected",
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "protected1",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "public2",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "s",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
+            "repr": "",
+            "kind": "array",
+            "array": {
+              "repr": "",
+              "kind": "union",
+              "union": [
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                },
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              ]
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "a",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 4
+          }
+        },
+        {
+          "tsType": {
+            "repr": "",
+            "kind": "fnOrConstructor",
+            "fnOrConstructor": {
+              "constructor": false,
+              "tsType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void"
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "typeParams": []
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "fn",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 4
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": "Fizz",
+      "implements": [
+        {
+          "repr": "Buzz",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Buzz"
+          }
+        },
+        {
+          "repr": "Aldrin",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Aldrin"
+          }
+        }
+      ],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 4
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 4
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 13,
+      "col": 4
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 14,
+      "col": 4
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 15,
+      "col": 4
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

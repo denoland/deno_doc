@@ -1,0 +1,63 @@
+# mod.ts
+export class Class implements Iterator, Iterable {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+class Class implements Iterator, Iterable
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Class",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [
+        {
+          "repr": "Iterator",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Iterator"
+          }
+        },
+        {
+          "repr": "Iterable",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Iterable"
+          }
+        }
+      ],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

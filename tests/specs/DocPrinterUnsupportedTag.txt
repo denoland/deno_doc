@@ -1,0 +1,70 @@
+# mod.ts
+/**
+ * @customtagone
+ * @customtagtwo value
+ */
+export function noop() {
+}
+
+# output.txt
+Defined in file:///mod.ts:5:1
+
+function noop()
+
+  @customtagone
+  @customtagtwo value
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "noop",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "unsupported",
+          "value": "@customtagone"
+        },
+        {
+          "kind": "unsupported",
+          "value": "@customtagtwo value"
+        }
+      ]
+    },
+    "functionDef": {
+      "params": [],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "kind": "Type reference could not be inferred. Add an explicit type to improve documentation."
+  }
+]

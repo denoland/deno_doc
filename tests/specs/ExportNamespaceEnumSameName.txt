@@ -1,0 +1,113 @@
+# mod.ts
+export namespace RootNs {
+  export namespace NestedNs {
+    export enum Foo {
+    }
+  }
+
+  export enum Foo {
+  }
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+namespace RootNs
+
+  namespace NestedNs
+  enum Foo
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "RootNs",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "namespace",
+          "name": "NestedNs",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "enum",
+                "name": "Foo",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 4
+                },
+                "declarationKind": "export",
+                "enumDef": {
+                  "members": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "enum",
+          "name": "Foo",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "enumDef": {
+            "members": []
+          }
+        }
+      ]
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 4
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 2
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]

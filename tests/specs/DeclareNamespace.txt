@@ -1,0 +1,166 @@
+# mod.ts
+/** Namespace JSdoc */
+declare namespace RootNs {
+    declare const a = "a";
+
+    /** Nested namespace JSDoc */
+    declare namespace NestedNs {
+      declare enum Foo {
+        a = 1,
+        b = 2,
+        c = 3,
+      }
+    }
+}
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+namespace RootNs
+  Namespace JSdoc
+
+  const a: "a"
+  namespace NestedNs
+    Nested namespace JSDoc
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "RootNs",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "declare",
+    "jsDoc": {
+      "doc": "Namespace JSdoc"
+    },
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "variable",
+          "name": "a",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 18
+          },
+          "declarationKind": "declare",
+          "variableDef": {
+            "tsType": {
+              "repr": "a",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "a"
+              }
+            },
+            "kind": "const"
+          }
+        },
+        {
+          "kind": "namespace",
+          "name": "NestedNs",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 4
+          },
+          "declarationKind": "declare",
+          "jsDoc": {
+            "doc": "Nested namespace JSDoc"
+          },
+          "namespaceDef": {
+            "elements": [
+              {
+                "kind": "enum",
+                "name": "Foo",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 7,
+                  "col": 6
+                },
+                "declarationKind": "declare",
+                "enumDef": {
+                  "members": [
+                    {
+                      "name": "a",
+                      "init": {
+                        "repr": "1",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 1.0
+                        }
+                      },
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 8,
+                        "col": 8
+                      }
+                    },
+                    {
+                      "name": "b",
+                      "init": {
+                        "repr": "2",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 2.0
+                        }
+                      },
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 9,
+                        "col": 8
+                      }
+                    },
+                    {
+                      "name": "c",
+                      "init": {
+                        "repr": "3",
+                        "kind": "literal",
+                        "literal": {
+                          "kind": "number",
+                          "number": 3.0
+                        }
+                      },
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 10,
+                        "col": 8
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 18
+    },
+    "kind": "Type is missing a JS documentation comment."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 6
+    },
+    "kind": "Type is missing a JS documentation comment."
+  }
+]
