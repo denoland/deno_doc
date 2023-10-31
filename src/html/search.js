@@ -9,7 +9,13 @@ searchInput.removeAttribute("style");
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
 
 const fuse = new Fuse(SEARCH_INDEX.nodes, {
-  keys: ["name", "nsQualifiers"],
+  keys: [{
+    name: "name",
+    weight: 2,
+  }, {
+    name: "nsQualifiers",
+    weight: 1,
+  }],
   isCaseSensitive: false,
   minMatchCharLength: 2,
   threshold: 0.4,
@@ -115,9 +121,8 @@ function renderResults(results) {
     // console.log("result", result);
     const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
     const label = result.nsQualifiers
-      ? `${result.nsQualifiers.join(".")}.${result.name}`
+      ? `${result.nsQualifiers}.${result.name}`
       : result.name;
-    // TODO(bartlomieju): use "common ancestor" for displaying location
     html += `<li>
 <a href="${result.name.split(".").join("/")}.html">
     <div>

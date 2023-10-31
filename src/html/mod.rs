@@ -505,12 +505,19 @@ fn sidepanel_render_ctx(
   }
 }
 
+fn join_qualifiers<S>(qualifiers: &[String], s: S) -> Result<S::Ok, S::Error>
+where
+  S: serde::Serializer,
+{
+  s.serialize_str(&qualifiers.join("."))
+}
+
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchIndexNode {
   kind: DocNodeKind,
   name: String,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(serialize_with = "join_qualifiers")]
   ns_qualifiers: Vec<String>,
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
