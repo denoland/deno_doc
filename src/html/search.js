@@ -123,8 +123,12 @@ function renderResults(results) {
     const label = result.nsQualifiers
       ? `${result.nsQualifiers}.${result.name}`
       : result.name;
+    const url = result.nsQualifiers 
+      ? `${result.nsQualifiers.split(".").join("/")}/${result.name.split(".").join("/")}`
+      : result.name.split(".").join("/");
+
     html += `<li>
-<a href="${result.name.split(".").join("/")}.html">
+<a href="${url}.html">
     <div>
         <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
             ${symbol}
