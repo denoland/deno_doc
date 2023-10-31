@@ -1,0 +1,88 @@
+# mod.ts
+export type MappedTypeWithNewProperties<Type> = {
+  readonly [Properties in keyof Type as NewKeyType]?: Type[Properties];
+};
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as NewKeyType]?: Type[Properties]
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "MappedTypeWithNewProperties",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "mapped",
+        "mappedType": {
+          "readonly": true,
+          "typeParam": {
+            "name": "Properties",
+            "constraint": {
+              "repr": "",
+              "kind": "typeOperator",
+              "typeOperator": {
+                "operator": "keyof",
+                "tsType": {
+                  "repr": "Type",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Type"
+                  }
+                }
+              }
+            }
+          },
+          "nameType": {
+            "repr": "NewKeyType",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "NewKeyType"
+            }
+          },
+          "optional": true,
+          "tsType": {
+            "repr": "",
+            "kind": "indexedAccess",
+            "indexedAccess": {
+              "readonly": false,
+              "objType": {
+                "repr": "Type",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Type"
+                }
+              },
+              "indexType": {
+                "repr": "Properties",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Properties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "typeParams": [
+        {
+          "name": "Type"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,148 @@
+# mod.ts
+export let s = "hello";
+    export let n = 123;
+    export let b = false;
+    export let bi = 100n;
+    export let re = /hello/;
+    export let tpl = `foobar`;
+
+# output.txt
+Defined in file:///mod.ts:3:16
+
+let b: boolean
+
+Defined in file:///mod.ts:4:16
+
+let bi: bigint
+
+Defined in file:///mod.ts:2:16
+
+let n: number
+
+Defined in file:///mod.ts:5:16
+
+let re: RegExp
+
+Defined in file:///mod.ts:1:12
+
+let s: string
+
+Defined in file:///mod.ts:6:16
+
+let tpl: string
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "s",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 11
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "n",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 15
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "number",
+        "kind": "keyword",
+        "keyword": "number"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "b",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 15
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "boolean",
+        "kind": "keyword",
+        "keyword": "boolean"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "bi",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 15
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "bigint",
+        "kind": "keyword",
+        "keyword": "bigint"
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "re",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 15
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "hello",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "RegExp"
+        }
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "tpl",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 15
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "let"
+    }
+  }
+]

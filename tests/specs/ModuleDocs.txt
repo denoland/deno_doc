@@ -1,0 +1,70 @@
+# mod.ts
+/* a non-jsdoc comment */
+
+/**
+ * A leading JSDoc comment
+ * @module
+ */
+
+/** One associated with a class */
+export class A {}
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+  A leading JSDoc comment
+
+  @module
+
+Defined in file:///mod.ts:9:1
+
+class A
+  One associated with a class
+
+
+
+# output.json
+[
+  {
+    "kind": "moduleDoc",
+    "name": "",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "A leading JSDoc comment",
+      "tags": [
+        {
+          "kind": "module"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "class",
+    "name": "A",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "One associated with a class"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

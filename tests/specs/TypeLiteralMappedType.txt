@@ -1,0 +1,85 @@
+# mod.ts
+export type T<Type> = { readonly [P in keyof Type as NewType]: Type[P]; }
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "T",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "mapped",
+        "mappedType": {
+          "readonly": true,
+          "typeParam": {
+            "name": "P",
+            "constraint": {
+              "repr": "",
+              "kind": "typeOperator",
+              "typeOperator": {
+                "operator": "keyof",
+                "tsType": {
+                  "repr": "Type",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Type"
+                  }
+                }
+              }
+            }
+          },
+          "nameType": {
+            "repr": "NewType",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "NewType"
+            }
+          },
+          "tsType": {
+            "repr": "",
+            "kind": "indexedAccess",
+            "indexedAccess": {
+              "readonly": false,
+              "objType": {
+                "repr": "Type",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Type"
+                }
+              },
+              "indexType": {
+                "repr": "P",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "P"
+                }
+              }
+            }
+          }
+        }
+      },
+      "typeParams": [
+        {
+          "name": "Type"
+        }
+      ]
+    }
+  }
+]

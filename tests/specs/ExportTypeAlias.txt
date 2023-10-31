@@ -1,0 +1,44 @@
+# mod.ts
+/** Array holding numbers */
+export type NumberArray = Array<number>;
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+type NumberArray = Array<number>
+  Array holding numbers
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "NumberArray",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Array holding numbers"
+    },
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "Array",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": [
+            {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number"
+            }
+          ],
+          "typeName": "Array"
+        }
+      },
+      "typeParams": []
+    }
+  }
+]

@@ -1,0 +1,60 @@
+# mod.ts
+export function f([a, b, ...c]) {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+function f([a, b, ...c])
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "f",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "array",
+          "elements": [
+            {
+              "kind": "identifier",
+              "name": "a",
+              "optional": false,
+              "tsType": null
+            },
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": null
+            },
+            {
+              "kind": "rest",
+              "arg": {
+                "kind": "identifier",
+                "name": "c",
+                "optional": false,
+                "tsType": null
+              },
+              "tsType": null
+            }
+          ],
+          "optional": false,
+          "tsType": null
+        }
+      ],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]

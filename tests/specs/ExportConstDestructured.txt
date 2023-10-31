@@ -1,0 +1,119 @@
+# mod.ts
+const c = { a: "a", b: 2 };
+    const d: { f: string; g: number; } = { f: "f", g: 2 };
+
+    export const {
+      /** export a doc */
+      a,
+      /** export b doc */
+      b,
+    }: {
+      /** type alias doc */
+      a: string;
+      /** other doc */
+      b: number;
+    } = c;
+
+    export const { f, g: h } = d;
+
+# output.txt
+Defined in file:///mod.ts:6:7
+
+const a: string
+  export a doc
+
+Defined in file:///mod.ts:8:7
+
+const b: number
+  export b doc
+
+Defined in file:///mod.ts:16:20
+
+const f: string
+
+Defined in file:///mod.ts:16:26
+
+const h: number
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "a",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 6,
+      "col": 6
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "export a doc"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "b",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 6
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "export b doc"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "number",
+        "kind": "keyword",
+        "keyword": "number"
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "f",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 16,
+      "col": 19
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "h",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 16,
+      "col": 25
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "number",
+        "kind": "keyword",
+        "keyword": "number"
+      },
+      "kind": "const"
+    }
+  }
+]

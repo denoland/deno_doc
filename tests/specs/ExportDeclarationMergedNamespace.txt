@@ -1,0 +1,78 @@
+# mod.ts
+namespace Namespace1 {
+  export class Test1 {}
+}
+namespace Namespace1 {
+  export class Test2 {}
+}
+
+export { Namespace1 };
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+namespace Namespace1
+
+  class Test1
+  class Test2
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "Namespace1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "class",
+          "name": "Test1",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        },
+        {
+          "kind": "class",
+          "name": "Test2",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,76 @@
+# mod.ts
+export function foo(bar: A | B): asserts bar is B {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+function foo(bar: A | B): asserts bar is B
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "foo",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "bar",
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "A",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "A"
+                }
+              },
+              {
+                "repr": "B",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "B"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "asserts bar is B",
+        "kind": "typePredicate",
+        "typePredicate": {
+          "asserts": true,
+          "param": {
+            "type": "identifier",
+            "name": "bar"
+          },
+          "type": {
+            "repr": "B",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "B"
+            }
+          }
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]

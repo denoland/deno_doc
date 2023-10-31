@@ -1,0 +1,259 @@
+# mod.ts
+const s: symbol = Symbol.for("s");
+    const t: symbol = Symbol.for("t");
+
+    export const a = {
+      a: "a",
+      b: new Map<string, number>(),
+      c: { d: "d" },
+      d(e: string): void {},
+      f: (g: string): void => {},
+      get h(): string {
+        return "h";
+      },
+      set h(value: string) {
+
+      },
+      [s]: [1, 2, 3, "a"],
+      [t](u: string): void {},
+    };
+
+# output.txt
+Defined in file:///mod.ts:4:18
+
+const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): void; a: string; b: Map<string, number>; c: { d: string; }; f: (g: string) => void; [s]: (number | string)[]; }
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "a",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 17
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [
+            {
+              "name": "d",
+              "kind": "method",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "e",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "optional": false,
+              "returnType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "h",
+              "kind": "getter",
+              "params": [],
+              "optional": false,
+              "returnType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "h",
+              "kind": "setter",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "value",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "optional": false,
+              "returnType": null,
+              "typeParams": []
+            },
+            {
+              "name": "[t]",
+              "kind": "method",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "u",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "computed": true,
+              "optional": false,
+              "returnType": {
+                "repr": "void",
+                "kind": "keyword",
+                "keyword": "void"
+              },
+              "typeParams": []
+            }
+          ],
+          "properties": [
+            {
+              "name": "a",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "b",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "Map",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  ],
+                  "typeName": "Map"
+                }
+              },
+              "typeParams": []
+            },
+            {
+              "name": "c",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "typeLiteral",
+                "typeLiteral": {
+                  "methods": [],
+                  "properties": [
+                    {
+                      "name": "d",
+                      "params": [],
+                      "computed": false,
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      },
+                      "typeParams": []
+                    }
+                  ],
+                  "callSignatures": [],
+                  "indexSignatures": []
+                }
+              },
+              "typeParams": []
+            },
+            {
+              "name": "f",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "fnOrConstructor",
+                "fnOrConstructor": {
+                  "constructor": false,
+                  "tsType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "g",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "typeParams": []
+                }
+              },
+              "typeParams": []
+            },
+            {
+              "name": "[s]",
+              "params": [],
+              "computed": true,
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "array",
+                "array": {
+                  "repr": "",
+                  "kind": "union",
+                  "union": [
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    },
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    }
+                  ]
+                }
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": []
+        }
+      },
+      "kind": "const"
+    }
+  }
+]

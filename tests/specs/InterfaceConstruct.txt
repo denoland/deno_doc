@@ -1,0 +1,59 @@
+# mod.ts
+export interface I {
+  new(name: string);
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+interface I
+
+  new(name: string)
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "I",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [
+        {
+          "name": "new",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          },
+          "optional": false,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "name",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "returnType": null,
+          "typeParams": []
+        }
+      ],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]

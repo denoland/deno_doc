@@ -1,0 +1,33 @@
+# mod.ts
+export default "foo";
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+var default: "foo"
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "default",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "foo",
+        "kind": "literal",
+        "literal": {
+          "kind": "string",
+          "string": "foo"
+        }
+      },
+      "kind": "var"
+    }
+  }
+]

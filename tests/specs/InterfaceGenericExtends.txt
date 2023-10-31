@@ -1,0 +1,53 @@
+# mod.ts
+export interface Interface<V> extends Iterable<V> {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+interface Interface<V> extends Iterable<V>
+
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "Interface",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "interfaceDef": {
+      "extends": [
+        {
+          "repr": "Iterable",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": [
+              {
+                "repr": "V",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "V"
+                }
+              }
+            ],
+            "typeName": "Iterable"
+          }
+        }
+      ],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": [
+        {
+          "name": "V"
+        }
+      ]
+    }
+  }
+]

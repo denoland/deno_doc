@@ -1,0 +1,216 @@
+# mod.ts
+interface Foo {
+}
+interface Bar {
+}
+/**
+ * Interface js doc
+ */
+export interface Reader extends Foo, Bar {
+    /** Read n bytes */
+    read?(buf: Uint8Array, something: unknown): Promise<number>
+    /** Test */
+    [key: string]: number;
+}
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+private interface Bar
+
+
+Defined in file:///mod.ts:1:1
+
+private interface Foo
+
+
+Defined in file:///mod.ts:8:1
+
+interface Reader extends Foo, Bar
+  Interface js doc
+
+  read?(buf: Uint8Array, something: unknown): Promise<number>
+    Read n bytes
+  [key: string]: number
+
+
+# output.json
+[
+  {
+    "kind": "interface",
+    "name": "Reader",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Interface js doc"
+    },
+    "interfaceDef": {
+      "extends": [
+        {
+          "repr": "Foo",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Foo"
+          }
+        },
+        {
+          "repr": "Bar",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Bar"
+          }
+        }
+      ],
+      "methods": [
+        {
+          "name": "read",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 10,
+            "col": 4
+          },
+          "jsDoc": {
+            "doc": "Read n bytes"
+          },
+          "optional": true,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "buf",
+              "optional": false,
+              "tsType": {
+                "repr": "Uint8Array",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Uint8Array"
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "something",
+              "optional": false,
+              "tsType": {
+                "repr": "unknown",
+                "kind": "keyword",
+                "keyword": "unknown"
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "Promise",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": [
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              ],
+              "typeName": "Promise"
+            }
+          },
+          "typeParams": []
+        }
+      ],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [
+        {
+          "jsDoc": {
+            "doc": "Test"
+          },
+          "readonly": false,
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "key",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 12,
+            "col": 4
+          }
+        }
+      ],
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "Foo",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "Bar",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]
+
+# diagnostics
+[
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "kind": "Type is not exported, but referenced by an exported type."
+  },
+  {
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "kind": "Type is not exported, but referenced by an exported type."
+  }
+]

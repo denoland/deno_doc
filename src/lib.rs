@@ -40,6 +40,7 @@ use params::ParamDef;
 cfg_if! {
   if #[cfg(feature = "rust")] {
     mod printer;
+    pub use parser::DocDiagnostic;
     pub use parser::DocError;
     pub use parser::DocParser;
     pub use printer::DocPrinter;

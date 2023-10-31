@@ -1,0 +1,56 @@
+# mod.ts
+export type T = { [key: string]: number; }
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+type T = { [key: string]: number; }
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "T",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [
+            {
+              "readonly": false,
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "key",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          ]
+        }
+      },
+      "typeParams": []
+    }
+  }
+]
