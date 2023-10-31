@@ -1,9 +1,12 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
+use crate::js_doc::JsDoc;
+use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
 use crate::swc_util::get_location;
+use crate::ts_type::TsTypeDef;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::Location;
@@ -20,7 +23,8 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DocDiagnosticKind {
   MissingJsDoc,
-  MissingTypeRef,
+  MissingExplicitType,
+  MissingReturnType,
   PrivateTypeRef,
 }
 
@@ -30,8 +34,11 @@ impl std::fmt::Display for DocDiagnosticKind {
       DocDiagnosticKind::MissingJsDoc => {
         f.write_str("Missing JS documentation comment.")
       }
-      DocDiagnosticKind::MissingTypeRef => {
+      DocDiagnosticKind::MissingExplicitType => {
         f.write_str("Missing explicit type.")
+      }
+      DocDiagnosticKind::MissingReturnType => {
+        f.write_str("Missing return type.")
       }
       DocDiagnosticKind::PrivateTypeRef => {
         f.write_str("Type is not exported, but referenced by an exported type.")
@@ -57,10 +64,15 @@ pub struct DiagnosticsCollector {
 impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
+    doc_node: &DocNode,
     module: &EsmModuleSymbol,
     symbol_id: SymbolId,
     range: SourceRange,
   ) {
+    if has_internal_js_doc_tag(&doc_node.js_doc) {
+      return; // ignore
+    }
+
     let unique_id = UniqueSymbolId {
       module_id: module.module_id(),
       symbol_id,
@@ -83,8 +95,11 @@ impl DiagnosticsCollector {
     DiagnosticDocNodeVisitor { diagnostics: self }.visit_doc_nodes(doc_nodes)
   }
 
-  fn add_missing_js_doc(&mut self, location: &Location) {
-    if self.seen_jsdoc_missing.insert(location.clone()) {
+  fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {
+    if js_doc.doc.is_none()
+      && !has_internal_js_doc_tag(js_doc)
+      && self.seen_jsdoc_missing.insert(location.clone())
+    {
       self.diagnostics.push(DocDiagnostic {
         location: location.clone(),
         kind: DocDiagnosticKind::MissingJsDoc,
@@ -92,11 +107,36 @@ impl DiagnosticsCollector {
     }
   }
 
-  fn add_missing_type_ref(&mut self, location: &Location) {
-    if self.seen_missing_type_refs.insert(location.clone()) {
+  fn check_missing_explicit_type(
+    &mut self,
+    ts_type: Option<&TsTypeDef>,
+    js_doc: &JsDoc,
+    location: &Location,
+  ) {
+    if ts_type.is_none()
+      && !has_internal_js_doc_tag(js_doc)
+      && self.seen_missing_type_refs.insert(location.clone())
+    {
       self.diagnostics.push(DocDiagnostic {
         location: location.clone(),
-        kind: DocDiagnosticKind::MissingTypeRef,
+        kind: DocDiagnosticKind::MissingExplicitType,
+      })
+    }
+  }
+
+  fn check_missing_return_type(
+    &mut self,
+    return_type: Option<&TsTypeDef>,
+    js_doc: &JsDoc,
+    location: &Location,
+  ) {
+    if return_type.is_none()
+      && !has_internal_js_doc_tag(js_doc)
+      && self.seen_missing_type_refs.insert(location.clone())
+    {
+      self.diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::MissingReturnType,
       })
     }
   }
@@ -120,7 +160,9 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
         }
       }
 
-      self.visit_doc_node(doc_node);
+      if !has_internal_js_doc_tag(&doc_node.js_doc) {
+        self.visit_doc_node(doc_node);
+      }
 
       last_node = Some(doc_node);
     }
@@ -144,8 +186,10 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
       return; // skip, we don't do these diagnostics above private nodes
     }
 
-    if doc_node.js_doc.doc.is_none() && is_js_docable_kind(&doc_node.kind) {
-      self.diagnostics.add_missing_js_doc(&doc_node.location);
+    if is_js_docable_kind(&doc_node.kind) {
+      self
+        .diagnostics
+        .check_missing_js_doc(&doc_node.js_doc, &doc_node.location);
     }
 
     if let Some(def) = &doc_node.class_def {
@@ -186,22 +230,26 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
       if prop.accessibility == Some(Accessibility::Private) {
         continue; // don't do diagnostics for private types
       }
-      if prop.js_doc.doc.is_none() {
-        self.diagnostics.add_missing_js_doc(&prop.location);
-      }
-      if prop.ts_type.is_none() {
-        self.diagnostics.add_missing_type_ref(&prop.location)
-      }
+      self
+        .diagnostics
+        .check_missing_js_doc(&prop.js_doc, &prop.location);
+      self.diagnostics.check_missing_explicit_type(
+        prop.ts_type.as_ref(),
+        &prop.js_doc,
+        &prop.location,
+      )
     }
 
     // index signatures
     for sig in &def.index_signatures {
-      if sig.js_doc.doc.is_none() {
-        self.diagnostics.add_missing_js_doc(&sig.location);
-      }
-      if sig.ts_type.is_none() {
-        self.diagnostics.add_missing_type_ref(&sig.location)
-      }
+      self
+        .diagnostics
+        .check_missing_js_doc(&sig.js_doc, &sig.location);
+      self.diagnostics.check_missing_explicit_type(
+        sig.ts_type.as_ref(),
+        &sig.js_doc,
+        &sig.location,
+      )
     }
 
     // methods
@@ -212,21 +260,24 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
           continue; // skip, it's the implementation signature
         }
       }
-      if method.js_doc.doc.is_none() {
-        self.diagnostics.add_missing_js_doc(&method.location);
-      }
-      if method.function_def.return_type.is_none() {
-        self.diagnostics.add_missing_type_ref(&method.location)
-      }
+
+      self
+        .diagnostics
+        .check_missing_js_doc(&method.js_doc, &method.location);
+      self.diagnostics.check_missing_return_type(
+        method.function_def.return_type.as_ref(),
+        &method.js_doc,
+        &method.location,
+      );
 
       last_name = Some(&method.name);
     }
   }
 
   fn visit_class_ctor_def(&mut self, ctor: &crate::class::ClassConstructorDef) {
-    if ctor.js_doc.doc.is_none() {
-      self.diagnostics.add_missing_js_doc(&ctor.location);
-    }
+    self
+      .diagnostics
+      .check_missing_js_doc(&ctor.js_doc, &ctor.location);
   }
 
   fn visit_function_def(
@@ -234,43 +285,52 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
     parent: &DocNode,
     def: &crate::function::FunctionDef,
   ) {
-    if parent.js_doc.doc.is_none() {
-      self.diagnostics.add_missing_js_doc(&parent.location);
-    }
-    if def.return_type.is_none() {
-      self.diagnostics.add_missing_type_ref(&parent.location)
-    }
+    self
+      .diagnostics
+      .check_missing_js_doc(&parent.js_doc, &parent.location);
+    self.diagnostics.check_missing_return_type(
+      def.return_type.as_ref(),
+      &parent.js_doc,
+      &parent.location,
+    );
   }
 
   fn visit_interface_def(&mut self, def: &crate::interface::InterfaceDef) {
     // properties
     for prop in &def.properties {
-      if prop.js_doc.doc.is_none() {
-        self.diagnostics.add_missing_js_doc(&prop.location);
-      }
-      if prop.ts_type.is_none() {
-        self.diagnostics.add_missing_type_ref(&prop.location)
-      }
+      self
+        .diagnostics
+        .check_missing_js_doc(&prop.js_doc, &prop.location);
+
+      self.diagnostics.check_missing_explicit_type(
+        prop.ts_type.as_ref(),
+        &prop.js_doc,
+        &prop.location,
+      )
     }
 
     // index signatures
     for sig in &def.index_signatures {
-      if sig.js_doc.doc.is_none() {
-        self.diagnostics.add_missing_js_doc(&sig.location);
-      }
-      if sig.ts_type.is_none() {
-        self.diagnostics.add_missing_type_ref(&sig.location)
-      }
+      self
+        .diagnostics
+        .check_missing_js_doc(&sig.js_doc, &sig.location);
+      self.diagnostics.check_missing_explicit_type(
+        sig.ts_type.as_ref(),
+        &sig.js_doc,
+        &sig.location,
+      );
     }
 
     // methods
     for method in &def.methods {
-      if method.js_doc.doc.is_none() {
-        self.diagnostics.add_missing_js_doc(&method.location);
-      }
-      if method.return_type.is_none() {
-        self.diagnostics.add_missing_type_ref(&method.location)
-      }
+      self
+        .diagnostics
+        .check_missing_js_doc(&method.js_doc, &method.location);
+      self.diagnostics.check_missing_return_type(
+        method.return_type.as_ref(),
+        &method.js_doc,
+        &method.location,
+      );
     }
   }
 
@@ -279,8 +339,14 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
   }
 
   fn visit_variable_def(&mut self, parent: &DocNode, def: &VariableDef) {
-    if def.ts_type.is_none() {
-      self.diagnostics.add_missing_type_ref(&parent.location);
-    }
+    self.diagnostics.check_missing_explicit_type(
+      def.ts_type.as_ref(),
+      &parent.js_doc,
+      &parent.location,
+    );
   }
+}
+
+fn has_internal_js_doc_tag(js_doc: &JsDoc) -> bool {
+  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
 }

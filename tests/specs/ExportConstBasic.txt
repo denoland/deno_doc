@@ -31,6 +31,7 @@ export const tpl3 = `Value: ${num}`;
   "file:///mod.ts:17:14 Missing JS documentation comment.",
   "file:///mod.ts:18:14 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:14:14
 

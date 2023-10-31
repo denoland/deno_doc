@@ -33,7 +33,7 @@ impl Spec {
     if !self.diagnostics.is_empty() {
       text.push_str("# diagnostics\n");
       text.push_str(&serde_json::to_string_pretty(&self.diagnostics).unwrap());
-      text.push('\n');
+      text.push_str("\n\n");
     }
     text.push_str(&self.output_doc_file.emit());
     text.push('\n');

@@ -4,8 +4,9 @@ export function add<T>(a: T, b: T) { return a + b; }
 # diagnostics
 [
   "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:1:1 Missing explicit type."
+  "file:///mod.ts:1:1 Missing return type."
 ]
+
 # output.txt
 Defined in file:///mod.ts:1:1
 

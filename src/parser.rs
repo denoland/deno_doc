@@ -636,6 +636,7 @@ impl<'a> DocParser<'a> {
                 if is_public {
                   if let Some(diagnostics) = &self.diagnostics {
                     diagnostics.borrow_mut().add_private_type_in_public(
+                      &doc_node,
                       module_symbol,
                       symbol.symbol_id(),
                       decl.range,
@@ -1014,6 +1015,7 @@ impl<'a> DocParser<'a> {
                 if is_public {
                   if let Some(diagnostics) = &self.diagnostics {
                     diagnostics.borrow_mut().add_private_type_in_public(
+                      &doc_node,
                       module_symbol,
                       child_symbol.symbol_id(),
                       decl.range,

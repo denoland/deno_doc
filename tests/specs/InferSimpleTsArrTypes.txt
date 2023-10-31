@@ -17,6 +17,7 @@ export const a = [1];
   "file:///mod.ts:6:20 Missing JS documentation comment.",
   "file:///mod.ts:7:20 Missing JS documentation comment."
 ]
+
 # output.txt
 Defined in file:///mod.ts:1:14
 
