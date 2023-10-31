@@ -3,7 +3,9 @@ const Fuse = window.Fuse;
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
-const currentSymbol = document.querySelector("meta[name='doc-current-symbol']").attributes.getNamedItem("content").value;
+const currentSymbol =
+  document.querySelector("meta[name='doc-current-symbol']").attributes
+    .getNamedItem("content").value;
 const pathToRoot = currentSymbol.split(".").slice(1).map(() => "../").join("");
 searchInput.removeAttribute("style");
 
