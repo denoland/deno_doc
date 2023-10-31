@@ -157,26 +157,6 @@ fn generate_docs_directory(
   let _ = std::fs::remove_dir_all(path);
   std::fs::create_dir(path)?;
 
-  std::fs::write(
-    path.join(deno_doc::html::STYLESHEET_FILENAME),
-    deno_doc::html::STYLESHEET,
-  )
-  .unwrap();
-  std::fs::write(
-    path.join(deno_doc::html::SEARCH_INDEX_FILENAME),
-    deno_doc::html::generate_search_index(doc_nodes_by_url)?,
-  )
-  .unwrap();
-  std::fs::write(
-    path.join(deno_doc::html::FUSE_FILENAME),
-    deno_doc::html::FUSE_JS,
-  )
-  .unwrap();
-  std::fs::write(
-    path.join(deno_doc::html::SEARCH_FILENAME),
-    deno_doc::html::SEARCH_JS,
-  )
-  .unwrap();
   for (name, content) in html {
     let this_path = path.join(name);
     let prefix = this_path.parent().unwrap();

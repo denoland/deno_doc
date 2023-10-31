@@ -25,16 +25,16 @@ mod types;
 mod util;
 mod variable;
 
-pub const STYLESHEET: &str = include_str!("./styles.css");
-pub const STYLESHEET_FILENAME: &str = "styles.css";
+const STYLESHEET: &str = include_str!("./styles.css");
+const STYLESHEET_FILENAME: &str = "styles.css";
 
-pub const SEARCH_INDEX_FILENAME: &str = "search_index.js";
+const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
-pub const FUSE_JS: &str = include_str!("./fuse.js");
-pub const FUSE_FILENAME: &str = "fuse.js";
+const FUSE_JS: &str = include_str!("./fuse.js");
+const FUSE_FILENAME: &str = "fuse.js";
 
-pub const SEARCH_JS: &str = include_str!("./search.js");
-pub const SEARCH_FILENAME: &str = "search.js";
+const SEARCH_JS: &str = include_str!("./search.js");
+const SEARCH_FILENAME: &str = "search.js";
 
 const SEARCH_BAR: &str = r#"
 <input type="text" id="searchbar" style="display: none;" />
@@ -137,6 +137,14 @@ pub fn generate(
       files.insert(file_name, content);
     }
   }
+
+  files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
+  files.insert(
+    SEARCH_INDEX_FILENAME.into(),
+    generate_search_index(doc_nodes_by_url)?,
+  );
+  files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
+  files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
 
   Ok(files)
 }
@@ -524,7 +532,7 @@ fn doc_node_into_search_index_nodes(
   doc_node_into_search_index_nodes_inner(doc_node, vec![])
 }
 
-pub fn generate_search_index(
+fn generate_search_index(
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<String, anyhow::Error> {
   // TODO(bartlomieju): remove
