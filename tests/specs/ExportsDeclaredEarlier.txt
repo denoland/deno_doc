@@ -6,9 +6,9 @@ export { hello, say, foo as bar };
 
 # diagnostics
 [
-  "file:///mod.ts:1:7 Type is missing a JS documentation comment.",
-  "file:///mod.ts:2:1 Type is missing a JS documentation comment.",
-  "file:///mod.ts:3:1 Type is missing a JS documentation comment."
+  "file:///mod.ts:1:7 Missing JS documentation comment.",
+  "file:///mod.ts:2:1 Missing JS documentation comment.",
+  "file:///mod.ts:3:1 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:3:1

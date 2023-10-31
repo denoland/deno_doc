@@ -19,10 +19,10 @@ export namespace RootNs.OtherNs {
 
 # diagnostics
 [
-  "file:///mod.ts:3:18 Type is missing a JS documentation comment.",
-  "file:///mod.ts:7:7 Type is missing a JS documentation comment.",
-  "file:///mod.ts:15:8 Type is missing a JS documentation comment.",
-  "file:///mod.ts:16:3 Type is missing a JS documentation comment."
+  "file:///mod.ts:3:18 Missing JS documentation comment.",
+  "file:///mod.ts:7:7 Missing JS documentation comment.",
+  "file:///mod.ts:15:8 Missing JS documentation comment.",
+  "file:///mod.ts:16:3 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:2:1

@@ -34,16 +34,16 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
 
 # diagnostics
 [
-  "file:///mod.ts:4:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:5:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:6:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:7:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:8:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:9:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:10:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:11:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:31:5 Type is missing a JS documentation comment.",
-  "file:///mod.ts:31:5 Missing explicit type. Add one to improve documentation and type checking performance."
+  "file:///mod.ts:4:5 Missing JS documentation comment.",
+  "file:///mod.ts:5:5 Missing JS documentation comment.",
+  "file:///mod.ts:6:5 Missing JS documentation comment.",
+  "file:///mod.ts:7:5 Missing JS documentation comment.",
+  "file:///mod.ts:8:5 Missing JS documentation comment.",
+  "file:///mod.ts:9:5 Missing JS documentation comment.",
+  "file:///mod.ts:10:5 Missing JS documentation comment.",
+  "file:///mod.ts:11:5 Missing JS documentation comment.",
+  "file:///mod.ts:31:5 Missing JS documentation comment.",
+  "file:///mod.ts:31:5 Missing explicit type."
 ]
 # output.txt
 Defined in file:///mod.ts:2:1

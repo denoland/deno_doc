@@ -7,13 +7,13 @@ export class Class {
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Type is missing a JS documentation comment.",
-  "file:///mod.ts:2:3 Type is missing a JS documentation comment.",
-  "file:///mod.ts:2:3 Missing explicit type. Add one to improve documentation and type checking performance.",
-  "file:///mod.ts:3:3 Type is missing a JS documentation comment.",
-  "file:///mod.ts:3:3 Missing explicit type. Add one to improve documentation and type checking performance.",
-  "file:///mod.ts:4:3 Type is missing a JS documentation comment.",
-  "file:///mod.ts:4:3 Missing explicit type. Add one to improve documentation and type checking performance."
+  "file:///mod.ts:1:1 Missing JS documentation comment.",
+  "file:///mod.ts:2:3 Missing JS documentation comment.",
+  "file:///mod.ts:2:3 Missing explicit type.",
+  "file:///mod.ts:3:3 Missing JS documentation comment.",
+  "file:///mod.ts:3:3 Missing explicit type.",
+  "file:///mod.ts:4:3 Missing JS documentation comment.",
+  "file:///mod.ts:4:3 Missing explicit type."
 ]
 # output.txt
 Defined in file:///mod.ts:1:1

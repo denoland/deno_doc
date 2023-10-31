@@ -7,7 +7,7 @@ export class A {
 
 # diagnostics
 [
-  "file:///mod.ts:4:3 Type is missing a JS documentation comment."
+  "file:///mod.ts:4:3 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:3:1

@@ -17,21 +17,21 @@ export const s3 = "VGhpcyBpcyBhIHJlYWxseSBsb25nIHN0cmluZyB0byB0cnkgdG8gZmluZCBvd
 
 # diagnostics
 [
-  "file:///mod.ts:1:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:2:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:3:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:4:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:5:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:6:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:7:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:8:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:9:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:10:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:11:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:12:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:13:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:14:14 Type is missing a JS documentation comment.",
-  "file:///mod.ts:15:14 Type is missing a JS documentation comment."
+  "file:///mod.ts:1:14 Missing JS documentation comment.",
+  "file:///mod.ts:2:14 Missing JS documentation comment.",
+  "file:///mod.ts:3:14 Missing JS documentation comment.",
+  "file:///mod.ts:4:14 Missing JS documentation comment.",
+  "file:///mod.ts:5:14 Missing JS documentation comment.",
+  "file:///mod.ts:6:14 Missing JS documentation comment.",
+  "file:///mod.ts:7:14 Missing JS documentation comment.",
+  "file:///mod.ts:8:14 Missing JS documentation comment.",
+  "file:///mod.ts:9:14 Missing JS documentation comment.",
+  "file:///mod.ts:10:14 Missing JS documentation comment.",
+  "file:///mod.ts:11:14 Missing JS documentation comment.",
+  "file:///mod.ts:12:14 Missing JS documentation comment.",
+  "file:///mod.ts:13:14 Missing JS documentation comment.",
+  "file:///mod.ts:14:14 Missing JS documentation comment.",
+  "file:///mod.ts:15:14 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:3:14

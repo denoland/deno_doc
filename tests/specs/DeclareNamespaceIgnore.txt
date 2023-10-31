@@ -17,7 +17,7 @@ declare namespace RootNs {
 
 # diagnostics
 [
-  "file:///mod.ts:3:19 Type is missing a JS documentation comment."
+  "file:///mod.ts:3:19 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:2:1

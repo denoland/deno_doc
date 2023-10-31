@@ -19,12 +19,12 @@ export class A {
 
 # diagnostics
 [
-  "file:///mod.ts:2:1 Type is missing a JS documentation comment.",
-  "file:///mod.ts:5:3 Type is missing a JS documentation comment.",
-  "file:///mod.ts:8:3 Type is missing a JS documentation comment.",
-  "file:///mod.ts:8:3 Missing explicit type. Add one to improve documentation and type checking performance.",
-  "file:///mod.ts:13:3 Type is missing a JS documentation comment.",
-  "file:///mod.ts:13:3 Missing explicit type. Add one to improve documentation and type checking performance."
+  "file:///mod.ts:2:1 Missing JS documentation comment.",
+  "file:///mod.ts:5:3 Missing JS documentation comment.",
+  "file:///mod.ts:8:3 Missing JS documentation comment.",
+  "file:///mod.ts:8:3 Missing explicit type.",
+  "file:///mod.ts:13:3 Missing JS documentation comment.",
+  "file:///mod.ts:13:3 Missing explicit type."
 ]
 # output.txt
 Defined in file:///mod.ts:2:1

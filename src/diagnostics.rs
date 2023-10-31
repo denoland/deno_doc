@@ -32,11 +32,11 @@ impl std::fmt::Display for DocDiagnosticKind {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       DocDiagnosticKind::MissingJsDoc => {
-        f.write_str("Type is missing a JS documentation comment.")
+        f.write_str("Missing JS documentation comment.")
       }
-      DocDiagnosticKind::MissingTypeRef => f.write_str(
-        "Missing explicit type. Add one to improve documentation and type checking performance.",
-      ),
+      DocDiagnosticKind::MissingTypeRef => {
+        f.write_str("Missing explicit type.")
+      }
       DocDiagnosticKind::PrivateTypeRef => {
         f.write_str("Type is not exported, but referenced by an exported type.")
       }

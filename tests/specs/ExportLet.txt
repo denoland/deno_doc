@@ -9,13 +9,13 @@ export let tpl = `foobarbaz`;
 
 # diagnostics
 [
-  "file:///mod.ts:1:12 Type is missing a JS documentation comment.",
-  "file:///mod.ts:2:12 Type is missing a JS documentation comment.",
-  "file:///mod.ts:3:12 Type is missing a JS documentation comment.",
-  "file:///mod.ts:4:12 Type is missing a JS documentation comment.",
-  "file:///mod.ts:5:12 Type is missing a JS documentation comment.",
-  "file:///mod.ts:6:12 Type is missing a JS documentation comment.",
-  "file:///mod.ts:7:12 Type is missing a JS documentation comment."
+  "file:///mod.ts:1:12 Missing JS documentation comment.",
+  "file:///mod.ts:2:12 Missing JS documentation comment.",
+  "file:///mod.ts:3:12 Missing JS documentation comment.",
+  "file:///mod.ts:4:12 Missing JS documentation comment.",
+  "file:///mod.ts:5:12 Missing JS documentation comment.",
+  "file:///mod.ts:6:12 Missing JS documentation comment.",
+  "file:///mod.ts:7:12 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:3:12

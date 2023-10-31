@@ -10,7 +10,7 @@ export { Options };
 
 # diagnostics
 [
-  "file:///mod.ts:2:3 Type is missing a JS documentation comment."
+  "file:///mod.ts:2:3 Missing JS documentation comment."
 ]
 # output.txt
 Defined in file:///mod.ts:2:3
