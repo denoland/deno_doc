@@ -15,8 +15,8 @@ export interface Reader extends Foo, Bar {
 
 # diagnostics
 [
-  "file:///mod.ts:1:11 Type is not exported, but referenced by an exported type.",
-  "file:///mod.ts:3:11 Type is not exported, but referenced by an exported type."
+  "file:///mod.ts:1:1 Type is not exported, but referenced by an exported type.",
+  "file:///mod.ts:3:1 Type is not exported, but referenced by an exported type."
 ]
 # output.txt
 Defined in file:///mod.ts:3:1

@@ -638,7 +638,7 @@ impl<'a> DocParser<'a> {
                     diagnostics.borrow_mut().add_private_type_in_public(
                       module_symbol,
                       symbol.symbol_id(),
-                      node,
+                      decl.range,
                     );
                   }
                 }
@@ -1016,7 +1016,7 @@ impl<'a> DocParser<'a> {
                     diagnostics.borrow_mut().add_private_type_in_public(
                       module_symbol,
                       child_symbol.symbol_id(),
-                      node,
+                      decl.range,
                     );
                   }
                 }

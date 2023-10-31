@@ -9,13 +9,9 @@ use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
-use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::SourceRange;
-use deno_ast::SourceRangedForSpanned;
 use deno_graph::type_tracer::EsmModuleSymbol;
-use deno_graph::type_tracer::ExportDeclRef;
 use deno_graph::type_tracer::SymbolId;
-use deno_graph::type_tracer::SymbolNodeRef;
 use deno_graph::type_tracer::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -63,16 +59,15 @@ impl DiagnosticsCollector {
     &mut self,
     module: &EsmModuleSymbol,
     symbol_id: SymbolId,
-    node_ref: SymbolNodeRef,
+    range: SourceRange,
   ) {
     let unique_id = UniqueSymbolId {
       module_id: module.module_id(),
       symbol_id,
     };
     if self.seen_private_types_in_public.insert(unique_id) {
-      let ident_range = get_ident_range_of_node(node_ref);
       self.diagnostics.push(DocDiagnostic {
-        location: get_location(module.source(), ident_range.start),
+        location: get_location(module.source(), range.start),
         kind: DocDiagnosticKind::PrivateTypeRef,
       })
     }
@@ -287,38 +282,5 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
     if def.ts_type.is_none() {
       self.diagnostics.add_missing_type_ref(&parent.location);
     }
-  }
-}
-
-fn get_ident_range_of_node(node_ref: SymbolNodeRef) -> SourceRange {
-  match node_ref {
-    SymbolNodeRef::ClassDecl(n) => n.ident.range(),
-    SymbolNodeRef::ExportDecl(_, n) => match n {
-      ExportDeclRef::Class(n) => n.ident.range(),
-      ExportDeclRef::Fn(n) => n.ident.range(),
-      ExportDeclRef::Var(_, _, ident) => ident.range(),
-      ExportDeclRef::TsEnum(n) => n.id.range(),
-      ExportDeclRef::TsInterface(n) => n.id.range(),
-      ExportDeclRef::TsModule(n) => n.id.range(),
-      ExportDeclRef::TsTypeAlias(n) => n.id.range(),
-    },
-    SymbolNodeRef::ExportDefaultDecl(n) => match &n.decl {
-      DefaultDecl::Class(n) => match &n.ident {
-        Some(n) => n.range(),
-        None => SourceRange::new(n.start(), n.start() + "default".len()),
-      },
-      DefaultDecl::Fn(n) => match &n.ident {
-        Some(n) => n.range(),
-        None => SourceRange::new(n.start(), n.start() + "default".len()),
-      },
-      DefaultDecl::TsInterfaceDecl(n) => n.id.range(),
-    },
-    SymbolNodeRef::ExportDefaultExprLit(_, lit) => lit.range(),
-    SymbolNodeRef::FnDecl(n) => n.ident.range(),
-    SymbolNodeRef::TsEnum(n) => n.id.range(),
-    SymbolNodeRef::TsInterface(n) => n.id.range(),
-    SymbolNodeRef::TsNamespace(n) => n.id.range(),
-    SymbolNodeRef::TsTypeAlias(n) => n.id.range(),
-    SymbolNodeRef::Var(_, _, ident) => ident.range(),
   }
 }
