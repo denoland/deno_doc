@@ -119,7 +119,7 @@ pub struct DocParserOptions {
 pub struct DocParser<'a> {
   graph: &'a ModuleGraph,
   private: bool,
-  root_symbol: deno_graph::type_tracer::RootSymbol,
+  root_symbol: deno_graph::type_tracer::RootSymbol<'a>,
   visibility: SymbolVisibility,
   diagnostics: Option<RefCell<DiagnosticsCollector>>,
 }
@@ -127,25 +127,10 @@ pub struct DocParser<'a> {
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    parser: CapturingModuleParser<'a>,
+    parser: &'a CapturingModuleParser<'a>,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
-    struct NullTypeTraceHandler;
-
-    impl deno_graph::type_tracer::TypeTraceHandler for NullTypeTraceHandler {
-      fn diagnostic(
-        &self,
-        _diagnostic: deno_graph::type_tracer::TypeTraceDiagnostic,
-      ) {
-      }
-    }
-
-    let root_symbol = deno_graph::type_tracer::trace_public_types(
-      graph,
-      &graph.roots,
-      &parser,
-      &NullTypeTraceHandler,
-    )?;
+    let root_symbol = deno_graph::type_tracer::RootSymbol::new(graph, parser);
     let visibility = SymbolVisibility::build(graph, &root_symbol)?;
 
     Ok(DocParser {
@@ -247,11 +232,9 @@ impl<'a> DocParser<'a> {
         let exports = module_symbol.exports(self.graph, &self.root_symbol);
         for (export_name, (export_module, export_symbol_id)) in exports {
           let export_symbol = export_module.symbol(export_symbol_id).unwrap();
-          let definitions = self.root_symbol.go_to_definitions(
-            self.graph,
-            export_module,
-            export_symbol,
-          );
+          let definitions = self
+            .root_symbol
+            .go_to_definitions(export_module, export_symbol);
 
           if let Some(first_def) = definitions.first() {
             use deno_graph::type_tracer::DefinitionKind;
@@ -564,11 +547,9 @@ impl<'a> DocParser<'a> {
         *export_symbol_id,
       ));
       let export_symbol = module_symbol.symbol(*export_symbol_id).unwrap();
-      let definitions = self.root_symbol.go_to_definitions(
-        self.graph,
-        ModuleSymbolRef::Esm(module_symbol),
-        export_symbol,
-      );
+      let definitions = self
+        .root_symbol
+        .go_to_definitions(ModuleSymbolRef::Esm(module_symbol), export_symbol);
       for definition in definitions {
         handled_symbols.insert(definition.unique_id());
         if definition.module.specifier() != module_symbol.specifier() {
@@ -952,11 +933,9 @@ impl<'a> DocParser<'a> {
         *export_symbol_id,
       ));
       let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
-      let definitions = self.root_symbol.go_to_definitions(
-        self.graph,
-        *export_module,
-        export_symbol,
-      );
+      let definitions = self
+        .root_symbol
+        .go_to_definitions(*export_module, export_symbol);
       for definition in definitions {
         if definition.module.specifier() != module_symbol.specifier() {
           continue;
@@ -1336,7 +1315,7 @@ impl SymbolVisibility {
         for (_name, (module_symbol, symbol_id)) in exports {
           let symbol = module_symbol.symbol(symbol_id).unwrap();
           let definitions =
-            root_symbol.go_to_definitions(graph, module_symbol, symbol);
+            root_symbol.go_to_definitions(module_symbol, symbol);
           for definition in definitions {
             if root_exported_ids
               .insert(definition.unique_id(), Default::default())
@@ -1351,11 +1330,8 @@ impl SymbolVisibility {
       while let Some(definition) = pending_symbols.pop() {
         for (_name, export_id) in definition.symbol.exports() {
           let export_symbol = definition.module.symbol(*export_id).unwrap();
-          let definitions = root_symbol.go_to_definitions(
-            graph,
-            definition.module,
-            export_symbol,
-          );
+          let definitions =
+            root_symbol.go_to_definitions(definition.module, export_symbol);
           for definition in definitions {
             if root_exported_ids
               .insert(definition.unique_id(), Default::default())
@@ -1379,7 +1355,7 @@ impl SymbolVisibility {
         .unwrap();
       let symbol = module_symbol.symbol(original_id.symbol_id).unwrap();
       for dep in symbol.deps() {
-        let entries = root_symbol.resolve_symbol_dep(graph, module_symbol, dep);
+        let entries = root_symbol.resolve_symbol_dep(module_symbol, dep);
         for entry in entries {
           match entry {
             ResolvedSymbolDepEntry::Definition(definition) => {

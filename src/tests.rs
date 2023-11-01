@@ -79,14 +79,11 @@ async fn content_type_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&root)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&root)
+    .unwrap();
   assert_eq!(entries.len(), 1);
 }
 
@@ -119,6 +116,7 @@ async fn types_header_handling() {
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
   let analyzer = create_analyzer();
+  let parser = analyzer.as_capturing_parser();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -130,14 +128,10 @@ async fn types_header_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&root)
-  .unwrap();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&root)
+    .unwrap();
   assert_eq!(
     serde_json::to_value(&entries).unwrap(),
     json!([{
@@ -206,14 +200,11 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
@@ -338,14 +329,11 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
@@ -411,14 +399,11 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
@@ -471,14 +456,11 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let actual = serde_json::to_value(&entries).unwrap();
   let expected = json!([
@@ -566,14 +548,11 @@ export namespace Deno {
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse(&specifier)
+    .unwrap();
 
   // Namespace
   let found =
@@ -657,14 +636,11 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
@@ -721,14 +697,11 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
@@ -786,14 +759,11 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
@@ -850,9 +820,10 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
+  let parser = analyzer.as_capturing_parser();
   let entries = DocParser::new(
     &graph,
-    analyzer.as_capturing_parser(),
+    &parser,
     DocParserOptions {
       private: true,
       ..Default::default()
@@ -912,14 +883,11 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 }
 
 #[tokio::test]
@@ -933,14 +901,11 @@ async fn json_module() {
   )
   .await;
 
-  let entries = DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&specifier)
-  .unwrap();
+  let parser = analyzer.as_capturing_parser();
+  let entries = DocParser::new(&graph, &parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&specifier)
+    .unwrap();
 
   let expected_json = json!([
     {
