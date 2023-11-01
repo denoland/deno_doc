@@ -27,6 +27,18 @@ export class Other {
   }
 }
 
+// also should work with @ignore
+
+/** @ignore */
+type OtherPrivateType = string;
+
+export type Test = OtherPrivateType;
+
+# diagnostics
+[
+  "file:///mod.ts:34:1 Missing JS documentation comment."
+]
+
 # output.txt
 Defined in file:///mod.ts:7:1
 
@@ -55,6 +67,10 @@ Defined in file:///mod.ts:4:1
 private type PrivateType = string
 
   @internal
+
+Defined in file:///mod.ts:34:1
+
+type Test = OtherPrivateType
 
 
 # output.json
@@ -221,6 +237,27 @@ private type PrivateType = string
       "implements": [],
       "typeParams": [],
       "superTypeParams": []
+    }
+  },
+  {
+    "kind": "typeAlias",
+    "name": "Test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 34,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "OtherPrivateType",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "OtherPrivateType"
+        }
+      },
+      "typeParams": []
     }
   },
   {

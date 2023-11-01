@@ -22,7 +22,7 @@ pub(crate) fn is_false(b: &bool) -> bool {
   !b
 }
 
-fn parse_js_doc(js_doc_comment: &Comment) -> Option<JsDoc> {
+fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
   let txt = js_doc_comment
     .text
     .split('\n')
@@ -31,11 +31,22 @@ fn parse_js_doc(js_doc_comment: &Comment) -> Option<JsDoc> {
     .join("\n")
     .trim()
     .to_string();
-  let js_doc: JsDoc = txt.into();
-  if js_doc.tags.contains(&JsDocTag::Ignore) {
-    None
+  txt.into()
+}
+
+pub(crate) fn js_doc_for_range_include_ignore(
+  parsed_source: &ParsedSource,
+  range: &SourceRange,
+) -> JsDoc {
+  let Some(comments) = parsed_source.comments().get_leading(range.start) else {
+    return JsDoc::default();
+  };
+  if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
+    comment.kind == CommentKind::Block && comment.text.starts_with('*')
+  }) {
+    parse_js_doc(js_doc_comment)
   } else {
-    Some(js_doc)
+    JsDoc::default()
   }
 }
 
@@ -43,17 +54,11 @@ pub(crate) fn js_doc_for_range(
   parsed_source: &ParsedSource,
   range: &SourceRange,
 ) -> Option<JsDoc> {
-  let comments = parsed_source
-    .comments()
-    .get_leading(range.start)
-    .cloned()
-    .unwrap_or_default();
-  if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
-    comment.kind == CommentKind::Block && comment.text.starts_with('*')
-  }) {
-    parse_js_doc(js_doc_comment)
+  let js_doc = js_doc_for_range_include_ignore(parsed_source, range);
+  if js_doc.tags.contains(&JsDocTag::Ignore) {
+    None
   } else {
-    Some(JsDoc::default())
+    Some(js_doc)
   }
 }
 
@@ -67,13 +72,12 @@ pub(crate) fn module_js_doc_for_source(
   if let Some(js_doc_comment) = comments.iter().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {
-    let leading_js_doc = parse_js_doc(js_doc_comment);
-    if let Some(js_doc) = leading_js_doc {
-      if js_doc.tags.contains(&JsDocTag::Module) {
-        return Some(Some((js_doc, js_doc_comment.range())));
+    let js_doc = parse_js_doc(js_doc_comment);
+    if js_doc.tags.contains(&JsDocTag::Module) {
+      if js_doc.tags.contains(&JsDocTag::Ignore) {
+        return Some(None);
       }
-    } else {
-      return Some(None);
+      return Some(Some((js_doc, js_doc_comment.range())));
     }
   }
   None

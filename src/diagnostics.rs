@@ -5,7 +5,7 @@ use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
-use crate::swc_util::js_doc_for_range;
+use crate::swc_util::js_doc_for_range_include_ignore;
 use crate::ts_type::TsTypeDef;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
@@ -413,12 +413,10 @@ fn decl_has_internal_js_doc_tag(
   let Some(module) = module.esm() else {
     return false;
   };
-  let Some(js_doc) = js_doc_for_range(module.source(), &decl.range) else {
-    return false;
-  };
+  let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range);
   has_internal_js_doc_tag(&js_doc)
 }
 
 fn has_internal_js_doc_tag(js_doc: &JsDoc) -> bool {
-  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
+  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Ignore) || matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
 }
