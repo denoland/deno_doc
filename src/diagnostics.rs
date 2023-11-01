@@ -43,7 +43,7 @@ impl std::fmt::Display for DocDiagnosticKind {
       DocDiagnosticKind::PrivateTypeRef { name, reference } => {
         write!(
           f,
-          "Type '{}' is referencing type '{}' which is not exported from a root module.",
+          "Type '{}' references type '{}' which is not exported from a root module.",
           name, reference
         )
       }

@@ -18,8 +18,8 @@ export class Data {
 
 # diagnostics
 [
-  "file:///data.ts:8:1 Type 'Data' is referencing type 'PrivateNotExported' which is not exported from a root module.",
-  "file:///data.ts:8:1 Type 'Data' is referencing type 'PrivateExportedButNotFromModTs' which is not exported from a root module."
+  "file:///data.ts:8:1 Type 'Data' references type 'PrivateNotExported' which is not exported from a root module.",
+  "file:///data.ts:8:1 Type 'Data' references type 'PrivateExportedButNotFromModTs' which is not exported from a root module."
 ]
 
 # output.txt

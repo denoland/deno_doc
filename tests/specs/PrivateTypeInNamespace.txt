@@ -7,7 +7,7 @@ export type Output = Test.Other;
 
 # diagnostics
 [
-  "file:///mod.ts:5:1 Type 'Output' is referencing type 'Other' which is not exported from a root module.",
+  "file:///mod.ts:5:1 Type 'Output' references type 'Other' which is not exported from a root module.",
   "file:///mod.ts:5:1 Missing JS documentation comment."
 ]
 
