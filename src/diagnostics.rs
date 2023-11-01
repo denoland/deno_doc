@@ -5,7 +5,7 @@ use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
-use crate::swc_util::js_doc_for_range;
+use crate::swc_util::js_doc_for_range_include_ignore;
 use crate::ts_type::TsTypeDef;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
@@ -84,7 +84,7 @@ impl DiagnosticsCollector {
     }
     if referenced_symbol
       .decls()
-      .any(|decl| decl_has_internal_js_doc_tag(referenced_module, decl))
+      .any(|decl| decl_has_ignorable_js_doc_tag(referenced_module, decl))
     {
       return; // ignore
     }
@@ -116,7 +116,7 @@ impl DiagnosticsCollector {
 
   fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {
     if js_doc.doc.is_none()
-      && !has_internal_js_doc_tag(js_doc)
+      && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_jsdoc_missing.insert(location.clone())
     {
       self.diagnostics.push(DocDiagnostic {
@@ -133,7 +133,7 @@ impl DiagnosticsCollector {
     location: &Location,
   ) {
     if ts_type.is_none()
-      && !has_internal_js_doc_tag(js_doc)
+      && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
     {
       self.diagnostics.push(DocDiagnostic {
@@ -150,7 +150,7 @@ impl DiagnosticsCollector {
     location: &Location,
   ) {
     if return_type.is_none()
-      && !has_internal_js_doc_tag(js_doc)
+      && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
     {
       self.diagnostics.push(DocDiagnostic {
@@ -179,7 +179,7 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
         }
       }
 
-      if !has_internal_js_doc_tag(&doc_node.js_doc) {
+      if !has_ignorable_js_doc_tag(&doc_node.js_doc) {
         self.visit_doc_node(doc_node);
       }
 
@@ -406,19 +406,18 @@ fn get_decl_name(decl: &SymbolDecl) -> Option<String> {
   }
 }
 
-fn decl_has_internal_js_doc_tag(
+fn decl_has_ignorable_js_doc_tag(
   module: ModuleSymbolRef,
   decl: &SymbolDecl,
 ) -> bool {
   let Some(module) = module.esm() else {
     return false;
   };
-  let Some(js_doc) = js_doc_for_range(module.source(), &decl.range) else {
-    return false;
-  };
-  has_internal_js_doc_tag(&js_doc)
+  let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range);
+  has_ignorable_js_doc_tag(&js_doc)
 }
 
-fn has_internal_js_doc_tag(js_doc: &JsDoc) -> bool {
-  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
+/// If the jsdoc has an `@internal` or `@ignore` tag.
+fn has_ignorable_js_doc_tag(js_doc: &JsDoc) -> bool {
+  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Ignore) || matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
 }
