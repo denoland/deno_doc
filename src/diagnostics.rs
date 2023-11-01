@@ -5,16 +5,16 @@ use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
-use crate::swc_util::get_location;
+use crate::swc_util::js_doc_for_range;
 use crate::ts_type::TsTypeDef;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
-use deno_ast::SourceRange;
-use deno_graph::type_tracer::EsmModuleSymbol;
-use deno_graph::type_tracer::SymbolId;
+use deno_graph::type_tracer::ModuleSymbolRef;
+use deno_graph::type_tracer::Symbol;
+use deno_graph::type_tracer::SymbolDecl;
 use deno_graph::type_tracer::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -25,7 +25,7 @@ pub enum DocDiagnosticKind {
   MissingJsDoc,
   MissingExplicitType,
   MissingReturnType,
-  PrivateTypeRef,
+  PrivateTypeRef { name: String, reference: String },
 }
 
 impl std::fmt::Display for DocDiagnosticKind {
@@ -40,8 +40,12 @@ impl std::fmt::Display for DocDiagnosticKind {
       DocDiagnosticKind::MissingReturnType => {
         f.write_str("Missing return type.")
       }
-      DocDiagnosticKind::PrivateTypeRef => {
-        f.write_str("Type is not exported, but referenced by an exported type.")
+      DocDiagnosticKind::PrivateTypeRef { name, reference } => {
+        write!(
+          f,
+          "Type '{}' is referencing type '{}' which is not exported from a root module.",
+          name, reference
+        )
       }
     }
   }
@@ -55,7 +59,7 @@ pub struct DocDiagnostic {
 
 #[derive(Default)]
 pub struct DiagnosticsCollector {
-  seen_private_types_in_public: HashSet<UniqueSymbolId>,
+  seen_private_types_in_public: HashSet<(UniqueSymbolId, UniqueSymbolId)>,
   seen_jsdoc_missing: HashSet<Location>,
   seen_missing_type_refs: HashSet<Location>,
   diagnostics: Vec<DocDiagnostic>,
@@ -65,24 +69,39 @@ impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
     doc_node: &DocNode,
-    module: &EsmModuleSymbol,
-    symbol_id: SymbolId,
-    range: SourceRange,
+    doc_id: UniqueSymbolId,
+    referenced_module: ModuleSymbolRef,
+    referenced_symbol: &Symbol,
   ) {
-    if has_internal_js_doc_tag(&doc_node.js_doc) {
+    if !self.seen_private_types_in_public.insert((
+      doc_id,
+      UniqueSymbolId::new(
+        referenced_module.module_id(),
+        referenced_symbol.symbol_id(),
+      ),
+    )) {
+      return;
+    }
+    if referenced_symbol
+      .decls()
+      .any(|decl| decl_has_internal_js_doc_tag(referenced_module, decl))
+    {
       return; // ignore
     }
-
-    let unique_id = UniqueSymbolId {
-      module_id: module.module_id(),
-      symbol_id,
+    let Some(first_decl) = referenced_symbol.decls().next() else {
+      return;
     };
-    if self.seen_private_types_in_public.insert(unique_id) {
-      self.diagnostics.push(DocDiagnostic {
-        location: get_location(module.source(), range.start),
-        kind: DocDiagnosticKind::PrivateTypeRef,
-      })
-    }
+    let Some(reference) = get_decl_name(first_decl) else {
+      return;
+    };
+
+    self.diagnostics.push(DocDiagnostic {
+      location: doc_node.location.clone(),
+      kind: DocDiagnosticKind::PrivateTypeRef {
+        name: doc_node.name.clone(),
+        reference,
+      },
+    })
   }
 
   pub fn take_diagnostics(&mut self) -> Vec<DocDiagnostic> {
@@ -345,6 +364,59 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
       &parent.location,
     );
   }
+}
+
+fn get_decl_name(decl: &SymbolDecl) -> Option<String> {
+  use deno_ast::swc::ast::DefaultDecl;
+  use deno_ast::swc::ast::TsModuleName;
+  use deno_graph::type_tracer::ExportDeclRef;
+  use deno_graph::type_tracer::SymbolNodeRef;
+
+  fn ts_module_name_to_string(module_name: &TsModuleName) -> String {
+    match module_name {
+      TsModuleName::Ident(ident) => ident.sym.to_string(),
+      TsModuleName::Str(str) => str.value.to_string(),
+    }
+  }
+
+  let node = decl.maybe_node()?;
+  match node {
+    SymbolNodeRef::ClassDecl(n) => Some(n.ident.sym.to_string()),
+    SymbolNodeRef::ExportDecl(_, n) => match n {
+      ExportDeclRef::Class(n) => Some(n.ident.sym.to_string()),
+      ExportDeclRef::Fn(n) => Some(n.ident.sym.to_string()),
+      ExportDeclRef::Var(_, _, ident) => Some(ident.sym.to_string()),
+      ExportDeclRef::TsEnum(n) => Some(n.id.sym.to_string()),
+      ExportDeclRef::TsInterface(n) => Some(n.id.sym.to_string()),
+      ExportDeclRef::TsModule(n) => Some(ts_module_name_to_string(&n.id)),
+      ExportDeclRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
+    },
+    SymbolNodeRef::ExportDefaultDecl(n) => match &n.decl {
+      DefaultDecl::Class(n) => Some(n.ident.as_ref()?.sym.to_string()),
+      DefaultDecl::Fn(n) => Some(n.ident.as_ref()?.sym.to_string()),
+      DefaultDecl::TsInterfaceDecl(n) => Some(n.id.sym.to_string()),
+    },
+    SymbolNodeRef::ExportDefaultExprLit(_, _) => None,
+    SymbolNodeRef::FnDecl(n) => Some(n.ident.sym.to_string()),
+    SymbolNodeRef::TsEnum(n) => Some(n.id.sym.to_string()),
+    SymbolNodeRef::TsInterface(n) => Some(n.id.sym.to_string()),
+    SymbolNodeRef::TsNamespace(n) => Some(ts_module_name_to_string(&n.id)),
+    SymbolNodeRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
+    SymbolNodeRef::Var(_, _, ident) => Some(ident.sym.to_string()),
+  }
+}
+
+fn decl_has_internal_js_doc_tag(
+  module: ModuleSymbolRef,
+  decl: &SymbolDecl,
+) -> bool {
+  let Some(module) = module.esm() else {
+    return false;
+  };
+  let Some(js_doc) = js_doc_for_range(module.source(), &decl.range) else {
+    return false;
+  };
+  has_internal_js_doc_tag(&js_doc)
 }
 
 fn has_internal_js_doc_tag(js_doc: &JsDoc) -> bool {
