@@ -1,0 +1,112 @@
+# mod.ts
+export type { Data } from "./data.ts";
+
+# data.ts
+interface PrivateNotExported {
+}
+
+export interface PrivateExportedButNotFromModTs {
+}
+
+/** doc */
+export class Data {
+  /** doc */
+  prop: PrivateNotExported;
+  /** doc */
+  prop2: PrivateExportedButNotFromModTs;
+}
+
+# diagnostics
+[
+  "file:///data.ts:8:1 Type 'Data' references type 'PrivateNotExported' which is not exported from a root module.",
+  "file:///data.ts:8:1 Type 'Data' references type 'PrivateExportedButNotFromModTs' which is not exported from a root module."
+]
+
+# output.txt
+Defined in file:///data.ts:8:1
+
+class Data
+  doc
+
+  prop: PrivateNotExported
+    doc
+  prop2: PrivateExportedButNotFromModTs
+    doc
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Data",
+    "location": {
+      "filename": "file:///data.ts",
+      "line": 8,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "tsType": {
+            "repr": "PrivateNotExported",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "PrivateNotExported"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "prop",
+          "location": {
+            "filename": "file:///data.ts",
+            "line": 10,
+            "col": 2
+          }
+        },
+        {
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "tsType": {
+            "repr": "PrivateExportedButNotFromModTs",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "PrivateExportedButNotFromModTs"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "prop2",
+          "location": {
+            "filename": "file:///data.ts",
+            "line": 12,
+            "col": 2
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

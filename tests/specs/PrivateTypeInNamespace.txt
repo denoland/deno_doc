@@ -1,0 +1,43 @@
+# mod.ts
+namespace Test {
+  export class Other {}
+}
+
+export type Output = Test.Other;
+
+# diagnostics
+[
+  "file:///mod.ts:5:1 Type 'Output' references type 'Other' which is not exported from a root module.",
+  "file:///mod.ts:5:1 Missing JS documentation comment."
+]
+
+# output.txt
+Defined in file:///mod.ts:5:1
+
+type Output = Test.Other
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "Output",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "Test.Other",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "Test.Other"
+        }
+      },
+      "typeParams": []
+    }
+  }
+]
