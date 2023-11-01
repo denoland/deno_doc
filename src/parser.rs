@@ -1016,25 +1016,44 @@ impl<'a> DocParser<'a> {
         }
       }
     };
-    if let Some(diagnostics) = &self.diagnostics {
-      if let Some(doc) = &maybe_doc {
-        let doc_id =
-          UniqueSymbolId::new(module_symbol.module_id(), symbol.symbol_id());
-        if let Some(deps) = self.visibility.get_root_exported_deps(&doc_id) {
-          if !deps.is_empty() {
-            let mut diagnostics = diagnostics.borrow_mut();
-            for dep in deps {
-              let module =
-                self.root_symbol.get_module_from_id(dep.module_id).unwrap();
-              let symbol = module.symbol(dep.symbol_id).unwrap();
-              diagnostics
-                .add_private_type_in_public(doc, doc_id, module, symbol);
-            }
-          }
-        }
-      }
-    }
+
+    self.check_private_type_in_public_diagnostic(
+      &maybe_doc,
+      module_symbol,
+      symbol,
+    );
+
     maybe_doc
+  }
+
+  fn check_private_type_in_public_diagnostic(
+    &self,
+    maybe_doc: &Option<DocNode>,
+    module_symbol: ModuleSymbolRef<'_>,
+    symbol: &Symbol,
+  ) {
+    let Some(diagnostics) = &self.diagnostics else {
+      return;
+    };
+    let Some(doc) = maybe_doc else {
+      return;
+    };
+
+    let doc_id =
+      UniqueSymbolId::new(module_symbol.module_id(), symbol.symbol_id());
+    let Some(deps) = self.visibility.get_root_exported_deps(&doc_id) else {
+      return;
+    };
+    if deps.is_empty() {
+      return; // avoid borrow_mut if not necessary
+    }
+
+    let mut diagnostics = diagnostics.borrow_mut();
+    for dep in deps {
+      let module = self.root_symbol.get_module_from_id(dep.module_id).unwrap();
+      let symbol = module.symbol(dep.symbol_id).unwrap();
+      diagnostics.add_private_type_in_public(doc, doc_id, module, symbol);
+    }
   }
 
   fn get_doc_for_symbol_node_ref(
