@@ -105,6 +105,10 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     "doc_node_kind_icon.html",
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
+  tt.add_template(
+    "doc_block_subtitle.html",
+    include_str!("./templates/doc_block_subtitle.html"),
+  )?;
   tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
   tt.add_template(
     "symbol_group.html",
@@ -437,7 +441,8 @@ fn render_page(
   };
 
   // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group = symbol::render_symbol_group(doc_nodes, name, &render_ctx);
+  let symbol_group =
+    symbol::render_symbol_group(ctx, doc_nodes, name, &render_ctx);
 
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
 

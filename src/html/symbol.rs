@@ -1,10 +1,11 @@
 use super::types::render_type_def;
 use super::util::RenderContext;
+use super::GenerateCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
+use serde_json::json;
 use std::collections::HashMap;
-use std::fmt::Write;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SymbolGroupCtx {
@@ -19,10 +20,11 @@ pub struct SymbolCtx {
   body: String,
 }
 
-pub fn render_symbol_group(
+pub(super) fn render_symbol_group(
+  ctx: &GenerateCtx,
   doc_nodes: &[DocNode],
   name: &str,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> SymbolGroupCtx {
   let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
   // TODO(bartlomieju): I'm not sure what this meant to do
@@ -47,8 +49,8 @@ pub fn render_symbol_group(
     .values()
     .map(|doc_nodes| SymbolCtx {
       kind: (&doc_nodes[0].kind).into(),
-      subtitle: doc_block_subtitle(&doc_nodes[0], ctx),
-      body: doc_block(doc_nodes, name, ctx),
+      subtitle: doc_block_subtitle(&ctx, &doc_nodes[0], render_ctx),
+      body: doc_block(doc_nodes, name, render_ctx),
     })
     .collect();
 
@@ -59,92 +61,117 @@ pub fn render_symbol_group(
 }
 
 fn doc_block_subtitle(
+  ctx: &GenerateCtx,
   doc_node: &DocNode,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> Option<String> {
-  let subtitle = match doc_node.kind {
-    DocNodeKind::Function => None,
-    DocNodeKind::Variable => None,
-    DocNodeKind::Class => {
-      let class_def = doc_node.class_def.as_ref().unwrap();
-      let mut subtitle = String::new();
+  if matches!(
+    doc_node.kind,
+    DocNodeKind::Function
+      | DocNodeKind::Variable
+      | DocNodeKind::Enum
+      | DocNodeKind::TypeAlias
+      | DocNodeKind::Namespace
+  ) {
+    return None;
+  }
 
-      let ctx = &RenderContext {
-        current_type_params: class_def
-          .type_params
-          .iter()
-          .map(|def| def.name.clone())
-          .collect::<std::collections::HashSet<String>>(),
-        ..ctx.clone()
-      };
+  if matches!(doc_node.kind, DocNodeKind::Class) {
+    let class_def = doc_node.class_def.as_ref().unwrap();
 
-      if !class_def.implements.is_empty() {
-        let implements = class_def
-          .implements
-          .iter()
-          .map(|extend| render_type_def(extend, ctx))
-          .collect::<Vec<String>>()
-          .join("<span>, </span>");
+    let current_type_params = class_def
+      .type_params
+      .iter()
+      .map(|def| def.name.clone())
+      .collect::<std::collections::HashSet<String>>();
 
-        write!(
-          subtitle,
-          r#"<div><span class="doc_block_subtitle_text"> implements </span>{implements}</div>"#
-        ).unwrap();
-      }
+    let render_ctx = &RenderContext {
+      current_type_params,
+      ..render_ctx.clone()
+    };
 
-      if let Some(extends) = class_def.extends.as_ref() {
-        let extends = ctx.lookup_symbol_href(extends).map_or_else(
-          || format!("<span>{extends}</span>"),
-          |href| format!(r#"<a href="{href}" class="link">{extends}</a>"#),
-        );
+    let mut class_implements = None;
+    let mut class_extends = None;
 
-        write!(
-          subtitle,
-          r#"<div><span class="doc_block_subtitle_text"> extends </span>{extends}<span>{}</span></div>"#,
-          super::types::type_arguments(&class_def.super_type_params, ctx),
-        ).unwrap();
-      }
+    if !class_def.implements.is_empty() {
+      let impls = class_def
+        .implements
+        .iter()
+        .map(|extend| render_type_def(extend, render_ctx))
+        .collect::<Vec<String>>();
 
-      Some(subtitle)
+      class_implements = Some(impls);
     }
-    DocNodeKind::Enum => None,
-    DocNodeKind::Interface => {
-      let interface_def = doc_node.interface_def.as_ref().unwrap();
 
-      let subtitle = if !interface_def.extends.is_empty() {
-        let ctx = &RenderContext {
-          current_type_params: interface_def
-            .type_params
-            .iter()
-            .map(|def| def.name.clone())
-            .collect::<std::collections::HashSet<String>>(),
-          ..ctx.clone()
-        };
+    if let Some(extends) = class_def.extends.as_ref() {
+      let symbol = render_ctx.lookup_symbol_href(extends).map_or_else(
+        || format!("<span>{extends}</span>"),
+        |href| format!(r#"<a href="{href}" class="link">{extends}</a>"#),
+      );
 
-        let extends = interface_def
-          .extends
-          .iter()
-          .map(|extend| render_type_def(extend, ctx))
-          .collect::<Vec<String>>()
-          .join("<span>, </span>");
-
-        Some(format!(
-          r#"<div><span class="doc_block_subtitle_text"> extends </span>{extends}</div>"#
-        ))
-      } else {
-        None
-      };
-
-      subtitle
+      class_extends = Some(json!({
+        "symbol": symbol,
+        "type_args": super::types::type_arguments(&class_def.super_type_params, render_ctx)
+      }));
     }
-    DocNodeKind::TypeAlias => None,
-    DocNodeKind::Namespace => None,
-    _ => unimplemented!(),
-  };
 
-  subtitle.map(|subtitle| {
-    format!(r#"<div class="doc_block_subtitle">{subtitle}</div>"#)
-  })
+    return Some(
+      ctx
+        .tt
+        .render(
+          "doc_block_subtitle.html",
+          &json!({
+            "class": {
+              "implements": class_implements,
+              "extends": class_extends,
+            },
+            "interface": null,
+          }),
+        )
+        .unwrap(),
+    );
+  }
+
+  if matches!(doc_node.kind, DocNodeKind::Interface) {
+    let interface_def = doc_node.interface_def.as_ref().unwrap();
+
+    if interface_def.extends.is_empty() {
+      return None;
+    }
+
+    let current_type_params = interface_def
+      .type_params
+      .iter()
+      .map(|def| def.name.clone())
+      .collect::<std::collections::HashSet<String>>();
+    let render_ctx = &RenderContext {
+      current_type_params,
+      ..render_ctx.clone()
+    };
+
+    let extends = interface_def
+      .extends
+      .iter()
+      .map(|extend| render_type_def(extend, render_ctx))
+      .collect::<Vec<String>>();
+
+    return Some(
+      ctx
+        .tt
+        .render(
+          "doc_block_subtitle.html",
+          &json!({
+            "class": null,
+            "interface": {
+              "extends": extends
+            }
+          }),
+        )
+        .unwrap(),
+    );
+  }
+
+  unreachable!()
 }
 
 fn doc_block(doc_nodes: &[DocNode], name: &str, ctx: &RenderContext) -> String {
