@@ -50,7 +50,7 @@ pub(super) fn render_symbol_group(
     .map(|doc_nodes| SymbolCtx {
       kind: (&doc_nodes[0].kind).into(),
       subtitle: doc_block_subtitle(&ctx, &doc_nodes[0], render_ctx),
-      body: doc_block(doc_nodes, name, render_ctx),
+      body: doc_block(ctx, doc_nodes, name, render_ctx),
     })
     .collect();
 
@@ -174,34 +174,36 @@ fn doc_block_subtitle(
   unreachable!()
 }
 
-fn doc_block(doc_nodes: &[DocNode], name: &str, ctx: &RenderContext) -> String {
-  let mut content = String::new();
+fn doc_block(
+  _ctx: &GenerateCtx,
+  doc_nodes: &[DocNode],
+  name: &str,
+  render_ctx: &RenderContext,
+) -> String {
+  let mut content_parts = Vec::with_capacity(doc_nodes.len());
   let mut functions = vec![];
 
   for doc_node in doc_nodes {
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
-      DocNodeKind::Variable => {
-        content.push_str(&super::variable::render_variable(doc_node, ctx))
-      }
+      DocNodeKind::Variable => content_parts
+        .push(super::variable::render_variable(doc_node, render_ctx)),
       DocNodeKind::Class => {
-        content.push_str(&super::class::render_class(doc_node, ctx))
+        content_parts.push(super::class::render_class(doc_node, render_ctx))
       }
       DocNodeKind::Enum => {
-        content.push_str(&super::r#enum::render_enum(doc_node, ctx))
+        content_parts.push(super::r#enum::render_enum(doc_node, render_ctx))
       }
-      DocNodeKind::Interface => {
-        content.push_str(&super::interface::render_interface(doc_node, ctx))
-      }
-      DocNodeKind::TypeAlias => {
-        content.push_str(&super::type_alias::render_type_alias(doc_node, ctx))
-      }
+      DocNodeKind::Interface => content_parts
+        .push(super::interface::render_interface(doc_node, render_ctx)),
+      DocNodeKind::TypeAlias => content_parts
+        .push(super::type_alias::render_type_alias(doc_node, render_ctx)),
       DocNodeKind::Namespace => {
-        content.push_str(&super::namespace::render_namespace(
+        content_parts.push(super::namespace::render_namespace(
           doc_node,
           &RenderContext {
             namespace: Some(name.to_string()),
-            ..ctx.clone()
+            ..render_ctx.clone()
           },
         ))
       }
@@ -211,8 +213,8 @@ fn doc_block(doc_nodes: &[DocNode], name: &str, ctx: &RenderContext) -> String {
   }
 
   if !functions.is_empty() {
-    content.push_str(&super::function::render_function(functions, ctx));
+    content_parts.push(super::function::render_function(functions, render_ctx));
   }
 
-  content
+  content_parts.join("")
 }
