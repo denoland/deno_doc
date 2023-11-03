@@ -149,9 +149,11 @@ impl RenderContext {
   }
 }
 
-// TODO(bartlomieju): make it a template
-pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
-  let (char, title) = match kind {
+pub(super) fn doc_node_kind_icon(
+  ctx: &GenerateCtx,
+  kind: DocNodeKind,
+) -> String {
+  let (char_, title) = match kind {
     DocNodeKind::Function => ('f', "Function"),
     DocNodeKind::Variable => ('v', "Variable"),
     DocNodeKind::Class => ('c', "Class"),
@@ -163,11 +165,15 @@ pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
   };
 
   // TODO: already a template, dedupe
-  format!(
-    r#"<div class="symbol_kind kind_{kind:?}_text kind_{kind:?}_bg" title="{title}">{char}</div>"#
+  ctx.render(
+    "doc_node_kind_icon.html",
+    &json!({
+      "kind": kind,
+      "title": title,
+      "char": char_
+    }),
   )
 }
-
 #[derive(Debug, serde::Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,

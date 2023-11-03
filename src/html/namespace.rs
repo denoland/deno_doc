@@ -140,8 +140,7 @@ fn get_namespace_section_render_ctx(
       }
 
       NamespaceSectionNodeCtx {
-        // TODO(bartlomieju): make it a template
-        icon: doc_node_kind_icon(doc_node.kind),
+        icon: doc_node_kind_icon(ctx, doc_node.kind),
         path,
         name,
         // TODO(bartlomieju): make it a template
