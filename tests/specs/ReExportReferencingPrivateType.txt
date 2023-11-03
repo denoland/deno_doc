@@ -26,8 +26,7 @@ interface PrivateReferencedInIgnore {}
 # diagnostics
 [
   "file:///data.ts:10:3 Type 'Data' references type 'PrivateNotExported' which is not exported from a root module.",
-  "file:///data.ts:12:3 Type 'Data' references type 'PrivateExportedButNotFromModTs' which is not exported from a root module.",
-  "file:///data.ts:16:3 Type 'Data' references type 'PrivateReferencedInIgnore' which is not exported from a root module."
+  "file:///data.ts:12:3 Type 'Data' references type 'PrivateExportedButNotFromModTs' which is not exported from a root module."
 ]
 
 # output.txt
