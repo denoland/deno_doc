@@ -72,7 +72,7 @@ pub fn anchor(name: &str) -> String {
 
 #[derive(Debug, Clone)]
 pub struct RenderContext {
-  pub additional_css: Rc<RefCell<String>>,
+  additional_css: Rc<RefCell<String>>,
   pub namespace: Option<String>,
   pub current_symbols: Rc<HashSet<Vec<String>>>,
   pub current_type_params: HashSet<String>,
@@ -106,6 +106,15 @@ impl RenderContext {
       namespace: Some(namespace),
       ..self.clone()
     }
+  }
+
+  pub fn add_additional_css(&self, css: String) {
+    self.additional_css.borrow_mut().push_str(&css);
+  }
+
+  pub fn take_additional_css(&self) -> String {
+    let mut css = self.additional_css.borrow_mut();
+    std::mem::replace(&mut css, "".to_string())
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {

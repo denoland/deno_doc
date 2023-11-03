@@ -303,9 +303,6 @@ fn render_compound_index(
     })
     .collect::<Vec<_>>();
 
-  let additional_css = render_ctx.additional_css.borrow();
-  let additional_css: &str = additional_css.as_ref();
-
   Ok(ctx.tt.render(
     "compound_index.html",
     &json!({
@@ -313,7 +310,7 @@ fn render_compound_index(
       "html_head": {
         "title": format!("Index - {} documentation", ctx.package_name),
         "current_symbol": "",
-        "additional_css": additional_css,
+        "additional_css": render_ctx.take_additional_css(),
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -337,9 +334,6 @@ fn render_index(
   let render_ctx = RenderContext::new(current_symbols.clone(), None);
   let content = namespace::doc_node_kind_sections(partitions, &render_ctx);
 
-  let additional_css = render_ctx.additional_css.borrow();
-  let additional_css: &str = additional_css.as_ref();
-
   Ok(ctx.tt.render(
     "index_list.html",
     &json!({
@@ -347,7 +341,7 @@ fn render_index(
       "html_head": {
         "title": format!("Index - {} documentation", ctx.package_name),
         "current_symbol": "",
-        "additional_css": additional_css,
+        "additional_css": render_ctx.take_additional_css(),
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -436,9 +430,6 @@ fn render_page(
     ..sidepanel_ctx.clone()
   };
 
-  let additional_css = render_ctx.additional_css.borrow();
-  let additional_css: &str = additional_css.as_ref();
-
   Ok(ctx.tt.render(
     "page.html",
     &json!({
@@ -446,7 +437,7 @@ fn render_page(
       "html_head": {
         "title": format!("{} - {} documentation", name, ctx.package_name),
         "current_symbol": name,
-        "additional_css": additional_css,
+        "additional_css": render_ctx.take_additional_css(),
         "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
       "html_tail": {

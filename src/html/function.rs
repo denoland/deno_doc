@@ -29,7 +29,7 @@ pub fn render_function(
       let id = name_to_id("function", &doc_node.name);
 
       {
-        ctx.additional_css.borrow_mut().push_str(&format!(
+        ctx.add_additional_css(format!(
           r#"
 #{overload_id} {{
   display: none;
