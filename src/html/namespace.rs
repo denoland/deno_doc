@@ -53,6 +53,7 @@ pub(super) fn render_namespace(
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
   let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
 
+  // TODO(bartlomieju): useless template, use vec![...].join("")
   ctx.render(
     "namespace.html",
     &json!({

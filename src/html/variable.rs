@@ -17,17 +17,15 @@ pub(super) fn render_variable(
 
   let id = name_to_id("variable", &doc_node.name);
 
-  ctx.render("nodes/variable.html", &json!({
-    "doc_entry": {
-      "title": "type",
-      "content": render_doc_entry(
-        ctx,
-        &id,
-        "",
-        &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap(), render_ctx),
-        None,
-        render_ctx,
-      )
-    }
+  ctx.render("section.html", &json!({
+    "title": "type",
+    "content": render_doc_entry(
+      ctx,
+      &id,
+      "",
+      &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap(), render_ctx),
+      None,
+      render_ctx,
+    )
   }))
 }
