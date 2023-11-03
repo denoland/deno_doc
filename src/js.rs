@@ -203,7 +203,7 @@ async fn inner_doc(
   let parser = analyzer.as_capturing_parser();
   let entries = DocParser::new(
     &graph,
-    &parser,
+    parser,
     crate::DocParserOptions {
       diagnostics: false,
       private: include_all,

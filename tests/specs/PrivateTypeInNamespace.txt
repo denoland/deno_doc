@@ -3,24 +3,29 @@ namespace Test {
   export class Other {}
 }
 
-export type Output = Test.Other;
+export interface Output {
+  other: Test.Other;
+}
 
 # diagnostics
 [
-  "file:///mod.ts:5:1 Type 'Output' references type 'Other' which is not exported from a root module.",
-  "file:///mod.ts:5:1 Missing JS documentation comment."
+  "file:///mod.ts:6:3 Type 'Output' references type 'Other' which is not exported from a root module.",
+  "file:///mod.ts:5:1 Missing JS documentation comment.",
+  "file:///mod.ts:6:3 Missing JS documentation comment."
 ]
 
 # output.txt
 Defined in file:///mod.ts:5:1
 
-type Output = Test.Other
+interface Output
+
+  other: Test.Other
 
 
 # output.json
 [
   {
-    "kind": "typeAlias",
+    "kind": "interface",
     "name": "Output",
     "location": {
       "filename": "file:///mod.ts",
@@ -28,15 +33,33 @@ type Output = Test.Other
       "col": 0
     },
     "declarationKind": "export",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "Test.Other",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": null,
-          "typeName": "Test.Other"
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "other",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 2
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "Test.Other",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Test.Other"
+            }
+          },
+          "typeParams": []
         }
-      },
+      ],
+      "callSignatures": [],
+      "indexSignatures": [],
       "typeParams": []
     }
   }

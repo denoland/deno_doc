@@ -5,6 +5,7 @@ use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
+use crate::swc_util::get_text_info_location;
 use crate::swc_util::js_doc_for_range;
 use crate::ts_type::TsTypeDef;
 use crate::variable::VariableDef;
@@ -12,10 +13,12 @@ use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
-use deno_graph::type_tracer::ModuleSymbolRef;
-use deno_graph::type_tracer::Symbol;
-use deno_graph::type_tracer::SymbolDecl;
-use deno_graph::type_tracer::UniqueSymbolId;
+use deno_graph::symbols::ModuleSymbolRef;
+use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolDecl;
+use deno_graph::symbols::SymbolMember;
+use deno_graph::symbols::SymbolMemberDecl;
+use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
 use std::fmt;
@@ -72,7 +75,20 @@ impl DiagnosticsCollector {
     doc_id: UniqueSymbolId,
     referenced_module: ModuleSymbolRef,
     referenced_symbol: &Symbol,
+    member_module: ModuleSymbolRef,
+    maybe_member: Option<&SymbolMember>,
   ) {
+    if referenced_symbol
+      .decls()
+      .any(|decl| decl_has_internal_js_doc_tag(referenced_module, decl))
+    {
+      return; // ignore
+    }
+    if let Some(member) = &maybe_member {
+      if member_has_internal_js_doc_tag(member_module, member.decl()) {
+        return; // ignore
+      }
+    }
     if !self.seen_private_types_in_public.insert((
       doc_id,
       UniqueSymbolId::new(
@@ -82,12 +98,6 @@ impl DiagnosticsCollector {
     )) {
       return;
     }
-    if referenced_symbol
-      .decls()
-      .any(|decl| decl_has_internal_js_doc_tag(referenced_module, decl))
-    {
-      return; // ignore
-    }
     let Some(first_decl) = referenced_symbol.decls().next() else {
       return;
     };
@@ -96,7 +106,14 @@ impl DiagnosticsCollector {
     };
 
     self.diagnostics.push(DocDiagnostic {
-      location: doc_node.location.clone(),
+      location: match maybe_member {
+        Some(member) => get_text_info_location(
+          member_module.specifier().as_str(),
+          member_module.text_info(),
+          member.decl().range().start,
+        ),
+        None => doc_node.location.clone(),
+      },
       kind: DocDiagnosticKind::PrivateTypeRef {
         name: doc_node.name.clone(),
         reference,
@@ -369,8 +386,8 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
 fn get_decl_name(decl: &SymbolDecl) -> Option<String> {
   use deno_ast::swc::ast::DefaultDecl;
   use deno_ast::swc::ast::TsModuleName;
-  use deno_graph::type_tracer::ExportDeclRef;
-  use deno_graph::type_tracer::SymbolNodeRef;
+  use deno_graph::symbols::ExportDeclRef;
+  use deno_graph::symbols::SymbolNodeRef;
 
   fn ts_module_name_to_string(module_name: &TsModuleName) -> String {
     match module_name {
@@ -414,6 +431,19 @@ fn decl_has_internal_js_doc_tag(
     return false;
   };
   let Some(js_doc) = js_doc_for_range(module.source(), &decl.range) else {
+    return false;
+  };
+  has_internal_js_doc_tag(&js_doc)
+}
+
+fn member_has_internal_js_doc_tag(
+  module: ModuleSymbolRef,
+  decl: &SymbolMemberDecl,
+) -> bool {
+  let Some(module) = module.esm() else {
+    return false;
+  };
+  let Some(js_doc) = js_doc_for_range(module.source(), &decl.range()) else {
     return false;
   };
   has_internal_js_doc_tag(&js_doc)

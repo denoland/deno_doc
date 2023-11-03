@@ -3,8 +3,8 @@
 use deno_ast::swc::ast::Pat;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::type_tracer::EsmModuleSymbol;
-use deno_graph::type_tracer::SymbolNodeRef;
+use deno_graph::symbols::EsmModuleSymbol;
+use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
 use serde::Serialize;
 

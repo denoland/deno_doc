@@ -41,14 +41,11 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       },
     )
     .await;
-  DocParser::new(
-    &graph,
-    analyzer.as_capturing_parser(),
-    DocParserOptions::default(),
-  )
-  .unwrap()
-  .parse_with_reexports(&root)
-  .unwrap()
+  let parser = analyzer.as_capturing_parser();
+  DocParser::new(&graph, parser, DocParserOptions::default())
+    .unwrap()
+    .parse_with_reexports(&root)
+    .unwrap()
 }
 
 fn doc_parser(c: &mut Criterion) {

@@ -46,17 +46,19 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::type_tracer::EsmModuleSymbol;
-use deno_graph::type_tracer::ExportDeclRef;
-use deno_graph::type_tracer::ModuleSymbolRef;
-use deno_graph::type_tracer::ResolvedSymbolDepEntry;
-use deno_graph::type_tracer::Symbol;
-use deno_graph::type_tracer::SymbolNodeRef;
-use deno_graph::type_tracer::UniqueSymbolId;
+use deno_graph::symbols::EsmModuleSymbol;
+use deno_graph::symbols::ExportDeclRef;
+use deno_graph::symbols::ModuleSymbolRef;
+use deno_graph::symbols::ResolvedSymbolDepEntry;
+use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolMemberId;
+use deno_graph::symbols::SymbolNodeRef;
+use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use indexmap::IndexMap;
 use indexmap::IndexSet;
 
 use std::borrow::Cow;
@@ -119,7 +121,7 @@ pub struct DocParserOptions {
 pub struct DocParser<'a> {
   graph: &'a ModuleGraph,
   private: bool,
-  root_symbol: deno_graph::type_tracer::RootSymbol<'a>,
+  root_symbol: deno_graph::symbols::RootSymbol<'a>,
   visibility: SymbolVisibility,
   diagnostics: Option<RefCell<DiagnosticsCollector>>,
 }
@@ -127,10 +129,10 @@ pub struct DocParser<'a> {
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    parser: &'a CapturingModuleParser<'a>,
+    parser: CapturingModuleParser<'a>,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
-    let root_symbol = deno_graph::type_tracer::RootSymbol::new(graph, parser);
+    let root_symbol = deno_graph::symbols::RootSymbol::new(graph, parser);
     let visibility = SymbolVisibility::build(graph, &root_symbol)?;
 
     Ok(DocParser {
@@ -237,7 +239,7 @@ impl<'a> DocParser<'a> {
             .go_to_definitions(export_module, export_symbol);
 
           if let Some(first_def) = definitions.first() {
-            use deno_graph::type_tracer::DefinitionKind;
+            use deno_graph::symbols::DefinitionKind;
             match first_def.kind {
               DefinitionKind::ExportStar(file_dep) => {
                 debug_assert_eq!(definitions.len(), 1);
@@ -1020,18 +1022,31 @@ impl<'a> DocParser<'a> {
 
     let doc_id =
       UniqueSymbolId::new(module_symbol.module_id(), symbol.symbol_id());
-    let Some(deps) = self.visibility.get_root_exported_deps(&doc_id) else {
+    let Some(deps_by_member) = self.visibility.get_root_exported_deps(&doc_id)
+    else {
       return;
     };
-    if deps.is_empty() {
+    if deps_by_member.is_empty() {
       return; // avoid borrow_mut if not necessary
     }
 
     let mut diagnostics = diagnostics.borrow_mut();
-    for dep in deps {
-      let module = self.root_symbol.get_module_from_id(dep.module_id).unwrap();
-      let symbol = module.symbol(dep.symbol_id).unwrap();
-      diagnostics.add_private_type_in_public(doc, doc_id, module, symbol);
+    for (maybe_member_id, deps) in deps_by_member {
+      for dep in deps {
+        let dep_module =
+          self.root_symbol.get_module_from_id(dep.module_id).unwrap();
+        let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
+        let member =
+          maybe_member_id.and_then(|member_id| symbol.member(member_id));
+        diagnostics.add_private_type_in_public(
+          doc,
+          doc_id,
+          dep_module,
+          dep_symbol,
+          module_symbol,
+          member,
+        );
+      }
     }
   }
 
@@ -1189,7 +1204,7 @@ fn resolve_deno_graph_module<'a>(
 }
 
 fn get_module_symbol<'a>(
-  root_symbol: &'a deno_graph::type_tracer::RootSymbol,
+  root_symbol: &'a deno_graph::symbols::RootSymbol,
   specifier: &ModuleSpecifier,
 ) -> Result<ModuleSymbolRef<'a>, DocError> {
   match root_symbol.get_module_from_specifier(specifier) {
@@ -1279,7 +1294,7 @@ fn module_has_import(module_symbol: &EsmModuleSymbol) -> bool {
 }
 
 fn definition_location(
-  definition: &deno_graph::type_tracer::Definition,
+  definition: &deno_graph::symbols::Definition,
 ) -> Location {
   get_text_info_location(
     definition.module.specifier().as_str(),
@@ -1289,7 +1304,10 @@ fn definition_location(
 }
 
 struct SymbolVisibility {
-  root_exported_ids: HashMap<UniqueSymbolId, IndexSet<UniqueSymbolId>>,
+  root_exported_ids: HashMap<
+    UniqueSymbolId,
+    IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>,
+  >,
   /// Symbol identifiers that are not exported, but are referenced
   /// by exported symbols.
   non_exported_public_ids: HashSet<UniqueSymbolId>,
@@ -1298,12 +1316,12 @@ struct SymbolVisibility {
 impl SymbolVisibility {
   pub fn build(
     graph: &ModuleGraph,
-    root_symbol: &deno_graph::type_tracer::RootSymbol,
+    root_symbol: &deno_graph::symbols::RootSymbol,
   ) -> Result<Self, DocError> {
     let mut root_exported_ids: HashMap<
       UniqueSymbolId,
-      IndexSet<UniqueSymbolId>,
-    > = HashMap::new();
+      IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>,
+    > = Default::default();
 
     // get a collection of all the symbols that are exports
     {
@@ -1354,20 +1372,21 @@ impl SymbolVisibility {
         .get_module_from_id(original_id.module_id)
         .unwrap();
       let symbol = module_symbol.symbol(original_id.symbol_id).unwrap();
-      for dep in symbol.deps() {
+      for (maybe_member, dep) in symbol.deps() {
+        let maybe_member_id = maybe_member.map(|m| m.symbol_member_id());
         let entries = root_symbol.resolve_symbol_dep(module_symbol, dep);
         for entry in entries {
           match entry {
             ResolvedSymbolDepEntry::Definition(definition) => {
-              let id = definition.unique_id();
-              if !root_exported_ids.contains_key(&id)
-                && non_exported_public_ids.insert(id)
+              let def_id = definition.unique_id();
+              if !root_exported_ids.contains_key(&def_id)
+                && non_exported_public_ids.insert(def_id)
               {
                 if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-                  dep_ids.insert(id);
+                  dep_ids.entry(maybe_member_id).or_default().insert(def_id);
                 }
                 // examine the private types of this private type
-                pending_symbol_ids.push(id);
+                pending_symbol_ids.push(def_id);
               }
             }
             ResolvedSymbolDepEntry::ImportType(_) => {
@@ -1387,7 +1406,7 @@ impl SymbolVisibility {
   pub fn get_root_exported_deps(
     &self,
     id: &UniqueSymbolId,
-  ) -> Option<&IndexSet<UniqueSymbolId>> {
+  ) -> Option<&IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>> {
     self.root_exported_ids.get(id)
   }
 

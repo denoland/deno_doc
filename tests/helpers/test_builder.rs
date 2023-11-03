@@ -64,7 +64,7 @@ impl TestBuilder {
     let parser = analyzer.as_capturing_parser();
     let parser = DocParser::new(
       &graph,
-      &parser,
+      parser,
       DocParserOptions {
         private: self.private,
         diagnostics: true,

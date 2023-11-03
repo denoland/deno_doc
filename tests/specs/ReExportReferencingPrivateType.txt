@@ -14,12 +14,20 @@ export class Data {
   prop: PrivateNotExported;
   /** doc */
   prop2: PrivateExportedButNotFromModTs;
+  /** @internal */
+  prop3: PrivateReferencedInInternal;
+  /** @ignore */
+  prop4: PrivateReferencedInIgnore;
 }
+
+interface PrivateReferencedInInternal {}
+interface PrivateReferencedInIgnore {}
 
 # diagnostics
 [
-  "file:///data.ts:8:1 Type 'Data' references type 'PrivateNotExported' which is not exported from a root module.",
-  "file:///data.ts:8:1 Type 'Data' references type 'PrivateExportedButNotFromModTs' which is not exported from a root module."
+  "file:///data.ts:10:3 Type 'Data' references type 'PrivateNotExported' which is not exported from a root module.",
+  "file:///data.ts:12:3 Type 'Data' references type 'PrivateExportedButNotFromModTs' which is not exported from a root module.",
+  "file:///data.ts:16:3 Type 'Data' references type 'PrivateReferencedInIgnore' which is not exported from a root module."
 ]
 
 # output.txt
@@ -32,6 +40,9 @@ class Data
     doc
   prop2: PrivateExportedButNotFromModTs
     doc
+  prop3: PrivateReferencedInInternal
+
+    @internal
 
 
 # output.json
@@ -97,6 +108,35 @@ class Data
           "location": {
             "filename": "file:///data.ts",
             "line": 12,
+            "col": 2
+          }
+        },
+        {
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "unsupported",
+                "value": "@internal"
+              }
+            ]
+          },
+          "tsType": {
+            "repr": "PrivateReferencedInInternal",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "PrivateReferencedInInternal"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "prop3",
+          "location": {
+            "filename": "file:///data.ts",
+            "line": 14,
             "col": 2
           }
         }
