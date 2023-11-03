@@ -37,7 +37,7 @@ pub fn render_type_def(
       TsTypeDefKind::TypeRef => {
         let type_ref = def.type_ref.as_ref().unwrap();
 
-        let href = if ctx.current_type_params.contains(&type_ref.type_name) {
+        let href = if ctx.contains_type_param(&type_ref.type_name) {
           Some(format!(
             "#{}",
             name_to_id("type_param", &type_ref.type_name)

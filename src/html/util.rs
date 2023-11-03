@@ -73,9 +73,9 @@ pub fn anchor(name: &str) -> String {
 #[derive(Debug, Clone)]
 pub struct RenderContext {
   additional_css: Rc<RefCell<String>>,
-  pub namespace: Option<String>,
-  pub current_symbols: Rc<HashSet<Vec<String>>>,
-  pub current_type_params: HashSet<String>,
+  current_symbols: Rc<HashSet<Vec<String>>>,
+  namespace: Option<String>,
+  current_type_params: HashSet<String>,
 }
 
 impl RenderContext {
@@ -115,6 +115,14 @@ impl RenderContext {
   pub fn take_additional_css(&self) -> String {
     let mut css = self.additional_css.borrow_mut();
     std::mem::replace(&mut css, "".to_string())
+  }
+
+  pub fn contains_type_param(&self, name: &str) -> bool {
+    self.current_type_params.contains(name)
+  }
+
+  pub fn get_namespace(&self) -> Option<String> {
+    self.namespace.clone()
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {

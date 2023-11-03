@@ -98,7 +98,7 @@ fn symbol_section(
     .fold(String::new(), |mut output, doc_node| {
       // TODO: linking, tags
 
-      let (name, path) = ctx.namespace.as_ref().map_or_else(
+      let (name, path) = ctx.get_namespace().map_or_else(
         || (doc_node.name.clone(), doc_node.name.clone()),
         |namespace| {
           (
@@ -107,7 +107,7 @@ fn symbol_section(
               "{}/{}",
               namespace
                 .rsplit_once('.')
-                .map_or(&**namespace, |(_prev, current)| current),
+                .map_or(&*namespace, |(_prev, current)| current),
               doc_node.name
             ),
           )
