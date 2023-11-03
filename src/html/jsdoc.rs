@@ -100,15 +100,13 @@ fn render_markdown_inner(
     md
   };
 
+  let class_name = if summary {
+    "markdown_summary"
+  } else {
+    "markdown"
+  };
   let html = comrak::markdown_to_html(&parse_links(md, render_ctx), &options);
-  format!(
-    r#"<div class="{}">{html}</div>"#,
-    if summary {
-      "markdown_summary"
-    } else {
-      "markdown"
-    }
-  )
+  format!(r#"<div class="{class_name}">{html}</div>"#,)
 }
 
 pub(super) fn render_markdown_summary(
