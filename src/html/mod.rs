@@ -25,15 +25,15 @@ mod types;
 mod util;
 mod variable;
 
-const STYLESHEET: &str = include_str!("./styles.css");
+const STYLESHEET: &str = include_str!("./templates/styles.css");
 const STYLESHEET_FILENAME: &str = "styles.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
-const FUSE_JS: &str = include_str!("./fuse.js");
+const FUSE_JS: &str = include_str!("./templates/fuse.js");
 const FUSE_FILENAME: &str = "fuse.js";
 
-const SEARCH_JS: &str = include_str!("./search.js");
+const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
 const SEARCH_BAR: &str = r#"
