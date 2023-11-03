@@ -91,8 +91,13 @@ pub(super) fn render_function(
     ));
   }
 
-  format!(
-    r#"{overload_inputs}<div class="function_overload_selectors">{overload_labels}</div><div>{content}</div>"#
+  ctx.render(
+    "function.html",
+    &json!({
+      "overload_inputs": overload_inputs,
+      "overload_labels": overload_labels,
+      "content": content,
+    }),
   )
 }
 

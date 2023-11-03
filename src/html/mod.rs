@@ -131,6 +131,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/symbol_group.html"),
   )?;
   tt.add_template("example.html", include_str!("./templates/example.html"))?;
+  tt.add_template("function.html", include_str!("./templates/function.html"))?;
   Ok(tt)
 }
 
