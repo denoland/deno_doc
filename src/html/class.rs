@@ -78,14 +78,13 @@ pub(super) fn render_class(
     )
   };
 
-  format!(
-    r#"{}{}{}{}{}{}{}{}"#,
+  vec![
     super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
     render_constructors(
       ctx,
       &class_def.constructors,
       &doc_node.name,
-      render_ctx
+      render_ctx,
     ),
     super::types::render_type_params(ctx, &class_def.type_params, render_ctx),
     render_index_signatures(ctx, &class_def.index_signatures, render_ctx),
@@ -93,7 +92,8 @@ pub(super) fn render_class(
     methods,
     static_properties,
     static_methods,
-  )
+  ]
+  .join("")
 }
 
 fn render_constructors(

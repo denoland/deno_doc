@@ -20,8 +20,7 @@ pub(super) fn render_type_alias(
   let id = name_to_id("typeAlias", &doc_node.name);
 
   // TODO: tags, TypeParamsDoc
-  format!(
-    r#"{}{}{}"#,
+  vec![
     super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
     super::types::render_type_params(ctx, &type_alias_def.type_params, render_ctx),
     ctx.render(
@@ -38,5 +37,5 @@ pub(super) fn render_type_alias(
         )
       }),
     ),
-  )
+  ].join("")
 }
