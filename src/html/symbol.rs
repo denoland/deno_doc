@@ -20,7 +20,7 @@ pub struct SymbolCtx {
   body: String,
 }
 
-pub(super) fn render_symbol_group(
+pub(super) fn get_symbol_group_ctx(
   ctx: &GenerateCtx,
   doc_nodes: &[DocNode],
   name: &str,
@@ -101,10 +101,11 @@ fn doc_block_subtitle(
     }
 
     if let Some(extends) = class_def.extends.as_ref() {
-      let symbol = render_ctx.lookup_symbol_href(extends).map_or_else(
-        || format!("<span>{extends}</span>"),
-        |href| format!(r#"<a href="{href}" class="link">{extends}</a>"#),
-      );
+      let symbol = if let Some(href) = render_ctx.lookup_symbol_href(extends) {
+        format!(r#"<a href="{href}" class="link">{extends}</a>"#)
+      } else {
+        format!("<span>{extends}</span>")
+      };
 
       class_extends = Some(json!({
         "symbol": symbol,

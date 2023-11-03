@@ -435,7 +435,7 @@ fn render_page(
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group =
-    symbol::render_symbol_group(ctx, doc_nodes, name, &render_ctx);
+    symbol::get_symbol_group_ctx(ctx, doc_nodes, name, &render_ctx);
 
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
 
