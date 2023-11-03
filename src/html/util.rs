@@ -11,6 +11,7 @@ pub fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
+// TODO(bartlomieju): make it a template
 pub fn section_title(title: &str) -> String {
   let id = TARGET_RE.replace_all(title, "_");
 
@@ -181,6 +182,7 @@ pub fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
   }
 }
 
+// TODO(bartlomieju): make it a template
 pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
   let (char, title) = match kind {
     DocNodeKind::Function => ('f', "Function"),

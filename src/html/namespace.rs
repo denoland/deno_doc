@@ -2,12 +2,16 @@ use crate::html::util::*;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
+use serde::Serialize;
+use serde_json::json;
 use std::cmp::Ordering;
-use std::fmt::Write;
 
-pub fn render_namespace(
+use super::GenerateCtx;
+
+pub(super) fn render_namespace(
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
@@ -15,8 +19,8 @@ pub fn render_namespace(
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    doc_node_kind_sections(&partitions, ctx)
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    doc_node_kind_sections(ctx, &partitions, render_ctx)
   )
 }
 
@@ -64,11 +68,12 @@ pub fn partition_nodes_by_kind(
   partition_nodes_by_kind_inner(doc_nodes, true)
 }
 
-pub fn doc_node_kind_sections(
+pub(super) fn doc_node_kind_sections(
+  ctx: &GenerateCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
-  let mut content = String::new();
+  let mut content_parts = Vec::with_capacity(partitions.len());
 
   for (kind, doc_nodes) in partitions {
     let title = match kind {
@@ -82,60 +87,70 @@ pub fn doc_node_kind_sections(
       DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
     };
 
-    content.push_str(&symbol_section(title, doc_nodes, ctx))
+    content_parts.push(symbol_section(ctx, title, doc_nodes, render_ctx))
   }
 
-  content
+  content_parts.join("")
 }
 
 fn symbol_section(
+  ctx: &GenerateCtx,
   title: &str,
   doc_nodes: &[DocNode],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
-  let content = doc_nodes
+  #[derive(Serialize)]
+  struct SectionNode {
+    icon: String,
+    path: String,
+    name: String,
+    docs: String,
+  }
+
+  let nodes = doc_nodes
     .iter()
-    .fold(String::new(), |mut output, doc_node| {
+    .map(|doc_node| {
       // TODO: linking, tags
 
-      let (name, path) = ctx.get_namespace().map_or_else(
-        || (doc_node.name.clone(), doc_node.name.clone()),
-        |namespace| {
-          (
-            format!("{namespace}.{}", doc_node.name),
-            format!(
-              "{}/{}",
-              namespace
-                .rsplit_once('.')
-                .map_or(&*namespace, |(_prev, current)| current),
-              doc_node.name
-            ),
-          )
-        },
-      );
+      let mut name = doc_node.name.clone();
+      let mut path = doc_node.name.clone();
 
-      write!(
-        output,
-        r#"<tr>
-      <td class="symbol_section_symbol">
-        <div>
-          {}
-          <a href="./{path}.html">{name}</a>
-        </div>
-      </td>
-      <td class="symbol_section_doc">
-      {}
-      </td>
-      </tr>"#,
-        doc_node_kind_icon(doc_node.kind),
-        super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx),
-      )
-      .unwrap();
-      output
-    });
+      if let Some(namespace) = render_ctx.get_namespace() {
+        name = format!("{namespace}.{}", doc_node.name);
+        path = format!(
+          "{}/{}",
+          namespace
+            .rsplit_once('.')
+            .map_or(&*namespace, |(_prev, current)| current),
+          doc_node.name
+        );
+      }
 
-  format!(
-    r#"<div>{}<table class="symbol_section">{content}</table></div>"#,
-    section_title(title)
-  )
+      SectionNode {
+        // TODO(bartlomieju): make it a template
+        icon: doc_node_kind_icon(doc_node.kind),
+        path,
+        name,
+        // TODO(bartlomieju): make it a template
+        docs: super::jsdoc::render_docs(
+          &doc_node.js_doc,
+          false,
+          true,
+          render_ctx,
+        ),
+      }
+    })
+    .collect::<Vec<_>>();
+
+  ctx
+    .tt
+    .render(
+      "doc_node_kind_section.html",
+      &json!({
+        // TODO(bartlomieju): turn it into a template
+        "title": section_title(title),
+        "nodes": nodes
+      }),
+    )
+    .unwrap()
 }

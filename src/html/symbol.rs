@@ -169,7 +169,7 @@ fn doc_block_subtitle(
 }
 
 fn doc_block(
-  _ctx: &GenerateCtx,
+  ctx: &GenerateCtx,
   doc_nodes: &[DocNode],
   name: &str,
   render_ctx: &RenderContext,
@@ -194,6 +194,7 @@ fn doc_block(
         .push(super::type_alias::render_type_alias(doc_node, render_ctx)),
       DocNodeKind::Namespace => {
         content_parts.push(super::namespace::render_namespace(
+          ctx,
           doc_node,
           &render_ctx.with_namespace(name.to_string()),
         ))

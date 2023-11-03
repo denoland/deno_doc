@@ -1,0 +1,18 @@
+<div>
+  {title}
+  <table class="symbol_section">
+    {{ for node in nodes }}
+      <tr>
+        <td class="symbol_section_symbol">
+          <div>
+            { node.icon }
+            <a href="./{node.path}.html">{node.name}</a>
+          </div>
+        </td>
+        <td class="symbol_section_doc">
+        { node.docs }
+        </td>
+      </tr>
+    {{ endfor }}
+  </table>
+</div>

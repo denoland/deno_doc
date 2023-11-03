@@ -105,6 +105,10 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
   tt.add_template(
+    "doc_node_kind_section.html",
+    include_str!("./templates/doc_node_kind_section.html"),
+  )?;
+  tt.add_template(
     "doc_block_subtitle.html",
     include_str!("./templates/doc_block_subtitle.html"),
   )?;
@@ -332,7 +336,7 @@ fn render_index(
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
   let render_ctx = RenderContext::new(current_symbols.clone(), None);
-  let content = namespace::doc_node_kind_sections(partitions, &render_ctx);
+  let content = namespace::doc_node_kind_sections(ctx, partitions, &render_ctx);
 
   Ok(ctx.tt.render(
     "index_list.html",
