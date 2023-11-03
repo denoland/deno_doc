@@ -181,7 +181,7 @@ fn doc_block(
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => content_parts
-        .push(super::variable::render_variable(doc_node, render_ctx)),
+        .push(super::variable::render_variable(ctx, doc_node, render_ctx)),
       DocNodeKind::Class => {
         content_parts.push(super::class::render_class(doc_node, render_ctx))
       }

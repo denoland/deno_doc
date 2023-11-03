@@ -97,6 +97,11 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/namespace.html"),
   )?;
   tt.add_template(
+    "nodes/variable.html",
+    include_str!("./templates/nodes/variable.html"),
+  )?;
+  tt.add_template("section.html", include_str!("./templates/section.html"))?;
+  tt.add_template(
     "compound_index.html",
     include_str!("./templates/compound_index.html"),
   )?;
