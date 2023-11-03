@@ -1,7 +1,10 @@
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 
-pub fn render_type_alias(
+use super::GenerateCtx;
+
+pub(super) fn render_type_alias(
+  _ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   ctx: &RenderContext,
 ) -> String {

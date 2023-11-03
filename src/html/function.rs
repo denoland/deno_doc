@@ -3,11 +3,13 @@ use super::types::render_type_def;
 use super::types::render_type_params;
 use super::types::type_params_summary;
 use super::util::*;
+use super::GenerateCtx;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 
-pub fn render_function(
+pub(super) fn render_function(
+  _ctx: &GenerateCtx,
   doc_nodes: Vec<&crate::DocNode>,
   ctx: &RenderContext,
 ) -> String {

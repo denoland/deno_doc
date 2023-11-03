@@ -182,16 +182,16 @@ fn doc_block(
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => content_parts
         .push(super::variable::render_variable(ctx, doc_node, render_ctx)),
-      DocNodeKind::Class => {
-        content_parts.push(super::class::render_class(doc_node, render_ctx))
-      }
-      DocNodeKind::Enum => {
-        content_parts.push(super::r#enum::render_enum(doc_node, render_ctx))
-      }
-      DocNodeKind::Interface => content_parts
-        .push(super::interface::render_interface(doc_node, render_ctx)),
-      DocNodeKind::TypeAlias => content_parts
-        .push(super::type_alias::render_type_alias(doc_node, render_ctx)),
+      DocNodeKind::Class => content_parts
+        .push(super::class::render_class(ctx, doc_node, render_ctx)),
+      DocNodeKind::Enum => content_parts
+        .push(super::r#enum::render_enum(ctx, doc_node, render_ctx)),
+      DocNodeKind::Interface => content_parts.push(
+        super::interface::render_interface(ctx, doc_node, render_ctx),
+      ),
+      DocNodeKind::TypeAlias => content_parts.push(
+        super::type_alias::render_type_alias(ctx, doc_node, render_ctx),
+      ),
       DocNodeKind::Namespace => {
         content_parts.push(super::namespace::render_namespace(
           ctx,
@@ -205,7 +205,8 @@ fn doc_block(
   }
 
   if !functions.is_empty() {
-    content_parts.push(super::function::render_function(functions, render_ctx));
+    content_parts
+      .push(super::function::render_function(ctx, functions, render_ctx));
   }
 
   content_parts.join("")

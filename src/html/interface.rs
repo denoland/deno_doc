@@ -1,9 +1,11 @@
 use super::parameters::render_params;
 use super::util::*;
+use super::GenerateCtx;
 use crate::html::types::render_type_params;
 use std::fmt::Write;
 
-pub fn render_interface(
+pub(super) fn render_interface(
+  _ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
 ) -> String {

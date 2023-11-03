@@ -1,6 +1,7 @@
 use super::parameters::render_params;
 use super::types::render_type_def;
 use super::util::*;
+use super::GenerateCtx;
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use deno_ast::swc::ast::Accessibility;
@@ -8,7 +9,11 @@ use deno_ast::swc::ast::MethodKind;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 
-pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
+pub(super) fn render_class(
+  _ctx: &GenerateCtx,
+  doc_node: &crate::DocNode,
+  render_ctx: &RenderContext,
+) -> String {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
   let current_type_params = class_def
@@ -17,7 +22,7 @@ pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
     .map(|def| def.name.clone())
     .collect::<std::collections::HashSet<String>>();
 
-  let ctx = &ctx.with_current_type_params(current_type_params);
+  let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
   let class_items = partition_properties_and_classes(
     class_def.properties.clone(),
@@ -29,14 +34,17 @@ pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   } else {
     section(
       "Properties",
-      &render_class_properties(class_items.properties, ctx),
+      &render_class_properties(class_items.properties, render_ctx),
     )
   };
 
   let methods = if class_items.methods.is_empty() {
     String::new()
   } else {
-    section("Methods", &render_class_methods(class_items.methods, ctx))
+    section(
+      "Methods",
+      &render_class_methods(class_items.methods, render_ctx),
+    )
   };
 
   let static_properties = if class_items.static_properties.is_empty() {
@@ -44,7 +52,7 @@ pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   } else {
     section(
       "Static Properties",
-      &render_class_properties(class_items.static_properties, ctx),
+      &render_class_properties(class_items.static_properties, render_ctx),
     )
   };
 
@@ -53,16 +61,16 @@ pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   } else {
     section(
       "Static Methods",
-      &render_class_methods(class_items.static_methods, ctx),
+      &render_class_methods(class_items.static_methods, render_ctx),
     )
   };
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}{}{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    render_constructors(&class_def.constructors, &doc_node.name, ctx),
-    super::types::render_type_params(&class_def.type_params, ctx),
-    render_index_signatures(&class_def.index_signatures, ctx),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    render_constructors(&class_def.constructors, &doc_node.name, render_ctx),
+    super::types::render_type_params(&class_def.type_params, render_ctx),
+    render_index_signatures(&class_def.index_signatures, render_ctx),
     properties,
     methods,
     static_properties,
