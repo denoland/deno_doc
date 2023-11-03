@@ -34,7 +34,7 @@ pub fn doc_entry(
   name: &str,
   content: &str,
   jsdoc: Option<&str>,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   // TODO: sourceHref
   format!(
@@ -53,7 +53,7 @@ pub fn doc_entry(
    "#,
     anchor(id),
     jsdoc
-      .map(|doc| super::jsdoc::markdown_to_html(doc, false, ctx))
+      .map(|doc| super::jsdoc::markdown_to_html(doc, false, render_ctx))
       .unwrap_or_default(),
   )
 }

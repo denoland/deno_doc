@@ -29,7 +29,7 @@ pub fn render_interface(
 
 fn render_index_signatures(
   index_signatures: &[crate::interface::InterfaceIndexSignatureDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if index_signatures.is_empty() {
     return String::new();
@@ -49,7 +49,7 @@ fn render_index_signatures(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, ctx))
+          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
         })
         .unwrap_or_default();
 
@@ -57,7 +57,7 @@ fn render_index_signatures(
         output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         anchor(&id),
-        render_params(&index_signature.params, ctx),
+        render_params(&index_signature.params, render_ctx),
       )
       .unwrap();
       output

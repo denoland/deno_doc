@@ -95,7 +95,7 @@ fn render_constructors(
 
 fn render_index_signatures(
   index_signatures: &[crate::class::ClassIndexSignatureDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if index_signatures.is_empty() {
     return String::new();
@@ -114,14 +114,14 @@ fn render_index_signatures(
       let ts_type = index_signature
         .ts_type
         .as_ref()
-        .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+        .map(|ts_type| format!(": {}", render_type_def(ts_type, render_ctx)))
         .unwrap_or_default();
 
       write!(
         output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         anchor(&id),
-        render_params(&index_signature.params, ctx),
+        render_params(&index_signature.params, render_ctx),
       )
       .unwrap();
       output

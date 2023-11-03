@@ -133,7 +133,11 @@ pub fn render_docs(
   doc
 }
 
-fn render_example(example: &str, i: usize, ctx: &RenderContext) -> String {
+fn render_example(
+  example: &str,
+  i: usize,
+  render_ctx: &RenderContext,
+) -> String {
   let id = name_to_id("example", &i.to_string());
 
   let (title, body) = split_markdown_title(example);
@@ -149,8 +153,8 @@ fn render_example(example: &str, i: usize, ctx: &RenderContext) -> String {
         |summary| summary.to_string()
       ),
       true,
-      ctx,
+      render_ctx,
     ),
-    markdown_to_html(body, false, ctx),
+    markdown_to_html(body, false, render_ctx),
   )
 }
