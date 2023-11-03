@@ -75,10 +75,10 @@ fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
   }
 }
 
-pub(super) fn render_markdown(
+fn render_markdown_inner(
   md: &str,
-  summary: bool,
   render_ctx: &RenderContext,
+  summary: bool,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -111,6 +111,17 @@ pub(super) fn render_markdown(
   )
 }
 
+pub(super) fn render_markdown_summary(
+  md: &str,
+  render_ctx: &RenderContext,
+) -> String {
+  render_markdown_inner(md, render_ctx, true)
+}
+
+pub(super) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
+  render_markdown_inner(md, render_ctx, false)
+}
+
 // TODO(bartlomieju): move to a separate anchor.html module
 #[derive(Serialize)]
 struct AnchorRenderCtx {
@@ -135,7 +146,7 @@ fn render_docs_inner(
   summary: bool,
 ) -> String {
   let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
-    render_markdown(doc, summary, render_ctx)
+    render_markdown_inner(doc, render_ctx, summary)
   } else {
     "".to_string()
   };
@@ -197,16 +208,15 @@ fn get_example_render_ctx(
 ) -> ExampleRenderCtx {
   let id = name_to_id("example", &i.to_string());
 
-  let (title, body) = split_markdown_title(example);
-  let markdown_title = render_markdown(
-    &title.map_or_else(
-      || format!("Example {}", i + 1),
-      |summary| summary.to_string(),
-    ),
-    true,
-    render_ctx,
-  );
-  let markdown_body = render_markdown(body, false, render_ctx);
+  let (maybe_title, body) = split_markdown_title(example);
+  let title = if let Some(title) = maybe_title {
+    title.to_string()
+  } else {
+    format!("Example {}", i + 1)
+  };
+
+  let markdown_title = render_markdown_summary(&title, render_ctx);
+  let markdown_body = render_markdown(body, render_ctx);
 
   // TODO: icons
   ExampleRenderCtx {

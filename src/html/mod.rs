@@ -313,7 +313,7 @@ fn render_compound_index(
       let docs_md = docs
         .and_then(|node| node.js_doc.doc.clone())
         .unwrap_or_default();
-      let rendered_docs = render_markdown(&docs_md, false, &render_ctx);
+      let rendered_docs = render_markdown(&docs_md, &render_ctx);
 
       json!({
         "url": ctx.url_to_short_path(url),
