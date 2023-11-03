@@ -149,19 +149,6 @@ impl RenderContext {
   }
 }
 
-pub fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
-  let newline = md.find("\n\n").unwrap_or(usize::MAX);
-  let codeblock = md.find("```").unwrap_or(usize::MAX);
-
-  let index = newline.min(codeblock).min(md.len());
-
-  match md.split_at(index) {
-    ("", body) => (None, body),
-    (title, "") => (None, title),
-    (title, body) => (Some(title), body),
-  }
-}
-
 // TODO(bartlomieju): make it a template
 pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
   let (char, title) = match kind {

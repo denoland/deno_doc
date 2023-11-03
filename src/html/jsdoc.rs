@@ -61,6 +61,19 @@ fn parse_links<'a>(
   })
 }
 
+fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
+  let newline = md.find("\n\n").unwrap_or(usize::MAX);
+  let codeblock = md.find("```").unwrap_or(usize::MAX);
+
+  let index = newline.min(codeblock).min(md.len());
+
+  match md.split_at(index) {
+    ("", body) => (None, body),
+    (title, "") => (None, title),
+    (title, body) => (Some(title), body),
+  }
+}
+
 pub fn markdown_to_html(
   md: &str,
   summary: bool,
