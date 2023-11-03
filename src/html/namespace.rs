@@ -3,7 +3,6 @@ use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
-use serde_json::json;
 use std::cmp::Ordering;
 
 use super::GenerateCtx;
@@ -53,13 +52,13 @@ pub(super) fn render_namespace(
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
   let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
 
-  // TODO(bartlomieju): useless template, use vec![...].join("")
-  ctx.render(
-    "namespace.html",
-    &json!({
-      "namespace": namespace_ctx
-    }),
-  )
+  let content_parts = namespace_ctx
+    .sections
+    .into_iter()
+    .map(|section| ctx.render("namespace_section.html", &section))
+    .collect::<Vec<_>>();
+
+  content_parts.join("")
 }
 
 fn partition_nodes_by_kind_inner(

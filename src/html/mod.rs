@@ -101,10 +101,6 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   )?;
   tt.add_template("page.html", include_str!("./templates/page.html"))?;
   tt.add_template(
-    "namespace.html",
-    include_str!("./templates/namespace.html"),
-  )?;
-  tt.add_template(
     "doc_entry.html",
     include_str!("./templates/doc_entry.html"),
   )?;
