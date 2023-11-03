@@ -18,7 +18,7 @@ pub(super) fn render_variable(
   let id = name_to_id("variable", &doc_node.name);
 
   ctx.render("nodes/variable.html", &json!({
-    "docs": super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    "docs": super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
     "doc_entry": {
       "title": "type",
       "content": doc_entry(

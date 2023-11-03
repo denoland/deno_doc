@@ -21,7 +21,7 @@ pub(super) fn render_interface(
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
     render_type_params(ctx, &interface_def.type_params, render_ctx),
     render_index_signatures(ctx, &interface_def.index_signatures, render_ctx),
     render_call_signatures(ctx, &interface_def.call_signatures, render_ctx),

@@ -96,14 +96,15 @@ pub fn markdown_to_html(
   )
 }
 
-pub fn render_docs(
+pub(super) fn render_docs(
+  ctx: &GenerateCtx,
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
-    markdown_to_html(doc, summary, ctx)
+    markdown_to_html(doc, summary, render_ctx)
   } else {
     "".to_string()
   };
@@ -117,7 +118,7 @@ pub fn render_docs(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(doc, i, ctx);
+            let example = render_example(doc, i, render_ctx);
             i += 1;
             example
           })
@@ -128,7 +129,14 @@ pub fn render_docs(
       .collect::<Vec<String>>();
 
     if !examples.is_empty() {
-      doc.push_str(&section("Examples", &examples.join("")));
+      let s = ctx.render(
+        "section.html",
+        &json!({
+          "title": "Examples",
+          "content": &examples.join(""),
+        }),
+      );
+      doc.push_str(&s);
     }
   }
 

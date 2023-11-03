@@ -28,6 +28,7 @@ pub struct NamespaceSectionNodeCtx {
 }
 
 pub(super) fn get_namespace_render_ctx(
+  ctx: &GenerateCtx,
   render_ctx: &RenderContext,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> NamespaceRenderCtx {
@@ -35,7 +36,7 @@ pub(super) fn get_namespace_render_ctx(
 
   for (kind, doc_nodes) in partitions {
     let ns_section_ctx =
-      get_namespace_section_render_ctx(render_ctx, *kind, doc_nodes);
+      get_namespace_section_render_ctx(ctx, render_ctx, *kind, doc_nodes);
     sections.push(ns_section_ctx)
   }
 
@@ -50,10 +51,10 @@ pub(super) fn render_namespace(
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
-  let namespace_ctx = get_namespace_render_ctx(render_ctx, &partitions);
+  let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
 
   ctx.render("namespace.html", &json!({
-    "docs": super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    "docs": super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
     "namespace": namespace_ctx
   }))
 }
@@ -103,6 +104,7 @@ pub fn partition_nodes_by_kind(
 }
 
 fn get_namespace_section_render_ctx(
+  ctx: &GenerateCtx,
   render_ctx: &RenderContext,
   kind: DocNodeKind,
   doc_nodes: &[DocNode],
@@ -144,6 +146,7 @@ fn get_namespace_section_render_ctx(
         name,
         // TODO(bartlomieju): make it a template
         docs: super::jsdoc::render_docs(
+          ctx,
           &doc_node.js_doc,
           false,
           true,

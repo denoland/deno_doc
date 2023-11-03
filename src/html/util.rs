@@ -21,14 +21,6 @@ pub fn section_title(title: &str) -> String {
   )
 }
 
-pub fn section(title: &str, content: &str) -> String {
-  format!(
-    r#"<div>{}<div class="section">{}</div></div>"#,
-    section_title(title),
-    content,
-  )
-}
-
 pub fn doc_entry(
   id: &str,
   name: &str,

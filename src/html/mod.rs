@@ -354,7 +354,7 @@ fn render_index(
 ) -> Result<String, anyhow::Error> {
   let render_ctx = RenderContext::new(current_symbols.clone(), None);
   let namespace_ctx =
-    namespace::get_namespace_render_ctx(&render_ctx, partitions);
+    namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
 
   Ok(ctx.render(
     "index_list.html",
