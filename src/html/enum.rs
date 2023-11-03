@@ -18,6 +18,7 @@ pub(super) fn render_enum(
       let id =
         name_to_id("enum", &format!("{}_{}", &doc_node.name, &member.name));
       doc_entry(
+        ctx,
         &id,
         &member.name,
         &member

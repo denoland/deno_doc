@@ -22,6 +22,7 @@ pub(super) fn render_variable(
     "doc_entry": {
       "title": "type",
       "content": doc_entry(
+        ctx,
         &id,
         "",
         &render_type_def(variable_def.ts_type.as_ref().unwrap(), render_ctx),

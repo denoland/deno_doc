@@ -118,7 +118,7 @@ pub(super) fn render_docs(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(doc, i, render_ctx);
+            let example = render_example(ctx, doc, i, render_ctx);
             i += 1;
             example
           })
@@ -144,6 +144,7 @@ pub(super) fn render_docs(
 }
 
 fn render_example(
+  ctx: &GenerateCtx,
   example: &str,
   i: usize,
   render_ctx: &RenderContext,
@@ -156,7 +157,7 @@ fn render_example(
 
   format!(
     r#"<div class="example">{}<details id={id}><summary><div class="arrow_toggle">&#x25B6;</div>{}</summary>{}</details></div>"#,
-    anchor(&id),
+    ctx.render("anchor.html", &json!({ "href": &id })),
     markdown_to_html(
       &title.map_or_else(
         || format!("Example {}", i + 1),

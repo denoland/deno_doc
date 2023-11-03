@@ -29,6 +29,7 @@ pub(super) fn render_type_alias(
       &json!({
         "title": "Definition",
         "content": &doc_entry(
+          ctx,
           &id,
           "",
           &format!(": {}", render_type_def(&type_alias_def.ts_type, render_ctx)),

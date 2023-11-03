@@ -108,6 +108,10 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     "nodes/variable.html",
     include_str!("./templates/nodes/variable.html"),
   )?;
+  tt.add_template(
+    "doc_entry.html",
+    include_str!("./templates/doc_entry.html"),
+  )?;
   tt.add_template("section.html", include_str!("./templates/section.html"))?;
   tt.add_template(
     "compound_index.html",

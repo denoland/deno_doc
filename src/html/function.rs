@@ -164,7 +164,14 @@ fn render_single_function(
 
       // TODO: default_value, tags
 
-      doc_entry(&id, &name, &ts_type, param_docs.get(i).copied(), render_ctx)
+      doc_entry(
+        ctx,
+        &id,
+        &name,
+        &ts_type,
+        param_docs.get(i).copied(),
+        render_ctx,
+      )
     })
     .collect::<String>();
 
@@ -181,6 +188,7 @@ fn render_single_function(
       &json!({
         "title": "Return Type",
         "content": &render_function_return_type(
+          ctx,
           function_def,
           &doc_node.js_doc,
           overload_id,
@@ -192,10 +200,11 @@ fn render_single_function(
 }
 
 fn render_function_return_type(
+  ctx: &GenerateCtx,
   def: &FunctionDef,
   js_doc: &crate::js_doc::JsDoc,
   overload_id: &str,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let Some(return_type) = def.return_type.as_ref() else {
     return "".to_string();
@@ -212,10 +221,11 @@ fn render_function_return_type(
   });
 
   doc_entry(
+    ctx,
     &id,
     "",
-    &render_type_def(return_type, ctx),
+    &render_type_def(return_type, render_ctx),
     return_type_doc,
-    ctx,
+    render_ctx,
   )
 }

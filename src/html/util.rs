@@ -1,7 +1,10 @@
 use crate::DocNodeKind;
+use serde_json::json;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
+
+use super::GenerateCtx;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -21,46 +24,30 @@ pub fn section_title(title: &str) -> String {
   )
 }
 
-pub fn doc_entry(
+pub(super) fn doc_entry(
+  ctx: &GenerateCtx,
   id: &str,
   name: &str,
   content: &str,
   jsdoc: Option<&str>,
   render_ctx: &RenderContext,
 ) -> String {
-  // TODO: sourceHref
-  format!(
-    r#"
-    <div class="doc_item" id="{id}">
-      {}
-      <div class="doc_entry">
-        <span class="doc_entry_children">
-          <code>
-            <span style="font-weight: 700;">{name}</span><span style="font-weight: 500;">{content}</span>
-          </code>
-        </span>
-      </div>
-      {}
-    </div>
-   "#,
-    anchor(id),
-    jsdoc
-      .map(|doc| super::jsdoc::markdown_to_html(doc, false, render_ctx))
-      .unwrap_or_default(),
-  )
-}
+  let maybe_jsdoc = jsdoc
+    .map(|doc| super::jsdoc::markdown_to_html(doc, false, render_ctx))
+    .unwrap_or_default();
 
-pub fn anchor(name: &str) -> String {
-  // TODO: icon
-  format!(
-    r##"<a
-      href="#{name}"
-      class="anchor"
-      aria-label="Anchor"
-      tabIndex=-1
-    >
-      <div style="width: 14px; height: 14px; display: inline-block;">&#128279;</div>
-    </a>"##
+  // TODO: sourceHref
+  ctx.render(
+    "doc_entry.html",
+    &json!({
+      "id": id,
+      "name": name,
+      "content": content,
+      "anchor": {
+        "href": id
+      },
+      "jsdoc": maybe_jsdoc,
+    }),
   )
 }
 

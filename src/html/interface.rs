@@ -60,7 +60,7 @@ fn render_index_signatures(
       write!(
         output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-        anchor(&id),
+        ctx.render("anchor.html", &json!({ "href": &id })),
         render_params(&index_signature.params, render_ctx),
       )
       .unwrap();
@@ -99,6 +99,7 @@ fn render_call_signatures(
         .unwrap_or_default();
 
       doc_entry(
+        ctx,
         &id,
         "",
         &format!(
@@ -161,6 +162,7 @@ fn render_properties(
         .unwrap_or_default();
 
       doc_entry(
+        ctx,
         &id,
         &if property.computed {
           format!("[{}]", property.name)
@@ -213,6 +215,7 @@ fn render_methods(
         .unwrap_or_default();
 
       doc_entry(
+        ctx,
         &id,
         &name,
         &format!(
