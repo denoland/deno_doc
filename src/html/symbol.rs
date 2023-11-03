@@ -168,46 +168,76 @@ fn doc_block(
   let mut content_parts = Vec::with_capacity(doc_nodes.len());
   let mut functions = vec![];
 
-  fn doc_block_item(content: String) -> String {
-    format!(r#"<div class="doc_block_items">{}</div>"#, content)
+  fn doc_block_item(docs: String, content: String) -> String {
+    format!(r#"<div class="doc_block_items">{docs}{content}</div>"#)
   }
 
   for doc_node in doc_nodes {
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
+        let docs = super::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
         let el = super::variable::render_variable(ctx, doc_node, render_ctx);
-        let content = doc_block_item(el);
+        let content = doc_block_item(docs, el);
         content_parts.push(content)
       }
       DocNodeKind::Class => {
+        let docs = super::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
         let el = super::class::render_class(ctx, doc_node, render_ctx);
-        let content = doc_block_item(el);
+        let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Enum => {
+        let docs = super::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
         let el = super::r#enum::render_enum(ctx, doc_node, render_ctx);
-        let content = doc_block_item(el);
+        let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Interface => {
+        let docs = super::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
         let el = super::interface::render_interface(ctx, doc_node, render_ctx);
-        let content = doc_block_item(el);
+        let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::TypeAlias => {
+        let docs = super::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
         let el =
           super::type_alias::render_type_alias(ctx, doc_node, render_ctx);
-        let content = doc_block_item(el);
+        let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Namespace => {
+        let docs = super::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
         let el = super::namespace::render_namespace(
           ctx,
           doc_node,
           &render_ctx.with_namespace(name.to_string()),
         );
-        let content = doc_block_item(el);
+        let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::ModuleDoc => {}
@@ -216,8 +246,7 @@ fn doc_block(
   }
 
   if !functions.is_empty() {
-    let el = super::function::render_function(ctx, functions, render_ctx);
-    let content = doc_block_item(el);
+    let content = super::function::render_function(ctx, functions, render_ctx);
     content_parts.push(content);
   }
 

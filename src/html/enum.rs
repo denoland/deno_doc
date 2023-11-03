@@ -32,12 +32,8 @@ pub(super) fn render_enum(
     })
     .collect::<String>();
 
-  vec![
-    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
-    ctx.render(
-      "section.html",
-      &json!({ "title": "Members", "content": &items }),
-    ),
-  ]
-  .join("")
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Members", "content": &items }),
+  )
 }

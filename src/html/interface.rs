@@ -19,8 +19,7 @@ pub(super) fn render_interface(
     .collect::<std::collections::HashSet<String>>();
   let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
-  vec![
-    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
+  [
     render_type_params(ctx, &interface_def.type_params, render_ctx),
     render_index_signatures(ctx, &interface_def.index_signatures, render_ctx),
     render_call_signatures(ctx, &interface_def.call_signatures, render_ctx),

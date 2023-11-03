@@ -78,8 +78,7 @@ pub(super) fn render_class(
     )
   };
 
-  vec![
-    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
+  [
     render_constructors(
       ctx,
       &class_def.constructors,
