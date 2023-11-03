@@ -70,6 +70,14 @@ impl<'ctx> GenerateCtx<'ctx> {
 
     stripped_path.to_string_lossy().to_string()
   }
+
+  #[track_caller]
+  fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
+  where
+    Ctx: Serialize,
+  {
+    self.tt.render(template, context).unwrap()
+  }
 }
 
 fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
@@ -316,7 +324,7 @@ fn render_compound_index(
     })
     .collect::<Vec<_>>();
 
-  Ok(ctx.tt.render(
+  Ok(ctx.render(
     "compound_index.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
@@ -335,7 +343,7 @@ fn render_compound_index(
       "search_bar": SEARCH_BAR,
       "module_docs": module_docs
     }),
-  )?)
+  ))
 }
 
 fn render_index(
@@ -348,7 +356,7 @@ fn render_index(
   let namespace_ctx =
     namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
-  Ok(ctx.tt.render(
+  Ok(ctx.render(
     "index_list.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
@@ -367,7 +375,7 @@ fn render_index(
       "search_bar": SEARCH_BAR,
       "namespace": namespace_ctx
     }),
-  )?)
+  ))
 }
 
 fn partition_nodes_by_name(
@@ -444,7 +452,7 @@ fn render_page(
     ..sidepanel_ctx.clone()
   };
 
-  Ok(ctx.tt.render(
+  Ok(ctx.render(
     "page.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
@@ -464,7 +472,7 @@ fn render_page(
       "base_url": format!("./{backs}index.html"),
       "symbol_group": symbol_group
     }),
-  )?)
+  ))
 }
 
 #[derive(Debug, Serialize, Clone)]

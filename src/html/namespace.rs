@@ -52,10 +52,10 @@ pub(super) fn render_namespace(
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
   let namespace_ctx = get_namespace_render_ctx(render_ctx, &partitions);
 
-  ctx.tt.render("namespace.html", &json!({
+  ctx.render("namespace.html", &json!({
     "docs": super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
     "namespace": namespace_ctx
-  })).unwrap()
+  }))
 }
 
 fn partition_nodes_by_kind_inner(

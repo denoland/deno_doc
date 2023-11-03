@@ -113,21 +113,16 @@ fn doc_block_subtitle(
       }));
     }
 
-    return Some(
-      ctx
-        .tt
-        .render(
-          "doc_block_subtitle.html",
-          &json!({
-            "class": {
-              "implements": class_implements,
-              "extends": class_extends,
-            },
-            "interface": null,
-          }),
-        )
-        .unwrap(),
-    );
+    return Some(ctx.render(
+      "doc_block_subtitle.html",
+      &json!({
+        "class": {
+          "implements": class_implements,
+          "extends": class_extends,
+        },
+        "interface": null,
+      }),
+    ));
   }
 
   if matches!(doc_node.kind, DocNodeKind::Interface) {
@@ -150,20 +145,15 @@ fn doc_block_subtitle(
       .map(|extend| render_type_def(extend, render_ctx))
       .collect::<Vec<String>>();
 
-    return Some(
-      ctx
-        .tt
-        .render(
-          "doc_block_subtitle.html",
-          &json!({
-            "class": null,
-            "interface": {
-              "extends": extends
-            }
-          }),
-        )
-        .unwrap(),
-    );
+    return Some(ctx.render(
+      "doc_block_subtitle.html",
+      &json!({
+        "class": null,
+        "interface": {
+          "extends": extends
+        }
+      }),
+    ));
   }
 
   unreachable!()
