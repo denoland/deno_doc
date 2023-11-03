@@ -20,7 +20,7 @@ pub(super) fn render_interface(
   let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
   format!(
-    r#"<div class="doc_block_items">{}{}{}{}{}{}</div>"#,
+    r#"{}{}{}{}{}{}"#,
     super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
     render_type_params(ctx, &interface_def.type_params, render_ctx),
     render_index_signatures(ctx, &interface_def.index_signatures, render_ctx),

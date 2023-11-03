@@ -168,27 +168,47 @@ fn doc_block(
   let mut content_parts = Vec::with_capacity(doc_nodes.len());
   let mut functions = vec![];
 
+  fn doc_block_item(content: String) -> String {
+    format!(r#"<div class="doc_block_items">{}</div>"#, content)
+  }
+
   for doc_node in doc_nodes {
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
-      DocNodeKind::Variable => content_parts
-        .push(super::variable::render_variable(ctx, doc_node, render_ctx)),
-      DocNodeKind::Class => content_parts
-        .push(super::class::render_class(ctx, doc_node, render_ctx)),
-      DocNodeKind::Enum => content_parts
-        .push(super::r#enum::render_enum(ctx, doc_node, render_ctx)),
-      DocNodeKind::Interface => content_parts.push(
-        super::interface::render_interface(ctx, doc_node, render_ctx),
-      ),
-      DocNodeKind::TypeAlias => content_parts.push(
-        super::type_alias::render_type_alias(ctx, doc_node, render_ctx),
-      ),
+      DocNodeKind::Variable => {
+        let el = super::variable::render_variable(ctx, doc_node, render_ctx);
+        let content = doc_block_item(el);
+        content_parts.push(content)
+      }
+      DocNodeKind::Class => {
+        let el = super::class::render_class(ctx, doc_node, render_ctx);
+        let content = doc_block_item(el);
+        content_parts.push(content);
+      }
+      DocNodeKind::Enum => {
+        let el = super::r#enum::render_enum(ctx, doc_node, render_ctx);
+        let content = doc_block_item(el);
+        content_parts.push(content);
+      }
+      DocNodeKind::Interface => {
+        let el = super::interface::render_interface(ctx, doc_node, render_ctx);
+        let content = doc_block_item(el);
+        content_parts.push(content);
+      }
+      DocNodeKind::TypeAlias => {
+        let el =
+          super::type_alias::render_type_alias(ctx, doc_node, render_ctx);
+        let content = doc_block_item(el);
+        content_parts.push(content);
+      }
       DocNodeKind::Namespace => {
-        content_parts.push(super::namespace::render_namespace(
+        let el = super::namespace::render_namespace(
           ctx,
           doc_node,
           &render_ctx.with_namespace(name.to_string()),
-        ))
+        );
+        let content = doc_block_item(el);
+        content_parts.push(content);
       }
       DocNodeKind::ModuleDoc => {}
       DocNodeKind::Import => {}
@@ -196,8 +216,9 @@ fn doc_block(
   }
 
   if !functions.is_empty() {
-    content_parts
-      .push(super::function::render_function(ctx, functions, render_ctx));
+    let el = super::function::render_function(ctx, functions, render_ctx);
+    let content = doc_block_item(el);
+    content_parts.push(content);
   }
 
   content_parts.join("")

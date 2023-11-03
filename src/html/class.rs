@@ -79,7 +79,7 @@ pub(super) fn render_class(
   };
 
   format!(
-    r#"<div class="doc_block_items">{}{}{}{}{}{}{}{}</div>"#,
+    r#"{}{}{}{}{}{}{}{}"#,
     super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
     render_constructors(
       ctx,

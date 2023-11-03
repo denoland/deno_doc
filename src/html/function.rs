@@ -86,7 +86,7 @@ pub(super) fn render_function(
   }
 
   format!(
-    r#"<div class="doc_block_items">{overload_inputs}<div class="function_overload_selectors">{overload_labels}</div><div>{content}</div></div>"#
+    r#"{overload_inputs}<div class="function_overload_selectors">{overload_labels}</div><div>{content}</div>"#
   )
 }
 
