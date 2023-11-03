@@ -79,6 +79,35 @@ pub struct RenderContext {
 }
 
 impl RenderContext {
+  pub fn new(
+    current_symbols: Rc<HashSet<Vec<String>>>,
+    namespace: Option<String>,
+  ) -> Self {
+    Self {
+      additional_css: Default::default(),
+      current_type_params: Default::default(),
+      namespace,
+      current_symbols,
+    }
+  }
+
+  pub fn with_current_type_params(
+    &self,
+    current_type_params: HashSet<String>,
+  ) -> Self {
+    Self {
+      current_type_params,
+      ..self.clone()
+    }
+  }
+
+  pub fn with_namespace(&self, namespace: String) -> Self {
+    Self {
+      namespace: Some(namespace),
+      ..self.clone()
+    }
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     if let Some(namespace) = &self.namespace {
       let mut parts = namespace

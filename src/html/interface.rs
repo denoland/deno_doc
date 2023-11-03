@@ -5,27 +5,25 @@ use std::fmt::Write;
 
 pub fn render_interface(
   doc_node: &crate::DocNode,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
-  let ctx = &RenderContext {
-    current_type_params: interface_def
-      .type_params
-      .iter()
-      .map(|def| def.name.clone())
-      .collect::<std::collections::HashSet<String>>(),
-    ..ctx.clone()
-  };
+  let current_type_params = interface_def
+    .type_params
+    .iter()
+    .map(|def| def.name.clone())
+    .collect::<std::collections::HashSet<String>>();
+  let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    render_type_params(&interface_def.type_params, ctx),
-    render_index_signatures(&interface_def.index_signatures, ctx),
-    render_call_signatures(&interface_def.call_signatures, ctx),
-    render_properties(&interface_def.properties, ctx),
-    render_methods(&interface_def.methods, ctx),
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    render_type_params(&interface_def.type_params, render_ctx),
+    render_index_signatures(&interface_def.index_signatures, render_ctx),
+    render_call_signatures(&interface_def.call_signatures, render_ctx),
+    render_properties(&interface_def.properties, render_ctx),
+    render_methods(&interface_def.methods, render_ctx),
   )
 }
 

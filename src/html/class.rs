@@ -11,14 +11,13 @@ use std::fmt::Write;
 pub fn render_class(doc_node: &crate::DocNode, ctx: &RenderContext) -> String {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
-  let ctx = &RenderContext {
-    current_type_params: class_def
-      .type_params
-      .iter()
-      .map(|def| def.name.clone())
-      .collect::<std::collections::HashSet<String>>(),
-    ..ctx.clone()
-  };
+  let current_type_params = class_def
+    .type_params
+    .iter()
+    .map(|def| def.name.clone())
+    .collect::<std::collections::HashSet<String>>();
+
+  let ctx = &ctx.with_current_type_params(current_type_params);
 
   let class_items = partition_properties_and_classes(
     class_def.properties.clone(),

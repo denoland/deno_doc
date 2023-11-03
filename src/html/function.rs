@@ -106,14 +106,12 @@ fn render_single_function(
 ) -> String {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
-  let ctx = &RenderContext {
-    current_type_params: function_def
-      .type_params
-      .iter()
-      .map(|def| def.name.clone())
-      .collect::<std::collections::HashSet<String>>(),
-    ..ctx.clone()
-  };
+  let current_type_params = function_def
+    .type_params
+    .iter()
+    .map(|def| def.name.clone())
+    .collect::<std::collections::HashSet<String>>();
+  let ctx = &ctx.with_current_type_params(current_type_params);
 
   // TODO: tags
 

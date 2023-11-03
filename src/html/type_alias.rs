@@ -7,14 +7,12 @@ pub fn render_type_alias(
 ) -> String {
   let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
 
-  let ctx = &RenderContext {
-    current_type_params: type_alias_def
-      .type_params
-      .iter()
-      .map(|def| def.name.clone())
-      .collect::<std::collections::HashSet<String>>(),
-    ..ctx.clone()
-  };
+  let current_type_params = type_alias_def
+    .type_params
+    .iter()
+    .map(|def| def.name.clone())
+    .collect::<std::collections::HashSet<String>>();
+  let ctx = &ctx.with_current_type_params(current_type_params);
 
   let id = name_to_id("typeAlias", &doc_node.name);
 

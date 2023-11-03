@@ -49,7 +49,7 @@ pub(super) fn render_symbol_group(
     .values()
     .map(|doc_nodes| SymbolCtx {
       kind: (&doc_nodes[0].kind).into(),
-      subtitle: doc_block_subtitle(&ctx, &doc_nodes[0], render_ctx),
+      subtitle: doc_block_subtitle(ctx, &doc_nodes[0], render_ctx),
       body: doc_block(ctx, doc_nodes, name, render_ctx),
     })
     .collect();
@@ -85,10 +85,7 @@ fn doc_block_subtitle(
       .map(|def| def.name.clone())
       .collect::<std::collections::HashSet<String>>();
 
-    let render_ctx = &RenderContext {
-      current_type_params,
-      ..render_ctx.clone()
-    };
+    let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
     let mut class_implements = None;
     let mut class_extends = None;
@@ -144,10 +141,7 @@ fn doc_block_subtitle(
       .iter()
       .map(|def| def.name.clone())
       .collect::<std::collections::HashSet<String>>();
-    let render_ctx = &RenderContext {
-      current_type_params,
-      ..render_ctx.clone()
-    };
+    let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
     let extends = interface_def
       .extends
@@ -201,10 +195,7 @@ fn doc_block(
       DocNodeKind::Namespace => {
         content_parts.push(super::namespace::render_namespace(
           doc_node,
-          &RenderContext {
-            namespace: Some(name.to_string()),
-            ..render_ctx.clone()
-          },
+          &render_ctx.with_namespace(name.to_string()),
         ))
       }
       DocNodeKind::ModuleDoc => {}

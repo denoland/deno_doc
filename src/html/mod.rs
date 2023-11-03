@@ -2,7 +2,6 @@ use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -284,12 +283,7 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
-  let render_ctx = RenderContext {
-    additional_css: Rc::new(RefCell::new("".to_string())),
-    namespace: None,
-    current_symbols: Default::default(),
-    current_type_params: Default::default(),
-  };
+  let render_ctx = RenderContext::new(Default::default(), None);
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -340,12 +334,7 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext {
-    additional_css: Rc::new(RefCell::new("".to_string())),
-    namespace: None,
-    current_symbols: current_symbols.clone(),
-    current_type_params: Default::default(),
-  };
+  let render_ctx = RenderContext::new(current_symbols.clone(), None);
   let content = namespace::doc_node_kind_sections(partitions, &render_ctx);
 
   let additional_css = render_ctx.additional_css.borrow();
@@ -431,14 +420,10 @@ fn render_page(
   doc_nodes: &[DocNode],
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext {
-    additional_css: Rc::new(RefCell::new("".to_string())),
-    namespace: name
-      .rsplit_once('.')
-      .map(|(namespace, _symbol)| namespace.to_string()),
-    current_symbols,
-    current_type_params: Default::default(),
-  };
+  let namespace = name
+    .rsplit_once('.')
+    .map(|(namespace, _symbol)| namespace.to_string());
+  let render_ctx = RenderContext::new(current_symbols, namespace);
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group =
