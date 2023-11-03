@@ -9,6 +9,27 @@ use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde_json::json;
 
+fn render_css_for_fn(overload_id: &str) -> String {
+  format!(
+    r#"
+#{overload_id} {{
+  display: none;
+}}
+#{overload_id}:checked ~ *:last-child > :not(#{overload_id}_div) {{
+  display: none;
+}}
+#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
+ background-color: #056CF00C;
+ border: solid 2px rgb(37 99 235);
+ cursor: unset;
+}}
+#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] > code {{
+  margin: -1px;
+}}
+"#
+  )
+}
+
 pub(super) fn render_function(
   ctx: &GenerateCtx,
   doc_nodes: Vec<&crate::DocNode>,
@@ -32,23 +53,8 @@ pub(super) fn render_function(
       let id = name_to_id("function", &doc_node.name);
 
       {
-        render_ctx.add_additional_css(format!(
-          r#"
-#{overload_id} {{
-  display: none;
-}}
-#{overload_id}:checked ~ *:last-child > :not(#{overload_id}_div) {{
-  display: none;
-}}
-#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
-  background-color: #056CF00C;
-  border: solid 2px rgb(37 99 235);
-  cursor: unset;
-}}
-#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] > code {{
-  margin: -1px;
-}}
-"#));
+        let css = render_css_for_fn(&overload_id);
+        render_ctx.add_additional_css(css);
       }
 
       overload_inputs.push_str(&format!(
