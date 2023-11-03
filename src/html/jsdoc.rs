@@ -145,11 +145,11 @@ fn render_docs_inner(
   render_examples: bool,
   summary: bool,
 ) -> String {
-  let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
-    render_markdown_inner(doc, render_ctx, summary)
-  } else {
-    "".to_string()
-  };
+  let mut content_parts = vec![];
+
+  if let Some(doc) = js_doc.doc.as_deref() {
+    content_parts.push(render_markdown_inner(doc, render_ctx, summary));
+  }
 
   if render_examples {
     let mut i = 0;
@@ -178,11 +178,11 @@ fn render_docs_inner(
           "content": &examples.join(""),
         }),
       );
-      doc.push_str(&s);
+      content_parts.push(s);
     }
   }
 
-  doc
+  content_parts.join("")
 }
 
 pub(super) fn render_docs_summary(
