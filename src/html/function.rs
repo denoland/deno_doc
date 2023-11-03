@@ -164,7 +164,7 @@ fn render_single_function(
 
       // TODO: default_value, tags
 
-      doc_entry(
+      render_doc_entry(
         ctx,
         &id,
         &name,
@@ -220,7 +220,7 @@ fn render_function_return_type(
     }
   });
 
-  doc_entry(
+  render_doc_entry(
     ctx,
     &id,
     "",

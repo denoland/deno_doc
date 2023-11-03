@@ -24,7 +24,7 @@ pub fn section_title(title: &str) -> String {
   )
 }
 
-pub(super) fn doc_entry(
+pub(super) fn render_doc_entry(
   ctx: &GenerateCtx,
   id: &str,
   name: &str,

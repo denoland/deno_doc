@@ -98,7 +98,7 @@ fn render_call_signatures(
         })
         .unwrap_or_default();
 
-      doc_entry(
+      render_doc_entry(
         ctx,
         &id,
         "",
@@ -161,7 +161,7 @@ fn render_properties(
         })
         .unwrap_or_default();
 
-      doc_entry(
+      render_doc_entry(
         ctx,
         &id,
         &if property.computed {
@@ -214,7 +214,7 @@ fn render_methods(
         })
         .unwrap_or_default();
 
-      doc_entry(
+      render_doc_entry(
         ctx,
         &id,
         &name,

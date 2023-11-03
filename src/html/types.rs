@@ -508,7 +508,7 @@ pub(super) fn render_type_params(
         })
         .unwrap_or_default();
 
-      doc_entry(
+      render_doc_entry(
         ctx,
         &id,
         &type_param.name,

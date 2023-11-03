@@ -21,7 +21,7 @@ pub(super) fn render_variable(
     "docs": super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
     "doc_entry": {
       "title": "type",
-      "content": doc_entry(
+      "content": render_doc_entry(
         ctx,
         &id,
         "",

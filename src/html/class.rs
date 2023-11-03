@@ -113,7 +113,7 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: tags, render constructor params
-      doc_entry(
+      render_doc_entry(
         ctx,
         &id,
         name,
@@ -349,7 +349,7 @@ fn render_class_accessor(
 
   // TODO: tags
 
-  doc_entry(ctx, &id, name, &ts_type, js_doc, render_ctx)
+  render_doc_entry(ctx, &id, name, &ts_type, js_doc, render_ctx)
 }
 
 fn render_class_method(
@@ -366,7 +366,7 @@ fn render_class_method(
 
   // TODO: tags
 
-  doc_entry(
+  render_doc_entry(
     ctx,
     &id,
     &method.name,
@@ -391,7 +391,7 @@ fn render_class_property(
     .map(|ts_type| format!(": {}", render_type_def(ts_type, render_ctx)))
     .unwrap_or_default();
 
-  doc_entry(
+  render_doc_entry(
     ctx,
     &id,
     &property.name,

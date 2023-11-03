@@ -28,7 +28,7 @@ pub(super) fn render_type_alias(
       "section.html",
       &json!({
         "title": "Definition",
-        "content": &doc_entry(
+        "content": &render_doc_entry(
           ctx,
           &id,
           "",
