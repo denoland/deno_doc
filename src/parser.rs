@@ -1031,7 +1031,7 @@ impl<'a> DocParser<'a> {
     }
 
     let mut diagnostics = diagnostics.borrow_mut();
-    for (maybe_member_id, deps) in deps_by_member {
+    for (maybe_member_id, deps) in deps_by_member.iter() {
       for dep in deps {
         let dep_module =
           self.root_symbol.get_module_from_id(dep.module_id).unwrap();
@@ -1303,11 +1303,34 @@ fn definition_location(
   )
 }
 
+#[derive(Default)]
+struct SymbolMembersWithDeps(
+  IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>,
+);
+
+impl SymbolMembersWithDeps {
+  pub fn is_empty(&self) -> bool {
+    self.0.is_empty()
+  }
+
+  fn add(
+    &mut self,
+    maybe_member_id: Option<SymbolMemberId>,
+    def_id: UniqueSymbolId,
+  ) {
+    self.0.entry(maybe_member_id).or_default().insert(def_id);
+  }
+
+  fn iter(
+    &self,
+  ) -> impl Iterator<Item = (&Option<SymbolMemberId>, &IndexSet<UniqueSymbolId>)>
+  {
+    self.0.iter()
+  }
+}
+
 struct SymbolVisibility {
-  root_exported_ids: HashMap<
-    UniqueSymbolId,
-    IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>,
-  >,
+  root_exported_ids: HashMap<UniqueSymbolId, SymbolMembersWithDeps>,
   /// Symbol identifiers that are not exported, but are referenced
   /// by exported symbols.
   non_exported_public_ids: HashSet<UniqueSymbolId>,
@@ -1318,10 +1341,8 @@ impl SymbolVisibility {
     graph: &ModuleGraph,
     root_symbol: &deno_graph::symbols::RootSymbol,
   ) -> Result<Self, DocError> {
-    let mut root_exported_ids: HashMap<
-      UniqueSymbolId,
-      IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>,
-    > = Default::default();
+    let mut root_exported_ids: HashMap<UniqueSymbolId, SymbolMembersWithDeps> =
+      Default::default();
 
     // get a collection of all the symbols that are exports
     {
@@ -1383,7 +1404,7 @@ impl SymbolVisibility {
                 && non_exported_public_ids.insert(def_id)
               {
                 if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-                  dep_ids.entry(maybe_member_id).or_default().insert(def_id);
+                  dep_ids.add(maybe_member_id, def_id);
                 }
                 // examine the private types of this private type
                 pending_symbol_ids.push(def_id);
@@ -1406,7 +1427,7 @@ impl SymbolVisibility {
   pub fn get_root_exported_deps(
     &self,
     id: &UniqueSymbolId,
-  ) -> Option<&IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>> {
+  ) -> Option<&SymbolMembersWithDeps> {
     self.root_exported_ids.get(id)
   }
 
