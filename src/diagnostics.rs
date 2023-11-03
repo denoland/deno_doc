@@ -17,7 +17,6 @@ use deno_graph::symbols::ModuleSymbolRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::SymbolMember;
-use deno_graph::symbols::SymbolMemberDecl;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -85,7 +84,7 @@ impl DiagnosticsCollector {
       return; // ignore
     }
     if let Some(member) = &maybe_member {
-      if member_has_ignorable_js_doc_tag(member_module, member.decl()) {
+      if member_has_ignorable_js_doc_tag(member_module, member) {
         return; // ignore
       }
     }
@@ -116,7 +115,7 @@ impl DiagnosticsCollector {
         Some(member) => get_text_info_location(
           member_module.specifier().as_str(),
           member_module.text_info(),
-          member.decl().range().start,
+          member.range().start,
         ),
         None => doc_node.location.clone(),
       },
@@ -442,12 +441,13 @@ fn decl_has_ignorable_js_doc_tag(
 
 fn member_has_ignorable_js_doc_tag(
   module: ModuleSymbolRef,
-  decl: &SymbolMemberDecl,
+  member: &SymbolMember,
 ) -> bool {
   let Some(module) = module.esm() else {
     return false;
   };
-  let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range());
+  let js_doc =
+    js_doc_for_range_include_ignore(module.source(), &member.range());
   has_ignorable_js_doc_tag(&js_doc)
 }
 

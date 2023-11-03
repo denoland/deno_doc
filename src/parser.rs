@@ -573,7 +573,7 @@ impl<'a> DocParser<'a> {
     }
 
     let is_ambient = elements.is_empty() && !module_has_import(module_symbol);
-    for child_id in symbol.child_decls() {
+    for child_id in symbol.child_ids() {
       let unique_id = UniqueSymbolId::new(module_symbol.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
@@ -606,9 +606,10 @@ impl<'a> DocParser<'a> {
     module_symbol: ModuleSymbolRef,
     child_symbol: &Symbol,
   ) -> Vec<DocNode> {
-    debug_assert!(!self.visibility.root_exported_ids.contains_key(
-      &UniqueSymbolId::new(module_symbol.module_id(), child_symbol.symbol_id())
-    ));
+    debug_assert!(!self
+      .visibility
+      .root_exported_ids
+      .contains_key(&child_symbol.unique_id()));
     let mut doc_nodes = Vec::with_capacity(child_symbol.decls().count());
     for decl in child_symbol.decls() {
       if let Some(mut doc_node) =
@@ -958,7 +959,7 @@ impl<'a> DocParser<'a> {
     }
 
     let is_ambient = exports.is_empty() && !module_has_import(module_symbol);
-    for child_id in module_symbol.child_decls() {
+    for child_id in module_symbol.child_ids() {
       let unique_id = UniqueSymbolId::new(module_symbol.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
@@ -1020,8 +1021,7 @@ impl<'a> DocParser<'a> {
       return;
     };
 
-    let doc_id =
-      UniqueSymbolId::new(module_symbol.module_id(), symbol.symbol_id());
+    let doc_id = symbol.unique_id();
     let Some(deps_by_member) = self.visibility.get_root_exported_deps(&doc_id)
     else {
       return;
