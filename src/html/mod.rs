@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
-use crate::html::jsdoc::markdown_to_html;
+use crate::html::jsdoc::render_markdown;
 use crate::html::util::RenderContext;
 use crate::node::Location;
 use crate::{DocNode, DocNodeKind};
@@ -138,6 +138,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     "symbol_group.html",
     include_str!("./templates/symbol_group.html"),
   )?;
+  tt.add_template("example.html", include_str!("./templates/example.html"))?;
   Ok(tt)
 }
 
@@ -319,7 +320,7 @@ fn render_compound_index(
       let docs_md = docs
         .and_then(|node| node.js_doc.doc.clone())
         .unwrap_or_default();
-      let rendered_docs = markdown_to_html(&docs_md, false, &render_ctx);
+      let rendered_docs = render_markdown(&docs_md, false, &render_ctx);
 
       json!({
         "url": ctx.url_to_short_path(url),

@@ -33,7 +33,7 @@ pub(super) fn render_doc_entry(
   render_ctx: &RenderContext,
 ) -> String {
   let maybe_jsdoc = jsdoc
-    .map(|doc| super::jsdoc::markdown_to_html(doc, false, render_ctx))
+    .map(|doc| super::jsdoc::render_markdown(doc, false, render_ctx))
     .unwrap_or_default();
 
   // TODO: sourceHref
