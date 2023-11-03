@@ -8,6 +8,40 @@ use std::cmp::Ordering;
 
 use super::GenerateCtx;
 
+#[derive(Serialize)]
+pub struct NamespaceRenderCtx {
+  pub sections: Vec<NamespaceSectionRenderCtx>,
+}
+
+#[derive(Serialize)]
+pub struct NamespaceSectionRenderCtx {
+  pub title: String,
+  pub nodes: Vec<NamespaceSectionNodeCtx>,
+}
+
+#[derive(Serialize)]
+pub struct NamespaceSectionNodeCtx {
+  pub icon: String,
+  pub path: String,
+  pub name: String,
+  pub docs: String,
+}
+
+pub(super) fn get_namespace_render_ctx(
+  render_ctx: &RenderContext,
+  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+) -> NamespaceRenderCtx {
+  let mut sections = Vec::with_capacity(partitions.len());
+
+  for (kind, doc_nodes) in partitions {
+    let ns_section_ctx =
+      get_namespace_section_render_ctx(render_ctx, *kind, doc_nodes);
+    sections.push(ns_section_ctx)
+  }
+
+  NamespaceRenderCtx { sections }
+}
+
 pub(super) fn render_namespace(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
@@ -16,12 +50,12 @@ pub(super) fn render_namespace(
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
+  let namespace_ctx = get_namespace_render_ctx(render_ctx, &partitions);
 
-  format!(
-    r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
-    doc_node_kind_sections(ctx, &partitions, render_ctx)
-  )
+  ctx.tt.render("namespace.html", &json!({
+    "docs": super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    "namespace": namespace_ctx
+  })).unwrap()
 }
 
 fn partition_nodes_by_kind_inner(
@@ -68,44 +102,21 @@ pub fn partition_nodes_by_kind(
   partition_nodes_by_kind_inner(doc_nodes, true)
 }
 
-pub(super) fn doc_node_kind_sections(
-  ctx: &GenerateCtx,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+fn get_namespace_section_render_ctx(
   render_ctx: &RenderContext,
-) -> String {
-  let mut content_parts = Vec::with_capacity(partitions.len());
-
-  for (kind, doc_nodes) in partitions {
-    let title = match kind {
-      DocNodeKind::Function => "Functions",
-      DocNodeKind::Variable => "Variables",
-      DocNodeKind::Class => "Classes",
-      DocNodeKind::Enum => "Enums",
-      DocNodeKind::Interface => "Interfaces",
-      DocNodeKind::TypeAlias => "Type Aliases",
-      DocNodeKind::Namespace => "Namespaces",
-      DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
-    };
-
-    content_parts.push(symbol_section(ctx, title, doc_nodes, render_ctx))
-  }
-
-  content_parts.join("")
-}
-
-fn symbol_section(
-  ctx: &GenerateCtx,
-  title: &str,
+  kind: DocNodeKind,
   doc_nodes: &[DocNode],
-  render_ctx: &RenderContext,
-) -> String {
-  #[derive(Serialize)]
-  struct SectionNode {
-    icon: String,
-    path: String,
-    name: String,
-    docs: String,
-  }
+) -> NamespaceSectionRenderCtx {
+  let title = match kind {
+    DocNodeKind::Function => "Functions",
+    DocNodeKind::Variable => "Variables",
+    DocNodeKind::Class => "Classes",
+    DocNodeKind::Enum => "Enums",
+    DocNodeKind::Interface => "Interfaces",
+    DocNodeKind::TypeAlias => "Type Aliases",
+    DocNodeKind::Namespace => "Namespaces",
+    DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
+  };
 
   let nodes = doc_nodes
     .iter()
@@ -126,7 +137,7 @@ fn symbol_section(
         );
       }
 
-      SectionNode {
+      NamespaceSectionNodeCtx {
         // TODO(bartlomieju): make it a template
         icon: doc_node_kind_icon(doc_node.kind),
         path,
@@ -142,15 +153,9 @@ fn symbol_section(
     })
     .collect::<Vec<_>>();
 
-  ctx
-    .tt
-    .render(
-      "doc_node_kind_section.html",
-      &json!({
-        // TODO(bartlomieju): turn it into a template
-        "title": section_title(title),
-        "nodes": nodes
-      }),
-    )
-    .unwrap()
+  NamespaceSectionRenderCtx {
+    // TODO(bartlomieju): turn it into a template
+    title: section_title(title),
+    nodes,
+  }
 }

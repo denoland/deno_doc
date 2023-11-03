@@ -8,8 +8,9 @@
   {search_bar}
 
   <main>
-    {#- TODO(bartlomieju): call into template here #}
-    { content }
+    {{ for section in namespace.sections }}
+      {{ call namespace_section.html with section }}
+    {{ endfor }}
   </main>
   <div id="searchResults"></div>
 </div>

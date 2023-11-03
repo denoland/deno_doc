@@ -1,0 +1,6 @@
+<div class="doc_block_items">
+    {docs}
+    {{ for section in namespace.sections }}
+        {{ call namespace_section.html with section }}
+    {{ endfor }}
+</div>

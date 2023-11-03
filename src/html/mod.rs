@@ -93,6 +93,10 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   )?;
   tt.add_template("page.html", include_str!("./templates/page.html"))?;
   tt.add_template(
+    "namespace.html",
+    include_str!("./templates/namespace.html"),
+  )?;
+  tt.add_template(
     "compound_index.html",
     include_str!("./templates/compound_index.html"),
   )?;
@@ -105,8 +109,8 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
   tt.add_template(
-    "doc_node_kind_section.html",
-    include_str!("./templates/doc_node_kind_section.html"),
+    "namespace_section.html",
+    include_str!("./templates/namespace_section.html"),
   )?;
   tt.add_template(
     "doc_block_subtitle.html",
@@ -336,7 +340,8 @@ fn render_index(
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
   let render_ctx = RenderContext::new(current_symbols.clone(), None);
-  let content = namespace::doc_node_kind_sections(ctx, partitions, &render_ctx);
+  let namespace_ctx =
+    namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
   Ok(ctx.tt.render(
     "index_list.html",
@@ -355,7 +360,7 @@ fn render_index(
       },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
-      "content": content
+      "namespace": namespace_ctx
     }),
   )?)
 }
