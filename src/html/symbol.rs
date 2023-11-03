@@ -94,7 +94,7 @@ fn doc_block_subtitle(
       let impls = class_def
         .implements
         .iter()
-        .map(|extend| render_type_def(extend, render_ctx))
+        .map(|extend| render_type_def(ctx, extend, render_ctx))
         .collect::<Vec<String>>();
 
       class_implements = Some(impls);
@@ -109,7 +109,7 @@ fn doc_block_subtitle(
 
       class_extends = Some(json!({
         "symbol": symbol,
-        "type_args": super::types::type_arguments(&class_def.super_type_params, render_ctx)
+        "type_args": super::types::type_arguments(ctx, &class_def.super_type_params, render_ctx)
       }));
     }
 
@@ -142,7 +142,7 @@ fn doc_block_subtitle(
     let extends = interface_def
       .extends
       .iter()
-      .map(|extend| render_type_def(extend, render_ctx))
+      .map(|extend| render_type_def(ctx, extend, render_ctx))
       .collect::<Vec<String>>();
 
     return Some(ctx.render(

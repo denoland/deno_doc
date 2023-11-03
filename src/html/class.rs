@@ -152,14 +152,16 @@ fn render_index_signatures(
       let ts_type = index_signature
         .ts_type
         .as_ref()
-        .map(|ts_type| format!(": {}", render_type_def(ts_type, render_ctx)))
+        .map(|ts_type| {
+          format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+        })
         .unwrap_or_default();
 
       write!(
         output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         ctx.render("anchor.html", &json!({ "href": &id })),
-        render_params(&index_signature.params, render_ctx),
+        render_params(ctx, &index_signature.params, render_ctx),
       )
       .unwrap();
       output
@@ -342,7 +344,7 @@ fn render_class_accessor(
     .map_or_else(String::new, |ts_type| {
       format!(
         r#"<span>: <span class="font-medium">{}</span></span>"#,
-        render_type_def(ts_type, render_ctx)
+        render_type_def(ctx, ts_type, render_ctx)
       )
     });
   let js_doc = getter.or(setter).unwrap().js_doc.doc.as_deref();
@@ -370,7 +372,11 @@ fn render_class_method(
     ctx,
     &id,
     &method.name,
-    &super::function::render_function_summary(&method.function_def, render_ctx),
+    &super::function::render_function_summary(
+      ctx,
+      &method.function_def,
+      render_ctx,
+    ),
     method.js_doc.doc.as_deref(),
     render_ctx,
   )
@@ -388,7 +394,7 @@ fn render_class_property(
   let ts_type = property
     .ts_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ts_type, render_ctx)))
+    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type, render_ctx)))
     .unwrap_or_default();
 
   render_doc_entry(

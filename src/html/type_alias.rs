@@ -32,7 +32,7 @@ pub(super) fn render_type_alias(
           ctx,
           &id,
           "",
-          &format!(": {}", render_type_def(&type_alias_def.ts_type, render_ctx)),
+          &format!(": {}", render_type_def(ctx, &type_alias_def.ts_type, render_ctx)),
           None,
           render_ctx,
         )

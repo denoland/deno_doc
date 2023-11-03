@@ -53,7 +53,10 @@ fn render_index_signatures(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
+          format!(
+            ": {}",
+            super::types::render_type_def(ctx, ts_type, render_ctx)
+          )
         })
         .unwrap_or_default();
 
@@ -61,7 +64,7 @@ fn render_index_signatures(
         output,
         r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
         ctx.render("anchor.html", &json!({ "href": &id })),
-        render_params(&index_signature.params, render_ctx),
+        render_params(ctx, &index_signature.params, render_ctx),
       )
       .unwrap();
       output
@@ -94,7 +97,10 @@ fn render_call_signatures(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
+          format!(
+            ": {}",
+            super::types::render_type_def(ctx, ts_type, render_ctx)
+          )
         })
         .unwrap_or_default();
 
@@ -105,10 +111,11 @@ fn render_call_signatures(
         &format!(
           "{}({}){ts_type}",
           super::types::type_params_summary(
+            ctx,
             &call_signature.type_params,
             render_ctx
           ),
-          render_params(&call_signature.params, render_ctx),
+          render_params(ctx, &call_signature.params, render_ctx),
         ),
         call_signature.js_doc.doc.as_deref(),
         render_ctx,
@@ -157,7 +164,10 @@ fn render_properties(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
+          format!(
+            ": {}",
+            super::types::render_type_def(ctx, ts_type, render_ctx)
+          )
         })
         .unwrap_or_default();
 
@@ -210,7 +220,10 @@ fn render_methods(
         .return_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
+          format!(
+            ": {}",
+            super::types::render_type_def(ctx, ts_type, render_ctx)
+          )
         })
         .unwrap_or_default();
 
@@ -221,7 +234,7 @@ fn render_methods(
         &format!(
           "{}({}){return_type}",
           render_type_params(ctx, &method.type_params, render_ctx),
-          render_params(&method.params, render_ctx)
+          render_params(ctx, &method.params, render_ctx)
         ),
         method.js_doc.doc.as_deref(),
         render_ctx,

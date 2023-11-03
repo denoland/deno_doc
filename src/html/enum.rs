@@ -24,7 +24,7 @@ pub(super) fn render_enum(
         &member
           .init
           .as_ref()
-          .map(|init| format!(" = {}", render_type_def(init, render_ctx)))
+          .map(|init| format!(" = {}", render_type_def(ctx, init, render_ctx)))
           .unwrap_or_default(),
         member.js_doc.doc.as_deref(),
         render_ctx,

@@ -79,7 +79,7 @@ pub(super) fn render_function(
     {summary_doc}
 </label>"#,
         doc_node.name,
-        render_function_summary(function_def, render_ctx),
+        render_function_summary(ctx, function_def, render_ctx),
       ));
     }
 
@@ -96,20 +96,21 @@ pub(super) fn render_function(
   )
 }
 
-pub fn render_function_summary(
+pub(super) fn render_function_summary(
+  ctx: &GenerateCtx,
   function_def: &FunctionDef,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let return_type = function_def
     .return_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type, render_ctx)))
     .unwrap_or_default();
 
   format!(
     "{}({}){return_type}",
-    type_params_summary(&function_def.type_params, ctx),
-    render_params(&function_def.params, ctx)
+    type_params_summary(ctx, &function_def.type_params, render_ctx),
+    render_params(ctx, &function_def.params, render_ctx)
   )
 }
 
@@ -159,7 +160,9 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| format!(": {}", render_type_def(ts_type, render_ctx)))
+        .map(|ts_type| {
+          format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+        })
         .unwrap_or_default();
 
       // TODO: default_value, tags
@@ -224,7 +227,7 @@ fn render_function_return_type(
     ctx,
     &id,
     "",
-    &render_type_def(return_type, render_ctx),
+    &render_type_def(ctx, return_type, render_ctx),
     return_type_doc,
     render_ctx,
   )

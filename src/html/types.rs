@@ -9,9 +9,10 @@ use deno_ast::swc::ast::TruePlusMinus;
 use serde_json::json;
 use std::fmt::Write;
 
-pub fn render_type_def(
+pub(super) fn render_type_def(
+  ctx: &GenerateCtx,
   def: &crate::ts_type::TsTypeDef,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if let Some(kind) = &def.kind {
     match kind {
@@ -39,13 +40,13 @@ pub fn render_type_def(
       TsTypeDefKind::TypeRef => {
         let type_ref = def.type_ref.as_ref().unwrap();
 
-        let href = if ctx.contains_type_param(&type_ref.type_name) {
+        let href = if render_ctx.contains_type_param(&type_ref.type_name) {
           Some(format!(
             "#{}",
             name_to_id("type_param", &type_ref.type_name)
           ))
         } else {
-          ctx.lookup_symbol_href(&type_ref.type_name)
+          render_ctx.lookup_symbol_href(&type_ref.type_name)
         };
 
         let name = if let Some(href) = href {
@@ -63,39 +64,47 @@ pub fn render_type_def(
           type_ref
             .type_params
             .as_ref()
-            .map(|type_params| type_arguments(type_params, ctx))
+            .map(|type_params| type_arguments(ctx, type_params, render_ctx))
             .unwrap_or_default()
         )
       }
       TsTypeDefKind::Union => {
-        type_def_join(def.union.as_ref().unwrap(), "|", ctx)
+        type_def_join(ctx, def.union.as_ref().unwrap(), "|", render_ctx)
       }
       TsTypeDefKind::Intersection => {
-        type_def_join(def.intersection.as_ref().unwrap(), "&", ctx)
+        type_def_join(ctx, def.intersection.as_ref().unwrap(), "&", render_ctx)
       }
       TsTypeDefKind::Array => {
-        format!("{}[]", render_type_def(def.array.as_ref().unwrap(), ctx))
+        format!(
+          "{}[]",
+          render_type_def(ctx, def.array.as_ref().unwrap(), render_ctx)
+        )
       }
-      TsTypeDefKind::Tuple => type_def_tuple(def.tuple.as_ref().unwrap(), ctx),
+      TsTypeDefKind::Tuple => {
+        type_def_tuple(ctx, def.tuple.as_ref().unwrap(), render_ctx)
+      }
       TsTypeDefKind::TypeOperator => {
         let operator = def.type_operator.as_ref().unwrap();
         format!(
           "<span>{}</span> {}",
           operator.operator,
-          render_type_def(&operator.ts_type, ctx)
+          render_type_def(ctx, &operator.ts_type, render_ctx)
         )
       }
       TsTypeDefKind::Parenthesized => {
         format!(
           "({})",
-          render_type_def(def.parenthesized.as_ref().unwrap(), ctx)
+          render_type_def(ctx, def.parenthesized.as_ref().unwrap(), render_ctx)
         )
       }
       TsTypeDefKind::Rest => {
-        format!("...{}", render_type_def(def.rest.as_ref().unwrap(), ctx))
+        format!(
+          "...{}",
+          render_type_def(ctx, def.rest.as_ref().unwrap(), render_ctx)
+        )
       }
       TsTypeDefKind::Optional => {
-        render_type_def(def.optional.as_ref().unwrap(), ctx)
+        render_type_def(ctx, def.optional.as_ref().unwrap(), render_ctx)
       }
       TsTypeDefKind::TypeQuery => def.type_query.clone().unwrap(),
       TsTypeDefKind::This => "<span>this</span>".to_string(),
@@ -109,9 +118,9 @@ pub fn render_type_def(
 
         format!(
           "{new}{}({}) =&gt; {}",
-          type_params_summary(&fn_or_constructor.type_params, ctx),
-          render_params(&fn_or_constructor.params, ctx),
-          render_type_def(&fn_or_constructor.ts_type, ctx),
+          type_params_summary(ctx, &fn_or_constructor.type_params, render_ctx),
+          render_params(ctx, &fn_or_constructor.params, render_ctx),
+          render_type_def(ctx, &fn_or_constructor.ts_type, render_ctx),
         )
       }
       TsTypeDefKind::Conditional => {
@@ -119,18 +128,19 @@ pub fn render_type_def(
 
         format!(
           "{} <span>extends</span> {} ? {} : {}",
-          render_type_def(&conditional.check_type, ctx),
-          render_type_def(&conditional.extends_type, ctx),
-          render_type_def(&conditional.true_type, ctx),
-          render_type_def(&conditional.false_type, ctx),
+          render_type_def(ctx, &conditional.check_type, render_ctx),
+          render_type_def(ctx, &conditional.extends_type, render_ctx),
+          render_type_def(ctx, &conditional.true_type, render_ctx),
+          render_type_def(ctx, &conditional.false_type, render_ctx),
         )
       }
       TsTypeDefKind::Infer => format!(
         "<span>infer {}</span>",
         type_param_summary(
+          ctx,
           &def.infer.as_ref().unwrap().type_param,
           "extends",
-          ctx
+          render_ctx
         )
       ),
       TsTypeDefKind::IndexedAccess => {
@@ -138,8 +148,8 @@ pub fn render_type_def(
 
         format!(
           "{}[{}]",
-          render_type_def(&indexed_access.obj_type, ctx),
-          render_type_def(&indexed_access.index_type, ctx)
+          render_type_def(ctx, &indexed_access.obj_type, render_ctx),
+          render_type_def(ctx, &indexed_access.index_type, render_ctx)
         )
       }
       TsTypeDefKind::Mapped => {
@@ -163,7 +173,7 @@ pub fn render_type_def(
           .map(|name_type| {
             format!(
               "<span> in keyof </span>{}",
-              render_type_def(name_type, ctx)
+              render_type_def(ctx, name_type, render_ctx)
             )
           })
           .unwrap_or_default();
@@ -182,13 +192,16 @@ pub fn render_type_def(
           .ts_type
           .as_ref()
           .map(|ts_type| {
-            format!("<span>: {}</span>", render_type_def(ts_type, ctx))
+            format!(
+              "<span>: {}</span>",
+              render_type_def(ctx, ts_type, render_ctx)
+            )
           })
           .unwrap_or_default();
 
         format!(
           "{readonly}[{}{name_type}]{optional}{ts_type}",
-          type_param_summary(&mapped.type_param, "in", ctx)
+          type_param_summary(ctx, &mapped.type_param, "in", render_ctx)
         )
       }
       TsTypeDefKind::TypeLiteral => {
@@ -205,13 +218,15 @@ pub fn render_type_def(
             let ts_type = index_signature
               .ts_type
               .as_ref()
-              .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+              .map(|ts_type| {
+                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+              })
               .unwrap_or_default();
 
             write!(
               output,
               "{readonly}[{}]{ts_type}; ",
-              render_params(&index_signature.params, ctx)
+              render_params(ctx, &index_signature.params, render_ctx)
             )
             .unwrap();
             output
@@ -224,14 +239,16 @@ pub fn render_type_def(
             let ts_type = call_signature
               .ts_type
               .as_ref()
-              .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+              .map(|ts_type| {
+                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+              })
               .unwrap_or_default();
 
             write!(
               output,
               "{}({}){ts_type}; ",
-              type_params_summary(&call_signature.type_params, ctx),
-              render_params(&call_signature.params, ctx)
+              type_params_summary(ctx, &call_signature.type_params, render_ctx),
+              render_params(ctx, &call_signature.params, render_ctx)
             )
             .unwrap();
             output
@@ -257,7 +274,9 @@ pub fn render_type_def(
             let ts_type = property
               .ts_type
               .as_ref()
-              .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+              .map(|ts_type| {
+                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+              })
               .unwrap_or_default();
 
             write!(output, "{readonly}{name}{optional}{ts_type}; ").unwrap();
@@ -287,14 +306,16 @@ pub fn render_type_def(
             let return_type = method
               .return_type
               .as_ref()
-              .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+              .map(|ts_type| {
+                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+              })
               .unwrap_or_default();
 
             write!(
               output,
               "{kind}{name}{optional}{}({}){return_type}; ",
-              type_params_summary(&method.type_params, ctx),
-              render_params(&method.params, ctx)
+              type_params_summary(ctx, &method.type_params, render_ctx),
+              render_params(ctx, &method.params, render_ctx)
             )
             .unwrap();
             output
@@ -324,7 +345,7 @@ pub fn render_type_def(
         let r#type = type_predicate
           .r#type
           .as_ref()
-          .map(|def| format!(" is {}", render_type_def(def, ctx)))
+          .map(|def| format!(" is {}", render_type_def(ctx, def, render_ctx)))
           .unwrap_or_default();
 
         format!("{asserts}{param_type}{}", r#type)
@@ -341,7 +362,7 @@ pub fn render_type_def(
         let type_arguments = import_type
           .type_params
           .as_ref()
-          .map(|type_params| type_arguments(type_params, ctx))
+          .map(|type_params| type_arguments(ctx, type_params, render_ctx))
           .unwrap_or_default();
 
         format!(
@@ -356,14 +377,15 @@ pub fn render_type_def(
 }
 
 fn type_def_join(
+  ctx: &GenerateCtx,
   union: &[crate::ts_type::TsTypeDef],
   join: &str,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if union.len() <= 3 {
     let items = union
       .iter()
-      .map(|element| render_type_def(element, ctx))
+      .map(|element| render_type_def(ctx, element, render_ctx))
       .collect::<Vec<String>>()
       .join(&format!("<span> {join} </span>"));
 
@@ -373,7 +395,7 @@ fn type_def_join(
       write!(
         output,
         "<div><span> {join} </span>{}</div>",
-        render_type_def(element, ctx)
+        render_type_def(ctx, element, render_ctx)
       )
       .unwrap();
       output
@@ -384,20 +406,25 @@ fn type_def_join(
 }
 
 fn type_def_tuple(
+  ctx: &GenerateCtx,
   union: &[crate::ts_type::TsTypeDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if union.len() <= 3 {
     let items = union
       .iter()
-      .map(|element| render_type_def(element, ctx))
+      .map(|element| render_type_def(ctx, element, render_ctx))
       .collect::<Vec<String>>()
       .join(", ");
 
     format!("<span>[{items}]</span>")
   } else {
     let items = union.iter().fold(String::new(), |mut output, element| {
-      let _ = write!(output, "<div>{}</div>, ", render_type_def(element, ctx));
+      let _ = write!(
+        output,
+        "<div>{}</div>, ",
+        render_type_def(ctx, element, render_ctx)
+      );
       output
     });
 
@@ -405,16 +432,19 @@ fn type_def_tuple(
   }
 }
 
-pub fn type_params_summary(
+pub(super) fn type_params_summary(
+  ctx: &GenerateCtx,
   type_params: &[TsTypeParamDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if type_params.is_empty() {
     String::new()
   } else {
     let items = type_params
       .iter()
-      .map(|type_param| type_param_summary(type_param, "extends", ctx))
+      .map(|type_param| {
+        type_param_summary(ctx, type_param, "extends", render_ctx)
+      })
       .collect::<Vec<String>>()
       .join("<span>, </span>");
 
@@ -423,9 +453,10 @@ pub fn type_params_summary(
 }
 
 fn type_param_summary(
+  ctx: &GenerateCtx,
   type_param: &TsTypeParamDef,
   constraint_kind: &str,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let constraint = type_param
     .constraint
@@ -433,7 +464,7 @@ fn type_param_summary(
     .map(|constraint| {
       format!(
         r#"<span><span> {constraint_kind} </span>{}</span>"#,
-        render_type_def(constraint, ctx)
+        render_type_def(ctx, constraint, render_ctx)
       )
     })
     .unwrap_or_default();
@@ -444,7 +475,7 @@ fn type_param_summary(
     .map(|default| {
       format!(
         r#"<span><span> = </span>{}</span>"#,
-        render_type_def(default, ctx)
+        render_type_def(ctx, default, render_ctx)
       )
     })
     .unwrap_or_default();
@@ -455,16 +486,17 @@ fn type_param_summary(
   )
 }
 
-pub fn type_arguments(
+pub(super) fn type_arguments(
+  ctx: &GenerateCtx,
   defs: &[crate::ts_type::TsTypeDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if defs.is_empty() {
     String::new()
   } else {
     let items = defs
       .iter()
-      .map(|def| render_type_def(def, ctx))
+      .map(|def| render_type_def(ctx, def, render_ctx))
       .collect::<Vec<String>>()
       .join("<span>, </span>");
 
@@ -492,7 +524,7 @@ pub(super) fn render_type_params(
         .map(|constraint| {
           format!(
             r#"<span><span> extends </span>{}</span>"#,
-            render_type_def(constraint, render_ctx)
+            render_type_def(ctx, constraint, render_ctx)
           )
         })
         .unwrap_or_default();
@@ -503,7 +535,7 @@ pub(super) fn render_type_params(
         .map(|default| {
           format!(
             r#"<span><span> = </span>{}</span>"#,
-            render_type_def(default, render_ctx)
+            render_type_def(ctx, default, render_ctx)
           )
         })
         .unwrap_or_default();

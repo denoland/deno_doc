@@ -25,7 +25,7 @@ pub(super) fn render_variable(
         ctx,
         &id,
         "",
-        &render_type_def(variable_def.ts_type.as_ref().unwrap(), render_ctx),
+        &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap(), render_ctx),
         None,
         render_ctx,
       )
