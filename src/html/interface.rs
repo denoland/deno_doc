@@ -2,10 +2,11 @@ use super::parameters::render_params;
 use super::util::*;
 use super::GenerateCtx;
 use crate::html::types::render_type_params;
+use serde_json::json;
 use std::fmt::Write;
 
 pub(super) fn render_interface(
-  _ctx: &GenerateCtx,
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
 ) -> String {
@@ -21,15 +22,16 @@ pub(super) fn render_interface(
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}{}</div>"#,
     super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
-    render_type_params(&interface_def.type_params, render_ctx),
-    render_index_signatures(&interface_def.index_signatures, render_ctx),
-    render_call_signatures(&interface_def.call_signatures, render_ctx),
-    render_properties(&interface_def.properties, render_ctx),
-    render_methods(&interface_def.methods, render_ctx),
+    render_type_params(ctx, &interface_def.type_params, render_ctx),
+    render_index_signatures(ctx, &interface_def.index_signatures, render_ctx),
+    render_call_signatures(ctx, &interface_def.call_signatures, render_ctx),
+    render_properties(ctx, &interface_def.properties, render_ctx),
+    render_methods(ctx, &interface_def.methods, render_ctx),
   )
 }
 
 fn render_index_signatures(
+  ctx: &GenerateCtx,
   index_signatures: &[crate::interface::InterfaceIndexSignatureDef],
   render_ctx: &RenderContext,
 ) -> String {
@@ -66,12 +68,16 @@ fn render_index_signatures(
     },
   );
 
-  section("Index Signatures", &items)
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Index Signatures", "content": &items }),
+  )
 }
 
 fn render_call_signatures(
+  ctx: &GenerateCtx,
   call_signatures: &[crate::interface::InterfaceCallSignatureDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if call_signatures.is_empty() {
     return String::new();
@@ -88,7 +94,7 @@ fn render_call_signatures(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, ctx))
+          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
         })
         .unwrap_or_default();
 
@@ -97,21 +103,28 @@ fn render_call_signatures(
         "",
         &format!(
           "{}({}){ts_type}",
-          super::types::type_params_summary(&call_signature.type_params, ctx),
-          render_params(&call_signature.params, ctx),
+          super::types::type_params_summary(
+            &call_signature.type_params,
+            render_ctx
+          ),
+          render_params(&call_signature.params, render_ctx),
         ),
         call_signature.js_doc.doc.as_deref(),
-        ctx,
+        render_ctx,
       )
     })
     .collect::<String>();
 
-  section("Call Signatures", &items)
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Call Signatures", "content": &items }),
+  )
 }
 
 fn render_properties(
+  ctx: &GenerateCtx,
   properties: &[crate::interface::InterfacePropertyDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if properties.is_empty() {
     return String::new();
@@ -143,7 +156,7 @@ fn render_properties(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, ctx))
+          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
         })
         .unwrap_or_default();
 
@@ -156,17 +169,21 @@ fn render_properties(
         },
         &format!("{ts_type}{default_value}"),
         property.js_doc.doc.as_deref(),
-        ctx,
+        render_ctx,
       )
     })
     .collect::<String>();
 
-  section("Properties", &items)
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Properties", "content": &items }),
+  )
 }
 
 fn render_methods(
+  ctx: &GenerateCtx,
   methods: &[crate::interface::InterfaceMethodDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if methods.is_empty() {
     return String::new();
@@ -191,7 +208,7 @@ fn render_methods(
         .return_type
         .as_ref()
         .map(|ts_type| {
-          format!(": {}", super::types::render_type_def(ts_type, ctx))
+          format!(": {}", super::types::render_type_def(ts_type, render_ctx))
         })
         .unwrap_or_default();
 
@@ -200,14 +217,17 @@ fn render_methods(
         &name,
         &format!(
           "{}({}){return_type}",
-          render_type_params(&method.type_params, ctx),
-          render_params(&method.params, ctx)
+          render_type_params(ctx, &method.type_params, render_ctx),
+          render_params(&method.params, render_ctx)
         ),
         method.js_doc.doc.as_deref(),
-        ctx,
+        render_ctx,
       )
     })
     .collect::<String>();
 
-  section("Methods", &items)
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Methods", "content": &items }),
+  )
 }

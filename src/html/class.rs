@@ -6,11 +6,12 @@ use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
+use serde_json::json;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 
 pub(super) fn render_class(
-  _ctx: &GenerateCtx,
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
 ) -> String {
@@ -32,45 +33,62 @@ pub(super) fn render_class(
   let properties = if class_items.properties.is_empty() {
     String::new()
   } else {
-    section(
-      "Properties",
-      &render_class_properties(class_items.properties, render_ctx),
+    ctx.render(
+      "section.html",
+      &json!({
+        "title": "Properties",
+        "content": render_class_properties(class_items.properties, render_ctx)
+      }),
     )
   };
 
   let methods = if class_items.methods.is_empty() {
     String::new()
   } else {
-    section(
-      "Methods",
-      &render_class_methods(class_items.methods, render_ctx),
+    ctx.render(
+      "section.html",
+      &json!({
+        "title": "Methods",
+        "content": render_class_methods(class_items.methods, render_ctx),
+      }),
     )
   };
 
   let static_properties = if class_items.static_properties.is_empty() {
     String::new()
   } else {
-    section(
-      "Static Properties",
-      &render_class_properties(class_items.static_properties, render_ctx),
+    ctx.render(
+      "section.html",
+      &json!({
+        "title": "Static Properties",
+        "content": render_class_properties(class_items.static_properties, render_ctx),
+      })
     )
   };
 
   let static_methods = if class_items.static_methods.is_empty() {
     String::new()
   } else {
-    section(
-      "Static Methods",
-      &render_class_methods(class_items.static_methods, render_ctx),
+    ctx.render(
+      "section.html",
+      &json!({
+        "title": "Static Methods",
+        "content": render_class_methods(class_items.static_methods, render_ctx),
+      }),
     )
   };
 
   format!(
     r#"<div class="doc_block_items">{}{}{}{}{}{}{}{}</div>"#,
     super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
-    render_constructors(&class_def.constructors, &doc_node.name, render_ctx),
-    super::types::render_type_params(&class_def.type_params, render_ctx),
-    render_index_signatures(&class_def.index_signatures, render_ctx),
+    render_constructors(
+      ctx,
+      &class_def.constructors,
+      &doc_node.name,
+      render_ctx
+    ),
+    super::types::render_type_params(ctx, &class_def.type_params, render_ctx),
+    render_index_signatures(ctx, &class_def.index_signatures, render_ctx),
     properties,
     methods,
     static_properties,
@@ -79,9 +97,10 @@ pub(super) fn render_class(
 }
 
 fn render_constructors(
+  ctx: &GenerateCtx,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if constructors.is_empty() {
     return String::new();
@@ -94,14 +113,24 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: tags, render constructor params
-      doc_entry(&id, name, "()", constructor.js_doc.doc.as_deref(), ctx)
+      doc_entry(
+        &id,
+        name,
+        "()",
+        constructor.js_doc.doc.as_deref(),
+        render_ctx,
+      )
     })
     .collect::<String>();
 
-  section("Constructors", &items)
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Constructors", "content": &items }),
+  )
 }
 
 fn render_index_signatures(
+  ctx: &GenerateCtx,
   index_signatures: &[crate::class::ClassIndexSignatureDef],
   render_ctx: &RenderContext,
 ) -> String {
@@ -136,7 +165,10 @@ fn render_index_signatures(
     },
   );
 
-  section("Index Signatures", &items)
+  ctx.render(
+    "section.html",
+    &json!({ "title": "Index Signatures", "content": &items }),
+  )
 }
 
 enum PropertyOrMethod {

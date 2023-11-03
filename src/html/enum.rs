@@ -1,10 +1,10 @@
+use super::GenerateCtx;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-
-use super::GenerateCtx;
+use serde_json::json;
 
 pub(super) fn render_enum(
-  _ctx: &GenerateCtx,
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
 ) -> String {
@@ -34,6 +34,9 @@ pub(super) fn render_enum(
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
     super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
-    section("Members", &items),
+    ctx.render(
+      "section.html",
+      &json!({ "title": "Members", "content": &items })
+    ),
   )
 }

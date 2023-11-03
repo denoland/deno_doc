@@ -7,11 +7,12 @@ use super::GenerateCtx;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
+use serde_json::json;
 
 pub(super) fn render_function(
-  _ctx: &GenerateCtx,
+  ctx: &GenerateCtx,
   doc_nodes: Vec<&crate::DocNode>,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut content = String::with_capacity(16 * 1024);
@@ -31,7 +32,7 @@ pub(super) fn render_function(
       let id = name_to_id("function", &doc_node.name);
 
       {
-        ctx.add_additional_css(format!(
+        render_ctx.add_additional_css(format!(
           r#"
 #{overload_id} {{
   display: none;
@@ -58,7 +59,7 @@ pub(super) fn render_function(
       let summary_doc = if !(function_def.has_body && i == 0) {
         format!(
           r#"<div style="width: 100%;">{}</div>"#,
-          super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx)
+          super::jsdoc::render_docs(&doc_node.js_doc, false, true, render_ctx)
         )
       } else {
         String::new()
@@ -72,11 +73,16 @@ pub(super) fn render_function(
     {summary_doc}
 </label>"#,
         doc_node.name,
-        render_function_summary(function_def, ctx),
+        render_function_summary(function_def, render_ctx),
       ));
     }
 
-    content.push_str(&render_single_function(doc_node, &overload_id, ctx));
+    content.push_str(&render_single_function(
+      ctx,
+      doc_node,
+      &overload_id,
+      render_ctx,
+    ));
   }
 
   format!(
@@ -102,9 +108,10 @@ pub fn render_function_summary(
 }
 
 fn render_single_function(
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   overload_id: &str,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
@@ -113,7 +120,7 @@ fn render_single_function(
     .iter()
     .map(|def| def.name.clone())
     .collect::<std::collections::HashSet<String>>();
-  let ctx = &ctx.with_current_type_params(current_type_params);
+  let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
   // TODO: tags
 
@@ -146,29 +153,35 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| format!(": {}", render_type_def(ts_type, ctx)))
+        .map(|ts_type| format!(": {}", render_type_def(ts_type, render_ctx)))
         .unwrap_or_default();
 
       // TODO: default_value, tags
 
-      doc_entry(&id, &name, &ts_type, param_docs.get(i).copied(), ctx)
+      doc_entry(&id, &name, &ts_type, param_docs.get(i).copied(), render_ctx)
     })
     .collect::<String>();
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    render_type_params(&function_def.type_params, ctx),
-    section("Parameters", &params),
-    section(
-      "Return Type",
-      &render_function_return_type(
-        function_def,
-        &doc_node.js_doc,
-        overload_id,
-        ctx
-      )
+    super::jsdoc::render_docs(&doc_node.js_doc, true, false, render_ctx),
+    render_type_params(ctx, &function_def.type_params, render_ctx),
+    ctx.render(
+      "section.html",
+      &json!({ "title": "Parameters", "content": &params })
     ),
+    ctx.render(
+      "section.html",
+      &json!({
+        "title": "Return Type",
+        "content": &render_function_return_type(
+          function_def,
+          &doc_node.js_doc,
+          overload_id,
+          render_ctx
+        )
+      })
+    )
   )
 }
 

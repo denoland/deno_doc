@@ -1,10 +1,12 @@
 use super::parameters::render_params;
 use super::util::*;
+use super::GenerateCtx;
 use crate::ts_type::LiteralDefKind;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
+use serde_json::json;
 use std::fmt::Write;
 
 pub fn render_type_def(
@@ -470,9 +472,10 @@ pub fn type_arguments(
   }
 }
 
-pub fn render_type_params(
+pub(super) fn render_type_params(
+  ctx: &GenerateCtx,
   type_params: &[TsTypeParamDef],
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   if type_params.is_empty() {
     return String::new();
@@ -489,7 +492,7 @@ pub fn render_type_params(
         .map(|constraint| {
           format!(
             r#"<span><span> extends </span>{}</span>"#,
-            render_type_def(constraint, ctx)
+            render_type_def(constraint, render_ctx)
           )
         })
         .unwrap_or_default();
@@ -500,7 +503,7 @@ pub fn render_type_params(
         .map(|default| {
           format!(
             r#"<span><span> = </span>{}</span>"#,
-            render_type_def(default, ctx)
+            render_type_def(default, render_ctx)
           )
         })
         .unwrap_or_default();
@@ -510,10 +513,16 @@ pub fn render_type_params(
         &type_param.name,
         &format!("{constraint}{default}"),
         None,
-        ctx,
+        render_ctx,
       )
     })
     .collect::<String>();
 
-  section("Type Parameters", &items)
+  ctx.render(
+    "section.html",
+    &json!({
+      "title": "Type Parameters",
+      "content": &items
+    }),
+  )
 }
