@@ -34,7 +34,7 @@ pub(super) fn render_enum(
 
   format!(
     r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
+    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc,),
     ctx.render(
       "section.html",
       &json!({ "title": "Members", "content": &items })

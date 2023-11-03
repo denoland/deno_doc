@@ -125,12 +125,14 @@ struct ExampleRenderCtx {
   markdown_body: String,
 }
 
-pub(super) fn render_docs(
+// TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
+// use an enum instead?
+fn render_docs_inner(
   ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
-  render_ctx: &RenderContext,
 ) -> String {
   let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
     render_markdown(doc, summary, render_ctx)
@@ -170,6 +172,22 @@ pub(super) fn render_docs(
   }
 
   doc
+}
+
+pub(super) fn render_docs_summary(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> String {
+  render_docs_inner(ctx, render_ctx, js_doc, false, true)
+}
+
+pub(super) fn render_docs_with_examples(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> String {
+  render_docs_inner(ctx, render_ctx, js_doc, true, true)
 }
 
 fn get_example_render_ctx(

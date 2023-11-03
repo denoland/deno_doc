@@ -59,13 +59,7 @@ pub(super) fn render_function(
       let summary_doc = if !(function_def.has_body && i == 0) {
         format!(
           r#"<div style="width: 100%;">{}</div>"#,
-          super::jsdoc::render_docs(
-            ctx,
-            &doc_node.js_doc,
-            false,
-            true,
-            render_ctx
-          )
+          super::jsdoc::render_docs_summary(ctx, render_ctx, &doc_node.js_doc)
         )
       } else {
         String::new()
@@ -180,7 +174,7 @@ fn render_single_function(
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
+    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc,),
     render_type_params(ctx, &function_def.type_params, render_ctx),
     ctx.render(
       "section.html",

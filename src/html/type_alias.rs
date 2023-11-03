@@ -22,7 +22,7 @@ pub(super) fn render_type_alias(
   // TODO: tags, TypeParamsDoc
   format!(
     r#"<div class="doc_block_items">{}{}{}</div>"#,
-    super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
+    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
     super::types::render_type_params(ctx, &type_alias_def.type_params, render_ctx),
     ctx.render(
       "section.html",

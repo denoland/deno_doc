@@ -54,7 +54,7 @@ pub(super) fn render_namespace(
   let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
 
   ctx.render("namespace.html", &json!({
-    "docs": super::jsdoc::render_docs(ctx, &doc_node.js_doc, true, false, render_ctx),
+    "docs": super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc),
     "namespace": namespace_ctx
   }))
 }
@@ -144,12 +144,10 @@ fn get_namespace_section_render_ctx(
         path,
         name,
         // TODO(bartlomieju): make it a template
-        docs: super::jsdoc::render_docs(
+        docs: super::jsdoc::render_docs_summary(
           ctx,
-          &doc_node.js_doc,
-          false,
-          true,
           render_ctx,
+          &doc_node.js_doc,
         ),
       }
     })
