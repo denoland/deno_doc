@@ -13,6 +13,7 @@ pub fn name_to_id(kind: &str, name: &str) -> String {
 
 // TODO(bartlomieju): make it a template
 pub fn section_title(title: &str) -> String {
+  // TODO(bartlomieju): this could be a TinyTemplate formatter
   let id = TARGET_RE.replace_all(title, "_");
 
   format!(
