@@ -7,6 +7,7 @@ use super::GenerateCtx;
 use crate::function::FunctionDef;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
+use serde::Serialize;
 use serde_json::json;
 
 fn render_css_for_fn(overload_id: &str) -> String {
@@ -30,6 +31,21 @@ fn render_css_for_fn(overload_id: &str) -> String {
   )
 }
 
+#[derive(Serialize)]
+struct OverloadRenderCtx {
+  id: String,
+  name: String,
+  summary: String,
+  summary_doc: String,
+}
+
+#[derive(Serialize)]
+struct FunctionRenderCtx {
+  overload_inputs: String,
+  overload_labels: Vec<OverloadRenderCtx>,
+  content: String,
+}
+
 pub(super) fn render_function(
   ctx: &GenerateCtx,
   doc_nodes: Vec<&crate::DocNode>,
@@ -38,7 +54,8 @@ pub(super) fn render_function(
   // TODO: this needs to be handled more gracefully on the frontend
   let mut content = String::with_capacity(16 * 1024);
   let mut overload_inputs = String::with_capacity(1024);
-  let mut overload_labels = String::with_capacity(1024);
+  // TODO(bartlomieju): use `with_capacity`
+  let mut overload_labels = vec![];
 
   for (i, doc_node) in doc_nodes.into_iter().enumerate() {
     let function_def = doc_node.function_def.as_ref().unwrap();
@@ -49,39 +66,32 @@ pub(super) fn render_function(
 
     let overload_id = name_to_id("function", &format!("{}_{i}", doc_node.name));
 
-    {
-      let id = name_to_id("function", &doc_node.name);
+    let id = name_to_id("function", &doc_node.name);
 
-      {
-        let css = render_css_for_fn(&overload_id);
-        render_ctx.add_additional_css(css);
-      }
+    let css = render_css_for_fn(&overload_id);
+    // TODO(bartlomieju): maybe directly render <style> tag so we don't need `ctx` here?
+    render_ctx.add_additional_css(css);
 
-      overload_inputs.push_str(&format!(
-        r#"<input type="radio" name="{id}" id="{overload_id}" {} />"#,
-        (i == 0).then_some("checked").unwrap_or_default()
-      ));
+    overload_inputs.push_str(&format!(
+      r#"<input type="radio" name="{id}" id="{overload_id}" {} />"#,
+      (i == 0).then_some("checked").unwrap_or_default()
+    ));
 
-      let summary_doc = if !(function_def.has_body && i == 0) {
-        format!(
-          r#"<div style="width: 100%;">{}</div>"#,
-          super::jsdoc::render_docs_summary(ctx, render_ctx, &doc_node.js_doc)
-        )
-      } else {
-        String::new()
-      };
+    let summary_doc = if !(function_def.has_body && i == 0) {
+      format!(
+        r#"<div style="width: 100%;">{}</div>"#,
+        super::jsdoc::render_docs_summary(ctx, render_ctx, &doc_node.js_doc)
+      )
+    } else {
+      String::new()
+    };
 
-      overload_labels.push_str(&format!(
-        r#"<label for="{overload_id}" class="function_overload_label">
-    <code>
-      <span style="font-weight: 700;">{}</span><span style="font-weight: 500;">{}</span>
-    </code>
-    {summary_doc}
-</label>"#,
-        doc_node.name,
-        render_function_summary(ctx, function_def, render_ctx),
-      ));
-    }
+    overload_labels.push(OverloadRenderCtx {
+      id: overload_id.to_string(),
+      name: doc_node.name.to_string(),
+      summary: render_function_summary(ctx, function_def, render_ctx),
+      summary_doc,
+    });
 
     content.push_str(&render_single_function(
       ctx,
@@ -91,14 +101,12 @@ pub(super) fn render_function(
     ));
   }
 
-  ctx.render(
-    "function.html",
-    &json!({
-      "overload_inputs": overload_inputs,
-      "overload_labels": overload_labels,
-      "content": content,
-    }),
-  )
+  let function_ctx = FunctionRenderCtx {
+    overload_inputs,
+    overload_labels,
+    content,
+  };
+  ctx.render("function.html", &function_ctx)
 }
 
 pub(super) fn render_function_summary(

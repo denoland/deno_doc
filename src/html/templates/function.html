@@ -1,6 +1,13 @@
 {overload_inputs}
 <div class="function_overload_selectors">
-  {overload_labels}
+  {{ for overload_label in overload_labels }}
+    <label for="{ overload_label.id }" class="function_overload_label">
+      <code>
+        <span style="font-weight: 700;">{ overload_label.name }</span><span style="font-weight: 500;">{ overload_label.summary }</span>
+      </code>
+      { overload_label.summary_doc }
+    </label>
+  {{ endfor }}
 </div>
 <div>
   {content}
