@@ -7,7 +7,6 @@ use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
 use serde_json::json;
-use std::fmt::Write;
 
 pub(super) fn render_type_def(
   ctx: &GenerateCtx,
@@ -207,120 +206,118 @@ pub(super) fn render_type_def(
       TsTypeDefKind::TypeLiteral => {
         let type_literal = def.type_literal.as_ref().unwrap();
 
-        let index_signatures = type_literal.index_signatures.iter().fold(
-          String::new(),
-          |mut output, index_signature| {
-            let readonly = index_signature
-              .readonly
-              .then_some("<span>readonly </span>")
-              .unwrap_or_default();
+        let mut index_signatures =
+          Vec::with_capacity(type_literal.index_signatures.len());
 
-            let ts_type = index_signature
-              .ts_type
-              .as_ref()
-              .map(|ts_type| {
-                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
-              })
-              .unwrap_or_default();
+        for index_signature in type_literal.index_signatures.iter() {
+          let readonly = index_signature
+            .readonly
+            .then_some("<span>readonly </span>")
+            .unwrap_or_default();
 
-            write!(
-              output,
-              "{readonly}[{}]{ts_type}; ",
-              render_params(ctx, &index_signature.params, render_ctx)
-            )
-            .unwrap();
-            output
-          },
-        );
+          let ts_type = index_signature
+            .ts_type
+            .as_ref()
+            .map(|ts_type| {
+              format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+            })
+            .unwrap_or_default();
 
-        let call_signatures = type_literal.call_signatures.iter().fold(
-          String::new(),
-          |mut output, call_signature| {
-            let ts_type = call_signature
-              .ts_type
-              .as_ref()
-              .map(|ts_type| {
-                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
-              })
-              .unwrap_or_default();
+          let item = format!(
+            "{readonly}[{}]{ts_type}; ",
+            render_params(ctx, &index_signature.params, render_ctx)
+          );
+          index_signatures.push(item);
+        }
 
-            write!(
-              output,
-              "{}({}){ts_type}; ",
-              type_params_summary(ctx, &call_signature.type_params, render_ctx),
-              render_params(ctx, &call_signature.params, render_ctx)
-            )
-            .unwrap();
-            output
-          },
-        );
+        let index_signatures = index_signatures.join("");
 
-        let properties = type_literal.properties.iter().fold(
-          String::new(),
-          |mut output, property| {
-            let readonly = property
-              .readonly
-              .then_some("<span>readonly </span>")
-              .unwrap_or_default();
+        let mut call_signatures =
+          Vec::with_capacity(type_literal.call_signatures.len());
 
-            let name = if property.computed {
-              format!("[{}]", property.name)
-            } else {
-              property.name.clone()
-            };
+        for call_signature in type_literal.call_signatures.iter() {
+          let ts_type = call_signature
+            .ts_type
+            .as_ref()
+            .map(|ts_type| {
+              format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+            })
+            .unwrap_or_default();
 
-            let optional = property.optional.then_some("?").unwrap_or_default();
+          let item = format!(
+            "{}({}){ts_type}; ",
+            type_params_summary(ctx, &call_signature.type_params, render_ctx),
+            render_params(ctx, &call_signature.params, render_ctx)
+          );
+          call_signatures.push(item);
+        }
+        let call_signatures = call_signatures.join("");
 
-            let ts_type = property
-              .ts_type
-              .as_ref()
-              .map(|ts_type| {
-                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
-              })
-              .unwrap_or_default();
+        let mut properties = Vec::with_capacity(type_literal.properties.len());
 
-            write!(output, "{readonly}{name}{optional}{ts_type}; ").unwrap();
-            output
-          },
-        );
+        for property in type_literal.properties.iter() {
+          let readonly = property
+            .readonly
+            .then_some("<span>readonly </span>")
+            .unwrap_or_default();
 
-        let methods = type_literal.methods.iter().fold(
-          String::new(),
-          |mut output, method| {
-            let kind = match method.kind {
-              MethodKind::Method => "",
-              MethodKind::Getter => "<span>get </span>",
-              MethodKind::Setter => "<span>set </span>",
-            };
+          let name = if property.computed {
+            format!("[{}]", property.name)
+          } else {
+            property.name.clone()
+          };
 
-            let name = if method.name == "new" {
-              "<span>new </span>".to_string()
-            } else if method.computed {
-              format!("[{}]", method.name)
-            } else {
-              method.name.clone()
-            };
+          let optional = property.optional.then_some("?").unwrap_or_default();
 
-            let optional = method.optional.then_some("?").unwrap_or_default();
+          let ts_type = property
+            .ts_type
+            .as_ref()
+            .map(|ts_type| {
+              format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+            })
+            .unwrap_or_default();
 
-            let return_type = method
-              .return_type
-              .as_ref()
-              .map(|ts_type| {
-                format!(": {}", render_type_def(ctx, ts_type, render_ctx))
-              })
-              .unwrap_or_default();
+          let item = format!("{readonly}{name}{optional}{ts_type}; ");
+          properties.push(item);
+        }
+        let properties = properties.join("");
 
-            write!(
-              output,
-              "{kind}{name}{optional}{}({}){return_type}; ",
-              type_params_summary(ctx, &method.type_params, render_ctx),
-              render_params(ctx, &method.params, render_ctx)
-            )
-            .unwrap();
-            output
-          },
-        );
+        let mut methods = Vec::with_capacity(type_literal.methods.len());
+
+        for method in type_literal.methods.iter() {
+          let kind = match method.kind {
+            MethodKind::Method => "",
+            MethodKind::Getter => "<span>get </span>",
+            MethodKind::Setter => "<span>set </span>",
+          };
+
+          let name = if method.name == "new" {
+            "<span>new </span>".to_string()
+          } else if method.computed {
+            format!("[{}]", method.name)
+          } else {
+            method.name.clone()
+          };
+
+          let optional = method.optional.then_some("?").unwrap_or_default();
+
+          let return_type = method
+            .return_type
+            .as_ref()
+            .map(|ts_type| {
+              format!(": {}", render_type_def(ctx, ts_type, render_ctx))
+            })
+            .unwrap_or_default();
+
+          let item = format!(
+            "{kind}{name}{optional}{}({}){return_type}; ",
+            type_params_summary(ctx, &method.type_params, render_ctx),
+            render_params(ctx, &method.params, render_ctx)
+          );
+
+          methods.push(item);
+        }
+        let methods = methods.join("");
 
         format!(
           "{{ {index_signatures}{call_signatures}{properties}{methods} }}"
@@ -391,17 +388,18 @@ fn type_def_join(
 
     format!("<span>{items}</span>")
   } else {
-    let items = union.iter().fold(String::new(), |mut output, element| {
-      write!(
-        output,
+    let mut items = Vec::with_capacity(union.len());
+
+    for element in union {
+      items.push(format!(
         "<div><span> {join} </span>{}</div>",
         render_type_def(ctx, element, render_ctx)
-      )
-      .unwrap();
-      output
-    });
+      ));
+    }
 
-    format!(r#"<div class="indent">{items}</div>"#)
+    let content = items.join("");
+
+    format!(r#"<div class="indent">{content}</div>"#)
   }
 }
 
@@ -419,16 +417,17 @@ fn type_def_tuple(
 
     format!("<span>[{items}]</span>")
   } else {
-    let items = union.iter().fold(String::new(), |mut output, element| {
-      let _ = write!(
-        output,
+    let mut items = Vec::with_capacity(union.len());
+
+    for element in union {
+      items.push(format!(
         "<div>{}</div>, ",
         render_type_def(ctx, element, render_ctx)
-      );
-      output
-    });
+      ));
+    }
 
-    format!(r#"<div class="indent">[{items}]</div>"#)
+    let content = items.join("");
+    format!(r#"<div class="indent">[{content}]</div>"#)
   }
 }
 

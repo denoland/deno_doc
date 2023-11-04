@@ -3,7 +3,6 @@ use super::util::*;
 use super::GenerateCtx;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
-use std::fmt::Write;
 
 pub(super) fn render_params(
   ctx: &GenerateCtx,
@@ -22,21 +21,19 @@ pub(super) fn render_params(
 
     format!("<span>{items}</span>")
   } else {
-    let items =
-      params
-        .iter()
-        .enumerate()
-        .fold(String::new(), |mut output, (i, def)| {
-          write!(
-            output,
-            "<div>{}</div>",
-            render_param(ctx, def, i, render_ctx)
-          )
-          .unwrap();
-          output
-        });
+    // TODO(bartlomieju): refactor to use template
+    let mut items = Vec::with_capacity(params.len());
 
-    format!(r#"<div class="ident">{items}</div>"#)
+    for (i, def) in params.iter().enumerate() {
+      items.push(format!(
+        "<div>{}</div>",
+        render_param(ctx, def, i, render_ctx)
+      ));
+    }
+
+    let content = items.join("");
+
+    format!(r#"<div class="ident">{content}</div>"#)
   }
 }
 

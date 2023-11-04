@@ -8,7 +8,6 @@ use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde_json::json;
 use std::collections::BTreeMap;
-use std::fmt::Write;
 
 pub(super) fn render_class(
   ctx: &GenerateCtx,
@@ -138,38 +137,36 @@ fn render_index_signatures(
     return String::new();
   }
 
-  let items = index_signatures.iter().enumerate().fold(
-    String::new(),
-    |mut output, (i, index_signature)| {
-      let id = name_to_id("index_signature", &i.to_string());
+  let mut items = Vec::with_capacity(index_signatures.len());
 
-      let readonly = index_signature
-        .readonly
-        .then_some("<span>readonly </span>")
-        .unwrap_or_default();
+  for (i, index_signature) in index_signatures.iter().enumerate() {
+    let id = name_to_id("index_signature", &i.to_string());
 
-      let ts_type = index_signature
-        .ts_type
-        .as_ref()
-        .map(|ts_type| {
-          format!(": {}", render_type_def(ctx, ts_type, render_ctx))
-        })
-        .unwrap_or_default();
+    let readonly = index_signature
+      .readonly
+      .then_some("<span>readonly </span>")
+      .unwrap_or_default();
 
-      write!(
-        output,
-        r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-        ctx.render("anchor.html", &json!({ "href": &id })),
-        render_params(ctx, &index_signature.params, render_ctx),
-      )
-      .unwrap();
-      output
-    },
-  );
+    let ts_type = index_signature
+      .ts_type
+      .as_ref()
+      .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type, render_ctx)))
+      .unwrap_or_default();
+
+    let content = format!(
+      r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
+      ctx.render("anchor.html", &json!({ "href": &id })),
+      render_params(ctx, &index_signature.params, render_ctx),
+    );
+
+    items.push(content);
+  }
+
+  let content = items.join("");
 
   ctx.render(
     "section.html",
-    &json!({ "title": "Index Signatures", "content": &items }),
+    &json!({ "title": "Index Signatures", "content": &content }),
   )
 }
 
