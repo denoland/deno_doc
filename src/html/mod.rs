@@ -12,6 +12,9 @@ use crate::html::util::RenderContext;
 use crate::node::Location;
 use crate::{DocNode, DocNodeKind};
 
+use self::namespace::NamespaceRenderCtx;
+use self::symbol::SymbolGroupCtx;
+
 mod class;
 mod r#enum;
 mod function;
@@ -301,6 +304,15 @@ struct HtmlTailCtx {
   url_search: String,
 }
 
+#[derive(Serialize)]
+struct CompoundIndexCtx {
+  html_head_ctx: HtmlHeadCtx,
+  html_tail_ctx: HtmlTailCtx,
+  sidepanel_ctx: serde_json::Value,
+  search_bar: String,
+  module_docs: Vec<serde_json::Value>,
+}
+
 fn render_compound_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -351,17 +363,24 @@ fn render_compound_index(
     url_search: format!("./{}", SEARCH_FILENAME),
   };
 
-  Ok(ctx.render(
-    "compound_index.html",
-    &json!({
-      // TODO(bartlomieju): dedup with `render_page`
-      "html_head": html_head_ctx,
-      "html_tail": html_tail_ctx,
-      "sidepanel": sidepanel_ctx,
-      "search_bar": SEARCH_BAR,
-      "module_docs": module_docs
-    }),
-  ))
+  let compound_index_ctx = CompoundIndexCtx {
+    html_head_ctx,
+    html_tail_ctx,
+    sidepanel_ctx,
+    search_bar: SEARCH_BAR.to_string(),
+    module_docs,
+  };
+
+  Ok(ctx.render("compound_index.html", &compound_index_ctx))
+}
+
+#[derive(Serialize)]
+struct IndexCtx {
+  html_head_ctx: HtmlHeadCtx,
+  html_tail_ctx: HtmlTailCtx,
+  sidepanel_ctx: SidepanelRenderCtx,
+  search_bar: String,
+  namespace_ctx: NamespaceRenderCtx,
 }
 
 fn render_index(
@@ -386,18 +405,15 @@ fn render_index(
     fuse_js: format!("./{}", FUSE_FILENAME),
     url_search: format!("./{}", SEARCH_FILENAME),
   };
+  let index_ctx = IndexCtx {
+    html_head_ctx,
+    html_tail_ctx,
+    sidepanel_ctx: sidepanel_ctx.clone(),
+    search_bar: SEARCH_BAR.to_string(),
+    namespace_ctx,
+  };
 
-  Ok(ctx.render(
-    "index_list.html",
-    &json!({
-      // TODO(bartlomieju): dedup with `render_page`
-      "html_head": html_head_ctx,
-      "html_tail": html_tail_ctx,
-      "sidepanel": sidepanel_ctx,
-      "search_bar": SEARCH_BAR,
-      "namespace": namespace_ctx
-    }),
-  ))
+  Ok(ctx.render("index_list.html", &index_ctx))
 }
 
 fn partition_nodes_by_name(
@@ -451,6 +467,16 @@ fn get_current_symbols(
   current_symbols
 }
 
+#[derive(Serialize)]
+struct PageCtx {
+  html_head_ctx: HtmlHeadCtx,
+  html_tail_ctx: HtmlTailCtx,
+  sidepanel_ctx: SidepanelRenderCtx,
+  search_bar: String,
+  base_url: String,
+  symbol_group_ctx: SymbolGroupCtx,
+}
+
 fn render_page(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
@@ -464,7 +490,7 @@ fn render_page(
   let render_ctx = RenderContext::new(current_symbols, namespace);
 
   // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group =
+  let symbol_group_ctx =
     symbol::get_symbol_group_ctx(ctx, doc_nodes, name, &render_ctx);
 
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
@@ -485,19 +511,16 @@ fn render_page(
     fuse_js: format!("./{}{}", backs, FUSE_FILENAME),
     url_search: format!("./{}{}", backs, SEARCH_FILENAME),
   };
+  let page_ctx = PageCtx {
+    html_head_ctx,
+    html_tail_ctx,
+    sidepanel_ctx,
+    search_bar: SEARCH_BAR.to_string(),
+    base_url: format!("./{backs}index.html"),
+    symbol_group_ctx,
+  };
 
-  Ok(ctx.render(
-    "page.html",
-    &json!({
-      // TODO(bartlomieju): dedup with `render_index`
-      "html_head": html_head_ctx,
-      "html_tail": html_tail_ctx,
-      "sidepanel": sidepanel_ctx,
-      "search_bar": SEARCH_BAR,
-      "base_url": format!("./{backs}index.html"),
-      "symbol_group": symbol_group
-    }),
-  ))
+  Ok(ctx.render("page.html", &page_ctx))
 }
 
 #[derive(Debug, Serialize, Clone)]

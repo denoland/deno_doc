@@ -1,6 +1,6 @@
-{{ call html_head.html with html_head }}
+{{ call html_head.html with html_head_ctx }}
 
-{{ call sidepanel.html with sidepanel }}
+{{ call sidepanel.html with sidepanel_ctx }}
 
 <div id="content">
   <h2>Index</h2>
@@ -8,11 +8,11 @@
   {search_bar}
 
   <main>
-    {{ for section in namespace.sections }}
+    {{ for section in namespace_ctx.sections }}
       {{ call namespace_section.html with section }}
     {{ endfor }}
   </main>
   <div id="searchResults"></div>
 </div>
 
-{{ call html_tail.html with html_tail }}
+{{ call html_tail.html with html_tail_ctx }}
