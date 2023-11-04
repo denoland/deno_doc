@@ -1,3 +1,4 @@
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use crate::html::GenerateCtx;
@@ -28,11 +29,11 @@ pub(crate) fn render_type_alias(
         "title": "Definition",
         "content": &render_doc_entry(
           ctx,
+          render_ctx,
           &id,
           "",
           &format!(": {}", render_type_def(ctx, &type_alias_def.ts_type, render_ctx)),
           None,
-          render_ctx,
         )
       }),
     ),

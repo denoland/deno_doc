@@ -1,10 +1,7 @@
 use crate::DocNodeKind;
-use serde_json::json;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
-
-use crate::html::GenerateCtx;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -21,33 +18,6 @@ pub fn section_title(title: &str) -> String {
 
   format!(
     r##"<h2 class="section_title" id="{id}"><a href="#{id}" aria-label="Anchor">{title}</a></h2>"##
-  )
-}
-
-pub(crate) fn render_doc_entry(
-  ctx: &GenerateCtx,
-  id: &str,
-  name: &str,
-  content: &str,
-  jsdoc: Option<&str>,
-  render_ctx: &RenderContext,
-) -> String {
-  let maybe_jsdoc = jsdoc
-    .map(|doc| crate::html::jsdoc::render_markdown(doc, render_ctx))
-    .unwrap_or_default();
-
-  // TODO: sourceHref
-  ctx.render(
-    "doc_entry.html",
-    &json!({
-      "id": id,
-      "name": name,
-      "content": content,
-      "anchor": {
-        "href": id
-      },
-      "jsdoc": maybe_jsdoc,
-    }),
   )
 }
 

@@ -1,3 +1,4 @@
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
 use crate::html::util::*;
 use crate::html::GenerateCtx;
@@ -541,11 +542,11 @@ pub(crate) fn render_type_params(
 
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         &type_param.name,
         &format!("{constraint}{default}"),
         None,
-        render_ctx,
       )
     })
     .collect::<String>();

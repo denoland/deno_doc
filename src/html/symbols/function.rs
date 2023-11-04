@@ -1,4 +1,5 @@
 use crate::function::FunctionDef;
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_params;
@@ -186,11 +187,11 @@ fn render_single_function(
 
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         &name,
         &ts_type,
         param_docs.get(i).copied(),
-        render_ctx,
       )
     })
     .collect::<String>();
@@ -246,10 +247,10 @@ fn render_function_return_type(
 
   render_doc_entry(
     ctx,
+    render_ctx,
     &id,
     "",
     &render_type_def(ctx, return_type, render_ctx),
     return_type_doc,
-    render_ctx,
   )
 }

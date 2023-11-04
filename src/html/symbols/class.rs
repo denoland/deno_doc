@@ -1,5 +1,6 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
@@ -117,11 +118,11 @@ fn render_constructors(
       // TODO: tags, render constructor params
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         name,
         "()",
         constructor.js_doc.doc.as_deref(),
-        render_ctx,
       )
     })
     .collect::<String>();
@@ -351,7 +352,7 @@ fn render_class_accessor(
 
   // TODO: tags
 
-  render_doc_entry(ctx, &id, name, &ts_type, js_doc, render_ctx)
+  render_doc_entry(ctx, render_ctx, &id, name, &ts_type, js_doc)
 }
 
 fn render_class_method(
@@ -370,6 +371,7 @@ fn render_class_method(
 
   render_doc_entry(
     ctx,
+    render_ctx,
     &id,
     &method.name,
     &super::function::render_function_summary(
@@ -378,7 +380,6 @@ fn render_class_method(
       render_ctx,
     ),
     method.js_doc.doc.as_deref(),
-    render_ctx,
   )
 }
 
@@ -399,11 +400,11 @@ fn render_class_property(
 
   render_doc_entry(
     ctx,
+    render_ctx,
     &id,
     &property.name,
     &ts_type,
     property.js_doc.doc.as_deref(),
-    render_ctx,
   )
 }
 

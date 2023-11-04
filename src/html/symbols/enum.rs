@@ -1,3 +1,4 @@
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use crate::html::GenerateCtx;
@@ -19,6 +20,7 @@ pub(crate) fn render_enum(
         name_to_id("enum", &format!("{}_{}", &doc_node.name, &member.name));
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         &member.name,
         &member
@@ -27,7 +29,6 @@ pub(crate) fn render_enum(
           .map(|init| format!(" = {}", render_type_def(ctx, init, render_ctx)))
           .unwrap_or_default(),
         member.js_doc.doc.as_deref(),
-        render_ctx,
       )
     })
     .collect::<String>();

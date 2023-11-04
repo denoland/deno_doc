@@ -1,3 +1,4 @@
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
 use crate::html::types::render_type_params;
 use crate::html::util::*;
@@ -103,6 +104,7 @@ fn render_call_signatures(
 
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         "",
         &format!(
@@ -115,7 +117,6 @@ fn render_call_signatures(
           render_params(ctx, &call_signature.params, render_ctx),
         ),
         call_signature.js_doc.doc.as_deref(),
-        render_ctx,
       )
     })
     .collect::<String>();
@@ -170,6 +171,7 @@ fn render_properties(
 
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         &if property.computed {
           format!("[{}]", property.name)
@@ -178,7 +180,6 @@ fn render_properties(
         },
         &format!("{ts_type}{default_value}"),
         property.js_doc.doc.as_deref(),
-        render_ctx,
       )
     })
     .collect::<String>();
@@ -226,6 +227,7 @@ fn render_methods(
 
       render_doc_entry(
         ctx,
+        render_ctx,
         &id,
         &name,
         &format!(
@@ -234,7 +236,6 @@ fn render_methods(
           render_params(ctx, &method.params, render_ctx)
         ),
         method.js_doc.doc.as_deref(),
-        render_ctx,
       )
     })
     .collect::<String>();

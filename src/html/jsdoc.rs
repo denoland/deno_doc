@@ -237,3 +237,30 @@ fn render_example(
   // TODO: icons
   ctx.render("example.html", &example_render_ctx)
 }
+
+pub(crate) fn render_doc_entry(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  id: &str,
+  name: &str,
+  content: &str,
+  jsdoc: Option<&str>,
+) -> String {
+  let maybe_jsdoc = jsdoc
+    .map(|doc| render_markdown(doc, render_ctx))
+    .unwrap_or_default();
+
+  // TODO: sourceHref
+  ctx.render(
+    "doc_entry.html",
+    &json!({
+      "id": id,
+      "name": name,
+      "content": content,
+      "anchor": {
+        "href": id
+      },
+      "jsdoc": maybe_jsdoc,
+    }),
+  )
+}

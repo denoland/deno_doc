@@ -1,3 +1,4 @@
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use serde_json::json;
@@ -21,11 +22,11 @@ pub(crate) fn render_variable(
     "title": "type",
     "content": render_doc_entry(
       ctx,
+      render_ctx,
       &id,
       "",
       &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap(), render_ctx),
       None,
-      render_ctx,
     )
   }))
 }
