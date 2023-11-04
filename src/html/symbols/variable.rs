@@ -2,9 +2,9 @@ use crate::html::types::render_type_def;
 use crate::html::util::*;
 use serde_json::json;
 
-use super::GenerateCtx;
+use crate::html::GenerateCtx;
 
-pub(super) fn render_variable(
+pub(crate) fn render_variable(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,

@@ -1,15 +1,15 @@
-use super::parameters::render_params;
-use super::types::render_type_def;
-use super::util::*;
-use super::GenerateCtx;
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
+use crate::html::parameters::render_params;
+use crate::html::types::render_type_def;
+use crate::html::util::*;
+use crate::html::GenerateCtx;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde_json::json;
 use std::collections::BTreeMap;
 
-pub(super) fn render_class(
+pub(crate) fn render_class(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
@@ -84,7 +84,11 @@ pub(super) fn render_class(
       &doc_node.name,
       render_ctx,
     ),
-    super::types::render_type_params(ctx, &class_def.type_params, render_ctx),
+    crate::html::types::render_type_params(
+      ctx,
+      &class_def.type_params,
+      render_ctx,
+    ),
     render_index_signatures(ctx, &class_def.index_signatures, render_ctx),
     properties,
     methods,

@@ -1,10 +1,10 @@
-use super::parameters::render_params;
-use super::util::*;
-use super::GenerateCtx;
+use crate::html::parameters::render_params;
 use crate::html::types::render_type_params;
+use crate::html::util::*;
+use crate::html::GenerateCtx;
 use serde_json::json;
 
-pub(super) fn render_interface(
+pub(crate) fn render_interface(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
@@ -53,7 +53,7 @@ fn render_index_signatures(
       .map(|ts_type| {
         format!(
           ": {}",
-          super::types::render_type_def(ctx, ts_type, render_ctx)
+          crate::html::types::render_type_def(ctx, ts_type, render_ctx)
         )
       })
       .unwrap_or_default();
@@ -96,7 +96,7 @@ fn render_call_signatures(
         .map(|ts_type| {
           format!(
             ": {}",
-            super::types::render_type_def(ctx, ts_type, render_ctx)
+            crate::html::types::render_type_def(ctx, ts_type, render_ctx)
           )
         })
         .unwrap_or_default();
@@ -107,7 +107,7 @@ fn render_call_signatures(
         "",
         &format!(
           "{}({}){ts_type}",
-          super::types::type_params_summary(
+          crate::html::types::type_params_summary(
             ctx,
             &call_signature.type_params,
             render_ctx
@@ -163,7 +163,7 @@ fn render_properties(
         .map(|ts_type| {
           format!(
             ": {}",
-            super::types::render_type_def(ctx, ts_type, render_ctx)
+            crate::html::types::render_type_def(ctx, ts_type, render_ctx)
           )
         })
         .unwrap_or_default();
@@ -219,7 +219,7 @@ fn render_methods(
         .map(|ts_type| {
           format!(
             ": {}",
-            super::types::render_type_def(ctx, ts_type, render_ctx)
+            crate::html::types::render_type_def(ctx, ts_type, render_ctx)
           )
         })
         .unwrap_or_default();

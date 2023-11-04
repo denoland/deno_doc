@@ -1,5 +1,5 @@
-use super::util::*;
-use super::GenerateCtx;
+use crate::html::util::*;
+use crate::html::GenerateCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use serde::Serialize;
@@ -109,14 +109,14 @@ fn render_markdown_inner(
   format!(r#"<div class="{class_name}">{html}</div>"#,)
 }
 
-pub(super) fn render_markdown_summary(
+pub(crate) fn render_markdown_summary(
   md: &str,
   render_ctx: &RenderContext,
 ) -> String {
   render_markdown_inner(md, render_ctx, true)
 }
 
-pub(super) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
+pub(crate) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
   render_markdown_inner(md, render_ctx, false)
 }
 
@@ -183,7 +183,7 @@ fn render_docs_inner(
   content_parts.join("")
 }
 
-pub(super) fn render_docs_summary(
+pub(crate) fn render_docs_summary(
   ctx: &GenerateCtx,
   render_ctx: &RenderContext,
   js_doc: &JsDoc,
@@ -191,7 +191,7 @@ pub(super) fn render_docs_summary(
   render_docs_inner(ctx, render_ctx, js_doc, false, true)
 }
 
-pub(super) fn render_docs_with_examples(
+pub(crate) fn render_docs_with_examples(
   ctx: &GenerateCtx,
   render_ctx: &RenderContext,
   js_doc: &JsDoc,

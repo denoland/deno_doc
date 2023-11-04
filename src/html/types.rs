@@ -1,6 +1,6 @@
-use super::parameters::render_params;
-use super::util::*;
-use super::GenerateCtx;
+use crate::html::parameters::render_params;
+use crate::html::util::*;
+use crate::html::GenerateCtx;
 use crate::ts_type::LiteralDefKind;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
@@ -8,7 +8,7 @@ use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
 use serde_json::json;
 
-pub(super) fn render_type_def(
+pub(crate) fn render_type_def(
   ctx: &GenerateCtx,
   def: &crate::ts_type::TsTypeDef,
   render_ctx: &RenderContext,
@@ -431,7 +431,7 @@ fn type_def_tuple(
   }
 }
 
-pub(super) fn type_params_summary(
+pub(crate) fn type_params_summary(
   ctx: &GenerateCtx,
   type_params: &[TsTypeParamDef],
   render_ctx: &RenderContext,
@@ -485,7 +485,7 @@ fn type_param_summary(
   )
 }
 
-pub(super) fn type_arguments(
+pub(crate) fn type_arguments(
   ctx: &GenerateCtx,
   defs: &[crate::ts_type::TsTypeDef],
   render_ctx: &RenderContext,
@@ -503,7 +503,7 @@ pub(super) fn type_arguments(
   }
 }
 
-pub(super) fn render_type_params(
+pub(crate) fn render_type_params(
   ctx: &GenerateCtx,
   type_params: &[TsTypeParamDef],
   render_ctx: &RenderContext,

@@ -1,10 +1,10 @@
-use super::types::render_type_def;
-use super::util::*;
-use super::GenerateCtx;
+use crate::html::types::render_type_def;
+use crate::html::util::*;
+use crate::html::GenerateCtx;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
 
-pub(super) fn render_params(
+pub(crate) fn render_params(
   ctx: &GenerateCtx,
   params: &[ParamDef],
   render_ctx: &RenderContext,

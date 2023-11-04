@@ -1,10 +1,10 @@
-use super::parameters::render_params;
-use super::types::render_type_def;
-use super::types::render_type_params;
-use super::types::type_params_summary;
-use super::util::*;
-use super::GenerateCtx;
 use crate::function::FunctionDef;
+use crate::html::parameters::render_params;
+use crate::html::types::render_type_def;
+use crate::html::types::render_type_params;
+use crate::html::types::type_params_summary;
+use crate::html::util::*;
+use crate::html::GenerateCtx;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
@@ -47,7 +47,7 @@ struct FunctionRenderCtx {
   content: String,
 }
 
-pub(super) fn render_function(
+pub(crate) fn render_function(
   ctx: &GenerateCtx,
   doc_nodes: Vec<&crate::DocNode>,
   render_ctx: &RenderContext,
@@ -74,7 +74,11 @@ pub(super) fn render_function(
     let summary_doc = if !(function_def.has_body && i == 0) {
       format!(
         r#"<div style="width: 100%;">{}</div>"#,
-        super::jsdoc::render_docs_summary(ctx, render_ctx, &doc_node.js_doc)
+        crate::html::jsdoc::render_docs_summary(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc
+        )
       )
     } else {
       String::new()
@@ -109,7 +113,7 @@ pub(super) fn render_function(
   ctx.render("function.html", &function_ctx)
 }
 
-pub(super) fn render_function_summary(
+pub(crate) fn render_function_summary(
   ctx: &GenerateCtx,
   function_def: &FunctionDef,
   render_ctx: &RenderContext,
@@ -162,7 +166,7 @@ fn render_single_function(
     .iter()
     .enumerate()
     .map(|(i, param)| {
-      let (name, str_name) = super::parameters::param_name(param, i);
+      let (name, str_name) = crate::html::parameters::param_name(param, i);
       let id = name_to_id(overload_id, &format!("parameters_{str_name}"));
 
       let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern
@@ -193,7 +197,11 @@ fn render_single_function(
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    super::jsdoc::render_docs_with_examples(ctx, render_ctx, &doc_node.js_doc,),
+    crate::html::jsdoc::render_docs_with_examples(
+      ctx,
+      render_ctx,
+      &doc_node.js_doc,
+    ),
     render_type_params(ctx, &function_def.type_params, render_ctx),
     ctx.render(
       "section.html",

@@ -1,9 +1,9 @@
-use super::GenerateCtx;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use crate::html::GenerateCtx;
 use serde_json::json;
 
-pub(super) fn render_type_alias(
+pub(crate) fn render_type_alias(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
@@ -21,7 +21,7 @@ pub(super) fn render_type_alias(
 
   // TODO: tags, TypeParamsDoc
   [
-    super::types::render_type_params(ctx, &type_alias_def.type_params, render_ctx),
+    crate::html::types::render_type_params(ctx, &type_alias_def.type_params, render_ctx),
     ctx.render(
       "section.html",
       &json!({

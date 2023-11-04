@@ -12,21 +12,15 @@ use crate::html::util::RenderContext;
 use crate::node::Location;
 use crate::{DocNode, DocNodeKind};
 
-use self::namespace::NamespaceRenderCtx;
-use self::symbol::SymbolGroupCtx;
-
-mod class;
-mod r#enum;
-mod function;
-mod interface;
 mod jsdoc;
-mod namespace;
 mod parameters;
 mod symbol;
-mod type_alias;
+mod symbols;
 mod types;
 mod util;
-mod variable;
+
+use symbol::SymbolGroupCtx;
+use symbols::namespace::NamespaceRenderCtx;
 
 const STYLESHEET: &str = include_str!("./templates/styles.css");
 const STYLESHEET_FILENAME: &str = "styles.css";
@@ -45,7 +39,7 @@ pub struct GenerateOptions {
   pub package_name: String,
 }
 
-struct GenerateCtx<'ctx> {
+pub(crate) struct GenerateCtx<'ctx> {
   package_name: String,
   common_ancestor: Option<PathBuf>,
   tt: TinyTemplate<'ctx>,
@@ -175,7 +169,7 @@ pub fn generate(
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
   let partitions_by_kind =
-    namespace::partition_nodes_by_kind_dedup_overloads(&doc_nodes);
+    symbols::namespace::partition_nodes_by_kind_dedup_overloads(&doc_nodes);
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
 
   // Index page (list of all symbols in all files)
@@ -399,7 +393,7 @@ fn render_index(
 ) -> Result<String, anyhow::Error> {
   let render_ctx = RenderContext::new(current_symbols.clone(), None);
   let namespace_ctx =
-    namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
+    symbols::namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {

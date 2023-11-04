@@ -1,9 +1,9 @@
-use super::GenerateCtx;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use crate::html::GenerateCtx;
 use serde_json::json;
 
-pub(super) fn render_enum(
+pub(crate) fn render_enum(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,

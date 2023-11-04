@@ -1,6 +1,7 @@
-use super::types::render_type_def;
 use super::util::RenderContext;
-use super::GenerateCtx;
+use crate::html::symbols;
+use crate::html::types::render_type_def;
+use crate::html::GenerateCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
@@ -20,7 +21,7 @@ pub struct SymbolCtx {
   body: String,
 }
 
-pub(super) fn get_symbol_group_ctx(
+pub(crate) fn get_symbol_group_ctx(
   ctx: &GenerateCtx,
   doc_nodes: &[DocNode],
   name: &str,
@@ -109,7 +110,7 @@ fn doc_block_subtitle(
 
       class_extends = Some(json!({
         "symbol": symbol,
-        "type_args": super::types::type_arguments(ctx, &class_def.super_type_params, render_ctx)
+        "type_args": crate::html::types::type_arguments(ctx, &class_def.super_type_params, render_ctx)
       }));
     }
 
@@ -176,63 +177,64 @@ fn doc_block(
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
-        let docs = super::jsdoc::render_docs_with_examples(
+        let docs = crate::html::jsdoc::render_docs_with_examples(
           ctx,
           render_ctx,
           &doc_node.js_doc,
         );
-        let el = super::variable::render_variable(ctx, doc_node, render_ctx);
+        let el = symbols::variable::render_variable(ctx, doc_node, render_ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content)
       }
       DocNodeKind::Class => {
-        let docs = super::jsdoc::render_docs_with_examples(
+        let docs = crate::html::jsdoc::render_docs_with_examples(
           ctx,
           render_ctx,
           &doc_node.js_doc,
         );
-        let el = super::class::render_class(ctx, doc_node, render_ctx);
+        let el = symbols::class::render_class(ctx, doc_node, render_ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Enum => {
-        let docs = super::jsdoc::render_docs_with_examples(
+        let docs = crate::html::jsdoc::render_docs_with_examples(
           ctx,
           render_ctx,
           &doc_node.js_doc,
         );
-        let el = super::r#enum::render_enum(ctx, doc_node, render_ctx);
+        let el = symbols::r#enum::render_enum(ctx, doc_node, render_ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Interface => {
-        let docs = super::jsdoc::render_docs_with_examples(
-          ctx,
-          render_ctx,
-          &doc_node.js_doc,
-        );
-        let el = super::interface::render_interface(ctx, doc_node, render_ctx);
-        let content = doc_block_item(docs, el);
-        content_parts.push(content);
-      }
-      DocNodeKind::TypeAlias => {
-        let docs = super::jsdoc::render_docs_with_examples(
+        let docs = crate::html::jsdoc::render_docs_with_examples(
           ctx,
           render_ctx,
           &doc_node.js_doc,
         );
         let el =
-          super::type_alias::render_type_alias(ctx, doc_node, render_ctx);
+          symbols::interface::render_interface(ctx, doc_node, render_ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
-      DocNodeKind::Namespace => {
-        let docs = super::jsdoc::render_docs_with_examples(
+      DocNodeKind::TypeAlias => {
+        let docs = crate::html::jsdoc::render_docs_with_examples(
           ctx,
           render_ctx,
           &doc_node.js_doc,
         );
-        let el = super::namespace::render_namespace(
+        let el =
+          symbols::type_alias::render_type_alias(ctx, doc_node, render_ctx);
+        let content = doc_block_item(docs, el);
+        content_parts.push(content);
+      }
+      DocNodeKind::Namespace => {
+        let docs = crate::html::jsdoc::render_docs_with_examples(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        );
+        let el = symbols::namespace::render_namespace(
           ctx,
           doc_node,
           &render_ctx.with_namespace(name.to_string()),
@@ -246,7 +248,8 @@ fn doc_block(
   }
 
   if !functions.is_empty() {
-    let content = super::function::render_function(ctx, functions, render_ctx);
+    let content =
+      symbols::function::render_function(ctx, functions, render_ctx);
     content_parts.push(content);
   }
 

@@ -5,7 +5,7 @@ use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
 
-use super::GenerateCtx;
+use crate::html::GenerateCtx;
 
 #[derive(Serialize)]
 pub struct NamespaceRenderCtx {
@@ -26,7 +26,7 @@ pub struct NamespaceSectionNodeCtx {
   pub docs: String,
 }
 
-pub(super) fn get_namespace_render_ctx(
+pub(crate) fn get_namespace_render_ctx(
   ctx: &GenerateCtx,
   render_ctx: &RenderContext,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
@@ -42,7 +42,7 @@ pub(super) fn get_namespace_render_ctx(
   NamespaceRenderCtx { sections }
 }
 
-pub(super) fn render_namespace(
+pub(crate) fn render_namespace(
   ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
@@ -146,7 +146,7 @@ fn get_namespace_section_render_ctx(
         path,
         name,
         // TODO(bartlomieju): make it a template
-        docs: super::jsdoc::render_docs_summary(
+        docs: crate::html::jsdoc::render_docs_summary(
           ctx,
           render_ctx,
           &doc_node.js_doc,

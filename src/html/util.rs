@@ -4,7 +4,7 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 
-use super::GenerateCtx;
+use crate::html::GenerateCtx;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -24,7 +24,7 @@ pub fn section_title(title: &str) -> String {
   )
 }
 
-pub(super) fn render_doc_entry(
+pub(crate) fn render_doc_entry(
   ctx: &GenerateCtx,
   id: &str,
   name: &str,
@@ -33,7 +33,7 @@ pub(super) fn render_doc_entry(
   render_ctx: &RenderContext,
 ) -> String {
   let maybe_jsdoc = jsdoc
-    .map(|doc| super::jsdoc::render_markdown(doc, render_ctx))
+    .map(|doc| crate::html::jsdoc::render_markdown(doc, render_ctx))
     .unwrap_or_default();
 
   // TODO: sourceHref
