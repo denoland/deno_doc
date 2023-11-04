@@ -4,7 +4,9 @@
 
 <div id="content">
   <h2>Index</h2>
-  {search_bar}
+  
+  {{ call search_bar.html with search_ctx }}
+  
   <main>
     {#- TODO(bartlomieju): call into template here #}
 
@@ -19,7 +21,8 @@
     {{ endfor }}
 
   </main>
-  <div id="searchResults"></div>
+
+  {{ call search_results.html with search_ctx }}
 <div>
 
 {{ call html_tail.html with html_tail_ctx }}

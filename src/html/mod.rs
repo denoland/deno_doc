@@ -39,10 +39,6 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-const SEARCH_BAR: &str = r#"
-<input type="text" id="searchbar" style="display: none;" />
-"#;
-
 #[derive(Debug, Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
@@ -97,6 +93,14 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   tt.add_template(
     "index_list.html",
     include_str!("./templates/index_list.html"),
+  )?;
+  tt.add_template(
+    "search_bar.html",
+    include_str!("./templates/search_bar.html"),
+  )?;
+  tt.add_template(
+    "search_results.html",
+    include_str!("./templates/search_results.html"),
   )?;
   tt.add_template(
     "sidepanel.html",
@@ -309,8 +313,8 @@ struct CompoundIndexCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: serde_json::Value,
-  search_bar: String,
   module_docs: Vec<serde_json::Value>,
+  search_ctx: serde_json::Value,
 }
 
 fn render_compound_index(
@@ -367,8 +371,8 @@ fn render_compound_index(
     html_head_ctx,
     html_tail_ctx,
     sidepanel_ctx,
-    search_bar: SEARCH_BAR.to_string(),
     module_docs,
+    search_ctx: serde_json::Value::Null,
   };
 
   Ok(ctx.render("compound_index.html", &compound_index_ctx))
@@ -379,8 +383,8 @@ struct IndexCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: SidepanelRenderCtx,
-  search_bar: String,
   namespace_ctx: NamespaceRenderCtx,
+  search_ctx: serde_json::Value,
 }
 
 fn render_index(
@@ -409,8 +413,8 @@ fn render_index(
     html_head_ctx,
     html_tail_ctx,
     sidepanel_ctx: sidepanel_ctx.clone(),
-    search_bar: SEARCH_BAR.to_string(),
     namespace_ctx,
+    search_ctx: serde_json::Value::Null,
   };
 
   Ok(ctx.render("index_list.html", &index_ctx))
@@ -472,9 +476,9 @@ struct PageCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: SidepanelRenderCtx,
-  search_bar: String,
   base_url: String,
   symbol_group_ctx: SymbolGroupCtx,
+  search_ctx: serde_json::Value,
 }
 
 fn render_page(
@@ -515,9 +519,9 @@ fn render_page(
     html_head_ctx,
     html_tail_ctx,
     sidepanel_ctx,
-    search_bar: SEARCH_BAR.to_string(),
     base_url: format!("./{backs}index.html"),
     symbol_group_ctx,
+    search_ctx: serde_json::Value::Null,
   };
 
   Ok(ctx.render("page.html", &page_ctx))
