@@ -33,7 +33,9 @@ fn render_css_for_fn(overload_id: &str) -> String {
 
 #[derive(Serialize)]
 struct OverloadRenderCtx {
-  id: String,
+  function_id: String,
+  overload_id: String,
+  html_attrs: String,
   name: String,
   summary: String,
   summary_doc: String,
@@ -41,8 +43,7 @@ struct OverloadRenderCtx {
 
 #[derive(Serialize)]
 struct FunctionRenderCtx {
-  overload_inputs: String,
-  overload_labels: Vec<OverloadRenderCtx>,
+  overloads_ctx: Vec<OverloadRenderCtx>,
   content: String,
 }
 
@@ -52,10 +53,8 @@ pub(super) fn render_function(
   render_ctx: &RenderContext,
 ) -> String {
   // TODO: this needs to be handled more gracefully on the frontend
-  let mut content = String::with_capacity(16 * 1024);
-  let mut overload_inputs = String::with_capacity(1024);
-  // TODO(bartlomieju): use `with_capacity`
-  let mut overload_labels = vec![];
+  let mut content = Vec::with_capacity(doc_nodes.len());
+  let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
 
   for (i, doc_node) in doc_nodes.into_iter().enumerate() {
     let function_def = doc_node.function_def.as_ref().unwrap();
@@ -72,11 +71,6 @@ pub(super) fn render_function(
     // TODO(bartlomieju): maybe directly render <style> tag so we don't need `ctx` here?
     render_ctx.add_additional_css(css);
 
-    overload_inputs.push_str(&format!(
-      r#"<input type="radio" name="{id}" id="{overload_id}" {} />"#,
-      (i == 0).then_some("checked").unwrap_or_default()
-    ));
-
     let summary_doc = if !(function_def.has_body && i == 0) {
       format!(
         r#"<div style="width: 100%;">{}</div>"#,
@@ -86,14 +80,21 @@ pub(super) fn render_function(
       String::new()
     };
 
-    overload_labels.push(OverloadRenderCtx {
-      id: overload_id.to_string(),
+    let html_attrs = (i == 0)
+      .then_some("checked")
+      .unwrap_or_default()
+      .to_string();
+
+    overloads_ctx.push(OverloadRenderCtx {
+      function_id: id.to_string(),
+      overload_id: overload_id.to_string(),
+      html_attrs,
       name: doc_node.name.to_string(),
       summary: render_function_summary(ctx, function_def, render_ctx),
       summary_doc,
     });
 
-    content.push_str(&render_single_function(
+    content.push(render_single_function(
       ctx,
       doc_node,
       &overload_id,
@@ -102,9 +103,8 @@ pub(super) fn render_function(
   }
 
   let function_ctx = FunctionRenderCtx {
-    overload_inputs,
-    overload_labels,
-    content,
+    overloads_ctx,
+    content: content.join(""),
   };
   ctx.render("function.html", &function_ctx)
 }
