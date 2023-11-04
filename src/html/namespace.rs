@@ -2,22 +2,63 @@ use crate::html::util::*;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
+use serde::Serialize;
 use std::cmp::Ordering;
-use std::fmt::Write;
 
-pub fn render_namespace(
+use super::GenerateCtx;
+
+#[derive(Serialize)]
+pub struct NamespaceRenderCtx {
+  pub sections: Vec<NamespaceSectionRenderCtx>,
+}
+
+#[derive(Serialize)]
+pub struct NamespaceSectionRenderCtx {
+  pub title: String,
+  pub nodes: Vec<NamespaceSectionNodeCtx>,
+}
+
+#[derive(Serialize)]
+pub struct NamespaceSectionNodeCtx {
+  pub doc_node_kind_ctx: DocNodeKindCtx,
+  pub path: String,
+  pub name: String,
+  pub docs: String,
+}
+
+pub(super) fn get_namespace_render_ctx(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+) -> NamespaceRenderCtx {
+  let mut sections = Vec::with_capacity(partitions.len());
+
+  for (kind, doc_nodes) in partitions {
+    let ns_section_ctx =
+      get_namespace_section_render_ctx(ctx, render_ctx, *kind, doc_nodes);
+    sections.push(ns_section_ctx)
+  }
+
+  NamespaceRenderCtx { sections }
+}
+
+pub(super) fn render_namespace(
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
+  let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
 
-  format!(
-    r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    doc_node_kind_sections(&partitions, ctx)
-  )
+  let content_parts = namespace_ctx
+    .sections
+    .into_iter()
+    .map(|section| ctx.render("namespace_section.html", &section))
+    .collect::<Vec<_>>();
+
+  content_parts.join("")
 }
 
 fn partition_nodes_by_kind_inner(
@@ -64,78 +105,59 @@ pub fn partition_nodes_by_kind(
   partition_nodes_by_kind_inner(doc_nodes, true)
 }
 
-pub fn doc_node_kind_sections(
-  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
-  ctx: &RenderContext,
-) -> String {
-  let mut content = String::new();
-
-  for (kind, doc_nodes) in partitions {
-    let title = match kind {
-      DocNodeKind::Function => "Functions",
-      DocNodeKind::Variable => "Variables",
-      DocNodeKind::Class => "Classes",
-      DocNodeKind::Enum => "Enums",
-      DocNodeKind::Interface => "Interfaces",
-      DocNodeKind::TypeAlias => "Type Aliases",
-      DocNodeKind::Namespace => "Namespaces",
-      DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
-    };
-
-    content.push_str(&symbol_section(title, doc_nodes, ctx))
-  }
-
-  content
-}
-
-fn symbol_section(
-  title: &str,
+fn get_namespace_section_render_ctx(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  kind: DocNodeKind,
   doc_nodes: &[DocNode],
-  ctx: &RenderContext,
-) -> String {
-  let content = doc_nodes
+) -> NamespaceSectionRenderCtx {
+  let title = match kind {
+    DocNodeKind::Function => "Functions",
+    DocNodeKind::Variable => "Variables",
+    DocNodeKind::Class => "Classes",
+    DocNodeKind::Enum => "Enums",
+    DocNodeKind::Interface => "Interfaces",
+    DocNodeKind::TypeAlias => "Type Aliases",
+    DocNodeKind::Namespace => "Namespaces",
+    DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
+  };
+
+  let nodes = doc_nodes
     .iter()
-    .fold(String::new(), |mut output, doc_node| {
+    .map(|doc_node| {
       // TODO: linking, tags
 
-      let (name, path) = ctx.namespace.as_ref().map_or_else(
-        || (doc_node.name.clone(), doc_node.name.clone()),
-        |namespace| {
-          (
-            format!("{namespace}.{}", doc_node.name),
-            format!(
-              "{}/{}",
-              namespace
-                .rsplit_once('.')
-                .map_or(&**namespace, |(_prev, current)| current),
-              doc_node.name
-            ),
-          )
-        },
-      );
+      let mut name = doc_node.name.clone();
+      let mut path = doc_node.name.clone();
 
-      write!(
-        output,
-        r#"<tr>
-      <td class="symbol_section_symbol">
-        <div>
-          {}
-          <a href="./{path}.html">{name}</a>
-        </div>
-      </td>
-      <td class="symbol_section_doc">
-      {}
-      </td>
-      </tr>"#,
-        doc_node_kind_icon(doc_node.kind),
-        super::jsdoc::render_docs(&doc_node.js_doc, false, true, ctx),
-      )
-      .unwrap();
-      output
-    });
+      if let Some(namespace) = render_ctx.get_namespace() {
+        name = format!("{namespace}.{}", doc_node.name);
+        path = format!(
+          "{}/{}",
+          namespace
+            .rsplit_once('.')
+            .map_or(&*namespace, |(_prev, current)| current),
+          doc_node.name
+        );
+      }
 
-  format!(
-    r#"<div>{}<table class="symbol_section">{content}</table></div>"#,
-    section_title(title)
-  )
+      NamespaceSectionNodeCtx {
+        doc_node_kind_ctx: (&doc_node.kind).into(),
+        path,
+        name,
+        // TODO(bartlomieju): make it a template
+        docs: super::jsdoc::render_docs_summary(
+          ctx,
+          render_ctx,
+          &doc_node.js_doc,
+        ),
+      }
+    })
+    .collect::<Vec<_>>();
+
+  NamespaceSectionRenderCtx {
+    // TODO(bartlomieju): turn it into a template
+    title: section_title(title),
+    nodes,
+  }
 }

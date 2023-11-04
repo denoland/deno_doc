@@ -1,7 +1,10 @@
 use crate::DocNodeKind;
+use serde_json::json;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
+
+use super::GenerateCtx;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -11,7 +14,9 @@ pub fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
+// TODO(bartlomieju): make it a template
 pub fn section_title(title: &str) -> String {
+  // TODO(bartlomieju): this could be a TinyTemplate formatter
   let id = TARGET_RE.replace_all(title, "_");
 
   format!(
@@ -19,66 +24,88 @@ pub fn section_title(title: &str) -> String {
   )
 }
 
-pub fn section(title: &str, content: &str) -> String {
-  format!(
-    r#"<div>{}<div class="section">{}</div></div>"#,
-    section_title(title),
-    content,
-  )
-}
-
-pub fn doc_entry(
+pub(super) fn render_doc_entry(
+  ctx: &GenerateCtx,
   id: &str,
   name: &str,
   content: &str,
   jsdoc: Option<&str>,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
-  // TODO: sourceHref
-  format!(
-    r#"
-    <div class="doc_item" id="{id}">
-      {}
-      <div class="doc_entry">
-        <span class="doc_entry_children">
-          <code>
-            <span style="font-weight: 700;">{name}</span><span style="font-weight: 500;">{content}</span>
-          </code>
-        </span>
-      </div>
-      {}
-    </div>
-   "#,
-    anchor(id),
-    jsdoc
-      .map(|doc| super::jsdoc::markdown_to_html(doc, false, ctx))
-      .unwrap_or_default(),
-  )
-}
+  let maybe_jsdoc = jsdoc
+    .map(|doc| super::jsdoc::render_markdown(doc, render_ctx))
+    .unwrap_or_default();
 
-pub fn anchor(name: &str) -> String {
-  // TODO: icon
-  format!(
-    r##"<a
-      href="#{name}"
-      class="anchor"
-      aria-label="Anchor"
-      tabIndex=-1
-    >
-      <div style="width: 14px; height: 14px; display: inline-block;">&#128279;</div>
-    </a>"##
+  // TODO: sourceHref
+  ctx.render(
+    "doc_entry.html",
+    &json!({
+      "id": id,
+      "name": name,
+      "content": content,
+      "anchor": {
+        "href": id
+      },
+      "jsdoc": maybe_jsdoc,
+    }),
   )
 }
 
 #[derive(Debug, Clone)]
 pub struct RenderContext {
-  pub additional_css: Rc<RefCell<String>>,
-  pub namespace: Option<String>,
-  pub current_symbols: Rc<HashSet<Vec<String>>>,
-  pub current_type_params: HashSet<String>,
+  additional_css: Rc<RefCell<String>>,
+  current_symbols: Rc<HashSet<Vec<String>>>,
+  namespace: Option<String>,
+  current_type_params: HashSet<String>,
 }
 
 impl RenderContext {
+  pub fn new(
+    current_symbols: Rc<HashSet<Vec<String>>>,
+    namespace: Option<String>,
+  ) -> Self {
+    Self {
+      additional_css: Default::default(),
+      current_type_params: Default::default(),
+      namespace,
+      current_symbols,
+    }
+  }
+
+  pub fn with_current_type_params(
+    &self,
+    current_type_params: HashSet<String>,
+  ) -> Self {
+    Self {
+      current_type_params,
+      ..self.clone()
+    }
+  }
+
+  pub fn with_namespace(&self, namespace: String) -> Self {
+    Self {
+      namespace: Some(namespace),
+      ..self.clone()
+    }
+  }
+
+  pub fn add_additional_css(&self, css: String) {
+    self.additional_css.borrow_mut().push_str(&css);
+  }
+
+  pub fn take_additional_css(&self) -> String {
+    let mut css = self.additional_css.borrow_mut();
+    std::mem::replace(&mut css, "".to_string())
+  }
+
+  pub fn contains_type_param(&self, name: &str) -> bool {
+    self.current_type_params.contains(name)
+  }
+
+  pub fn get_namespace(&self) -> Option<String> {
+    self.namespace.clone()
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     if let Some(namespace) = &self.namespace {
       let mut parts = namespace
@@ -120,37 +147,6 @@ impl RenderContext {
 
     None
   }
-}
-
-pub fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
-  let newline = md.find("\n\n").unwrap_or(usize::MAX);
-  let codeblock = md.find("```").unwrap_or(usize::MAX);
-
-  let index = newline.min(codeblock).min(md.len());
-
-  match md.split_at(index) {
-    ("", body) => (None, body),
-    (title, "") => (None, title),
-    (title, body) => (Some(title), body),
-  }
-}
-
-pub fn doc_node_kind_icon(kind: DocNodeKind) -> String {
-  let (char, title) = match kind {
-    DocNodeKind::Function => ('f', "Function"),
-    DocNodeKind::Variable => ('v', "Variable"),
-    DocNodeKind::Class => ('c', "Class"),
-    DocNodeKind::Enum => ('E', "Enum"),
-    DocNodeKind::Interface => ('I', "Interface"),
-    DocNodeKind::TypeAlias => ('T', "Type Alias"),
-    DocNodeKind::Namespace => ('N', "Namespace"),
-    DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
-  };
-
-  // TODO: already a template, dedupe
-  format!(
-    r#"<div class="symbol_kind kind_{kind:?}_text kind_{kind:?}_bg" title="{title}">{char}</div>"#
-  )
 }
 
 #[derive(Debug, serde::Serialize, Clone)]

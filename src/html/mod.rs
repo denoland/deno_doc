@@ -2,13 +2,12 @@ use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
-use crate::html::jsdoc::markdown_to_html;
+use crate::html::jsdoc::render_markdown;
 use crate::html::util::RenderContext;
 use crate::node::Location;
 use crate::{DocNode, DocNodeKind};
@@ -26,15 +25,15 @@ mod types;
 mod util;
 mod variable;
 
-const STYLESHEET: &str = include_str!("./styles.css");
+const STYLESHEET: &str = include_str!("./templates/styles.css");
 const STYLESHEET_FILENAME: &str = "styles.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
-const FUSE_JS: &str = include_str!("./fuse.js");
+const FUSE_JS: &str = include_str!("./templates/fuse.js");
 const FUSE_FILENAME: &str = "fuse.js";
 
-const SEARCH_JS: &str = include_str!("./search.js");
+const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
 const SEARCH_BAR: &str = r#"
@@ -71,6 +70,14 @@ impl<'ctx> GenerateCtx<'ctx> {
 
     stripped_path.to_string_lossy().to_string()
   }
+
+  #[track_caller]
+  fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
+  where
+    Ctx: Serialize,
+  {
+    self.tt.render(template, context).unwrap()
+  }
 }
 
 fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
@@ -94,6 +101,11 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   )?;
   tt.add_template("page.html", include_str!("./templates/page.html"))?;
   tt.add_template(
+    "doc_entry.html",
+    include_str!("./templates/doc_entry.html"),
+  )?;
+  tt.add_template("section.html", include_str!("./templates/section.html"))?;
+  tt.add_template(
     "compound_index.html",
     include_str!("./templates/compound_index.html"),
   )?;
@@ -105,11 +117,21 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     "doc_node_kind_icon.html",
     include_str!("./templates/doc_node_kind_icon.html"),
   )?;
+  tt.add_template(
+    "namespace_section.html",
+    include_str!("./templates/namespace_section.html"),
+  )?;
+  tt.add_template(
+    "doc_block_subtitle.html",
+    include_str!("./templates/doc_block_subtitle.html"),
+  )?;
   tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
   tt.add_template(
     "symbol_group.html",
     include_str!("./templates/symbol_group.html"),
   )?;
+  tt.add_template("example.html", include_str!("./templates/example.html"))?;
+  tt.add_template("function.html", include_str!("./templates/function.html"))?;
   Ok(tt)
 }
 
@@ -280,12 +302,7 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
-  let render_ctx = RenderContext {
-    additional_css: Rc::new(RefCell::new("".to_string())),
-    namespace: None,
-    current_symbols: Default::default(),
-    current_type_params: Default::default(),
-  };
+  let render_ctx = RenderContext::new(Default::default(), None);
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -296,7 +313,7 @@ fn render_compound_index(
       let docs_md = docs
         .and_then(|node| node.js_doc.doc.clone())
         .unwrap_or_default();
-      let rendered_docs = markdown_to_html(&docs_md, false, &render_ctx);
+      let rendered_docs = render_markdown(&docs_md, &render_ctx);
 
       json!({
         "url": ctx.url_to_short_path(url),
@@ -305,17 +322,14 @@ fn render_compound_index(
     })
     .collect::<Vec<_>>();
 
-  let additional_css = render_ctx.additional_css.borrow();
-  let additional_css: &str = additional_css.as_ref();
-
-  Ok(ctx.tt.render(
+  Ok(ctx.render(
     "compound_index.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "title": format!("Index - {} documentation", ctx.package_name),
         "current_symbol": "",
-        "additional_css": additional_css,
+        "additional_css": render_ctx.take_additional_css(),
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -327,7 +341,7 @@ fn render_compound_index(
       "search_bar": SEARCH_BAR,
       "module_docs": module_docs
     }),
-  )?)
+  ))
 }
 
 fn render_index(
@@ -336,25 +350,18 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext {
-    additional_css: Rc::new(RefCell::new("".to_string())),
-    namespace: None,
-    current_symbols: current_symbols.clone(),
-    current_type_params: Default::default(),
-  };
-  let content = namespace::doc_node_kind_sections(partitions, &render_ctx);
+  let render_ctx = RenderContext::new(current_symbols.clone(), None);
+  let namespace_ctx =
+    namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
 
-  let additional_css = render_ctx.additional_css.borrow();
-  let additional_css: &str = additional_css.as_ref();
-
-  Ok(ctx.tt.render(
+  Ok(ctx.render(
     "index_list.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
       "html_head": {
         "title": format!("Index - {} documentation", ctx.package_name),
         "current_symbol": "",
-        "additional_css": additional_css,
+        "additional_css": render_ctx.take_additional_css(),
         "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
       },
       "html_tail": {
@@ -364,9 +371,9 @@ fn render_index(
       },
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
-      "content": content
+      "namespace": namespace_ctx
     }),
-  )?)
+  ))
 }
 
 fn partition_nodes_by_name(
@@ -427,17 +434,14 @@ fn render_page(
   doc_nodes: &[DocNode],
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext {
-    additional_css: Rc::new(RefCell::new("".to_string())),
-    namespace: name
-      .rsplit_once('.')
-      .map(|(namespace, _symbol)| namespace.to_string()),
-    current_symbols,
-    current_type_params: Default::default(),
-  };
+  let namespace = name
+    .rsplit_once('.')
+    .map(|(namespace, _symbol)| namespace.to_string());
+  let render_ctx = RenderContext::new(current_symbols, namespace);
 
   // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group = symbol::render_symbol_group(doc_nodes, name, &render_ctx);
+  let symbol_group =
+    symbol::get_symbol_group_ctx(ctx, doc_nodes, name, &render_ctx);
 
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
 
@@ -446,17 +450,14 @@ fn render_page(
     ..sidepanel_ctx.clone()
   };
 
-  let additional_css = render_ctx.additional_css.borrow();
-  let additional_css: &str = additional_css.as_ref();
-
-  Ok(ctx.tt.render(
+  Ok(ctx.render(
     "page.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
       "html_head": {
         "title": format!("{} - {} documentation", name, ctx.package_name),
         "current_symbol": name,
-        "additional_css": additional_css,
+        "additional_css": render_ctx.take_additional_css(),
         "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
       },
       "html_tail": {
@@ -469,7 +470,7 @@ fn render_page(
       "base_url": format!("./{backs}index.html"),
       "symbol_group": symbol_group
     }),
-  )?)
+  ))
 }
 
 #[derive(Debug, Serialize, Clone)]

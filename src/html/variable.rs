@@ -1,9 +1,13 @@
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use serde_json::json;
 
-pub fn render_variable(
+use super::GenerateCtx;
+
+pub(super) fn render_variable(
+  ctx: &GenerateCtx,
   doc_node: &crate::DocNode,
-  ctx: &RenderContext,
+  render_ctx: &RenderContext,
 ) -> String {
   let variable_def = doc_node.variable_def.as_ref().unwrap();
 
@@ -13,18 +17,15 @@ pub fn render_variable(
 
   let id = name_to_id("variable", &doc_node.name);
 
-  format!(
-    r#"<div class="doc_block_items">{}{}</div>"#,
-    super::jsdoc::render_docs(&doc_node.js_doc, true, false, ctx),
-    section(
-      "type",
-      &doc_entry(
-        &id,
-        "",
-        &render_type_def(variable_def.ts_type.as_ref().unwrap(), ctx),
-        None,
-        ctx,
-      )
+  ctx.render("section.html", &json!({
+    "title": "type",
+    "content": render_doc_entry(
+      ctx,
+      &id,
+      "",
+      &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap(), render_ctx),
+      None,
+      render_ctx,
     )
-  )
+  }))
 }

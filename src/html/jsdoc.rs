@@ -1,6 +1,9 @@
 use super::util::*;
+use super::GenerateCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
+use serde::Serialize;
+use serde_json::json;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -59,11 +62,25 @@ fn parse_links<'a>(
   })
 }
 
-pub fn markdown_to_html(
+fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
+  let newline = md.find("\n\n").unwrap_or(usize::MAX);
+  let codeblock = md.find("```").unwrap_or(usize::MAX);
+
+  let index = newline.min(codeblock).min(md.len());
+
+  match md.split_at(index) {
+    ("", body) => (None, body),
+    (title, "") => (None, title),
+    (title, body) => (Some(title), body),
+  }
+}
+
+fn render_markdown_inner(
   md: &str,
+  render_ctx: &RenderContext,
   summary: bool,
-  ctx: &RenderContext,
 ) -> String {
+  // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
   options.extension.description_lists = true;
@@ -83,28 +100,54 @@ pub fn markdown_to_html(
     md
   };
 
-  let html = comrak::markdown_to_html(&parse_links(md, ctx), &options);
-  format!(
-    r#"<div class="{}">{html}</div>"#,
-    if summary {
-      "markdown_summary"
-    } else {
-      "markdown"
-    }
-  )
+  let class_name = if summary {
+    "markdown_summary"
+  } else {
+    "markdown"
+  };
+  let html = comrak::markdown_to_html(&parse_links(md, render_ctx), &options);
+  format!(r#"<div class="{class_name}">{html}</div>"#,)
 }
 
-pub fn render_docs(
+pub(super) fn render_markdown_summary(
+  md: &str,
+  render_ctx: &RenderContext,
+) -> String {
+  render_markdown_inner(md, render_ctx, true)
+}
+
+pub(super) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
+  render_markdown_inner(md, render_ctx, false)
+}
+
+// TODO(bartlomieju): move to a separate anchor.html module
+#[derive(Serialize)]
+struct AnchorRenderCtx {
+  href: String,
+}
+
+#[derive(Serialize)]
+struct ExampleRenderCtx {
+  anchor: AnchorRenderCtx,
+  id: String,
+  markdown_title: String,
+  markdown_body: String,
+}
+
+// TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
+// use an enum instead?
+fn render_docs_inner(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
-  ctx: &RenderContext,
 ) -> String {
-  let mut doc = if let Some(doc) = js_doc.doc.as_deref() {
-    markdown_to_html(doc, summary, ctx)
-  } else {
-    "".to_string()
-  };
+  let mut content_parts = vec![];
+
+  if let Some(doc) = js_doc.doc.as_deref() {
+    content_parts.push(render_markdown_inner(doc, render_ctx, summary));
+  }
 
   if render_examples {
     let mut i = 0;
@@ -115,7 +158,7 @@ pub fn render_docs(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(doc, i, ctx);
+            let example = render_example(ctx, doc, i, render_ctx);
             i += 1;
             example
           })
@@ -126,31 +169,71 @@ pub fn render_docs(
       .collect::<Vec<String>>();
 
     if !examples.is_empty() {
-      doc.push_str(&section("Examples", &examples.join("")));
+      let s = ctx.render(
+        "section.html",
+        &json!({
+          "title": "Examples",
+          "content": &examples.join(""),
+        }),
+      );
+      content_parts.push(s);
     }
   }
 
-  doc
+  content_parts.join("")
 }
 
-fn render_example(example: &str, i: usize, ctx: &RenderContext) -> String {
+pub(super) fn render_docs_summary(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> String {
+  render_docs_inner(ctx, render_ctx, js_doc, false, true)
+}
+
+pub(super) fn render_docs_with_examples(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> String {
+  render_docs_inner(ctx, render_ctx, js_doc, true, true)
+}
+
+fn get_example_render_ctx(
+  example: &str,
+  i: usize,
+  render_ctx: &RenderContext,
+) -> ExampleRenderCtx {
   let id = name_to_id("example", &i.to_string());
 
-  let (title, body) = split_markdown_title(example);
+  let (maybe_title, body) = split_markdown_title(example);
+  let title = if let Some(title) = maybe_title {
+    title.to_string()
+  } else {
+    format!("Example {}", i + 1)
+  };
+
+  let markdown_title = render_markdown_summary(&title, render_ctx);
+  let markdown_body = render_markdown(body, render_ctx);
 
   // TODO: icons
+  ExampleRenderCtx {
+    anchor: AnchorRenderCtx {
+      href: id.to_string(),
+    },
+    id: id.to_string(),
+    markdown_title,
+    markdown_body,
+  }
+}
 
-  format!(
-    r#"<div class="example">{}<details id={id}><summary><div class="arrow_toggle">&#x25B6;</div>{}</summary>{}</details></div>"#,
-    anchor(&id),
-    markdown_to_html(
-      &title.map_or_else(
-        || format!("Example {}", i + 1),
-        |summary| summary.to_string()
-      ),
-      true,
-      ctx,
-    ),
-    markdown_to_html(body, false, ctx),
-  )
+fn render_example(
+  ctx: &GenerateCtx,
+  example: &str,
+  i: usize,
+  render_ctx: &RenderContext,
+) -> String {
+  let example_render_ctx = get_example_render_ctx(example, i, render_ctx);
+  // TODO: icons
+  ctx.render("example.html", &example_render_ctx)
 }
