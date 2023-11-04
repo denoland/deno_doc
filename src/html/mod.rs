@@ -312,8 +312,11 @@ struct HtmlTailCtx {
 struct CompoundIndexCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
+  // TODO: use stronly typed value
   sidepanel_ctx: serde_json::Value,
+  // TODO: use stronly typed value
   module_docs: Vec<serde_json::Value>,
+  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
@@ -384,6 +387,7 @@ struct IndexCtx {
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: SidepanelRenderCtx,
   namespace_ctx: NamespaceRenderCtx,
+  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
@@ -478,6 +482,7 @@ struct PageCtx {
   sidepanel_ctx: SidepanelRenderCtx,
   base_url: String,
   symbol_group_ctx: SymbolGroupCtx,
+  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
