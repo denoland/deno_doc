@@ -14,6 +14,7 @@ pub struct NamespaceRenderCtx {
 
 #[derive(Serialize)]
 pub struct NamespaceSectionRenderCtx {
+  pub id: String,
   pub title: String,
   pub nodes: Vec<NamespaceSectionNodeCtx>,
 }
@@ -156,8 +157,8 @@ fn get_namespace_section_render_ctx(
     .collect::<Vec<_>>();
 
   NamespaceSectionRenderCtx {
-    // TODO(bartlomieju): turn it into a template
-    title: section_title(title),
+    id: title_to_id(title),
+    title: title.to_string(),
     nodes,
   }
 }

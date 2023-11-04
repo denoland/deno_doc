@@ -11,14 +11,9 @@ pub fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
-// TODO(bartlomieju): make it a template
-pub fn section_title(title: &str) -> String {
-  // TODO(bartlomieju): this could be a TinyTemplate formatter
-  let id = TARGET_RE.replace_all(title, "_");
-
-  format!(
-    r##"<h2 class="section_title" id="{id}"><a href="#{id}" aria-label="Anchor">{title}</a></h2>"##
-  )
+// TODO(bartlomieju): this could be a TinyTemplate formatter
+pub fn title_to_id(title: &str) -> String {
+  TARGET_RE.replace_all(title, "_").to_string()
 }
 
 #[derive(Debug, Clone)]
