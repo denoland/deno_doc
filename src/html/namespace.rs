@@ -20,7 +20,7 @@ pub struct NamespaceSectionRenderCtx {
 
 #[derive(Serialize)]
 pub struct NamespaceSectionNodeCtx {
-  pub icon: String,
+  pub doc_node_kind_ctx: DocNodeKindCtx,
   pub path: String,
   pub name: String,
   pub docs: String,
@@ -142,7 +142,7 @@ fn get_namespace_section_render_ctx(
       }
 
       NamespaceSectionNodeCtx {
-        icon: doc_node_kind_icon(ctx, doc_node.kind),
+        doc_node_kind_ctx: (&doc_node.kind).into(),
         path,
         name,
         // TODO(bartlomieju): make it a template

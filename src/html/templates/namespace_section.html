@@ -5,7 +5,7 @@
       <tr>
         <td class="symbol_section_symbol">
           <div>
-            { node.icon }
+            {{ call doc_node_kind_icon.html with node.doc_node_kind_ctx }}
             <a href="./{node.path}.html">{node.name}</a>
           </div>
         </td>

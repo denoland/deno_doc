@@ -149,31 +149,6 @@ impl RenderContext {
   }
 }
 
-pub(super) fn doc_node_kind_icon(
-  ctx: &GenerateCtx,
-  kind: DocNodeKind,
-) -> String {
-  let (char_, title) = match kind {
-    DocNodeKind::Function => ('f', "Function"),
-    DocNodeKind::Variable => ('v', "Variable"),
-    DocNodeKind::Class => ('c', "Class"),
-    DocNodeKind::Enum => ('E', "Enum"),
-    DocNodeKind::Interface => ('I', "Interface"),
-    DocNodeKind::TypeAlias => ('T', "Type Alias"),
-    DocNodeKind::Namespace => ('N', "Namespace"),
-    DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
-  };
-
-  // TODO: already a template, dedupe
-  ctx.render(
-    "doc_node_kind_icon.html",
-    &json!({
-      "kind": kind,
-      "title": title,
-      "char": char_
-    }),
-  )
-}
 #[derive(Debug, serde::Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,
