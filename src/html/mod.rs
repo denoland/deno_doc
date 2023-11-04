@@ -285,6 +285,22 @@ fn generate_pages(
   )
 }
 
+// TODO(bartlomieju): move a separate module?
+#[derive(Serialize)]
+struct HtmlHeadCtx {
+  title: String,
+  current_symbol: String,
+  additional_css: String,
+  stylesheet_url: String,
+}
+
+#[derive(Serialize)]
+struct HtmlTailCtx {
+  url_search_index: String,
+  fuse_js: String,
+  url_search: String,
+}
+
 fn render_compound_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -322,21 +338,25 @@ fn render_compound_index(
     })
     .collect::<Vec<_>>();
 
+  // TODO(bartlomieju): dedup with `render_page`
+  let html_head_ctx = HtmlHeadCtx {
+    title: format!("Index - {} documentation", ctx.package_name),
+    current_symbol: "".to_string(),
+    additional_css: render_ctx.take_additional_css(),
+    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+  };
+  let html_tail_ctx = HtmlTailCtx {
+    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}", FUSE_FILENAME),
+    url_search: format!("./{}", SEARCH_FILENAME),
+  };
+
   Ok(ctx.render(
     "compound_index.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
-      "html_head": {
-        "title": format!("Index - {} documentation", ctx.package_name),
-        "current_symbol": "",
-        "additional_css": render_ctx.take_additional_css(),
-        "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
-      },
-      "html_tail": {
-        "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
-        "fuse_js": format!("./{}", FUSE_FILENAME),
-        "url_search": format!("./{}", SEARCH_FILENAME),
-      },
+      "html_head": html_head_ctx,
+      "html_tail": html_tail_ctx,
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "module_docs": module_docs
@@ -354,21 +374,25 @@ fn render_index(
   let namespace_ctx =
     namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
 
+  // TODO(bartlomieju): dedup with `render_page`
+  let html_head_ctx = HtmlHeadCtx {
+    title: format!("Index - {} documentation", ctx.package_name),
+    current_symbol: "".to_string(),
+    additional_css: render_ctx.take_additional_css(),
+    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+  };
+  let html_tail_ctx = HtmlTailCtx {
+    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}", FUSE_FILENAME),
+    url_search: format!("./{}", SEARCH_FILENAME),
+  };
+
   Ok(ctx.render(
     "index_list.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_page`
-      "html_head": {
-        "title": format!("Index - {} documentation", ctx.package_name),
-        "current_symbol": "",
-        "additional_css": render_ctx.take_additional_css(),
-        "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
-      },
-      "html_tail": {
-        "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
-        "fuse_js": format!("./{}", FUSE_FILENAME),
-        "url_search": format!("./{}", SEARCH_FILENAME),
-      },
+      "html_head": html_head_ctx,
+      "html_tail": html_tail_ctx,
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "namespace": namespace_ctx
@@ -449,22 +473,25 @@ fn render_page(
     base_url: backs.clone(),
     ..sidepanel_ctx.clone()
   };
+  // TODO(bartlomieju): dedup with `render_page`
+  let html_head_ctx = HtmlHeadCtx {
+    title: format!("{} - {} documentation", name, ctx.package_name),
+    current_symbol: name.to_string(),
+    additional_css: render_ctx.take_additional_css(),
+    stylesheet_url: format!("./{}{}", backs, STYLESHEET_FILENAME),
+  };
+  let html_tail_ctx = HtmlTailCtx {
+    url_search_index: format!("./{}{}", backs, SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}{}", backs, FUSE_FILENAME),
+    url_search: format!("./{}{}", backs, SEARCH_FILENAME),
+  };
 
   Ok(ctx.render(
     "page.html",
     &json!({
       // TODO(bartlomieju): dedup with `render_index`
-      "html_head": {
-        "title": format!("{} - {} documentation", name, ctx.package_name),
-        "current_symbol": name,
-        "additional_css": render_ctx.take_additional_css(),
-        "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
-      },
-      "html_tail": {
-        "url_search_index": format!("./{backs}{SEARCH_INDEX_FILENAME}"),
-        "fuse_js": format!("./{backs}{FUSE_FILENAME}"),
-        "url_search": format!("./{backs}{SEARCH_FILENAME}"),
-      },
+      "html_head": html_head_ctx,
+      "html_tail": html_tail_ctx,
       "sidepanel": sidepanel_ctx,
       "search_bar": SEARCH_BAR,
       "base_url": format!("./{backs}index.html"),
