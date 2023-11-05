@@ -5,8 +5,6 @@ use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
 
-use crate::html::GenerateCtx;
-
 #[derive(Serialize)]
 pub struct NamespaceRenderCtx {
   pub sections: Vec<NamespaceSectionRenderCtx>,
@@ -43,14 +41,13 @@ pub(crate) fn get_namespace_render_ctx(
 }
 
 pub(crate) fn render_namespace(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_node: &crate::DocNode,
-  render_ctx: &RenderContext,
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
-  let namespace_ctx = get_namespace_render_ctx(render_ctx, &partitions);
+  let namespace_ctx = get_namespace_render_ctx(ctx, &partitions);
 
   let content_parts = namespace_ctx
     .sections

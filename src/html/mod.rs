@@ -63,15 +63,6 @@ impl<'ctx> GenerateCtx<'ctx> {
 
     stripped_path.to_string_lossy().to_string()
   }
-
-  // #[deprecated]
-  #[track_caller]
-  fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
-  where
-    Ctx: Serialize,
-  {
-    self.tt.render(template, context).unwrap()
-  }
 }
 
 fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
@@ -373,7 +364,7 @@ fn render_compound_index(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(ctx.render("compound_index.html", &compound_index_ctx))
+  Ok(render_ctx.render("compound_index.html", &compound_index_ctx))
 }
 
 #[derive(Serialize)]
@@ -417,7 +408,7 @@ fn render_index(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(ctx.render("index_list.html", &index_ctx))
+  Ok(render_ctx.render("index_list.html", &index_ctx))
 }
 
 fn partition_nodes_by_name(
@@ -497,7 +488,7 @@ fn render_page(
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group_ctx =
-    symbol::get_symbol_group_ctx(ctx, doc_nodes, name, &render_ctx);
+    symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, name);
 
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
 
@@ -526,7 +517,7 @@ fn render_page(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(ctx.render("page.html", &page_ctx))
+  Ok(render_ctx.render("page.html", &page_ctx))
 }
 
 #[derive(Debug, Serialize, Clone)]

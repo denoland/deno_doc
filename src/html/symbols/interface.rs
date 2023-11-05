@@ -2,13 +2,11 @@ use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
 use crate::html::types::render_type_params;
 use crate::html::util::*;
-use crate::html::GenerateCtx;
 use serde_json::json;
 
 pub(crate) fn render_interface(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_node: &crate::DocNode,
-  render_ctx: &RenderContext,
 ) -> String {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
@@ -17,22 +15,21 @@ pub(crate) fn render_interface(
     .iter()
     .map(|def| def.name.clone())
     .collect::<std::collections::HashSet<String>>();
-  let render_ctx = &render_ctx.with_current_type_params(current_type_params);
+  let ctx = &ctx.with_current_type_params(current_type_params);
 
   [
-    render_type_params(render_ctx, &interface_def.type_params),
-    render_index_signatures(ctx, &interface_def.index_signatures, render_ctx),
-    render_call_signatures(ctx, &interface_def.call_signatures, render_ctx),
-    render_properties(ctx, &interface_def.properties, render_ctx),
-    render_methods(ctx, &interface_def.methods, render_ctx),
+    render_type_params(ctx, &interface_def.type_params),
+    render_index_signatures(ctx, &interface_def.index_signatures),
+    render_call_signatures(ctx, &interface_def.call_signatures),
+    render_properties(ctx, &interface_def.properties),
+    render_methods(ctx, &interface_def.methods),
   ]
   .join("")
 }
 
 fn render_index_signatures(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   index_signatures: &[crate::interface::InterfaceIndexSignatureDef],
-  render_ctx: &RenderContext,
 ) -> String {
   if index_signatures.is_empty() {
     return String::new();
@@ -52,17 +49,14 @@ fn render_index_signatures(
       .ts_type
       .as_ref()
       .map(|ts_type| {
-        format!(
-          ": {}",
-          crate::html::types::render_type_def(render_ctx, ts_type)
-        )
+        format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
       })
       .unwrap_or_default();
 
     let content = format!(
       r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-      render_ctx.render("anchor.html", &json!({ "href": &id })),
-      render_params(render_ctx, &index_signature.params),
+      ctx.render("anchor.html", &json!({ "href": &id })),
+      render_params(ctx, &index_signature.params),
     );
     items.push(content);
   }
@@ -76,9 +70,8 @@ fn render_index_signatures(
 }
 
 fn render_call_signatures(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   call_signatures: &[crate::interface::InterfaceCallSignatureDef],
-  render_ctx: &RenderContext,
 ) -> String {
   if call_signatures.is_empty() {
     return String::new();
@@ -95,24 +88,21 @@ fn render_call_signatures(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(
-            ": {}",
-            crate::html::types::render_type_def(render_ctx, ts_type)
-          )
+          format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
         })
         .unwrap_or_default();
 
       render_doc_entry(
-        render_ctx,
+        ctx,
         &id,
         "",
         &format!(
           "{}({}){ts_type}",
           crate::html::types::type_params_summary(
-            render_ctx,
+            ctx,
             &call_signature.type_params,
           ),
-          render_params(render_ctx, &call_signature.params),
+          render_params(ctx, &call_signature.params),
         ),
         call_signature.js_doc.doc.as_deref(),
       )
@@ -126,9 +116,8 @@ fn render_call_signatures(
 }
 
 fn render_properties(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   properties: &[crate::interface::InterfacePropertyDef],
-  render_ctx: &RenderContext,
 ) -> String {
   if properties.is_empty() {
     return String::new();
@@ -160,15 +149,12 @@ fn render_properties(
         .ts_type
         .as_ref()
         .map(|ts_type| {
-          format!(
-            ": {}",
-            crate::html::types::render_type_def(render_ctx, ts_type)
-          )
+          format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
         })
         .unwrap_or_default();
 
       render_doc_entry(
-        render_ctx,
+        ctx,
         &id,
         &if property.computed {
           format!("[{}]", property.name)
@@ -188,9 +174,8 @@ fn render_properties(
 }
 
 fn render_methods(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   methods: &[crate::interface::InterfaceMethodDef],
-  render_ctx: &RenderContext,
 ) -> String {
   if methods.is_empty() {
     return String::new();
@@ -215,21 +200,18 @@ fn render_methods(
         .return_type
         .as_ref()
         .map(|ts_type| {
-          format!(
-            ": {}",
-            crate::html::types::render_type_def(render_ctx, ts_type)
-          )
+          format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
         })
         .unwrap_or_default();
 
       render_doc_entry(
-        render_ctx,
+        ctx,
         &id,
         &name,
         &format!(
           "{}({}){return_type}",
-          render_type_params(render_ctx, &method.type_params),
-          render_params(render_ctx, &method.params)
+          render_type_params(ctx, &method.type_params),
+          render_params(ctx, &method.params)
         ),
         method.js_doc.doc.as_deref(),
       )

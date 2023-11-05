@@ -136,7 +136,7 @@ struct ExampleRenderCtx {
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
 // use an enum instead?
 fn render_docs_inner(
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
@@ -144,7 +144,7 @@ fn render_docs_inner(
   let mut content_parts = vec![];
 
   if let Some(doc) = js_doc.doc.as_deref() {
-    content_parts.push(render_markdown_inner(doc, render_ctx, summary));
+    content_parts.push(render_markdown_inner(doc, ctx, summary));
   }
 
   if render_examples {
@@ -156,7 +156,7 @@ fn render_docs_inner(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(render_ctx, doc, i);
+            let example = render_example(ctx, doc, i);
             i += 1;
             example
           })
@@ -167,7 +167,7 @@ fn render_docs_inner(
       .collect::<Vec<String>>();
 
     if !examples.is_empty() {
-      let s = render_ctx.render(
+      let s = ctx.render(
         "section.html",
         &json!({
           "title": "Examples",

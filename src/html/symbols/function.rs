@@ -5,7 +5,6 @@ use crate::html::types::render_type_def;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
-use crate::html::GenerateCtx;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
@@ -49,9 +48,8 @@ struct FunctionRenderCtx {
 }
 
 pub(crate) fn render_function(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_nodes: Vec<&crate::DocNode>,
-  render_ctx: &RenderContext,
 ) -> String {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut content = Vec::with_capacity(doc_nodes.len());
@@ -70,12 +68,12 @@ pub(crate) fn render_function(
 
     let css = render_css_for_fn(&overload_id);
     // TODO(bartlomieju): maybe directly render <style> tag so we don't need `ctx` here?
-    render_ctx.add_additional_css(css);
+    ctx.add_additional_css(css);
 
     let summary_doc = if !(function_def.has_body && i == 0) {
       format!(
         r#"<div style="width: 100%;">{}</div>"#,
-        crate::html::jsdoc::render_docs_summary(render_ctx, &doc_node.js_doc)
+        crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
       )
     } else {
       String::new()
@@ -91,16 +89,11 @@ pub(crate) fn render_function(
       overload_id: overload_id.to_string(),
       html_attrs,
       name: doc_node.name.to_string(),
-      summary: render_function_summary(function_def, render_ctx),
+      summary: render_function_summary(function_def, ctx),
       summary_doc,
     });
 
-    content.push(render_single_function(
-      ctx,
-      doc_node,
-      &overload_id,
-      render_ctx,
-    ));
+    content.push(render_single_function(ctx, doc_node, &overload_id));
   }
 
   let function_ctx = FunctionRenderCtx {
@@ -128,10 +121,9 @@ pub(crate) fn render_function_summary(
 }
 
 fn render_single_function(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_node: &crate::DocNode,
   overload_id: &str,
-  render_ctx: &RenderContext,
 ) -> String {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
@@ -140,7 +132,7 @@ fn render_single_function(
     .iter()
     .map(|def| def.name.clone())
     .collect::<std::collections::HashSet<String>>();
-  let render_ctx = &render_ctx.with_current_type_params(current_type_params);
+  let ctx = &ctx.with_current_type_params(current_type_params);
 
   // TODO: tags
 
@@ -173,25 +165,19 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
+        .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
         .unwrap_or_default();
 
       // TODO: default_value, tags
 
-      render_doc_entry(
-        render_ctx,
-        &id,
-        &name,
-        &ts_type,
-        param_docs.get(i).copied(),
-      )
+      render_doc_entry(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
     })
     .collect::<String>();
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    crate::html::jsdoc::render_docs_with_examples(render_ctx, &doc_node.js_doc,),
-    render_type_params(render_ctx, &function_def.type_params),
+    crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc,),
+    render_type_params(ctx, &function_def.type_params),
     ctx.render(
       "section.html",
       &json!({ "title": "Parameters", "content": &params })
@@ -204,7 +190,7 @@ fn render_single_function(
           function_def,
           &doc_node.js_doc,
           overload_id,
-          render_ctx
+          ctx
         )
       })
     )

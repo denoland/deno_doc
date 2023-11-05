@@ -1,7 +1,6 @@
 use super::util::RenderContext;
 use crate::html::symbols;
 use crate::html::types::render_type_def;
-use crate::html::GenerateCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
@@ -22,10 +21,9 @@ pub struct SymbolCtx {
 }
 
 pub(crate) fn get_symbol_group_ctx(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_nodes: &[DocNode],
   name: &str,
-  render_ctx: &RenderContext,
 ) -> SymbolGroupCtx {
   let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
   // TODO(bartlomieju): I'm not sure what this meant to do
@@ -50,8 +48,8 @@ pub(crate) fn get_symbol_group_ctx(
     .values()
     .map(|doc_nodes| SymbolCtx {
       kind: (&doc_nodes[0].kind).into(),
-      subtitle: doc_block_subtitle(ctx, &doc_nodes[0], render_ctx),
-      body: doc_block(ctx, doc_nodes, name, render_ctx),
+      subtitle: doc_block_subtitle(ctx, &doc_nodes[0]),
+      body: doc_block(ctx, doc_nodes, name),
     })
     .collect();
 
@@ -62,9 +60,8 @@ pub(crate) fn get_symbol_group_ctx(
 }
 
 fn doc_block_subtitle(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_node: &DocNode,
-  render_ctx: &RenderContext,
 ) -> Option<String> {
   if matches!(
     doc_node.kind,
@@ -86,7 +83,7 @@ fn doc_block_subtitle(
       .map(|def| def.name.clone())
       .collect::<std::collections::HashSet<String>>();
 
-    let render_ctx = &render_ctx.with_current_type_params(current_type_params);
+    let ctx = &ctx.with_current_type_params(current_type_params);
 
     let mut class_implements = None;
     let mut class_extends = None;
@@ -95,14 +92,14 @@ fn doc_block_subtitle(
       let impls = class_def
         .implements
         .iter()
-        .map(|extend| render_type_def(render_ctx, extend))
+        .map(|extend| render_type_def(ctx, extend))
         .collect::<Vec<String>>();
 
       class_implements = Some(impls);
     }
 
     if let Some(extends) = class_def.extends.as_ref() {
-      let symbol = if let Some(href) = render_ctx.lookup_symbol_href(extends) {
+      let symbol = if let Some(href) = ctx.lookup_symbol_href(extends) {
         format!(r#"<a href="{href}" class="link">{extends}</a>"#)
       } else {
         format!("<span>{extends}</span>")
@@ -110,7 +107,7 @@ fn doc_block_subtitle(
 
       class_extends = Some(json!({
         "symbol": symbol,
-        "type_args": crate::html::types::type_arguments(render_ctx, &class_def.super_type_params)
+        "type_args": crate::html::types::type_arguments(ctx, &class_def.super_type_params)
       }));
     }
 
@@ -138,12 +135,12 @@ fn doc_block_subtitle(
       .iter()
       .map(|def| def.name.clone())
       .collect::<std::collections::HashSet<String>>();
-    let render_ctx = &render_ctx.with_current_type_params(current_type_params);
+    let ctx = &ctx.with_current_type_params(current_type_params);
 
     let extends = interface_def
       .extends
       .iter()
-      .map(|extend| render_type_def(render_ctx, extend))
+      .map(|extend| render_type_def(ctx, extend))
       .collect::<Vec<String>>();
 
     return Some(ctx.render(
@@ -160,12 +157,7 @@ fn doc_block_subtitle(
   unreachable!()
 }
 
-fn doc_block(
-  ctx: &GenerateCtx,
-  doc_nodes: &[DocNode],
-  name: &str,
-  render_ctx: &RenderContext,
-) -> String {
+fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
   let mut content_parts = Vec::with_capacity(doc_nodes.len());
   let mut functions = vec![];
 
@@ -177,60 +169,46 @@ fn doc_block(
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
-        let docs = crate::html::jsdoc::render_docs_with_examples(
-          render_ctx,
-          &doc_node.js_doc,
-        );
-        let el = symbols::variable::render_variable(render_ctx, doc_node);
+        let docs =
+          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+        let el = symbols::variable::render_variable(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content)
       }
       DocNodeKind::Class => {
-        let docs = crate::html::jsdoc::render_docs_with_examples(
-          render_ctx,
-          &doc_node.js_doc,
-        );
-        let el = symbols::class::render_class(ctx, doc_node, render_ctx);
+        let docs =
+          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+        let el = symbols::class::render_class(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Enum => {
-        let docs = crate::html::jsdoc::render_docs_with_examples(
-          render_ctx,
-          &doc_node.js_doc,
-        );
-        let el = symbols::r#enum::render_enum(doc_node, render_ctx);
+        let docs =
+          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+        let el = symbols::r#enum::render_enum(doc_node, ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Interface => {
-        let docs = crate::html::jsdoc::render_docs_with_examples(
-          render_ctx,
-          &doc_node.js_doc,
-        );
-        let el =
-          symbols::interface::render_interface(ctx, doc_node, render_ctx);
+        let docs =
+          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+        let el = symbols::interface::render_interface(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::TypeAlias => {
-        let docs = crate::html::jsdoc::render_docs_with_examples(
-          render_ctx,
-          &doc_node.js_doc,
-        );
-        let el = symbols::type_alias::render_type_alias(render_ctx, doc_node);
+        let docs =
+          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+        let el = symbols::type_alias::render_type_alias(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Namespace => {
-        let docs = crate::html::jsdoc::render_docs_with_examples(
-          render_ctx,
-          &doc_node.js_doc,
-        );
+        let docs =
+          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let el = symbols::namespace::render_namespace(
-          ctx,
+          &ctx.with_namespace(name.to_string()),
           doc_node,
-          &render_ctx.with_namespace(name.to_string()),
         );
         let content = doc_block_item(docs, el);
         content_parts.push(content);
@@ -241,8 +219,7 @@ fn doc_block(
   }
 
   if !functions.is_empty() {
-    let content =
-      symbols::function::render_function(ctx, functions, render_ctx);
+    let content = symbols::function::render_function(ctx, functions);
     content_parts.push(content);
   }
 

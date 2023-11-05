@@ -4,16 +4,14 @@ use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use crate::html::GenerateCtx;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde_json::json;
 use std::collections::BTreeMap;
 
 pub(crate) fn render_class(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   doc_node: &crate::DocNode,
-  render_ctx: &RenderContext,
 ) -> String {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
@@ -23,7 +21,7 @@ pub(crate) fn render_class(
     .map(|def| def.name.clone())
     .collect::<std::collections::HashSet<String>>();
 
-  let render_ctx = &render_ctx.with_current_type_params(current_type_params);
+  let ctx = &ctx.with_current_type_params(current_type_params);
 
   let class_items = partition_properties_and_classes(
     class_def.properties.clone(),
@@ -37,7 +35,7 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Properties",
-        "content": render_class_properties(render_ctx, class_items.properties)
+        "content": render_class_properties(ctx, class_items.properties)
       }),
     )
   };
@@ -49,7 +47,7 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Methods",
-        "content": render_class_methods(render_ctx, class_items.methods),
+        "content": render_class_methods(ctx, class_items.methods),
       }),
     )
   };
@@ -61,8 +59,8 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Static Properties",
-        "content": render_class_properties(render_ctx, class_items.static_properties),
-      })
+        "content": render_class_properties(ctx, class_items.static_properties),
+      }),
     )
   };
 
@@ -73,20 +71,15 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Static Methods",
-        "content": render_class_methods(render_ctx, class_items.static_methods),
+        "content": render_class_methods(ctx, class_items.static_methods),
       }),
     )
   };
 
   [
-    render_constructors(
-      ctx,
-      &class_def.constructors,
-      &doc_node.name,
-      render_ctx,
-    ),
-    crate::html::types::render_type_params(render_ctx, &class_def.type_params),
-    render_index_signatures(ctx, &class_def.index_signatures, render_ctx),
+    render_constructors(ctx, &class_def.constructors, &doc_node.name),
+    crate::html::types::render_type_params(ctx, &class_def.type_params),
+    render_index_signatures(ctx, &class_def.index_signatures),
     properties,
     methods,
     static_properties,
@@ -96,10 +89,9 @@ pub(crate) fn render_class(
 }
 
 fn render_constructors(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
-  render_ctx: &RenderContext,
 ) -> String {
   if constructors.is_empty() {
     return String::new();
@@ -112,13 +104,7 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: tags, render constructor params
-      render_doc_entry(
-        render_ctx,
-        &id,
-        name,
-        "()",
-        constructor.js_doc.doc.as_deref(),
-      )
+      render_doc_entry(ctx, &id, name, "()", constructor.js_doc.doc.as_deref())
     })
     .collect::<String>();
 
@@ -129,9 +115,8 @@ fn render_constructors(
 }
 
 fn render_index_signatures(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   index_signatures: &[crate::class::ClassIndexSignatureDef],
-  render_ctx: &RenderContext,
 ) -> String {
   if index_signatures.is_empty() {
     return String::new();
@@ -150,13 +135,13 @@ fn render_index_signatures(
     let ts_type = index_signature
       .ts_type
       .as_ref()
-      .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
+      .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
       .unwrap_or_default();
 
     let content = format!(
       r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
       ctx.render("anchor.html", &json!({ "href": &id })),
-      render_params(render_ctx, &index_signature.params),
+      render_params(ctx, &index_signature.params),
     );
 
     items.push(content);
