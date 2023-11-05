@@ -42,7 +42,7 @@ pub struct GenerateOptions {
 pub(crate) struct GenerateCtx<'ctx> {
   package_name: String,
   common_ancestor: Option<PathBuf>,
-  tt: TinyTemplate<'ctx>,
+  tt: Rc<TinyTemplate<'ctx>>,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -73,7 +73,7 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
-fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
+fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template(
@@ -133,7 +133,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   )?;
   tt.add_template("example.html", include_str!("./templates/example.html"))?;
   tt.add_template("function.html", include_str!("./templates/function.html"))?;
-  Ok(tt)
+  Ok(Rc::new(tt))
 }
 
 pub fn generate(
