@@ -1,13 +1,11 @@
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use crate::html::GenerateCtx;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
 
 pub(crate) fn render_params(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   params: &[ParamDef],
-  render_ctx: &RenderContext,
 ) -> String {
   if params.is_empty() {
     String::new()
@@ -15,7 +13,7 @@ pub(crate) fn render_params(
     let items = params
       .iter()
       .enumerate()
-      .map(|(i, element)| render_param(ctx, element, i, render_ctx))
+      .map(|(i, element)| render_param(ctx, element, i))
       .collect::<Vec<String>>()
       .join("<span>, </span>");
 
@@ -25,10 +23,7 @@ pub(crate) fn render_params(
     let mut items = Vec::with_capacity(params.len());
 
     for (i, def) in params.iter().enumerate() {
-      items.push(format!(
-        "<div>{}</div>",
-        render_param(ctx, def, i, render_ctx)
-      ));
+      items.push(format!("<div>{}</div>", render_param(ctx, def, i)));
     }
 
     let content = items.join("");
@@ -37,12 +32,7 @@ pub(crate) fn render_params(
   }
 }
 
-fn render_param(
-  ctx: &GenerateCtx,
-  param: &ParamDef,
-  i: usize,
-  render_ctx: &RenderContext,
-) -> String {
+fn render_param(ctx: &RenderContext, param: &ParamDef, i: usize) -> String {
   let (name, _str_name) = param_name(param, i);
   let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern {
     left.ts_type.as_ref()
@@ -52,10 +42,7 @@ fn render_param(
 
   let ts_type = ts_type
     .map(|ts_type| {
-      format!(
-        r#"<span>: {}</span>"#,
-        render_type_def(ctx, ts_type, render_ctx)
-      )
+      format!(r#"<span>: {}</span>"#, render_type_def(ctx, ts_type))
     })
     .unwrap_or_default();
 

@@ -37,7 +37,7 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Properties",
-        "content": render_class_properties(ctx, class_items.properties, render_ctx)
+        "content": render_class_properties(render_ctx, class_items.properties)
       }),
     )
   };
@@ -49,7 +49,7 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Methods",
-        "content": render_class_methods(ctx, class_items.methods, render_ctx),
+        "content": render_class_methods(render_ctx, class_items.methods),
       }),
     )
   };
@@ -61,7 +61,7 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Static Properties",
-        "content": render_class_properties(ctx, class_items.static_properties, render_ctx),
+        "content": render_class_properties(render_ctx, class_items.static_properties),
       })
     )
   };
@@ -73,7 +73,7 @@ pub(crate) fn render_class(
       "section.html",
       &json!({
         "title": "Static Methods",
-        "content": render_class_methods(ctx, class_items.static_methods, render_ctx),
+        "content": render_class_methods(render_ctx, class_items.static_methods),
       }),
     )
   };
@@ -85,11 +85,7 @@ pub(crate) fn render_class(
       &doc_node.name,
       render_ctx,
     ),
-    crate::html::types::render_type_params(
-      ctx,
-      &class_def.type_params,
-      render_ctx,
-    ),
+    crate::html::types::render_type_params(render_ctx, &class_def.type_params),
     render_index_signatures(ctx, &class_def.index_signatures, render_ctx),
     properties,
     methods,
@@ -154,13 +150,13 @@ fn render_index_signatures(
     let ts_type = index_signature
       .ts_type
       .as_ref()
-      .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type, render_ctx)))
+      .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
       .unwrap_or_default();
 
     let content = format!(
       r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
       ctx.render("anchor.html", &json!({ "href": &id })),
-      render_params(ctx, &index_signature.params, render_ctx),
+      render_params(render_ctx, &index_signature.params),
     );
 
     items.push(content);
@@ -323,10 +319,9 @@ fn partition_properties_and_classes(
 }
 
 fn render_class_accessor(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
-  render_ctx: &RenderContext,
 ) -> String {
   let name = &getter.or(setter).unwrap().name;
   let id = name_to_id("accessor", name);
@@ -344,21 +339,20 @@ fn render_class_accessor(
     .map_or_else(String::new, |ts_type| {
       format!(
         r#"<span>: <span class="font-medium">{}</span></span>"#,
-        render_type_def(ctx, ts_type, render_ctx)
+        render_type_def(ctx, ts_type)
       )
     });
   let js_doc = getter.or(setter).unwrap().js_doc.doc.as_deref();
 
   // TODO: tags
 
-  render_doc_entry(render_ctx, &id, name, &ts_type, js_doc)
+  render_doc_entry(ctx, &id, name, &ts_type, js_doc)
 }
 
 fn render_class_method(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   method: &ClassMethodDef,
   i: usize,
-  render_ctx: &RenderContext,
 ) -> String {
   if method.function_def.has_body && i != 0 {
     return String::new();
@@ -369,22 +363,17 @@ fn render_class_method(
   // TODO: tags
 
   render_doc_entry(
-    render_ctx,
+    ctx,
     &id,
     &method.name,
-    &super::function::render_function_summary(
-      ctx,
-      &method.function_def,
-      render_ctx,
-    ),
+    &super::function::render_function_summary(&method.function_def, ctx),
     method.js_doc.doc.as_deref(),
   )
 }
 
 fn render_class_property(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   property: &ClassPropertyDef,
-  render_ctx: &RenderContext,
 ) -> String {
   let id = name_to_id("property", &property.name);
 
@@ -393,11 +382,11 @@ fn render_class_property(
   let ts_type = property
     .ts_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type, render_ctx)))
+    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
     .unwrap_or_default();
 
   render_doc_entry(
-    render_ctx,
+    ctx,
     &id,
     &property.name,
     &ts_type,
@@ -406,9 +395,8 @@ fn render_class_property(
 }
 
 fn render_class_properties(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   properties: Vec<PropertyOrMethod>,
-  render_ctx: &RenderContext,
 ) -> String {
   let mut properties = properties.into_iter().peekable();
   let mut out = String::new();
@@ -416,7 +404,7 @@ fn render_class_properties(
   while let Some(property) = properties.next() {
     let content = match property {
       PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, &property, render_ctx)
+        render_class_property(ctx, &property)
       }
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
@@ -442,7 +430,7 @@ fn render_class_properties(
           (None, Some(method))
         };
 
-        render_class_accessor(ctx, getter, setter.as_ref(), render_ctx)
+        render_class_accessor(ctx, getter, setter.as_ref())
       }
     };
 
@@ -453,9 +441,8 @@ fn render_class_properties(
 }
 
 fn render_class_methods(
-  ctx: &GenerateCtx,
+  ctx: &RenderContext,
   methods: BTreeMap<String, Vec<ClassMethodDef>>,
-  render_ctx: &RenderContext,
 ) -> String {
   methods
     .values()
@@ -463,7 +450,7 @@ fn render_class_methods(
       methods
         .iter()
         .enumerate()
-        .map(|(i, method)| render_class_method(ctx, method, i, render_ctx))
+        .map(|(i, method)| render_class_method(ctx, method, i))
         .collect::<String>()
     })
     .collect()

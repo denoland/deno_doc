@@ -64,6 +64,7 @@ impl<'ctx> GenerateCtx<'ctx> {
     stripped_path.to_string_lossy().to_string()
   }
 
+  // #[deprecated]
   #[track_caller]
   fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
   where

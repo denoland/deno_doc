@@ -91,7 +91,7 @@ pub(crate) fn render_function(
       overload_id: overload_id.to_string(),
       html_attrs,
       name: doc_node.name.to_string(),
-      summary: render_function_summary(ctx, function_def, render_ctx),
+      summary: render_function_summary(function_def, render_ctx),
       summary_doc,
     });
 
@@ -111,20 +111,19 @@ pub(crate) fn render_function(
 }
 
 pub(crate) fn render_function_summary(
-  ctx: &GenerateCtx,
   function_def: &FunctionDef,
   render_ctx: &RenderContext,
 ) -> String {
   let return_type = function_def
     .return_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type, render_ctx)))
+    .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
     .unwrap_or_default();
 
   format!(
     "{}({}){return_type}",
-    type_params_summary(ctx, &function_def.type_params, render_ctx),
-    render_params(ctx, &function_def.params, render_ctx)
+    type_params_summary(render_ctx, &function_def.type_params),
+    render_params(render_ctx, &function_def.params)
   )
 }
 
@@ -174,9 +173,7 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| {
-          format!(": {}", render_type_def(ctx, ts_type, render_ctx))
-        })
+        .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
         .unwrap_or_default();
 
       // TODO: default_value, tags
@@ -194,7 +191,7 @@ fn render_single_function(
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
     crate::html::jsdoc::render_docs_with_examples(render_ctx, &doc_node.js_doc,),
-    render_type_params(ctx, &function_def.type_params, render_ctx),
+    render_type_params(render_ctx, &function_def.type_params),
     ctx.render(
       "section.html",
       &json!({ "title": "Parameters", "content": &params })
@@ -204,7 +201,6 @@ fn render_single_function(
       &json!({
         "title": "Return Type",
         "content": &render_function_return_type(
-          ctx,
           function_def,
           &doc_node.js_doc,
           overload_id,
@@ -216,7 +212,6 @@ fn render_single_function(
 }
 
 fn render_function_return_type(
-  ctx: &GenerateCtx,
   def: &FunctionDef,
   js_doc: &crate::js_doc::JsDoc,
   overload_id: &str,
@@ -240,7 +235,7 @@ fn render_function_return_type(
     render_ctx,
     &id,
     "",
-    &render_type_def(ctx, return_type, render_ctx),
+    &render_type_def(render_ctx, return_type),
     return_type_doc,
   )
 }

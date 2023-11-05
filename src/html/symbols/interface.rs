@@ -20,7 +20,7 @@ pub(crate) fn render_interface(
   let render_ctx = &render_ctx.with_current_type_params(current_type_params);
 
   [
-    render_type_params(ctx, &interface_def.type_params, render_ctx),
+    render_type_params(render_ctx, &interface_def.type_params),
     render_index_signatures(ctx, &interface_def.index_signatures, render_ctx),
     render_call_signatures(ctx, &interface_def.call_signatures, render_ctx),
     render_properties(ctx, &interface_def.properties, render_ctx),
@@ -54,15 +54,15 @@ fn render_index_signatures(
       .map(|ts_type| {
         format!(
           ": {}",
-          crate::html::types::render_type_def(ctx, ts_type, render_ctx)
+          crate::html::types::render_type_def(render_ctx, ts_type)
         )
       })
       .unwrap_or_default();
 
     let content = format!(
       r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-      ctx.render("anchor.html", &json!({ "href": &id })),
-      render_params(ctx, &index_signature.params, render_ctx),
+      render_ctx.render("anchor.html", &json!({ "href": &id })),
+      render_params(render_ctx, &index_signature.params),
     );
     items.push(content);
   }
@@ -97,7 +97,7 @@ fn render_call_signatures(
         .map(|ts_type| {
           format!(
             ": {}",
-            crate::html::types::render_type_def(ctx, ts_type, render_ctx)
+            crate::html::types::render_type_def(render_ctx, ts_type)
           )
         })
         .unwrap_or_default();
@@ -109,11 +109,10 @@ fn render_call_signatures(
         &format!(
           "{}({}){ts_type}",
           crate::html::types::type_params_summary(
-            ctx,
+            render_ctx,
             &call_signature.type_params,
-            render_ctx
           ),
-          render_params(ctx, &call_signature.params, render_ctx),
+          render_params(render_ctx, &call_signature.params),
         ),
         call_signature.js_doc.doc.as_deref(),
       )
@@ -163,7 +162,7 @@ fn render_properties(
         .map(|ts_type| {
           format!(
             ": {}",
-            crate::html::types::render_type_def(ctx, ts_type, render_ctx)
+            crate::html::types::render_type_def(render_ctx, ts_type)
           )
         })
         .unwrap_or_default();
@@ -218,7 +217,7 @@ fn render_methods(
         .map(|ts_type| {
           format!(
             ": {}",
-            crate::html::types::render_type_def(ctx, ts_type, render_ctx)
+            crate::html::types::render_type_def(render_ctx, ts_type)
           )
         })
         .unwrap_or_default();
@@ -229,8 +228,8 @@ fn render_methods(
         &name,
         &format!(
           "{}({}){return_type}",
-          render_type_params(ctx, &method.type_params, render_ctx),
-          render_params(ctx, &method.params, render_ctx)
+          render_type_params(render_ctx, &method.type_params),
+          render_params(render_ctx, &method.params)
         ),
         method.js_doc.doc.as_deref(),
       )

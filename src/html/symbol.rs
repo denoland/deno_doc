@@ -95,7 +95,7 @@ fn doc_block_subtitle(
       let impls = class_def
         .implements
         .iter()
-        .map(|extend| render_type_def(ctx, extend, render_ctx))
+        .map(|extend| render_type_def(render_ctx, extend))
         .collect::<Vec<String>>();
 
       class_implements = Some(impls);
@@ -110,7 +110,7 @@ fn doc_block_subtitle(
 
       class_extends = Some(json!({
         "symbol": symbol,
-        "type_args": crate::html::types::type_arguments(ctx, &class_def.super_type_params, render_ctx)
+        "type_args": crate::html::types::type_arguments(render_ctx, &class_def.super_type_params)
       }));
     }
 
@@ -143,7 +143,7 @@ fn doc_block_subtitle(
     let extends = interface_def
       .extends
       .iter()
-      .map(|extend| render_type_def(ctx, extend, render_ctx))
+      .map(|extend| render_type_def(render_ctx, extend))
       .collect::<Vec<String>>();
 
     return Some(ctx.render(
@@ -181,7 +181,7 @@ fn doc_block(
           render_ctx,
           &doc_node.js_doc,
         );
-        let el = symbols::variable::render_variable(ctx, doc_node, render_ctx);
+        let el = symbols::variable::render_variable(render_ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content)
       }
@@ -199,7 +199,7 @@ fn doc_block(
           render_ctx,
           &doc_node.js_doc,
         );
-        let el = symbols::r#enum::render_enum(ctx, doc_node, render_ctx);
+        let el = symbols::r#enum::render_enum(doc_node, render_ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
@@ -218,8 +218,7 @@ fn doc_block(
           render_ctx,
           &doc_node.js_doc,
         );
-        let el =
-          symbols::type_alias::render_type_alias(ctx, doc_node, render_ctx);
+        let el = symbols::type_alias::render_type_alias(render_ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
