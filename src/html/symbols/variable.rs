@@ -21,7 +21,6 @@ pub(crate) fn render_variable(
   ctx.render("section.html", &json!({
     "title": "type",
     "content": render_doc_entry(
-      ctx,
       render_ctx,
       &id,
       "",

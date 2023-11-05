@@ -541,7 +541,6 @@ pub(crate) fn render_type_params(
         .unwrap_or_default();
 
       render_doc_entry(
-        ctx,
         render_ctx,
         &id,
         &type_param.name,

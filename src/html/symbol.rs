@@ -178,7 +178,6 @@ fn doc_block(
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
         let docs = crate::html::jsdoc::render_docs_with_examples(
-          ctx,
           render_ctx,
           &doc_node.js_doc,
         );
@@ -188,7 +187,6 @@ fn doc_block(
       }
       DocNodeKind::Class => {
         let docs = crate::html::jsdoc::render_docs_with_examples(
-          ctx,
           render_ctx,
           &doc_node.js_doc,
         );
@@ -198,7 +196,6 @@ fn doc_block(
       }
       DocNodeKind::Enum => {
         let docs = crate::html::jsdoc::render_docs_with_examples(
-          ctx,
           render_ctx,
           &doc_node.js_doc,
         );
@@ -208,7 +205,6 @@ fn doc_block(
       }
       DocNodeKind::Interface => {
         let docs = crate::html::jsdoc::render_docs_with_examples(
-          ctx,
           render_ctx,
           &doc_node.js_doc,
         );
@@ -219,7 +215,6 @@ fn doc_block(
       }
       DocNodeKind::TypeAlias => {
         let docs = crate::html::jsdoc::render_docs_with_examples(
-          ctx,
           render_ctx,
           &doc_node.js_doc,
         );
@@ -230,7 +225,6 @@ fn doc_block(
       }
       DocNodeKind::Namespace => {
         let docs = crate::html::jsdoc::render_docs_with_examples(
-          ctx,
           render_ctx,
           &doc_node.js_doc,
         );

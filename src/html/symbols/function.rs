@@ -75,11 +75,7 @@ pub(crate) fn render_function(
     let summary_doc = if !(function_def.has_body && i == 0) {
       format!(
         r#"<div style="width: 100%;">{}</div>"#,
-        crate::html::jsdoc::render_docs_summary(
-          ctx,
-          render_ctx,
-          &doc_node.js_doc
-        )
+        crate::html::jsdoc::render_docs_summary(render_ctx, &doc_node.js_doc)
       )
     } else {
       String::new()
@@ -186,7 +182,6 @@ fn render_single_function(
       // TODO: default_value, tags
 
       render_doc_entry(
-        ctx,
         render_ctx,
         &id,
         &name,
@@ -198,11 +193,7 @@ fn render_single_function(
 
   format!(
     r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    crate::html::jsdoc::render_docs_with_examples(
-      ctx,
-      render_ctx,
-      &doc_node.js_doc,
-    ),
+    crate::html::jsdoc::render_docs_with_examples(render_ctx, &doc_node.js_doc,),
     render_type_params(ctx, &function_def.type_params, render_ctx),
     ctx.render(
       "section.html",
@@ -246,7 +237,6 @@ fn render_function_return_type(
   });
 
   render_doc_entry(
-    ctx,
     render_ctx,
     &id,
     "",

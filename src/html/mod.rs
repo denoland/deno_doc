@@ -331,7 +331,7 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
-  let render_ctx = RenderContext::new(Default::default(), None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), Default::default(), None);
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -391,9 +391,10 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(current_symbols.clone(), None);
+  let render_ctx =
+    RenderContext::new(ctx.tt.clone(), current_symbols.clone(), None);
   let namespace_ctx =
-    symbols::namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
+    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
@@ -490,7 +491,8 @@ fn render_page(
   let namespace = name
     .rsplit_once('.')
     .map(|(namespace, _symbol)| namespace.to_string());
-  let render_ctx = RenderContext::new(current_symbols, namespace);
+  let render_ctx =
+    RenderContext::new(ctx.tt.clone(), current_symbols, namespace);
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group_ctx =

@@ -19,7 +19,6 @@ pub(crate) fn render_enum(
       let id =
         name_to_id("enum", &format!("{}_{}", &doc_node.name, &member.name));
       render_doc_entry(
-        ctx,
         render_ctx,
         &id,
         &member.name,

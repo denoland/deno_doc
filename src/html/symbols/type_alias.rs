@@ -28,7 +28,6 @@ pub(crate) fn render_type_alias(
       &json!({
         "title": "Definition",
         "content": &render_doc_entry(
-          ctx,
           render_ctx,
           &id,
           "",

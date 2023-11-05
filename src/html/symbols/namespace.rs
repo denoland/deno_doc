@@ -28,15 +28,14 @@ pub struct NamespaceSectionNodeCtx {
 }
 
 pub(crate) fn get_namespace_render_ctx(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> NamespaceRenderCtx {
   let mut sections = Vec::with_capacity(partitions.len());
 
   for (kind, doc_nodes) in partitions {
     let ns_section_ctx =
-      get_namespace_section_render_ctx(ctx, render_ctx, *kind, doc_nodes);
+      get_namespace_section_render_ctx(ctx, *kind, doc_nodes);
     sections.push(ns_section_ctx)
   }
 
@@ -51,7 +50,7 @@ pub(crate) fn render_namespace(
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
-  let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
+  let namespace_ctx = get_namespace_render_ctx(render_ctx, &partitions);
 
   let content_parts = namespace_ctx
     .sections
@@ -107,8 +106,7 @@ pub fn partition_nodes_by_kind(
 }
 
 fn get_namespace_section_render_ctx(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   kind: DocNodeKind,
   doc_nodes: &[DocNode],
 ) -> NamespaceSectionRenderCtx {
@@ -131,7 +129,7 @@ fn get_namespace_section_render_ctx(
       let mut name = doc_node.name.clone();
       let mut path = doc_node.name.clone();
 
-      if let Some(namespace) = render_ctx.get_namespace() {
+      if let Some(namespace) = ctx.get_namespace() {
         name = format!("{namespace}.{}", doc_node.name);
         path = format!(
           "{}/{}",
@@ -147,11 +145,7 @@ fn get_namespace_section_render_ctx(
         path,
         name,
         // TODO(bartlomieju): make it a template
-        docs: crate::html::jsdoc::render_docs_summary(
-          ctx,
-          render_ctx,
-          &doc_node.js_doc,
-        ),
+        docs: crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc),
       }
     })
     .collect::<Vec<_>>();

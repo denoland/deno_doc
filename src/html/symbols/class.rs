@@ -117,7 +117,6 @@ fn render_constructors(
 
       // TODO: tags, render constructor params
       render_doc_entry(
-        ctx,
         render_ctx,
         &id,
         name,
@@ -352,7 +351,7 @@ fn render_class_accessor(
 
   // TODO: tags
 
-  render_doc_entry(ctx, render_ctx, &id, name, &ts_type, js_doc)
+  render_doc_entry(render_ctx, &id, name, &ts_type, js_doc)
 }
 
 fn render_class_method(
@@ -370,7 +369,6 @@ fn render_class_method(
   // TODO: tags
 
   render_doc_entry(
-    ctx,
     render_ctx,
     &id,
     &method.name,
@@ -399,7 +397,6 @@ fn render_class_property(
     .unwrap_or_default();
 
   render_doc_entry(
-    ctx,
     render_ctx,
     &id,
     &property.name,

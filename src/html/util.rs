@@ -1,7 +1,9 @@
 use crate::DocNodeKind;
+use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
+use tinytemplate::TinyTemplate;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -16,20 +18,23 @@ pub fn title_to_id(title: &str) -> String {
   TARGET_RE.replace_all(title, "_").to_string()
 }
 
-#[derive(Debug, Clone)]
-pub struct RenderContext {
+#[derive(Clone)]
+pub struct RenderContext<'ctx> {
   additional_css: Rc<RefCell<String>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
   namespace: Option<String>,
   current_type_params: HashSet<String>,
+  tt: Rc<TinyTemplate<'ctx>>,
 }
 
-impl RenderContext {
+impl<'ctx> RenderContext<'ctx> {
   pub fn new(
+    tt: Rc<TinyTemplate<'ctx>>,
     current_symbols: Rc<HashSet<Vec<String>>>,
     namespace: Option<String>,
   ) -> Self {
     Self {
+      tt,
       additional_css: Default::default(),
       current_type_params: Default::default(),
       namespace,
@@ -52,6 +57,14 @@ impl RenderContext {
       namespace: Some(namespace),
       ..self.clone()
     }
+  }
+
+  #[track_caller]
+  pub fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
+  where
+    Ctx: Serialize,
+  {
+    self.tt.render(template, context).unwrap()
   }
 
   pub fn add_additional_css(&self, css: String) {

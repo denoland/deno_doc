@@ -1,5 +1,4 @@
 use crate::html::util::*;
-use crate::html::GenerateCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use serde::Serialize;
@@ -137,7 +136,6 @@ struct ExampleRenderCtx {
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
 // use an enum instead?
 fn render_docs_inner(
-  ctx: &GenerateCtx,
   render_ctx: &RenderContext,
   js_doc: &JsDoc,
   render_examples: bool,
@@ -158,7 +156,7 @@ fn render_docs_inner(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(ctx, doc, i, render_ctx);
+            let example = render_example(render_ctx, doc, i);
             i += 1;
             example
           })
@@ -169,7 +167,7 @@ fn render_docs_inner(
       .collect::<Vec<String>>();
 
     if !examples.is_empty() {
-      let s = ctx.render(
+      let s = render_ctx.render(
         "section.html",
         &json!({
           "title": "Examples",
@@ -184,19 +182,17 @@ fn render_docs_inner(
 }
 
 pub(crate) fn render_docs_summary(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   js_doc: &JsDoc,
 ) -> String {
-  render_docs_inner(ctx, render_ctx, js_doc, false, true)
+  render_docs_inner(ctx, js_doc, false, true)
 }
 
 pub(crate) fn render_docs_with_examples(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   js_doc: &JsDoc,
 ) -> String {
-  render_docs_inner(ctx, render_ctx, js_doc, true, true)
+  render_docs_inner(ctx, js_doc, true, true)
 }
 
 fn get_example_render_ctx(
@@ -227,27 +223,21 @@ fn get_example_render_ctx(
   }
 }
 
-fn render_example(
-  ctx: &GenerateCtx,
-  example: &str,
-  i: usize,
-  render_ctx: &RenderContext,
-) -> String {
-  let example_render_ctx = get_example_render_ctx(example, i, render_ctx);
+fn render_example(ctx: &RenderContext, example: &str, i: usize) -> String {
+  let example_render_ctx = get_example_render_ctx(example, i, ctx);
   // TODO: icons
   ctx.render("example.html", &example_render_ctx)
 }
 
 pub(crate) fn render_doc_entry(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   id: &str,
   name: &str,
   content: &str,
   jsdoc: Option<&str>,
 ) -> String {
   let maybe_jsdoc = jsdoc
-    .map(|doc| render_markdown(doc, render_ctx))
+    .map(|doc| render_markdown(doc, ctx))
     .unwrap_or_default();
 
   // TODO: sourceHref
