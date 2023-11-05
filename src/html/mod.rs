@@ -39,7 +39,7 @@ pub struct GenerateOptions {
   pub package_name: String,
 }
 
-pub(crate) struct GenerateCtx<'ctx> {
+struct GenerateCtx<'ctx> {
   package_name: String,
   common_ancestor: Option<PathBuf>,
   tt: Rc<TinyTemplate<'ctx>>,
