@@ -1,6 +1,5 @@
 use crate::DocNodeKind;
 use serde::Serialize;
-use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
@@ -20,7 +19,6 @@ pub fn title_to_id(title: &str) -> String {
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  additional_css: Rc<RefCell<String>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
   namespace: Option<String>,
   current_type_params: HashSet<String>,
@@ -35,7 +33,6 @@ impl<'ctx> RenderContext<'ctx> {
   ) -> Self {
     Self {
       tt,
-      additional_css: Default::default(),
       current_type_params: Default::default(),
       namespace,
       current_symbols,
@@ -65,15 +62,6 @@ impl<'ctx> RenderContext<'ctx> {
     Ctx: Serialize,
   {
     self.tt.render(template, context).unwrap()
-  }
-
-  pub fn add_additional_css(&self, css: String) {
-    self.additional_css.borrow_mut().push_str(&css);
-  }
-
-  pub fn take_additional_css(&self) -> String {
-    let mut css = self.additional_css.borrow_mut();
-    std::mem::replace(&mut css, "".to_string())
   }
 
   pub fn contains_type_param(&self, name: &str) -> bool {

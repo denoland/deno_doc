@@ -35,6 +35,7 @@ fn render_css_for_fn(overload_id: &str) -> String {
 struct OverloadRenderCtx {
   function_id: String,
   overload_id: String,
+  additional_css: String,
   html_attrs: String,
   name: String,
   summary: String,
@@ -63,12 +64,8 @@ pub(crate) fn render_function(
     }
 
     let overload_id = name_to_id("function", &format!("{}_{i}", doc_node.name));
-
     let id = name_to_id("function", &doc_node.name);
-
     let css = render_css_for_fn(&overload_id);
-    // TODO(bartlomieju): maybe directly render <style> tag so we don't need `ctx` here?
-    ctx.add_additional_css(css);
 
     let summary_doc = if !(function_def.has_body && i == 0) {
       format!(
@@ -87,6 +84,7 @@ pub(crate) fn render_function(
     overloads_ctx.push(OverloadRenderCtx {
       function_id: id.to_string(),
       overload_id: overload_id.to_string(),
+      additional_css: css,
       html_attrs,
       name: doc_node.name.to_string(),
       summary: render_function_summary(function_def, ctx),
