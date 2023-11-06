@@ -5,8 +5,6 @@ use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
 
-use super::GenerateCtx;
-
 #[derive(Serialize)]
 pub struct NamespaceRenderCtx {
   pub sections: Vec<NamespaceSectionRenderCtx>,
@@ -14,6 +12,7 @@ pub struct NamespaceRenderCtx {
 
 #[derive(Serialize)]
 pub struct NamespaceSectionRenderCtx {
+  pub id: String,
   pub title: String,
   pub nodes: Vec<NamespaceSectionNodeCtx>,
 }
@@ -26,31 +25,29 @@ pub struct NamespaceSectionNodeCtx {
   pub docs: String,
 }
 
-pub(super) fn get_namespace_render_ctx(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+pub(crate) fn get_namespace_render_ctx(
+  ctx: &RenderContext,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
 ) -> NamespaceRenderCtx {
   let mut sections = Vec::with_capacity(partitions.len());
 
   for (kind, doc_nodes) in partitions {
     let ns_section_ctx =
-      get_namespace_section_render_ctx(ctx, render_ctx, *kind, doc_nodes);
+      get_namespace_section_render_ctx(ctx, *kind, doc_nodes);
     sections.push(ns_section_ctx)
   }
 
   NamespaceRenderCtx { sections }
 }
 
-pub(super) fn render_namespace(
-  ctx: &GenerateCtx,
+pub(crate) fn render_namespace(
+  ctx: &RenderContext,
   doc_node: &crate::DocNode,
-  render_ctx: &RenderContext,
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements);
-  let namespace_ctx = get_namespace_render_ctx(ctx, render_ctx, &partitions);
+  let namespace_ctx = get_namespace_render_ctx(ctx, &partitions);
 
   let content_parts = namespace_ctx
     .sections
@@ -106,8 +103,7 @@ pub fn partition_nodes_by_kind(
 }
 
 fn get_namespace_section_render_ctx(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   kind: DocNodeKind,
   doc_nodes: &[DocNode],
 ) -> NamespaceSectionRenderCtx {
@@ -130,7 +126,7 @@ fn get_namespace_section_render_ctx(
       let mut name = doc_node.name.clone();
       let mut path = doc_node.name.clone();
 
-      if let Some(namespace) = render_ctx.get_namespace() {
+      if let Some(namespace) = ctx.get_namespace() {
         name = format!("{namespace}.{}", doc_node.name);
         path = format!(
           "{}/{}",
@@ -146,18 +142,14 @@ fn get_namespace_section_render_ctx(
         path,
         name,
         // TODO(bartlomieju): make it a template
-        docs: super::jsdoc::render_docs_summary(
-          ctx,
-          render_ctx,
-          &doc_node.js_doc,
-        ),
+        docs: crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc),
       }
     })
     .collect::<Vec<_>>();
 
   NamespaceSectionRenderCtx {
-    // TODO(bartlomieju): turn it into a template
-    title: section_title(title),
+    id: title_to_id(title),
+    title: title.to_string(),
     nodes,
   }
 }

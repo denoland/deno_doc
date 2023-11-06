@@ -1,10 +1,9 @@
-use super::GenerateCtx;
+use crate::html::jsdoc::render_doc_entry;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use serde_json::json;
 
-pub(super) fn render_enum(
-  ctx: &GenerateCtx,
+pub(crate) fn render_enum(
   doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
 ) -> String {
@@ -18,21 +17,20 @@ pub(super) fn render_enum(
       let id =
         name_to_id("enum", &format!("{}_{}", &doc_node.name, &member.name));
       render_doc_entry(
-        ctx,
+        render_ctx,
         &id,
         &member.name,
         &member
           .init
           .as_ref()
-          .map(|init| format!(" = {}", render_type_def(ctx, init, render_ctx)))
+          .map(|init| format!(" = {}", render_type_def(render_ctx, init)))
           .unwrap_or_default(),
         member.js_doc.doc.as_deref(),
-        render_ctx,
       )
     })
     .collect::<String>();
 
-  ctx.render(
+  render_ctx.render(
     "section.html",
     &json!({ "title": "Members", "content": &items }),
   )

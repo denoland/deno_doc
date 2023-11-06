@@ -1,10 +1,9 @@
 use crate::DocNodeKind;
-use serde_json::json;
+use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
-
-use super::GenerateCtx;
+use tinytemplate::TinyTemplate;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -14,57 +13,28 @@ pub fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
-// TODO(bartlomieju): make it a template
-pub fn section_title(title: &str) -> String {
-  // TODO(bartlomieju): this could be a TinyTemplate formatter
-  let id = TARGET_RE.replace_all(title, "_");
-
-  format!(
-    r##"<h2 class="section_title" id="{id}"><a href="#{id}" aria-label="Anchor">{title}</a></h2>"##
-  )
+// TODO(bartlomieju): this could be a TinyTemplate formatter
+pub fn title_to_id(title: &str) -> String {
+  TARGET_RE.replace_all(title, "_").to_string()
 }
 
-pub(super) fn render_doc_entry(
-  ctx: &GenerateCtx,
-  id: &str,
-  name: &str,
-  content: &str,
-  jsdoc: Option<&str>,
-  render_ctx: &RenderContext,
-) -> String {
-  let maybe_jsdoc = jsdoc
-    .map(|doc| super::jsdoc::render_markdown(doc, render_ctx))
-    .unwrap_or_default();
-
-  // TODO: sourceHref
-  ctx.render(
-    "doc_entry.html",
-    &json!({
-      "id": id,
-      "name": name,
-      "content": content,
-      "anchor": {
-        "href": id
-      },
-      "jsdoc": maybe_jsdoc,
-    }),
-  )
-}
-
-#[derive(Debug, Clone)]
-pub struct RenderContext {
+#[derive(Clone)]
+pub struct RenderContext<'ctx> {
   additional_css: Rc<RefCell<String>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
   namespace: Option<String>,
   current_type_params: HashSet<String>,
+  tt: Rc<TinyTemplate<'ctx>>,
 }
 
-impl RenderContext {
+impl<'ctx> RenderContext<'ctx> {
   pub fn new(
+    tt: Rc<TinyTemplate<'ctx>>,
     current_symbols: Rc<HashSet<Vec<String>>>,
     namespace: Option<String>,
   ) -> Self {
     Self {
+      tt,
       additional_css: Default::default(),
       current_type_params: Default::default(),
       namespace,
@@ -87,6 +57,14 @@ impl RenderContext {
       namespace: Some(namespace),
       ..self.clone()
     }
+  }
+
+  #[track_caller]
+  pub fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
+  where
+    Ctx: Serialize,
+  {
+    self.tt.render(template, context).unwrap()
   }
 
   pub fn add_additional_css(&self, css: String) {

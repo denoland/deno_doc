@@ -12,18 +12,15 @@ use crate::html::util::RenderContext;
 use crate::node::Location;
 use crate::{DocNode, DocNodeKind};
 
-mod class;
-mod r#enum;
-mod function;
-mod interface;
 mod jsdoc;
-mod namespace;
 mod parameters;
 mod symbol;
-mod type_alias;
+mod symbols;
 mod types;
 mod util;
-mod variable;
+
+use symbol::SymbolGroupCtx;
+use symbols::namespace::NamespaceRenderCtx;
 
 const STYLESHEET: &str = include_str!("./templates/styles.css");
 const STYLESHEET_FILENAME: &str = "styles.css";
@@ -36,10 +33,6 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-const SEARCH_BAR: &str = r#"
-<input type="text" id="searchbar" style="display: none;" />
-"#;
-
 #[derive(Debug, Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
@@ -49,7 +42,7 @@ pub struct GenerateOptions {
 struct GenerateCtx<'ctx> {
   package_name: String,
   common_ancestor: Option<PathBuf>,
-  tt: TinyTemplate<'ctx>,
+  tt: Rc<TinyTemplate<'ctx>>,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -70,17 +63,9 @@ impl<'ctx> GenerateCtx<'ctx> {
 
     stripped_path.to_string_lossy().to_string()
   }
-
-  #[track_caller]
-  fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
-  where
-    Ctx: Serialize,
-  {
-    self.tt.render(template, context).unwrap()
-  }
 }
 
-fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
+fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template(
@@ -94,6 +79,14 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   tt.add_template(
     "index_list.html",
     include_str!("./templates/index_list.html"),
+  )?;
+  tt.add_template(
+    "search_bar.html",
+    include_str!("./templates/search_bar.html"),
+  )?;
+  tt.add_template(
+    "search_results.html",
+    include_str!("./templates/search_results.html"),
   )?;
   tt.add_template(
     "sidepanel.html",
@@ -132,7 +125,7 @@ fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   )?;
   tt.add_template("example.html", include_str!("./templates/example.html"))?;
   tt.add_template("function.html", include_str!("./templates/function.html"))?;
-  Ok(tt)
+  Ok(Rc::new(tt))
 }
 
 pub fn generate(
@@ -168,7 +161,7 @@ pub fn generate(
   let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
 
   let partitions_by_kind =
-    namespace::partition_nodes_by_kind_dedup_overloads(&doc_nodes);
+    symbols::namespace::partition_nodes_by_kind_dedup_overloads(&doc_nodes);
   let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
 
   // Index page (list of all symbols in all files)
@@ -285,6 +278,34 @@ fn generate_pages(
   )
 }
 
+// TODO(bartlomieju): move a separate module?
+#[derive(Serialize)]
+struct HtmlHeadCtx {
+  title: String,
+  current_symbol: String,
+  additional_css: String,
+  stylesheet_url: String,
+}
+
+#[derive(Serialize)]
+struct HtmlTailCtx {
+  url_search_index: String,
+  fuse_js: String,
+  url_search: String,
+}
+
+#[derive(Serialize)]
+struct CompoundIndexCtx {
+  html_head_ctx: HtmlHeadCtx,
+  html_tail_ctx: HtmlTailCtx,
+  // TODO: use stronly typed value
+  sidepanel_ctx: serde_json::Value,
+  // TODO: use stronly typed value
+  module_docs: Vec<serde_json::Value>,
+  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
+  search_ctx: serde_json::Value,
+}
+
 fn render_compound_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -302,7 +323,7 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
-  let render_ctx = RenderContext::new(Default::default(), None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), Default::default(), None);
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -322,26 +343,38 @@ fn render_compound_index(
     })
     .collect::<Vec<_>>();
 
-  Ok(ctx.render(
-    "compound_index.html",
-    &json!({
-      // TODO(bartlomieju): dedup with `render_page`
-      "html_head": {
-        "title": format!("Index - {} documentation", ctx.package_name),
-        "current_symbol": "",
-        "additional_css": render_ctx.take_additional_css(),
-        "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
-      },
-      "html_tail": {
-        "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
-        "fuse_js": format!("./{}", FUSE_FILENAME),
-        "url_search": format!("./{}", SEARCH_FILENAME),
-      },
-      "sidepanel": sidepanel_ctx,
-      "search_bar": SEARCH_BAR,
-      "module_docs": module_docs
-    }),
-  ))
+  // TODO(bartlomieju): dedup with `render_page`
+  let html_head_ctx = HtmlHeadCtx {
+    title: format!("Index - {} documentation", ctx.package_name),
+    current_symbol: "".to_string(),
+    additional_css: render_ctx.take_additional_css(),
+    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+  };
+  let html_tail_ctx = HtmlTailCtx {
+    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}", FUSE_FILENAME),
+    url_search: format!("./{}", SEARCH_FILENAME),
+  };
+
+  let compound_index_ctx = CompoundIndexCtx {
+    html_head_ctx,
+    html_tail_ctx,
+    sidepanel_ctx,
+    module_docs,
+    search_ctx: serde_json::Value::Null,
+  };
+
+  Ok(render_ctx.render("compound_index.html", &compound_index_ctx))
+}
+
+#[derive(Serialize)]
+struct IndexCtx {
+  html_head_ctx: HtmlHeadCtx,
+  html_tail_ctx: HtmlTailCtx,
+  sidepanel_ctx: SidepanelRenderCtx,
+  namespace_ctx: NamespaceRenderCtx,
+  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
+  search_ctx: serde_json::Value,
 }
 
 fn render_index(
@@ -350,30 +383,32 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   current_symbols: Rc<HashSet<Vec<String>>>,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(current_symbols.clone(), None);
+  let render_ctx =
+    RenderContext::new(ctx.tt.clone(), current_symbols.clone(), None);
   let namespace_ctx =
-    namespace::get_namespace_render_ctx(ctx, &render_ctx, partitions);
+    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
-  Ok(ctx.render(
-    "index_list.html",
-    &json!({
-      // TODO(bartlomieju): dedup with `render_page`
-      "html_head": {
-        "title": format!("Index - {} documentation", ctx.package_name),
-        "current_symbol": "",
-        "additional_css": render_ctx.take_additional_css(),
-        "stylesheet_url": format!("./{}", STYLESHEET_FILENAME),
-      },
-      "html_tail": {
-        "url_search_index": format!("./{}", SEARCH_INDEX_FILENAME),
-        "fuse_js": format!("./{}", FUSE_FILENAME),
-        "url_search": format!("./{}", SEARCH_FILENAME),
-      },
-      "sidepanel": sidepanel_ctx,
-      "search_bar": SEARCH_BAR,
-      "namespace": namespace_ctx
-    }),
-  ))
+  // TODO(bartlomieju): dedup with `render_page`
+  let html_head_ctx = HtmlHeadCtx {
+    title: format!("Index - {} documentation", ctx.package_name),
+    current_symbol: "".to_string(),
+    additional_css: render_ctx.take_additional_css(),
+    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+  };
+  let html_tail_ctx = HtmlTailCtx {
+    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}", FUSE_FILENAME),
+    url_search: format!("./{}", SEARCH_FILENAME),
+  };
+  let index_ctx = IndexCtx {
+    html_head_ctx,
+    html_tail_ctx,
+    sidepanel_ctx: sidepanel_ctx.clone(),
+    namespace_ctx,
+    search_ctx: serde_json::Value::Null,
+  };
+
+  Ok(render_ctx.render("index_list.html", &index_ctx))
 }
 
 fn partition_nodes_by_name(
@@ -427,6 +462,17 @@ fn get_current_symbols(
   current_symbols
 }
 
+#[derive(Serialize)]
+struct PageCtx {
+  html_head_ctx: HtmlHeadCtx,
+  html_tail_ctx: HtmlTailCtx,
+  sidepanel_ctx: SidepanelRenderCtx,
+  base_url: String,
+  symbol_group_ctx: SymbolGroupCtx,
+  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
+  search_ctx: serde_json::Value,
+}
+
 fn render_page(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
@@ -437,11 +483,12 @@ fn render_page(
   let namespace = name
     .rsplit_once('.')
     .map(|(namespace, _symbol)| namespace.to_string());
-  let render_ctx = RenderContext::new(current_symbols, namespace);
+  let render_ctx =
+    RenderContext::new(ctx.tt.clone(), current_symbols, namespace);
 
   // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group =
-    symbol::get_symbol_group_ctx(ctx, doc_nodes, name, &render_ctx);
+  let symbol_group_ctx =
+    symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, name);
 
   let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
 
@@ -449,28 +496,28 @@ fn render_page(
     base_url: backs.clone(),
     ..sidepanel_ctx.clone()
   };
+  // TODO(bartlomieju): dedup with `render_page`
+  let html_head_ctx = HtmlHeadCtx {
+    title: format!("{} - {} documentation", name, ctx.package_name),
+    current_symbol: name.to_string(),
+    additional_css: render_ctx.take_additional_css(),
+    stylesheet_url: format!("./{}{}", backs, STYLESHEET_FILENAME),
+  };
+  let html_tail_ctx = HtmlTailCtx {
+    url_search_index: format!("./{}{}", backs, SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}{}", backs, FUSE_FILENAME),
+    url_search: format!("./{}{}", backs, SEARCH_FILENAME),
+  };
+  let page_ctx = PageCtx {
+    html_head_ctx,
+    html_tail_ctx,
+    sidepanel_ctx,
+    base_url: format!("./{backs}index.html"),
+    symbol_group_ctx,
+    search_ctx: serde_json::Value::Null,
+  };
 
-  Ok(ctx.render(
-    "page.html",
-    &json!({
-      // TODO(bartlomieju): dedup with `render_index`
-      "html_head": {
-        "title": format!("{} - {} documentation", name, ctx.package_name),
-        "current_symbol": name,
-        "additional_css": render_ctx.take_additional_css(),
-        "stylesheet_url": format!("./{backs}{STYLESHEET_FILENAME}"),
-      },
-      "html_tail": {
-        "url_search_index": format!("./{backs}{SEARCH_INDEX_FILENAME}"),
-        "fuse_js": format!("./{backs}{FUSE_FILENAME}"),
-        "url_search": format!("./{backs}{SEARCH_FILENAME}"),
-      },
-      "sidepanel": sidepanel_ctx,
-      "search_bar": SEARCH_BAR,
-      "base_url": format!("./{backs}index.html"),
-      "symbol_group": symbol_group
-    }),
-  ))
+  Ok(render_ctx.render("page.html", &page_ctx))
 }
 
 #[derive(Debug, Serialize, Clone)]

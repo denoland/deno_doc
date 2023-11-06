@@ -1,5 +1,4 @@
-use super::util::*;
-use super::GenerateCtx;
+use crate::html::util::*;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use serde::Serialize;
@@ -109,14 +108,14 @@ fn render_markdown_inner(
   format!(r#"<div class="{class_name}">{html}</div>"#,)
 }
 
-pub(super) fn render_markdown_summary(
+pub(crate) fn render_markdown_summary(
   md: &str,
   render_ctx: &RenderContext,
 ) -> String {
   render_markdown_inner(md, render_ctx, true)
 }
 
-pub(super) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
+pub(crate) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
   render_markdown_inner(md, render_ctx, false)
 }
 
@@ -137,8 +136,7 @@ struct ExampleRenderCtx {
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
 // use an enum instead?
 fn render_docs_inner(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+  ctx: &RenderContext,
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
@@ -146,7 +144,7 @@ fn render_docs_inner(
   let mut content_parts = vec![];
 
   if let Some(doc) = js_doc.doc.as_deref() {
-    content_parts.push(render_markdown_inner(doc, render_ctx, summary));
+    content_parts.push(render_markdown_inner(doc, ctx, summary));
   }
 
   if render_examples {
@@ -158,7 +156,7 @@ fn render_docs_inner(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(ctx, doc, i, render_ctx);
+            let example = render_example(ctx, doc, i);
             i += 1;
             example
           })
@@ -183,20 +181,18 @@ fn render_docs_inner(
   content_parts.join("")
 }
 
-pub(super) fn render_docs_summary(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+pub(crate) fn render_docs_summary(
+  ctx: &RenderContext,
   js_doc: &JsDoc,
 ) -> String {
-  render_docs_inner(ctx, render_ctx, js_doc, false, true)
+  render_docs_inner(ctx, js_doc, false, true)
 }
 
-pub(super) fn render_docs_with_examples(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
+pub(crate) fn render_docs_with_examples(
+  ctx: &RenderContext,
   js_doc: &JsDoc,
 ) -> String {
-  render_docs_inner(ctx, render_ctx, js_doc, true, true)
+  render_docs_inner(ctx, js_doc, true, true)
 }
 
 fn get_example_render_ctx(
@@ -227,13 +223,34 @@ fn get_example_render_ctx(
   }
 }
 
-fn render_example(
-  ctx: &GenerateCtx,
-  example: &str,
-  i: usize,
-  render_ctx: &RenderContext,
-) -> String {
-  let example_render_ctx = get_example_render_ctx(example, i, render_ctx);
+fn render_example(ctx: &RenderContext, example: &str, i: usize) -> String {
+  let example_render_ctx = get_example_render_ctx(example, i, ctx);
   // TODO: icons
   ctx.render("example.html", &example_render_ctx)
+}
+
+pub(crate) fn render_doc_entry(
+  ctx: &RenderContext,
+  id: &str,
+  name: &str,
+  content: &str,
+  jsdoc: Option<&str>,
+) -> String {
+  let maybe_jsdoc = jsdoc
+    .map(|doc| render_markdown(doc, ctx))
+    .unwrap_or_default();
+
+  // TODO: sourceHref
+  ctx.render(
+    "doc_entry.html",
+    &json!({
+      "id": id,
+      "name": name,
+      "content": content,
+      "anchor": {
+        "href": id
+      },
+      "jsdoc": maybe_jsdoc,
+    }),
+  )
 }
