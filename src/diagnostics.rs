@@ -16,7 +16,6 @@ use deno_ast::swc::ast::Accessibility;
 use deno_graph::symbols::ModuleSymbolRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
-use deno_graph::symbols::SymbolMember;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -75,16 +74,21 @@ impl DiagnosticsCollector {
     referenced_module: ModuleSymbolRef,
     referenced_symbol: &Symbol,
     member_module: ModuleSymbolRef,
-    maybe_member: Option<&SymbolMember>,
+    maybe_member: Option<&Symbol>,
   ) {
     if referenced_symbol
       .decls()
+      .iter()
       .any(|decl| decl_has_ignorable_js_doc_tag(referenced_module, decl))
     {
       return; // ignore
     }
     if let Some(member) = &maybe_member {
-      if member_has_ignorable_js_doc_tag(member_module, member) {
+      if member
+        .decls()
+        .iter()
+        .any(|decl| decl_has_ignorable_js_doc_tag(member_module, decl))
+      {
         return; // ignore
       }
     }
@@ -99,14 +103,12 @@ impl DiagnosticsCollector {
     }
     if referenced_symbol
       .decls()
+      .iter()
       .any(|decl| decl_has_ignorable_js_doc_tag(referenced_module, decl))
     {
       return; // ignore
     }
-    let Some(first_decl) = referenced_symbol.decls().next() else {
-      return;
-    };
-    let Some(reference) = get_decl_name(first_decl) else {
+    let Some(reference) = referenced_symbol.maybe_name() else {
       return;
     };
 
@@ -115,7 +117,7 @@ impl DiagnosticsCollector {
         Some(member) => get_text_info_location(
           member_module.specifier().as_str(),
           member_module.text_info(),
-          member.range().start,
+          member.decls()[0].range.start,
         ),
         None => doc_node.location.clone(),
       },
@@ -388,46 +390,6 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
   }
 }
 
-fn get_decl_name(decl: &SymbolDecl) -> Option<String> {
-  use deno_ast::swc::ast::DefaultDecl;
-  use deno_ast::swc::ast::TsModuleName;
-  use deno_graph::symbols::ExportDeclRef;
-  use deno_graph::symbols::SymbolNodeRef;
-
-  fn ts_module_name_to_string(module_name: &TsModuleName) -> String {
-    match module_name {
-      TsModuleName::Ident(ident) => ident.sym.to_string(),
-      TsModuleName::Str(str) => str.value.to_string(),
-    }
-  }
-
-  let node = decl.maybe_node()?;
-  match node {
-    SymbolNodeRef::ClassDecl(n) => Some(n.ident.sym.to_string()),
-    SymbolNodeRef::ExportDecl(_, n) => match n {
-      ExportDeclRef::Class(n) => Some(n.ident.sym.to_string()),
-      ExportDeclRef::Fn(n) => Some(n.ident.sym.to_string()),
-      ExportDeclRef::Var(_, _, ident) => Some(ident.sym.to_string()),
-      ExportDeclRef::TsEnum(n) => Some(n.id.sym.to_string()),
-      ExportDeclRef::TsInterface(n) => Some(n.id.sym.to_string()),
-      ExportDeclRef::TsModule(n) => Some(ts_module_name_to_string(&n.id)),
-      ExportDeclRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
-    },
-    SymbolNodeRef::ExportDefaultDecl(n) => match &n.decl {
-      DefaultDecl::Class(n) => Some(n.ident.as_ref()?.sym.to_string()),
-      DefaultDecl::Fn(n) => Some(n.ident.as_ref()?.sym.to_string()),
-      DefaultDecl::TsInterfaceDecl(n) => Some(n.id.sym.to_string()),
-    },
-    SymbolNodeRef::ExportDefaultExprLit(_, _) => None,
-    SymbolNodeRef::FnDecl(n) => Some(n.ident.sym.to_string()),
-    SymbolNodeRef::TsEnum(n) => Some(n.id.sym.to_string()),
-    SymbolNodeRef::TsInterface(n) => Some(n.id.sym.to_string()),
-    SymbolNodeRef::TsNamespace(n) => Some(ts_module_name_to_string(&n.id)),
-    SymbolNodeRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
-    SymbolNodeRef::Var(_, _, ident) => Some(ident.sym.to_string()),
-  }
-}
-
 fn decl_has_ignorable_js_doc_tag(
   module: ModuleSymbolRef,
   decl: &SymbolDecl,
@@ -436,18 +398,6 @@ fn decl_has_ignorable_js_doc_tag(
     return false;
   };
   let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range);
-  has_ignorable_js_doc_tag(&js_doc)
-}
-
-fn member_has_ignorable_js_doc_tag(
-  module: ModuleSymbolRef,
-  member: &SymbolMember,
-) -> bool {
-  let Some(module) = module.esm() else {
-    return false;
-  };
-  let js_doc =
-    js_doc_for_range_include_ignore(module.source(), &member.range());
   has_ignorable_js_doc_tag(&js_doc)
 }
 

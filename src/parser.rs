@@ -51,7 +51,7 @@ use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleSymbolRef;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::Symbol;
-use deno_graph::symbols::SymbolMemberId;
+use deno_graph::symbols::SymbolId;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::CapturingModuleParser;
@@ -236,7 +236,8 @@ impl<'a> DocParser<'a> {
           let export_symbol = export_module.symbol(export_symbol_id).unwrap();
           let definitions = self
             .root_symbol
-            .go_to_definitions(export_module, export_symbol);
+            .go_to_definitions(export_module, export_symbol)
+            .collect::<Vec<_>>();
 
           if let Some(first_def) = definitions.first() {
             use deno_graph::symbols::DefinitionKind;
@@ -517,6 +518,7 @@ impl<'a> DocParser<'a> {
   ) -> Option<DocNode> {
     let first_ns_decl = symbol
       .decls()
+      .iter()
       .filter_map(|d| {
         d.maybe_node().and_then(|n| match n {
           SymbolNodeRef::ExportDecl(
@@ -610,7 +612,7 @@ impl<'a> DocParser<'a> {
       .visibility
       .root_exported_ids
       .contains_key(&child_symbol.unique_id()));
-    let mut doc_nodes = Vec::with_capacity(child_symbol.decls().count());
+    let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
       if let Some(mut doc_node) =
         self.doc_for_maybe_node(module_symbol, child_symbol, decl.maybe_node())
@@ -1037,7 +1039,7 @@ impl<'a> DocParser<'a> {
           self.root_symbol.get_module_from_id(dep.module_id).unwrap();
         let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
         let member =
-          maybe_member_id.and_then(|member_id| symbol.member(member_id));
+          maybe_member_id.and_then(|member_id| module_symbol.symbol(member_id));
         diagnostics.add_private_type_in_public(
           doc,
           doc_id,
@@ -1123,6 +1125,20 @@ impl<'a> DocParser<'a> {
             &export_decl.range(),
           ),
       },
+      SymbolNodeRef::AutoAccessor(_)
+      | SymbolNodeRef::ClassMethod(_)
+      | SymbolNodeRef::ClassProp(_)
+      | SymbolNodeRef::Constructor(_)
+      | SymbolNodeRef::TsIndexSignature(_)
+      | SymbolNodeRef::TsCallSignatureDecl(_)
+      | SymbolNodeRef::TsConstructSignatureDecl(_)
+      | SymbolNodeRef::TsPropertySignature(_)
+      | SymbolNodeRef::TsGetterSignature(_)
+      | SymbolNodeRef::TsSetterSignature(_)
+      | SymbolNodeRef::TsMethodSignature(_) => {
+        debug_assert!(false, "should not reach here");
+        None
+      }
     }
   }
 
@@ -1138,6 +1154,20 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::TsNamespace(n) => n.declare,
       SymbolNodeRef::TsTypeAlias(n) => n.declare,
       SymbolNodeRef::Var(n, _, _) => n.declare,
+      SymbolNodeRef::AutoAccessor(_)
+      | SymbolNodeRef::ClassMethod(_)
+      | SymbolNodeRef::ClassProp(_)
+      | SymbolNodeRef::Constructor(_)
+      | SymbolNodeRef::TsIndexSignature(_)
+      | SymbolNodeRef::TsCallSignatureDecl(_)
+      | SymbolNodeRef::TsConstructSignatureDecl(_)
+      | SymbolNodeRef::TsPropertySignature(_)
+      | SymbolNodeRef::TsGetterSignature(_)
+      | SymbolNodeRef::TsSetterSignature(_)
+      | SymbolNodeRef::TsMethodSignature(_) => {
+        debug_assert!(false, "should not reach here");
+        false
+      }
     }
   }
 
@@ -1176,31 +1206,12 @@ fn resolve_deno_graph_module<'a>(
   graph: &'a ModuleGraph,
   specifier: &ModuleSpecifier,
 ) -> Result<&'a deno_graph::Module, DocError> {
-  let module = graph
-    .try_get(specifier)
+  graph
+    .try_get_prefer_types(specifier)
     .map_err(|err| DocError::Resolve(err.to_string()))?
     .ok_or_else(|| {
       DocError::Resolve(format!("Unable to load specifier: \"{}\"", specifier))
-    })?;
-
-  if let Some(specifier) = module.esm().and_then(|m| {
-    m.maybe_types_dependency
-      .as_ref()
-      .and_then(|d| d.dependency.ok())
-      .map(|r| &r.specifier)
-  }) {
-    graph
-      .try_get(specifier)
-      .map_err(|err| DocError::Resolve(err.to_string()))?
-      .ok_or_else(|| {
-        DocError::Resolve(format!(
-          "Unable to load specifier: \"{}\"",
-          specifier
-        ))
-      })
-  } else {
-    Ok(module)
-  }
+    })
 }
 
 fn get_module_symbol<'a>(
@@ -1305,7 +1316,7 @@ fn definition_location(
 
 #[derive(Default)]
 struct SymbolMembersWithDeps(
-  IndexMap<Option<SymbolMemberId>, IndexSet<UniqueSymbolId>>,
+  IndexMap<Option<SymbolId>, IndexSet<UniqueSymbolId>>,
 );
 
 impl SymbolMembersWithDeps {
@@ -1313,18 +1324,13 @@ impl SymbolMembersWithDeps {
     self.0.is_empty()
   }
 
-  fn add(
-    &mut self,
-    maybe_member_id: Option<SymbolMemberId>,
-    def_id: UniqueSymbolId,
-  ) {
+  fn add(&mut self, maybe_member_id: Option<SymbolId>, def_id: UniqueSymbolId) {
     self.0.entry(maybe_member_id).or_default().insert(def_id);
   }
 
   fn iter(
     &self,
-  ) -> impl Iterator<Item = (&Option<SymbolMemberId>, &IndexSet<UniqueSymbolId>)>
-  {
+  ) -> impl Iterator<Item = (&Option<SymbolId>, &IndexSet<UniqueSymbolId>)> {
     self.0.iter()
   }
 }
@@ -1393,21 +1399,30 @@ impl SymbolVisibility {
         .get_module_from_id(original_id.module_id)
         .unwrap();
       let symbol = module_symbol.symbol(original_id.symbol_id).unwrap();
-      for (maybe_member, dep) in symbol.deps() {
-        let maybe_member_id = maybe_member.map(|m| m.symbol_member_id());
+      let deps_with_member_deps = symbol.deps().map(|d| (None, d)).chain(
+        symbol.members().iter().flat_map(|symbol_id| {
+          let symbol = module_symbol.symbol(*symbol_id).unwrap();
+          symbol.deps().map(move |d| (Some(symbol), d))
+        }),
+      );
+      for (maybe_member, dep) in deps_with_member_deps {
+        let maybe_member_id = maybe_member.map(|m| m.symbol_id());
         let entries = root_symbol.resolve_symbol_dep(module_symbol, dep);
         for entry in entries {
           match entry {
-            ResolvedSymbolDepEntry::Definition(definition) => {
-              let def_id = definition.unique_id();
-              if !root_exported_ids.contains_key(&def_id)
-                && non_exported_public_ids.insert(def_id)
-              {
-                if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-                  dep_ids.add(maybe_member_id, def_id);
+            ResolvedSymbolDepEntry::DefinitionPath(path) => {
+              for definition in path.into_definitions() {
+                let def_id = definition.unique_id();
+                if !root_exported_ids.contains_key(&def_id)
+                  && non_exported_public_ids.insert(def_id)
+                {
+                  if let Some(dep_ids) = root_exported_ids.get_mut(&original_id)
+                  {
+                    dep_ids.add(maybe_member_id, def_id);
+                  }
+                  // examine the private types of this private type
+                  pending_symbol_ids.push(def_id);
                 }
-                // examine the private types of this private type
-                pending_symbol_ids.push(def_id);
               }
             }
             ResolvedSymbolDepEntry::ImportType(_) => {
