@@ -1,4 +1,7 @@
 {{ for overload_ctx in overloads_ctx }}
+  <style scoped>
+    { overload_ctx.additional_css }
+  </style>
   <input type="radio" name="{ overload_ctx.function_id }" id="{ overload_ctx.overload_id }" { overload_ctx.html_attrs } />
 {{ endfor }}
 <div class="function_overload_selectors">

@@ -474,42 +474,45 @@ pub(crate) fn render_type_params(
     return String::new();
   }
 
-  let items = type_params
-    .iter()
-    .map(|type_param| {
-      let id = name_to_id("type_param", &type_param.name);
+  let mut items = Vec::with_capacity(type_params.len());
 
-      let constraint = type_param
-        .constraint
-        .as_ref()
-        .map(|constraint| {
-          format!(
-            r#"<span><span> extends </span>{}</span>"#,
-            render_type_def(ctx, constraint)
-          )
-        })
-        .unwrap_or_default();
+  for type_param in type_params.iter() {
+    let id = name_to_id("type_param", &type_param.name);
 
-      let default = type_param
-        .default
-        .as_ref()
-        .map(|default| {
-          format!(
-            r#"<span><span> = </span>{}</span>"#,
-            render_type_def(ctx, default)
-          )
-        })
-        .unwrap_or_default();
+    let constraint = type_param
+      .constraint
+      .as_ref()
+      .map(|constraint| {
+        format!(
+          r#"<span><span> extends </span>{}</span>"#,
+          render_type_def(ctx, constraint)
+        )
+      })
+      .unwrap_or_default();
 
-      render_doc_entry(
-        ctx,
-        &id,
-        &type_param.name,
-        &format!("{constraint}{default}"),
-        None,
-      )
-    })
-    .collect::<String>();
+    let default = type_param
+      .default
+      .as_ref()
+      .map(|default| {
+        format!(
+          r#"<span><span> = </span>{}</span>"#,
+          render_type_def(ctx, default)
+        )
+      })
+      .unwrap_or_default();
+
+    let content = render_doc_entry(
+      ctx,
+      &id,
+      &type_param.name,
+      &format!("{constraint}{default}"),
+      None,
+    );
+
+    items.push(content);
+  }
+
+  let items = items.join("");
 
   ctx.render(
     "section.html",

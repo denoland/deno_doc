@@ -283,7 +283,6 @@ fn generate_pages(
 struct HtmlHeadCtx {
   title: String,
   current_symbol: String,
-  additional_css: String,
   stylesheet_url: String,
 }
 
@@ -347,7 +346,6 @@ fn render_compound_index(
   let html_head_ctx = HtmlHeadCtx {
     title: format!("Index - {} documentation", ctx.package_name),
     current_symbol: "".to_string(),
-    additional_css: render_ctx.take_additional_css(),
     stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
@@ -392,7 +390,6 @@ fn render_index(
   let html_head_ctx = HtmlHeadCtx {
     title: format!("Index - {} documentation", ctx.package_name),
     current_symbol: "".to_string(),
-    additional_css: render_ctx.take_additional_css(),
     stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
@@ -500,7 +497,6 @@ fn render_page(
   let html_head_ctx = HtmlHeadCtx {
     title: format!("{} - {} documentation", name, ctx.package_name),
     current_symbol: name.to_string(),
-    additional_css: render_ctx.take_additional_css(),
     stylesheet_url: format!("./{}{}", backs, STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
