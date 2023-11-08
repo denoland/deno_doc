@@ -3,6 +3,15 @@
 
     <a href="">All symbols</a>
 
+    <h3>Modules</h3>
+    <ul>
+        {{ for file in files }}
+        <li>
+            <a href="{base_url}">{file}</a>
+        </li>
+        {{ endfor }}
+    </ul>
+    
     <h3>APIs</h3>
     <ul>
         {{ for kind in kind_partitions }}
@@ -15,15 +24,6 @@
                     </li>
                 {{ endfor }}
             </ul>
-        </li>
-        {{ endfor }}
-    </ul>
-
-    <h3>Modules</h3>
-    <ul>
-        {{ for file in files }}
-        <li>
-            <a href="{base_url}">{file}</a>
         </li>
         {{ endfor }}
     </ul>

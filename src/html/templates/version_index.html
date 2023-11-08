@@ -11,10 +11,37 @@
     {#- TODO(bartlomieju): call into template here #}
 
     <section>
-      <h2>Module<pre>{ module_doc.url }</pre></h2>
+      <h2><pre>{ module_doc.url }</pre></h2>
       { module_doc.docs }
     </section>
 
+    <section>
+      <h3>Modules</h3>
+      <ul>
+      {{ for file in sidepanel_ctx.files }}
+        <li>
+          <a href="">{ file }</a>
+        </li>
+      {{ endfor }}
+      </ul>
+    </section>
+
+    <section>
+      <h3>APIs</h3>
+      <ul>
+        {{ for kind in sidepanel_ctx.kind_partitions }}
+          <li>
+            <h3><pre>{ kind.name }</pre></h3>
+
+            {{ for symbol in kind.symbols }}
+              <li>
+                <a href="">{ symbol.name } </a>
+              </li>
+            {{ endfor }}
+          </li>
+        {{ endfor }}
+      </ul>
+    </section>
   </main>
 
   {{ call search_results.html with search_ctx }}
