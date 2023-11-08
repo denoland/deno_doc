@@ -115,3 +115,8 @@ pub fn module_export_name_value(
     ModuleExportName::Str(str) => str.value.to_string(),
   }
 }
+
+/// If the jsdoc has an `@internal` or `@ignore` tag.
+pub fn has_ignorable_js_doc_tag(js_doc: &JsDoc) -> bool {
+  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Ignore) || matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
+}

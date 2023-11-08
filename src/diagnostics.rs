@@ -1,12 +1,13 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
 use crate::js_doc::JsDoc;
-use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
 use crate::swc_util::get_text_info_location;
-use crate::swc_util::js_doc_for_range_include_ignore;
+use crate::swc_util::has_ignorable_js_doc_tag;
+use crate::symbol_util::fully_qualified_symbol_name;
+use crate::symbol_util::symbol_has_ignorable_js_doc_tag;
 use crate::ts_type::TsTypeDef;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
@@ -15,7 +16,6 @@ use crate::Location;
 use deno_ast::swc::ast::Accessibility;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
-use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -76,19 +76,11 @@ impl DiagnosticsCollector {
     member_module: ModuleInfoRef,
     maybe_member: Option<&Symbol>,
   ) {
-    if referenced_symbol
-      .decls()
-      .iter()
-      .any(|decl| decl_has_ignorable_js_doc_tag(referenced_module, decl))
-    {
+    if symbol_has_ignorable_js_doc_tag(referenced_module, referenced_symbol) {
       return; // ignore
     }
     if let Some(member) = &maybe_member {
-      if member
-        .decls()
-        .iter()
-        .any(|decl| decl_has_ignorable_js_doc_tag(member_module, decl))
-      {
+      if symbol_has_ignorable_js_doc_tag(member_module, member) {
         return; // ignore
       }
     }
@@ -101,14 +93,12 @@ impl DiagnosticsCollector {
     )) {
       return;
     }
-    if referenced_symbol
-      .decls()
-      .iter()
-      .any(|decl| decl_has_ignorable_js_doc_tag(referenced_module, decl))
-    {
+    if symbol_has_ignorable_js_doc_tag(referenced_module, referenced_symbol) {
       return; // ignore
     }
-    let Some(reference) = referenced_symbol.maybe_name() else {
+    let Some(reference) =
+      fully_qualified_symbol_name(referenced_module, referenced_symbol)
+    else {
       return;
     };
 
@@ -388,20 +378,4 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
       &parent.location,
     );
   }
-}
-
-fn decl_has_ignorable_js_doc_tag(
-  module: ModuleInfoRef,
-  decl: &SymbolDecl,
-) -> bool {
-  let Some(module) = module.esm() else {
-    return false;
-  };
-  let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range);
-  has_ignorable_js_doc_tag(&js_doc)
-}
-
-/// If the jsdoc has an `@internal` or `@ignore` tag.
-fn has_ignorable_js_doc_tag(js_doc: &JsDoc) -> bool {
-  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Ignore) || matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
 }

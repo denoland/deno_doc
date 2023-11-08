@@ -1,0 +1,42 @@
+# mod.ts
+// Should not show a diagnostic for MyNamespace because MyInternal was marked as internal
+/** Comment */
+export type PrivateProp = typeof MyNamespace.MyInternal;
+
+namespace MyNamespace {
+  /** @internal */
+  export class MyInternal {
+  }
+}
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+type PrivateProp = typeof MyNamespace.MyInternal
+  Comment
+
+
+# output.json
+[
+  {
+    "kind": "typeAlias",
+    "name": "PrivateProp",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Comment"
+    },
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "MyNamespace.MyInternal",
+        "kind": "typeQuery",
+        "typeQuery": "MyNamespace.MyInternal"
+      },
+      "typeParams": []
+    }
+  }
+]

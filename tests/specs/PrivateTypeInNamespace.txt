@@ -9,7 +9,8 @@ export interface Output {
 
 # diagnostics
 [
-  "file:///mod.ts:6:3 Type 'Output' references type 'Other' which is not exported from a root module.",
+  "file:///mod.ts:6:3 Type 'Output' references type 'Test' which is not exported from a root module.",
+  "file:///mod.ts:6:3 Type 'Output' references type 'Test.Other' which is not exported from a root module.",
   "file:///mod.ts:5:1 Missing JS documentation comment.",
   "file:///mod.ts:6:3 Missing JS documentation comment."
 ]
@@ -20,6 +21,12 @@ Defined in file:///mod.ts:5:1
 interface Output
 
   other: Test.Other
+
+Defined in file:///mod.ts:1:1
+
+private namespace Test
+
+  class Other
 
 
 # output.json
@@ -61,6 +68,41 @@ interface Output
       "callSignatures": [],
       "indexSignatures": [],
       "typeParams": []
+    }
+  },
+  {
+    "kind": "namespace",
+    "name": "Test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "class",
+          "name": "Other",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }
+      ]
     }
   }
 ]

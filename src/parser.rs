@@ -13,6 +13,7 @@ use crate::swc_util::get_text_info_location;
 use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
+use crate::symbol_util::symbol_has_ignorable_js_doc_tag;
 use crate::ts_type::LiteralPropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
@@ -555,7 +556,7 @@ impl<'a> DocParser<'a> {
         .root_symbol
         .go_to_definitions(ModuleInfoRef::Esm(module_info), export_symbol);
       for definition in definitions {
-        handled_symbols.insert(definition.unique_id());
+        handled_symbols.insert(definition.symbol.unique_id());
         if definition.module.specifier() != module_info.specifier() {
           continue;
         }
@@ -944,7 +945,7 @@ impl<'a> DocParser<'a> {
         if definition.module.specifier() != module_info.specifier() {
           continue;
         }
-        handled_symbols.insert(definition.unique_id());
+        handled_symbols.insert(definition.symbol.unique_id());
         let maybe_doc = self.doc_for_maybe_node(
           definition.module,
           definition.symbol,
@@ -1365,7 +1366,7 @@ impl SymbolVisibility {
             root_symbol.go_to_definitions(export.module, symbol);
           for definition in definitions {
             if root_exported_ids
-              .insert(definition.unique_id(), Default::default())
+              .insert(definition.symbol.unique_id(), Default::default())
               .is_none()
             {
               pending_symbols.push(definition);
@@ -1381,7 +1382,7 @@ impl SymbolVisibility {
             root_symbol.go_to_definitions(definition.module, export_symbol);
           for definition in definitions {
             if root_exported_ids
-              .insert(definition.unique_id(), Default::default())
+              .insert(definition.symbol.unique_id(), Default::default())
               .is_none()
             {
               pending_symbols.push(definition);
@@ -1408,28 +1409,56 @@ impl SymbolVisibility {
         }),
       );
       for (maybe_member, dep) in deps_with_member_deps {
-        let maybe_member_id = maybe_member.map(|m| m.symbol_id());
-        let entries = root_symbol.resolve_symbol_dep(module_info, symbol, dep);
-        for entry in entries {
-          match entry {
-            ResolvedSymbolDepEntry::Path(path) => {
-              for definition in path.into_definitions() {
-                let def_id = definition.unique_id();
-                if !root_exported_ids.contains_key(&def_id)
-                  && non_exported_public_ids.insert(def_id)
-                {
-                  if let Some(dep_ids) = root_exported_ids.get_mut(&original_id)
-                  {
-                    dep_ids.add(maybe_member_id, def_id);
+        let symbols = dep
+          .as_ref()
+          .all_qualified_names()
+          .into_iter()
+          .flat_map(|dep| {
+            let entries =
+              root_symbol.resolve_symbol_dep(module_info, symbol, dep);
+            entries
+              .into_iter()
+              .filter_map(|entry| {
+                match entry {
+                  ResolvedSymbolDepEntry::Path(path) => Some(path),
+                  ResolvedSymbolDepEntry::ImportType(_) => {
+                    // ignore for now
+                    None
                   }
-                  // examine the private types of this private type
-                  pending_symbol_ids.push(def_id);
                 }
-              }
+              })
+              .flat_map(|path| {
+                path.into_definitions_or_unresolveds().flat_map(
+                  |definition_or_unresolved| {
+                    let symbol = definition_or_unresolved.symbol();
+                    if !symbol.is_decl() {
+                      None // only analyze declarations
+                    } else {
+                      Some((definition_or_unresolved.module(), symbol))
+                    }
+                  },
+                )
+              })
+              .collect::<Vec<_>>()
+          })
+          .collect::<Vec<_>>();
+        if symbols.iter().any(|(module, symbol)| {
+          symbol_has_ignorable_js_doc_tag(*module, symbol)
+        }) {
+          continue; // ignore
+        }
+
+        let maybe_member_id = maybe_member.map(|m| m.symbol_id());
+        for (_module, symbol) in symbols {
+          let def_id = symbol.unique_id();
+          if !root_exported_ids.contains_key(&def_id)
+            && non_exported_public_ids.insert(def_id)
+          {
+            if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
+              dep_ids.add(maybe_member_id, def_id);
             }
-            ResolvedSymbolDepEntry::ImportType(_) => {
-              // ignore for now
-            }
+            // examine the private types of this private type
+            pending_symbol_ids.push(def_id);
           }
         }
       }

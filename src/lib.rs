@@ -25,6 +25,7 @@ mod node;
 mod params;
 mod parser;
 mod swc_util;
+mod symbol_util;
 mod ts_type;
 mod ts_type_param;
 mod type_alias;
