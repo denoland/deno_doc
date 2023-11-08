@@ -3,7 +3,7 @@
 use deno_ast::swc::ast::Pat;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::symbols::EsmModuleSymbol;
+use deno_graph::symbols::EsmModuleInfo;
 use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
 use serde::Serialize;
@@ -20,7 +20,7 @@ pub struct VariableDef {
 }
 
 pub fn get_docs_for_var_declarator(
-  module_symbol: &EsmModuleSymbol,
+  module_info: &EsmModuleInfo,
   var_decl: &deno_ast::swc::ast::VarDecl,
   var_declarator: &deno_ast::swc::ast::VarDeclarator,
 ) -> Vec<(String, VariableDef, Option<SourceRange>)> {
@@ -43,7 +43,7 @@ pub fn get_docs_for_var_declarator(
     .map(|def| ts_type_ann_to_def(def.as_ref()))
     .or_else(|| {
       if let Some(ref_name) = ref_name {
-        module_symbol.symbol_from_swc(&ref_name).and_then(|symbol| {
+        module_info.symbol_from_swc(&ref_name).and_then(|symbol| {
           // todo(dsherret): it would be better to go to the declaration
           // here, which is somewhat trivial with type tracing.
           for decl in symbol.decls() {
@@ -57,7 +57,7 @@ pub fn get_docs_for_var_declarator(
               }
             }
             let maybe_type_ann = infer_simple_ts_type_from_var_decl(
-              module_symbol.source(),
+              module_info.source(),
               var_declarator,
               var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
             );
@@ -73,7 +73,7 @@ pub fn get_docs_for_var_declarator(
     })
     .or_else(|| {
       infer_simple_ts_type_from_var_decl(
-        module_symbol.source(),
+        module_info.source(),
         var_declarator,
         var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
       )

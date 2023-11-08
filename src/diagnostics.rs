@@ -13,7 +13,7 @@ use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
-use deno_graph::symbols::ModuleSymbolRef;
+use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
@@ -71,9 +71,9 @@ impl DiagnosticsCollector {
     &mut self,
     doc_node: &DocNode,
     doc_id: UniqueSymbolId,
-    referenced_module: ModuleSymbolRef,
+    referenced_module: ModuleInfoRef,
     referenced_symbol: &Symbol,
-    member_module: ModuleSymbolRef,
+    member_module: ModuleInfoRef,
     maybe_member: Option<&Symbol>,
   ) {
     if referenced_symbol
@@ -123,7 +123,7 @@ impl DiagnosticsCollector {
       },
       kind: DocDiagnosticKind::PrivateTypeRef {
         name: doc_node.name.clone(),
-        reference,
+        reference: reference.to_string(),
       },
     })
   }
@@ -391,7 +391,7 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
 }
 
 fn decl_has_ignorable_js_doc_tag(
-  module: ModuleSymbolRef,
+  module: ModuleInfoRef,
   decl: &SymbolDecl,
 ) -> bool {
   let Some(module) = module.esm() else {
