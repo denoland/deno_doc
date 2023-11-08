@@ -118,10 +118,10 @@ impl<'ctx> RenderContext<'ctx> {
 #[derive(Debug, serde::Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,
-  char: char,
-  title: &'static str,
-  title_lowercase: &'static str,
-  title_plural: &'static str,
+  pub char: char,
+  pub title: &'static str,
+  pub title_lowercase: &'static str,
+  pub title_plural: &'static str,
 }
 
 impl From<&DocNodeKind> for DocNodeKindCtx {

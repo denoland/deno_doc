@@ -32,8 +32,7 @@ pub(crate) fn get_namespace_render_ctx(
   let mut sections = Vec::with_capacity(partitions.len());
 
   for (kind, doc_nodes) in partitions {
-    let ns_section_ctx =
-      get_namespace_section_render_ctx(ctx, *kind, doc_nodes);
+    let ns_section_ctx = get_namespace_section_render_ctx(ctx, kind, doc_nodes);
     sections.push(ns_section_ctx)
   }
 
@@ -46,7 +45,7 @@ pub(crate) fn render_namespace(
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
-  let partitions = partition_nodes_by_kind(&namespace_def.elements);
+  let partitions = partition_nodes_by_kind(&namespace_def.elements, false);
   let namespace_ctx = get_namespace_render_ctx(ctx, &partitions);
 
   let content_parts = namespace_ctx
@@ -58,9 +57,9 @@ pub(crate) fn render_namespace(
   content_parts.join("")
 }
 
-fn partition_nodes_by_kind_inner(
+pub fn partition_nodes_by_kind(
   doc_nodes: &[DocNode],
-  dedup_overloads: bool,
+  flatten_namespaces: bool,
 ) -> IndexMap<DocNodeKind, Vec<DocNode>> {
   let mut partitions: IndexMap<DocNodeKind, Vec<DocNode>> = IndexMap::default();
 
@@ -69,10 +68,14 @@ fn partition_nodes_by_kind_inner(
       continue;
     }
 
+    if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+      let namespace_def = node.namespace_def.as_ref().unwrap();
+      partitions.extend(partition_nodes_by_kind(&namespace_def.elements, true));
+    }
+
     let entry = partitions.entry(node.kind).or_insert(vec![]);
 
-    if !dedup_overloads || !entry.iter().any(|n: &DocNode| n.name == node.name)
-    {
+    if !entry.iter().any(|n: &DocNode| n.name == node.name) {
       entry.push(node.clone());
     }
   }
@@ -90,33 +93,12 @@ fn partition_nodes_by_kind_inner(
     .collect()
 }
 
-pub fn partition_nodes_by_kind_dedup_overloads(
-  doc_nodes: &[DocNode],
-) -> IndexMap<DocNodeKind, Vec<DocNode>> {
-  partition_nodes_by_kind_inner(doc_nodes, true)
-}
-
-pub fn partition_nodes_by_kind(
-  doc_nodes: &[DocNode],
-) -> IndexMap<DocNodeKind, Vec<DocNode>> {
-  partition_nodes_by_kind_inner(doc_nodes, true)
-}
-
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
-  kind: DocNodeKind,
+  kind: &DocNodeKind,
   doc_nodes: &[DocNode],
 ) -> NamespaceSectionRenderCtx {
-  let title = match kind {
-    DocNodeKind::Function => "Functions",
-    DocNodeKind::Variable => "Variables",
-    DocNodeKind::Class => "Classes",
-    DocNodeKind::Enum => "Enums",
-    DocNodeKind::Interface => "Interfaces",
-    DocNodeKind::TypeAlias => "Type Aliases",
-    DocNodeKind::Namespace => "Namespaces",
-    DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
-  };
+  let kind_ctx = super::super::util::DocNodeKindCtx::from(kind);
 
   let nodes = doc_nodes
     .iter()
@@ -148,8 +130,8 @@ fn get_namespace_section_render_ctx(
     .collect::<Vec<_>>();
 
   NamespaceSectionRenderCtx {
-    id: title_to_id(title),
-    title: title.to_string(),
+    id: title_to_id(&kind_ctx.kind),
+    title: kind_ctx.title_plural.to_string(),
     nodes,
   }
 }
