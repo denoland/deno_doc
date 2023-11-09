@@ -1037,21 +1037,24 @@ impl<'a> DocParser<'a> {
     }
 
     let mut diagnostics = diagnostics.borrow_mut();
-    for (maybe_member_id, deps) in deps_by_member.iter() {
-      for dep in deps {
-        let dep_module =
-          self.root_symbol.get_module_from_id(dep.module_id).unwrap();
-        let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
-        let member =
-          maybe_member_id.and_then(|member_id| module_info.symbol(member_id));
-        diagnostics.add_private_type_in_public(
-          doc,
-          doc_id,
-          dep_module,
-          dep_symbol,
-          module_info,
-          member,
-        );
+    for (maybe_member_id, decl_deps) in deps_by_member.iter() {
+      for (decl_range, deps) in decl_deps {
+        for dep in deps {
+          let dep_module =
+            self.root_symbol.get_module_from_id(dep.module_id).unwrap();
+          let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
+          let member =
+            maybe_member_id.and_then(|member_id| module_info.symbol(member_id));
+          diagnostics.add_private_type_in_public(
+            doc,
+            decl_range,
+            doc_id,
+            dep_module,
+            dep_symbol,
+            module_info,
+            member,
+          );
+        }
       }
     }
   }
@@ -1322,7 +1325,7 @@ fn definition_location(
 
 #[derive(Default)]
 struct SymbolMembersWithDeps(
-  IndexMap<Option<SymbolId>, IndexSet<UniqueSymbolId>>,
+  IndexMap<Option<SymbolId>, IndexMap<SourceRange, IndexSet<UniqueSymbolId>>>,
 );
 
 impl SymbolMembersWithDeps {
@@ -1330,13 +1333,24 @@ impl SymbolMembersWithDeps {
     self.0.is_empty()
   }
 
-  fn add(&mut self, maybe_member_id: Option<SymbolId>, def_id: UniqueSymbolId) {
-    self.0.entry(maybe_member_id).or_default().insert(def_id);
+  pub fn add(
+    &mut self,
+    maybe_member_id: Option<SymbolId>,
+    decl_range: SourceRange,
+    def_id: UniqueSymbolId,
+  ) {
+    let entries = self.0.entry(maybe_member_id).or_default();
+    entries.entry(decl_range).or_default().insert(def_id);
   }
 
-  fn iter(
+  pub fn iter(
     &self,
-  ) -> impl Iterator<Item = (&Option<SymbolId>, &IndexSet<UniqueSymbolId>)> {
+  ) -> impl Iterator<
+    Item = (
+      &Option<SymbolId>,
+      &IndexMap<SourceRange, IndexSet<UniqueSymbolId>>,
+    ),
+  > {
     self.0.iter()
   }
 }
@@ -1478,7 +1492,7 @@ impl SymbolVisibility {
             && non_exported_public_ids.insert(symbol_id)
           {
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-              dep_ids.add(maybe_member_id, symbol_id);
+              dep_ids.add(maybe_member_id, decl.range, symbol_id);
             }
             // examine the private types of this private type
             pending_symbol_ids.push(symbol_id);

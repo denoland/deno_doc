@@ -19,7 +19,7 @@ interface NoDiagnostic {}
 
 # diagnostics
 [
-  "file:///mod.ts:2:1 Type 'SameName' references type 'YesDiagnostic1' which is not exported from a root module.",
+  "file:///mod.ts:4:1 Type 'SameName' references type 'YesDiagnostic1' which is not exported from a root module.",
   "file:///mod.ts:8:1 Type 'test' references type 'YesDiagnostic2' which is not exported from a root module."
 ]
 

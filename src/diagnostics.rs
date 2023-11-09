@@ -4,6 +4,7 @@ use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
+use crate::swc_util::get_location;
 use crate::swc_util::get_text_info_location;
 use crate::swc_util::has_ignorable_js_doc_tag;
 use crate::symbol_util::fully_qualified_symbol_name;
@@ -14,6 +15,7 @@ use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
+use deno_ast::SourceRange;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::UniqueSymbolId;
@@ -70,6 +72,7 @@ impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
     doc_node: &DocNode,
+    decl_range: &SourceRange,
     doc_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
     referenced_symbol: &Symbol,
@@ -103,14 +106,11 @@ impl DiagnosticsCollector {
     };
 
     self.diagnostics.push(DocDiagnostic {
-      location: match maybe_member {
-        Some(member) => get_text_info_location(
-          member_module.specifier().as_str(),
-          member_module.text_info(),
-          member.decls()[0].range.start,
-        ),
-        None => doc_node.location.clone(),
-      },
+      location: get_text_info_location(
+        member_module.specifier().as_str(),
+        member_module.text_info(),
+        decl_range.start,
+      ),
       kind: DocDiagnosticKind::PrivateTypeRef {
         name: doc_node.name.clone(),
         reference: reference.to_string(),
