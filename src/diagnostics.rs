@@ -72,7 +72,7 @@ pub struct DiagnosticsCollector {
 impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
-    decl_name: Option<&String>,
+    decl_name: &str,
     decl_range: SourceRange,
     doc_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
@@ -103,9 +103,6 @@ impl DiagnosticsCollector {
     let Some(reference) =
       fully_qualified_symbol_name(referenced_module, referenced_symbol)
     else {
-      return;
-    };
-    let Some(decl_name) = decl_name else {
       return;
     };
 

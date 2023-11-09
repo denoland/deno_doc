@@ -1040,7 +1040,7 @@ impl<'a> DocParser<'a> {
           let member =
             maybe_member_id.and_then(|member_id| module_info.symbol(member_id));
           diagnostics.add_private_type_in_public(
-            decl_with_deps.decl_name.as_ref(),
+            &decl_with_deps.decl_name,
             decl_with_deps.decl_range,
             doc_id,
             dep_module,
@@ -1318,7 +1318,7 @@ fn definition_location(
 }
 
 struct SymbolDeclDeps {
-  decl_name: Option<String>,
+  decl_name: String,
   decl_range: SourceRange,
   deps: IndexSet<UniqueSymbolId>,
 }
@@ -1336,8 +1336,7 @@ impl SymbolMembersWithDeps {
   pub fn add(
     &mut self,
     maybe_member_id: Option<SymbolId>,
-    decl_module: ModuleInfoRef,
-    decl_symbol: &Symbol,
+    decl_name: String,
     symbol_decl: &SymbolDecl,
     dep_id: UniqueSymbolId,
   ) {
@@ -1350,7 +1349,7 @@ impl SymbolMembersWithDeps {
         entries.insert(
           symbol_decl.range,
           SymbolDeclDeps {
-            decl_name: fully_qualified_symbol_name(decl_module, decl_symbol),
+            decl_name,
             decl_range: symbol_decl.range,
             deps: IndexSet::from([dep_id]),
           },
@@ -1464,6 +1463,11 @@ impl SymbolVisibility {
         }));
       // todo: inspect exports of symbols
       for (maybe_member, decl_symbol, decl, dep) in deps_with_member_deps {
+        let Some(decl_name) =
+          fully_qualified_symbol_name(module_info, decl_symbol)
+        else {
+          continue;
+        };
         let mut symbols = Vec::new();
         // split out the parts from the dependency and resolve just the first part
         // let (dep, parts) = dep.split_parts();
@@ -1505,13 +1509,7 @@ impl SymbolVisibility {
             && non_exported_public_ids.insert(symbol_id)
           {
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-              dep_ids.add(
-                maybe_member_id,
-                module_info,
-                decl_symbol,
-                decl,
-                symbol_id,
-              );
+              dep_ids.add(maybe_member_id, decl_name.clone(), decl, symbol_id);
             }
             // examine the private types of this private type
             pending_symbol_ids.push(symbol_id);
