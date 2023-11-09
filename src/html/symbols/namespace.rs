@@ -137,8 +137,8 @@ pub fn partition_nodes_by_category(
   partitions
     .sorted_by(|key1, _value1, key2, _value2| {
       match (key1.as_str(), key2.as_str()) {
-        ("Uncategorized", _) => Ordering::Less,
-        (_, "Uncategorized") => Ordering::Greater,
+        ("Uncategorized", _) => Ordering::Greater,
+        (_, "Uncategorized") => Ordering::Less,
         _ => match key1.cmp(key2) {
           Ordering::Greater => Ordering::Greater,
           Ordering::Less => Ordering::Less,
