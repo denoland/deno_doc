@@ -206,8 +206,10 @@ fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
       DocNodeKind::Namespace => {
         let docs =
           crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+        let ns_parts =
+          name.split(".").map(String::from).collect::<Vec<String>>();
         let el = symbols::namespace::render_namespace(
-          &ctx.with_namespace(name.to_string()),
+          &ctx.with_namespace(ns_parts),
           doc_node,
         );
         let content = doc_block_item(docs, el);

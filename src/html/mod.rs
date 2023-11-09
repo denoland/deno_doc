@@ -239,25 +239,24 @@ fn generate_pages_inner(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
   name_partitions: IndexMap<String, Vec<DocNode>>,
-  base: Option<Vec<String>>,
+  namespace_paths: Vec<String>,
   all_symbols: NamespacedSymbols,
 ) -> Result<Vec<(String, String)>, anyhow::Error> {
   let mut generated_pages =
     Vec::with_capacity(name_partitions.values().len() * 2);
 
   for (name, doc_nodes) in name_partitions.iter() {
-    let file_name = base.as_ref().map_or_else(
-      || format!("{}.html", name),
-      |base| format!("{}/{name}.html", base.join("/")),
-    );
-    let symbol_name = base.as_ref().map_or(name.to_string(), |base| {
-      format!("{}.{name}", base.join("."))
-    });
+    let file_name = if namespace_paths.is_empty() {
+      format!("{}.html", name)
+    } else {
+      format!("{}/{name}.html", namespace_paths.join("/"))
+    };
 
     let page = render_page(
       ctx,
       sidepanel_ctx,
-      &symbol_name,
+      &namespace_paths,
+      name,
       doc_nodes,
       all_symbols.clone(),
     )?;
@@ -273,18 +272,17 @@ fn generate_pages_inner(
       let namespace_name_partitions =
         partition_nodes_by_name(&namespace.elements);
 
-      let new_base = if let Some(mut base) = base.clone() {
-        base.push(name.to_string());
-        base
-      } else {
-        vec![name.to_string()]
+      let namespace_paths = {
+        let mut ns_paths = namespace_paths.clone();
+        ns_paths.push(name.to_string());
+        ns_paths
       };
 
       let generated = generate_pages_inner(
         ctx,
         sidepanel_ctx,
         namespace_name_partitions,
-        Some(new_base),
+        namespace_paths,
         all_symbols.clone(),
       )?;
       generated_pages.extend_from_slice(&generated);
@@ -302,7 +300,7 @@ fn generate_pages(
 ) -> Result<Vec<(String, String)>, anyhow::Error> {
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  generate_pages_inner(ctx, sidepanel_ctx, name_partitions, None, all_symbols)
+  generate_pages_inner(ctx, sidepanel_ctx, name_partitions, vec![], all_symbols)
 }
 
 // TODO(bartlomieju): move a separate module?
@@ -350,7 +348,7 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
-  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols, None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -461,7 +459,7 @@ fn render_version_index(
     package_name: ctx.package_name.to_string(),
   };
 
-  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols, None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
 
   let module_doc_nodes = doc_nodes_by_url.get(&main_entrypoint).unwrap();
 
@@ -520,8 +518,7 @@ fn render_index(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx =
-    RenderContext::new(ctx.tt.clone(), all_symbols.clone(), None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols.clone());
   let namespace_ctx =
     symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -586,20 +583,31 @@ struct PageCtx {
 fn render_page(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
+  namespace_paths: &[String],
   name: &str,
   doc_nodes: &[DocNode],
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let namespace = name
-    .rsplit_once('.')
-    .map(|(namespace, _symbol)| namespace.to_string());
-  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols, namespace);
+  let mut render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
+  if !namespace_paths.is_empty() {
+    render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
+  }
+
+  let namespaced_name = if namespace_paths.is_empty() {
+    name.to_string()
+  } else {
+    format!("{}.{}", namespace_paths.join("."), name)
+  };
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group_ctx =
-    symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, name);
+    symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
 
-  let backs = name.split('.').skip(1).map(|_| "../").collect::<String>();
+  let backs = namespaced_name
+    .split('.')
+    .skip(1)
+    .map(|_| "../")
+    .collect::<String>();
 
   let sidepanel_ctx = SidepanelRenderCtx {
     base_url: backs.clone(),
@@ -607,8 +615,8 @@ fn render_page(
   };
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
-    title: format!("{} - {} documentation", name, ctx.package_name),
-    current_symbol: name.to_string(),
+    title: format!("{} - {} documentation", namespaced_name, ctx.package_name),
+    current_symbol: namespaced_name.to_string(),
     stylesheet_url: format!("./{}{}", backs, STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {

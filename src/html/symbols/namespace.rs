@@ -108,15 +108,10 @@ fn get_namespace_section_render_ctx(
       let mut name = doc_node.name.clone();
       let mut path = doc_node.name.clone();
 
-      if let Some(namespace) = ctx.get_namespace() {
-        name = format!("{namespace}.{}", doc_node.name);
-        path = format!(
-          "{}/{}",
-          namespace
-            .rsplit_once('.')
-            .map_or(&*namespace, |(_prev, current)| current),
-          doc_node.name
-        );
+      let ns_parts = ctx.get_namespace_parts();
+      if !ns_parts.is_empty() {
+        name = format!("{}.{}", ns_parts.join("."), doc_node.name);
+        path = format!("{}/{}", ns_parts.last().unwrap(), doc_node.name);
       }
 
       NamespaceSectionNodeCtx {

@@ -70,9 +70,6 @@ pub struct RenderContext<'ctx> {
   tt: Rc<TinyTemplate<'ctx>>,
   all_symbols: NamespacedSymbols,
   current_type_params: HashSet<String>,
-
-  /// String representation of the current namespace, eg. Some("Deno.errors").
-  namespace: Option<String>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Vec<String>,
 }
@@ -81,19 +78,11 @@ impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     tt: Rc<TinyTemplate<'ctx>>,
     all_symbols: NamespacedSymbols,
-    namespace: Option<String>,
   ) -> Self {
-    let namespace_parts = if let Some(ns) = &namespace {
-      ns.split('.').map(String::from).collect::<Vec<String>>()
-    } else {
-      vec![]
-    };
-
     Self {
       tt,
       current_type_params: Default::default(),
-      namespace,
-      namespace_parts,
+      namespace_parts: vec![],
       all_symbols,
     }
   }
@@ -108,14 +97,8 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  pub fn with_namespace(&self, namespace: String) -> Self {
-    let namespace_parts = namespace
-      .split('.')
-      .map(String::from)
-      .collect::<Vec<String>>();
-
+  pub fn with_namespace(&self, namespace_parts: Vec<String>) -> Self {
     Self {
-      namespace: Some(namespace),
       namespace_parts,
       ..self.clone()
     }
@@ -133,8 +116,8 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_namespace(&self) -> Option<String> {
-    self.namespace.clone()
+  pub fn get_namespace_parts(&self) -> Vec<String> {
+    self.namespace_parts.clone()
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
