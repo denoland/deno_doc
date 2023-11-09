@@ -93,6 +93,58 @@ pub fn partition_nodes_by_kind(
     .collect()
 }
 
+pub fn partition_nodes_by_category(
+  doc_nodes: &[DocNode],
+  flatten_namespaces: bool,
+) -> IndexMap<String, Vec<DocNode>> {
+  let mut partitions: IndexMap<String, Vec<DocNode>> = IndexMap::default();
+
+  for node in doc_nodes {
+    if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import) {
+      continue;
+    }
+
+    if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+      let namespace_def = node.namespace_def.as_ref().unwrap();
+      partitions
+        .extend(partition_nodes_by_category(&namespace_def.elements, true));
+    }
+
+    let category = node
+      .js_doc
+      .tags
+      .iter()
+      .find_map(|tag| {
+        if let crate::js_doc::JsDocTag::Category { doc } = tag {
+          doc.clone()
+        } else {
+          None
+        }
+      })
+      .unwrap_or(String::from("Uncategorized"));
+
+    let entry = partitions.entry(category).or_insert(vec![]);
+
+    if !entry.iter().any(|n: &DocNode| n.name == node.name) {
+      entry.push(node.clone());
+    }
+  }
+
+  for (_kind, nodes) in partitions.iter_mut() {
+    nodes.sort_by_key(|n| n.name.to_string());
+  }
+
+  // TODO(@crowlKats): make sure "Uncategorized" category is always last
+
+  partitions
+    .sorted_by(|key1, _value1, key2, _value2| match key1.cmp(key2) {
+      Ordering::Greater => Ordering::Greater,
+      Ordering::Less => Ordering::Less,
+      Ordering::Equal => unreachable!(),
+    })
+    .collect()
+}
+
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
   kind: &DocNodeKind,

@@ -1,12 +1,12 @@
 {{ call html_head.html with html_head_ctx }}
 
-{{ call version_sidepanel.html with sidepanel_ctx }}
+{{ call index_sidepanel.html with sidepanel_ctx }}
 
-<div id="content">
+<div id="content" class="with_sidepanel">
   <h2>Index</h2>
-  
+
   {{ call search_bar.html with search_ctx }}
-  
+
   <main>
     {#- TODO(bartlomieju): call into template here #}
 

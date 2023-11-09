@@ -79,8 +79,8 @@ fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     include_str!("./templates/html_tail.html"),
   )?;
   tt.add_template(
-    "index_list.html",
-    include_str!("./templates/index_list.html"),
+    "all_symbols.html",
+    include_str!("./templates/all_symbols.html"),
   )?;
   tt.add_template(
     "search_bar.html",
@@ -100,21 +100,10 @@ fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     include_str!("./templates/doc_entry.html"),
   )?;
   tt.add_template("section.html", include_str!("./templates/section.html"))?;
+  tt.add_template("index.html", include_str!("./templates/index.html"))?;
   tt.add_template(
-    "compound_index.html",
-    include_str!("./templates/compound_index.html"),
-  )?;
-  tt.add_template(
-    "compound_sidepanel.html",
-    include_str!("./templates/compound_sidepanel.html"),
-  )?;
-  tt.add_template(
-    "version_index.html",
-    include_str!("./templates/version_index.html"),
-  )?;
-  tt.add_template(
-    "version_sidepanel.html",
-    include_str!("./templates/version_sidepanel.html"),
+    "index_sidepanel.html",
+    include_str!("./templates/index_sidepanel.html"),
   )?;
   tt.add_template(
     "doc_node_kind_icon.html",
@@ -170,50 +159,49 @@ pub fn generate(
 
   let all_symbols = NamespacedSymbols::new(&doc_nodes);
 
-  let partitions_by_kind =
-    symbols::namespace::partition_nodes_by_kind(&doc_nodes, true);
-  let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
-
-  // Index page (list of all symbols in all files)
-  {
-    let index = render_index(
-      &ctx,
-      &sidepanel_ctx,
-      &partitions_by_kind,
-      all_symbols.clone(),
-    )?;
-    files.insert("index.html".to_string(), index);
-  }
-
-  // "Compound index" page (list of all files and symbol kinds)
-  {
-    let compound_index = render_compound_index(
-      &ctx,
-      doc_nodes_by_url,
-      &partitions_by_kind,
-      all_symbols.clone(),
-    )?;
-    files.insert("compound_index.html".to_string(), compound_index);
-  }
-
-  // "Version index" page
+  // Index page
   {
     // TODO(bartlomieju): this is fake - we should pass the actual main entrypoint
     let main_entrypoint = doc_nodes_by_url.keys().next().unwrap().clone();
 
     let doc_nodes = doc_nodes_by_url.get(&main_entrypoint).cloned().unwrap();
-    let partitions_by_kind_for_main_entrypoint =
-      symbols::namespace::partition_nodes_by_kind(&doc_nodes, true);
+    let categories =
+      symbols::namespace::partition_nodes_by_category(&doc_nodes, true);
 
-    let version_index = render_version_index(
+    let partitions_for_main_entrypoint =
+      if categories.len() == 1 && categories.contains_key("Uncategorized") {
+        symbols::namespace::partition_nodes_by_kind(&doc_nodes, true)
+          .into_iter()
+          .map(|(kind, nodes)| {
+            let doc_node_kind_ctx: util::DocNodeKindCtx = (&kind).into();
+            (doc_node_kind_ctx.title.to_string(), nodes)
+          })
+          .collect()
+      } else {
+        categories
+      };
+
+    let index = render_index(
       &ctx,
       main_entrypoint,
       doc_nodes_by_url,
-      &partitions_by_kind_for_main_entrypoint,
+      partitions_for_main_entrypoint,
       all_symbols.clone(),
     )?;
-    files.insert("version_index.html".to_string(), version_index);
+    files.insert("index.html".to_string(), index);
   }
+
+  let partitions_by_kind =
+    symbols::namespace::partition_nodes_by_kind(&doc_nodes, true);
+
+  // All symbols (list of all symbols in all files)
+  {
+    let all_symbols_render =
+      render_all_symbols(&ctx, &partitions_by_kind, all_symbols.clone())?;
+    files.insert("all_symbols.html".to_string(), all_symbols_render);
+  }
+
+  let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
 
   // Pages for all discovered symbols
   {
@@ -319,114 +307,42 @@ struct HtmlTailCtx {
 }
 
 #[derive(Serialize)]
-struct CompoundIndexCtx {
-  html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
-  // TODO: use stronly typed value
-  sidepanel_ctx: serde_json::Value,
-  // TODO: use stronly typed value
-  module_docs: Vec<serde_json::Value>,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
-}
-
-fn render_compound_index(
-  ctx: &GenerateCtx,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
-  all_symbols: NamespacedSymbols,
-) -> Result<String, anyhow::Error> {
-  let files = doc_nodes_by_url
-    .keys()
-    .map(|url| ctx.url_to_short_path(url))
-    .collect::<Vec<_>>();
-
-  let sidepanel_ctx = json!({
-    "node_kinds": partitions.keys().map(|k| format!("{:?}", k)).collect::<Vec<_>>(),
-    "files": files,
-    "base_url": "./".to_string(),
-    "package_name": ctx.package_name.to_string(),
-  });
-
-  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
-
-  let module_docs = doc_nodes_by_url
-    .iter()
-    .map(|(url, nodes)| {
-      let docs = nodes
-        .iter()
-        .find(|node| node.kind == DocNodeKind::ModuleDoc);
-      let docs_md = docs
-        .and_then(|node| node.js_doc.doc.clone())
-        .unwrap_or_default();
-      let rendered_docs = render_markdown(&docs_md, &render_ctx);
-
-      json!({
-        "url": ctx.url_to_short_path(url),
-        "docs": rendered_docs,
-      })
-    })
-    .collect::<Vec<_>>();
-
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!("Index - {} documentation", ctx.package_name),
-    current_symbol: "".to_string(),
-    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
-    fuse_js: format!("./{}", FUSE_FILENAME),
-    url_search: format!("./{}", SEARCH_FILENAME),
-  };
-
-  let compound_index_ctx = CompoundIndexCtx {
-    html_head_ctx,
-    html_tail_ctx,
-    sidepanel_ctx,
-    module_docs,
-    search_ctx: serde_json::Value::Null,
-  };
-
-  Ok(render_ctx.render("compound_index.html", &compound_index_ctx))
-}
-
-#[derive(Serialize)]
-struct VersionIndexSidepanelPartitionNodeCtx {
+struct IndexSidepanelPartitionNodeCtx {
+  kind: util::DocNodeKindCtx,
   name: String,
   href: String,
 }
 
 #[derive(Serialize)]
-struct VersionIndexSidepanelPartitionCtx {
+struct IndexSidepanelPartitionCtx {
   name: String,
-  symbols: Vec<VersionIndexSidepanelPartitionNodeCtx>,
+  symbols: Vec<IndexSidepanelPartitionNodeCtx>,
 }
 
 #[derive(Serialize)]
-struct VersionIndexSidepanelCtx {
-  kind_partitions: Vec<VersionIndexSidepanelPartitionCtx>,
+struct IndexSidepanelCtx {
+  kind_partitions: Vec<IndexSidepanelPartitionCtx>,
   files: Vec<String>,
   base_url: String,
   package_name: String,
 }
 
 #[derive(Serialize)]
-struct VersionIndexCtx {
+struct IndexCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
-  sidepanel_ctx: VersionIndexSidepanelCtx,
+  sidepanel_ctx: IndexSidepanelCtx,
   // TODO: use stronly typed value
   module_doc: serde_json::Value,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
-fn render_version_index(
+fn render_index(
   ctx: &GenerateCtx,
   main_entrypoint: ModuleSpecifier,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+  partitions: IndexMap<String, Vec<DocNode>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
@@ -435,24 +351,24 @@ fn render_version_index(
     .map(|url| ctx.url_to_short_path(url))
     .collect::<Vec<_>>();
 
+  // TODO(@crowlKats): if files is empty, dont render "Modules" section in sidepanel
+
   let kind_partitions = partitions
-    .iter()
-    .map(|(kind, nodes)| {
+    .into_iter()
+    .map(|(name, nodes)| {
       let symbols = nodes
         .iter()
-        .map(|node| VersionIndexSidepanelPartitionNodeCtx {
+        .map(|node| IndexSidepanelPartitionNodeCtx {
+          kind: (&node.kind).into(),
           name: node.name.to_string(),
           href: "TODO".to_string(),
         })
         .collect::<Vec<_>>();
-      VersionIndexSidepanelPartitionCtx {
-        name: format!("{:?}", kind),
-        symbols,
-      }
+      IndexSidepanelPartitionCtx { name, symbols }
     })
     .collect::<Vec<_>>();
 
-  let sidepanel_ctx = VersionIndexSidepanelCtx {
+  let sidepanel_ctx = IndexSidepanelCtx {
     kind_partitions,
     files,
     base_url: "./".to_string(),
@@ -491,7 +407,7 @@ fn render_version_index(
     url_search: format!("./{}", SEARCH_FILENAME),
   };
 
-  let compound_index_ctx = VersionIndexCtx {
+  let index_ctx = IndexCtx {
     html_head_ctx,
     html_tail_ctx,
     sidepanel_ctx,
@@ -499,22 +415,20 @@ fn render_version_index(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("version_index.html", &compound_index_ctx))
+  Ok(render_ctx.render("index.html", &index_ctx))
 }
 
 #[derive(Serialize)]
-struct IndexCtx {
+struct AllSymbolsCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
-  sidepanel_ctx: SidepanelRenderCtx,
   namespace_ctx: NamespaceRenderCtx,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
-fn render_index(
+fn render_all_symbols(
   ctx: &GenerateCtx,
-  sidepanel_ctx: &SidepanelRenderCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
@@ -524,7 +438,7 @@ fn render_index(
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
-    title: format!("Index - {} documentation", ctx.package_name),
+    title: format!("All Symbols - {} documentation", ctx.package_name),
     current_symbol: "".to_string(),
     stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
   };
@@ -533,15 +447,14 @@ fn render_index(
     fuse_js: format!("./{}", FUSE_FILENAME),
     url_search: format!("./{}", SEARCH_FILENAME),
   };
-  let index_ctx = IndexCtx {
+  let all_symbols_ctx = AllSymbolsCtx {
     html_head_ctx,
     html_tail_ctx,
-    sidepanel_ctx: sidepanel_ctx.clone(),
     namespace_ctx,
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("index_list.html", &index_ctx))
+  Ok(render_ctx.render("all_symbols.html", &all_symbols_ctx))
 }
 
 fn partition_nodes_by_name(

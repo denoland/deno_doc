@@ -15,8 +15,10 @@ table {
   padding: 30px;
   width: 100%;
   background-color: white;
-  border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
   overflow-y: auto;
+}
+#content.with_sidepanel {
+  border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
 }
 #content > h2 {
   margin: 0;
@@ -61,12 +63,16 @@ a {
   margin: -2px 0;
 }
 #sidepanel a {
-  display: block;
-  padding: 4px 8px 4px 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  line-height: 1;
   border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
   position: relative;
 }
 #sidepanel a span {
+  flex-shrink: 0;
   display: block;
   width: 100%;
   overflow: hidden;

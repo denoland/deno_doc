@@ -11,7 +11,7 @@
         </li>
         {{ endfor }}
     </ul>
-    
+
     <h3>APIs</h3>
     <ul>
         {{ for kind in kind_partitions }}
@@ -20,7 +20,10 @@
             <ul>
                 {{ for symbol in kind.symbols }}
                     <li>
-                        <a href="{ symbol.href }">{ symbol.name }</a>
+                        <a href="{ symbol.href }">
+                          {{ call doc_node_kind_icon.html with symbol.kind }}
+                          <span>{ symbol.name }</span>
+                        </a>
                     </li>
                 {{ endfor }}
             </ul>
