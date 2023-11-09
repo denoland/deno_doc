@@ -69,6 +69,7 @@ impl NamespacedSymbols {
 pub struct RenderContext<'ctx> {
   all_symbols: NamespacedSymbols,
   namespace: Option<String>,
+  namespace_parts: Vec<String>,
   current_type_params: HashSet<String>,
   tt: Rc<TinyTemplate<'ctx>>,
 }
@@ -79,10 +80,17 @@ impl<'ctx> RenderContext<'ctx> {
     all_symbols: NamespacedSymbols,
     namespace: Option<String>,
   ) -> Self {
+    let namespace_parts = if let Some(ns) = &namespace {
+      ns.split('.').map(String::from).collect::<Vec<String>>()
+    } else {
+      vec![]
+    };
+
     Self {
       tt,
       current_type_params: Default::default(),
       namespace,
+      namespace_parts,
       all_symbols,
     }
   }
@@ -98,8 +106,14 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn with_namespace(&self, namespace: String) -> Self {
+    let namespace_parts = namespace
+      .split('.')
+      .map(String::from)
+      .collect::<Vec<String>>();
+
     Self {
       namespace: Some(namespace),
+      namespace_parts,
       ..self.clone()
     }
   }
@@ -121,11 +135,8 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
-    if let Some(namespace) = &self.namespace {
-      let mut parts = namespace
-        .split('.')
-        .map(String::from)
-        .collect::<Vec<String>>();
+    if self.namespace.is_some() {
+      let mut parts = self.namespace_parts.clone();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
         current_parts.extend(target_symbol.split('.').map(String::from));
@@ -148,8 +159,12 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<String>>();
 
     if self.all_symbols.contains(&split_symbol) {
-      let backs = if let Some(namespace) = &self.namespace {
-        namespace.split('.').map(|_| "../").collect::<String>()
+      let backs = if self.namespace.is_some() {
+        self
+          .namespace_parts
+          .iter()
+          .map(|_| "../")
+          .collect::<String>()
       } else {
         String::new()
       };
