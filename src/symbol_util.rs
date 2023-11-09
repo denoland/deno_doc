@@ -35,6 +35,7 @@ pub fn symbol_has_ignorable_js_doc_tag(
   module: ModuleInfoRef,
   symbol: &Symbol,
 ) -> bool {
+  debug_assert_eq!(module.module_id(), symbol.module_id());
   if symbol
     .decls()
     .iter()

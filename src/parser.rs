@@ -47,12 +47,15 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::symbols::DefinitionPath;
 use deno_graph::symbols::EsmModuleInfo;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::SymbolId;
+use deno_graph::symbols::SymbolNodeDep;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::CapturingModuleParser;
@@ -1402,63 +1405,83 @@ impl SymbolVisibility {
         .get_module_from_id(original_id.module_id)
         .unwrap();
       let symbol = module_info.symbol(original_id.symbol_id).unwrap();
-      let deps_with_member_deps = symbol.deps().map(|d| (None, d)).chain(
-        symbol.members().iter().flat_map(|symbol_id| {
+      // todo: don't populate implementation signatures and private members
+      let deps_with_member_deps = symbol
+        .decls()
+        .iter()
+        .filter(|d| !d.has_overloads())
+        .flat_map(|decl| decl.deps().into_iter().map(move |dep| (decl, dep)))
+        .map(|(decl, dep)| (None, decl, dep))
+        .chain(symbol.members().iter().flat_map(|symbol_id| {
           let symbol = module_info.symbol(*symbol_id).unwrap();
-          symbol.deps().map(move |d| (Some(symbol), d))
-        }),
-      );
-      for (maybe_member, dep) in deps_with_member_deps {
-        let symbols = dep
-          .as_ref()
-          .all_qualified_names()
-          .into_iter()
-          .flat_map(|dep| {
-            let entries =
-              root_symbol.resolve_symbol_dep(module_info, symbol, dep);
-            entries
-              .into_iter()
-              .filter_map(|entry| {
-                match entry {
-                  ResolvedSymbolDepEntry::Path(path) => Some(path),
-                  ResolvedSymbolDepEntry::ImportType(_) => {
-                    // ignore for now
-                    None
-                  }
+          if symbol.is_private_member() {
+            return Box::new(std::iter::empty())
+              as Box<
+                dyn Iterator<
+                  Item = (Option<&Symbol>, &SymbolDecl, SymbolNodeDep),
+                >,
+              >;
+          }
+          Box::new(
+            symbol
+              .decls()
+              .iter()
+              .filter(|m| !m.has_overloads())
+              .flat_map(move |decl| {
+                decl
+                  .deps()
+                  .into_iter()
+                  .map(move |dep| (Some(symbol), decl, dep))
+              }),
+          )
+        }));
+      // todo: inspect exports of symbols
+      for (maybe_member, decl, dep) in deps_with_member_deps {
+        let mut symbols = Vec::new();
+        // split out the parts from the dependency and resolve just the first part
+        // let (dep, parts) = dep.split_parts();
+        let mut pending_entries =
+          root_symbol.resolve_symbol_dep(module_info, symbol, &dep);
+        while let Some(entry) = pending_entries.pop() {
+          match entry {
+            ResolvedSymbolDepEntry::Path(path) => {
+              if symbol_has_ignorable_js_doc_tag(path.module(), path.symbol()) {
+                symbols.clear();
+                break; // stop searching
+              }
+
+              // only analyze declarations
+              if path.symbol().is_decl() {
+                symbols.push((path.module(), path.symbol()));
+              }
+
+              // queue the next parts
+              match path {
+                DefinitionPath::Path { next, .. } => {
+                  pending_entries
+                    .extend(next.into_iter().map(ResolvedSymbolDepEntry::Path));
                 }
-              })
-              .flat_map(|path| {
-                path.into_definitions_or_unresolveds().flat_map(
-                  |definition_or_unresolved| {
-                    let symbol = definition_or_unresolved.symbol();
-                    if !symbol.is_decl() {
-                      None // only analyze declarations
-                    } else {
-                      Some((definition_or_unresolved.module(), symbol))
-                    }
-                  },
-                )
-              })
-              .collect::<Vec<_>>()
-          })
-          .collect::<Vec<_>>();
-        if symbols.iter().any(|(module, symbol)| {
-          symbol_has_ignorable_js_doc_tag(*module, symbol)
-        }) {
-          continue; // ignore
+                DefinitionPath::Definition(_)
+                | DefinitionPath::Unresolved(_) => {}
+              }
+            }
+            ResolvedSymbolDepEntry::ImportType(_) => {
+              // this is an import type with no property access, ignore it for now
+            }
+          }
         }
 
         let maybe_member_id = maybe_member.map(|m| m.symbol_id());
         for (_module, symbol) in symbols {
-          let def_id = symbol.unique_id();
-          if !root_exported_ids.contains_key(&def_id)
-            && non_exported_public_ids.insert(def_id)
+          let symbol_id = symbol.unique_id();
+          if !root_exported_ids.contains_key(&symbol_id)
+            && non_exported_public_ids.insert(symbol_id)
           {
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-              dep_ids.add(maybe_member_id, def_id);
+              dep_ids.add(maybe_member_id, symbol_id);
             }
             // examine the private types of this private type
-            pending_symbol_ids.push(def_id);
+            pending_symbol_ids.push(symbol_id);
           }
         }
       }
