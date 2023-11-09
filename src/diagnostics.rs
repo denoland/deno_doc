@@ -18,6 +18,7 @@ use deno_ast::swc::ast::Accessibility;
 use deno_ast::SourceRange;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -71,8 +72,8 @@ pub struct DiagnosticsCollector {
 impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
-    doc_node: &DocNode,
-    decl_range: &SourceRange,
+    decl_name: Option<&String>,
+    decl_range: SourceRange,
     doc_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
     referenced_symbol: &Symbol,
@@ -104,6 +105,9 @@ impl DiagnosticsCollector {
     else {
       return;
     };
+    let Some(decl_name) = decl_name else {
+      return;
+    };
 
     self.diagnostics.push(DocDiagnostic {
       location: get_text_info_location(
@@ -112,7 +116,7 @@ impl DiagnosticsCollector {
         decl_range.start,
       ),
       kind: DocDiagnosticKind::PrivateTypeRef {
-        name: doc_node.name.clone(),
+        name: decl_name.to_string(),
         reference: reference.to_string(),
       },
     })

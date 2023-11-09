@@ -14,7 +14,7 @@ interface NoDiagnostic {}
 
 # diagnostics
 [
-  "file:///mod.ts:3:3 Type 'MyClass' references type 'YesDiagnostic' which is not exported from a root module.",
+  "file:///mod.ts:3:3 Type 'MyClass.prototype.secondMethod' references type 'YesDiagnostic' which is not exported from a root module.",
   "file:///mod.ts:3:3 Missing JS documentation comment.",
   "file:///mod.ts:6:3 Missing JS documentation comment."
 ]

@@ -13,6 +13,7 @@ use crate::swc_util::get_text_info_location;
 use crate::swc_util::js_doc_for_range;
 use crate::swc_util::module_export_name_value;
 use crate::swc_util::module_js_doc_for_source;
+use crate::symbol_util::fully_qualified_symbol_name;
 use crate::symbol_util::symbol_has_ignorable_js_doc_tag;
 use crate::ts_type::LiteralPropertyDef;
 use crate::ts_type::TsTypeDef;
@@ -1005,28 +1006,21 @@ impl<'a> DocParser<'a> {
       }
     };
 
-    self.check_private_type_in_public_diagnostic(
-      &maybe_doc,
-      module_info,
-      symbol,
-    );
+    if maybe_doc.is_some() {
+      self.check_private_type_in_public_diagnostic(module_info, symbol);
+    }
 
     maybe_doc
   }
 
   fn check_private_type_in_public_diagnostic(
     &self,
-    maybe_doc: &Option<DocNode>,
     module_info: ModuleInfoRef<'_>,
     symbol: &Symbol,
   ) {
     let Some(diagnostics) = &self.diagnostics else {
       return;
     };
-    let Some(doc) = maybe_doc else {
-      return;
-    };
-
     let doc_id = symbol.unique_id();
     let Some(deps_by_member) = self.visibility.get_root_exported_deps(&doc_id)
     else {
@@ -1038,16 +1032,16 @@ impl<'a> DocParser<'a> {
 
     let mut diagnostics = diagnostics.borrow_mut();
     for (maybe_member_id, decl_deps) in deps_by_member.iter() {
-      for (decl_range, deps) in decl_deps {
-        for dep in deps {
+      for decl_with_deps in decl_deps.values() {
+        for dep in &decl_with_deps.deps {
           let dep_module =
             self.root_symbol.get_module_from_id(dep.module_id).unwrap();
           let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
           let member =
             maybe_member_id.and_then(|member_id| module_info.symbol(member_id));
           diagnostics.add_private_type_in_public(
-            doc,
-            decl_range,
+            decl_with_deps.decl_name.as_ref(),
+            decl_with_deps.decl_range,
             doc_id,
             dep_module,
             dep_symbol,
@@ -1323,9 +1317,15 @@ fn definition_location(
   )
 }
 
+struct SymbolDeclDeps {
+  decl_name: Option<String>,
+  decl_range: SourceRange,
+  deps: IndexSet<UniqueSymbolId>,
+}
+
 #[derive(Default)]
 struct SymbolMembersWithDeps(
-  IndexMap<Option<SymbolId>, IndexMap<SourceRange, IndexSet<UniqueSymbolId>>>,
+  IndexMap<Option<SymbolId>, IndexMap<SourceRange, SymbolDeclDeps>>,
 );
 
 impl SymbolMembersWithDeps {
@@ -1336,20 +1336,33 @@ impl SymbolMembersWithDeps {
   pub fn add(
     &mut self,
     maybe_member_id: Option<SymbolId>,
-    decl_range: SourceRange,
-    def_id: UniqueSymbolId,
+    decl_module: ModuleInfoRef,
+    decl_symbol: &Symbol,
+    symbol_decl: &SymbolDecl,
+    dep_id: UniqueSymbolId,
   ) {
     let entries = self.0.entry(maybe_member_id).or_default();
-    entries.entry(decl_range).or_default().insert(def_id);
+    match entries.get_mut(&symbol_decl.range) {
+      Some(symbol_decl_deps) => {
+        symbol_decl_deps.deps.insert(dep_id);
+      }
+      None => {
+        entries.insert(
+          symbol_decl.range,
+          SymbolDeclDeps {
+            decl_name: fully_qualified_symbol_name(decl_module, decl_symbol),
+            decl_range: symbol_decl.range,
+            deps: IndexSet::from([dep_id]),
+          },
+        );
+      }
+    }
   }
 
   pub fn iter(
     &self,
   ) -> impl Iterator<
-    Item = (
-      &Option<SymbolId>,
-      &IndexMap<SourceRange, IndexSet<UniqueSymbolId>>,
-    ),
+    Item = (&Option<SymbolId>, &IndexMap<SourceRange, SymbolDeclDeps>),
   > {
     self.0.iter()
   }
@@ -1425,14 +1438,14 @@ impl SymbolVisibility {
         .iter()
         .filter(|d| !d.has_overloads())
         .flat_map(|decl| decl.deps().into_iter().map(move |dep| (decl, dep)))
-        .map(|(decl, dep)| (None, decl, dep))
+        .map(|(decl, dep)| (None, symbol, decl, dep))
         .chain(symbol.members().iter().flat_map(|symbol_id| {
           let symbol = module_info.symbol(*symbol_id).unwrap();
           if symbol.is_private_member() {
             return Box::new(std::iter::empty())
               as Box<
                 dyn Iterator<
-                  Item = (Option<&Symbol>, &SymbolDecl, SymbolNodeDep),
+                  Item = (Option<&Symbol>, &Symbol, &SymbolDecl, SymbolNodeDep),
                 >,
               >;
           }
@@ -1445,12 +1458,12 @@ impl SymbolVisibility {
                 decl
                   .deps()
                   .into_iter()
-                  .map(move |dep| (Some(symbol), decl, dep))
+                  .map(move |dep| (Some(symbol), symbol, decl, dep))
               }),
           )
         }));
       // todo: inspect exports of symbols
-      for (maybe_member, decl, dep) in deps_with_member_deps {
+      for (maybe_member, decl_symbol, decl, dep) in deps_with_member_deps {
         let mut symbols = Vec::new();
         // split out the parts from the dependency and resolve just the first part
         // let (dep, parts) = dep.split_parts();
@@ -1492,7 +1505,13 @@ impl SymbolVisibility {
             && non_exported_public_ids.insert(symbol_id)
           {
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-              dep_ids.add(maybe_member_id, decl.range, symbol_id);
+              dep_ids.add(
+                maybe_member_id,
+                module_info,
+                decl_symbol,
+                decl,
+                symbol_id,
+              );
             }
             // examine the private types of this private type
             pending_symbol_ids.push(symbol_id);
