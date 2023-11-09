@@ -173,8 +173,8 @@ pub struct DocNodeKindCtx {
   pub title_plural: &'static str,
 }
 
-impl From<&DocNodeKind> for DocNodeKindCtx {
-  fn from(kind: &DocNodeKind) -> Self {
+impl From<DocNodeKind> for DocNodeKindCtx {
+  fn from(kind: DocNodeKind) -> Self {
     let (char, title, title_lowercase, title_plural) = match kind {
       DocNodeKind::Function => ('f', "Function", "function", "Functions"),
       DocNodeKind::Variable => ('v', "Variable", "variable", "Variables"),

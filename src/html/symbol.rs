@@ -47,7 +47,7 @@ pub(crate) fn get_symbol_group_ctx(
   let symbols = split_nodes
     .values()
     .map(|doc_nodes| SymbolCtx {
-      kind: (&doc_nodes[0].kind).into(),
+      kind: doc_nodes[0].kind.into(),
       subtitle: doc_block_subtitle(ctx, &doc_nodes[0]),
       body: doc_block(ctx, doc_nodes, name),
     })

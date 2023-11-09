@@ -134,13 +134,17 @@ pub fn partition_nodes_by_category(
     nodes.sort_by_key(|n| n.name.to_string());
   }
 
-  // TODO(@crowlKats): make sure "Uncategorized" category is always last
-
   partitions
-    .sorted_by(|key1, _value1, key2, _value2| match key1.cmp(key2) {
-      Ordering::Greater => Ordering::Greater,
-      Ordering::Less => Ordering::Less,
-      Ordering::Equal => unreachable!(),
+    .sorted_by(|key1, _value1, key2, _value2| {
+      match (key1.as_str(), key2.as_str()) {
+        ("Uncategorized", _) => Ordering::Less,
+        (_, "Uncategorized") => Ordering::Greater,
+        _ => match key1.cmp(key2) {
+          Ordering::Greater => Ordering::Greater,
+          Ordering::Less => Ordering::Less,
+          Ordering::Equal => unreachable!(),
+        },
+      }
     })
     .collect()
 }
@@ -150,7 +154,7 @@ fn get_namespace_section_render_ctx(
   kind: &DocNodeKind,
   doc_nodes: &[DocNode],
 ) -> NamespaceSectionRenderCtx {
-  let kind_ctx = super::super::util::DocNodeKindCtx::from(kind);
+  let kind_ctx = super::super::util::DocNodeKindCtx::from(*kind);
 
   let nodes = doc_nodes
     .iter()
@@ -167,7 +171,7 @@ fn get_namespace_section_render_ctx(
       }
 
       NamespaceSectionNodeCtx {
-        doc_node_kind_ctx: (&doc_node.kind).into(),
+        doc_node_kind_ctx: doc_node.kind.into(),
         path,
         name,
         // TODO(bartlomieju): make it a template

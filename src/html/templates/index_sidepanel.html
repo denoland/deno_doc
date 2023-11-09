@@ -3,31 +3,35 @@
 
     <a href="">All symbols</a>
 
-    <h3>Modules</h3>
-    <ul>
+    {{ if files }}
+      <h3>Modules</h3>
+      <ul>
         {{ for file in files }}
         <li>
-            <a href="{base_url}">{file}</a>
+          <a href="{base_url}">{file}</a>
         </li>
         {{ endfor }}
-    </ul>
+      </ul>
+    {{ endif }}
 
-    <h3>APIs</h3>
-    <ul>
+    {{ if kind_partitions }}
+      <h3>APIs</h3>
+      <ul>
         {{ for kind in kind_partitions }}
         <li>
-            <h4>{ kind.name }</h4>
-            <ul>
-                {{ for symbol in kind.symbols }}
-                    <li>
-                        <a href="{ symbol.href }">
-                          {{ call doc_node_kind_icon.html with symbol.kind }}
-                          <span>{ symbol.name }</span>
-                        </a>
-                    </li>
-                {{ endfor }}
-            </ul>
+          <h4>{ kind.name }</h4>
+          <ul>
+            {{ for symbol in kind.symbols }}
+            <li>
+              <a href="{ symbol.href }">
+                {{ call doc_node_kind_icon.html with symbol.kind }}
+                <span>{ symbol.name }</span>
+              </a>
+            </li>
+            {{ endfor }}
+          </ul>
         </li>
         {{ endfor }}
-    </ul>
+      </ul>
+    {{ endif }}
 </div>

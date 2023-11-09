@@ -39,6 +39,10 @@ const SEARCH_FILENAME: &str = "search.js";
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
   pub package_name: String,
+  /// The main entrypoint.
+  /// If only a single file is specified during generation, this will always
+  /// default to that file.
+  pub main_entrypoint: Option<ModuleSpecifier>,
 }
 
 struct GenerateCtx<'ctx> {
@@ -128,9 +132,14 @@ fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
 }
 
 pub fn generate(
-  options: GenerateOptions,
+  mut options: GenerateOptions,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
+  if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
+    options.main_entrypoint =
+      Some(doc_nodes_by_url.keys().next().unwrap().clone());
+  }
+
   let file_paths: Vec<PathBuf> = doc_nodes_by_url
     .keys()
     .filter_map(|url| {
@@ -161,31 +170,35 @@ pub fn generate(
 
   // Index page
   {
-    // TODO(bartlomieju): this is fake - we should pass the actual main entrypoint
-    let main_entrypoint = doc_nodes_by_url.keys().next().unwrap().clone();
+    let doc_nodes = options
+      .main_entrypoint
+      .as_ref()
+      .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
-    let doc_nodes = doc_nodes_by_url.get(&main_entrypoint).cloned().unwrap();
-    let categories =
-      symbols::namespace::partition_nodes_by_category(&doc_nodes, true);
+    let partitions_for_nodes = if let Some(doc_nodes) = doc_nodes {
+      let categories =
+        symbols::namespace::partition_nodes_by_category(&doc_nodes, false);
 
-    let partitions_for_main_entrypoint =
       if categories.len() == 1 && categories.contains_key("Uncategorized") {
-        symbols::namespace::partition_nodes_by_kind(&doc_nodes, true)
+        symbols::namespace::partition_nodes_by_kind(&doc_nodes, false)
           .into_iter()
           .map(|(kind, nodes)| {
-            let doc_node_kind_ctx: util::DocNodeKindCtx = (&kind).into();
+            let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
             (doc_node_kind_ctx.title.to_string(), nodes)
           })
           .collect()
       } else {
         categories
-      };
+      }
+    } else {
+      Default::default()
+    };
 
     let index = render_index(
       &ctx,
-      main_entrypoint,
+      &options.main_entrypoint,
       doc_nodes_by_url,
-      partitions_for_main_entrypoint,
+      partitions_for_nodes,
       all_symbols.clone(),
     )?;
     files.insert("index.html".to_string(), index);
@@ -333,21 +346,26 @@ struct IndexCtx {
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: IndexSidepanelCtx,
   // TODO: use stronly typed value
-  module_doc: serde_json::Value,
+  module_doc: Option<serde_json::Value>,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
 fn render_index(
   ctx: &GenerateCtx,
-  main_entrypoint: ModuleSpecifier,
+  main_entrypoint: &Option<ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: IndexMap<String, Vec<DocNode>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
     .keys()
-    .filter(|url| *url != &main_entrypoint)
+    .filter(|url| {
+      main_entrypoint
+        .as_ref()
+        .map(|main_entrypoint| *url != main_entrypoint)
+        .unwrap_or(true)
+    })
     .map(|url| ctx.url_to_short_path(url))
     .collect::<Vec<_>>();
 
@@ -357,11 +375,11 @@ fn render_index(
     .into_iter()
     .map(|(name, nodes)| {
       let symbols = nodes
-        .iter()
+        .into_iter()
         .map(|node| IndexSidepanelPartitionNodeCtx {
-          kind: (&node.kind).into(),
-          name: node.name.to_string(),
-          href: "TODO".to_string(),
+          kind: node.kind.into(),
+          href: format!("./{}.html", node.name),
+          name: node.name,
         })
         .collect::<Vec<_>>();
       IndexSidepanelPartitionCtx { name, symbols }
@@ -377,22 +395,27 @@ fn render_index(
 
   let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
 
-  let module_doc_nodes = doc_nodes_by_url.get(&main_entrypoint).unwrap();
-
   let module_doc = {
-    let docs = module_doc_nodes
-      .iter()
-      .find(|n| n.kind == DocNodeKind::ModuleDoc)
-      .cloned();
-    let docs_md = docs
-      .and_then(|node| node.js_doc.doc.clone())
-      .unwrap_or_default();
-    let rendered_docs = render_markdown(&docs_md, &render_ctx);
+    if let Some(main_entrypoint) = main_entrypoint {
+      let module_doc_nodes = doc_nodes_by_url.get(main_entrypoint).unwrap();
 
-    json!({
-      "url": ctx.url_to_short_path(&main_entrypoint),
-      "docs": rendered_docs,
-    })
+      let docs = module_doc_nodes
+        .iter()
+        .find(|n| n.kind == DocNodeKind::ModuleDoc);
+
+      docs
+        .and_then(|node| node.js_doc.doc.as_ref())
+        .map(|docs_md| {
+          let rendered_docs = render_markdown(docs_md, &render_ctx);
+
+          json!({
+            "url": ctx.url_to_short_path(main_entrypoint),
+            "docs": rendered_docs,
+          })
+        })
+    } else {
+      None
+    }
   };
 
   // TODO(bartlomieju): dedup with `render_page`
@@ -569,7 +592,7 @@ fn sidepanel_render_ctx(
   let mut partitions: Vec<SidepanelPartition> = partitions
     .into_iter()
     .map(|(kind, doc_nodes)| SidepanelPartition {
-      kind: kind.into(),
+      kind: (*kind).into(),
       doc_nodes: doc_nodes
         .iter()
         .map(|doc_node| doc_node.name.to_string())
