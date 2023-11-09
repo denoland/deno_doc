@@ -17,9 +17,57 @@ pub fn title_to_id(title: &str) -> String {
   TARGET_RE.replace_all(title, "_").to_string()
 }
 
+/// A container to hold a list of all available symbols with their namespaces:
+///
+/// ["setTimeout"]
+/// ["Deno", "read"]
+/// ["Deno", "errors"]
+/// ["Deno", "errors", "HttpError"]
+#[derive(Clone)]
+pub struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
+
+impl NamespacedSymbols {
+  pub fn new(doc_nodes: &[crate::DocNode]) -> Self {
+    let symbols = Self::compute_namespaced_symbols(doc_nodes, &[]);
+    Self(Rc::new(symbols))
+  }
+
+  fn compute_namespaced_symbols(
+    doc_nodes: &[crate::DocNode],
+    current_path: &[String],
+  ) -> HashSet<Vec<String>> {
+    let mut namespaced_symbols = HashSet::new();
+
+    for doc_node in doc_nodes {
+      if doc_node.kind == DocNodeKind::ModuleDoc {
+        continue;
+      }
+
+      let mut name_path = current_path.to_vec();
+      name_path.push(doc_node.name.clone());
+
+      namespaced_symbols.insert(name_path.clone());
+
+      if doc_node.kind == DocNodeKind::Namespace {
+        let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+        namespaced_symbols.extend(Self::compute_namespaced_symbols(
+          &namespace_def.elements,
+          &name_path,
+        ))
+      }
+    }
+
+    namespaced_symbols
+  }
+
+  fn contains(&self, path: &[String]) -> bool {
+    self.0.contains(path)
+  }
+}
+
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  current_symbols: Rc<HashSet<Vec<String>>>,
+  all_symbols: NamespacedSymbols,
   namespace: Option<String>,
   current_type_params: HashSet<String>,
   tt: Rc<TinyTemplate<'ctx>>,
@@ -28,14 +76,14 @@ pub struct RenderContext<'ctx> {
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     tt: Rc<TinyTemplate<'ctx>>,
-    current_symbols: Rc<HashSet<Vec<String>>>,
+    all_symbols: NamespacedSymbols,
     namespace: Option<String>,
   ) -> Self {
     Self {
       tt,
       current_type_params: Default::default(),
       namespace,
-      current_symbols,
+      all_symbols,
     }
   }
 
@@ -82,7 +130,7 @@ impl<'ctx> RenderContext<'ctx> {
         let mut current_parts = parts.clone();
         current_parts.extend(target_symbol.split('.').map(String::from));
 
-        if self.current_symbols.contains(&current_parts) {
+        if self.all_symbols.contains(&current_parts) {
           let backs = current_parts.iter().map(|_| "../").collect::<String>();
 
           return Some(format!("./{backs}{}.html", current_parts.join("/")));
@@ -99,7 +147,7 @@ impl<'ctx> RenderContext<'ctx> {
       .map(String::from)
       .collect::<Vec<String>>();
 
-    if self.current_symbols.contains(&split_symbol) {
+    if self.all_symbols.contains(&split_symbol) {
       let backs = if let Some(namespace) = &self.namespace {
         namespace.split('.').map(|_| "../").collect::<String>()
       } else {

@@ -2,7 +2,7 @@ use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
@@ -21,6 +21,8 @@ mod util;
 
 use symbol::SymbolGroupCtx;
 use symbols::namespace::NamespaceRenderCtx;
+
+use self::util::NamespacedSymbols;
 
 const STYLESHEET: &str = include_str!("./templates/styles.css");
 const STYLESHEET_FILENAME: &str = "styles.css";
@@ -166,7 +168,7 @@ pub fn generate(
     .cloned()
     .collect::<Vec<_>>();
 
-  let current_symbols = Rc::new(get_current_symbols(&doc_nodes, vec![]));
+  let all_symbols = NamespacedSymbols::new(&doc_nodes);
 
   let partitions_by_kind =
     symbols::namespace::partition_nodes_by_kind(&doc_nodes, true);
@@ -178,15 +180,19 @@ pub fn generate(
       &ctx,
       &sidepanel_ctx,
       &partitions_by_kind,
-      current_symbols.clone(),
+      all_symbols.clone(),
     )?;
     files.insert("index.html".to_string(), index);
   }
 
   // "Compound index" page (list of all files and symbol kinds)
   {
-    let compound_index =
-      render_compound_index(&ctx, doc_nodes_by_url, &partitions_by_kind)?;
+    let compound_index = render_compound_index(
+      &ctx,
+      doc_nodes_by_url,
+      &partitions_by_kind,
+      all_symbols.clone(),
+    )?;
     files.insert("compound_index.html".to_string(), compound_index);
   }
 
@@ -204,6 +210,7 @@ pub fn generate(
       main_entrypoint,
       doc_nodes_by_url,
       &partitions_by_kind_for_main_entrypoint,
+      all_symbols.clone(),
     )?;
     files.insert("version_index.html".to_string(), version_index);
   }
@@ -211,7 +218,7 @@ pub fn generate(
   // Pages for all discovered symbols
   {
     let generated_pages =
-      generate_pages(&ctx, &sidepanel_ctx, &doc_nodes, current_symbols)?;
+      generate_pages(&ctx, &sidepanel_ctx, &doc_nodes, all_symbols)?;
     for (file_name, content) in generated_pages {
       files.insert(file_name, content);
     }
@@ -233,7 +240,7 @@ fn generate_pages_inner(
   sidepanel_ctx: &SidepanelRenderCtx,
   name_partitions: IndexMap<String, Vec<DocNode>>,
   base: Option<Vec<String>>,
-  current_symbols: Rc<HashSet<Vec<String>>>,
+  all_symbols: NamespacedSymbols,
 ) -> Result<Vec<(String, String)>, anyhow::Error> {
   let mut generated_pages =
     Vec::with_capacity(name_partitions.values().len() * 2);
@@ -252,7 +259,7 @@ fn generate_pages_inner(
       sidepanel_ctx,
       &symbol_name,
       doc_nodes,
-      current_symbols.clone(),
+      all_symbols.clone(),
     )?;
 
     generated_pages.push((file_name, page));
@@ -278,7 +285,7 @@ fn generate_pages_inner(
         sidepanel_ctx,
         namespace_name_partitions,
         Some(new_base),
-        current_symbols.clone(),
+        all_symbols.clone(),
       )?;
       generated_pages.extend_from_slice(&generated);
     }
@@ -291,17 +298,11 @@ fn generate_pages(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
   doc_nodes: &[DocNode],
-  current_symbols: Rc<HashSet<Vec<String>>>,
+  all_symbols: NamespacedSymbols,
 ) -> Result<Vec<(String, String)>, anyhow::Error> {
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  generate_pages_inner(
-    ctx,
-    sidepanel_ctx,
-    name_partitions,
-    None,
-    current_symbols,
-  )
+  generate_pages_inner(ctx, sidepanel_ctx, name_partitions, None, all_symbols)
 }
 
 // TODO(bartlomieju): move a separate module?
@@ -335,6 +336,7 @@ fn render_compound_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+  all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
     .keys()
@@ -348,7 +350,7 @@ fn render_compound_index(
     "package_name": ctx.package_name.to_string(),
   });
 
-  let render_ctx = RenderContext::new(ctx.tt.clone(), Default::default(), None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols, None);
 
   let module_docs = doc_nodes_by_url
     .iter()
@@ -427,6 +429,7 @@ fn render_version_index(
   main_entrypoint: ModuleSpecifier,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+  all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
     .keys()
@@ -458,7 +461,7 @@ fn render_version_index(
     package_name: ctx.package_name.to_string(),
   };
 
-  let render_ctx = RenderContext::new(ctx.tt.clone(), Default::default(), None);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols, None);
 
   let module_doc_nodes = doc_nodes_by_url.get(&main_entrypoint).unwrap();
 
@@ -515,10 +518,10 @@ fn render_index(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
-  current_symbols: Rc<HashSet<Vec<String>>>,
+  all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let render_ctx =
-    RenderContext::new(ctx.tt.clone(), current_symbols.clone(), None);
+    RenderContext::new(ctx.tt.clone(), all_symbols.clone(), None);
   let namespace_ctx =
     symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -569,32 +572,6 @@ fn partition_nodes_by_name(
   partitions
 }
 
-fn get_current_symbols(
-  doc_nodes: &[DocNode],
-  base: Vec<String>,
-) -> HashSet<Vec<String>> {
-  let mut current_symbols = HashSet::new();
-
-  for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::ModuleDoc {
-      continue;
-    }
-
-    let mut name_path = base.clone();
-    name_path.push(doc_node.name.clone());
-
-    current_symbols.insert(name_path.clone());
-
-    if doc_node.kind == DocNodeKind::Namespace {
-      let namespace_def = doc_node.namespace_def.as_ref().unwrap();
-      current_symbols
-        .extend(get_current_symbols(&namespace_def.elements, name_path))
-    }
-  }
-
-  current_symbols
-}
-
 #[derive(Serialize)]
 struct PageCtx {
   html_head_ctx: HtmlHeadCtx,
@@ -611,13 +588,12 @@ fn render_page(
   sidepanel_ctx: &SidepanelRenderCtx,
   name: &str,
   doc_nodes: &[DocNode],
-  current_symbols: Rc<HashSet<Vec<String>>>,
+  all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let namespace = name
     .rsplit_once('.')
     .map(|(namespace, _symbol)| namespace.to_string());
-  let render_ctx =
-    RenderContext::new(ctx.tt.clone(), current_symbols, namespace);
+  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols, namespace);
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group_ctx =
