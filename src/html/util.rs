@@ -67,11 +67,14 @@ impl NamespacedSymbols {
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  all_symbols: NamespacedSymbols,
-  namespace: Option<String>,
-  namespace_parts: Vec<String>,
-  current_type_params: HashSet<String>,
   tt: Rc<TinyTemplate<'ctx>>,
+  all_symbols: NamespacedSymbols,
+  current_type_params: HashSet<String>,
+
+  /// String representation of the current namespace, eg. Some("Deno.errors").
+  namespace: Option<String>,
+  /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
+  namespace_parts: Vec<String>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -135,11 +138,16 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
-    if self.namespace.is_some() {
+    let target_symbol_path = target_symbol
+      .split('.')
+      .map(String::from)
+      .collect::<Vec<_>>();
+
+    if !self.namespace_parts.is_empty() {
       let mut parts = self.namespace_parts.clone();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
-        current_parts.extend(target_symbol.split('.').map(String::from));
+        current_parts.extend_from_slice(&target_symbol_path);
 
         if self.all_symbols.contains(&current_parts) {
           let backs = current_parts.iter().map(|_| "../").collect::<String>();
@@ -147,19 +155,14 @@ impl<'ctx> RenderContext<'ctx> {
           return Some(format!("./{backs}{}.html", current_parts.join("/")));
         }
 
-        // TODO: global symbol handling
+        // TODO(crowlKats): global symbol handling
 
         parts.pop();
       }
     }
 
-    let split_symbol = target_symbol
-      .split('.')
-      .map(String::from)
-      .collect::<Vec<String>>();
-
-    if self.all_symbols.contains(&split_symbol) {
-      let backs = if self.namespace.is_some() {
+    if self.all_symbols.contains(&target_symbol_path) {
+      let backs = if !self.namespace_parts.is_empty() {
         self
           .namespace_parts
           .iter()
@@ -169,10 +172,10 @@ impl<'ctx> RenderContext<'ctx> {
         String::new()
       };
 
-      return Some(format!("./{backs}{}.html", split_symbol.join("/")));
+      return Some(format!("./{backs}{}.html", target_symbol_path.join("/")));
     }
 
-    // TODO: handle currentImports
+    // TODO(crowlKats): handle currentImports
 
     None
   }
