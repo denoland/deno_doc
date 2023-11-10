@@ -4,12 +4,11 @@ use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
-use crate::swc_util::get_location;
-use crate::swc_util::get_text_info_location;
-use crate::swc_util::has_ignorable_js_doc_tag;
-use crate::symbol_util::fully_qualified_symbol_name;
-use crate::symbol_util::symbol_has_ignorable_js_doc_tag;
 use crate::ts_type::TsTypeDef;
+use crate::util::swc::get_text_info_location;
+use crate::util::swc::has_ignorable_js_doc_tag;
+use crate::util::symbol::fully_qualified_symbol_name;
+use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::Location;
@@ -18,7 +17,6 @@ use deno_ast::swc::ast::Accessibility;
 use deno_ast::SourceRange;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
-use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
@@ -74,22 +72,13 @@ impl DiagnosticsCollector {
     &mut self,
     decl_name: &str,
     decl_range: SourceRange,
-    doc_id: UniqueSymbolId,
+    doc_symbol_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
     referenced_symbol: &Symbol,
     member_module: ModuleInfoRef,
-    maybe_member: Option<&Symbol>,
   ) {
-    if symbol_has_ignorable_js_doc_tag(referenced_module, referenced_symbol) {
-      return; // ignore
-    }
-    if let Some(member) = &maybe_member {
-      if symbol_has_ignorable_js_doc_tag(member_module, member) {
-        return; // ignore
-      }
-    }
     if !self.seen_private_types_in_public.insert((
-      doc_id,
+      doc_symbol_id,
       UniqueSymbolId::new(
         referenced_module.module_id(),
         referenced_symbol.symbol_id(),

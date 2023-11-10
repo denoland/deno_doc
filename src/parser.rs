@@ -8,18 +8,19 @@ use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::node::NamespaceDef;
-use crate::swc_util::get_location;
-use crate::swc_util::get_text_info_location;
-use crate::swc_util::js_doc_for_range;
-use crate::swc_util::module_export_name_value;
-use crate::swc_util::module_js_doc_for_source;
-use crate::symbol_util::fully_qualified_symbol_name;
-use crate::symbol_util::symbol_has_ignorable_js_doc_tag;
 use crate::ts_type::LiteralPropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
+use crate::util::graph::resolve_deno_graph_module;
+use crate::util::swc::get_location;
+use crate::util::swc::get_text_info_location;
+use crate::util::swc::js_doc_for_range;
+use crate::util::swc::module_export_name_value;
+use crate::util::swc::module_js_doc_for_source;
+use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
+use crate::visibility::SymbolVisibility;
 use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
@@ -48,23 +49,16 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::symbols::DefinitionPath;
 use deno_graph::symbols::EsmModuleInfo;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
-use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::Symbol;
-use deno_graph::symbols::SymbolDecl;
-use deno_graph::symbols::SymbolId;
-use deno_graph::symbols::SymbolNodeDep;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
-use indexmap::IndexMap;
-use indexmap::IndexSet;
 
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -613,10 +607,10 @@ impl<'a> DocParser<'a> {
     module_info: ModuleInfoRef,
     child_symbol: &Symbol,
   ) -> Vec<DocNode> {
-    debug_assert!(!self
+    debug_assert!(self
       .visibility
-      .root_exported_ids
-      .contains_key(&child_symbol.unique_id()));
+      .get_root_exported_deps(&child_symbol.unique_id())
+      .is_none());
     let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
       if let Some(mut doc_node) =
@@ -1015,14 +1009,15 @@ impl<'a> DocParser<'a> {
 
   fn check_private_type_in_public_diagnostic(
     &self,
-    module_info: ModuleInfoRef<'_>,
-    symbol: &Symbol,
+    doc_module_info: ModuleInfoRef<'_>,
+    doc_symbol: &Symbol,
   ) {
     let Some(diagnostics) = &self.diagnostics else {
       return;
     };
-    let doc_id = symbol.unique_id();
-    let Some(deps_by_member) = self.visibility.get_root_exported_deps(&doc_id)
+    let doc_symbol_id = doc_symbol.unique_id();
+    let Some(deps_by_member) =
+      self.visibility.get_root_exported_deps(&doc_symbol_id)
     else {
       return;
     };
@@ -1031,24 +1026,19 @@ impl<'a> DocParser<'a> {
     }
 
     let mut diagnostics = diagnostics.borrow_mut();
-    for (maybe_member_id, decl_deps) in deps_by_member.iter() {
-      for decl_with_deps in decl_deps.values() {
-        for dep in &decl_with_deps.deps {
-          let dep_module =
-            self.root_symbol.get_module_from_id(dep.module_id).unwrap();
-          let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
-          let member =
-            maybe_member_id.and_then(|member_id| module_info.symbol(member_id));
-          diagnostics.add_private_type_in_public(
-            &decl_with_deps.decl_name,
-            decl_with_deps.decl_range,
-            doc_id,
-            dep_module,
-            dep_symbol,
-            module_info,
-            member,
-          );
-        }
+    for decl_with_deps in deps_by_member.iter() {
+      for dep in &decl_with_deps.deps {
+        let dep_module =
+          self.root_symbol.get_module_from_id(dep.module_id).unwrap();
+        let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
+        diagnostics.add_private_type_in_public(
+          &decl_with_deps.decl_name,
+          decl_with_deps.decl_range,
+          doc_symbol_id,
+          dep_module,
+          dep_symbol,
+          doc_module_info,
+        );
       }
     }
   }
@@ -1204,32 +1194,6 @@ impl<'a> DocParser<'a> {
   }
 }
 
-/// Resolve a deno_graph module redirecting to the types dependency if available.
-fn resolve_deno_graph_module<'a>(
-  graph: &'a ModuleGraph,
-  specifier: &ModuleSpecifier,
-) -> Result<&'a deno_graph::Module, DocError> {
-  graph
-    .try_get_prefer_types(specifier)
-    .map_err(|err| DocError::Resolve(err.to_string()))?
-    .ok_or_else(|| {
-      DocError::Resolve(format!("Unable to load specifier: \"{}\"", specifier))
-    })
-}
-
-fn get_module_info<'a>(
-  root_symbol: &'a deno_graph::symbols::RootSymbol,
-  specifier: &ModuleSpecifier,
-) -> Result<ModuleInfoRef<'a>, DocError> {
-  match root_symbol.get_module_from_specifier(specifier) {
-    Some(symbol) => Ok(symbol),
-    None => Err(DocError::Resolve(format!(
-      "Could not find ES module in graph: {}",
-      specifier
-    ))),
-  }
-}
-
 fn parse_json_module_doc_node(
   specifier: &ModuleSpecifier,
   source: &str,
@@ -1315,223 +1279,4 @@ fn definition_location(
     definition.module.text_info(),
     definition.range().start,
   )
-}
-
-struct SymbolDeclDeps {
-  decl_name: String,
-  decl_range: SourceRange,
-  deps: IndexSet<UniqueSymbolId>,
-}
-
-#[derive(Default)]
-struct SymbolMembersWithDeps(
-  IndexMap<Option<SymbolId>, IndexMap<SourceRange, SymbolDeclDeps>>,
-);
-
-impl SymbolMembersWithDeps {
-  pub fn is_empty(&self) -> bool {
-    self.0.is_empty()
-  }
-
-  pub fn add(
-    &mut self,
-    maybe_member_id: Option<SymbolId>,
-    decl_name: String,
-    symbol_decl: &SymbolDecl,
-    dep_id: UniqueSymbolId,
-  ) {
-    let entries = self.0.entry(maybe_member_id).or_default();
-    match entries.get_mut(&symbol_decl.range) {
-      Some(symbol_decl_deps) => {
-        symbol_decl_deps.deps.insert(dep_id);
-      }
-      None => {
-        entries.insert(
-          symbol_decl.range,
-          SymbolDeclDeps {
-            decl_name,
-            decl_range: symbol_decl.range,
-            deps: IndexSet::from([dep_id]),
-          },
-        );
-      }
-    }
-  }
-
-  pub fn iter(
-    &self,
-  ) -> impl Iterator<
-    Item = (&Option<SymbolId>, &IndexMap<SourceRange, SymbolDeclDeps>),
-  > {
-    self.0.iter()
-  }
-}
-
-struct SymbolVisibility {
-  root_exported_ids: HashMap<UniqueSymbolId, SymbolMembersWithDeps>,
-  /// Symbol identifiers that are not exported, but are referenced
-  /// by exported symbols.
-  non_exported_public_ids: HashSet<UniqueSymbolId>,
-}
-
-impl SymbolVisibility {
-  pub fn build(
-    graph: &ModuleGraph,
-    root_symbol: &deno_graph::symbols::RootSymbol,
-  ) -> Result<Self, DocError> {
-    let mut root_exported_ids: HashMap<UniqueSymbolId, SymbolMembersWithDeps> =
-      Default::default();
-
-    // get a collection of all the symbols that are exports
-    {
-      let mut pending_symbols = Vec::new();
-      for root in &graph.roots {
-        let module = resolve_deno_graph_module(graph, root)?;
-        let module_info = get_module_info(root_symbol, module.specifier())?;
-        let exports = module_info.exports(root_symbol);
-        for (_name, export) in &exports.resolved {
-          let symbol = export.module.symbol(export.symbol_id).unwrap();
-          let definitions =
-            root_symbol.go_to_definitions(export.module, symbol);
-          for definition in definitions {
-            if root_exported_ids
-              .insert(definition.symbol.unique_id(), Default::default())
-              .is_none()
-            {
-              pending_symbols.push(definition);
-            }
-          }
-        }
-      }
-      // analyze the pending symbols
-      while let Some(definition) = pending_symbols.pop() {
-        for (_name, export_id) in definition.symbol.exports() {
-          let export_symbol = definition.module.symbol(*export_id).unwrap();
-          let definitions =
-            root_symbol.go_to_definitions(definition.module, export_symbol);
-          for definition in definitions {
-            if root_exported_ids
-              .insert(definition.symbol.unique_id(), Default::default())
-              .is_none()
-            {
-              pending_symbols.push(definition);
-            }
-          }
-        }
-      }
-    }
-
-    // now analyze for all the non exported types that are referenced by exported types
-    // along with filling in any non-exported dependencies of root exported types
-    let mut non_exported_public_ids = HashSet::new();
-    let mut pending_symbol_ids =
-      root_exported_ids.keys().copied().collect::<Vec<_>>();
-    while let Some(original_id) = pending_symbol_ids.pop() {
-      let module_info = root_symbol
-        .get_module_from_id(original_id.module_id)
-        .unwrap();
-      let symbol = module_info.symbol(original_id.symbol_id).unwrap();
-      // todo: don't populate implementation signatures and private members
-      let deps_with_member_deps = symbol
-        .decls()
-        .iter()
-        .filter(|d| !d.has_overloads())
-        .flat_map(|decl| decl.deps().into_iter().map(move |dep| (decl, dep)))
-        .map(|(decl, dep)| (None, symbol, decl, dep))
-        .chain(symbol.members().iter().flat_map(|symbol_id| {
-          let symbol = module_info.symbol(*symbol_id).unwrap();
-          if symbol.is_private_member() {
-            return Box::new(std::iter::empty())
-              as Box<
-                dyn Iterator<
-                  Item = (Option<&Symbol>, &Symbol, &SymbolDecl, SymbolNodeDep),
-                >,
-              >;
-          }
-          Box::new(
-            symbol
-              .decls()
-              .iter()
-              .filter(|m| !m.has_overloads())
-              .flat_map(move |decl| {
-                decl
-                  .deps()
-                  .into_iter()
-                  .map(move |dep| (Some(symbol), symbol, decl, dep))
-              }),
-          )
-        }));
-      // todo: inspect exports of symbols
-      for (maybe_member, decl_symbol, decl, dep) in deps_with_member_deps {
-        let Some(decl_name) =
-          fully_qualified_symbol_name(module_info, decl_symbol)
-        else {
-          continue;
-        };
-        let mut symbols = Vec::new();
-        // split out the parts from the dependency and resolve just the first part
-        // let (dep, parts) = dep.split_parts();
-        let mut pending_entries =
-          root_symbol.resolve_symbol_dep(module_info, symbol, &dep);
-        while let Some(entry) = pending_entries.pop() {
-          match entry {
-            ResolvedSymbolDepEntry::Path(path) => {
-              if symbol_has_ignorable_js_doc_tag(path.module(), path.symbol()) {
-                symbols.clear();
-                break; // stop searching
-              }
-
-              // only analyze declarations
-              if path.symbol().is_decl() {
-                symbols.push((path.module(), path.symbol()));
-              }
-
-              // queue the next parts
-              match path {
-                DefinitionPath::Path { next, .. } => {
-                  pending_entries
-                    .extend(next.into_iter().map(ResolvedSymbolDepEntry::Path));
-                }
-                DefinitionPath::Definition(_)
-                | DefinitionPath::Unresolved(_) => {}
-              }
-            }
-            ResolvedSymbolDepEntry::ImportType(_) => {
-              // this is an import type with no property access, ignore it for now
-            }
-          }
-        }
-
-        let maybe_member_id = maybe_member.map(|m| m.symbol_id());
-        for (_module, symbol) in symbols {
-          let symbol_id = symbol.unique_id();
-          if !root_exported_ids.contains_key(&symbol_id)
-            && non_exported_public_ids.insert(symbol_id)
-          {
-            if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-              dep_ids.add(maybe_member_id, decl_name.clone(), decl, symbol_id);
-            }
-            // examine the private types of this private type
-            pending_symbol_ids.push(symbol_id);
-          }
-        }
-      }
-    }
-
-    Ok(SymbolVisibility {
-      root_exported_ids,
-      non_exported_public_ids,
-    })
-  }
-
-  pub fn get_root_exported_deps(
-    &self,
-    id: &UniqueSymbolId,
-  ) -> Option<&SymbolMembersWithDeps> {
-    self.root_exported_ids.get(id)
-  }
-
-  pub fn has_non_exported_public(&self, id: &UniqueSymbolId) -> bool {
-    self.non_exported_public_ids.contains(id)
-  }
 }

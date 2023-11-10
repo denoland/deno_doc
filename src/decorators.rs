@@ -2,7 +2,7 @@
 
 use crate::colors;
 use crate::node::Location;
-use crate::swc_util::get_location;
+use crate::util::swc::get_location;
 
 use deno_ast::swc::ast::Decorator;
 use deno_ast::swc::ast::Expr;

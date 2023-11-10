@@ -1,11 +1,26 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::ModuleSpecifier;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
 
-use crate::swc_util::has_ignorable_js_doc_tag;
-use crate::swc_util::js_doc_for_range_include_ignore;
+use crate::util::swc::has_ignorable_js_doc_tag;
+use crate::util::swc::js_doc_for_range_include_ignore;
+use crate::DocError;
+
+pub fn get_module_info<'a>(
+  root_symbol: &'a deno_graph::symbols::RootSymbol,
+  specifier: &ModuleSpecifier,
+) -> Result<ModuleInfoRef<'a>, DocError> {
+  match root_symbol.get_module_from_specifier(specifier) {
+    Some(symbol) => Ok(symbol),
+    None => Err(DocError::Resolve(format!(
+      "Could not find module in graph: {}",
+      specifier
+    ))),
+  }
+}
 
 pub fn fully_qualified_symbol_name(
   module: ModuleInfoRef,

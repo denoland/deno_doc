@@ -10,9 +10,9 @@ use crate::params::param_to_param_def;
 use crate::params::pat_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
-use crate::swc_util::is_false;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::util::swc::is_false;
 use crate::ParamDef;
 
 use deno_ast::swc::ast::*;

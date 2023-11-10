@@ -24,12 +24,12 @@ mod js_doc;
 mod node;
 mod params;
 mod parser;
-mod swc_util;
-mod symbol_util;
 mod ts_type;
 mod ts_type_param;
 mod type_alias;
+mod util;
 mod variable;
+mod visibility;
 
 pub use node::DocNode;
 pub use node::DocNodeKind;
