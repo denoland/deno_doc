@@ -1,0 +1,91 @@
+# mod.ts
+import { YesDiagnostic } from "./diagnostic.ts";
+
+export class MyClass extends YesDiagnostic {
+  prop: YesDiagnostic
+}
+
+# diagnostic.ts
+class NoDiagnostic1 {}
+class NoDiagnostic2 {}
+
+export class YesDiagnostic {}
+
+# diagnostics
+[
+  "file:///mod.ts:3:1 Type 'MyClass' references type 'YesDiagnostic' (file:///diagnostic.ts:4:1) which is not exported from a root module.",
+  "file:///mod.ts:3:1 Missing JS documentation comment.",
+  "file:///mod.ts:4:3 Missing JS documentation comment."
+]
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+class MyClass extends YesDiagnostic
+
+  prop: YesDiagnostic
+
+Defined in file:///mod.ts:1:1
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "MyClass",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "tsType": {
+            "repr": "YesDiagnostic",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "YesDiagnostic"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "prop",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 2
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": "YesDiagnostic",
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "import",
+    "name": "YesDiagnostic",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "importDef": {
+      "src": "file:///diagnostic.ts",
+      "imported": "YesDiagnostic"
+    }
+  }
+]
