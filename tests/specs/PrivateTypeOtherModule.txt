@@ -1,19 +1,24 @@
 # mod.ts
-import { YesDiagnostic } from "./diagnostic.ts";
+import { MyNamespace, YesDiagnostic2 } from "./diagnostic.ts";
 
-export class MyClass extends YesDiagnostic {
-  prop: YesDiagnostic
+export class MyClass extends YesDiagnostic2 {
+  prop: MyNamespace.YesDiagnostic;
 }
 
 # diagnostic.ts
-class NoDiagnostic1 {}
-class NoDiagnostic2 {}
+class NoDiagnostic {}
 
-export class YesDiagnostic {}
+export namespace MyNamespace {
+  export class YesDiagnostic {}
+}
+
+export class YesDiagnostic2 {}
 
 # diagnostics
 [
-  "file:///mod.ts:3:1 Type 'MyClass' references type 'YesDiagnostic' (file:///diagnostic.ts:4:1) which is not exported from a root module.",
+  "file:///mod.ts:3:1 Type 'MyClass' references type 'YesDiagnostic2' (file:///diagnostic.ts:7:1) which is not exported from a root module.",
+  "file:///mod.ts:4:3 Type 'MyClass.prototype.prop' references type 'MyNamespace' (file:///diagnostic.ts:3:1) which is not exported from a root module.",
+  "file:///mod.ts:4:3 Type 'MyClass.prototype.prop' references type 'MyNamespace.YesDiagnostic' (file:///diagnostic.ts:4:3) which is not exported from a root module.",
   "file:///mod.ts:3:1 Missing JSDoc comment.",
   "file:///mod.ts:4:3 Missing JSDoc comment."
 ]
@@ -21,9 +26,12 @@ export class YesDiagnostic {}
 # output.txt
 Defined in file:///mod.ts:3:1
 
-class MyClass extends YesDiagnostic
+class MyClass extends YesDiagnostic2
 
-  prop: YesDiagnostic
+  prop: MyNamespace.YesDiagnostic
+
+Defined in file:///mod.ts:1:1
+
 
 Defined in file:///mod.ts:1:1
 
@@ -46,11 +54,11 @@ Defined in file:///mod.ts:1:1
       "properties": [
         {
           "tsType": {
-            "repr": "YesDiagnostic",
+            "repr": "MyNamespace.YesDiagnostic",
             "kind": "typeRef",
             "typeRef": {
               "typeParams": null,
-              "typeName": "YesDiagnostic"
+              "typeName": "MyNamespace.YesDiagnostic"
             }
           },
           "readonly": false,
@@ -68,7 +76,7 @@ Defined in file:///mod.ts:1:1
       ],
       "indexSignatures": [],
       "methods": [],
-      "extends": "YesDiagnostic",
+      "extends": "YesDiagnostic2",
       "implements": [],
       "typeParams": [],
       "superTypeParams": []
@@ -76,7 +84,7 @@ Defined in file:///mod.ts:1:1
   },
   {
     "kind": "import",
-    "name": "YesDiagnostic",
+    "name": "MyNamespace",
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -85,7 +93,21 @@ Defined in file:///mod.ts:1:1
     "declarationKind": "private",
     "importDef": {
       "src": "file:///diagnostic.ts",
-      "imported": "YesDiagnostic"
+      "imported": "MyNamespace"
+    }
+  },
+  {
+    "kind": "import",
+    "name": "YesDiagnostic2",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "importDef": {
+      "src": "file:///diagnostic.ts",
+      "imported": "YesDiagnostic2"
     }
   }
 ]

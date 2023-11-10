@@ -17,6 +17,7 @@ use indexmap::IndexSet;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+#[derive(Debug)]
 pub struct SymbolDeclDeps {
   pub symbol_id: UniqueSymbolId,
   pub decl_range: SourceRange,
@@ -25,7 +26,7 @@ pub struct SymbolDeclDeps {
   pub had_ignorable_tag: bool,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct SymbolDeps(IndexMap<SourceRange, Vec<SymbolDeclDeps>>);
 
 impl SymbolDeps {
