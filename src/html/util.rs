@@ -133,7 +133,8 @@ impl<'ctx> RenderContext<'ctx> {
         current_parts.extend_from_slice(&target_symbol_path);
 
         if self.all_symbols.contains(&current_parts) {
-          let backs = current_parts.iter().map(|_| "../").collect::<String>();
+          let backs =
+            target_symbol_path.iter().map(|_| "../").collect::<String>();
 
           return Some(format!("./{backs}{}.html", current_parts.join("/")));
         }
@@ -145,15 +146,11 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if self.all_symbols.contains(&target_symbol_path) {
-      let backs = if !self.namespace_parts.is_empty() {
-        self
-          .namespace_parts
-          .iter()
-          .map(|_| "../")
-          .collect::<String>()
-      } else {
-        String::new()
-      };
+      let backs = self
+        .namespace_parts
+        .iter()
+        .map(|_| "../")
+        .collect::<String>();
 
       return Some(format!("./{backs}{}.html", target_symbol_path.join("/")));
     }
