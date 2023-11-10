@@ -1,7 +1,6 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
 use crate::util::graph::resolve_deno_graph_module;
-use crate::util::symbol::fully_qualified_symbol_name;
 use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::DocError;
@@ -19,9 +18,11 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 
 pub struct SymbolDeclDeps {
-  pub decl_name: String,
+  pub symbol_id: UniqueSymbolId,
   pub decl_range: SourceRange,
   pub deps: IndexSet<UniqueSymbolId>,
+  /// If the path to this declaration had an ignorable js doc tag.
+  pub had_ignorable_tag: bool,
 }
 
 #[derive(Default)]
@@ -38,18 +39,20 @@ impl SymbolDeps {
 
   fn add(
     &mut self,
-    decl_name: String,
+    symbol_id: UniqueSymbolId,
     symbol_decl: &SymbolDecl,
     dep_id: UniqueSymbolId,
+    had_ignorable_tag: bool,
   ) {
     self
       .0
       .entry(symbol_decl.range)
       .or_default()
       .push(SymbolDeclDeps {
-        decl_name,
+        symbol_id,
         decl_range: symbol_decl.range,
         deps: IndexSet::from([dep_id]),
+        had_ignorable_tag,
       });
   }
 }
@@ -79,9 +82,6 @@ impl SymbolVisibility {
         .get_module_from_id(original_id.module_id)
         .unwrap();
       let symbol = module_info.symbol(original_id.symbol_id).unwrap();
-      if symbol_has_ignorable_js_doc_tag(module_info, symbol) {
-        continue;
-      }
       let decl_deps = symbol
         .decls()
         .iter()
@@ -93,10 +93,7 @@ impl SymbolVisibility {
             .members()
             .iter()
             .map(|symbol_id| module_info.symbol(*symbol_id).unwrap())
-            .filter(|symbol| {
-              !symbol.is_private_member()
-                && !symbol_has_ignorable_js_doc_tag(module_info, symbol)
-            })
+            .filter(|symbol| !symbol.is_private_member())
             .flat_map(|symbol| {
               symbol
                 .decls()
@@ -108,21 +105,18 @@ impl SymbolVisibility {
             }),
         );
       for (decl_symbol, decl, dep) in decl_deps {
-        let Some(decl_name) =
-          fully_qualified_symbol_name(module_info, decl_symbol)
-        else {
-          continue;
-        };
+        let mut path_has_ignorable_tag =
+          symbol_has_ignorable_js_doc_tag(module_info, decl_symbol);
         let mut dep_symbol_ids = Vec::new();
         let mut pending_entries =
           root_symbol.resolve_symbol_dep(module_info, symbol, &dep);
         while let Some(entry) = pending_entries.pop() {
           match entry {
             ResolvedSymbolDepEntry::Path(path) => {
-              if symbol_has_ignorable_js_doc_tag(path.module(), path.symbol()) {
-                dep_symbol_ids.clear();
-                pending_entries.clear();
-                break; // stop searching
+              if !path_has_ignorable_tag
+                && symbol_has_ignorable_js_doc_tag(path.module(), path.symbol())
+              {
+                path_has_ignorable_tag = true;
               }
 
               // only analyze declarations
@@ -151,8 +145,14 @@ impl SymbolVisibility {
             && non_exported_public_ids.insert(dep_symbol_id)
           {
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-              dep_ids.add(decl_name.clone(), decl, dep_symbol_id);
+              dep_ids.add(
+                decl_symbol.unique_id(),
+                decl,
+                dep_symbol_id,
+                path_has_ignorable_tag,
+              );
             }
+
             // examine the private types of this private type
             pending_symbol_ids.push(dep_symbol_id);
           }

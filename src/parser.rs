@@ -18,6 +18,7 @@ use crate::util::swc::get_text_info_location;
 use crate::util::swc::js_doc_for_range;
 use crate::util::swc::module_export_name_value;
 use crate::util::swc::module_js_doc_for_source;
+use crate::util::symbol::fully_qualified_symbol_name;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
@@ -1027,17 +1028,30 @@ impl<'a> DocParser<'a> {
 
     let mut diagnostics = diagnostics.borrow_mut();
     for decl_with_deps in deps_by_member.iter() {
+      if decl_with_deps.had_ignorable_tag {
+        continue; // ignore
+      }
+
+      let decl_symbol = doc_module_info
+        .symbol(decl_with_deps.symbol_id.symbol_id)
+        .unwrap();
+      let Some(decl_name) =
+        fully_qualified_symbol_name(doc_module_info, decl_symbol)
+      else {
+        continue;
+      };
+
       for dep in &decl_with_deps.deps {
         let dep_module =
           self.root_symbol.get_module_from_id(dep.module_id).unwrap();
         let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
         diagnostics.add_private_type_in_public(
-          &decl_with_deps.decl_name,
+          doc_module_info,
+          &decl_name,
           decl_with_deps.decl_range,
           doc_symbol_id,
           dep_module,
           dep_symbol,
-          doc_module_info,
         );
       }
     }

@@ -70,12 +70,12 @@ pub struct DiagnosticsCollector {
 impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
+    decl_module: ModuleInfoRef,
     decl_name: &str,
     decl_range: SourceRange,
     doc_symbol_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
     referenced_symbol: &Symbol,
-    member_module: ModuleInfoRef,
   ) {
     if !self.seen_private_types_in_public.insert((
       doc_symbol_id,
@@ -97,8 +97,8 @@ impl DiagnosticsCollector {
 
     self.diagnostics.push(DocDiagnostic {
       location: get_text_info_location(
-        member_module.specifier().as_str(),
-        member_module.text_info(),
+        decl_module.specifier().as_str(),
+        decl_module.text_info(),
         decl_range.start,
       ),
       kind: DocDiagnosticKind::PrivateTypeRef {

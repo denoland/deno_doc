@@ -15,6 +15,14 @@ Defined in file:///mod.ts:3:1
 type PrivateProp = typeof MyNamespace.MyInternal
   Comment
 
+Defined in file:///mod.ts:5:1
+
+private namespace MyNamespace
+
+  class MyInternal
+
+    @internal
+
 
 # output.json
 [
@@ -37,6 +45,49 @@ type PrivateProp = typeof MyNamespace.MyInternal
         "typeQuery": "MyNamespace.MyInternal"
       },
       "typeParams": []
+    }
+  },
+  {
+    "kind": "namespace",
+    "name": "MyNamespace",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "class",
+          "name": "MyInternal",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "unsupported",
+                "value": "@internal"
+              }
+            ]
+          },
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }
+      ]
     }
   }
 ]
