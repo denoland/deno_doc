@@ -23,7 +23,7 @@ pub fn title_to_id(title: &str) -> String {
 /// ["Deno", "read"]
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
@@ -65,6 +65,8 @@ impl NamespacedSymbols {
   }
 }
 
+pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String]) -> String>;
+
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
   tt: Rc<TinyTemplate<'ctx>>,
@@ -72,18 +74,24 @@ pub struct RenderContext<'ctx> {
   current_type_params: HashSet<String>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Vec<String>,
+  global_symbols: NamespacedSymbols,
+  global_symbol_href_resolver: GlobalSymbolHrefResolver,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     tt: Rc<TinyTemplate<'ctx>>,
     all_symbols: NamespacedSymbols,
+    global_symbols: NamespacedSymbols,
+    global_symbol_href_resolver: GlobalSymbolHrefResolver,
   ) -> Self {
     Self {
       tt,
       current_type_params: Default::default(),
       namespace_parts: vec![],
       all_symbols,
+      global_symbols,
+      global_symbol_href_resolver,
     }
   }
 
@@ -136,8 +144,6 @@ impl<'ctx> RenderContext<'ctx> {
           return Some(format!("./{}.html", current_parts.join(".")));
         }
 
-        // TODO(crowlKats): global symbol handling
-
         parts.pop();
       }
     }
@@ -147,6 +153,10 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     // TODO(crowlKats): handle currentImports
+
+    if self.global_symbols.contains(&target_symbol_parts) {
+      return Some((self.global_symbol_href_resolver)(&target_symbol_parts));
+    }
 
     None
   }

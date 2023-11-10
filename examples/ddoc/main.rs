@@ -182,6 +182,8 @@ fn generate_docs_directory(
   let options = deno_doc::html::GenerateOptions {
     package_name: name,
     main_entrypoint,
+    global_symbols: Default::default(),
+    global_symbol_href_resolver: std::rc::Rc::new(|_| String::new()),
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 

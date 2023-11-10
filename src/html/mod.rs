@@ -10,7 +10,8 @@ use tinytemplate::TinyTemplate;
 use crate::html::jsdoc::render_markdown;
 use crate::html::util::RenderContext;
 use crate::node::Location;
-use crate::{DocNode, DocNodeKind};
+use crate::DocNode;
+use crate::DocNodeKind;
 
 mod jsdoc;
 mod parameters;
@@ -35,7 +36,7 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
   pub package_name: String,
@@ -43,12 +44,16 @@ pub struct GenerateOptions {
   /// If only a single file is specified during generation, this will always
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
+  pub global_symbols: NamespacedSymbols,
+  pub global_symbol_href_resolver: util::GlobalSymbolHrefResolver,
 }
 
 struct GenerateCtx<'ctx> {
   package_name: String,
   common_ancestor: Option<PathBuf>,
   tt: Rc<TinyTemplate<'ctx>>,
+  global_symbols: NamespacedSymbols,
+  global_symbol_href_resolver: util::GlobalSymbolHrefResolver,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -156,6 +161,8 @@ pub fn generate(
     package_name: options.package_name,
     common_ancestor,
     tt,
+    global_symbols: options.global_symbols,
+    global_symbol_href_resolver: options.global_symbol_href_resolver,
   };
   let mut files = HashMap::new();
 
@@ -393,7 +400,12 @@ fn render_index(
     package_name: ctx.package_name.to_string(),
   };
 
-  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
+  let render_ctx = RenderContext::new(
+    ctx.tt.clone(),
+    all_symbols,
+    ctx.global_symbols.clone(),
+    ctx.global_symbol_href_resolver.clone(),
+  );
 
   let module_doc = {
     if let Some(main_entrypoint) = main_entrypoint {
@@ -455,7 +467,12 @@ fn render_all_symbols(
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols.clone());
+  let render_ctx = RenderContext::new(
+    ctx.tt.clone(),
+    all_symbols.clone(),
+    ctx.global_symbols.clone(),
+    ctx.global_symbol_href_resolver.clone(),
+  );
   let namespace_ctx =
     symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -523,7 +540,12 @@ fn render_page(
   doc_nodes: &[DocNode],
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let mut render_ctx = RenderContext::new(ctx.tt.clone(), all_symbols);
+  let mut render_ctx = RenderContext::new(
+    ctx.tt.clone(),
+    all_symbols,
+    ctx.global_symbols.clone(),
+    ctx.global_symbol_href_resolver.clone(),
+  );
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
   }
