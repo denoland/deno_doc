@@ -250,7 +250,7 @@ fn generate_pages_inner(
     let file_name = if namespace_paths.is_empty() {
       format!("{}.html", name)
     } else {
-      format!("{}/{name}.html", namespace_paths.join("/"))
+      format!("{}.{name}.html", namespace_paths.join("."))
     };
 
     let page = render_page(
@@ -510,7 +510,6 @@ struct PageCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: SidepanelRenderCtx,
-  base_url: String,
   symbol_group_ctx: SymbolGroupCtx,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
@@ -539,32 +538,21 @@ fn render_page(
   let symbol_group_ctx =
     symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
 
-  let backs = namespaced_name
-    .split('.')
-    .skip(1)
-    .map(|_| "../")
-    .collect::<String>();
-
-  let sidepanel_ctx = SidepanelRenderCtx {
-    base_url: backs.clone(),
-    ..sidepanel_ctx.clone()
-  };
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
     title: format!("{} - {} documentation", namespaced_name, ctx.package_name),
     current_symbol: namespaced_name.to_string(),
-    stylesheet_url: format!("./{}{}", backs, STYLESHEET_FILENAME),
+    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{}{}", backs, SEARCH_INDEX_FILENAME),
-    fuse_js: format!("./{}{}", backs, FUSE_FILENAME),
-    url_search: format!("./{}{}", backs, SEARCH_FILENAME),
+    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("./{}", FUSE_FILENAME),
+    url_search: format!("./{}", SEARCH_FILENAME),
   };
   let page_ctx = PageCtx {
     html_head_ctx,
     html_tail_ctx,
-    sidepanel_ctx,
-    base_url: format!("./{backs}index.html"),
+    sidepanel_ctx: sidepanel_ctx.clone(),
     symbol_group_ctx,
     search_ctx: serde_json::Value::Null,
   };
@@ -580,7 +568,6 @@ struct SidepanelPartition {
 
 #[derive(Debug, Serialize, Clone)]
 struct SidepanelRenderCtx {
-  base_url: String,
   package_name: String,
   partitions: Vec<SidepanelPartition>,
 }
@@ -602,7 +589,6 @@ fn sidepanel_render_ctx(
   partitions.sort_by_key(|part| part.kind.kind.clone());
 
   SidepanelRenderCtx {
-    base_url: "./".to_string(),
     package_name: ctx.package_name.to_string(),
     partitions,
   }

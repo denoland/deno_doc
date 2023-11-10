@@ -20,7 +20,6 @@ pub struct NamespaceSectionRenderCtx {
 #[derive(Serialize)]
 pub struct NamespaceSectionNodeCtx {
   pub doc_node_kind_ctx: DocNodeKindCtx,
-  pub path: String,
   pub name: String,
   pub docs: String,
 }
@@ -41,7 +40,7 @@ pub(crate) fn get_namespace_render_ctx(
 
 pub(crate) fn render_namespace(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNode,
 ) -> String {
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
@@ -162,17 +161,14 @@ fn get_namespace_section_render_ctx(
       // TODO: linking, tags
 
       let mut name = doc_node.name.clone();
-      let mut path = doc_node.name.clone();
 
       let ns_parts = ctx.get_namespace_parts();
       if !ns_parts.is_empty() {
         name = format!("{}.{}", ns_parts.join("."), doc_node.name);
-        path = format!("{}/{}", ns_parts.last().unwrap(), doc_node.name);
       }
 
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: doc_node.kind.into(),
-        path,
         name,
         // TODO(bartlomieju): make it a template
         docs: crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc),

@@ -121,7 +121,7 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
-    let target_symbol_path = target_symbol
+    let target_symbol_parts = target_symbol
       .split('.')
       .map(String::from)
       .collect::<Vec<_>>();
@@ -130,13 +130,10 @@ impl<'ctx> RenderContext<'ctx> {
       let mut parts = self.namespace_parts.clone();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
-        current_parts.extend_from_slice(&target_symbol_path);
+        current_parts.extend_from_slice(&target_symbol_parts);
 
         if self.all_symbols.contains(&current_parts) {
-          let backs =
-            target_symbol_path.iter().map(|_| "../").collect::<String>();
-
-          return Some(format!("./{backs}{}.html", current_parts.join("/")));
+          return Some(format!("./{}.html", current_parts.join(".")));
         }
 
         // TODO(crowlKats): global symbol handling
@@ -145,14 +142,8 @@ impl<'ctx> RenderContext<'ctx> {
       }
     }
 
-    if self.all_symbols.contains(&target_symbol_path) {
-      let backs = self
-        .namespace_parts
-        .iter()
-        .map(|_| "../")
-        .collect::<String>();
-
-      return Some(format!("./{backs}{}.html", target_symbol_path.join("/")));
+    if self.all_symbols.contains(&target_symbol_parts) {
+      return Some(format!("./{}.html", target_symbol_parts.join(".")));
     }
 
     // TODO(crowlKats): handle currentImports
