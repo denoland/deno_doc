@@ -11,10 +11,10 @@ export namespace RootNs {
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:2:3 Missing JS documentation comment.",
-  "file:///mod.ts:3:5 Missing JS documentation comment.",
-  "file:///mod.ts:7:3 Missing JS documentation comment."
+  "file:///mod.ts:1:1 Missing JSDoc comment.",
+  "file:///mod.ts:2:3 Missing JSDoc comment.",
+  "file:///mod.ts:3:5 Missing JSDoc comment.",
+  "file:///mod.ts:7:3 Missing JSDoc comment."
 ]
 
 # output.txt

@@ -3,7 +3,7 @@ export const tpl: `test${number}` = `test1`;
 
 # diagnostics
 [
-  "file:///mod.ts:1:14 Missing JS documentation comment."
+  "file:///mod.ts:1:14 Missing JSDoc comment."
 ]
 
 # output.txt

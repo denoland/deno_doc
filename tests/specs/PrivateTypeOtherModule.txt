@@ -14,8 +14,8 @@ export class YesDiagnostic {}
 # diagnostics
 [
   "file:///mod.ts:3:1 Type 'MyClass' references type 'YesDiagnostic' (file:///diagnostic.ts:4:1) which is not exported from a root module.",
-  "file:///mod.ts:3:1 Missing JS documentation comment.",
-  "file:///mod.ts:4:3 Missing JS documentation comment."
+  "file:///mod.ts:3:1 Missing JSDoc comment.",
+  "file:///mod.ts:4:3 Missing JSDoc comment."
 ]
 
 # output.txt

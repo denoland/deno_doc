@@ -45,7 +45,7 @@ impl DocDiagnostic {
   pub fn message(&self) -> Cow<str> {
     match &self.kind {
       DocDiagnosticKind::MissingJsDoc => {
-        Cow::Borrowed("Missing JS documentation comment.")
+        Cow::Borrowed("Missing JSDoc comment.")
       }
       DocDiagnosticKind::MissingExplicitType => {
         Cow::Borrowed("Missing explicit type.")

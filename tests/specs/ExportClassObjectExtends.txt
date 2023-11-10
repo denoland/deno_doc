@@ -7,7 +7,7 @@ export class Bar extends obj.Foo {}
 # diagnostics
 [
   "file:///mod.ts:4:1 Type 'Bar' references type 'obj' which is not exported from a root module.",
-  "file:///mod.ts:4:1 Missing JS documentation comment."
+  "file:///mod.ts:4:1 Missing JSDoc comment."
 ]
 
 # output.txt

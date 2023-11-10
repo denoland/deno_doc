@@ -5,8 +5,8 @@ export interface TypedIface<T> {
 
 # diagnostics
 [
-  "file:///mod.ts:1:1 Missing JS documentation comment.",
-  "file:///mod.ts:2:5 Missing JS documentation comment."
+  "file:///mod.ts:1:1 Missing JSDoc comment.",
+  "file:///mod.ts:2:5 Missing JSDoc comment."
 ]
 
 # output.txt

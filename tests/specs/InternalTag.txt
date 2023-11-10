@@ -36,7 +36,7 @@ export type Test = OtherPrivateType;
 
 # diagnostics
 [
-  "file:///mod.ts:34:1 Missing JS documentation comment."
+  "file:///mod.ts:34:1 Missing JSDoc comment."
 ]
 
 # output.txt
