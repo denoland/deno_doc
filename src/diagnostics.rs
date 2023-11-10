@@ -19,44 +19,60 @@ use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::UniqueSymbolId;
 
+use std::borrow::Cow;
 use std::collections::HashSet;
-use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DocDiagnosticKind {
   MissingJsDoc,
   MissingExplicitType,
   MissingReturnType,
-  PrivateTypeRef { name: String, reference: String },
-}
-
-impl std::fmt::Display for DocDiagnosticKind {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    match self {
-      DocDiagnosticKind::MissingJsDoc => {
-        f.write_str("Missing JS documentation comment.")
-      }
-      DocDiagnosticKind::MissingExplicitType => {
-        f.write_str("Missing explicit type.")
-      }
-      DocDiagnosticKind::MissingReturnType => {
-        f.write_str("Missing return type.")
-      }
-      DocDiagnosticKind::PrivateTypeRef { name, reference } => {
-        write!(
-          f,
-          "Type '{}' references type '{}' which is not exported from a root module.",
-          name, reference
-        )
-      }
-    }
-  }
+  PrivateTypeRef {
+    name: String,
+    reference: String,
+    /// The location of the reference.
+    reference_location: Location,
+  },
 }
 
 #[derive(Debug, Clone)]
 pub struct DocDiagnostic {
   pub location: Location,
   pub kind: DocDiagnosticKind,
+}
+
+impl DocDiagnostic {
+  pub fn message(&self) -> Cow<str> {
+    match &self.kind {
+      DocDiagnosticKind::MissingJsDoc => {
+        Cow::Borrowed("Missing JSDoc comment.")
+      }
+      DocDiagnosticKind::MissingExplicitType => {
+        Cow::Borrowed("Missing explicit type.")
+      }
+      DocDiagnosticKind::MissingReturnType => {
+        Cow::Borrowed("Missing return type.")
+      }
+      DocDiagnosticKind::PrivateTypeRef {
+        name,
+        reference,
+        reference_location,
+      } => {
+        let mut message =
+          format!("Type '{}' references type '{}' ", name, reference);
+        if reference_location.filename != self.location.filename {
+          message.push_str(&format!(
+            "({}:{}:{}) ",
+            reference_location.filename,
+            reference_location.line,
+            reference_location.col + 1
+          ));
+        }
+        message.push_str("which is not exported from a root module.");
+        Cow::Owned(message)
+      }
+    }
+  }
 }
 
 #[derive(Default)]
@@ -104,6 +120,23 @@ impl DiagnosticsCollector {
       kind: DocDiagnosticKind::PrivateTypeRef {
         name: decl_name.to_string(),
         reference: reference.to_string(),
+        reference_location: referenced_symbol
+          .decls()
+          .iter()
+          .next()
+          .map(|d| {
+            get_text_info_location(
+              referenced_module.specifier().as_str(),
+              referenced_module.text_info(),
+              d.range.start,
+            )
+          })
+          // should never happen, but just in case
+          .unwrap_or_else(|| Location {
+            filename: referenced_module.specifier().to_string(),
+            line: 1,
+            col: 1,
+          }),
       },
     })
   }

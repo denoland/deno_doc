@@ -4,7 +4,7 @@ export function bar() {};
 
 # diagnostics
 [
-  "file:///mod.ts:2:1 Missing JS documentation comment."
+  "file:///mod.ts:2:1 Missing JSDoc comment."
 ]
 
 # output.txt

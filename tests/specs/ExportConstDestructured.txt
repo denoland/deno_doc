@@ -18,8 +18,8 @@ const c = { a: "a", b: 2 };
 
 # diagnostics
 [
-  "file:///mod.ts:16:20 Missing JS documentation comment.",
-  "file:///mod.ts:16:26 Missing JS documentation comment."
+  "file:///mod.ts:16:20 Missing JSDoc comment.",
+  "file:///mod.ts:16:26 Missing JSDoc comment."
 ]
 
 # output.txt

@@ -20,7 +20,7 @@ const s: symbol = Symbol.for("s");
 
 # diagnostics
 [
-  "file:///mod.ts:4:18 Missing JS documentation comment."
+  "file:///mod.ts:4:18 Missing JSDoc comment."
 ]
 
 # output.txt
