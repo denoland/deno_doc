@@ -1,6 +1,6 @@
 use crate::DocNodeKind;
 use serde::Serialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
@@ -23,7 +23,7 @@ pub fn title_to_id(title: &str) -> String {
 /// ["Deno", "read"]
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
@@ -65,7 +65,20 @@ impl NamespacedSymbols {
   }
 }
 
-pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String]) -> String>;
+#[derive(Clone, Default)]
+pub struct NamespacedGlobalSymbols(Rc<HashMap<Vec<String>, String>>);
+
+impl NamespacedGlobalSymbols {
+  pub fn new(symbols: HashMap<Vec<String>, String>) -> Self {
+    Self(Rc::new(symbols))
+  }
+
+  fn get(&self, path: &[String]) -> Option<&String> {
+    self.0.get(path)
+  }
+}
+
+pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String], &String) -> String>;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
@@ -74,7 +87,7 @@ pub struct RenderContext<'ctx> {
   current_type_params: HashSet<String>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Vec<String>,
-  global_symbols: NamespacedSymbols,
+  global_symbols: NamespacedGlobalSymbols,
   global_symbol_href_resolver: GlobalSymbolHrefResolver,
 }
 
@@ -82,7 +95,7 @@ impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     tt: Rc<TinyTemplate<'ctx>>,
     all_symbols: NamespacedSymbols,
-    global_symbols: NamespacedSymbols,
+    global_symbols: NamespacedGlobalSymbols,
     global_symbol_href_resolver: GlobalSymbolHrefResolver,
   ) -> Self {
     Self {
@@ -154,8 +167,11 @@ impl<'ctx> RenderContext<'ctx> {
 
     // TODO(crowlKats): handle currentImports
 
-    if self.global_symbols.contains(&target_symbol_parts) {
-      return Some((self.global_symbol_href_resolver)(&target_symbol_parts));
+    if let Some(context) = self.global_symbols.get(&target_symbol_parts) {
+      return Some((self.global_symbol_href_resolver)(
+        &target_symbol_parts,
+        context,
+      ));
     }
 
     None

@@ -23,6 +23,8 @@ mod util;
 use symbol::SymbolGroupCtx;
 use symbols::namespace::NamespaceRenderCtx;
 
+pub use self::util::GlobalSymbolHrefResolver;
+pub use self::util::NamespacedGlobalSymbols;
 use self::util::NamespacedSymbols;
 
 const STYLESHEET: &str = include_str!("./templates/styles.css");
@@ -44,16 +46,16 @@ pub struct GenerateOptions {
   /// If only a single file is specified during generation, this will always
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
-  pub global_symbols: NamespacedSymbols,
-  pub global_symbol_href_resolver: util::GlobalSymbolHrefResolver,
+  pub global_symbols: NamespacedGlobalSymbols,
+  pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
 }
 
 struct GenerateCtx<'ctx> {
   package_name: String,
   common_ancestor: Option<PathBuf>,
   tt: Rc<TinyTemplate<'ctx>>,
-  global_symbols: NamespacedSymbols,
-  global_symbol_href_resolver: util::GlobalSymbolHrefResolver,
+  global_symbols: NamespacedGlobalSymbols,
+  global_symbol_href_resolver: GlobalSymbolHrefResolver,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
