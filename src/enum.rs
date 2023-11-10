@@ -6,10 +6,10 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::js_doc::JsDoc;
-use crate::swc_util::get_location;
-use crate::swc_util::js_doc_for_range;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::TsTypeDef;
+use crate::util::swc::get_location;
+use crate::util::swc::js_doc_for_range;
 use crate::Location;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

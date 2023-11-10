@@ -1,0 +1,91 @@
+# mod.ts
+export namespace Test {
+  export class Other extends YesDiagnostic {
+
+  }
+
+  class Private implements NoDiagnostic {}
+}
+
+class YesDiagnostic {}
+interface NoDiagnostic {}
+
+# diagnostics
+[
+  "file:///mod.ts:2:3 Type 'Test.Other' references type 'YesDiagnostic' which is not exported from a root module.",
+  "file:///mod.ts:1:1 Missing JS documentation comment.",
+  "file:///mod.ts:2:3 Missing JS documentation comment."
+]
+
+# output.txt
+Defined in file:///mod.ts:9:1
+
+private class YesDiagnostic
+
+
+Defined in file:///mod.ts:1:1
+
+namespace Test
+
+  class Other extends YesDiagnostic
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "Test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "class",
+          "name": "Other",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "classDef": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": "YesDiagnostic",
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "kind": "class",
+    "name": "YesDiagnostic",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

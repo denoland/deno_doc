@@ -61,9 +61,10 @@ impl TestBuilder {
       )
       .await;
     graph.valid().unwrap();
+    let parser = analyzer.as_capturing_parser();
     let parser = DocParser::new(
       &graph,
-      analyzer.as_capturing_parser(),
+      parser,
       DocParserOptions {
         private: self.private,
         diagnostics: true,

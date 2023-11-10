@@ -38,8 +38,8 @@ export const Test10 = 1;
 
 # diagnostics
 [
-  "file:///mod.ts:9:1 Type 'MyClass' references type 'Internal1' which is not exported from a root module.",
-  "file:///mod.ts:9:1 Type 'MyClass' references type 'Internal2' which is not exported from a root module."
+  "file:///mod.ts:11:3 Type 'MyClass.prototype.internal' references type 'Internal1' which is not exported from a root module.",
+  "file:///mod.ts:13:3 Type 'MyClass.prototype.internal2' references type 'Internal2' which is not exported from a root module."
 ]
 
 # output.txt

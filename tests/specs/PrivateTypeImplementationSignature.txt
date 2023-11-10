@@ -1,0 +1,189 @@
+# mod.ts
+/** Comment */
+export namespace SameName {}
+/** Comment */
+export function SameName(): YesDiagnostic1 {
+}
+
+/** Comment */
+export function test(): YesDiagnostic2;
+export function test(): NoDiagnostic {
+
+}
+
+interface YesDiagnostic1 {}
+interface YesDiagnostic2 {}
+
+// should not have diagnostic for this because it's in the implementation signature
+interface NoDiagnostic {}
+
+# diagnostics
+[
+  "file:///mod.ts:4:1 Type 'SameName' references type 'YesDiagnostic1' which is not exported from a root module.",
+  "file:///mod.ts:8:1 Type 'test' references type 'YesDiagnostic2' which is not exported from a root module."
+]
+
+# output.txt
+Defined in file:///mod.ts:4:1
+
+function SameName(): YesDiagnostic1
+  Comment
+
+Defined in file:///mod.ts:8:1
+
+function test(): YesDiagnostic2
+  Comment
+
+
+Defined in file:///mod.ts:13:1
+
+private interface YesDiagnostic1
+
+
+Defined in file:///mod.ts:14:1
+
+private interface YesDiagnostic2
+
+
+Defined in file:///mod.ts:2:1
+
+namespace SameName
+  Comment
+
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "SameName",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Comment"
+    },
+    "namespaceDef": {
+      "elements": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "SameName",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Comment"
+    },
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "YesDiagnostic1",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "YesDiagnostic1"
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Comment"
+    },
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "YesDiagnostic2",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "YesDiagnostic2"
+        }
+      },
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "NoDiagnostic",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "NoDiagnostic"
+        }
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "YesDiagnostic1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 13,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "YesDiagnostic2",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 14,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]

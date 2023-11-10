@@ -1,21 +1,23 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
 use crate::js_doc::JsDoc;
-use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::NamespaceDef;
-use crate::swc_util::js_doc_for_range_include_ignore;
 use crate::ts_type::TsTypeDef;
+use crate::util::swc::get_text_info_location;
+use crate::util::swc::has_ignorable_js_doc_tag;
+use crate::util::symbol::fully_qualified_symbol_name;
+use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
-use deno_graph::type_tracer::ModuleSymbolRef;
-use deno_graph::type_tracer::Symbol;
-use deno_graph::type_tracer::SymbolDecl;
-use deno_graph::type_tracer::UniqueSymbolId;
+use deno_ast::SourceRange;
+use deno_graph::symbols::ModuleInfoRef;
+use deno_graph::symbols::Symbol;
+use deno_graph::symbols::UniqueSymbolId;
 
 use std::collections::HashSet;
 use std::fmt;
@@ -68,13 +70,15 @@ pub struct DiagnosticsCollector {
 impl DiagnosticsCollector {
   pub fn add_private_type_in_public(
     &mut self,
-    doc_node: &DocNode,
-    doc_id: UniqueSymbolId,
-    referenced_module: ModuleSymbolRef,
+    decl_module: ModuleInfoRef,
+    decl_name: &str,
+    decl_range: SourceRange,
+    doc_symbol_id: UniqueSymbolId,
+    referenced_module: ModuleInfoRef,
     referenced_symbol: &Symbol,
   ) {
     if !self.seen_private_types_in_public.insert((
-      doc_id,
+      doc_symbol_id,
       UniqueSymbolId::new(
         referenced_module.module_id(),
         referenced_symbol.symbol_id(),
@@ -82,24 +86,24 @@ impl DiagnosticsCollector {
     )) {
       return;
     }
-    if referenced_symbol
-      .decls()
-      .any(|decl| decl_has_ignorable_js_doc_tag(referenced_module, decl))
-    {
+    if symbol_has_ignorable_js_doc_tag(referenced_module, referenced_symbol) {
       return; // ignore
     }
-    let Some(first_decl) = referenced_symbol.decls().next() else {
-      return;
-    };
-    let Some(reference) = get_decl_name(first_decl) else {
+    let Some(reference) =
+      fully_qualified_symbol_name(referenced_module, referenced_symbol)
+    else {
       return;
     };
 
     self.diagnostics.push(DocDiagnostic {
-      location: doc_node.location.clone(),
+      location: get_text_info_location(
+        decl_module.specifier().as_str(),
+        decl_module.text_info(),
+        decl_range.start,
+      ),
       kind: DocDiagnosticKind::PrivateTypeRef {
-        name: doc_node.name.clone(),
-        reference,
+        name: decl_name.to_string(),
+        reference: reference.to_string(),
       },
     })
   }
@@ -364,60 +368,4 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
       &parent.location,
     );
   }
-}
-
-fn get_decl_name(decl: &SymbolDecl) -> Option<String> {
-  use deno_ast::swc::ast::DefaultDecl;
-  use deno_ast::swc::ast::TsModuleName;
-  use deno_graph::type_tracer::ExportDeclRef;
-  use deno_graph::type_tracer::SymbolNodeRef;
-
-  fn ts_module_name_to_string(module_name: &TsModuleName) -> String {
-    match module_name {
-      TsModuleName::Ident(ident) => ident.sym.to_string(),
-      TsModuleName::Str(str) => str.value.to_string(),
-    }
-  }
-
-  let node = decl.maybe_node()?;
-  match node {
-    SymbolNodeRef::ClassDecl(n) => Some(n.ident.sym.to_string()),
-    SymbolNodeRef::ExportDecl(_, n) => match n {
-      ExportDeclRef::Class(n) => Some(n.ident.sym.to_string()),
-      ExportDeclRef::Fn(n) => Some(n.ident.sym.to_string()),
-      ExportDeclRef::Var(_, _, ident) => Some(ident.sym.to_string()),
-      ExportDeclRef::TsEnum(n) => Some(n.id.sym.to_string()),
-      ExportDeclRef::TsInterface(n) => Some(n.id.sym.to_string()),
-      ExportDeclRef::TsModule(n) => Some(ts_module_name_to_string(&n.id)),
-      ExportDeclRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
-    },
-    SymbolNodeRef::ExportDefaultDecl(n) => match &n.decl {
-      DefaultDecl::Class(n) => Some(n.ident.as_ref()?.sym.to_string()),
-      DefaultDecl::Fn(n) => Some(n.ident.as_ref()?.sym.to_string()),
-      DefaultDecl::TsInterfaceDecl(n) => Some(n.id.sym.to_string()),
-    },
-    SymbolNodeRef::ExportDefaultExprLit(_, _) => None,
-    SymbolNodeRef::FnDecl(n) => Some(n.ident.sym.to_string()),
-    SymbolNodeRef::TsEnum(n) => Some(n.id.sym.to_string()),
-    SymbolNodeRef::TsInterface(n) => Some(n.id.sym.to_string()),
-    SymbolNodeRef::TsNamespace(n) => Some(ts_module_name_to_string(&n.id)),
-    SymbolNodeRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
-    SymbolNodeRef::Var(_, _, ident) => Some(ident.sym.to_string()),
-  }
-}
-
-fn decl_has_ignorable_js_doc_tag(
-  module: ModuleSymbolRef,
-  decl: &SymbolDecl,
-) -> bool {
-  let Some(module) = module.esm() else {
-    return false;
-  };
-  let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range);
-  has_ignorable_js_doc_tag(&js_doc)
-}
-
-/// If the jsdoc has an `@internal` or `@ignore` tag.
-fn has_ignorable_js_doc_tag(js_doc: &JsDoc) -> bool {
-  js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Ignore) || matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
 }

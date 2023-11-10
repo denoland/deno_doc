@@ -8,16 +8,20 @@ use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::node::NamespaceDef;
-use crate::swc_util::get_location;
-use crate::swc_util::get_text_info_location;
-use crate::swc_util::js_doc_for_range;
-use crate::swc_util::module_export_name_value;
-use crate::swc_util::module_js_doc_for_source;
 use crate::ts_type::LiteralPropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
+use crate::util::graph::resolve_deno_graph_module;
+use crate::util::swc::get_location;
+use crate::util::swc::get_text_info_location;
+use crate::util::swc::js_doc_for_range;
+use crate::util::swc::module_export_name_value;
+use crate::util::swc::module_js_doc_for_source;
+use crate::util::symbol::fully_qualified_symbol_name;
+use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
+use crate::visibility::SymbolVisibility;
 use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
@@ -46,18 +50,16 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::type_tracer::EsmModuleSymbol;
-use deno_graph::type_tracer::ExportDeclRef;
-use deno_graph::type_tracer::ModuleSymbolRef;
-use deno_graph::type_tracer::ResolvedSymbolDepEntry;
-use deno_graph::type_tracer::Symbol;
-use deno_graph::type_tracer::SymbolNodeRef;
-use deno_graph::type_tracer::UniqueSymbolId;
+use deno_graph::symbols::EsmModuleInfo;
+use deno_graph::symbols::ExportDeclRef;
+use deno_graph::symbols::ModuleInfoRef;
+use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolNodeRef;
+use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
-use indexmap::IndexSet;
 
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -119,7 +121,7 @@ pub struct DocParserOptions {
 pub struct DocParser<'a> {
   graph: &'a ModuleGraph,
   private: bool,
-  root_symbol: deno_graph::type_tracer::RootSymbol,
+  root_symbol: deno_graph::symbols::RootSymbol<'a>,
   visibility: SymbolVisibility,
   diagnostics: Option<RefCell<DiagnosticsCollector>>,
 }
@@ -130,22 +132,7 @@ impl<'a> DocParser<'a> {
     parser: CapturingModuleParser<'a>,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
-    struct NullTypeTraceHandler;
-
-    impl deno_graph::type_tracer::TypeTraceHandler for NullTypeTraceHandler {
-      fn diagnostic(
-        &self,
-        _diagnostic: deno_graph::type_tracer::TypeTraceDiagnostic,
-      ) {
-      }
-    }
-
-    let root_symbol = deno_graph::type_tracer::trace_public_types(
-      graph,
-      &graph.roots,
-      &parser,
-      &NullTypeTraceHandler,
-    )?;
+    let root_symbol = deno_graph::symbols::RootSymbol::new(graph, parser);
     let visibility = SymbolVisibility::build(graph, &root_symbol)?;
 
     Ok(DocParser {
@@ -180,10 +167,10 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<ModuleDoc, DocError> {
-    let module_symbol = self.get_module_symbol(specifier)?;
-    let definitions = self.get_doc_nodes_for_module_symbol(module_symbol)?;
+    let module_info = self.get_module_info(specifier)?;
+    let definitions = self.get_doc_nodes_for_module_info(module_info)?;
     self.collect_diagnostics_for_nodes(&definitions);
-    let reexports = self.get_reexports_for_module(module_symbol);
+    let reexports = self.get_reexports_for_module(module_info);
     let module_doc = ModuleDoc {
       definitions,
       reexports,
@@ -191,11 +178,11 @@ impl<'a> DocParser<'a> {
     Ok(module_doc)
   }
 
-  fn get_module_symbol(
+  fn get_module_info(
     &self,
     specifier: &ModuleSpecifier,
-  ) -> Result<ModuleSymbolRef, DocError> {
-    get_module_symbol(&self.root_symbol, specifier)
+  ) -> Result<ModuleInfoRef, DocError> {
+    get_module_info(&self.root_symbol, specifier)
   }
 
   /// Fetches `file_name` and returns a list of exported items (no reexports).
@@ -204,8 +191,8 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
   ) -> Result<Vec<DocNode>, DocError> {
-    let module_symbol = self.get_module_symbol(specifier)?;
-    let doc_nodes = self.get_doc_nodes_for_module_symbol(module_symbol)?;
+    let module_info = self.get_module_info(specifier)?;
+    let doc_nodes = self.get_doc_nodes_for_module_info(module_info)?;
     self.collect_diagnostics_for_nodes(&doc_nodes);
     Ok(doc_nodes)
   }
@@ -240,21 +227,20 @@ impl<'a> DocParser<'a> {
 
     match module {
       Module::Esm(_) | Module::Json(_) => {
-        let module_symbol = self.get_module_symbol(module.specifier())?;
+        let module_info = self.get_module_info(module.specifier())?;
         let module_doc_nodes =
-          self.get_doc_nodes_for_module_symbol(module_symbol)?;
+          self.get_doc_nodes_for_module_info(module_info)?;
         let mut flattened_docs = Vec::new();
-        let exports = module_symbol.exports(self.graph, &self.root_symbol);
-        for (export_name, (export_module, export_symbol_id)) in exports {
-          let export_symbol = export_module.symbol(export_symbol_id).unwrap();
-          let definitions = self.root_symbol.go_to_definitions(
-            self.graph,
-            export_module,
-            export_symbol,
-          );
+        let exports = module_info.exports(&self.root_symbol);
+        for (export_name, export) in exports.resolved {
+          let export_symbol = export.module.symbol(export.symbol_id).unwrap();
+          let definitions = self
+            .root_symbol
+            .go_to_definitions(export.module, export_symbol)
+            .collect::<Vec<_>>();
 
           if let Some(first_def) = definitions.first() {
-            use deno_graph::type_tracer::DefinitionKind;
+            use deno_graph::symbols::DefinitionKind;
             match first_def.kind {
               DefinitionKind::ExportStar(file_dep) => {
                 debug_assert_eq!(definitions.len(), 1);
@@ -288,7 +274,7 @@ impl<'a> DocParser<'a> {
                 flattened_docs.push(ns_doc_node);
               }
               DefinitionKind::Definition => {
-                if first_def.module.specifier() != module_symbol.specifier() {
+                if first_def.module.specifier() != module_info.specifier() {
                   for definition in definitions {
                     let decl = definition.symbol_decl;
                     let maybe_doc = self.doc_for_maybe_node(
@@ -318,10 +304,10 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_nodes_for_module_imports(
     &self,
-    module_symbol: &EsmModuleSymbol,
+    module_info: &EsmModuleInfo,
   ) -> Result<Vec<DocNode>, DocError> {
-    let parsed_source = module_symbol.source();
-    let referrer = module_symbol.specifier();
+    let parsed_source = module_info.source();
+    let referrer = module_info.specifier();
     let mut imports = vec![];
 
     for node in &parsed_source.module().body {
@@ -382,7 +368,7 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_var_declarator_ident(
     &self,
-    module_symbol: &EsmModuleSymbol,
+    module_info: &EsmModuleInfo,
     var_decl: &VarDecl,
     var_declarator: &VarDeclarator,
     ident: &Ident,
@@ -393,19 +379,19 @@ impl<'a> DocParser<'a> {
     } else {
       Cow::Borrowed(full_range)
     };
-    let js_doc = js_doc_for_range(module_symbol.source(), &full_range)?;
+    let js_doc = js_doc_for_range(module_info.source(), &full_range)?;
     // todo(dsherret): it's not ideal to call this function over
     // and over for the same var declarator when there are a lot
     // of idents
     super::variable::get_docs_for_var_declarator(
-      module_symbol,
+      module_info,
       var_decl,
       var_declarator,
     )
     .into_iter()
     .find(|(name, _, _)| name.as_str() == &*ident.sym)
     .map(|(name, var_def, _)| {
-      let location = get_location(module_symbol.source(), ident.start());
+      let location = get_location(module_info.source(), ident.start());
       DocNode::variable(
         name,
         location,
@@ -525,13 +511,14 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_ts_namespace(
     &self,
-    module_symbol: &EsmModuleSymbol,
+    module_info: &EsmModuleInfo,
     symbol: &Symbol,
     ts_module: &TsModuleDecl,
     full_range: &SourceRange,
   ) -> Option<DocNode> {
     let first_ns_decl = symbol
       .decls()
+      .iter()
       .filter_map(|d| {
         d.maybe_node().and_then(|n| match n {
           SymbolNodeRef::ExportDecl(
@@ -560,18 +547,16 @@ impl<'a> DocParser<'a> {
 
     for (export_name, export_symbol_id) in symbol.exports() {
       handled_symbols.insert(UniqueSymbolId::new(
-        module_symbol.module_id(),
+        module_info.module_id(),
         *export_symbol_id,
       ));
-      let export_symbol = module_symbol.symbol(*export_symbol_id).unwrap();
-      let definitions = self.root_symbol.go_to_definitions(
-        self.graph,
-        ModuleSymbolRef::Esm(module_symbol),
-        export_symbol,
-      );
+      let export_symbol = module_info.symbol(*export_symbol_id).unwrap();
+      let definitions = self
+        .root_symbol
+        .go_to_definitions(ModuleInfoRef::Esm(module_info), export_symbol);
       for definition in definitions {
-        handled_symbols.insert(definition.unique_id());
-        if definition.module.specifier() != module_symbol.specifier() {
+        handled_symbols.insert(definition.symbol.unique_id());
+        if definition.module.specifier() != module_info.specifier() {
           continue;
         }
 
@@ -589,9 +574,9 @@ impl<'a> DocParser<'a> {
       }
     }
 
-    let is_ambient = elements.is_empty() && !module_has_import(module_symbol);
-    for child_id in symbol.child_decls() {
-      let unique_id = UniqueSymbolId::new(module_symbol.module_id(), child_id);
+    let is_ambient = elements.is_empty() && !module_has_import(module_info);
+    for child_id in symbol.child_ids() {
+      let unique_id = UniqueSymbolId::new(module_info.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
       }
@@ -599,16 +584,16 @@ impl<'a> DocParser<'a> {
         || self.private
         || self.visibility.has_non_exported_public(&unique_id)
       {
-        let child_symbol = module_symbol.symbol(child_id).unwrap();
+        let child_symbol = module_info.symbol(child_id).unwrap();
         elements.extend(self.get_private_doc_node_for_symbol(
-          ModuleSymbolRef::Esm(module_symbol),
+          ModuleInfoRef::Esm(module_info),
           child_symbol,
         ));
       }
     }
 
-    let js_doc = js_doc_for_range(module_symbol.source(), full_range)?;
-    let location = get_location(module_symbol.source(), full_range.start);
+    let js_doc = js_doc_for_range(module_info.source(), full_range)?;
+    let location = get_location(module_info.source(), full_range.start);
     Some(DocNode::namespace(
       namespace_name,
       location,
@@ -620,16 +605,17 @@ impl<'a> DocParser<'a> {
 
   fn get_private_doc_node_for_symbol(
     &self,
-    module_symbol: ModuleSymbolRef,
+    module_info: ModuleInfoRef,
     child_symbol: &Symbol,
   ) -> Vec<DocNode> {
-    debug_assert!(!self.visibility.root_exported_ids.contains_key(
-      &UniqueSymbolId::new(module_symbol.module_id(), child_symbol.symbol_id())
-    ));
-    let mut doc_nodes = Vec::with_capacity(child_symbol.decls().count());
+    debug_assert!(self
+      .visibility
+      .get_root_exported_deps(&child_symbol.unique_id())
+      .is_none());
+    let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
       if let Some(mut doc_node) =
-        self.doc_for_maybe_node(module_symbol, child_symbol, decl.maybe_node())
+        self.doc_for_maybe_node(module_info, child_symbol, decl.maybe_node())
       {
         let is_declared = decl
           .maybe_node()
@@ -780,12 +766,12 @@ impl<'a> DocParser<'a> {
 
   pub fn get_reexports_for_module(
     &self,
-    module_symbol: ModuleSymbolRef,
+    module_info: ModuleInfoRef,
   ) -> Vec<node::Reexport> {
-    let Some(module_symbol) = module_symbol.esm() else {
+    let Some(module_info) = module_info.esm() else {
       return Vec::new();
     };
-    let module_body = &module_symbol.source().module().body;
+    let module_body = &module_info.source().module().body;
 
     let imports = self.get_imports_for_module_body(module_body);
 
@@ -903,12 +889,12 @@ impl<'a> DocParser<'a> {
     reexports
   }
 
-  fn get_doc_nodes_for_module_symbol(
+  fn get_doc_nodes_for_module_info(
     &self,
-    module_symbol: ModuleSymbolRef,
+    module_info: ModuleInfoRef,
   ) -> Result<Vec<DocNode>, DocError> {
-    match module_symbol {
-      ModuleSymbolRef::Json(module) => Ok(
+    match module_info {
+      ModuleInfoRef::Json(module) => Ok(
         parse_json_module_doc_node(
           module.specifier(),
           module.text_info().text_str(),
@@ -916,23 +902,22 @@ impl<'a> DocParser<'a> {
         .map(|n| vec![n])
         .unwrap_or_default(),
       ),
-      ModuleSymbolRef::Esm(module_symbol) => {
+      ModuleInfoRef::Esm(module_info) => {
         let mut definitions =
-          self.get_doc_nodes_for_module_symbol_body(module_symbol);
-        definitions
-          .extend(self.get_doc_nodes_for_module_imports(module_symbol)?);
+          self.get_doc_nodes_for_module_info_body(module_info);
+        definitions.extend(self.get_doc_nodes_for_module_imports(module_info)?);
 
         Ok(definitions)
       }
     }
   }
 
-  fn get_doc_nodes_for_module_symbol_body(
+  fn get_doc_nodes_for_module_info_body(
     &self,
-    module_symbol: &EsmModuleSymbol,
+    module_info: &EsmModuleInfo,
   ) -> Vec<DocNode> {
     let mut doc_nodes = Vec::new();
-    let parsed_source = module_symbol.source();
+    let parsed_source = module_info.source();
     // check to see if there is a module level JSDoc for the source file
     if let Some(module_js_doc) = module_js_doc_for_source(parsed_source) {
       if let Some((js_doc, range)) = module_js_doc {
@@ -945,23 +930,21 @@ impl<'a> DocParser<'a> {
     }
 
     let mut handled_symbols = HashSet::new();
-    let exports = module_symbol.exports(self.graph, &self.root_symbol);
-    for (export_name, (export_module, export_symbol_id)) in &exports {
+    let exports = module_info.exports(&self.root_symbol);
+    for (export_name, export) in &exports.resolved {
       handled_symbols.insert(UniqueSymbolId::new(
-        export_module.module_id(),
-        *export_symbol_id,
+        export.module.module_id(),
+        export.symbol_id,
       ));
-      let export_symbol = export_module.symbol(*export_symbol_id).unwrap();
-      let definitions = self.root_symbol.go_to_definitions(
-        self.graph,
-        *export_module,
-        export_symbol,
-      );
+      let export_symbol = export.module.symbol(export.symbol_id).unwrap();
+      let definitions = self
+        .root_symbol
+        .go_to_definitions(export.module, export_symbol);
       for definition in definitions {
-        if definition.module.specifier() != module_symbol.specifier() {
+        if definition.module.specifier() != module_info.specifier() {
           continue;
         }
-        handled_symbols.insert(definition.unique_id());
+        handled_symbols.insert(definition.symbol.unique_id());
         let maybe_doc = self.doc_for_maybe_node(
           definition.module,
           definition.symbol,
@@ -976,9 +959,10 @@ impl<'a> DocParser<'a> {
       }
     }
 
-    let is_ambient = exports.is_empty() && !module_has_import(module_symbol);
-    for child_id in module_symbol.child_decls() {
-      let unique_id = UniqueSymbolId::new(module_symbol.module_id(), child_id);
+    let is_ambient =
+      exports.resolved.is_empty() && !module_has_import(module_info);
+    for child_id in module_info.module_symbol().child_ids() {
+      let unique_id = UniqueSymbolId::new(module_info.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
       }
@@ -986,9 +970,9 @@ impl<'a> DocParser<'a> {
         || self.private
         || self.visibility.has_non_exported_public(&unique_id)
       {
-        let child_symbol = module_symbol.symbol(child_id).unwrap();
+        let child_symbol = module_info.symbol(child_id).unwrap();
         doc_nodes.extend(self.get_private_doc_node_for_symbol(
-          ModuleSymbolRef::Esm(module_symbol),
+          ModuleInfoRef::Esm(module_info),
           child_symbol,
         ));
       }
@@ -999,70 +983,87 @@ impl<'a> DocParser<'a> {
 
   fn doc_for_maybe_node(
     &self,
-    module_symbol: ModuleSymbolRef,
+    module_info: ModuleInfoRef,
     symbol: &Symbol,
     maybe_node: Option<SymbolNodeRef<'_>>,
   ) -> Option<DocNode> {
-    let maybe_doc = match module_symbol {
-      ModuleSymbolRef::Json(module_symbol) => parse_json_module_doc_node(
-        module_symbol.specifier(),
-        module_symbol.text_info().text_str(),
+    let maybe_doc = match module_info {
+      ModuleInfoRef::Json(module_info) => parse_json_module_doc_node(
+        module_info.specifier(),
+        module_info.text_info().text_str(),
       ),
-      ModuleSymbolRef::Esm(module_symbol) => {
+      ModuleInfoRef::Esm(module_info) => {
         if let Some(node) = maybe_node {
-          self.get_doc_for_symbol_node_ref(module_symbol, symbol, node)
+          self.get_doc_for_symbol_node_ref(module_info, symbol, node)
         } else {
           None
         }
       }
     };
 
-    self.check_private_type_in_public_diagnostic(
-      &maybe_doc,
-      module_symbol,
-      symbol,
-    );
+    if maybe_doc.is_some() {
+      self.check_private_type_in_public_diagnostic(module_info, symbol);
+    }
 
     maybe_doc
   }
 
   fn check_private_type_in_public_diagnostic(
     &self,
-    maybe_doc: &Option<DocNode>,
-    module_symbol: ModuleSymbolRef<'_>,
-    symbol: &Symbol,
+    doc_module_info: ModuleInfoRef<'_>,
+    doc_symbol: &Symbol,
   ) {
     let Some(diagnostics) = &self.diagnostics else {
       return;
     };
-    let Some(doc) = maybe_doc else {
+    let doc_symbol_id = doc_symbol.unique_id();
+    let Some(deps_by_member) =
+      self.visibility.get_root_exported_deps(&doc_symbol_id)
+    else {
       return;
     };
-
-    let doc_id =
-      UniqueSymbolId::new(module_symbol.module_id(), symbol.symbol_id());
-    let Some(deps) = self.visibility.get_root_exported_deps(&doc_id) else {
-      return;
-    };
-    if deps.is_empty() {
+    if deps_by_member.is_empty() {
       return; // avoid borrow_mut if not necessary
     }
 
     let mut diagnostics = diagnostics.borrow_mut();
-    for dep in deps {
-      let module = self.root_symbol.get_module_from_id(dep.module_id).unwrap();
-      let symbol = module.symbol(dep.symbol_id).unwrap();
-      diagnostics.add_private_type_in_public(doc, doc_id, module, symbol);
+    for decl_with_deps in deps_by_member.iter() {
+      if decl_with_deps.had_ignorable_tag {
+        continue; // ignore
+      }
+
+      let decl_symbol = doc_module_info
+        .symbol(decl_with_deps.symbol_id.symbol_id)
+        .unwrap();
+      let Some(decl_name) =
+        fully_qualified_symbol_name(doc_module_info, decl_symbol)
+      else {
+        continue;
+      };
+
+      for dep in &decl_with_deps.deps {
+        let dep_module =
+          self.root_symbol.get_module_from_id(dep.module_id).unwrap();
+        let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
+        diagnostics.add_private_type_in_public(
+          doc_module_info,
+          &decl_name,
+          decl_with_deps.decl_range,
+          doc_symbol_id,
+          dep_module,
+          dep_symbol,
+        );
+      }
     }
   }
 
   fn get_doc_for_symbol_node_ref(
     &self,
-    module_symbol: &EsmModuleSymbol,
+    module_info: &EsmModuleInfo,
     symbol: &Symbol,
     node: SymbolNodeRef<'_>,
   ) -> Option<DocNode> {
-    let parsed_source = module_symbol.source();
+    let parsed_source = module_info.source();
     match node {
       SymbolNodeRef::ClassDecl(n) => {
         self.get_doc_for_class_decl(parsed_source, n, &n.class.range())
@@ -1083,14 +1084,14 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_interface_decl(parsed_source, n, &n.range())
       }
       SymbolNodeRef::TsNamespace(n) => {
-        self.get_doc_for_ts_namespace(module_symbol, symbol, n, &n.range())
+        self.get_doc_for_ts_namespace(module_info, symbol, n, &n.range())
       }
       SymbolNodeRef::TsTypeAlias(n) => {
         self.get_docs_for_type_alias(parsed_source, n, &n.range())
       }
       SymbolNodeRef::Var(parent_decl, n, ident) => self
         .get_doc_for_var_declarator_ident(
-          module_symbol,
+          module_info,
           parent_decl,
           n,
           ident,
@@ -1107,7 +1108,7 @@ impl<'a> DocParser<'a> {
           self.get_doc_for_enum(parsed_source, n, &export_decl.range())
         }
         ExportDeclRef::TsModule(n) => self.get_doc_for_ts_namespace(
-          module_symbol,
+          module_info,
           symbol,
           n,
           &export_decl.range(),
@@ -1122,13 +1123,28 @@ impl<'a> DocParser<'a> {
         }
         ExportDeclRef::Var(var_decl, var_declarator, ident) => self
           .get_doc_for_var_declarator_ident(
-            module_symbol,
+            module_info,
             var_decl,
             var_declarator,
             ident,
             &export_decl.range(),
           ),
       },
+      SymbolNodeRef::Module(_)
+      | SymbolNodeRef::AutoAccessor(_)
+      | SymbolNodeRef::ClassMethod(_)
+      | SymbolNodeRef::ClassProp(_)
+      | SymbolNodeRef::Constructor(_)
+      | SymbolNodeRef::TsIndexSignature(_)
+      | SymbolNodeRef::TsCallSignatureDecl(_)
+      | SymbolNodeRef::TsConstructSignatureDecl(_)
+      | SymbolNodeRef::TsPropertySignature(_)
+      | SymbolNodeRef::TsGetterSignature(_)
+      | SymbolNodeRef::TsSetterSignature(_)
+      | SymbolNodeRef::TsMethodSignature(_) => {
+        debug_assert!(false, "should not reach here");
+        None
+      }
     }
   }
 
@@ -1144,6 +1160,21 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::TsNamespace(n) => n.declare,
       SymbolNodeRef::TsTypeAlias(n) => n.declare,
       SymbolNodeRef::Var(n, _, _) => n.declare,
+      SymbolNodeRef::Module(_)
+      | SymbolNodeRef::AutoAccessor(_)
+      | SymbolNodeRef::ClassMethod(_)
+      | SymbolNodeRef::ClassProp(_)
+      | SymbolNodeRef::Constructor(_)
+      | SymbolNodeRef::TsIndexSignature(_)
+      | SymbolNodeRef::TsCallSignatureDecl(_)
+      | SymbolNodeRef::TsConstructSignatureDecl(_)
+      | SymbolNodeRef::TsPropertySignature(_)
+      | SymbolNodeRef::TsGetterSignature(_)
+      | SymbolNodeRef::TsSetterSignature(_)
+      | SymbolNodeRef::TsMethodSignature(_) => {
+        debug_assert!(false, "should not reach here");
+        false
+      }
     }
   }
 
@@ -1174,51 +1205,6 @@ impl<'a> DocParser<'a> {
           specifier, referrer
         ))
       })
-  }
-}
-
-/// Resolve a deno_graph module redirecting to the types dependency if available.
-fn resolve_deno_graph_module<'a>(
-  graph: &'a ModuleGraph,
-  specifier: &ModuleSpecifier,
-) -> Result<&'a deno_graph::Module, DocError> {
-  let module = graph
-    .try_get(specifier)
-    .map_err(|err| DocError::Resolve(err.to_string()))?
-    .ok_or_else(|| {
-      DocError::Resolve(format!("Unable to load specifier: \"{}\"", specifier))
-    })?;
-
-  if let Some(specifier) = module.esm().and_then(|m| {
-    m.maybe_types_dependency
-      .as_ref()
-      .and_then(|d| d.dependency.ok())
-      .map(|r| &r.specifier)
-  }) {
-    graph
-      .try_get(specifier)
-      .map_err(|err| DocError::Resolve(err.to_string()))?
-      .ok_or_else(|| {
-        DocError::Resolve(format!(
-          "Unable to load specifier: \"{}\"",
-          specifier
-        ))
-      })
-  } else {
-    Ok(module)
-  }
-}
-
-fn get_module_symbol<'a>(
-  root_symbol: &'a deno_graph::type_tracer::RootSymbol,
-  specifier: &ModuleSpecifier,
-) -> Result<ModuleSymbolRef<'a>, DocError> {
-  match root_symbol.get_module_from_specifier(specifier) {
-    Some(symbol) => Ok(symbol),
-    None => Err(DocError::Resolve(format!(
-      "Could not find ES module in graph: {}",
-      specifier
-    ))),
   }
 }
 
@@ -1288,8 +1274,8 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
   }
 }
 
-fn module_has_import(module_symbol: &EsmModuleSymbol) -> bool {
-  module_symbol.source().module().body.iter().any(|m| {
+fn module_has_import(module_info: &EsmModuleInfo) -> bool {
+  module_info.source().module().body.iter().any(|m| {
     matches!(
       m,
       ModuleItem::ModuleDecl(
@@ -1300,122 +1286,11 @@ fn module_has_import(module_symbol: &EsmModuleSymbol) -> bool {
 }
 
 fn definition_location(
-  definition: &deno_graph::type_tracer::Definition,
+  definition: &deno_graph::symbols::Definition,
 ) -> Location {
   get_text_info_location(
     definition.module.specifier().as_str(),
     definition.module.text_info(),
     definition.range().start,
   )
-}
-
-struct SymbolVisibility {
-  root_exported_ids: HashMap<UniqueSymbolId, IndexSet<UniqueSymbolId>>,
-  /// Symbol identifiers that are not exported, but are referenced
-  /// by exported symbols.
-  non_exported_public_ids: HashSet<UniqueSymbolId>,
-}
-
-impl SymbolVisibility {
-  pub fn build(
-    graph: &ModuleGraph,
-    root_symbol: &deno_graph::type_tracer::RootSymbol,
-  ) -> Result<Self, DocError> {
-    let mut root_exported_ids: HashMap<
-      UniqueSymbolId,
-      IndexSet<UniqueSymbolId>,
-    > = HashMap::new();
-
-    // get a collection of all the symbols that are exports
-    {
-      let mut pending_symbols = Vec::new();
-      for root in &graph.roots {
-        let module = resolve_deno_graph_module(graph, root)?;
-        let module_symbol = get_module_symbol(root_symbol, module.specifier())?;
-        let exports = module_symbol.exports(graph, root_symbol);
-        for (_name, (module_symbol, symbol_id)) in exports {
-          let symbol = module_symbol.symbol(symbol_id).unwrap();
-          let definitions =
-            root_symbol.go_to_definitions(graph, module_symbol, symbol);
-          for definition in definitions {
-            if root_exported_ids
-              .insert(definition.unique_id(), Default::default())
-              .is_none()
-            {
-              pending_symbols.push(definition);
-            }
-          }
-        }
-      }
-      // analyze the pending symbols
-      while let Some(definition) = pending_symbols.pop() {
-        for (_name, export_id) in definition.symbol.exports() {
-          let export_symbol = definition.module.symbol(*export_id).unwrap();
-          let definitions = root_symbol.go_to_definitions(
-            graph,
-            definition.module,
-            export_symbol,
-          );
-          for definition in definitions {
-            if root_exported_ids
-              .insert(definition.unique_id(), Default::default())
-              .is_none()
-            {
-              pending_symbols.push(definition);
-            }
-          }
-        }
-      }
-    }
-
-    // now analyze for all the non exported types that are referenced by exported types
-    // along with filling in any non-exported dependencies of root exported types
-    let mut non_exported_public_ids = HashSet::new();
-    let mut pending_symbol_ids =
-      root_exported_ids.keys().copied().collect::<Vec<_>>();
-    while let Some(original_id) = pending_symbol_ids.pop() {
-      let module_symbol = root_symbol
-        .get_module_from_id(original_id.module_id)
-        .unwrap();
-      let symbol = module_symbol.symbol(original_id.symbol_id).unwrap();
-      for dep in symbol.deps() {
-        let entries = root_symbol.resolve_symbol_dep(graph, module_symbol, dep);
-        for entry in entries {
-          match entry {
-            ResolvedSymbolDepEntry::Definition(definition) => {
-              let id = definition.unique_id();
-              if !root_exported_ids.contains_key(&id)
-                && non_exported_public_ids.insert(id)
-              {
-                if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
-                  dep_ids.insert(id);
-                }
-                // examine the private types of this private type
-                pending_symbol_ids.push(id);
-              }
-            }
-            ResolvedSymbolDepEntry::ImportType(_) => {
-              // ignore for now
-            }
-          }
-        }
-      }
-    }
-
-    Ok(SymbolVisibility {
-      root_exported_ids,
-      non_exported_public_ids,
-    })
-  }
-
-  pub fn get_root_exported_deps(
-    &self,
-    id: &UniqueSymbolId,
-  ) -> Option<&IndexSet<UniqueSymbolId>> {
-    self.root_exported_ids.get(id)
-  }
-
-  pub fn has_non_exported_public(&self, id: &UniqueSymbolId) -> bool {
-    self.non_exported_public_ids.contains(id)
-  }
 }

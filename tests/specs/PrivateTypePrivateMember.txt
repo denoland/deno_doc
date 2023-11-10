@@ -1,0 +1,137 @@
+# mod.ts
+/** Comment */
+export class MyClass {
+  protected secondMethod(): YesDiagnostic {
+  }
+  
+  private myMethod(): NoDiagnostic {
+  }
+}
+
+interface YesDiagnostic {}
+// should not have any diagnostics because this is only referenced in a private member
+interface NoDiagnostic {}
+
+# diagnostics
+[
+  "file:///mod.ts:3:3 Type 'MyClass.prototype.secondMethod' references type 'YesDiagnostic' which is not exported from a root module.",
+  "file:///mod.ts:3:3 Missing JS documentation comment.",
+  "file:///mod.ts:6:3 Missing JS documentation comment."
+]
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+class MyClass
+  Comment
+
+  protected secondMethod(): YesDiagnostic
+
+Defined in file:///mod.ts:10:1
+
+private interface YesDiagnostic
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "MyClass",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Comment"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [
+        {
+          "accessibility": "protected",
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "secondMethod",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "YesDiagnostic",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "YesDiagnostic"
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 2
+          }
+        },
+        {
+          "accessibility": "private",
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "myMethod",
+          "kind": "method",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "NoDiagnostic",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "NoDiagnostic"
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          },
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 2
+          }
+        }
+      ],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "YesDiagnostic",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 10,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "interfaceDef": {
+      "extends": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]
