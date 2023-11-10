@@ -1,0 +1,102 @@
+# mod.ts
+/** Comment */
+export class Other {
+  /** Comment */
+  prop: YesDiagnostic
+}
+
+class YesDiagnostic {}
+
+# diagnostics
+[
+  "file:///mod.ts:4:3 Type 'Other.prototype.prop' references type 'YesDiagnostic' which is not exported from a root module."
+]
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+class Other
+  Comment
+
+  prop: YesDiagnostic
+    Comment
+
+Defined in file:///mod.ts:7:1
+
+private class YesDiagnostic
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Other",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Comment"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "jsDoc": {
+            "doc": "Comment"
+          },
+          "tsType": {
+            "repr": "YesDiagnostic",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "YesDiagnostic"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "prop",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 2
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "YesDiagnostic",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

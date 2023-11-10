@@ -9,8 +9,8 @@ export interface Output {
 
 # diagnostics
 [
-  "file:///mod.ts:6:3 Type 'Output.prototype.other' references type 'Test' which is not exported from a root module.",
-  "file:///mod.ts:6:3 Type 'Output.prototype.other' references type 'Test.Other' which is not exported from a root module.",
+  "file:///mod.ts:6:3 Type 'Output[\"other\"]' references type 'Test' which is not exported from a root module.",
+  "file:///mod.ts:6:3 Type 'Output[\"other\"]' references type 'Test.Other' which is not exported from a root module.",
   "file:///mod.ts:5:1 Missing JS documentation comment.",
   "file:///mod.ts:6:3 Missing JS documentation comment."
 ]

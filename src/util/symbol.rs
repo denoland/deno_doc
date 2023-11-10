@@ -35,15 +35,24 @@ pub fn fully_qualified_symbol_name(
       break; // ignore the source file
     }
     if !text.is_empty() {
-      let is_member = last
+      let prop_was_member = last
         .map(|l| symbol.members().contains(&l.symbol_id()))
         .unwrap_or(false);
-      text = format!(
-        "{}{}{}",
-        symbol.maybe_name()?,
-        if is_member { ".prototype." } else { "." },
-        text
-      );
+      let part_name = symbol.maybe_name()?;
+      let prop_was_class_member = prop_was_member
+        && symbol
+          .decls()
+          .first()
+          .map(|d| d.is_class())
+          .unwrap_or(false);
+      text = if prop_was_class_member {
+        format!("{}.prototype.{}", part_name, text)
+      } else if prop_was_member {
+        // not the best, but good enough
+        format!("{}[\"{}\"]", part_name, text.replace('"', "\\\""))
+      } else {
+        format!("{}.{}", part_name, text)
+      };
     } else {
       text = symbol.maybe_name()?.to_string();
     }
