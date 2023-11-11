@@ -20,6 +20,7 @@ pub struct NamespaceSectionRenderCtx {
 #[derive(Serialize)]
 pub struct NamespaceSectionNodeCtx {
   pub doc_node_kind_ctx: DocNodeKindCtx,
+  // TODO: add short file path
   pub name: String,
   pub docs: String,
 }
@@ -27,11 +28,17 @@ pub struct NamespaceSectionNodeCtx {
 pub(crate) fn get_namespace_render_ctx(
   ctx: &RenderContext,
   partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+  include_file_paths: bool,
 ) -> NamespaceRenderCtx {
   let mut sections = Vec::with_capacity(partitions.len());
 
   for (kind, doc_nodes) in partitions {
-    let ns_section_ctx = get_namespace_section_render_ctx(ctx, kind, doc_nodes);
+    let ns_section_ctx = get_namespace_section_render_ctx(
+      ctx,
+      kind,
+      doc_nodes,
+      include_file_paths,
+    );
     sections.push(ns_section_ctx)
   }
 
@@ -45,15 +52,13 @@ pub(crate) fn render_namespace(
   let namespace_def = doc_node.namespace_def.as_ref().unwrap();
 
   let partitions = partition_nodes_by_kind(&namespace_def.elements, false);
-  let namespace_ctx = get_namespace_render_ctx(ctx, &partitions);
+  let namespace_ctx = get_namespace_render_ctx(ctx, &partitions, false);
 
-  let content_parts = namespace_ctx
+  namespace_ctx
     .sections
     .into_iter()
     .map(|section| ctx.render("namespace_section.html", &section))
-    .collect::<Vec<_>>();
-
-  content_parts.join("")
+    .collect::<String>()
 }
 
 pub fn partition_nodes_by_kind(
@@ -152,6 +157,7 @@ fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
   kind: &DocNodeKind,
   doc_nodes: &[DocNode],
+  include_file_path: bool,
 ) -> NamespaceSectionRenderCtx {
   let kind_ctx = super::super::util::DocNodeKindCtx::from(*kind);
 
@@ -165,6 +171,14 @@ fn get_namespace_section_render_ctx(
       let ns_parts = ctx.get_namespace_parts();
       if !ns_parts.is_empty() {
         name = format!("{}.{}", ns_parts.join("."), doc_node.name);
+      }
+      if include_file_path {
+        dbg!(
+          &doc_node.name,
+          &doc_node.location,
+          &doc_node.import_def.as_ref().unwrap().src
+        );
+        // TODO
       }
 
       NamespaceSectionNodeCtx {

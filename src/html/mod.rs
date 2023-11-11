@@ -169,13 +169,13 @@ pub fn generate(
   let mut files = HashMap::new();
 
   // TODO(bartlomieju): remove
-  let doc_nodes = doc_nodes_by_url
+  let all_doc_nodes = doc_nodes_by_url
     .values()
     .flatten()
     .cloned()
     .collect::<Vec<_>>();
 
-  let all_symbols = NamespacedSymbols::new(&doc_nodes);
+  let all_symbols = NamespacedSymbols::new(&all_doc_nodes);
 
   // Index page
   {
@@ -214,12 +214,12 @@ pub fn generate(
   }
 
   let partitions_by_kind =
-    symbols::namespace::partition_nodes_by_kind(&doc_nodes, true);
+    symbols::namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
   // All symbols (list of all symbols in all files)
   {
     let all_symbols_render =
-      render_all_symbols(&ctx, &partitions_by_kind, all_symbols.clone())?;
+      render_all_symbols(&ctx, &partitions_by_kind, all_symbols)?;
     files.insert("all_symbols.html".to_string(), all_symbols_render);
   }
 
@@ -227,8 +227,17 @@ pub fn generate(
 
   // Pages for all discovered symbols
   {
-    let generated_pages =
-      generate_pages(&ctx, &sidepanel_ctx, &doc_nodes, all_symbols)?;
+    let mut generated_pages = Vec::with_capacity(all_doc_nodes.len());
+
+    for (specifier, doc_nodes) in doc_nodes_by_url {
+      generated_pages.extend(generate_pages_for_file(
+        &ctx,
+        &sidepanel_ctx,
+        ctx.url_to_short_path(specifier),
+        &doc_nodes,
+      )?);
+    }
+
     for (file_name, content) in generated_pages {
       files.insert(file_name, content);
     }
@@ -248,6 +257,7 @@ pub fn generate(
 fn generate_pages_inner(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
+  file: &str,
   name_partitions: IndexMap<String, Vec<DocNode>>,
   namespace_paths: Vec<String>,
   all_symbols: NamespacedSymbols,
@@ -257,9 +267,9 @@ fn generate_pages_inner(
 
   for (name, doc_nodes) in name_partitions.iter() {
     let file_name = if namespace_paths.is_empty() {
-      format!("{}.html", name)
+      format!("{file}/~/{}.html", name)
     } else {
-      format!("{}.{name}.html", namespace_paths.join("."))
+      format!("{file}/~/{}.{name}.html", namespace_paths.join("."))
     };
 
     let page = render_page(
@@ -291,6 +301,7 @@ fn generate_pages_inner(
       let generated = generate_pages_inner(
         ctx,
         sidepanel_ctx,
+        &file,
         namespace_name_partitions,
         namespace_paths,
         all_symbols.clone(),
@@ -302,15 +313,23 @@ fn generate_pages_inner(
   Ok(generated_pages)
 }
 
-fn generate_pages(
+fn generate_pages_for_file(
   ctx: &GenerateCtx,
   sidepanel_ctx: &SidepanelRenderCtx,
+  file: String,
   doc_nodes: &[DocNode],
-  all_symbols: NamespacedSymbols,
 ) -> Result<Vec<(String, String)>, anyhow::Error> {
   let name_partitions = partition_nodes_by_name(doc_nodes);
+  let all_symbols = NamespacedSymbols::new(doc_nodes);
 
-  generate_pages_inner(ctx, sidepanel_ctx, name_partitions, vec![], all_symbols)
+  generate_pages_inner(
+    ctx,
+    sidepanel_ctx,
+    &file,
+    name_partitions,
+    vec![],
+    all_symbols,
+  )
 }
 
 // TODO(bartlomieju): move a separate module?
@@ -377,8 +396,6 @@ fn render_index(
     })
     .map(|url| ctx.url_to_short_path(url))
     .collect::<Vec<_>>();
-
-  // TODO(@crowlKats): if files is empty, dont render "Modules" section in sidepanel
 
   let kind_partitions = partitions
     .into_iter()
@@ -476,7 +493,7 @@ fn render_all_symbols(
     ctx.global_symbol_href_resolver.clone(),
   );
   let namespace_ctx =
-    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
+    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions, true);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
