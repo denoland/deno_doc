@@ -173,11 +173,6 @@ fn get_namespace_section_render_ctx(
         name = format!("{}.{}", ns_parts.join("."), doc_node.name);
       }
       if include_file_path {
-        dbg!(
-          &doc_node.name,
-          &doc_node.location,
-          &doc_node.import_def.as_ref().unwrap().src
-        );
         // TODO
       }
 
