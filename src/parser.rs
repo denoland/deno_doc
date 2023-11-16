@@ -233,6 +233,7 @@ impl<'a> DocParser<'a> {
         let mut flattened_docs = Vec::new();
         let exports = module_info.exports(&self.root_symbol);
         for (export_name, export) in exports.resolved {
+          let export = export.as_resolved_export();
           let export_symbol = export.module.symbol(export.symbol_id).unwrap();
           let definitions = self
             .root_symbol
@@ -932,6 +933,7 @@ impl<'a> DocParser<'a> {
     let mut handled_symbols = HashSet::new();
     let exports = module_info.exports(&self.root_symbol);
     for (export_name, export) in &exports.resolved {
+      let export = export.as_resolved_export();
       handled_symbols.insert(UniqueSymbolId::new(
         export.module.module_id(),
         export.symbol_id,
@@ -1043,7 +1045,7 @@ impl<'a> DocParser<'a> {
 
       for dep in &decl_with_deps.deps {
         let dep_module =
-          self.root_symbol.get_module_from_id(dep.module_id).unwrap();
+          self.root_symbol.module_from_id(dep.module_id).unwrap();
         let dep_symbol = dep_module.symbol(dep.symbol_id).unwrap();
         diagnostics.add_private_type_in_public(
           doc_module_info,

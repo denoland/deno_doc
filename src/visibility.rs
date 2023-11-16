@@ -79,9 +79,8 @@ impl SymbolVisibility {
     let mut pending_symbol_ids =
       root_exported_ids.keys().copied().collect::<Vec<_>>();
     while let Some(original_id) = pending_symbol_ids.pop() {
-      let module_info = root_symbol
-        .get_module_from_id(original_id.module_id)
-        .unwrap();
+      let module_info =
+        root_symbol.module_from_id(original_id.module_id).unwrap();
       let symbol = module_info.symbol(original_id.symbol_id).unwrap();
       let decl_deps = symbol
         .decls()
@@ -194,6 +193,7 @@ fn analyze_root_exported_ids(
       let module_info = get_module_info(root_symbol, module.specifier())?;
       let exports = module_info.exports(root_symbol);
       for (_name, export) in &exports.resolved {
+        let export = export.as_resolved_export();
         let symbol = export.module.symbol(export.symbol_id).unwrap();
         let definitions = root_symbol.go_to_definitions(export.module, symbol);
         for definition in definitions {
