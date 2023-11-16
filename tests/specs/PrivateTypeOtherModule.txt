@@ -3,6 +3,7 @@ import { MyNamespace, YesDiagnostic2 } from "./diagnostic.ts";
 
 export class MyClass extends YesDiagnostic2 {
   prop: MyNamespace.YesDiagnostic;
+  other: Uint8Array;
 }
 
 # diagnostic.ts
@@ -20,7 +21,8 @@ export class YesDiagnostic2 {}
   "file:///mod.ts:4:3 Type 'MyClass.prototype.prop' references type 'MyNamespace' (file:///diagnostic.ts:3:1) which is not exported from a root module.",
   "file:///mod.ts:4:3 Type 'MyClass.prototype.prop' references type 'MyNamespace.YesDiagnostic' (file:///diagnostic.ts:4:3) which is not exported from a root module.",
   "file:///mod.ts:3:1 Missing JSDoc comment.",
-  "file:///mod.ts:4:3 Missing JSDoc comment."
+  "file:///mod.ts:4:3 Missing JSDoc comment.",
+  "file:///mod.ts:5:3 Missing JSDoc comment."
 ]
 
 # output.txt
@@ -29,6 +31,7 @@ Defined in file:///mod.ts:3:1
 class MyClass extends YesDiagnostic2
 
   prop: MyNamespace.YesDiagnostic
+  other: Uint8Array
 
 Defined in file:///mod.ts:1:1
 
@@ -70,6 +73,27 @@ Defined in file:///mod.ts:1:1
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
+            "col": 2
+          }
+        },
+        {
+          "tsType": {
+            "repr": "Uint8Array",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Uint8Array"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "other",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
             "col": 2
           }
         }

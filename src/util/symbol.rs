@@ -13,7 +13,7 @@ pub fn get_module_info<'a>(
   root_symbol: &'a deno_graph::symbols::RootSymbol,
   specifier: &ModuleSpecifier,
 ) -> Result<ModuleInfoRef<'a>, DocError> {
-  match root_symbol.get_module_from_specifier(specifier) {
+  match root_symbol.module_from_specifier(specifier) {
     Some(symbol) => Ok(symbol),
     None => Err(DocError::Resolve(format!(
       "Could not find module in graph: {}",

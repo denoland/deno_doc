@@ -1,0 +1,78 @@
+# a.ts
+const test1: string = "";
+const test2: number = 3, test3: number = 3;
+const test4: number;
+const test5: number;
+
+export { test1, test2, test3 };
+export { test4, test5 };
+
+# b.ts
+export class Test {}
+
+# c.ts
+export * from "./a.ts";
+export { Test } from "./b.ts";
+
+# mod.ts
+export { Test, test1 } from "./c.ts";
+
+# diagnostics
+[
+  "file:///b.ts:1:1 Missing JSDoc comment.",
+  "file:///a.ts:1:7 Missing JSDoc comment."
+]
+
+# output.txt
+Defined in file:///a.ts:1:7
+
+const test1: string
+
+Defined in file:///b.ts:1:1
+
+class Test
+
+
+
+# output.json
+[
+  {
+    "kind": "class",
+    "name": "Test",
+    "location": {
+      "filename": "file:///b.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "test1",
+    "location": {
+      "filename": "file:///a.ts",
+      "line": 1,
+      "col": 6
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "string",
+        "kind": "keyword",
+        "keyword": "string"
+      },
+      "kind": "const"
+    }
+  }
+]
