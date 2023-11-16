@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.73.1"
+version = "0.73.2"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -22,7 +22,7 @@ deno_ast = "0.31.5"
 deno_graph = { version = "0.61.0", features = ["symbols"] }
 indexmap = "2.0.2"
 futures = "0.3.26"
-import_map = "0.15.0"
+import_map = "0.17.0"
 lazy_static = "1.4.0"
 regex = "1.6.0"
 serde = { version = "1.0.140", features = ["derive"] }
