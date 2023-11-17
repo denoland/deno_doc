@@ -1,14 +1,14 @@
-<div id="sidepanel">
+<nav id="sidepanel">
     <h2><a href="{base_url}">{package_name}</a></h2>
 
-    <a href="./all_symbols.html">All symbols</a>
+    <a href="{base_url}all_symbols.html">All symbols</a>
 
     {{ if files }}
       <h3>Modules</h3>
       <ul>
         {{ for file in files }}
         <li>
-          <a href="{base_url}">{file}</a>
+          <a href="{base_url}{file}/~/index.html">{file}</a>
         </li>
         {{ endfor }}
       </ul>
@@ -34,4 +34,4 @@
         {{ endfor }}
       </ul>
     {{ endif }}
-</div>
+</nav>

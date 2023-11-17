@@ -192,7 +192,7 @@ pub(crate) fn render_docs_with_examples(
   ctx: &RenderContext,
   js_doc: &JsDoc,
 ) -> String {
-  render_docs_inner(ctx, js_doc, true, true)
+  render_docs_inner(ctx, js_doc, true, false)
 }
 
 fn get_example_render_ctx(

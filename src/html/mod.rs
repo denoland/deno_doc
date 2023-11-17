@@ -78,6 +78,12 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
+#[derive(Clone, Debug)]
+pub struct DocNodeWithContext {
+  origin: Option<String>,
+  doc_node: DocNode,
+}
+
 fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
@@ -170,12 +176,22 @@ pub fn generate(
 
   // TODO(bartlomieju): remove
   let all_doc_nodes = doc_nodes_by_url
-    .values()
-    .flatten()
-    .cloned()
-    .collect::<Vec<_>>();
+    .iter()
+    .flat_map(|(specifier, nodes)| {
+      nodes.iter().map(|node| DocNodeWithContext {
+        origin: Some(ctx.url_to_short_path(specifier)),
+        doc_node: node.clone(),
+      })
+    })
+    .collect::<Vec<DocNodeWithContext>>();
 
-  let all_symbols = NamespacedSymbols::new(&all_doc_nodes);
+  let all_symbols = NamespacedSymbols::new(
+    &doc_nodes_by_url
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<_>>(),
+  );
 
   // Index page
   {
@@ -185,17 +201,32 @@ pub fn generate(
       .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
     let partitions_for_nodes = if let Some(doc_nodes) = doc_nodes {
-      let categories =
-        symbols::namespace::partition_nodes_by_category(&doc_nodes, false);
+      let doc_nodes_with_context = doc_nodes
+        .iter()
+        .map(|node| DocNodeWithContext {
+          doc_node: node.clone(),
+          origin: Some(
+            ctx.url_to_short_path(options.main_entrypoint.as_ref().unwrap()),
+          ),
+        })
+        .collect::<Vec<_>>();
+
+      let categories = symbols::namespace::partition_nodes_by_category(
+        &doc_nodes_with_context,
+        false,
+      );
 
       if categories.len() == 1 && categories.contains_key("Uncategorized") {
-        symbols::namespace::partition_nodes_by_kind(&doc_nodes, false)
-          .into_iter()
-          .map(|(kind, nodes)| {
-            let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
-            (doc_node_kind_ctx.title.to_string(), nodes)
-          })
-          .collect()
+        symbols::namespace::partition_nodes_by_kind(
+          &doc_nodes_with_context,
+          false,
+        )
+        .into_iter()
+        .map(|(kind, nodes)| {
+          let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
+          (doc_node_kind_ctx.title.to_string(), nodes)
+        })
+        .collect()
       } else {
         categories
       }
@@ -205,10 +236,11 @@ pub fn generate(
 
     let index = render_index(
       &ctx,
-      &options.main_entrypoint,
+      options.main_entrypoint.as_ref(),
       doc_nodes_by_url,
       partitions_for_nodes,
       all_symbols.clone(),
+      "./".to_string(),
     )?;
     files.insert("index.html".to_string(), index);
   }
@@ -219,27 +251,64 @@ pub fn generate(
   // All symbols (list of all symbols in all files)
   {
     let all_symbols_render =
-      render_all_symbols(&ctx, &partitions_by_kind, all_symbols)?;
+      render_all_symbols(&ctx, &partitions_by_kind, all_symbols.clone())?;
     files.insert("all_symbols.html".to_string(), all_symbols_render);
   }
 
-  let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_by_kind);
-
   // Pages for all discovered symbols
   {
-    let mut generated_pages = Vec::with_capacity(all_doc_nodes.len());
-
     for (specifier, doc_nodes) in doc_nodes_by_url {
-      generated_pages.extend(generate_pages_for_file(
+      let short_path = ctx.url_to_short_path(specifier);
+
+      let partitions_for_nodes = {
+        let doc_nodes_with_context = doc_nodes
+          .iter()
+          .map(|node| DocNodeWithContext {
+            doc_node: node.clone(),
+            origin: Some(short_path.clone()),
+          })
+          .collect::<Vec<_>>();
+
+        let categories = symbols::namespace::partition_nodes_by_category(
+          &doc_nodes_with_context,
+          false,
+        );
+
+        if categories.len() == 1 && categories.contains_key("Uncategorized") {
+          symbols::namespace::partition_nodes_by_kind(
+            &doc_nodes_with_context,
+            false,
+          )
+          .into_iter()
+          .map(|(kind, nodes)| {
+            let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
+            (doc_node_kind_ctx.title.to_string(), nodes)
+          })
+          .collect()
+        } else {
+          categories
+        }
+      };
+
+      let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_for_nodes);
+
+      let index = render_index(
+        &ctx,
+        Some(specifier),
+        doc_nodes_by_url,
+        partitions_for_nodes,
+        all_symbols.clone(),
+        "../".repeat(short_path.split(".").count() + 1),
+      )?;
+
+      files.insert(format!("{short_path}/~/index.html"), index);
+
+      files.extend(generate_pages_for_file(
         &ctx,
         &sidepanel_ctx,
         ctx.url_to_short_path(specifier),
         &doc_nodes,
       )?);
-    }
-
-    for (file_name, content) in generated_pages {
-      files.insert(file_name, content);
     }
   }
 
@@ -279,6 +348,7 @@ fn generate_pages_inner(
       name,
       doc_nodes,
       all_symbols.clone(),
+      file,
     )?;
 
     generated_pages.push((file_name, page));
@@ -333,42 +403,42 @@ fn generate_pages_for_file(
 }
 
 // TODO(bartlomieju): move a separate module?
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct HtmlHeadCtx {
   title: String,
   current_symbol: String,
   stylesheet_url: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct HtmlTailCtx {
   url_search_index: String,
   fuse_js: String,
   url_search: String,
 }
 
-#[derive(Serialize)]
-struct IndexSidepanelPartitionNodeCtx {
+#[derive(Debug, Serialize, Clone)]
+struct SidepanelPartitionNodeCtx {
   kind: util::DocNodeKindCtx,
   name: String,
   href: String,
 }
 
-#[derive(Serialize)]
-struct IndexSidepanelPartitionCtx {
+#[derive(Debug, Serialize, Clone)]
+struct SidepanelPartitionCtx {
   name: String,
-  symbols: Vec<IndexSidepanelPartitionNodeCtx>,
+  symbols: Vec<SidepanelPartitionNodeCtx>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct IndexSidepanelCtx {
-  kind_partitions: Vec<IndexSidepanelPartitionCtx>,
+  kind_partitions: Vec<SidepanelPartitionCtx>,
   files: Vec<String>,
   base_url: String,
   package_name: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct IndexCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
@@ -381,16 +451,16 @@ struct IndexCtx {
 
 fn render_index(
   ctx: &GenerateCtx,
-  main_entrypoint: &Option<ModuleSpecifier>,
+  main_entrypoint: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  partitions: IndexMap<String, Vec<DocNode>>,
+  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
   all_symbols: NamespacedSymbols,
+  base: String,
 ) -> Result<String, anyhow::Error> {
   let files = doc_nodes_by_url
     .keys()
     .filter(|url| {
       main_entrypoint
-        .as_ref()
         .map(|main_entrypoint| *url != main_entrypoint)
         .unwrap_or(true)
     })
@@ -402,20 +472,24 @@ fn render_index(
     .map(|(name, nodes)| {
       let symbols = nodes
         .into_iter()
-        .map(|node| IndexSidepanelPartitionNodeCtx {
-          kind: node.kind.into(),
-          href: format!("./{}.html", node.name),
-          name: node.name,
+        .map(|node| SidepanelPartitionNodeCtx {
+          kind: node.doc_node.kind.into(),
+          href: format!(
+            "{base}{}/~/{}.html",
+            node.origin.unwrap(),
+            node.doc_node.name
+          ),
+          name: node.doc_node.name,
         })
         .collect::<Vec<_>>();
-      IndexSidepanelPartitionCtx { name, symbols }
+      SidepanelPartitionCtx { name, symbols }
     })
     .collect::<Vec<_>>();
 
   let sidepanel_ctx = IndexSidepanelCtx {
     kind_partitions,
     files,
-    base_url: "./".to_string(),
+    base_url: base.clone(),
     package_name: ctx.package_name.to_string(),
   };
 
@@ -453,12 +527,12 @@ fn render_index(
   let html_head_ctx = HtmlHeadCtx {
     title: format!("Index - {} documentation", ctx.package_name),
     current_symbol: "".to_string(),
-    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+    stylesheet_url: format!("{base}{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
-    fuse_js: format!("./{}", FUSE_FILENAME),
-    url_search: format!("./{}", SEARCH_FILENAME),
+    url_search_index: format!("{base}{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("{base}{}", FUSE_FILENAME),
+    url_search: format!("{base}{}", SEARCH_FILENAME),
   };
 
   let index_ctx = IndexCtx {
@@ -483,7 +557,7 @@ struct AllSymbolsCtx {
 
 fn render_all_symbols(
   ctx: &GenerateCtx,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+  partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let render_ctx = RenderContext::new(
@@ -493,7 +567,7 @@ fn render_all_symbols(
     ctx.global_symbol_href_resolver.clone(),
   );
   let namespace_ctx =
-    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions, true);
+    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
@@ -558,6 +632,7 @@ fn render_page(
   name: &str,
   doc_nodes: &[DocNode],
   all_symbols: NamespacedSymbols,
+  file: &str,
 ) -> Result<String, anyhow::Error> {
   let mut render_ctx = RenderContext::new(
     ctx.tt.clone(),
@@ -579,16 +654,18 @@ fn render_page(
   let symbol_group_ctx =
     symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
 
+  let root = "../".repeat(file.split(".").count() + 1);
+
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
     title: format!("{} - {} documentation", namespaced_name, ctx.package_name),
     current_symbol: namespaced_name.to_string(),
-    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+    stylesheet_url: format!("{root}{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
-    fuse_js: format!("./{}", FUSE_FILENAME),
-    url_search: format!("./{}", SEARCH_FILENAME),
+    url_search_index: format!("{root}{}", SEARCH_INDEX_FILENAME),
+    fuse_js: format!("{root}{}", FUSE_FILENAME),
+    url_search: format!("{root}{}", SEARCH_FILENAME),
   };
   let page_ctx = PageCtx {
     html_head_ctx,
@@ -602,32 +679,32 @@ fn render_page(
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct SidepanelPartition {
-  kind: util::DocNodeKindCtx,
-  doc_nodes: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Clone)]
 struct SidepanelRenderCtx {
   package_name: String,
-  partitions: Vec<SidepanelPartition>,
+  partitions: Vec<SidepanelPartitionCtx>,
 }
 
 fn sidepanel_render_ctx(
   ctx: &GenerateCtx,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNode>>,
+  partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
 ) -> SidepanelRenderCtx {
-  let mut partitions: Vec<SidepanelPartition> = partitions
+  let partitions = partitions
     .into_iter()
-    .map(|(kind, doc_nodes)| SidepanelPartition {
-      kind: (*kind).into(),
-      doc_nodes: doc_nodes
+    .map(|(name, nodes)| {
+      let symbols = nodes
         .iter()
-        .map(|doc_node| doc_node.name.to_string())
-        .collect::<Vec<_>>(),
+        .map(|node| SidepanelPartitionNodeCtx {
+          kind: node.doc_node.kind.into(),
+          href: format!("{}.html", node.doc_node.name),
+          name: node.doc_node.name.clone(),
+        })
+        .collect::<Vec<_>>();
+      SidepanelPartitionCtx {
+        name: name.clone(),
+        symbols,
+      }
     })
     .collect();
-  partitions.sort_by_key(|part| part.kind.kind.clone());
 
   SidepanelRenderCtx {
     package_name: ctx.package_name.to_string(),

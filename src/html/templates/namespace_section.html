@@ -4,6 +4,7 @@
     {{ for node in nodes }}
       <tr>
         <td class="symbol_section_symbol">
+          { node.origin }
           <div>
             {{ call doc_node_kind_icon.html with node.doc_node_kind_ctx }}
             <a href="./{node.name}.html">{node.name}</a>

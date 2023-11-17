@@ -1,11 +1,14 @@
 <nav id="sidepanel">
-    <h2><a href="./index.html"><span>{package_name}</span></a></h2>
-    {{ for partition in partitions }}
-        <div class="section_title">{{ call doc_node_kind_icon.html with partition.kind }}<h3 class="kind_{partition.kind.kind}_text">{partition.kind.title_plural}</h3></div>
+    <h2><a href="index.html"><span>{package_name}</span></a></h2>
+    {{ for kind in partitions }}
+        <h3>{kind.name}</h3>
         <ul>
-        {{ for doc_node in partition.doc_nodes }}
+          {{ for symbol in kind.symbols }}
             <li>
-                <a href="./{doc_node}.html" title="{doc_node}" class=""><span><code>{doc_node}</code></span></a>
+              <a href="{ symbol.href }">
+                {{ call doc_node_kind_icon.html with symbol.kind }}
+                <span>{ symbol.name }</span>
+              </a>
             </li>
         {{ endfor }}
         </ul>
