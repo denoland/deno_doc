@@ -141,6 +141,10 @@ fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
   )?;
   tt.add_template("example.html", include_str!("./templates/example.html"))?;
   tt.add_template("function.html", include_str!("./templates/function.html"))?;
+  tt.add_template(
+    "module_doc.html",
+    include_str!("./templates/module_doc.html"),
+  )?;
   Ok(Rc::new(tt))
 }
 
@@ -406,7 +410,7 @@ fn generate_pages_for_file(
 #[derive(Debug, Serialize, Clone)]
 struct HtmlHeadCtx {
   title: String,
-  current_symbol: String,
+  current_file: String,
   stylesheet_url: String,
 }
 
@@ -526,7 +530,7 @@ fn render_index(
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
     title: format!("Index - {} documentation", ctx.package_name),
-    current_symbol: "".to_string(),
+    current_file: "".to_string(),
     stylesheet_url: format!("{base}{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
@@ -572,7 +576,7 @@ fn render_all_symbols(
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
     title: format!("All Symbols - {} documentation", ctx.package_name),
-    current_symbol: "".to_string(),
+    current_file: "".to_string(),
     stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
@@ -659,7 +663,7 @@ fn render_page(
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
     title: format!("{} - {} documentation", namespaced_name, ctx.package_name),
-    current_symbol: namespaced_name.to_string(),
+    current_file: file.to_string(),
     stylesheet_url: format!("{root}{}", STYLESHEET_FILENAME),
   };
   let html_tail_ctx = HtmlTailCtx {
@@ -724,6 +728,7 @@ where
 struct SearchIndexNode {
   kind: DocNodeKind,
   name: String,
+  file: String,
   #[serde(serialize_with = "join_qualifiers")]
   ns_qualifiers: Vec<String>,
   location: Location,
@@ -732,39 +737,41 @@ struct SearchIndexNode {
 
 fn doc_node_into_search_index_nodes_inner(
   ctx: &GenerateCtx,
-  doc_node: &DocNode,
+  doc_node: &DocNodeWithContext,
   ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
-  if !matches!(doc_node.kind, DocNodeKind::Namespace) {
-    let mut location = doc_node.location.clone();
+  if !matches!(doc_node.doc_node.kind, DocNodeKind::Namespace) {
+    let mut location = doc_node.doc_node.location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
     let location_url_str = ctx.url_to_short_path(&location_url);
     location.filename = location_url_str;
 
     return vec![SearchIndexNode {
-      kind: doc_node.kind,
-      name: doc_node.name.to_string(),
+      kind: doc_node.doc_node.kind,
+      name: doc_node.doc_node.name.to_string(),
+      file: doc_node.origin.clone().unwrap(),
       ns_qualifiers: ns_qualifiers.clone(),
       location,
-      declaration_kind: doc_node.declaration_kind,
+      declaration_kind: doc_node.doc_node.declaration_kind,
     }];
   }
 
-  let ns_def = doc_node.namespace_def.as_ref().unwrap();
+  let ns_def = doc_node.doc_node.namespace_def.as_ref().unwrap();
   let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
-  let ns_name = doc_node.name.to_string();
+  let ns_name = doc_node.doc_node.name.to_string();
 
-  let mut location = doc_node.location.clone();
+  let mut location = doc_node.doc_node.location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
   let location_url_str = ctx.url_to_short_path(&location_url);
   location.filename = location_url_str;
 
   nodes.push(SearchIndexNode {
-    kind: doc_node.kind,
-    name: doc_node.name.to_string(),
+    kind: doc_node.doc_node.kind,
+    name: doc_node.doc_node.name.to_string(),
+    file: doc_node.origin.clone().unwrap(),
     ns_qualifiers: ns_qualifiers.clone(),
     location,
-    declaration_kind: doc_node.declaration_kind,
+    declaration_kind: doc_node.doc_node.declaration_kind,
   });
 
   for el in &ns_def.elements {
@@ -779,6 +786,7 @@ fn doc_node_into_search_index_nodes_inner(
     nodes.push(SearchIndexNode {
       kind: el.kind,
       name: el.name.to_string(),
+      file: doc_node.origin.clone().unwrap(),
       ns_qualifiers: ns_qualifiers_,
       location,
       declaration_kind: el.declaration_kind,
@@ -787,7 +795,10 @@ fn doc_node_into_search_index_nodes_inner(
     if el.kind == DocNodeKind::Namespace {
       nodes.extend_from_slice(&doc_node_into_search_index_nodes_inner(
         ctx,
-        el,
+        &DocNodeWithContext {
+          origin: doc_node.origin.clone(),
+          doc_node: el.clone(),
+        },
         ns_qualifiers.clone(),
       ));
     }
@@ -800,7 +811,7 @@ fn doc_node_into_search_index_nodes_inner(
 /// node is flattened into a list of its elements.
 fn doc_node_into_search_index_nodes(
   ctx: &GenerateCtx,
-  doc_node: &DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SearchIndexNode> {
   doc_node_into_search_index_nodes_inner(ctx, doc_node, vec![])
 }
@@ -811,9 +822,13 @@ fn generate_search_index(
 ) -> Result<String, anyhow::Error> {
   // TODO(bartlomieju): remove
   let doc_nodes = doc_nodes_by_url
-    .values()
-    .flatten()
-    .cloned()
+    .iter()
+    .flat_map(|(specifier, nodes)| {
+      nodes.iter().map(|node| DocNodeWithContext {
+        origin: Some(ctx.url_to_short_path(specifier)),
+        doc_node: node.clone(),
+      })
+    })
     .collect::<Vec<_>>();
 
   let doc_nodes = doc_nodes.iter().fold(

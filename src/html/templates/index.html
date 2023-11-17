@@ -11,10 +11,7 @@
     {#- TODO(bartlomieju): call into template here #}
 
     {{ if module_doc }}
-      <section>
-        <h2><pre>{ module_doc.url }</pre></h2>
-        { module_doc.docs }
-      </section>
+      {{ call module_doc.html with module_doc }}
     {{ endif }}
   </main>
 
