@@ -207,7 +207,7 @@ fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
         let docs =
           super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let ns_parts =
-          name.split(".").map(String::from).collect::<Vec<String>>();
+          name.split('.').map(String::from).collect::<Vec<String>>();
         let el = symbols::namespace::render_namespace(
           &ctx.with_namespace(ns_parts),
           doc_node,

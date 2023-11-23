@@ -285,7 +285,7 @@ pub fn generate(
         &ctx,
         &sidepanel_ctx,
         ctx.url_to_short_path(specifier),
-        &doc_nodes,
+        doc_nodes,
       )?);
     }
   }
@@ -304,13 +304,13 @@ pub fn generate(
 
 pub fn get_partitions_for_file(
   doc_nodes: &[DocNode],
-  short_path: &String,
+  short_path: &str,
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let doc_nodes_with_context = doc_nodes
     .iter()
     .map(|node| DocNodeWithContext {
       doc_node: node.clone(),
-      origin: Some(short_path.clone()),
+      origin: Some(short_path.to_owned()),
     })
     .collect::<Vec<_>>();
 
@@ -414,7 +414,7 @@ fn generate_pages_inner(
       let generated = generate_pages_inner(
         ctx,
         sidepanel_ctx,
-        &file,
+        file,
         namespace_name_partitions,
         namespace_paths,
         all_symbols.clone(),
@@ -521,7 +521,7 @@ pub fn get_module_doc(
     docs
       .and_then(|node| node.js_doc.doc.as_ref())
       .map(|docs_md| {
-        let rendered_docs = render_markdown(docs_md, &render_ctx);
+        let rendered_docs = render_markdown(docs_md, render_ctx);
 
         ModuleDocCtx {
           url: ctx.url_to_short_path(main_entrypoint),
