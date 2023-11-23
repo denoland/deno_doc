@@ -8,12 +8,12 @@ lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
 }
 
-pub fn name_to_id(kind: &str, name: &str) -> String {
+pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
 // TODO(bartlomieju): this could be a TinyTemplate formatter
-pub fn title_to_id(title: &str) -> String {
+pub(crate) fn title_to_id(title: &str) -> String {
   TARGET_RE.replace_all(title, "_").to_string()
 }
 
@@ -89,22 +89,25 @@ pub struct RenderContext<'ctx> {
   namespace_parts: Vec<String>,
   global_symbols: NamespacedGlobalSymbols,
   global_symbol_href_resolver: GlobalSymbolHrefResolver,
+  pub url_resolver: super::UrlResolver,
+  current_file: Option<String>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
-    tt: Rc<TinyTemplate<'ctx>>,
+    ctx: &super::GenerateCtx<'ctx>,
     all_symbols: NamespacedSymbols,
-    global_symbols: NamespacedGlobalSymbols,
-    global_symbol_href_resolver: GlobalSymbolHrefResolver,
+    current_file: Option<String>,
   ) -> Self {
     Self {
-      tt,
+      tt: ctx.tt.clone(),
       current_type_params: Default::default(),
       namespace_parts: vec![],
       all_symbols,
-      global_symbols,
-      global_symbol_href_resolver,
+      global_symbols: ctx.global_symbols.clone(),
+      global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
+      url_resolver: ctx.url_resolver.clone(),
+      current_file,
     }
   }
 
@@ -141,6 +144,10 @@ impl<'ctx> RenderContext<'ctx> {
     self.namespace_parts.clone()
   }
 
+  pub fn get_current_file(&self) -> Option<&str> {
+    self.current_file.as_deref()
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     let target_symbol_parts = target_symbol
       .split('.')
@@ -154,7 +161,13 @@ impl<'ctx> RenderContext<'ctx> {
         current_parts.extend_from_slice(&target_symbol_parts);
 
         if self.all_symbols.contains(&current_parts) {
-          return Some(format!("./{}.html", current_parts.join(".")));
+          return Some((self.url_resolver)(
+            self.current_file.as_deref(),
+            super::UrlResolveKinds::Symbol {
+              target_file: self.current_file.as_deref().unwrap(),
+              target_symbol: &current_parts.join("."),
+            },
+          ));
         }
 
         parts.pop();
@@ -162,7 +175,13 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if self.all_symbols.contains(&target_symbol_parts) {
-      return Some(format!("./{}.html", target_symbol_parts.join(".")));
+      return Some((self.url_resolver)(
+        self.current_file.as_deref(),
+        super::UrlResolveKinds::Symbol {
+          target_file: self.current_file.as_deref().unwrap_or_default(), // TODO
+          target_symbol: &target_symbol_parts.join("."),
+        },
+      ));
     }
 
     // TODO(crowlKats): handle currentImports

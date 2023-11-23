@@ -1,5 +1,5 @@
-use crate::html::types::render_type_def;
-use crate::html::util::*;
+use super::types::render_type_def;
+use super::util::*;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
 
@@ -57,7 +57,7 @@ fn render_param(ctx: &RenderContext, param: &ParamDef, i: usize) -> String {
   format!("<span>{name}{question_mark}{ts_type}</span>")
 }
 
-pub fn param_name(param: &ParamDef, i: usize) -> (String, String) {
+pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
   match &param.pattern {
     ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => (
       format!(r#"<span class="italic">unnamed {i}</span>"#),

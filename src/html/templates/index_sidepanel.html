@@ -1,14 +1,16 @@
 <nav id="sidepanel">
-    <h2><a href="{base_url}">{package_name}</a></h2>
+    {{ if package_name }}
+      <h2><a href="{root_url}"><span>{package_name}</span></a></h2>
+    {{ endif }}
 
-    <a href="{base_url}all_symbols.html">All symbols</a>
+    <a href="{all_symbols_url}">All symbols</a>
 
     {{ if files }}
       <h3>Modules</h3>
       <ul>
         {{ for file in files }}
         <li>
-          <a href="{base_url}{file}/~/index.html">{file}</a>
+          <a href="{file.href}">{file.name}</a>
         </li>
         {{ endfor }}
       </ul>

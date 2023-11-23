@@ -1,4 +1,4 @@
-use crate::html::util::*;
+use super::util::*;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use serde::Serialize;

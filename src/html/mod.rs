@@ -1,34 +1,40 @@
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
-use serde_json::json;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
 use crate::html::jsdoc::render_markdown;
-use crate::html::util::RenderContext;
-use crate::node::Location;
 use crate::DocNode;
 use crate::DocNodeKind;
 
 mod jsdoc;
 mod parameters;
+mod search;
 mod symbol;
 mod symbols;
 mod types;
 mod util;
 
-use symbol::SymbolGroupCtx;
+pub use search::generate_search_index;
+pub use symbol::get_symbol_group_ctx;
+pub use symbol::SymbolGroupCtx;
 use symbols::namespace::NamespaceRenderCtx;
 
+pub use self::symbols::namespace;
+pub use self::util::DocNodeKindCtx;
 pub use self::util::GlobalSymbolHrefResolver;
 pub use self::util::NamespacedGlobalSymbols;
-use self::util::NamespacedSymbols;
+pub use self::util::NamespacedSymbols;
+pub use self::util::RenderContext;
 
-const STYLESHEET: &str = include_str!("./templates/styles.css");
-const STYLESHEET_FILENAME: &str = "styles.css";
+pub const STYLESHEET: &str = include_str!("./templates/styles.css");
+pub const STYLESHEET_FILENAME: &str = "styles.css";
+
+pub const PAGE_STYLESHEET: &str = include_str!("./templates/page.css");
+pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
@@ -38,37 +44,74 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
+pub enum UrlResolveKinds<'a> {
+  Root,
+  AllSymbols,
+  Symbol {
+    target_file: &'a str,
+    target_symbol: &'a str,
+  },
+  File(&'a str),
+}
+
+pub type UrlResolver = Rc<dyn Fn(Option<&str>, UrlResolveKinds) -> String>;
+
+pub fn default_url_resolver(
+  current_file: Option<&str>,
+  resolve: UrlResolveKinds,
+) -> String {
+  let backs = current_file
+    .map(|current_file| "../".repeat(current_file.split('.').count() + 1))
+    .unwrap_or_default();
+
+  match resolve {
+    UrlResolveKinds::Root => backs,
+    UrlResolveKinds::AllSymbols => format!("{backs}./all_symbols.html"),
+    UrlResolveKinds::Symbol {
+      target_file,
+      target_symbol,
+    } => {
+      format!("{backs}./{target_file}/~/{target_symbol}.html")
+    }
+    UrlResolveKinds::File(target_file) => {
+      format!("{backs}./{target_file}/~/index.html")
+    }
+  }
+}
+
 #[derive(Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
-  pub package_name: String,
+  pub package_name: Option<String>,
   /// The main entrypoint.
   /// If only a single file is specified during generation, this will always
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
+  pub url_resolver: UrlResolver,
 }
 
-struct GenerateCtx<'ctx> {
-  package_name: String,
-  common_ancestor: Option<PathBuf>,
-  tt: Rc<TinyTemplate<'ctx>>,
-  global_symbols: NamespacedGlobalSymbols,
-  global_symbol_href_resolver: GlobalSymbolHrefResolver,
+pub struct GenerateCtx<'ctx> {
+  pub package_name: Option<String>,
+  pub common_ancestor: Option<PathBuf>,
+  pub tt: Rc<TinyTemplate<'ctx>>,
+  pub global_symbols: NamespacedGlobalSymbols,
+  pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
+  pub url_resolver: UrlResolver,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
-  fn url_to_short_path(&self, url: &ModuleSpecifier) -> String {
+  pub fn url_to_short_path(&self, url: &ModuleSpecifier) -> String {
     if url.scheme() != "file" {
       return url.to_string();
     }
 
-    let Some(common_ancestor) = &self.common_ancestor else {
-      return url.to_string();
-    };
-
     let url_file_path = url.to_file_path().unwrap();
+
+    let Some(common_ancestor) = &self.common_ancestor else {
+      return url_file_path.to_string_lossy().to_string();
+    };
 
     let stripped_path = url_file_path
       .strip_prefix(common_ancestor)
@@ -80,11 +123,11 @@ impl<'ctx> GenerateCtx<'ctx> {
 
 #[derive(Clone, Debug)]
 pub struct DocNodeWithContext {
-  origin: Option<String>,
-  doc_node: DocNode,
+  pub origin: Option<String>,
+  pub doc_node: DocNode,
 }
 
-fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
+pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template(
@@ -157,17 +200,7 @@ pub fn generate(
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
 
-  let file_paths: Vec<PathBuf> = doc_nodes_by_url
-    .keys()
-    .filter_map(|url| {
-      if url.scheme() == "file" {
-        Some(url.to_file_path().unwrap())
-      } else {
-        None
-      }
-    })
-    .collect();
-  let common_ancestor = find_common_ancestor(file_paths);
+  let common_ancestor = find_common_ancestor(doc_nodes_by_url, false);
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
@@ -175,6 +208,7 @@ pub fn generate(
     tt,
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
+    url_resolver: options.url_resolver,
   };
   let mut files = HashMap::new();
 
@@ -199,44 +233,11 @@ pub fn generate(
 
   // Index page
   {
-    let doc_nodes = options
-      .main_entrypoint
-      .as_ref()
-      .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
-
-    let partitions_for_nodes = if let Some(doc_nodes) = doc_nodes {
-      let doc_nodes_with_context = doc_nodes
-        .iter()
-        .map(|node| DocNodeWithContext {
-          doc_node: node.clone(),
-          origin: Some(
-            ctx.url_to_short_path(options.main_entrypoint.as_ref().unwrap()),
-          ),
-        })
-        .collect::<Vec<_>>();
-
-      let categories = symbols::namespace::partition_nodes_by_category(
-        &doc_nodes_with_context,
-        false,
-      );
-
-      if categories.len() == 1 && categories.contains_key("Uncategorized") {
-        symbols::namespace::partition_nodes_by_kind(
-          &doc_nodes_with_context,
-          false,
-        )
-        .into_iter()
-        .map(|(kind, nodes)| {
-          let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
-          (doc_node_kind_ctx.title.to_string(), nodes)
-        })
-        .collect()
-      } else {
-        categories
-      }
-    } else {
-      Default::default()
-    };
+    let partitions_for_nodes = get_partitions_for_specifier(
+      &ctx,
+      options.main_entrypoint.as_ref(),
+      doc_nodes_by_url,
+    );
 
     let index = render_index(
       &ctx,
@@ -244,16 +245,16 @@ pub fn generate(
       doc_nodes_by_url,
       partitions_for_nodes,
       all_symbols.clone(),
-      "./".to_string(),
+      None,
     )?;
     files.insert("index.html".to_string(), index);
   }
 
-  let partitions_by_kind =
-    symbols::namespace::partition_nodes_by_kind(&all_doc_nodes, true);
-
   // All symbols (list of all symbols in all files)
   {
+    let partitions_by_kind =
+      namespace::partition_nodes_by_kind(&all_doc_nodes, true);
+
     let all_symbols_render =
       render_all_symbols(&ctx, &partitions_by_kind, all_symbols.clone())?;
     files.insert("all_symbols.html".to_string(), all_symbols_render);
@@ -264,35 +265,8 @@ pub fn generate(
     for (specifier, doc_nodes) in doc_nodes_by_url {
       let short_path = ctx.url_to_short_path(specifier);
 
-      let partitions_for_nodes = {
-        let doc_nodes_with_context = doc_nodes
-          .iter()
-          .map(|node| DocNodeWithContext {
-            doc_node: node.clone(),
-            origin: Some(short_path.clone()),
-          })
-          .collect::<Vec<_>>();
-
-        let categories = symbols::namespace::partition_nodes_by_category(
-          &doc_nodes_with_context,
-          false,
-        );
-
-        if categories.len() == 1 && categories.contains_key("Uncategorized") {
-          symbols::namespace::partition_nodes_by_kind(
-            &doc_nodes_with_context,
-            false,
-          )
-          .into_iter()
-          .map(|(kind, nodes)| {
-            let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
-            (doc_node_kind_ctx.title.to_string(), nodes)
-          })
-          .collect()
-        } else {
-          categories
-        }
-      };
+      let partitions_for_nodes =
+        get_partitions_for_file(doc_nodes, &short_path);
 
       let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_for_nodes);
 
@@ -302,7 +276,7 @@ pub fn generate(
         doc_nodes_by_url,
         partitions_for_nodes,
         all_symbols.clone(),
-        "../".repeat(short_path.split(".").count() + 1),
+        Some(short_path.clone()),
       )?;
 
       files.insert(format!("{short_path}/~/index.html"), index);
@@ -317,14 +291,79 @@ pub fn generate(
   }
 
   files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
+  files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
-    generate_search_index(&ctx, doc_nodes_by_url)?,
+    search::get_search_index_file(&ctx, doc_nodes_by_url)?,
   );
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
 
   Ok(files)
+}
+
+pub fn get_partitions_for_file(
+  doc_nodes: &[DocNode],
+  short_path: &String,
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  let doc_nodes_with_context = doc_nodes
+    .iter()
+    .map(|node| DocNodeWithContext {
+      doc_node: node.clone(),
+      origin: Some(short_path.clone()),
+    })
+    .collect::<Vec<_>>();
+
+  let categories =
+    namespace::partition_nodes_by_category(&doc_nodes_with_context, false);
+
+  if categories.len() == 1 && categories.contains_key("Uncategorized") {
+    namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
+      .into_iter()
+      .map(|(kind, nodes)| {
+        let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
+        (doc_node_kind_ctx.title.to_string(), nodes)
+      })
+      .collect()
+  } else {
+    categories
+  }
+}
+
+pub fn get_partitions_for_specifier(
+  ctx: &GenerateCtx,
+  main_entrypoint: Option<&ModuleSpecifier>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  let doc_nodes = main_entrypoint
+    .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
+
+  if let Some(doc_nodes) = doc_nodes {
+    let doc_nodes_with_context = doc_nodes
+      .iter()
+      .map(|node| DocNodeWithContext {
+        doc_node: node.clone(),
+        origin: Some(ctx.url_to_short_path(main_entrypoint.as_ref().unwrap())),
+      })
+      .collect::<Vec<_>>();
+
+    let categories =
+      namespace::partition_nodes_by_category(&doc_nodes_with_context, false);
+
+    if categories.len() == 1 && categories.contains_key("Uncategorized") {
+      namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
+        .into_iter()
+        .map(|(kind, nodes)| {
+          let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
+          (doc_node_kind_ctx.title.to_string(), nodes)
+        })
+        .collect()
+    } else {
+      categories
+    }
+  } else {
+    Default::default()
+  }
 }
 
 fn generate_pages_inner(
@@ -412,6 +451,7 @@ struct HtmlHeadCtx {
   title: String,
   current_file: String,
   stylesheet_url: String,
+  page_stylesheet_url: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -422,24 +462,31 @@ struct HtmlTailCtx {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct SidepanelPartitionNodeCtx {
+pub struct SidepanelPartitionNodeCtx {
   kind: util::DocNodeKindCtx,
   name: String,
   href: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct SidepanelPartitionCtx {
+pub struct SidepanelPartitionCtx {
   name: String,
   symbols: Vec<SidepanelPartitionNodeCtx>,
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct IndexSidepanelCtx {
+pub struct IndexSidepanelFileCtx {
+  name: String,
+  href: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct IndexSidepanelCtx {
+  package_name: Option<String>,
+  root_url: String,
+  all_symbols_url: String,
   kind_partitions: Vec<SidepanelPartitionCtx>,
-  files: Vec<String>,
-  base_url: String,
-  package_name: String,
+  files: Vec<IndexSidepanelFileCtx>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -447,20 +494,52 @@ struct IndexCtx {
   html_head_ctx: HtmlHeadCtx,
   html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: IndexSidepanelCtx,
-  // TODO: use stronly typed value
-  module_doc: Option<serde_json::Value>,
+  module_doc: Option<ModuleDocCtx>,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
-fn render_index(
+#[derive(Debug, Serialize, Clone)]
+pub struct ModuleDocCtx {
+  url: String,
+  docs: String,
+}
+
+pub fn get_module_doc(
+  ctx: &GenerateCtx,
+  render_ctx: &RenderContext,
+  specifier: Option<&ModuleSpecifier>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+) -> Option<ModuleDocCtx> {
+  if let Some(main_entrypoint) = specifier {
+    let module_doc_nodes = doc_nodes_by_url.get(main_entrypoint).unwrap();
+
+    let docs = module_doc_nodes
+      .iter()
+      .find(|n| n.kind == DocNodeKind::ModuleDoc);
+
+    docs
+      .and_then(|node| node.js_doc.doc.as_ref())
+      .map(|docs_md| {
+        let rendered_docs = render_markdown(docs_md, &render_ctx);
+
+        ModuleDocCtx {
+          url: ctx.url_to_short_path(main_entrypoint),
+          docs: rendered_docs,
+        }
+      })
+  } else {
+    None
+  }
+}
+
+pub fn get_index_sidepanel_ctx(
   ctx: &GenerateCtx,
   main_entrypoint: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
-  base: String,
-) -> Result<String, anyhow::Error> {
+  current_file: &Option<String>,
+) -> IndexSidepanelCtx {
   let files = doc_nodes_by_url
     .keys()
     .filter(|url| {
@@ -468,7 +547,16 @@ fn render_index(
         .map(|main_entrypoint| *url != main_entrypoint)
         .unwrap_or(true)
     })
-    .map(|url| ctx.url_to_short_path(url))
+    .map(|url| {
+      let short_path = ctx.url_to_short_path(url);
+      IndexSidepanelFileCtx {
+        href: (ctx.url_resolver)(
+          current_file.as_deref(),
+          UrlResolveKinds::File(&short_path),
+        ),
+        name: short_path,
+      }
+    })
     .collect::<Vec<_>>();
 
   let kind_partitions = partitions
@@ -478,10 +566,12 @@ fn render_index(
         .into_iter()
         .map(|node| SidepanelPartitionNodeCtx {
           kind: node.doc_node.kind.into(),
-          href: format!(
-            "{base}{}/~/{}.html",
-            node.origin.unwrap(),
-            node.doc_node.name
+          href: (ctx.url_resolver)(
+            current_file.as_deref(),
+            UrlResolveKinds::Symbol {
+              target_file: node.origin.as_deref().unwrap(),
+              target_symbol: &node.doc_node.name,
+            },
           ),
           name: node.doc_node.name,
         })
@@ -490,53 +580,66 @@ fn render_index(
     })
     .collect::<Vec<_>>();
 
-  let sidepanel_ctx = IndexSidepanelCtx {
+  IndexSidepanelCtx {
+    package_name: ctx.package_name.clone(),
+    root_url: (ctx.url_resolver)(
+      current_file.as_deref(),
+      UrlResolveKinds::Root,
+    ),
+    all_symbols_url: (ctx.url_resolver)(
+      current_file.as_deref(),
+      UrlResolveKinds::AllSymbols,
+    ),
     kind_partitions,
     files,
-    base_url: base.clone(),
-    package_name: ctx.package_name.to_string(),
-  };
+  }
+}
 
-  let render_ctx = RenderContext::new(
-    ctx.tt.clone(),
-    all_symbols,
-    ctx.global_symbols.clone(),
-    ctx.global_symbol_href_resolver.clone(),
+fn render_index(
+  ctx: &GenerateCtx,
+  specifier: Option<&ModuleSpecifier>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
+  all_symbols: NamespacedSymbols,
+  file: Option<String>,
+) -> Result<String, anyhow::Error> {
+  let sidepanel_ctx = get_index_sidepanel_ctx(
+    ctx,
+    specifier,
+    doc_nodes_by_url,
+    partitions,
+    &file,
   );
 
-  let module_doc = {
-    if let Some(main_entrypoint) = main_entrypoint {
-      let module_doc_nodes = doc_nodes_by_url.get(main_entrypoint).unwrap();
+  let render_ctx = RenderContext::new(
+    ctx,
+    all_symbols,
+    specifier.map(|specifier| ctx.url_to_short_path(specifier)),
+  );
 
-      let docs = module_doc_nodes
-        .iter()
-        .find(|n| n.kind == DocNodeKind::ModuleDoc);
+  let module_doc =
+    get_module_doc(ctx, &render_ctx, specifier, doc_nodes_by_url);
 
-      docs
-        .and_then(|node| node.js_doc.doc.as_ref())
-        .map(|docs_md| {
-          let rendered_docs = render_markdown(docs_md, &render_ctx);
-
-          json!({
-            "url": ctx.url_to_short_path(main_entrypoint),
-            "docs": rendered_docs,
-          })
-        })
-    } else {
-      None
-    }
-  };
+  let root = (ctx.url_resolver)(file.as_deref(), UrlResolveKinds::Root);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
-    title: format!("Index - {} documentation", ctx.package_name),
+    title: format!(
+      "Index - {}documentation",
+      ctx
+        .package_name
+        .as_ref()
+        .map(|package_name| format!("{package_name} "))
+        .unwrap_or_default()
+    ),
     current_file: "".to_string(),
-    stylesheet_url: format!("{base}{}", STYLESHEET_FILENAME),
+    stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
+    page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
   };
   let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("{base}{}", SEARCH_INDEX_FILENAME),
-    fuse_js: format!("{base}{}", FUSE_FILENAME),
-    url_search: format!("{base}{}", SEARCH_FILENAME),
+    url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
+    fuse_js: format!("{root}{FUSE_FILENAME}"),
+    url_search: format!("{root}{SEARCH_FILENAME}"),
   };
 
   let index_ctx = IndexCtx {
@@ -564,25 +667,28 @@ fn render_all_symbols(
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(
-    ctx.tt.clone(),
-    all_symbols.clone(),
-    ctx.global_symbols.clone(),
-    ctx.global_symbol_href_resolver.clone(),
-  );
+  let render_ctx = RenderContext::new(ctx, all_symbols, None);
   let namespace_ctx =
-    symbols::namespace::get_namespace_render_ctx(&render_ctx, partitions);
+    namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
-    title: format!("All Symbols - {} documentation", ctx.package_name),
+    title: format!(
+      "All Symbols - {}documentation",
+      ctx
+        .package_name
+        .as_ref()
+        .map(|package_name| format!("{package_name} "))
+        .unwrap_or_default()
+    ),
     current_file: "".to_string(),
-    stylesheet_url: format!("./{}", STYLESHEET_FILENAME),
+    stylesheet_url: format!("./{STYLESHEET_FILENAME}"),
+    page_stylesheet_url: format!("./{PAGE_STYLESHEET_FILENAME}"),
   };
   let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{}", SEARCH_INDEX_FILENAME),
-    fuse_js: format!("./{}", FUSE_FILENAME),
-    url_search: format!("./{}", SEARCH_FILENAME),
+    url_search_index: format!("./{SEARCH_INDEX_FILENAME}"),
+    fuse_js: format!("./{FUSE_FILENAME}"),
+    url_search: format!("./{SEARCH_FILENAME}"),
   };
   let all_symbols_ctx = AllSymbolsCtx {
     html_head_ctx,
@@ -594,7 +700,7 @@ fn render_all_symbols(
   Ok(render_ctx.render("all_symbols.html", &all_symbols_ctx))
 }
 
-fn partition_nodes_by_name(
+pub fn partition_nodes_by_name(
   doc_nodes: &[DocNode],
 ) -> IndexMap<String, Vec<DocNode>> {
   let mut partitions = IndexMap::default();
@@ -638,12 +744,8 @@ fn render_page(
   all_symbols: NamespacedSymbols,
   file: &str,
 ) -> Result<String, anyhow::Error> {
-  let mut render_ctx = RenderContext::new(
-    ctx.tt.clone(),
-    all_symbols,
-    ctx.global_symbols.clone(),
-    ctx.global_symbol_href_resolver.clone(),
-  );
+  let mut render_ctx =
+    RenderContext::new(ctx, all_symbols, Some(file.to_string()));
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
   }
@@ -656,20 +758,29 @@ fn render_page(
 
   // NOTE: `doc_nodes` should be sorted at this point.
   let symbol_group_ctx =
-    symbol::get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
+    get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
 
-  let root = "../".repeat(file.split(".").count() + 1);
+  let root = (ctx.url_resolver)(Some(file), UrlResolveKinds::Root);
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
-    title: format!("{} - {} documentation", namespaced_name, ctx.package_name),
+    title: format!(
+      "{} - {} documentation",
+      namespaced_name,
+      ctx
+        .package_name
+        .as_ref()
+        .map(|package_name| format!("{package_name} "))
+        .unwrap_or_default()
+    ),
     current_file: file.to_string(),
-    stylesheet_url: format!("{root}{}", STYLESHEET_FILENAME),
+    stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
+    page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
   };
   let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("{root}{}", SEARCH_INDEX_FILENAME),
-    fuse_js: format!("{root}{}", FUSE_FILENAME),
-    url_search: format!("{root}{}", SEARCH_FILENAME),
+    url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
+    fuse_js: format!("{root}{FUSE_FILENAME}"),
+    url_search: format!("{root}{SEARCH_FILENAME}"),
   };
   let page_ctx = PageCtx {
     html_head_ctx,
@@ -683,12 +794,12 @@ fn render_page(
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct SidepanelRenderCtx {
-  package_name: String,
+pub struct SidepanelRenderCtx {
+  package_name: Option<String>,
   partitions: Vec<SidepanelPartitionCtx>,
 }
 
-fn sidepanel_render_ctx(
+pub fn sidepanel_render_ctx(
   ctx: &GenerateCtx,
   partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
 ) -> SidepanelRenderCtx {
@@ -711,174 +822,53 @@ fn sidepanel_render_ctx(
     .collect();
 
   SidepanelRenderCtx {
-    package_name: ctx.package_name.to_string(),
+    package_name: ctx.package_name.clone(),
     partitions,
   }
 }
 
-fn join_qualifiers<S>(qualifiers: &[String], s: S) -> Result<S::Ok, S::Error>
-where
-  S: serde::Serializer,
-{
-  s.serialize_str(&qualifiers.join("."))
-}
-
-#[derive(Clone, Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct SearchIndexNode {
-  kind: DocNodeKind,
-  name: String,
-  file: String,
-  #[serde(serialize_with = "join_qualifiers")]
-  ns_qualifiers: Vec<String>,
-  location: Location,
-  declaration_kind: crate::node::DeclarationKind,
-}
-
-fn doc_node_into_search_index_nodes_inner(
-  ctx: &GenerateCtx,
-  doc_node: &DocNodeWithContext,
-  ns_qualifiers: Vec<String>,
-) -> Vec<SearchIndexNode> {
-  if !matches!(doc_node.doc_node.kind, DocNodeKind::Namespace) {
-    let mut location = doc_node.doc_node.location.clone();
-    let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    let location_url_str = ctx.url_to_short_path(&location_url);
-    location.filename = location_url_str;
-
-    return vec![SearchIndexNode {
-      kind: doc_node.doc_node.kind,
-      name: doc_node.doc_node.name.to_string(),
-      file: doc_node.origin.clone().unwrap(),
-      ns_qualifiers: ns_qualifiers.clone(),
-      location,
-      declaration_kind: doc_node.doc_node.declaration_kind,
-    }];
-  }
-
-  let ns_def = doc_node.doc_node.namespace_def.as_ref().unwrap();
-  let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
-  let ns_name = doc_node.doc_node.name.to_string();
-
-  let mut location = doc_node.doc_node.location.clone();
-  let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-  let location_url_str = ctx.url_to_short_path(&location_url);
-  location.filename = location_url_str;
-
-  nodes.push(SearchIndexNode {
-    kind: doc_node.doc_node.kind,
-    name: doc_node.doc_node.name.to_string(),
-    file: doc_node.origin.clone().unwrap(),
-    ns_qualifiers: ns_qualifiers.clone(),
-    location,
-    declaration_kind: doc_node.doc_node.declaration_kind,
-  });
-
-  for el in &ns_def.elements {
-    let mut ns_qualifiers_ = ns_qualifiers.clone();
-    ns_qualifiers_.push(ns_name.to_string());
-
-    let mut location = el.location.clone();
-    let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    let location_url_str = ctx.url_to_short_path(&location_url);
-    location.filename = location_url_str;
-
-    nodes.push(SearchIndexNode {
-      kind: el.kind,
-      name: el.name.to_string(),
-      file: doc_node.origin.clone().unwrap(),
-      ns_qualifiers: ns_qualifiers_,
-      location,
-      declaration_kind: el.declaration_kind,
-    });
-
-    if el.kind == DocNodeKind::Namespace {
-      nodes.extend_from_slice(&doc_node_into_search_index_nodes_inner(
-        ctx,
-        &DocNodeWithContext {
-          origin: doc_node.origin.clone(),
-          doc_node: el.clone(),
-        },
-        ns_qualifiers.clone(),
-      ));
-    }
-  }
-
-  nodes
-}
-
-/// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
-/// node is flattened into a list of its elements.
-fn doc_node_into_search_index_nodes(
-  ctx: &GenerateCtx,
-  doc_node: &DocNodeWithContext,
-) -> Vec<SearchIndexNode> {
-  doc_node_into_search_index_nodes_inner(ctx, doc_node, vec![])
-}
-
-fn generate_search_index(
-  ctx: &GenerateCtx,
+pub fn find_common_ancestor(
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-) -> Result<String, anyhow::Error> {
-  // TODO(bartlomieju): remove
-  let doc_nodes = doc_nodes_by_url
-    .iter()
-    .flat_map(|(specifier, nodes)| {
-      nodes.iter().map(|node| DocNodeWithContext {
-        origin: Some(ctx.url_to_short_path(specifier)),
-        doc_node: node.clone(),
-      })
+  single_file_is_common_ancestor: bool,
+) -> Option<PathBuf> {
+  let paths: Vec<PathBuf> = doc_nodes_by_url
+    .keys()
+    .filter_map(|url| {
+      if url.scheme() == "file" {
+        Some(url.to_file_path().unwrap())
+      } else {
+        None
+      }
     })
-    .collect::<Vec<_>>();
+    .collect();
 
-  let doc_nodes = doc_nodes.iter().fold(
-    Vec::with_capacity(doc_nodes.len()),
-    |mut output, node| {
-      output.extend_from_slice(&doc_node_into_search_index_nodes(ctx, node));
-      output
-    },
-  );
-
-  let search_index = json!({
-    "nodes": doc_nodes
-  });
-  let search_index_str = serde_json::to_string(&search_index)?;
-
-  let index = format!(
-    r#"(function () {{
-  window.DENO_DOC_SEARCH_INDEX = {};
-}})()"#,
-    search_index_str
-  );
-  Ok(index)
-}
-
-fn find_common_ancestor(paths: Vec<PathBuf>) -> Option<PathBuf> {
   assert!(!paths.is_empty());
 
-  let shortest_path = paths.iter().min_by_key(|path| path.components().count());
+  if paths.len() == 1 && !single_file_is_common_ancestor {
+    return None;
+  }
 
-  match shortest_path {
-    Some(shortest) => {
-      let mut common_ancestor = PathBuf::new();
+  let shortest_path = paths
+    .iter()
+    .min_by_key(|path| path.components().count())
+    .unwrap();
 
-      for (index, component) in shortest.components().enumerate() {
-        if paths.iter().all(|path| {
-          path.components().count() > index
-            && path.components().nth(index) == Some(component)
-        }) {
-          common_ancestor.push(component);
-        } else {
-          break;
-        }
-      }
+  let mut common_ancestor = PathBuf::new();
 
-      if common_ancestor.as_os_str().is_empty() {
-        None
-      } else {
-        Some(common_ancestor)
-      }
+  for (index, component) in shortest_path.components().enumerate() {
+    if paths.iter().all(|path| {
+      path.components().count() > index
+        && path.components().nth(index) == Some(component)
+    }) {
+      common_ancestor.push(component);
+    } else {
+      break;
     }
-    None => None, // No paths in the vector.
+  }
+
+  if common_ancestor.as_os_str().is_empty() {
+    None
+  } else {
+    Some(common_ancestor)
   }
 }

@@ -1,6 +1,6 @@
+use super::symbols;
+use super::types::render_type_def;
 use super::util::RenderContext;
-use crate::html::symbols;
-use crate::html::types::render_type_def;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
@@ -20,7 +20,7 @@ pub struct SymbolCtx {
   body: String,
 }
 
-pub(crate) fn get_symbol_group_ctx(
+pub fn get_symbol_group_ctx(
   ctx: &RenderContext,
   doc_nodes: &[DocNode],
   name: &str,
@@ -107,7 +107,7 @@ fn doc_block_subtitle(
 
       class_extends = Some(json!({
         "symbol": symbol,
-        "type_args": crate::html::types::type_arguments(ctx, &class_def.super_type_params)
+        "type_args": super::types::type_arguments(ctx, &class_def.super_type_params)
       }));
     }
 
@@ -170,42 +170,42 @@ fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
       DocNodeKind::Function => functions.push(doc_node),
       DocNodeKind::Variable => {
         let docs =
-          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let el = symbols::variable::render_variable(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content)
       }
       DocNodeKind::Class => {
         let docs =
-          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let el = symbols::class::render_class(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Enum => {
         let docs =
-          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let el = symbols::r#enum::render_enum(doc_node, ctx);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Interface => {
         let docs =
-          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let el = symbols::interface::render_interface(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::TypeAlias => {
         let docs =
-          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let el = symbols::type_alias::render_type_alias(ctx, doc_node);
         let content = doc_block_item(docs, el);
         content_parts.push(content);
       }
       DocNodeKind::Namespace => {
         let docs =
-          crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let ns_parts =
           name.split(".").map(String::from).collect::<Vec<String>>();
         let el = symbols::namespace::render_namespace(

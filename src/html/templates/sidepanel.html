@@ -1,5 +1,7 @@
 <nav id="sidepanel">
-    <h2><a href="index.html"><span>{package_name}</span></a></h2>
+    {{ if package_name }}
+      <h2><a href="index.html"><span>{package_name}</span></a></h2>
+    {{ endif }}
     {{ for kind in partitions }}
         <h3>{kind.name}</h3>
         <ul>

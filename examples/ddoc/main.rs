@@ -180,10 +180,11 @@ fn generate_docs_directory(
   let output_dir_resolved = cwd.join(output_dir);
 
   let options = deno_doc::html::GenerateOptions {
-    package_name: name,
+    package_name: Some(name),
     main_entrypoint,
     global_symbols: Default::default(),
     global_symbol_href_resolver: std::rc::Rc::new(|_, _| String::new()),
+    url_resolver: std::rc::Rc::new(deno_doc::html::default_url_resolver),
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 

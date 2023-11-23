@@ -22,11 +22,12 @@ pub struct NamespaceSectionRenderCtx {
 pub struct NamespaceSectionNodeCtx {
   pub doc_node_kind_ctx: DocNodeKindCtx,
   pub origin: Option<String>,
+  pub href: String,
   pub name: String,
   pub docs: String,
 }
 
-pub(crate) fn get_namespace_render_ctx(
+pub fn get_namespace_render_ctx(
   ctx: &RenderContext,
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
 ) -> NamespaceRenderCtx {
@@ -208,6 +209,16 @@ fn get_namespace_section_render_ctx(
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: doc_node.kind.into(),
         origin: origin.clone(),
+        href: (ctx.url_resolver)(
+          ctx.get_current_file(),
+          crate::html::UrlResolveKinds::Symbol {
+            target_file: origin
+              .as_deref()
+              .or_else(|| ctx.get_current_file())
+              .unwrap(),
+            target_symbol: &name,
+          },
+        ),
         name,
         // TODO(bartlomieju): make it a template
         docs: crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc),
