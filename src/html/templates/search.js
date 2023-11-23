@@ -6,7 +6,9 @@ const searchResultsDiv = document.querySelector("#searchResults");
 const currentFile =
   document.querySelector("meta[name='doc-current-file']").attributes
     .getNamedItem("content").value;
-const pathToRoot = "../".repeat(currentFile ? (currentFile.split("/").length + 1) : 0);
+const pathToRoot = "../".repeat(
+  currentFile ? (currentFile.split("/").length + 1) : 0,
+);
 console.log(pathToRoot, currentFile);
 searchInput.removeAttribute("style");
 
