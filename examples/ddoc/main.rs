@@ -56,6 +56,11 @@ async fn run() -> anyhow::Result<()> {
         .requires_all(&["name", "output"]),
     )
     .arg(Arg::with_name("name").long("name").takes_value(true))
+    .arg(
+      Arg::with_name("main_entrypoint")
+        .long("main_entrypoint")
+        .takes_value(true),
+    )
     .arg(Arg::with_name("output").long("output").takes_value(true))
     .arg(Arg::with_name("source_files").required(true).multiple(true))
     .arg(
@@ -71,6 +76,16 @@ async fn run() -> anyhow::Result<()> {
     matches.value_of("name").unwrap().to_string()
   } else {
     "".to_string()
+  };
+  let main_entrypoint = if html {
+    matches.value_of("main_entrypoint").map(|main_entrypoint| {
+      ModuleSpecifier::from_directory_path(current_dir().unwrap())
+        .unwrap()
+        .join(main_entrypoint)
+        .unwrap()
+    })
+  } else {
+    None
   };
   let output_dir = if html {
     matches.value_of("output").unwrap().to_string()
@@ -119,7 +134,12 @@ async fn run() -> anyhow::Result<()> {
       let nodes = parser.parse_with_reexports(&source_file)?;
       doc_nodes_by_url.insert(source_file, nodes);
     }
-    generate_docs_directory(name, output_dir, &doc_nodes_by_url)?;
+    generate_docs_directory(
+      name,
+      output_dir,
+      main_entrypoint,
+      &doc_nodes_by_url,
+    )?;
     return Ok(());
   }
 
@@ -153,12 +173,19 @@ fn main() {
 fn generate_docs_directory(
   name: String,
   output_dir: String,
+  main_entrypoint: Option<ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
 ) -> Result<(), anyhow::Error> {
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);
 
-  let options = deno_doc::html::GenerateOptions { package_name: name };
+  let options = deno_doc::html::GenerateOptions {
+    package_name: Some(name),
+    main_entrypoint,
+    global_symbols: Default::default(),
+    global_symbol_href_resolver: std::rc::Rc::new(|_, _| String::new()),
+    url_resolver: std::rc::Rc::new(deno_doc::html::default_url_resolver),
+  };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 
   let path = &output_dir_resolved;

@@ -2,10 +2,10 @@
 
 {{ call sidepanel.html with sidepanel_ctx }}
 
-<div id="content">
-  <a href="{base_url}">&#8592; Back to index</a>
+<div id="content" class="with_sidepanel">
+  <a href="./index.html">&#8592; Back to index</a>
   {{ call search_bar.html with search_ctx }}
-  
+
   {{ call symbol_group.html with symbol_group_ctx }}
 
   {{ call search_results.html with search_ctx }}

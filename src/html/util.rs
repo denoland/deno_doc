@@ -1,6 +1,6 @@
 use crate::DocNodeKind;
 use serde::Serialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
@@ -8,34 +8,106 @@ lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
 }
 
-pub fn name_to_id(kind: &str, name: &str) -> String {
+pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
 // TODO(bartlomieju): this could be a TinyTemplate formatter
-pub fn title_to_id(title: &str) -> String {
+pub(crate) fn title_to_id(title: &str) -> String {
   TARGET_RE.replace_all(title, "_").to_string()
 }
 
+/// A container to hold a list of all available symbols with their namespaces:
+///
+/// ["setTimeout"]
+/// ["Deno", "read"]
+/// ["Deno", "errors"]
+/// ["Deno", "errors", "HttpError"]
+#[derive(Clone)]
+pub struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
+
+impl NamespacedSymbols {
+  pub fn new(doc_nodes: &[crate::DocNode]) -> Self {
+    let symbols = Self::compute_namespaced_symbols(doc_nodes, &[]);
+    Self(Rc::new(symbols))
+  }
+
+  fn compute_namespaced_symbols(
+    doc_nodes: &[crate::DocNode],
+    current_path: &[String],
+  ) -> HashSet<Vec<String>> {
+    let mut namespaced_symbols = HashSet::new();
+
+    for doc_node in doc_nodes {
+      if doc_node.kind == DocNodeKind::ModuleDoc {
+        continue;
+      }
+
+      let mut name_path = current_path.to_vec();
+      name_path.push(doc_node.name.clone());
+
+      namespaced_symbols.insert(name_path.clone());
+
+      if doc_node.kind == DocNodeKind::Namespace {
+        let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+        namespaced_symbols.extend(Self::compute_namespaced_symbols(
+          &namespace_def.elements,
+          &name_path,
+        ))
+      }
+    }
+
+    namespaced_symbols
+  }
+
+  fn contains(&self, path: &[String]) -> bool {
+    self.0.contains(path)
+  }
+}
+
+#[derive(Clone, Default)]
+pub struct NamespacedGlobalSymbols(Rc<HashMap<Vec<String>, String>>);
+
+impl NamespacedGlobalSymbols {
+  pub fn new(symbols: HashMap<Vec<String>, String>) -> Self {
+    Self(Rc::new(symbols))
+  }
+
+  fn get(&self, path: &[String]) -> Option<&String> {
+    self.0.get(path)
+  }
+}
+
+pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String], &String) -> String>;
+
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  current_symbols: Rc<HashSet<Vec<String>>>,
-  namespace: Option<String>,
-  current_type_params: HashSet<String>,
   tt: Rc<TinyTemplate<'ctx>>,
+  all_symbols: NamespacedSymbols,
+  current_type_params: HashSet<String>,
+  /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
+  namespace_parts: Vec<String>,
+  global_symbols: NamespacedGlobalSymbols,
+  global_symbol_href_resolver: GlobalSymbolHrefResolver,
+  pub url_resolver: super::UrlResolver,
+  current_file: Option<String>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
-    tt: Rc<TinyTemplate<'ctx>>,
-    current_symbols: Rc<HashSet<Vec<String>>>,
-    namespace: Option<String>,
+    ctx: &super::GenerateCtx<'ctx>,
+    all_symbols: NamespacedSymbols,
+    current_file: Option<String>,
   ) -> Self {
     Self {
-      tt,
+      tt: ctx.tt.clone(),
       current_type_params: Default::default(),
-      namespace,
-      current_symbols,
+      namespace_parts: vec![],
+      all_symbols,
+      global_symbols: ctx.global_symbols.clone(),
+      global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
+      url_resolver: ctx.url_resolver.clone(),
+      current_file,
     }
   }
 
@@ -49,9 +121,9 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  pub fn with_namespace(&self, namespace: String) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Vec<String>) -> Self {
     Self {
-      namespace: Some(namespace),
+      namespace_parts,
       ..self.clone()
     }
   }
@@ -68,48 +140,58 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_namespace(&self) -> Option<String> {
-    self.namespace.clone()
+  pub fn get_namespace_parts(&self) -> Vec<String> {
+    self.namespace_parts.clone()
+  }
+
+  pub fn get_current_file(&self) -> Option<&str> {
+    self.current_file.as_deref()
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
-    if let Some(namespace) = &self.namespace {
-      let mut parts = namespace
-        .split('.')
-        .map(String::from)
-        .collect::<Vec<String>>();
+    let target_symbol_parts = target_symbol
+      .split('.')
+      .map(String::from)
+      .collect::<Vec<_>>();
+
+    if !self.namespace_parts.is_empty() {
+      let mut parts = self.namespace_parts.clone();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
-        current_parts.extend(target_symbol.split('.').map(String::from));
+        current_parts.extend_from_slice(&target_symbol_parts);
 
-        if self.current_symbols.contains(&current_parts) {
-          let backs = current_parts.iter().map(|_| "../").collect::<String>();
-
-          return Some(format!("./{backs}{}.html", current_parts.join("/")));
+        if self.all_symbols.contains(&current_parts) {
+          return Some((self.url_resolver)(
+            self.current_file.as_deref(),
+            super::UrlResolveKinds::Symbol {
+              target_file: self.current_file.as_deref().unwrap(),
+              target_symbol: &current_parts.join("."),
+            },
+          ));
         }
-
-        // TODO: global symbol handling
 
         parts.pop();
       }
     }
 
-    let split_symbol = target_symbol
-      .split('.')
-      .map(String::from)
-      .collect::<Vec<String>>();
-
-    if self.current_symbols.contains(&split_symbol) {
-      let backs = if let Some(namespace) = &self.namespace {
-        namespace.split('.').map(|_| "../").collect::<String>()
-      } else {
-        String::new()
-      };
-
-      return Some(format!("./{backs}{}.html", split_symbol.join("/")));
+    if self.all_symbols.contains(&target_symbol_parts) {
+      return Some((self.url_resolver)(
+        self.current_file.as_deref(),
+        super::UrlResolveKinds::Symbol {
+          target_file: self.current_file.as_deref().unwrap_or_default(), // TODO
+          target_symbol: &target_symbol_parts.join("."),
+        },
+      ));
     }
 
-    // TODO: handle currentImports
+    // TODO(crowlKats): handle currentImports
+
+    if let Some(context) = self.global_symbols.get(&target_symbol_parts) {
+      return Some((self.global_symbol_href_resolver)(
+        &target_symbol_parts,
+        context,
+      ));
+    }
 
     None
   }
@@ -118,14 +200,14 @@ impl<'ctx> RenderContext<'ctx> {
 #[derive(Debug, serde::Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,
-  char: char,
-  title: &'static str,
-  title_lowercase: &'static str,
-  title_plural: &'static str,
+  pub char: char,
+  pub title: &'static str,
+  pub title_lowercase: &'static str,
+  pub title_plural: &'static str,
 }
 
-impl From<&DocNodeKind> for DocNodeKindCtx {
-  fn from(kind: &DocNodeKind) -> Self {
+impl From<DocNodeKind> for DocNodeKindCtx {
+  fn from(kind: DocNodeKind) -> Self {
     let (char, title, title_lowercase, title_plural) = match kind {
       DocNodeKind::Function => ('f', "Function", "function", "Functions"),
       DocNodeKind::Variable => ('v', "Variable", "variable", "Variables"),

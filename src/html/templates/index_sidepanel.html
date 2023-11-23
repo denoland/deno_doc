@@ -1,0 +1,39 @@
+<nav id="sidepanel">
+    {{ if package_name }}
+      <h2><a href="{root_url}"><span>{package_name}</span></a></h2>
+    {{ endif }}
+
+    <a href="{all_symbols_url}">All symbols</a>
+
+    {{ if files }}
+      <h3>Modules</h3>
+      <ul>
+        {{ for file in files }}
+        <li>
+          <a href="{file.href}">{file.name}</a>
+        </li>
+        {{ endfor }}
+      </ul>
+    {{ endif }}
+
+    {{ if kind_partitions }}
+      <h3>APIs</h3>
+      <ul>
+        {{ for kind in kind_partitions }}
+        <li>
+          <h4>{ kind.name }</h4>
+          <ul>
+            {{ for symbol in kind.symbols }}
+            <li>
+              <a href="{ symbol.href }">
+                {{ call doc_node_kind_icon.html with symbol.kind }}
+                <span>{ symbol.name }</span>
+              </a>
+            </li>
+            {{ endfor }}
+          </ul>
+        </li>
+        {{ endfor }}
+      </ul>
+    {{ endif }}
+</nav>

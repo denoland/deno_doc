@@ -3,10 +3,13 @@ const Fuse = window.Fuse;
 const searchInput = document.querySelector("#searchbar");
 const mainContentTags = document.getElementsByTagName("main");
 const searchResultsDiv = document.querySelector("#searchResults");
-const currentSymbol =
-  document.querySelector("meta[name='doc-current-symbol']").attributes
+const currentFile =
+  document.querySelector("meta[name='doc-current-file']").attributes
     .getNamedItem("content").value;
-const pathToRoot = currentSymbol.split(".").slice(1).map(() => "../").join("");
+const pathToRoot = "../".repeat(
+  currentFile ? (currentFile.split("/").length + 1) : 0,
+);
+console.log(pathToRoot, currentFile);
 searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
@@ -127,7 +130,7 @@ function renderResults(results) {
       ? `${result.nsQualifiers}.${result.name}`
       : result.name;
     html += `<li>
-<a href="${pathToRoot}${label.split(".").join("/")}.html">
+<a href="${pathToRoot}${result.file}/~/${label}.html">
     <div>
         <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
             ${symbol}
