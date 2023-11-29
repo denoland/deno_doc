@@ -407,7 +407,7 @@ dependencies = [
  "deno_graph",
  "futures",
  "html-escape",
- "import_map 0.17.0",
+ "import_map 0.18.0",
  "indexmap 2.0.2",
  "js-sys",
  "lazy_static",
@@ -766,9 +766,9 @@ dependencies = [
 
 [[package]]
 name = "import_map"
-version = "0.17.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e5bf51a0adfdc08afcb9e5a1c8f8c804227ec50d493c65e57e6d117d594bd1b"
+checksum = "0ecd467768fe83c2860e70e5de5297a7366a230ff53e1da2158bdac2384cd39d"
 dependencies = [
  "indexmap 1.9.3",
  "log",
