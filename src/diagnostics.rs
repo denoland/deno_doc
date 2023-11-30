@@ -206,8 +206,8 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
   pub fn visit_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
     let mut last_node: Option<&DocNode> = None;
     for doc_node in doc_nodes {
-      if doc_node.location.filename.starts_with("http") {
-        continue; // don't report diagnostics on a remote module
+      if !doc_node.location.filename.starts_with("file:") {
+        continue; // don't report diagnostics on remote modules
       }
 
       if let Some(last_node) = last_node {

@@ -1019,7 +1019,7 @@ impl<'a> DocParser<'a> {
       return;
     };
     if doc_module_info.specifier().scheme() != "file" {
-      return; // only check these diagnostics for local files
+      return; // don't report diagnostics on remote modules
     }
     let doc_symbol_id = doc_symbol.unique_id();
     let Some(deps_by_member) =
