@@ -1,6 +1,22 @@
 # mod.ts
 export class Class {
-  constructor(public a, readonly b) {}
+  constructor(public a, readonly b) {
+    // requires a jsdoc because it has params
+  }
+}
+
+/** doc2 */
+export class Class2 {
+  constructor() {
+    // won't require a jsdoc because there's no params
+  }
+}
+
+/** doc3 */
+export class Class3 {
+  private constructor(value: string) {
+    // won't require a jsdoc because it's private
+  }
 }
 
 # diagnostics
@@ -15,6 +31,20 @@ Defined in file:///mod.ts:1:1
 class Class
 
   constructor(public a, readonly b)
+
+Defined in file:///mod.ts:8:1
+
+class Class2
+  doc2
+
+  constructor()
+
+Defined in file:///mod.ts:15:1
+
+class Class3
+  doc3
+
+  private constructor(value: string)
 
 
 # output.json
@@ -54,6 +84,89 @@ class Class
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
+            "col": 2
+          }
+        }
+      ],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "Class2",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 8,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc2"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [
+        {
+          "accessibility": null,
+          "hasBody": true,
+          "name": "constructor",
+          "params": [],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 2
+          }
+        }
+      ],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "Class3",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 15,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc3"
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [
+        {
+          "accessibility": "private",
+          "hasBody": true,
+          "name": "constructor",
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "value",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 16,
             "col": 2
           }
         }
