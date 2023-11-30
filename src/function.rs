@@ -44,7 +44,7 @@ pub fn function_to_function_def(
       None
         if !function.is_generator
           && function.body.is_some()
-          && get_return_stmt_from_function(function).is_none() =>
+          && get_return_stmt_with_arg_from_function(function).is_none() =>
       {
         if function.is_async {
           Some(TsTypeDef {
@@ -90,16 +90,18 @@ pub fn get_doc_for_fn_decl(
   (name, fn_def)
 }
 
-fn get_return_stmt_from_function(
+fn get_return_stmt_with_arg_from_function(
   func: &deno_ast::swc::ast::Function,
 ) -> Option<&ReturnStmt> {
   let body = func.body.as_ref()?;
-  get_return_stmt_from_stmts(&body.stmts)
+  let stmt = get_return_stmt_with_arg_from_stmts(&body.stmts)?;
+  debug_assert!(stmt.arg.is_some());
+  Some(stmt)
 }
 
-fn get_return_stmt_from_stmts(stmts: &[Stmt]) -> Option<&ReturnStmt> {
+fn get_return_stmt_with_arg_from_stmts(stmts: &[Stmt]) -> Option<&ReturnStmt> {
   for stmt in stmts {
-    if let Some(return_stmt) = get_return_stmt_from_stmt(stmt) {
+    if let Some(return_stmt) = get_return_stmt_with_arg_from_stmt(stmt) {
       return Some(return_stmt);
     }
   }
@@ -107,33 +109,39 @@ fn get_return_stmt_from_stmts(stmts: &[Stmt]) -> Option<&ReturnStmt> {
   None
 }
 
-fn get_return_stmt_from_stmt(stmt: &Stmt) -> Option<&ReturnStmt> {
+fn get_return_stmt_with_arg_from_stmt(stmt: &Stmt) -> Option<&ReturnStmt> {
   match stmt {
-    Stmt::Block(n) => get_return_stmt_from_stmts(&n.stmts),
-    Stmt::With(n) => get_return_stmt_from_stmt(&n.body),
-    Stmt::Return(n) => Some(n),
-    Stmt::Labeled(n) => get_return_stmt_from_stmt(&n.body),
-    Stmt::If(n) => get_return_stmt_from_stmt(&n.cons),
+    Stmt::Block(n) => get_return_stmt_with_arg_from_stmts(&n.stmts),
+    Stmt::With(n) => get_return_stmt_with_arg_from_stmt(&n.body),
+    Stmt::Return(n) => {
+      if n.arg.is_none() {
+        None
+      } else {
+        Some(n)
+      }
+    }
+    Stmt::Labeled(n) => get_return_stmt_with_arg_from_stmt(&n.body),
+    Stmt::If(n) => get_return_stmt_with_arg_from_stmt(&n.cons),
     Stmt::Switch(n) => n
       .cases
       .iter()
-      .find_map(|case| get_return_stmt_from_stmts(&case.cons)),
-    Stmt::Try(n) => get_return_stmt_from_stmts(&n.block.stmts)
+      .find_map(|case| get_return_stmt_with_arg_from_stmts(&case.cons)),
+    Stmt::Try(n) => get_return_stmt_with_arg_from_stmts(&n.block.stmts)
       .or_else(|| {
         n.handler
           .as_ref()
-          .and_then(|h| get_return_stmt_from_stmts(&h.body.stmts))
+          .and_then(|h| get_return_stmt_with_arg_from_stmts(&h.body.stmts))
       })
       .or_else(|| {
         n.finalizer
           .as_ref()
-          .and_then(|f| get_return_stmt_from_stmts(&f.stmts))
+          .and_then(|f| get_return_stmt_with_arg_from_stmts(&f.stmts))
       }),
-    Stmt::While(n) => get_return_stmt_from_stmt(&n.body),
-    Stmt::DoWhile(n) => get_return_stmt_from_stmt(&n.body),
-    Stmt::For(n) => get_return_stmt_from_stmt(&n.body),
-    Stmt::ForIn(n) => get_return_stmt_from_stmt(&n.body),
-    Stmt::ForOf(n) => get_return_stmt_from_stmt(&n.body),
+    Stmt::While(n) => get_return_stmt_with_arg_from_stmt(&n.body),
+    Stmt::DoWhile(n) => get_return_stmt_with_arg_from_stmt(&n.body),
+    Stmt::For(n) => get_return_stmt_with_arg_from_stmt(&n.body),
+    Stmt::ForIn(n) => get_return_stmt_with_arg_from_stmt(&n.body),
+    Stmt::ForOf(n) => get_return_stmt_with_arg_from_stmt(&n.body),
     Stmt::Break(_)
     | Stmt::Continue(_)
     | Stmt::Throw(_)

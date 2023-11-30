@@ -1,5 +1,7 @@
 # mod.ts
-export async function a() {}
+export async function a() {
+  return;
+}
 
 # diagnostics
 [
