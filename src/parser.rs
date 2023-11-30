@@ -1018,6 +1018,9 @@ impl<'a> DocParser<'a> {
     let Some(diagnostics) = &self.diagnostics else {
       return;
     };
+    if doc_module_info.specifier().scheme() != "file" {
+      return; // only check these diagnostics for local files
+    }
     let doc_symbol_id = doc_symbol.unique_id();
     let Some(deps_by_member) =
       self.visibility.get_root_exported_deps(&doc_symbol_id)
