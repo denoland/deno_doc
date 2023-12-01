@@ -335,6 +335,13 @@ impl<'a> DiagnosticDocNodeVisitor<'a> {
   }
 
   fn visit_class_ctor_def(&mut self, ctor: &crate::class::ClassConstructorDef) {
+    // Don't require a jsdoc for private constructors or constructors
+    // with no parameters.
+    if ctor.accessibility == Some(Accessibility::Private)
+      || ctor.params.is_empty()
+    {
+      return;
+    }
     self
       .diagnostics
       .check_missing_js_doc(&ctor.js_doc, &ctor.location);
