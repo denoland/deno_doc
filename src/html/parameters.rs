@@ -28,7 +28,7 @@ pub(crate) fn render_params(
 
     let content = items.join("");
 
-    format!(r#"<div class="ident">{content}</div>"#)
+    format!(r#"<div style="margin-left: 1rem;">{content}</div>"#)
   }
 }
 

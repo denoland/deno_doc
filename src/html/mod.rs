@@ -200,7 +200,7 @@ pub fn generate(
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
 
-  let common_ancestor = find_common_ancestor(doc_nodes_by_url, false);
+  let common_ancestor = find_common_ancestor(doc_nodes_by_url, true);
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
@@ -247,7 +247,7 @@ pub fn generate(
       all_symbols.clone(),
       None,
     )?;
-    files.insert("index.html".to_string(), index);
+    files.insert("./index.html".to_string(), index);
   }
 
   // All symbols (list of all symbols in all files)
@@ -257,7 +257,7 @@ pub fn generate(
 
     let all_symbols_render =
       render_all_symbols(&ctx, &partitions_by_kind, all_symbols.clone())?;
-    files.insert("all_symbols.html".to_string(), all_symbols_render);
+    files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 
   // Pages for all discovered symbols
@@ -279,7 +279,17 @@ pub fn generate(
         Some(short_path.clone()),
       )?;
 
-      files.insert(format!("{short_path}/~/index.html"), index);
+      files.insert(
+        format!(
+          "{}/~/index.html",
+          if short_path.is_empty() {
+            "."
+          } else {
+            &short_path
+          }
+        ),
+        index,
+      );
 
       files.extend(generate_pages_for_file(
         &ctx,
@@ -378,10 +388,11 @@ fn generate_pages_inner(
     Vec::with_capacity(name_partitions.values().len() * 2);
 
   for (name, doc_nodes) in name_partitions.iter() {
+    let file_name = if file.is_empty() { "." } else { file };
     let file_name = if namespace_paths.is_empty() {
-      format!("{file}/~/{}.html", name)
+      format!("{file_name}/~/{}.html", name)
     } else {
-      format!("{file}/~/{}.{name}.html", namespace_paths.join("."))
+      format!("{file_name}/~/{}.{name}.html", namespace_paths.join("."))
     };
 
     let page = render_page(
