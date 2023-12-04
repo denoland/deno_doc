@@ -268,7 +268,8 @@ pub fn generate(
       let partitions_for_nodes =
         get_partitions_for_file(doc_nodes, &short_path);
 
-      let sidepanel_ctx = sidepanel_render_ctx(&ctx, &partitions_for_nodes);
+      let sidepanel_ctx =
+        sidepanel_render_ctx(&ctx, &partitions_for_nodes, &short_path);
 
       let index = render_index(
         &ctx,
@@ -294,7 +295,7 @@ pub fn generate(
       files.extend(generate_pages_for_file(
         &ctx,
         &sidepanel_ctx,
-        ctx.url_to_short_path(specifier),
+        short_path,
         doc_nodes,
       )?);
     }
@@ -474,7 +475,7 @@ struct HtmlTailCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SidepanelPartitionNodeCtx {
-  kind: util::DocNodeKindCtx,
+  kind: DocNodeKindCtx,
   name: String,
   href: String,
 }
@@ -813,6 +814,7 @@ pub struct SidepanelRenderCtx {
 pub fn sidepanel_render_ctx(
   ctx: &GenerateCtx,
   partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
+  file: &str,
 ) -> SidepanelRenderCtx {
   let partitions = partitions
     .into_iter()
@@ -821,7 +823,13 @@ pub fn sidepanel_render_ctx(
         .iter()
         .map(|node| SidepanelPartitionNodeCtx {
           kind: node.doc_node.kind.into(),
-          href: format!("{}.html", node.doc_node.name),
+          href: (ctx.url_resolver)(
+            Some(file),
+            UrlResolveKinds::Symbol {
+              target_file: node.origin.as_deref().unwrap(),
+              target_symbol: &node.doc_node.name,
+            },
+          ),
           name: node.doc_node.name.clone(),
         })
         .collect::<Vec<_>>();
