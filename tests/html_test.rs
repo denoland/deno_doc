@@ -38,12 +38,13 @@ impl Loader for SourceFileLoader {
   }
 }
 
-async fn get_files() -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
+async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   let files = read_dir(
     std::env::current_dir()
       .unwrap()
       .join("tests")
-      .join("testdata"),
+      .join("testdata")
+      .join(subpath),
   )
   .unwrap();
 
@@ -100,7 +101,7 @@ async fn html_doc_files() {
       global_symbol_href_resolver: Rc::new(|_, _| String::new()),
       url_resolver: Rc::new(default_url_resolver),
     },
-    &get_files().await,
+    &get_files("single").await,
   )
   .unwrap();
 
@@ -121,5 +122,78 @@ async fn html_doc_files() {
       "search_index.js",
       "styles.css",
     ]
+  );
+}
+
+#[test]
+fn common_ancestor_root() {
+  let map = [
+    "file:///bytes.ts",
+    "file:///colors.ts",
+    "file:///duration.ts",
+    "file:///printf.ts",
+  ]
+  .into_iter()
+  .map(|path| {
+    let specifier = ModuleSpecifier::parse(path).unwrap();
+    (specifier, vec![])
+  })
+  .collect();
+
+  let common_ancestor = find_common_ancestor(&map, false);
+  assert_eq!(common_ancestor, None);
+}
+
+#[tokio::test]
+async fn common_ancestor_single_file() {
+  let common_ancestor = find_common_ancestor(&get_files("single").await, false);
+  assert_eq!(common_ancestor, None);
+}
+
+#[tokio::test]
+async fn common_ancestor_multiple_files() {
+  let common_ancestor =
+    find_common_ancestor(&get_files("multiple").await, false);
+  assert_eq!(
+    common_ancestor,
+    Some(
+      std::env::current_dir()
+        .unwrap()
+        .join("tests")
+        .join("testdata")
+        .join("multiple")
+    )
+  );
+}
+
+#[tokio::test]
+async fn common_ancestor_single_file_single_mode() {
+  let common_ancestor = find_common_ancestor(&get_files("single").await, true);
+  assert_eq!(
+    common_ancestor,
+    Some(
+      std::env::current_dir()
+        .unwrap()
+        .join("tests")
+        .join("testdata")
+        .join("single")
+        .join("a.ts")
+    )
+  );
+}
+
+#[tokio::test]
+async fn common_ancestor_multiple_file_single_mode() {
+  let common_ancestor =
+    find_common_ancestor(&get_files("multiple").await, false);
+  assert_eq!(
+    common_ancestor,
+    Some(
+      std::env::current_dir()
+        .unwrap()
+        .join("tests")
+        .join("testdata")
+        .join("multiple")
+    )
   );
 }

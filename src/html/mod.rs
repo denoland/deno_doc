@@ -885,7 +885,9 @@ pub fn find_common_ancestor(
     }
   }
 
-  if common_ancestor.as_os_str().is_empty() {
+  if common_ancestor.as_os_str().is_empty()
+    || common_ancestor == PathBuf::from("/")
+  {
     None
   } else {
     Some(common_ancestor)
