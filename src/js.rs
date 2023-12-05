@@ -205,7 +205,7 @@ async fn inner_doc(
   let entries = DocParser::new(
     &graph,
     parser,
-    crate::DocParserOptions {
+    crate::parser::DocParserOptions {
       diagnostics: false,
       private: include_all,
     },
