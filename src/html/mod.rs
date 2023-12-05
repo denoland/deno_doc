@@ -945,7 +945,7 @@ mod test {
     expected: Option<&str>,
   ) {
     let map = specifiers
-      .into_iter()
+      .iter()
       .map(|specifier| normalize_specifier(specifier))
       .collect::<Vec<_>>();
 
