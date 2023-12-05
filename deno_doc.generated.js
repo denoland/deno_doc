@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: 56747a7699027e4c4795f60edc9f188141b51fbc
+// source-hash: 6bc8c488e2670b7fb36cbcef56aa38f6b74a3ae5
 let wasm;
 
 const cachedTextDecoder = typeof TextDecoder !== "undefined"
@@ -310,7 +310,7 @@ const imports = {
       const ret = new Error(getStringFromWasm0(arg0, arg1));
       return addHeapObject(ret);
     },
-    __wbg_warn_7924fdfe929fbcf8: function (arg0, arg1) {
+    __wbg_warn_db68da33ad17d0bc: function (arg0, arg1) {
       console.warn(getStringFromWasm0(arg0, arg1));
     },
     __wbindgen_object_drop_ref: function (arg0) {
