@@ -16,6 +16,7 @@ use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::Range;
 use import_map::ImportMap;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
@@ -79,12 +80,12 @@ impl Resolver for ImportMapResolver {
   fn resolve(
     &self,
     specifier: &str,
-    referrer: &ModuleSpecifier,
+    referrer_range: &Range,
     _mode: deno_graph::source::ResolutionMode,
   ) -> Result<ModuleSpecifier, ResolveError> {
     self
       .0
-      .resolve(specifier, referrer)
+      .resolve(specifier, &referrer_range.specifier)
       .map_err(|err| ResolveError::Other(err.into()))
   }
 }
@@ -104,13 +105,13 @@ impl Resolver for JsResolver {
   fn resolve(
     &self,
     specifier: &str,
-    referrer: &ModuleSpecifier,
+    referrer_range: &Range,
     _mode: deno_graph::source::ResolutionMode,
   ) -> Result<ModuleSpecifier, ResolveError> {
     use ResolveError::*;
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
-    let arg1 = JsValue::from(referrer.to_string());
+    let arg1 = JsValue::from(referrer_range.specifier.to_string());
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
       Err(_) => {
