@@ -19,7 +19,7 @@ required-features = ["html"]
 anyhow = "1.0.58"
 cfg-if = "1.0.0"
 deno_ast = "0.31.5"
-deno_graph = { version = "0.61.0", features = ["symbols"] }
+deno_graph = { version = "0.62.0", features = ["symbols"] }
 indexmap = "2.0.2"
 futures = "0.3.26"
 import_map = "0.18.0"

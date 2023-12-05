@@ -379,7 +379,6 @@ dependencies = [
  "swc_atoms",
  "swc_common",
  "swc_ecma_ast",
- "swc_ecma_dep_graph",
  "swc_ecma_loader",
  "swc_ecma_parser",
  "swc_ecma_transforms_base",
@@ -407,7 +406,7 @@ dependencies = [
  "deno_graph",
  "futures",
  "html-escape",
- "import_map 0.18.0",
+ "import_map",
  "indexmap 2.0.2",
  "js-sys",
  "lazy_static",
@@ -425,9 +424,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.61.0"
+version = "0.62.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bd6700dd3cec2a7763760168c952cc632246a1ae0fc52d6f297e2802b994e69"
+checksum = "2b0c15558cd72b534064bf7ae07e0fc99e0693915a4552f67558cc0b2b09c287"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -435,8 +434,9 @@ dependencies = [
  "deno_ast",
  "deno_semver",
  "futures",
- "import_map 0.15.0",
+ "import_map",
  "indexmap 2.0.2",
+ "log",
  "monch",
  "once_cell",
  "parking_lot",
@@ -748,20 +748,6 @@ checksum = "7d20d6b07bfbc108882d88ed8e37d39636dcc260e15e30c45e6ba089610b917c"
 dependencies = [
  "unicode-bidi",
  "unicode-normalization",
-]
-
-[[package]]
-name = "import_map"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "632089ec08bd62e807311104122fb26d5c911ab172e2b9864be154a575979e29"
-dependencies = [
- "cfg-if",
- "indexmap 1.9.3",
- "log",
- "serde",
- "serde_json",
- "url",
 ]
 
 [[package]]
@@ -1456,18 +1442,6 @@ dependencies = [
  "swc_atoms",
  "swc_common",
  "unicode-id",
-]
-
-[[package]]
-name = "swc_ecma_dep_graph"
-version = "0.113.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59fc6ac1a84afe910182dcda33d70a16545e6058529d51afb63bd6be8764370f"
-dependencies = [
- "swc_atoms",
- "swc_common",
- "swc_ecma_ast",
- "swc_ecma_visit",
 ]
 
 [[package]]
