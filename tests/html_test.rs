@@ -145,13 +145,45 @@ fn common_ancestor_root() {
 }
 
 #[tokio::test]
-async fn common_ancestor_single() {
+async fn common_ancestor_single_file() {
   let common_ancestor = find_common_ancestor(&get_files("single").await, false);
   assert_eq!(common_ancestor, None);
 }
 
 #[tokio::test]
-async fn common_ancestor_multiple() {
+async fn common_ancestor_multiple_files() {
+  let common_ancestor =
+    find_common_ancestor(&get_files("multiple").await, false);
+  assert_eq!(
+    common_ancestor,
+    Some(
+      std::env::current_dir()
+        .unwrap()
+        .join("tests")
+        .join("testdata")
+        .join("multiple")
+    )
+  );
+}
+
+#[tokio::test]
+async fn common_ancestor_single_file_single_mode() {
+  let common_ancestor = find_common_ancestor(&get_files("single").await, true);
+  assert_eq!(
+    common_ancestor,
+    Some(
+      std::env::current_dir()
+        .unwrap()
+        .join("tests")
+        .join("testdata")
+        .join("single")
+        .join("a.ts")
+    )
+  );
+}
+
+#[tokio::test]
+async fn common_ancestor_multiple_file_single_mode() {
   let common_ancestor =
     find_common_ancestor(&get_files("multiple").await, false);
   assert_eq!(
