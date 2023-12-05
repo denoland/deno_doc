@@ -91,6 +91,7 @@ pub struct RenderContext<'ctx> {
   global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: super::UrlResolver,
   current_file: Option<String>,
+  current_symbol: Option<String>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -98,6 +99,7 @@ impl<'ctx> RenderContext<'ctx> {
     ctx: &super::GenerateCtx<'ctx>,
     all_symbols: NamespacedSymbols,
     current_file: Option<String>,
+    current_symbol: Option<String>,
   ) -> Self {
     Self {
       tt: ctx.tt.clone(),
@@ -108,6 +110,7 @@ impl<'ctx> RenderContext<'ctx> {
       global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
       url_resolver: ctx.url_resolver.clone(),
       current_file,
+      current_symbol,
     }
   }
 
@@ -124,6 +127,13 @@ impl<'ctx> RenderContext<'ctx> {
   pub fn with_namespace(&self, namespace_parts: Vec<String>) -> Self {
     Self {
       namespace_parts,
+      ..self.clone()
+    }
+  }
+
+  pub fn with_symbol(&self, current_symbol: Option<String>) -> Self {
+    Self {
+      current_symbol,
       ..self.clone()
     }
   }
@@ -148,6 +158,10 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_file.as_deref()
   }
 
+  pub fn get_current_symbol(&self) -> Option<&str> {
+    self.current_symbol.as_deref()
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     let target_symbol_parts = target_symbol
       .split('.')
@@ -162,8 +176,9 @@ impl<'ctx> RenderContext<'ctx> {
 
         if self.all_symbols.contains(&current_parts) {
           return Some((self.url_resolver)(
-            self.current_file.as_deref(),
-            super::UrlResolveKinds::Symbol {
+            self.get_current_file(),
+            self.get_current_symbol(),
+            super::UrlResolveKind::Symbol {
               target_file: self.current_file.as_deref().unwrap(),
               target_symbol: &current_parts.join("."),
             },
@@ -176,9 +191,10 @@ impl<'ctx> RenderContext<'ctx> {
 
     if self.all_symbols.contains(&target_symbol_parts) {
       return Some((self.url_resolver)(
-        self.current_file.as_deref(),
-        super::UrlResolveKinds::Symbol {
-          target_file: self.current_file.as_deref().unwrap_or_default(), // TODO
+        self.get_current_file(),
+        self.get_current_symbol(),
+        super::UrlResolveKind::Symbol {
+          target_file: self.get_current_file().unwrap_or_default(), // TODO
           target_symbol: &target_symbol_parts.join("."),
         },
       ));

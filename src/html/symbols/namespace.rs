@@ -211,7 +211,8 @@ fn get_namespace_section_render_ctx(
         origin: origin.clone(),
         href: (ctx.url_resolver)(
           ctx.get_current_file(),
-          crate::html::UrlResolveKinds::Symbol {
+          ctx.get_current_symbol(),
+          crate::html::UrlResolveKind::Symbol {
             target_file: origin
               .as_deref()
               .or_else(|| ctx.get_current_file())
