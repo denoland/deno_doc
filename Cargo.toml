@@ -47,7 +47,7 @@ tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
 [features]
-default = ["rust"]
+default = ["html", "rust"]
 rust = []
 html = ["html-escape", "comrak", "tinytemplate"]
 wasm = ["js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
