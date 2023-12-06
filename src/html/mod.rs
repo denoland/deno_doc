@@ -1,27 +1,25 @@
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
-use serde::Serialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
-use crate::html::jsdoc::render_markdown;
 use crate::DocNode;
 use crate::DocNodeKind;
 
 mod jsdoc;
+mod pages;
 mod parameters;
 mod search;
+mod sidepanels;
 mod symbol;
 mod symbols;
 mod types;
 mod util;
 
 pub use search::generate_search_index;
-pub use symbol::get_symbol_group_ctx;
 pub use symbol::SymbolGroupCtx;
-use symbols::namespace::NamespaceRenderCtx;
 
 pub use self::symbols::namespace;
 pub use self::util::DocNodeKindCtx;
@@ -44,36 +42,49 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-pub enum UrlResolveKinds<'a> {
+#[derive(Debug, Clone, Copy)]
+pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
-  Symbol {
-    target_file: &'a str,
-    target_symbol: &'a str,
-  },
   File(&'a str),
+  Symbol { file: &'a str, symbol: &'a str },
 }
 
-pub type UrlResolver = Rc<dyn Fn(Option<&str>, UrlResolveKinds) -> String>;
+impl UrlResolveKind<'_> {
+  fn get_file(&self) -> Option<&str> {
+    match self {
+      UrlResolveKind::Root => None,
+      UrlResolveKind::AllSymbols => None,
+      UrlResolveKind::File(file) => Some(file),
+      UrlResolveKind::Symbol { file, .. } => Some(file),
+    }
+  }
+}
+
+/// Arguments are current and target
+pub type UrlResolver = Rc<dyn Fn(UrlResolveKind, UrlResolveKind) -> String>;
 
 pub fn default_url_resolver(
-  current_file: Option<&str>,
-  resolve: UrlResolveKinds,
+  current: UrlResolveKind,
+  resolve: UrlResolveKind,
 ) -> String {
-  let backs = current_file
-    .map(|current_file| "../".repeat(current_file.split('.').count() + 1))
-    .unwrap_or_default();
+  let backs = match current {
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => {
+      "../".repeat(file.split('.').count() + 1)
+    }
+    UrlResolveKind::Root | UrlResolveKind::AllSymbols => String::new(),
+  };
 
   match resolve {
-    UrlResolveKinds::Root => backs,
-    UrlResolveKinds::AllSymbols => format!("{backs}./all_symbols.html"),
-    UrlResolveKinds::Symbol {
-      target_file,
-      target_symbol,
+    UrlResolveKind::Root => backs,
+    UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
+    UrlResolveKind::Symbol {
+      file: target_file,
+      symbol: target_symbol,
     } => {
       format!("{backs}./{target_file}/~/{target_symbol}.html")
     }
-    UrlResolveKinds::File(target_file) => {
+    UrlResolveKind::File(target_file) => {
       format!("{backs}./{target_file}/~/index.html")
     }
   }
@@ -102,6 +113,14 @@ pub struct GenerateCtx<'ctx> {
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
+  // @foo/bar
+  // /mod.ts -> file:///mod.ts
+
+  // "baz": "/mod.ts"
+
+  // @foo/bar/doc/mod.ts/~/symbol
+  // @foo/bar/doc/baz/~/symbol
+
   pub fn url_to_short_path(&self, url: &ModuleSpecifier) -> String {
     if url.scheme() != "file" {
       return url.to_string();
@@ -239,7 +258,7 @@ pub fn generate(
       doc_nodes_by_url,
     );
 
-    let index = render_index(
+    let index = pages::render_index(
       &ctx,
       options.main_entrypoint.as_ref(),
       doc_nodes_by_url,
@@ -255,8 +274,11 @@ pub fn generate(
     let partitions_by_kind =
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
-    let all_symbols_render =
-      render_all_symbols(&ctx, &partitions_by_kind, all_symbols.clone())?;
+    let all_symbols_render = pages::render_all_symbols(
+      &ctx,
+      &partitions_by_kind,
+      all_symbols.clone(),
+    )?;
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 
@@ -268,10 +290,14 @@ pub fn generate(
       let partitions_for_nodes =
         get_partitions_for_file(doc_nodes, &short_path);
 
-      let sidepanel_ctx =
-        sidepanel_render_ctx(&ctx, &partitions_for_nodes, &short_path);
+      files.extend(pages::generate_pages_for_file(
+        &ctx,
+        &partitions_for_nodes,
+        short_path.clone(),
+        doc_nodes,
+      )?);
 
-      let index = render_index(
+      let index = pages::render_index(
         &ctx,
         Some(specifier),
         doc_nodes_by_url,
@@ -291,13 +317,6 @@ pub fn generate(
         ),
         index,
       );
-
-      files.extend(generate_pages_for_file(
-        &ctx,
-        &sidepanel_ctx,
-        short_path,
-        doc_nodes,
-      )?);
     }
   }
 
@@ -332,7 +351,7 @@ pub fn get_partitions_for_file(
     namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
       .into_iter()
       .map(|(kind, nodes)| {
-        let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
+        let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
         (doc_node_kind_ctx.title.to_string(), nodes)
       })
       .collect()
@@ -365,7 +384,7 @@ pub fn get_partitions_for_specifier(
       namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
         .into_iter()
         .map(|(kind, nodes)| {
-          let doc_node_kind_ctx: util::DocNodeKindCtx = kind.into();
+          let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
           (doc_node_kind_ctx.title.to_string(), nodes)
         })
         .collect()
@@ -375,341 +394,6 @@ pub fn get_partitions_for_specifier(
   } else {
     Default::default()
   }
-}
-
-fn generate_pages_inner(
-  ctx: &GenerateCtx,
-  sidepanel_ctx: &SidepanelRenderCtx,
-  file: &str,
-  name_partitions: IndexMap<String, Vec<DocNode>>,
-  namespace_paths: Vec<String>,
-  all_symbols: NamespacedSymbols,
-) -> Result<Vec<(String, String)>, anyhow::Error> {
-  let mut generated_pages =
-    Vec::with_capacity(name_partitions.values().len() * 2);
-
-  for (name, doc_nodes) in name_partitions.iter() {
-    let file_name = if file.is_empty() { "." } else { file };
-    let file_name = if namespace_paths.is_empty() {
-      format!("{file_name}/~/{}.html", name)
-    } else {
-      format!("{file_name}/~/{}.{name}.html", namespace_paths.join("."))
-    };
-
-    let page = render_page(
-      ctx,
-      sidepanel_ctx,
-      &namespace_paths,
-      name,
-      doc_nodes,
-      all_symbols.clone(),
-      file,
-    )?;
-
-    generated_pages.push((file_name, page));
-
-    if let Some(doc_node) = doc_nodes
-      .iter()
-      .find(|doc_node| doc_node.kind == DocNodeKind::Namespace)
-    {
-      let namespace = doc_node.namespace_def.as_ref().unwrap();
-
-      let namespace_name_partitions =
-        partition_nodes_by_name(&namespace.elements);
-
-      let namespace_paths = {
-        let mut ns_paths = namespace_paths.clone();
-        ns_paths.push(name.to_string());
-        ns_paths
-      };
-
-      let generated = generate_pages_inner(
-        ctx,
-        sidepanel_ctx,
-        file,
-        namespace_name_partitions,
-        namespace_paths,
-        all_symbols.clone(),
-      )?;
-      generated_pages.extend_from_slice(&generated);
-    }
-  }
-
-  Ok(generated_pages)
-}
-
-fn generate_pages_for_file(
-  ctx: &GenerateCtx,
-  sidepanel_ctx: &SidepanelRenderCtx,
-  file: String,
-  doc_nodes: &[DocNode],
-) -> Result<Vec<(String, String)>, anyhow::Error> {
-  let name_partitions = partition_nodes_by_name(doc_nodes);
-  let all_symbols = NamespacedSymbols::new(doc_nodes);
-
-  generate_pages_inner(
-    ctx,
-    sidepanel_ctx,
-    &file,
-    name_partitions,
-    vec![],
-    all_symbols,
-  )
-}
-
-// TODO(bartlomieju): move a separate module?
-#[derive(Debug, Serialize, Clone)]
-struct HtmlHeadCtx {
-  title: String,
-  current_file: String,
-  stylesheet_url: String,
-  page_stylesheet_url: String,
-}
-
-#[derive(Debug, Serialize, Clone)]
-struct HtmlTailCtx {
-  url_search_index: String,
-  fuse_js: String,
-  url_search: String,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct SidepanelPartitionNodeCtx {
-  kind: DocNodeKindCtx,
-  name: String,
-  href: String,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct SidepanelPartitionCtx {
-  name: String,
-  symbols: Vec<SidepanelPartitionNodeCtx>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct IndexSidepanelFileCtx {
-  name: String,
-  href: String,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct IndexSidepanelCtx {
-  package_name: Option<String>,
-  root_url: String,
-  all_symbols_url: String,
-  kind_partitions: Vec<SidepanelPartitionCtx>,
-  files: Vec<IndexSidepanelFileCtx>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-struct IndexCtx {
-  html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
-  sidepanel_ctx: IndexSidepanelCtx,
-  module_doc: Option<ModuleDocCtx>,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct ModuleDocCtx {
-  url: String,
-  docs: String,
-}
-
-pub fn get_module_doc(
-  ctx: &GenerateCtx,
-  render_ctx: &RenderContext,
-  specifier: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-) -> Option<ModuleDocCtx> {
-  if let Some(main_entrypoint) = specifier {
-    let module_doc_nodes = doc_nodes_by_url.get(main_entrypoint).unwrap();
-
-    let docs = module_doc_nodes
-      .iter()
-      .find(|n| n.kind == DocNodeKind::ModuleDoc);
-
-    docs
-      .and_then(|node| node.js_doc.doc.as_ref())
-      .map(|docs_md| {
-        let rendered_docs = render_markdown(docs_md, render_ctx);
-
-        ModuleDocCtx {
-          url: ctx.url_to_short_path(main_entrypoint),
-          docs: rendered_docs,
-        }
-      })
-  } else {
-    None
-  }
-}
-
-pub fn get_index_sidepanel_ctx(
-  ctx: &GenerateCtx,
-  main_entrypoint: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-  current_file: &Option<String>,
-) -> IndexSidepanelCtx {
-  let files = doc_nodes_by_url
-    .keys()
-    .filter(|url| {
-      main_entrypoint
-        .map(|main_entrypoint| *url != main_entrypoint)
-        .unwrap_or(true)
-    })
-    .map(|url| {
-      let short_path = ctx.url_to_short_path(url);
-      IndexSidepanelFileCtx {
-        href: (ctx.url_resolver)(
-          current_file.as_deref(),
-          UrlResolveKinds::File(&short_path),
-        ),
-        name: short_path,
-      }
-    })
-    .collect::<Vec<_>>();
-
-  let kind_partitions = partitions
-    .into_iter()
-    .map(|(name, nodes)| {
-      let symbols = nodes
-        .into_iter()
-        .map(|node| SidepanelPartitionNodeCtx {
-          kind: node.doc_node.kind.into(),
-          href: (ctx.url_resolver)(
-            current_file.as_deref(),
-            UrlResolveKinds::Symbol {
-              target_file: node.origin.as_deref().unwrap(),
-              target_symbol: &node.doc_node.name,
-            },
-          ),
-          name: node.doc_node.name,
-        })
-        .collect::<Vec<_>>();
-      SidepanelPartitionCtx { name, symbols }
-    })
-    .collect::<Vec<_>>();
-
-  IndexSidepanelCtx {
-    package_name: ctx.package_name.clone(),
-    root_url: (ctx.url_resolver)(
-      current_file.as_deref(),
-      UrlResolveKinds::Root,
-    ),
-    all_symbols_url: (ctx.url_resolver)(
-      current_file.as_deref(),
-      UrlResolveKinds::AllSymbols,
-    ),
-    kind_partitions,
-    files,
-  }
-}
-
-fn render_index(
-  ctx: &GenerateCtx,
-  specifier: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
-  file: Option<String>,
-) -> Result<String, anyhow::Error> {
-  let sidepanel_ctx = get_index_sidepanel_ctx(
-    ctx,
-    specifier,
-    doc_nodes_by_url,
-    partitions,
-    &file,
-  );
-
-  let render_ctx = RenderContext::new(
-    ctx,
-    all_symbols,
-    specifier.map(|specifier| ctx.url_to_short_path(specifier)),
-  );
-
-  let module_doc =
-    get_module_doc(ctx, &render_ctx, specifier, doc_nodes_by_url);
-
-  let root = (ctx.url_resolver)(file.as_deref(), UrlResolveKinds::Root);
-
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!(
-      "Index - {}documentation",
-      ctx
-        .package_name
-        .as_ref()
-        .map(|package_name| format!("{package_name} "))
-        .unwrap_or_default()
-    ),
-    current_file: "".to_string(),
-    stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
-    page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
-    fuse_js: format!("{root}{FUSE_FILENAME}"),
-    url_search: format!("{root}{SEARCH_FILENAME}"),
-  };
-
-  let index_ctx = IndexCtx {
-    html_head_ctx,
-    html_tail_ctx,
-    sidepanel_ctx,
-    module_doc,
-    search_ctx: serde_json::Value::Null,
-  };
-
-  Ok(render_ctx.render("index.html", &index_ctx))
-}
-
-#[derive(Serialize)]
-struct AllSymbolsCtx {
-  html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
-  namespace_ctx: NamespaceRenderCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
-}
-
-fn render_all_symbols(
-  ctx: &GenerateCtx,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
-) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(ctx, all_symbols, None);
-  let namespace_ctx =
-    namespace::get_namespace_render_ctx(&render_ctx, partitions);
-
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!(
-      "All Symbols - {}documentation",
-      ctx
-        .package_name
-        .as_ref()
-        .map(|package_name| format!("{package_name} "))
-        .unwrap_or_default()
-    ),
-    current_file: "".to_string(),
-    stylesheet_url: format!("./{STYLESHEET_FILENAME}"),
-    page_stylesheet_url: format!("./{PAGE_STYLESHEET_FILENAME}"),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{SEARCH_INDEX_FILENAME}"),
-    fuse_js: format!("./{FUSE_FILENAME}"),
-    url_search: format!("./{SEARCH_FILENAME}"),
-  };
-  let all_symbols_ctx = AllSymbolsCtx {
-    html_head_ctx,
-    html_tail_ctx,
-    namespace_ctx,
-    search_ctx: serde_json::Value::Null,
-  };
-
-  Ok(render_ctx.render("all_symbols.html", &all_symbols_ctx))
 }
 
 pub fn partition_nodes_by_name(
@@ -735,115 +419,6 @@ pub fn partition_nodes_by_name(
   partitions.sort_by(|k1, _v1, k2, _v2| k1.cmp(k2));
 
   partitions
-}
-
-#[derive(Serialize)]
-struct PageCtx {
-  html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
-  sidepanel_ctx: SidepanelRenderCtx,
-  symbol_group_ctx: SymbolGroupCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
-}
-
-fn render_page(
-  ctx: &GenerateCtx,
-  sidepanel_ctx: &SidepanelRenderCtx,
-  namespace_paths: &[String],
-  name: &str,
-  doc_nodes: &[DocNode],
-  all_symbols: NamespacedSymbols,
-  file: &str,
-) -> Result<String, anyhow::Error> {
-  let mut render_ctx =
-    RenderContext::new(ctx, all_symbols, Some(file.to_string()));
-  if !namespace_paths.is_empty() {
-    render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
-  }
-
-  let namespaced_name = if namespace_paths.is_empty() {
-    name.to_string()
-  } else {
-    format!("{}.{}", namespace_paths.join("."), name)
-  };
-
-  // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group_ctx =
-    get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
-
-  let root = (ctx.url_resolver)(Some(file), UrlResolveKinds::Root);
-
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!(
-      "{} - {} documentation",
-      namespaced_name,
-      ctx
-        .package_name
-        .as_ref()
-        .map(|package_name| format!("{package_name} "))
-        .unwrap_or_default()
-    ),
-    current_file: file.to_string(),
-    stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
-    page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
-    fuse_js: format!("{root}{FUSE_FILENAME}"),
-    url_search: format!("{root}{SEARCH_FILENAME}"),
-  };
-  let page_ctx = PageCtx {
-    html_head_ctx,
-    html_tail_ctx,
-    sidepanel_ctx: sidepanel_ctx.clone(),
-    symbol_group_ctx,
-    search_ctx: serde_json::Value::Null,
-  };
-
-  Ok(render_ctx.render("page.html", &page_ctx))
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct SidepanelRenderCtx {
-  package_name: Option<String>,
-  partitions: Vec<SidepanelPartitionCtx>,
-}
-
-pub fn sidepanel_render_ctx(
-  ctx: &GenerateCtx,
-  partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
-  file: &str,
-) -> SidepanelRenderCtx {
-  let partitions = partitions
-    .into_iter()
-    .map(|(name, nodes)| {
-      let symbols = nodes
-        .iter()
-        .map(|node| SidepanelPartitionNodeCtx {
-          kind: node.doc_node.kind.into(),
-          href: (ctx.url_resolver)(
-            Some(file),
-            UrlResolveKinds::Symbol {
-              target_file: node.origin.as_deref().unwrap(),
-              target_symbol: &node.doc_node.name,
-            },
-          ),
-          name: node.doc_node.name.clone(),
-        })
-        .collect::<Vec<_>>();
-      SidepanelPartitionCtx {
-        name: name.clone(),
-        symbols,
-      }
-    })
-    .collect();
-
-  SidepanelRenderCtx {
-    package_name: ctx.package_name.clone(),
-    partitions,
-  }
 }
 
 fn find_common_ancestor<'a>(

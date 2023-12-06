@@ -8,54 +8,52 @@ use serde_json::json;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Clone)]
-pub struct SymbolGroupCtx {
-  name: String,
-  symbols: Vec<SymbolCtx>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct SymbolCtx {
+struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   subtitle: Option<String>,
   body: String,
 }
 
-pub fn get_symbol_group_ctx(
-  ctx: &RenderContext,
-  doc_nodes: &[DocNode],
-  name: &str,
-) -> SymbolGroupCtx {
-  let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
-  // TODO(bartlomieju): I'm not sure what this meant to do
-  // let mut is_reexport = false;
+#[derive(Debug, Serialize, Clone)]
+pub struct SymbolGroupCtx {
+  name: String,
+  symbols: Vec<SymbolCtx>,
+}
 
-  for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::Import {
-      // TODO(bartlomieju): I'm not sure what this meant to do
-      // is_reexport = true;
-      continue;
+impl SymbolGroupCtx {
+  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Self {
+    let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
+    // TODO(bartlomieju): I'm not sure what this meant to do
+    // let mut is_reexport = false;
+
+    for doc_node in doc_nodes {
+      if doc_node.kind == DocNodeKind::Import {
+        // TODO(bartlomieju): I'm not sure what this meant to do
+        // is_reexport = true;
+        continue;
+      }
+
+      split_nodes
+        .entry(doc_node.kind)
+        .or_insert(vec![])
+        .push(doc_node.clone());
     }
 
-    split_nodes
-      .entry(doc_node.kind)
-      .or_insert(vec![])
-      .push(doc_node.clone());
-  }
+    // TODO: property drilldown
 
-  // TODO: property drilldown
+    let symbols = split_nodes
+      .values()
+      .map(|doc_nodes| SymbolCtx {
+        kind: doc_nodes[0].kind.into(),
+        subtitle: doc_block_subtitle(ctx, &doc_nodes[0]),
+        body: doc_block(ctx, doc_nodes, name),
+      })
+      .collect();
 
-  let symbols = split_nodes
-    .values()
-    .map(|doc_nodes| SymbolCtx {
-      kind: doc_nodes[0].kind.into(),
-      subtitle: doc_block_subtitle(ctx, &doc_nodes[0]),
-      body: doc_block(ctx, doc_nodes, name),
-    })
-    .collect();
-
-  SymbolGroupCtx {
-    name: name.to_string(),
-    symbols,
+    SymbolGroupCtx {
+      name: name.to_string(),
+      symbols,
+    }
   }
 }
 
