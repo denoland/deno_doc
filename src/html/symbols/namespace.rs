@@ -206,15 +206,16 @@ fn get_namespace_section_render_ctx(
         name = format!("{}.{}", ns_parts.join("."), doc_node.name);
       }
 
+      let current_resolve = ctx.get_current_resolve();
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: doc_node.kind.into(),
         origin: origin.clone(),
         href: (ctx.url_resolver)(
-          ctx.get_current_resolve(),
+          current_resolve,
           crate::html::UrlResolveKind::Symbol {
             file: origin
               .as_deref()
-              .or_else(|| ctx.get_current_file())
+              .or_else(|| current_resolve.get_file())
               .unwrap(),
             symbol: &name,
           },

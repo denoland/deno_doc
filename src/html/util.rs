@@ -1,7 +1,8 @@
 use crate::html::UrlResolveKind;
 use crate::DocNodeKind;
 use serde::Serialize;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
@@ -91,18 +92,14 @@ pub struct RenderContext<'ctx> {
   global_symbols: NamespacedGlobalSymbols,
   global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: super::UrlResolver,
-  current_file: Option<String>,
-  current_symbol: Option<String>,
-  current_resolve: Option<UrlResolveKind<'ctx>>,
+  current_resolve: UrlResolveKind<'ctx>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     ctx: &super::GenerateCtx<'ctx>,
     all_symbols: NamespacedSymbols,
-    current_file: Option<String>,
-    current_symbol: Option<String>,
-    current_resolve: Option<UrlResolveKind<'ctx>>,
+    current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {
     Self {
       tt: ctx.tt.clone(),
@@ -112,8 +109,6 @@ impl<'ctx> RenderContext<'ctx> {
       global_symbols: ctx.global_symbols.clone(),
       global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
       url_resolver: ctx.url_resolver.clone(),
-      current_file,
-      current_symbol,
       current_resolve,
     }
   }
@@ -135,29 +130,10 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  pub fn with_file(&self, current_file: Option<String>) -> Self {
-    Self {
-      current_file,
-      ..self.clone()
-    }
-  }
-
-  pub fn with_symbol(&self, current_symbol: Option<String>) -> Self {
-    Self {
-      current_symbol,
-      ..self.clone()
-    }
-  }
-
   pub fn with_current_resolve(
     &self,
-    current_resolve: Option<UrlResolveKind<'ctx>>,
+    current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {
-    assert!(matches!(
-      current_resolve,
-      None | Some(UrlResolveKind::Root) | Some(UrlResolveKind::AllSymbols)
-    ));
-
     Self {
       current_resolve,
       ..self.clone()
@@ -180,21 +156,8 @@ impl<'ctx> RenderContext<'ctx> {
     self.namespace_parts.clone()
   }
 
-  pub fn get_current_file(&self) -> Option<&str> {
-    self.current_file.as_deref()
-  }
-
-  pub fn get_current_symbol(&self) -> Option<&str> {
-    self.current_symbol.as_deref()
-  }
-
   pub fn get_current_resolve(&self) -> UrlResolveKind {
-    match (self.get_current_file(), self.get_current_symbol()) {
-      (Some(file), Some(symbol)) => UrlResolveKind::Symbol { file, symbol },
-      (Some(file), None) => UrlResolveKind::File(file),
-      (None, None) => self.current_resolve.clone().unwrap(),
-      _ => unreachable!(),
-    }
+    self.current_resolve
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
@@ -213,7 +176,7 @@ impl<'ctx> RenderContext<'ctx> {
           return Some((self.url_resolver)(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
-              file: self.current_file.as_deref().unwrap(),
+              file: self.get_current_resolve().get_file().unwrap(),
               symbol: &current_parts.join("."),
             },
           ));
@@ -227,7 +190,7 @@ impl<'ctx> RenderContext<'ctx> {
       return Some((self.url_resolver)(
         self.get_current_resolve(),
         UrlResolveKind::Symbol {
-          file: self.get_current_file().unwrap_or_default(), // TODO
+          file: self.get_current_resolve().get_file().unwrap_or_default(), // TODO
           symbol: &target_symbol_parts.join("."),
         },
       ));

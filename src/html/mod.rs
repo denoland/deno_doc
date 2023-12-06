@@ -44,12 +44,23 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
   File(&'a str),
   Symbol { file: &'a str, symbol: &'a str },
+}
+
+impl UrlResolveKind<'_> {
+  fn get_file(&self) -> Option<&str> {
+    match self {
+      UrlResolveKind::Root => None,
+      UrlResolveKind::AllSymbols => None,
+      UrlResolveKind::File(file) => Some(file),
+      UrlResolveKind::Symbol { file, .. } => Some(file),
+    }
+  }
 }
 
 /// Arguments are current and target
@@ -642,15 +653,15 @@ fn render_index(
     &file,
   );
 
+  let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
+
   let render_ctx = RenderContext::new(
     ctx,
     all_symbols,
-    specifier.map(|specifier| ctx.url_to_short_path(specifier)),
-    None,
-    if specifier.is_none() {
-      Some(UrlResolveKind::Root)
+    if let Some(short_path) = &short_path {
+      UrlResolveKind::File(short_path)
     } else {
-      None
+      UrlResolveKind::Root
     },
   );
 
@@ -709,13 +720,8 @@ fn render_all_symbols(
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(
-    ctx,
-    all_symbols,
-    None,
-    None,
-    Some(UrlResolveKind::AllSymbols),
-  );
+  let render_ctx =
+    RenderContext::new(ctx, all_symbols, UrlResolveKind::AllSymbols);
   let namespace_ctx =
     namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -801,9 +807,10 @@ fn render_page(
   let mut render_ctx = RenderContext::new(
     ctx,
     all_symbols,
-    Some(file.to_string()),
-    Some(namespaced_name.clone()),
-    None,
+    UrlResolveKind::Symbol {
+      file,
+      symbol: &namespaced_name,
+    },
   );
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
