@@ -1,6 +1,11 @@
 use super::util::*;
+use crate::html::GenerateCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
+use crate::DocNode;
+use crate::DocNodeKind;
+use deno_ast::ModuleSpecifier;
+use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
 
@@ -253,4 +258,40 @@ pub(crate) fn render_doc_entry(
       "jsdoc": maybe_jsdoc,
     }),
   )
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ModuleDocCtx {
+  url: String,
+  docs: String,
+}
+
+impl ModuleDocCtx {
+  pub fn new(
+    ctx: &GenerateCtx,
+    render_ctx: &RenderContext,
+    specifier: Option<&ModuleSpecifier>,
+    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ) -> Option<Self> {
+    if let Some(main_entrypoint) = specifier {
+      let module_doc_nodes = doc_nodes_by_url.get(main_entrypoint).unwrap();
+
+      let docs = module_doc_nodes
+        .iter()
+        .find(|n| n.kind == DocNodeKind::ModuleDoc);
+
+      docs
+        .and_then(|node| node.js_doc.doc.as_ref())
+        .map(|docs_md| {
+          let rendered_docs = render_markdown(docs_md, render_ctx);
+
+          Self {
+            url: ctx.url_to_short_path(main_entrypoint),
+            docs: rendered_docs,
+          }
+        })
+    } else {
+      None
+    }
+  }
 }
