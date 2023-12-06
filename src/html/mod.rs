@@ -44,36 +44,34 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
-  Symbol {
-    target_file: &'a str,
-    target_symbol: &'a str,
-  },
   File(&'a str),
+  Symbol { file: &'a str, symbol: &'a str },
 }
 
-/// Arguments are current_file, current_symbol, and target
-pub type UrlResolver =
-  Rc<dyn Fn(Option<&str>, Option<&str>, UrlResolveKind) -> String>;
+/// Arguments are current and target
+pub type UrlResolver = Rc<dyn Fn(UrlResolveKind, UrlResolveKind) -> String>;
 
 pub fn default_url_resolver(
-  current_file: Option<&str>,
-  _current_symbol: Option<&str>,
+  current: UrlResolveKind,
   resolve: UrlResolveKind,
 ) -> String {
-  let backs = current_file
-    .map(|current_file| "../".repeat(current_file.split('.').count() + 1))
-    .unwrap_or_default();
+  let backs = match current {
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => {
+      "../".repeat(file.split('.').count() + 1)
+    }
+    UrlResolveKind::Root | UrlResolveKind::AllSymbols => String::new(),
+  };
 
   match resolve {
     UrlResolveKind::Root => backs,
     UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
     UrlResolveKind::Symbol {
-      target_file,
-      target_symbol,
+      file: target_file,
+      symbol: target_symbol,
     } => {
       format!("{backs}./{target_file}/~/{target_symbol}.html")
     }
@@ -576,8 +574,9 @@ pub fn get_index_sidepanel_ctx(
       let short_path = ctx.url_to_short_path(url);
       IndexSidepanelFileCtx {
         href: (ctx.url_resolver)(
-          current_file.as_deref(),
-          None,
+          current_file
+            .as_deref()
+            .map_or(UrlResolveKind::Root, UrlResolveKind::File),
           UrlResolveKind::File(&short_path),
         ),
         name: short_path,
@@ -593,11 +592,12 @@ pub fn get_index_sidepanel_ctx(
         .map(|node| SidepanelPartitionNodeCtx {
           kind: node.doc_node.kind.into(),
           href: (ctx.url_resolver)(
-            current_file.as_deref(),
-            None,
+            current_file
+              .as_deref()
+              .map_or(UrlResolveKind::Root, UrlResolveKind::File),
             UrlResolveKind::Symbol {
-              target_file: node.origin.as_deref().unwrap(),
-              target_symbol: &node.doc_node.name,
+              file: node.origin.as_deref().unwrap(),
+              symbol: &node.doc_node.name,
             },
           ),
           name: node.doc_node.name,
@@ -610,13 +610,15 @@ pub fn get_index_sidepanel_ctx(
   IndexSidepanelCtx {
     package_name: ctx.package_name.clone(),
     root_url: (ctx.url_resolver)(
-      current_file.as_deref(),
-      None,
+      current_file
+        .as_deref()
+        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
       UrlResolveKind::Root,
     ),
     all_symbols_url: (ctx.url_resolver)(
-      current_file.as_deref(),
-      None,
+      current_file
+        .as_deref()
+        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
       UrlResolveKind::AllSymbols,
     ),
     kind_partitions,
@@ -645,12 +647,22 @@ fn render_index(
     all_symbols,
     specifier.map(|specifier| ctx.url_to_short_path(specifier)),
     None,
+    if specifier.is_none() {
+      Some(UrlResolveKind::Root)
+    } else {
+      None
+    },
   );
 
   let module_doc =
     get_module_doc(ctx, &render_ctx, specifier, doc_nodes_by_url);
 
-  let root = (ctx.url_resolver)(file.as_deref(), None, UrlResolveKind::Root);
+  let root = (ctx.url_resolver)(
+    file
+      .as_deref()
+      .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+    UrlResolveKind::Root,
+  );
 
   // TODO(bartlomieju): dedup with `render_page`
   let html_head_ctx = HtmlHeadCtx {
@@ -697,7 +709,13 @@ fn render_all_symbols(
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
-  let render_ctx = RenderContext::new(ctx, all_symbols, None, None);
+  let render_ctx = RenderContext::new(
+    ctx,
+    all_symbols,
+    None,
+    None,
+    Some(UrlResolveKind::AllSymbols),
+  );
   let namespace_ctx =
     namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -785,6 +803,7 @@ fn render_page(
     all_symbols,
     Some(file.to_string()),
     Some(namespaced_name.clone()),
+    None,
   );
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
@@ -795,8 +814,10 @@ fn render_page(
     get_symbol_group_ctx(&render_ctx, doc_nodes, &namespaced_name);
 
   let root = (ctx.url_resolver)(
-    Some(file),
-    Some(&namespaced_name),
+    UrlResolveKind::Symbol {
+      file,
+      symbol: &namespaced_name,
+    },
     UrlResolveKind::Root,
   );
 
@@ -851,11 +872,10 @@ pub fn sidepanel_render_ctx(
         .map(|node| SidepanelPartitionNodeCtx {
           kind: node.doc_node.kind.into(),
           href: (ctx.url_resolver)(
-            Some(file),
-            Some(symbol),
+            UrlResolveKind::Symbol { file, symbol },
             UrlResolveKind::Symbol {
-              target_file: node.origin.as_deref().unwrap(),
-              target_symbol: &node.doc_node.name,
+              file: node.origin.as_deref().unwrap(),
+              symbol: &node.doc_node.name,
             },
           ),
           name: node.doc_node.name.clone(),

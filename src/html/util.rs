@@ -1,3 +1,4 @@
+use crate::html::UrlResolveKind;
 use crate::DocNodeKind;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -92,6 +93,7 @@ pub struct RenderContext<'ctx> {
   pub url_resolver: super::UrlResolver,
   current_file: Option<String>,
   current_symbol: Option<String>,
+  current_resolve: Option<UrlResolveKind<'ctx>>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -100,6 +102,7 @@ impl<'ctx> RenderContext<'ctx> {
     all_symbols: NamespacedSymbols,
     current_file: Option<String>,
     current_symbol: Option<String>,
+    current_resolve: Option<UrlResolveKind<'ctx>>,
   ) -> Self {
     Self {
       tt: ctx.tt.clone(),
@@ -111,6 +114,7 @@ impl<'ctx> RenderContext<'ctx> {
       url_resolver: ctx.url_resolver.clone(),
       current_file,
       current_symbol,
+      current_resolve,
     }
   }
 
@@ -131,9 +135,31 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_file(&self, current_file: Option<String>) -> Self {
+    Self {
+      current_file,
+      ..self.clone()
+    }
+  }
+
   pub fn with_symbol(&self, current_symbol: Option<String>) -> Self {
     Self {
       current_symbol,
+      ..self.clone()
+    }
+  }
+
+  pub fn with_current_resolve(
+    &self,
+    current_resolve: Option<UrlResolveKind<'ctx>>,
+  ) -> Self {
+    assert!(matches!(
+      current_resolve,
+      None | Some(UrlResolveKind::Root) | Some(UrlResolveKind::AllSymbols)
+    ));
+
+    Self {
+      current_resolve,
       ..self.clone()
     }
   }
@@ -162,6 +188,15 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_symbol.as_deref()
   }
 
+  pub fn get_current_resolve(&self) -> UrlResolveKind {
+    match (self.get_current_file(), self.get_current_symbol()) {
+      (Some(file), Some(symbol)) => UrlResolveKind::Symbol { file, symbol },
+      (Some(file), None) => UrlResolveKind::File(file),
+      (None, None) => self.current_resolve.clone().unwrap(),
+      _ => unreachable!(),
+    }
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     let target_symbol_parts = target_symbol
       .split('.')
@@ -176,11 +211,10 @@ impl<'ctx> RenderContext<'ctx> {
 
         if self.all_symbols.contains(&current_parts) {
           return Some((self.url_resolver)(
-            self.get_current_file(),
-            self.get_current_symbol(),
-            super::UrlResolveKind::Symbol {
-              target_file: self.current_file.as_deref().unwrap(),
-              target_symbol: &current_parts.join("."),
+            self.get_current_resolve(),
+            UrlResolveKind::Symbol {
+              file: self.current_file.as_deref().unwrap(),
+              symbol: &current_parts.join("."),
             },
           ));
         }
@@ -191,11 +225,10 @@ impl<'ctx> RenderContext<'ctx> {
 
     if self.all_symbols.contains(&target_symbol_parts) {
       return Some((self.url_resolver)(
-        self.get_current_file(),
-        self.get_current_symbol(),
-        super::UrlResolveKind::Symbol {
-          target_file: self.get_current_file().unwrap_or_default(), // TODO
-          target_symbol: &target_symbol_parts.join("."),
+        self.get_current_resolve(),
+        UrlResolveKind::Symbol {
+          file: self.get_current_file().unwrap_or_default(), // TODO
+          symbol: &target_symbol_parts.join("."),
         },
       ));
     }

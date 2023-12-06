@@ -210,14 +210,13 @@ fn get_namespace_section_render_ctx(
         doc_node_kind_ctx: doc_node.kind.into(),
         origin: origin.clone(),
         href: (ctx.url_resolver)(
-          ctx.get_current_file(),
-          ctx.get_current_symbol(),
+          ctx.get_current_resolve(),
           crate::html::UrlResolveKind::Symbol {
-            target_file: origin
+            file: origin
               .as_deref()
               .or_else(|| ctx.get_current_file())
               .unwrap(),
-            target_symbol: &name,
+            symbol: &name,
           },
         ),
         name,
