@@ -400,7 +400,6 @@ dependencies = [
  "cfg-if",
  "clap 2.34.0",
  "comrak",
- "console_error_panic_hook",
  "criterion",
  "deno_ast",
  "deno_graph",
@@ -408,16 +407,29 @@ dependencies = [
  "html-escape",
  "import_map",
  "indexmap 2.0.2",
- "js-sys",
  "lazy_static",
  "pretty_assertions",
  "regex",
  "serde",
- "serde-wasm-bindgen",
  "serde_json",
  "termcolor",
  "tinytemplate",
  "tokio",
+]
+
+[[package]]
+name = "deno_doc_wasm"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "console_error_panic_hook",
+ "deno_doc",
+ "deno_graph",
+ "import_map",
+ "js-sys",
+ "pretty_assertions",
+ "serde",
+ "serde-wasm-bindgen",
  "wasm-bindgen",
  "wasm-bindgen-futures",
 ]

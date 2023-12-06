@@ -2,9 +2,8 @@
 // https://github.com/rustwasm/wasm-bindgen/issues/2774
 #![allow(clippy::unused_unit)]
 
-use crate::parser::DocParser;
-
 use anyhow::anyhow;
+use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
@@ -205,7 +204,7 @@ async fn inner_doc(
   let entries = DocParser::new(
     &graph,
     parser,
-    crate::parser::DocParserOptions {
+    deno_doc::DocParserOptions {
       diagnostics: false,
       private: include_all,
     },
