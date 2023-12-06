@@ -7,6 +7,14 @@ authors = ["the Deno authors"]
 license = "MIT"
 repository = "https://github.com/denoland/deno_doc"
 
+[workspace]
+members = ["lib"]
+
+[workspace.dependencies]
+deno_graph = { version = "0.62.0", features = ["symbols"] }
+import_map = "0.18.0"
+serde = { version = "1.0.140", features = ["derive"] }
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 name = "deno_doc"
@@ -19,21 +27,15 @@ required-features = ["html"]
 anyhow = "1.0.58"
 cfg-if = "1.0.0"
 deno_ast = "0.31.5"
-deno_graph = { version = "0.62.0", features = ["symbols"] }
+deno_graph.workspace = true
 indexmap = "2.0.2"
 futures = "0.3.26"
-import_map = "0.18.0"
+import_map.workspace = true
 lazy_static = "1.4.0"
 regex = "1.6.0"
-serde = { version = "1.0.140", features = ["derive"] }
+serde.workspace = true
 serde_json = { version = "1.0.82", features = [ "preserve_order" ] }
 termcolor = "1.1.2"
-
-console_error_panic_hook = { version = "0.1.7", optional = true }
-js-sys = { version = "=0.3.64", optional = true }
-serde-wasm-bindgen = { version = "=0.5.0", optional = true }
-wasm-bindgen = { version = "=0.2.87", optional = true }
-wasm-bindgen-futures = { version = "=0.4.37", optional = true }
 
 html-escape = { version = "0.2.13", optional = true }
 comrak = { version = "0.19.0", optional = true, default-features = false }
@@ -47,10 +49,9 @@ tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
 [features]
-default = ["rust"]
+default = ["html", "rust"]
 rust = []
 html = ["html-escape", "comrak", "tinytemplate"]
-wasm = ["js-sys", "serde-wasm-bindgen", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
 
 [profile.release]
 codegen-units = 1

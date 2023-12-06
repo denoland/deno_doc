@@ -1,0 +1,30 @@
+[package]
+name = "deno_doc_wasm"
+version = "0.0.0"
+edition = "2021"
+homepage = "https://deno.land/"
+repository = "https://github.com/denoland/deno_doc"
+documentation = "https://docs.rs/deno_doc"
+authors = ["the Deno authors"]
+license = "MIT"
+
+[lib]
+name = "deno_doc_wasm"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0.43"
+deno_graph.workspace = true
+deno_doc = { path = "../", default-features = false }
+import_map.workspace = true
+serde.workspace = true
+
+console_error_panic_hook = "0.1.7"
+js-sys = "=0.3.66"
+serde-wasm-bindgen = "=0.5.0"
+wasm-bindgen = "=0.2.89"
+wasm-bindgen-futures = "=0.4.39"
+
+[dev-dependencies]
+pretty_assertions = "1.0.0"

@@ -219,7 +219,7 @@ pub fn generate(
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
 
-  let common_ancestor = find_common_ancestor(doc_nodes_by_url, true);
+  let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
   let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
@@ -421,24 +421,21 @@ pub fn partition_nodes_by_name(
   partitions
 }
 
-pub fn find_common_ancestor(
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+fn find_common_ancestor<'a>(
+  urls: impl Iterator<Item = &'a ModuleSpecifier>,
   single_file_is_common_ancestor: bool,
 ) -> Option<PathBuf> {
-  let paths: Vec<PathBuf> = doc_nodes_by_url
-    .keys()
+  let paths: Vec<PathBuf> = urls
     .filter_map(|url| {
       if url.scheme() == "file" {
-        Some(url.to_file_path().unwrap())
+        url.to_file_path().ok()
       } else {
         None
       }
     })
     .collect();
 
-  assert!(!paths.is_empty());
-
-  if paths.len() == 1 && !single_file_is_common_ancestor {
+  if paths.is_empty() || paths.len() == 1 && !single_file_is_common_ancestor {
     return None;
   }
 
@@ -466,5 +463,81 @@ pub fn find_common_ancestor(
     None
   } else {
     Some(common_ancestor)
+  }
+}
+
+#[cfg(test)]
+mod test {
+  use super::*;
+
+  #[cfg(not(windows))]
+  #[test]
+  fn common_ancestor_root() {
+    run_common_ancestor_test(
+      &[
+        "file:///bytes.ts",
+        "file:///colors.ts",
+        "file:///duration.ts",
+        "file:///printf.ts",
+      ],
+      false,
+      None,
+    );
+  }
+
+  #[test]
+  fn common_ancestor_single_file() {
+    run_common_ancestor_test(&["file:///a/a.ts"], false, None);
+  }
+
+  #[test]
+  fn common_ancestor_multiple_files() {
+    run_common_ancestor_test(
+      &["file:///a/a.ts", "file:///a/b.ts"],
+      false,
+      Some("file:///a/"),
+    );
+  }
+
+  #[test]
+  fn common_ancestor_single_file_single_mode() {
+    run_common_ancestor_test(&["file:///a/a.ts"], true, Some("file:///a/a.ts"));
+  }
+
+  #[test]
+  fn common_ancestor_multiple_file_single_mode() {
+    run_common_ancestor_test(
+      &["file:///a/a.ts", "file:///a/b.ts"],
+      true,
+      Some("file:///a/"),
+    );
+  }
+
+  #[track_caller]
+  fn run_common_ancestor_test(
+    specifiers: &[&str],
+    single_file_is_common_ancestor: bool,
+    expected: Option<&str>,
+  ) {
+    let map = specifiers
+      .iter()
+      .map(|specifier| normalize_specifier(specifier))
+      .collect::<Vec<_>>();
+
+    let common_ancestor =
+      find_common_ancestor(map.iter(), single_file_is_common_ancestor);
+    assert_eq!(
+      common_ancestor,
+      expected.map(|e| normalize_specifier(e).to_file_path().unwrap()),
+    );
+  }
+
+  fn normalize_specifier(specifier: &str) -> ModuleSpecifier {
+    if cfg!(windows) {
+      ModuleSpecifier::parse(&specifier.replace("file:///", "file:///c:/"))
+        .unwrap()
+    } else {
+      ModuleSpecifier::parse(specifier).unwrap()
+    }
   }
 }

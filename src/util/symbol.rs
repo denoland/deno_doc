@@ -5,9 +5,9 @@ use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
 
+use crate::parser::DocError;
 use crate::util::swc::has_ignorable_js_doc_tag;
 use crate::util::swc::js_doc_for_range_include_ignore;
-use crate::DocError;
 
 pub fn get_module_info<'a>(
   root_symbol: &'a deno_graph::symbols::RootSymbol,

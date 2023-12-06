@@ -1,7 +1,8 @@
 /target
-/js/deno_doc_bg.wasm
-/js/deno_doc.generated.js
+/js/deno_doc_wasm_bg.wasm
+/js/deno_doc_wasm.generated.js
 /js/LICENSE
+.vscode
 
 # IDE
 /.idea

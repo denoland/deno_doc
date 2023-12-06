@@ -3,7 +3,7 @@
 use deno_ast::ModuleSpecifier;
 use deno_graph::ModuleGraph;
 
-use crate::DocError;
+use crate::parser::DocError;
 
 /// Resolve a deno_graph module redirecting to the types dependency if available.
 pub fn resolve_deno_graph_module<'a>(

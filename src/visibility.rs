@@ -1,9 +1,9 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
+use crate::parser::DocError;
 use crate::util::graph::resolve_deno_graph_module;
 use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
-use crate::DocError;
 
 use deno_ast::SourceRange;
 use deno_graph::symbols::DefinitionPath;

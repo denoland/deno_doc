@@ -44,23 +44,17 @@ cfg_if! {
     mod printer;
     pub use diagnostics::DocDiagnostic;
     pub use diagnostics::DocDiagnosticKind;
-    pub use parser::DocError;
-    pub use parser::DocParser;
-    pub use parser::DocParserOptions;
     pub use printer::DocPrinter;
   }
 }
 
+pub use parser::DocError;
+pub use parser::DocParser;
+pub use parser::DocParserOptions;
+
 cfg_if! {
   if #[cfg(feature = "html")] {
     pub mod html;
-  }
-}
-
-cfg_if! {
-  if #[cfg(feature = "wasm")] {
-    mod js;
-    pub use js::doc;
   }
 }
 
