@@ -1,11 +1,11 @@
 # mod.ts
 /** Namespace JSdoc */
 declare namespace RootNs {
-    declare const a = "a";
+    const a = "a";
 
     /** Nested namespace JSDoc */
-    declare namespace NestedNs {
-      declare enum Foo {
+    namespace NestedNs {
+      enum Foo {
         a = 1,
         b = 2,
         c = 3,
@@ -15,7 +15,7 @@ declare namespace RootNs {
 
 # diagnostics
 [
-  "file:///mod.ts:3:19 Missing JSDoc comment.",
+  "file:///mod.ts:3:11 Missing JSDoc comment.",
   "file:///mod.ts:7:7 Missing JSDoc comment."
 ]
 
@@ -52,9 +52,9 @@ namespace RootNs
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
-            "col": 18
+            "col": 10
           },
-          "declarationKind": "declare",
+          "declarationKind": "export",
           "variableDef": {
             "tsType": {
               "repr": "a",
@@ -75,7 +75,7 @@ namespace RootNs
             "line": 6,
             "col": 4
           },
-          "declarationKind": "declare",
+          "declarationKind": "export",
           "jsDoc": {
             "doc": "Nested namespace JSDoc"
           },
@@ -89,7 +89,7 @@ namespace RootNs
                   "line": 7,
                   "col": 6
                 },
-                "declarationKind": "declare",
+                "declarationKind": "export",
                 "enumDef": {
                   "members": [
                     {
