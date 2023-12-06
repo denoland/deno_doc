@@ -412,9 +412,9 @@ fn generate_pages_inner(
     let file_name = format!("{file_name}/~/{namespaced_name}.html");
 
     let sidepanel_ctx = sidepanel_render_ctx(
-      &ctx,
-      &partitions_for_nodes,
-      &short_path,
+      ctx,
+      partitions_for_nodes,
+      short_path,
       &namespaced_name,
     );
 
