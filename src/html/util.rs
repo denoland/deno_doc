@@ -1,6 +1,8 @@
+use crate::html::UrlResolveKind;
 use crate::DocNodeKind;
 use serde::Serialize;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::rc::Rc;
 use tinytemplate::TinyTemplate;
 
@@ -90,14 +92,14 @@ pub struct RenderContext<'ctx> {
   global_symbols: NamespacedGlobalSymbols,
   global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: super::UrlResolver,
-  current_file: Option<String>,
+  current_resolve: UrlResolveKind<'ctx>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     ctx: &super::GenerateCtx<'ctx>,
     all_symbols: NamespacedSymbols,
-    current_file: Option<String>,
+    current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {
     Self {
       tt: ctx.tt.clone(),
@@ -107,7 +109,7 @@ impl<'ctx> RenderContext<'ctx> {
       global_symbols: ctx.global_symbols.clone(),
       global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
       url_resolver: ctx.url_resolver.clone(),
-      current_file,
+      current_resolve,
     }
   }
 
@@ -128,6 +130,16 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_current_resolve(
+    &self,
+    current_resolve: UrlResolveKind<'ctx>,
+  ) -> Self {
+    Self {
+      current_resolve,
+      ..self.clone()
+    }
+  }
+
   #[track_caller]
   pub fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
   where
@@ -144,8 +156,8 @@ impl<'ctx> RenderContext<'ctx> {
     self.namespace_parts.clone()
   }
 
-  pub fn get_current_file(&self) -> Option<&str> {
-    self.current_file.as_deref()
+  pub fn get_current_resolve(&self) -> UrlResolveKind {
+    self.current_resolve
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
@@ -162,10 +174,10 @@ impl<'ctx> RenderContext<'ctx> {
 
         if self.all_symbols.contains(&current_parts) {
           return Some((self.url_resolver)(
-            self.current_file.as_deref(),
-            super::UrlResolveKinds::Symbol {
-              target_file: self.current_file.as_deref().unwrap(),
-              target_symbol: &current_parts.join("."),
+            self.get_current_resolve(),
+            UrlResolveKind::Symbol {
+              file: self.get_current_resolve().get_file().unwrap(),
+              symbol: &current_parts.join("."),
             },
           ));
         }
@@ -176,10 +188,10 @@ impl<'ctx> RenderContext<'ctx> {
 
     if self.all_symbols.contains(&target_symbol_parts) {
       return Some((self.url_resolver)(
-        self.current_file.as_deref(),
-        super::UrlResolveKinds::Symbol {
-          target_file: self.current_file.as_deref().unwrap_or_default(), // TODO
-          target_symbol: &target_symbol_parts.join("."),
+        self.get_current_resolve(),
+        UrlResolveKind::Symbol {
+          file: self.get_current_resolve().get_file().unwrap_or_default(), // TODO
+          symbol: &target_symbol_parts.join("."),
         },
       ));
     }
