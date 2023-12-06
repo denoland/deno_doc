@@ -1,6 +1,5 @@
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
-use serde::Serialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;

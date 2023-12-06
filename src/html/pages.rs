@@ -6,6 +6,12 @@ use super::NamespacedSymbols;
 use super::RenderContext;
 use super::UrlResolveKind;
 
+use super::FUSE_FILENAME;
+use super::PAGE_STYLESHEET_FILENAME;
+use super::SEARCH_FILENAME;
+use super::SEARCH_INDEX_FILENAME;
+use super::STYLESHEET_FILENAME;
+
 use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
