@@ -12,21 +12,21 @@ mod jsdoc;
 mod pages;
 mod parameters;
 mod search;
-mod sidepanels;
+pub mod sidepanels;
 mod symbol;
 mod symbols;
 mod types;
 mod util;
 
+pub use jsdoc::ModuleDocCtx;
 pub use search::generate_search_index;
 pub use symbol::SymbolGroupCtx;
-
-pub use self::symbols::namespace;
-pub use self::util::DocNodeKindCtx;
-pub use self::util::GlobalSymbolHrefResolver;
-pub use self::util::NamespacedGlobalSymbols;
-pub use self::util::NamespacedSymbols;
-pub use self::util::RenderContext;
+pub use symbols::namespace;
+pub use util::DocNodeKindCtx;
+pub use util::GlobalSymbolHrefResolver;
+pub use util::NamespacedGlobalSymbols;
+pub use util::NamespacedSymbols;
+pub use util::RenderContext;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -101,6 +101,7 @@ pub struct GenerateOptions {
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: UrlResolver,
+  pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
 }
 
 pub struct GenerateCtx<'ctx> {
@@ -110,18 +111,19 @@ pub struct GenerateCtx<'ctx> {
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: UrlResolver,
+  pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
-  // @foo/bar
-  // /mod.ts -> file:///mod.ts
-
-  // "baz": "/mod.ts"
-
-  // @foo/bar/doc/mod.ts/~/symbol
-  // @foo/bar/doc/baz/~/symbol
-
   pub fn url_to_short_path(&self, url: &ModuleSpecifier) -> String {
+    if let Some(rewrite) = self
+      .rewrite_map
+      .as_ref()
+      .and_then(|rewrite_map| rewrite_map.get(url))
+    {
+      return rewrite.to_owned();
+    }
+
     if url.scheme() != "file" {
       return url.to_string();
     }
@@ -228,6 +230,7 @@ pub fn generate(
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
     url_resolver: options.url_resolver,
+    rewrite_map: options.rewrite_map,
   };
   let mut files = HashMap::new();
 
