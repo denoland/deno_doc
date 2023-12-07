@@ -100,6 +100,7 @@ async fn html_doc_files() {
       global_symbols: Default::default(),
       global_symbol_href_resolver: Rc::new(|_, _| String::new()),
       url_resolver: Rc::new(default_url_resolver),
+      rewrite_map: None,
     },
     &get_files("single").await,
   )
@@ -121,6 +122,58 @@ async fn html_doc_files() {
       "search.js",
       "search_index.js",
       "styles.css",
+    ]
+  );
+}
+
+#[tokio::test]
+async fn html_doc_files_rewrite() {
+  let multiple_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("multiple");
+  let mut rewrite_map = IndexMap::new();
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    "bar".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
+    "foo".to_string(),
+  );
+
+  let files = generate(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      global_symbols: Default::default(),
+      global_symbol_href_resolver: Rc::new(|_, _| String::new()),
+      url_resolver: Rc::new(default_url_resolver),
+      rewrite_map: Some(rewrite_map),
+    },
+    &get_files("multiple").await,
+  )
+  .unwrap();
+
+  let mut file_names = files.keys().collect::<Vec<_>>();
+  file_names.sort();
+
+  assert_eq!(
+    file_names,
+    [
+      "./all_symbols.html",
+      "./index.html",
+      "bar/~/Bar.html",
+      "bar/~/Foo.html",
+      "bar/~/index.html",
+      "foo/~/index.html",
+      "foo/~/x.html",
+      "fuse.js",
+      "page.css",
+      "search.js",
+      "search_index.js",
+      "styles.css"
     ]
   );
 }
