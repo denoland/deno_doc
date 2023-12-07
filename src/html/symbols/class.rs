@@ -139,7 +139,7 @@ fn render_index_signatures(
       .unwrap_or_default();
 
     let content = format!(
-      r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
+      r#"<div class="relative hover:block" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
       ctx.render("anchor.html", &json!({ "href": &id })),
       render_params(ctx, &index_signature.params),
     );
