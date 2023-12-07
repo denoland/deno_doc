@@ -185,6 +185,7 @@ fn generate_docs_directory(
     global_symbols: Default::default(),
     global_symbol_href_resolver: std::rc::Rc::new(|_, _| String::new()),
     url_resolver: std::rc::Rc::new(deno_doc::html::default_url_resolver),
+    rewrite_map: None,
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 
