@@ -424,7 +424,7 @@ pub fn partition_nodes_by_name(
   partitions
 }
 
-fn find_common_ancestor<'a>(
+pub fn find_common_ancestor<'a>(
   urls: impl Iterator<Item = &'a ModuleSpecifier>,
   single_file_is_common_ancestor: bool,
 ) -> Option<PathBuf> {
