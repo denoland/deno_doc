@@ -9,7 +9,6 @@ const currentFile =
 const pathToRoot = "../".repeat(
   currentFile ? (currentFile.split("/").length + 1) : 0,
 );
-console.log(pathToRoot, currentFile);
 searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
