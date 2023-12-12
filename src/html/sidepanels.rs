@@ -1,7 +1,7 @@
-use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::UrlResolveKind;
+use super::{short_path_to_name, DocNodeKindCtx};
 use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -82,7 +82,7 @@ pub struct IndexSidepanelCtx {
 impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
-    main_entrypoint: Option<&ModuleSpecifier>,
+    current_entrypoint: Option<&ModuleSpecifier>,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
     partitions: IndexMap<String, Vec<DocNodeWithContext>>,
     current_file: &Option<String>,
@@ -90,8 +90,8 @@ impl IndexSidepanelCtx {
     let files = doc_nodes_by_url
       .keys()
       .filter(|url| {
-        main_entrypoint
-          .map(|main_entrypoint| *url != main_entrypoint)
+        current_entrypoint
+          .map(|current_entrypoint| *url != current_entrypoint)
           .unwrap_or(true)
       })
       .map(|url| {
@@ -101,9 +101,15 @@ impl IndexSidepanelCtx {
             current_file
               .as_deref()
               .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-            UrlResolveKind::File(&short_path),
+            if ctx.main_entrypoint.is_some()
+              && ctx.main_entrypoint.as_ref() == Some(url)
+            {
+              UrlResolveKind::Root
+            } else {
+              UrlResolveKind::File(&short_path)
+            },
           ),
-          name: short_path,
+          name: short_path_to_name(short_path),
         }
       })
       .collect::<Vec<_>>();

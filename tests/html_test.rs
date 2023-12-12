@@ -136,7 +136,7 @@ async fn html_doc_files_rewrite() {
   let mut rewrite_map = IndexMap::new();
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
-    "bar".to_string(),
+    ".".to_string(),
   );
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
@@ -164,9 +164,9 @@ async fn html_doc_files_rewrite() {
     [
       "./all_symbols.html",
       "./index.html",
-      "bar/~/Bar.html",
-      "bar/~/Foo.html",
-      "bar/~/index.html",
+      "./~/Bar.html",
+      "./~/Foo.html",
+      "./~/index.html",
       "foo/~/index.html",
       "foo/~/x.html",
       "fuse.js",

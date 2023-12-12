@@ -69,9 +69,12 @@ pub fn default_url_resolver(
   resolve: UrlResolveKind,
 ) -> String {
   let backs = match current {
-    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => {
-      "../".repeat(file.split('.').count() + 1)
-    }
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+      .repeat(if file == "." {
+        1
+      } else {
+        file.split('.').count() + 1
+      }),
     UrlResolveKind::Root | UrlResolveKind::AllSymbols => String::new(),
   };
 
@@ -107,6 +110,7 @@ pub struct GenerateOptions {
 pub struct GenerateCtx<'ctx> {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
+  pub main_entrypoint: Option<ModuleSpecifier>,
   pub tt: Rc<TinyTemplate<'ctx>>,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
@@ -139,6 +143,19 @@ impl<'ctx> GenerateCtx<'ctx> {
       .unwrap_or(&url_file_path);
 
     stripped_path.to_string_lossy().to_string()
+  }
+}
+
+fn short_path_to_name(short_path: String) -> String {
+  if short_path == "." || short_path.is_empty() {
+    "main".to_string()
+  } else {
+    short_path
+      .strip_prefix('.')
+      .unwrap_or(&short_path)
+      .strip_prefix('/')
+      .unwrap_or(&short_path)
+      .to_string()
   }
 }
 
@@ -226,6 +243,7 @@ pub fn generate(
   let ctx = GenerateCtx {
     package_name: options.package_name,
     common_ancestor,
+    main_entrypoint: options.main_entrypoint,
     tt,
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
@@ -255,17 +273,14 @@ pub fn generate(
 
   // Index page
   {
-    let partitions_for_nodes = get_partitions_for_specifier(
-      &ctx,
-      options.main_entrypoint.as_ref(),
-      doc_nodes_by_url,
-    );
+    let partitions_for_entrypoint_nodes =
+      get_partitions_for_main_entrypoint(&ctx, doc_nodes_by_url);
 
     let index = pages::render_index(
       &ctx,
-      options.main_entrypoint.as_ref(),
+      ctx.main_entrypoint.as_ref(),
       doc_nodes_by_url,
-      partitions_for_nodes,
+      partitions_for_entrypoint_nodes,
       all_symbols.clone(),
       None,
     )?;
@@ -363,12 +378,13 @@ pub fn get_partitions_for_file(
   }
 }
 
-pub fn get_partitions_for_specifier(
+pub fn get_partitions_for_main_entrypoint(
   ctx: &GenerateCtx,
-  main_entrypoint: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
-  let doc_nodes = main_entrypoint
+  let doc_nodes = ctx
+    .main_entrypoint
+    .as_ref()
     .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
   if let Some(doc_nodes) = doc_nodes {
@@ -376,7 +392,9 @@ pub fn get_partitions_for_specifier(
       .iter()
       .map(|node| DocNodeWithContext {
         doc_node: node.clone(),
-        origin: Some(ctx.url_to_short_path(main_entrypoint.as_ref().unwrap())),
+        origin: Some(
+          ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
+        ),
       })
       .collect::<Vec<_>>();
 
