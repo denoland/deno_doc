@@ -259,6 +259,7 @@ struct PageCtx {
   search_ctx: serde_json::Value,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_symbol_page(
   ctx: &GenerateCtx,
   current_specifier: ModuleSpecifier,
