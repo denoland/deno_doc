@@ -77,6 +77,7 @@ pub struct IndexSidepanelCtx {
   all_symbols_url: String,
   kind_partitions: Vec<SidepanelPartitionCtx>,
   files: Vec<IndexSidepanelFileCtx>,
+  expand_files: Vec<IndexSidepanelFileCtx>,
 }
 
 impl IndexSidepanelCtx {
@@ -137,6 +138,13 @@ impl IndexSidepanelCtx {
       })
       .collect::<Vec<_>>();
 
+    let (files, expand_files) = if files.len() > 4 {
+      let (files, expand_files) = files.split_at(3);
+      (files.to_vec(), expand_files.to_vec())
+    } else {
+      (files, vec![])
+    };
+
     Self {
       package_name: ctx.package_name.clone(),
       root_url: (ctx.url_resolver)(
@@ -153,6 +161,7 @@ impl IndexSidepanelCtx {
       ),
       kind_partitions,
       files,
+      expand_files,
     }
   }
 }

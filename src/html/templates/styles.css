@@ -22,6 +22,9 @@
   overscroll-behavior-y: contain;
   scrollbar-width: thin;
 }
+#sidepanel label, #sidepanel a, #sidepanel h3 {
+  padding: 6px 12px 6px 8px;
+}
 #sidepanel ul {
   list-style: none;
   padding-left: 16px;
@@ -34,7 +37,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px 6px 8px;
   line-height: 1;
   border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
   position: relative;
@@ -74,15 +76,40 @@
   border-top-right-radius: var(--general-border-radius);
   box-shadow: 0 calc(var(--general-border-radius) * -1) 0 0 white;
 }
-#sidepanel .section_title {
+#sidepanel .title {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 10px 20px 10px 0;
 }
-#sidepanel .section_title h3 {
+#sidepanel .title h3 {
   margin: 0;
   line-height: 1;
+}
+
+#sidepanel #fileDivider {
+  display: none;
+}
+
+#sidepanel #fileDivider + ul label[for="fileDivider"] {
+  cursor: pointer;
+}
+
+#sidepanel #fileDivider + ul label[for="fileDivider"] ~ li {
+  display: none;
+}
+
+#sidepanel #fileDivider:checked + ul label[for="fileDivider"] {
+  display: none;
+}
+
+#sidepanel #fileDivider:checked + ul label[for="fileDivider"] ~ li {
+  display: block;
+}
+
+#breadcrumbs {
+  margin-bottom: 1.5rem;
+  white-space: nowrap;
 }
 
 /* doc classes */

@@ -12,6 +12,7 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::html::util::BreadcrumbsCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -24,21 +25,41 @@ struct HtmlHeadCtx {
   current_file: String,
   stylesheet_url: String,
   page_stylesheet_url: String,
-}
-
-#[derive(Debug, Serialize, Clone)]
-struct HtmlTailCtx {
   url_search_index: String,
   fuse_js: String,
   url_search: String,
 }
 
+impl HtmlHeadCtx {
+  fn new(
+    root: &str,
+    page: &str,
+    package_name: Option<&String>,
+    current_file: Option<String>,
+  ) -> Self {
+    Self {
+      title: format!(
+        "{page} - {}documentation",
+        package_name
+          .map(|package_name| format!("{package_name} "))
+          .unwrap_or_default()
+      ),
+      current_file: current_file.unwrap_or_default(),
+      stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
+      page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
+      url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
+      fuse_js: format!("{root}{FUSE_FILENAME}"),
+      url_search: format!("{root}{SEARCH_FILENAME}"),
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Clone)]
 struct IndexCtx {
   html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: sidepanels::IndexSidepanelCtx,
   module_doc: Option<super::jsdoc::ModuleDocCtx>,
+  breadcrumbs_ctx: BreadcrumbsCtx,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
@@ -69,6 +90,7 @@ pub fn render_index(
     } else {
       UrlResolveKind::Root
     },
+    specifier.cloned(),
   );
 
   let module_doc = super::jsdoc::ModuleDocCtx::new(
@@ -85,31 +107,14 @@ pub fn render_index(
     UrlResolveKind::Root,
   );
 
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!(
-      "Index - {}documentation",
-      ctx
-        .package_name
-        .as_ref()
-        .map(|package_name| format!("{package_name} "))
-        .unwrap_or_default()
-    ),
-    current_file: "".to_string(),
-    stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
-    page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
-    fuse_js: format!("{root}{FUSE_FILENAME}"),
-    url_search: format!("{root}{SEARCH_FILENAME}"),
-  };
+  let html_head_ctx =
+    HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
 
   let index_ctx = IndexCtx {
     html_head_ctx,
-    html_tail_ctx,
     sidepanel_ctx,
     module_doc,
+    breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
     search_ctx: serde_json::Value::Null,
   };
 
@@ -119,8 +124,8 @@ pub fn render_index(
 #[derive(Serialize)]
 struct AllSymbolsCtx {
   html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
   namespace_ctx: super::namespace::NamespaceRenderCtx,
+  breadcrumbs_ctx: BreadcrumbsCtx,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
@@ -131,33 +136,16 @@ pub fn render_all_symbols(
   all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
   let render_ctx =
-    RenderContext::new(ctx, all_symbols, UrlResolveKind::AllSymbols);
+    RenderContext::new(ctx, all_symbols, UrlResolveKind::AllSymbols, None);
   let namespace_ctx =
     super::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!(
-      "All Symbols - {}documentation",
-      ctx
-        .package_name
-        .as_ref()
-        .map(|package_name| format!("{package_name} "))
-        .unwrap_or_default()
-    ),
-    current_file: "".to_string(),
-    stylesheet_url: format!("./{STYLESHEET_FILENAME}"),
-    page_stylesheet_url: format!("./{PAGE_STYLESHEET_FILENAME}"),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("./{SEARCH_INDEX_FILENAME}"),
-    fuse_js: format!("./{FUSE_FILENAME}"),
-    url_search: format!("./{SEARCH_FILENAME}"),
-  };
+  let html_head_ctx =
+    HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
   let all_symbols_ctx = AllSymbolsCtx {
     html_head_ctx,
-    html_tail_ctx,
     namespace_ctx,
+    breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
     search_ctx: serde_json::Value::Null,
   };
 
@@ -166,6 +154,7 @@ pub fn render_all_symbols(
 
 pub fn generate_pages_for_file(
   ctx: &GenerateCtx,
+  current_specifier: ModuleSpecifier,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   short_path: String,
   doc_nodes: &[DocNode],
@@ -175,6 +164,7 @@ pub fn generate_pages_for_file(
 
   generate_pages_inner(
     ctx,
+    current_specifier,
     partitions_for_nodes,
     &short_path,
     name_partitions,
@@ -185,6 +175,7 @@ pub fn generate_pages_for_file(
 
 pub fn generate_pages_inner(
   ctx: &GenerateCtx,
+  current_specifier: ModuleSpecifier,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   short_path: &str,
   name_partitions: IndexMap<String, Vec<DocNode>>,
@@ -214,8 +205,9 @@ pub fn generate_pages_inner(
       &namespaced_name,
     );
 
-    let page = render_page(
+    let page = render_symbol_page(
       ctx,
+      current_specifier.clone(),
       sidepanel_ctx,
       &namespace_paths,
       name,
@@ -243,6 +235,7 @@ pub fn generate_pages_inner(
 
       let generated = generate_pages_inner(
         ctx,
+        current_specifier.clone(),
         partitions_for_nodes,
         short_path,
         namespace_name_partitions,
@@ -259,15 +252,16 @@ pub fn generate_pages_inner(
 #[derive(Serialize)]
 struct PageCtx {
   html_head_ctx: HtmlHeadCtx,
-  html_tail_ctx: HtmlTailCtx,
   sidepanel_ctx: sidepanels::SidepanelCtx,
   symbol_group_ctx: super::symbol::SymbolGroupCtx,
+  breadcrumbs_ctx: BreadcrumbsCtx,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
   search_ctx: serde_json::Value,
 }
 
-fn render_page(
+fn render_symbol_page(
   ctx: &GenerateCtx,
+  current_specifier: ModuleSpecifier,
   sidepanel_ctx: sidepanels::SidepanelCtx,
   namespace_paths: &[String],
   name: &str,
@@ -288,6 +282,7 @@ fn render_page(
       file,
       symbol: &namespaced_name,
     },
+    Some(current_specifier),
   );
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
@@ -308,33 +303,19 @@ fn render_page(
     UrlResolveKind::Root,
   );
 
-  // TODO(bartlomieju): dedup with `render_page`
-  let html_head_ctx = HtmlHeadCtx {
-    title: format!(
-      "{} - {} documentation",
-      namespaced_name,
-      ctx
-        .package_name
-        .as_ref()
-        .map(|package_name| format!("{package_name} "))
-        .unwrap_or_default()
-    ),
-    current_file: file.to_string(),
-    stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
-    page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
-  };
-  let html_tail_ctx = HtmlTailCtx {
-    url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
-    fuse_js: format!("{root}{FUSE_FILENAME}"),
-    url_search: format!("{root}{SEARCH_FILENAME}"),
-  };
+  let html_head_ctx = HtmlHeadCtx::new(
+    &root,
+    &namespaced_name,
+    ctx.package_name.as_ref(),
+    Some(file.to_string()),
+  );
   let page_ctx = PageCtx {
     html_head_ctx,
-    html_tail_ctx,
     sidepanel_ctx,
     symbol_group_ctx,
+    breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("page.html", &page_ctx))
+  Ok(render_ctx.render("symbol_page.html", &page_ctx))
 }

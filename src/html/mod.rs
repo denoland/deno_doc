@@ -105,6 +105,7 @@ pub struct GenerateOptions {
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
+  pub hide_module_doc_title: bool,
 }
 
 pub struct GenerateCtx<'ctx> {
@@ -116,6 +117,7 @@ pub struct GenerateCtx<'ctx> {
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
+  pub hide_module_doc_title: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -173,10 +175,6 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     include_str!("./templates/html_head.html"),
   )?;
   tt.add_template(
-    "html_tail.html",
-    include_str!("./templates/html_tail.html"),
-  )?;
-  tt.add_template(
     "all_symbols.html",
     include_str!("./templates/all_symbols.html"),
   )?;
@@ -192,7 +190,10 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     "sidepanel.html",
     include_str!("./templates/sidepanel.html"),
   )?;
-  tt.add_template("page.html", include_str!("./templates/page.html"))?;
+  tt.add_template(
+    "symbol_page.html",
+    include_str!("./templates/symbol_page.html"),
+  )?;
   tt.add_template(
     "doc_entry.html",
     include_str!("./templates/doc_entry.html"),
@@ -226,6 +227,10 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     "module_doc.html",
     include_str!("./templates/module_doc.html"),
   )?;
+  tt.add_template(
+    "breadcrumbs.html",
+    include_str!("./templates/breadcrumbs.html"),
+  )?;
   Ok(Rc::new(tt))
 }
 
@@ -249,6 +254,7 @@ pub fn generate(
     global_symbol_href_resolver: options.global_symbol_href_resolver,
     url_resolver: options.url_resolver,
     rewrite_map: options.rewrite_map,
+    hide_module_doc_title: options.hide_module_doc_title,
   };
   let mut files = HashMap::new();
 
@@ -310,6 +316,7 @@ pub fn generate(
 
       files.extend(pages::generate_pages_for_file(
         &ctx,
+        specifier.to_owned(),
         &partitions_for_nodes,
         short_path.clone(),
         doc_nodes,
