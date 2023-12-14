@@ -1,7 +1,7 @@
-use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::UrlResolveKind;
+use super::{short_path_to_name, DocNodeKindCtx};
 use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -77,12 +77,13 @@ pub struct IndexSidepanelCtx {
   all_symbols_url: String,
   kind_partitions: Vec<SidepanelPartitionCtx>,
   files: Vec<IndexSidepanelFileCtx>,
+  expand_files: Vec<IndexSidepanelFileCtx>,
 }
 
 impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
-    main_entrypoint: Option<&ModuleSpecifier>,
+    current_entrypoint: Option<&ModuleSpecifier>,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
     partitions: IndexMap<String, Vec<DocNodeWithContext>>,
     current_file: &Option<String>,
@@ -90,8 +91,8 @@ impl IndexSidepanelCtx {
     let files = doc_nodes_by_url
       .keys()
       .filter(|url| {
-        main_entrypoint
-          .map(|main_entrypoint| *url != main_entrypoint)
+        current_entrypoint
+          .map(|current_entrypoint| *url != current_entrypoint)
           .unwrap_or(true)
       })
       .map(|url| {
@@ -101,9 +102,15 @@ impl IndexSidepanelCtx {
             current_file
               .as_deref()
               .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-            UrlResolveKind::File(&short_path),
+            if ctx.main_entrypoint.is_some()
+              && ctx.main_entrypoint.as_ref() == Some(url)
+            {
+              UrlResolveKind::Root
+            } else {
+              UrlResolveKind::File(&short_path)
+            },
           ),
-          name: short_path,
+          name: short_path_to_name(short_path),
         }
       })
       .collect::<Vec<_>>();
@@ -131,6 +138,13 @@ impl IndexSidepanelCtx {
       })
       .collect::<Vec<_>>();
 
+    let (files, expand_files) = if files.len() > 4 {
+      let (files, expand_files) = files.split_at(3);
+      (files.to_vec(), expand_files.to_vec())
+    } else {
+      (files, vec![])
+    };
+
     Self {
       package_name: ctx.package_name.clone(),
       root_url: (ctx.url_resolver)(
@@ -147,6 +161,7 @@ impl IndexSidepanelCtx {
       ),
       kind_partitions,
       files,
+      expand_files,
     }
   }
 }

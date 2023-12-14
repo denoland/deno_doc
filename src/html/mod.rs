@@ -12,21 +12,21 @@ mod jsdoc;
 mod pages;
 mod parameters;
 mod search;
-mod sidepanels;
+pub mod sidepanels;
 mod symbol;
 mod symbols;
 mod types;
 mod util;
 
+pub use jsdoc::ModuleDocCtx;
 pub use search::generate_search_index;
 pub use symbol::SymbolGroupCtx;
-
-pub use self::symbols::namespace;
-pub use self::util::DocNodeKindCtx;
-pub use self::util::GlobalSymbolHrefResolver;
-pub use self::util::NamespacedGlobalSymbols;
-pub use self::util::NamespacedSymbols;
-pub use self::util::RenderContext;
+pub use symbols::namespace;
+pub use util::DocNodeKindCtx;
+pub use util::GlobalSymbolHrefResolver;
+pub use util::NamespacedGlobalSymbols;
+pub use util::NamespacedSymbols;
+pub use util::RenderContext;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -69,9 +69,12 @@ pub fn default_url_resolver(
   resolve: UrlResolveKind,
 ) -> String {
   let backs = match current {
-    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => {
-      "../".repeat(file.split('.').count() + 1)
-    }
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+      .repeat(if file == "." {
+        1
+      } else {
+        file.split('.').count() + 1
+      }),
     UrlResolveKind::Root | UrlResolveKind::AllSymbols => String::new(),
   };
 
@@ -101,27 +104,32 @@ pub struct GenerateOptions {
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: UrlResolver,
+  pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
+  pub hide_module_doc_title: bool,
 }
 
 pub struct GenerateCtx<'ctx> {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
+  pub main_entrypoint: Option<ModuleSpecifier>,
   pub tt: Rc<TinyTemplate<'ctx>>,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: UrlResolver,
+  pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
+  pub hide_module_doc_title: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
-  // @foo/bar
-  // /mod.ts -> file:///mod.ts
-
-  // "baz": "/mod.ts"
-
-  // @foo/bar/doc/mod.ts/~/symbol
-  // @foo/bar/doc/baz/~/symbol
-
   pub fn url_to_short_path(&self, url: &ModuleSpecifier) -> String {
+    if let Some(rewrite) = self
+      .rewrite_map
+      .as_ref()
+      .and_then(|rewrite_map| rewrite_map.get(url))
+    {
+      return rewrite.to_owned();
+    }
+
     if url.scheme() != "file" {
       return url.to_string();
     }
@@ -140,6 +148,19 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
+fn short_path_to_name(short_path: String) -> String {
+  if short_path == "." || short_path.is_empty() {
+    "main".to_string()
+  } else {
+    short_path
+      .strip_prefix('.')
+      .unwrap_or(&short_path)
+      .strip_prefix('/')
+      .unwrap_or(&short_path)
+      .to_string()
+  }
+}
+
 #[derive(Clone, Debug)]
 pub struct DocNodeWithContext {
   pub origin: Option<String>,
@@ -152,10 +173,6 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
   tt.add_template(
     "html_head.html",
     include_str!("./templates/html_head.html"),
-  )?;
-  tt.add_template(
-    "html_tail.html",
-    include_str!("./templates/html_tail.html"),
   )?;
   tt.add_template(
     "all_symbols.html",
@@ -173,7 +190,10 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     "sidepanel.html",
     include_str!("./templates/sidepanel.html"),
   )?;
-  tt.add_template("page.html", include_str!("./templates/page.html"))?;
+  tt.add_template(
+    "symbol_page.html",
+    include_str!("./templates/symbol_page.html"),
+  )?;
   tt.add_template(
     "doc_entry.html",
     include_str!("./templates/doc_entry.html"),
@@ -207,6 +227,10 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     "module_doc.html",
     include_str!("./templates/module_doc.html"),
   )?;
+  tt.add_template(
+    "breadcrumbs.html",
+    include_str!("./templates/breadcrumbs.html"),
+  )?;
   Ok(Rc::new(tt))
 }
 
@@ -224,10 +248,13 @@ pub fn generate(
   let ctx = GenerateCtx {
     package_name: options.package_name,
     common_ancestor,
+    main_entrypoint: options.main_entrypoint,
     tt,
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
     url_resolver: options.url_resolver,
+    rewrite_map: options.rewrite_map,
+    hide_module_doc_title: options.hide_module_doc_title,
   };
   let mut files = HashMap::new();
 
@@ -252,17 +279,14 @@ pub fn generate(
 
   // Index page
   {
-    let partitions_for_nodes = get_partitions_for_specifier(
-      &ctx,
-      options.main_entrypoint.as_ref(),
-      doc_nodes_by_url,
-    );
+    let partitions_for_entrypoint_nodes =
+      get_partitions_for_main_entrypoint(&ctx, doc_nodes_by_url);
 
     let index = pages::render_index(
       &ctx,
-      options.main_entrypoint.as_ref(),
+      ctx.main_entrypoint.as_ref(),
       doc_nodes_by_url,
-      partitions_for_nodes,
+      partitions_for_entrypoint_nodes,
       all_symbols.clone(),
       None,
     )?;
@@ -292,6 +316,7 @@ pub fn generate(
 
       files.extend(pages::generate_pages_for_file(
         &ctx,
+        specifier.to_owned(),
         &partitions_for_nodes,
         short_path.clone(),
         doc_nodes,
@@ -360,12 +385,13 @@ pub fn get_partitions_for_file(
   }
 }
 
-pub fn get_partitions_for_specifier(
+pub fn get_partitions_for_main_entrypoint(
   ctx: &GenerateCtx,
-  main_entrypoint: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
-  let doc_nodes = main_entrypoint
+  let doc_nodes = ctx
+    .main_entrypoint
+    .as_ref()
     .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
   if let Some(doc_nodes) = doc_nodes {
@@ -373,7 +399,9 @@ pub fn get_partitions_for_specifier(
       .iter()
       .map(|node| DocNodeWithContext {
         doc_node: node.clone(),
-        origin: Some(ctx.url_to_short_path(main_entrypoint.as_ref().unwrap())),
+        origin: Some(
+          ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
+        ),
       })
       .collect::<Vec<_>>();
 
@@ -421,7 +449,7 @@ pub fn partition_nodes_by_name(
   partitions
 }
 
-fn find_common_ancestor<'a>(
+pub fn find_common_ancestor<'a>(
   urls: impl Iterator<Item = &'a ModuleSpecifier>,
   single_file_is_common_ancestor: bool,
 ) -> Option<PathBuf> {
