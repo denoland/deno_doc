@@ -1,5 +1,8 @@
 <div id="breadcrumbs">
   {{ for part in parts }}
+    {{ if part.is_symbol }}
+      <span class="breadcrumbsSymbol">
+    {{ endif }}
     {{ if not @last }}
       <a class="link" href="{part.href}"
         {{ if @first }}
@@ -27,6 +30,12 @@
       >
         {part.name}
       </span>
+    {{ endif }}
+
+    {{ if @last }}
+      {{ if part.is_symbol }}
+        </span>
+      {{ endif }}
     {{ endif }}
   {{ endfor }}
 </div>

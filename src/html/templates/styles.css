@@ -112,6 +112,10 @@
   white-space: nowrap;
 }
 
+#breadcrumbs .breadcrumbsSymbol {
+  display: inline-flex;
+}
+
 /* doc classes */
 .symbol_group > * + * {
     margin-top: 3rem;
