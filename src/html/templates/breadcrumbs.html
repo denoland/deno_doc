@@ -1,6 +1,6 @@
 <div id="breadcrumbs">
   {{ for part in parts }}
-    {{ if part.is_symbol }}
+    {{ if part.is_first_symbol }}
       <span class="breadcrumbsSymbol">
     {{ endif }}
     {{ if not @last }}

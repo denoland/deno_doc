@@ -230,6 +230,7 @@ impl<'ctx> RenderContext<'ctx> {
         name: "index".to_string(),
         href: "".to_string(),
         is_symbol: false,
+        is_first_symbol: false,
         is_all_symbols_part: false,
       }],
       UrlResolveKind::AllSymbols => {
@@ -241,12 +242,14 @@ impl<'ctx> RenderContext<'ctx> {
               UrlResolveKind::Root,
             ),
             is_symbol: false,
+            is_first_symbol: false,
             is_all_symbols_part: false,
           },
           BreadcrumbCtx {
             name: "all symbols".to_string(),
             href: "".to_string(),
             is_symbol: false,
+            is_first_symbol: false,
             is_all_symbols_part: true,
           },
         ]
@@ -257,6 +260,7 @@ impl<'ctx> RenderContext<'ctx> {
             name: "index".to_string(),
             href: "".to_string(),
             is_symbol: false,
+            is_first_symbol: false,
             is_all_symbols_part: false,
           }]
         } else {
@@ -268,12 +272,14 @@ impl<'ctx> RenderContext<'ctx> {
                 UrlResolveKind::Root,
               ),
               is_symbol: false,
+              is_first_symbol: false,
               is_all_symbols_part: false,
             },
             BreadcrumbCtx {
               name: file.to_string(),
               href: "".to_string(),
               is_symbol: false,
+              is_first_symbol: false,
               is_all_symbols_part: false,
             },
           ]
@@ -284,6 +290,7 @@ impl<'ctx> RenderContext<'ctx> {
           name: "index".to_string(),
           href: (self.url_resolver)(self.current_resolve, UrlResolveKind::Root),
           is_symbol: false,
+          is_first_symbol: false,
           is_all_symbols_part: false,
         }];
 
@@ -295,13 +302,14 @@ impl<'ctx> RenderContext<'ctx> {
               UrlResolveKind::File(file),
             ),
             is_symbol: false,
+            is_first_symbol: false,
             is_all_symbols_part: false,
           });
         }
 
-        let (_, symbol_parts) = symbol.split('.').fold(
+        let (_, symbol_parts) = symbol.split('.').enumerate().fold(
           (vec![], vec![]),
-          |(mut symbol_parts, mut breadcrumbs), symbol_part| {
+          |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
             symbol_parts.push(symbol_part);
             let breadcrumb = BreadcrumbCtx {
               name: symbol_part.to_string(),
@@ -313,6 +321,7 @@ impl<'ctx> RenderContext<'ctx> {
                 },
               ),
               is_symbol: true,
+              is_first_symbol: i == 0,
               is_all_symbols_part: false,
             };
             breadcrumbs.push(breadcrumb);
@@ -336,6 +345,7 @@ pub struct BreadcrumbCtx {
   name: String,
   href: String,
   is_symbol: bool,
+  is_first_symbol: bool,
   is_all_symbols_part: bool,
 }
 
