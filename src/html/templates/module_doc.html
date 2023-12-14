@@ -1,4 +1,6 @@
 <section>
-  <h2><pre>{ name }</pre></h2>
+  {{ if title }}
+    <h2><pre>{ title }</pre></h2>
+  {{ endif }}
   { docs }
 </section>

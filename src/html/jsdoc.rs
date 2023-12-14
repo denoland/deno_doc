@@ -262,7 +262,7 @@ pub(crate) fn render_doc_entry(
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ModuleDocCtx {
-  name: String,
+  title: Option<String>,
   docs: String,
 }
 
@@ -286,9 +286,9 @@ impl ModuleDocCtx {
           let rendered_docs = render_markdown(docs_md, render_ctx);
 
           Self {
-            name: super::short_path_to_name(
-              ctx.url_to_short_path(main_entrypoint),
-            ),
+            title: (!ctx.hide_module_doc_title).then(|| {
+              super::short_path_to_name(ctx.url_to_short_path(main_entrypoint))
+            }),
             docs: rendered_docs,
           }
         })

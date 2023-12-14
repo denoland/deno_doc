@@ -101,6 +101,7 @@ async fn html_doc_files() {
       global_symbol_href_resolver: Rc::new(|_, _| String::new()),
       url_resolver: Rc::new(default_url_resolver),
       rewrite_map: None,
+      hide_module_doc_title: false,
     },
     &get_files("single").await,
   )
@@ -151,6 +152,7 @@ async fn html_doc_files_rewrite() {
       global_symbol_href_resolver: Rc::new(|_, _| String::new()),
       url_resolver: Rc::new(default_url_resolver),
       rewrite_map: Some(rewrite_map),
+      hide_module_doc_title: false,
     },
     &get_files("multiple").await,
   )

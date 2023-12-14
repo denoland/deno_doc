@@ -42,7 +42,7 @@ a {
   background-color: rgb(231 229 228);
   border-radius: 10px;
   font-size: 1rem;
-  margin: 1.5rem 0;
+  margin-bottom: 1.5rem;
 }
 #searchResults ul {
   list-style: none;

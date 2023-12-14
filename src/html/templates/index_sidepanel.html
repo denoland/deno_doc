@@ -6,18 +6,27 @@
     <a href="{all_symbols_url}">All symbols</a>
 
     {{ if files }}
-      <h3>Modules</h3>
+      <h3 class="title">Modules</h3>
+      <input type="checkbox" id="fileDivider" autocomplete="off" />
       <ul>
         {{ for file in files }}
-        <li>
-          <a href="{file.href}">{file.name}</a>
-        </li>
+          <li>
+            <a href="{file.href}">{file.name}</a>
+          </li>
         {{ endfor }}
+        {{ if expand_files }}
+          <label for="fileDivider">...</label>
+          {{ for file in expand_files }}
+            <li>
+              <a href="{file.href}">{file.name}</a>
+            </li>
+          {{ endfor }}
+        {{ endif }}
       </ul>
     {{ endif }}
 
     {{ if kind_partitions }}
-      <h3>APIs</h3>
+      <h3 class="title">APIs</h3>
       <ul>
         {{ for kind in kind_partitions }}
         <li>

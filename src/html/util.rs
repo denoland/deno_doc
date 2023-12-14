@@ -1,5 +1,6 @@
 use crate::html::UrlResolveKind;
 use crate::DocNodeKind;
+use deno_graph::ModuleSpecifier;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -93,6 +94,8 @@ pub struct RenderContext<'ctx> {
   global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub url_resolver: super::UrlResolver,
   current_resolve: UrlResolveKind<'ctx>,
+  main_entrypoint: Option<ModuleSpecifier>,
+  current_specifier: Option<ModuleSpecifier>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -100,6 +103,7 @@ impl<'ctx> RenderContext<'ctx> {
     ctx: &super::GenerateCtx<'ctx>,
     all_symbols: NamespacedSymbols,
     current_resolve: UrlResolveKind<'ctx>,
+    current_specifier: Option<ModuleSpecifier>,
   ) -> Self {
     Self {
       tt: ctx.tt.clone(),
@@ -110,6 +114,8 @@ impl<'ctx> RenderContext<'ctx> {
       global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
       url_resolver: ctx.url_resolver.clone(),
       current_resolve,
+      main_entrypoint: ctx.main_entrypoint.clone(),
+      current_specifier,
     }
   }
 
@@ -136,6 +142,16 @@ impl<'ctx> RenderContext<'ctx> {
   ) -> Self {
     Self {
       current_resolve,
+      ..self.clone()
+    }
+  }
+
+  pub fn with_current_specifier(
+    &self,
+    current_specifier: Option<ModuleSpecifier>,
+  ) -> Self {
+    Self {
+      current_specifier,
       ..self.clone()
     }
   }
@@ -207,9 +223,138 @@ impl<'ctx> RenderContext<'ctx> {
 
     None
   }
+
+  pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
+    let parts = match self.current_resolve {
+      UrlResolveKind::Root => vec![BreadcrumbCtx {
+        name: "index".to_string(),
+        href: "".to_string(),
+        is_symbol: false,
+        is_first_symbol: false,
+        is_all_symbols_part: false,
+      }],
+      UrlResolveKind::AllSymbols => {
+        vec![
+          BreadcrumbCtx {
+            name: "index".to_string(),
+            href: (self.url_resolver)(
+              self.current_resolve,
+              UrlResolveKind::Root,
+            ),
+            is_symbol: false,
+            is_first_symbol: false,
+            is_all_symbols_part: false,
+          },
+          BreadcrumbCtx {
+            name: "all symbols".to_string(),
+            href: "".to_string(),
+            is_symbol: false,
+            is_first_symbol: false,
+            is_all_symbols_part: true,
+          },
+        ]
+      }
+      UrlResolveKind::File(file) => {
+        if self.current_specifier == self.main_entrypoint {
+          vec![BreadcrumbCtx {
+            name: "index".to_string(),
+            href: "".to_string(),
+            is_symbol: false,
+            is_first_symbol: false,
+            is_all_symbols_part: false,
+          }]
+        } else {
+          vec![
+            BreadcrumbCtx {
+              name: "index".to_string(),
+              href: (self.url_resolver)(
+                self.current_resolve,
+                UrlResolveKind::Root,
+              ),
+              is_symbol: false,
+              is_first_symbol: false,
+              is_all_symbols_part: false,
+            },
+            BreadcrumbCtx {
+              name: file.to_string(),
+              href: "".to_string(),
+              is_symbol: false,
+              is_first_symbol: false,
+              is_all_symbols_part: false,
+            },
+          ]
+        }
+      }
+      UrlResolveKind::Symbol { file, symbol } => {
+        let mut parts = vec![BreadcrumbCtx {
+          name: "index".to_string(),
+          href: (self.url_resolver)(self.current_resolve, UrlResolveKind::Root),
+          is_symbol: false,
+          is_first_symbol: false,
+          is_all_symbols_part: false,
+        }];
+
+        if self.current_specifier != self.main_entrypoint {
+          parts.push(BreadcrumbCtx {
+            name: file.to_string(),
+            href: (self.url_resolver)(
+              self.current_resolve,
+              UrlResolveKind::File(file),
+            ),
+            is_symbol: false,
+            is_first_symbol: false,
+            is_all_symbols_part: false,
+          });
+        }
+
+        let (_, symbol_parts) = symbol.split('.').enumerate().fold(
+          (vec![], vec![]),
+          |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
+            symbol_parts.push(symbol_part);
+            let breadcrumb = BreadcrumbCtx {
+              name: symbol_part.to_string(),
+              href: (self.url_resolver)(
+                self.current_resolve,
+                UrlResolveKind::Symbol {
+                  file,
+                  symbol: &symbol_parts.join("."),
+                },
+              ),
+              is_symbol: true,
+              is_first_symbol: i == 0,
+              is_all_symbols_part: false,
+            };
+            breadcrumbs.push(breadcrumb);
+
+            (symbol_parts, breadcrumbs)
+          },
+        );
+
+        parts.extend(symbol_parts);
+
+        parts
+      }
+    };
+
+    BreadcrumbsCtx { parts }
+  }
 }
 
-#[derive(Debug, serde::Serialize, Clone)]
+#[derive(Debug, Serialize, Clone)]
+pub struct BreadcrumbCtx {
+  name: String,
+  href: String,
+  is_symbol: bool,
+  is_first_symbol: bool,
+  is_all_symbols_part: bool,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BreadcrumbsCtx {
+  parts: Vec<BreadcrumbCtx>,
+}
+
+#[derive(Debug, Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: String,
   pub char: char,
