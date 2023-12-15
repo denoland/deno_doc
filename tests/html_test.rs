@@ -99,6 +99,7 @@ async fn html_doc_files() {
       main_entrypoint: None,
       global_symbols: Default::default(),
       global_symbol_href_resolver: Rc::new(|_, _| String::new()),
+      import_href_resolver: Rc::new(|_, _| None),
       url_resolver: Rc::new(default_url_resolver),
       rewrite_map: None,
       hide_module_doc_title: false,
@@ -109,8 +110,6 @@ async fn html_doc_files() {
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();
-
-  dbg!(&file_names);
 
   assert_eq!(
     file_names,
@@ -152,6 +151,7 @@ async fn html_doc_files_rewrite() {
       main_entrypoint: None,
       global_symbols: Default::default(),
       global_symbol_href_resolver: Rc::new(|_, _| String::new()),
+      import_href_resolver: Rc::new(|_, _| None),
       url_resolver: Rc::new(default_url_resolver),
       rewrite_map: Some(rewrite_map),
       hide_module_doc_title: false,

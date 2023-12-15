@@ -25,8 +25,8 @@ pub use symbol::SymbolGroupCtx;
 pub use symbols::namespace;
 pub use util::DocNodeKindCtx;
 pub use util::GlobalSymbolHrefResolver;
+pub use util::ImportHrefResolver;
 pub use util::NamespacedGlobalSymbols;
-pub use util::NamespacedSymbols;
 pub use util::RenderContext;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
@@ -74,9 +74,10 @@ pub fn default_url_resolver(
       .repeat(if file == "." {
         1
       } else {
-        file.split('.').count() + 1
+        file.split('/').count() + 1
       }),
-    UrlResolveKind::Root | UrlResolveKind::AllSymbols => String::new(),
+    UrlResolveKind::Root => String::new(),
+    UrlResolveKind::AllSymbols => String::from("./"),
   };
 
   match resolve {
@@ -104,18 +105,22 @@ pub struct GenerateOptions {
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
+  pub import_href_resolver: ImportHrefResolver,
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
 }
 
+#[derive(Clone)]
 pub struct GenerateCtx<'ctx> {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
   pub main_entrypoint: Option<ModuleSpecifier>,
+  pub specifiers: Vec<ModuleSpecifier>,
   pub tt: Rc<TinyTemplate<'ctx>>,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
+  pub import_href_resolver: ImportHrefResolver,
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
@@ -145,12 +150,18 @@ impl<'ctx> GenerateCtx<'ctx> {
       .strip_prefix(common_ancestor)
       .unwrap_or(&url_file_path);
 
-    stripped_path.to_string_lossy().to_string()
+    let path = stripped_path.to_string_lossy().to_string();
+
+    if path.is_empty() {
+      return ".".to_string();
+    } else {
+      path
+    }
   }
 }
 
 fn short_path_to_name(short_path: String) -> String {
-  if short_path == "." || short_path.is_empty() {
+  if short_path == "." {
     "main".to_string()
   } else {
     short_path
@@ -250,33 +261,16 @@ pub fn generate(
     package_name: options.package_name,
     common_ancestor,
     main_entrypoint: options.main_entrypoint,
+    specifiers: doc_nodes_by_url.keys().cloned().collect(),
     tt,
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
+    import_href_resolver: options.import_href_resolver,
     url_resolver: options.url_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
   };
   let mut files = HashMap::new();
-
-  // TODO(bartlomieju): remove
-  let all_doc_nodes = doc_nodes_by_url
-    .iter()
-    .flat_map(|(specifier, nodes)| {
-      nodes.iter().map(|node| DocNodeWithContext {
-        origin: Some(ctx.url_to_short_path(specifier)),
-        doc_node: node.clone(),
-      })
-    })
-    .collect::<Vec<DocNodeWithContext>>();
-
-  let all_symbols = NamespacedSymbols::new(
-    &doc_nodes_by_url
-      .values()
-      .flatten()
-      .cloned()
-      .collect::<Vec<_>>(),
-  );
 
   // Index page
   {
@@ -288,22 +282,28 @@ pub fn generate(
       ctx.main_entrypoint.as_ref(),
       doc_nodes_by_url,
       partitions_for_entrypoint_nodes,
-      all_symbols.clone(),
       None,
-    )?;
+    );
     files.insert("./index.html".to_string(), index);
   }
 
   // All symbols (list of all symbols in all files)
   {
+    let all_doc_nodes = doc_nodes_by_url
+      .iter()
+      .flat_map(|(specifier, nodes)| {
+        nodes.iter().map(|node| DocNodeWithContext {
+          origin: Some(ctx.url_to_short_path(specifier)),
+          doc_node: node.clone(),
+        })
+      })
+      .collect::<Vec<DocNodeWithContext>>();
+
     let partitions_by_kind =
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
-    let all_symbols_render = pages::render_all_symbols_page(
-      &ctx,
-      &partitions_by_kind,
-      all_symbols.clone(),
-    )?;
+    let all_symbols_render =
+      pages::render_all_symbols_page(&ctx, &partitions_by_kind)?;
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 
@@ -340,16 +340,8 @@ pub fn generate(
             Some(short_path.clone()),
           );
 
-          let file_name = if short_path.is_empty() {
-            "."
-          } else {
-            &short_path
-          };
-
-          dbg!(&file_name);
-
           let file_name =
-            format!("{file_name}/~/{}.html", symbol_group_ctx.name);
+            format!("{short_path}/~/{}.html", symbol_group_ctx.name);
 
           let page_ctx = pages::PageCtx {
             html_head_ctx,
@@ -371,21 +363,10 @@ pub fn generate(
         Some(specifier),
         doc_nodes_by_url,
         partitions_for_nodes,
-        all_symbols.clone(),
         Some(short_path.clone()),
-      )?;
-
-      files.insert(
-        format!(
-          "{}/~/index.html",
-          if short_path.is_empty() {
-            "."
-          } else {
-            &short_path
-          }
-        ),
-        index,
       );
+
+      files.insert(format!("{short_path}/~/index.html"), index);
     }
   }
 
@@ -474,7 +455,9 @@ pub fn partition_nodes_by_name(
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
-    if node.kind == DocNodeKind::ModuleDoc {
+    if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+      || node.declaration_kind != crate::node::DeclarationKind::Export
+    {
       continue;
     }
 
