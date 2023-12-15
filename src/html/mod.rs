@@ -337,11 +337,19 @@ pub fn generate(
             &root,
             &symbol_group_ctx.name,
             ctx.package_name.as_ref(),
-            Some(short_path.to_string()),
+            Some(short_path.clone()),
           );
 
+          let file_name = if short_path.is_empty() {
+            "."
+          } else {
+            &short_path
+          };
+
+          dbg!(&file_name);
+
           let file_name =
-            format!("{short_path}/~/{}.html", symbol_group_ctx.name);
+            format!("{file_name}/~/{}.html", symbol_group_ctx.name);
 
           let page_ctx = pages::PageCtx {
             html_head_ctx,
