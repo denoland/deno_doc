@@ -404,7 +404,7 @@ impl From<DocNodeKind> for DocNodeKindCtx {
   }
 }
 
-pub fn get_current_imports(
+fn get_current_imports(
   doc_nodes: &[crate::DocNode],
 ) -> HashMap<String, String> {
   let mut imports = HashMap::new();

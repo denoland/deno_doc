@@ -143,7 +143,7 @@ pub(crate) fn render_all_symbols_page(
 ) -> Result<String, anyhow::Error> {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
-    RenderContext::new(ctx, &vec![], UrlResolveKind::AllSymbols, None);
+    RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
   let namespace_ctx =
     super::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 

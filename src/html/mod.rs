@@ -153,7 +153,7 @@ impl<'ctx> GenerateCtx<'ctx> {
     let path = stripped_path.to_string_lossy().to_string();
 
     if path.is_empty() {
-      return ".".to_string();
+      ".".to_string()
     } else {
       path
     }
