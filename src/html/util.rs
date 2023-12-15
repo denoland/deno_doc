@@ -95,7 +95,7 @@ pub struct RenderContext<'ctx> {
   pub url_resolver: super::UrlResolver,
   current_resolve: UrlResolveKind<'ctx>,
   main_entrypoint: Option<ModuleSpecifier>,
-  current_specifier: Option<ModuleSpecifier>,
+  current_specifier: Option<&'ctx ModuleSpecifier>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -103,7 +103,7 @@ impl<'ctx> RenderContext<'ctx> {
     ctx: &super::GenerateCtx<'ctx>,
     all_symbols: NamespacedSymbols,
     current_resolve: UrlResolveKind<'ctx>,
-    current_specifier: Option<ModuleSpecifier>,
+    current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
     Self {
       tt: ctx.tt.clone(),
@@ -148,7 +148,7 @@ impl<'ctx> RenderContext<'ctx> {
 
   pub fn with_current_specifier(
     &self,
-    current_specifier: Option<ModuleSpecifier>,
+    current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
     Self {
       current_specifier,
@@ -255,7 +255,7 @@ impl<'ctx> RenderContext<'ctx> {
         ]
       }
       UrlResolveKind::File(file) => {
-        if self.current_specifier == self.main_entrypoint {
+        if self.current_specifier == self.main_entrypoint.as_ref() {
           vec![BreadcrumbCtx {
             name: "index".to_string(),
             href: "".to_string(),
@@ -294,7 +294,7 @@ impl<'ctx> RenderContext<'ctx> {
           is_all_symbols_part: false,
         }];
 
-        if self.current_specifier != self.main_entrypoint {
+        if self.current_specifier != self.main_entrypoint.as_ref() {
           parts.push(BreadcrumbCtx {
             name: super::short_path_to_name(file.to_string()),
             href: (self.url_resolver)(

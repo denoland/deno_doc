@@ -19,6 +19,7 @@ mod types;
 mod util;
 
 pub use jsdoc::ModuleDocCtx;
+pub use pages::generate_symbol_pages_for_module;
 pub use search::generate_search_index;
 pub use symbol::SymbolGroupCtx;
 pub use symbols::namespace;
@@ -298,7 +299,7 @@ pub fn generate(
     let partitions_by_kind =
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
-    let all_symbols_render = pages::render_all_symbols(
+    let all_symbols_render = pages::render_all_symbols_page(
       &ctx,
       &partitions_by_kind,
       all_symbols.clone(),
@@ -314,13 +315,56 @@ pub fn generate(
       let partitions_for_nodes =
         get_partitions_for_file(doc_nodes, &short_path);
 
-      files.extend(pages::generate_pages_for_file(
+      let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
-        specifier.to_owned(),
+        specifier,
+        &short_path,
         &partitions_for_nodes,
-        short_path.clone(),
         doc_nodes,
-      )?);
+      );
+
+      files.extend(symbol_pages.into_iter().map(
+        |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
+          let root = (ctx.url_resolver)(
+            UrlResolveKind::Symbol {
+              file: &short_path,
+              symbol: &symbol_group_ctx.name,
+            },
+            UrlResolveKind::Root,
+          );
+
+          let html_head_ctx = pages::HtmlHeadCtx::new(
+            &root,
+            &symbol_group_ctx.name,
+            ctx.package_name.as_ref(),
+            Some(short_path.clone()),
+          );
+
+          let file_name = if short_path.is_empty() {
+            "."
+          } else {
+            &short_path
+          };
+
+          dbg!(&file_name);
+
+          let file_name =
+            format!("{file_name}/~/{}.html", symbol_group_ctx.name);
+
+          let page_ctx = pages::PageCtx {
+            html_head_ctx,
+            sidepanel_ctx,
+            symbol_group_ctx,
+            breadcrumbs_ctx,
+            search_ctx: serde_json::Value::Null,
+          };
+
+          let symbol_page =
+            ctx.tt.render("symbol_page.html", &page_ctx).unwrap();
+
+          (file_name, symbol_page)
+        },
+      ));
 
       let index = pages::render_index(
         &ctx,

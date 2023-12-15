@@ -16,7 +16,7 @@ struct SymbolCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SymbolGroupCtx {
-  name: String,
+  pub name: String,
   symbols: Vec<SymbolCtx>,
 }
 

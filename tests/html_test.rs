@@ -110,6 +110,8 @@ async fn html_doc_files() {
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();
 
+  dbg!(&file_names);
+
   assert_eq!(
     file_names,
     [
