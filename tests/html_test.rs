@@ -265,7 +265,7 @@ async fn symbol_group() {
   }
 
   let mut files_json = serde_json::to_string_pretty(&files).unwrap();
-  files_json.push_str("\n");
+  files_json.push('\n');
 
   let symbol_group_json_path = std::env::current_dir()
     .unwrap()
