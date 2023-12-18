@@ -181,3 +181,100 @@ async fn html_doc_files_rewrite() {
     ]
   );
 }
+
+#[tokio::test]
+async fn symbol_group() {
+  let multiple_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("multiple");
+
+  let doc_nodes_by_url = get_files("multiple").await;
+
+  let mut rewrite_map = IndexMap::new();
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ".".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
+    "foo".to_string(),
+  );
+
+  let ctx = GenerateCtx {
+    package_name: None,
+    common_ancestor: None,
+    main_entrypoint: Some(
+      ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ),
+    specifiers: rewrite_map.keys().cloned().collect(),
+    tt: setup_tt().unwrap(),
+    global_symbols: Default::default(),
+    global_symbol_href_resolver: Rc::new(|_, _| String::new()),
+    import_href_resolver: Rc::new(|_, _| None),
+    url_resolver: Rc::new(default_url_resolver),
+    rewrite_map: Some(rewrite_map),
+    hide_module_doc_title: false,
+  };
+
+  let mut files = vec![];
+
+  {
+    for (specifier, doc_nodes) in &doc_nodes_by_url {
+      let short_path = ctx.url_to_short_path(specifier);
+
+      let partitions_for_nodes =
+        get_partitions_for_file(doc_nodes, &short_path);
+
+      let symbol_pages = generate_symbol_pages_for_module(
+        &ctx,
+        specifier,
+        &short_path,
+        &partitions_for_nodes,
+        doc_nodes,
+      );
+
+      files.extend(symbol_pages.into_iter().map(
+        |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
+          let root = (ctx.url_resolver)(
+            UrlResolveKind::Symbol {
+              file: &short_path,
+              symbol: &symbol_group_ctx.name,
+            },
+            UrlResolveKind::Root,
+          );
+
+          let html_head_ctx = pages::HtmlHeadCtx::new(
+            &root,
+            &symbol_group_ctx.name,
+            ctx.package_name.as_ref(),
+            Some(short_path.clone()),
+          );
+
+          let page_ctx = pages::PageCtx {
+            html_head_ctx,
+            sidepanel_ctx,
+            symbol_group_ctx,
+            breadcrumbs_ctx,
+            search_ctx: serde_json::Value::Null,
+          };
+
+          page_ctx
+        },
+      ));
+    }
+  }
+
+  let files_json = serde_json::to_string(&files).unwrap();
+
+  let symbol_group_json_path = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("symbol_group.json");
+
+  let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
+
+  assert_eq!(files_json, symbol_group_json);
+}

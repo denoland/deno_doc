@@ -1,0 +1,232 @@
+[
+  {
+    "html_head_ctx": {
+      "title": "Bar - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "url_search_index": "../search_index.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js"
+    },
+    "sidepanel_ctx": {
+      "package_name": null,
+      "partitions": [
+        {
+          "name": "Class",
+          "symbols": [
+            {
+              "kind": {
+                "kind": "Class",
+                "char": "c",
+                "title": "Class",
+                "title_lowercase": "class",
+                "title_plural": "Classes"
+              },
+              "name": "Bar",
+              "href": "../././~/Bar.html"
+            },
+            {
+              "kind": {
+                "kind": "Class",
+                "char": "c",
+                "title": "Class",
+                "title_lowercase": "class",
+                "title_plural": "Classes"
+              },
+              "name": "Foo",
+              "href": "../././~/Foo.html"
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_group_ctx": {
+      "name": "Bar",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Class",
+            "char": "c",
+            "title": "Class",
+            "title_lowercase": "class",
+            "title_plural": "Classes"
+          },
+          "subtitle": "<div class=\"doc_block_subtitle\">\n  \n    \n    \n    \n      <div>\n        <span class=\"doc_block_subtitle_text\"> extends </span>\n        <a href=\"../././~/Foo.html\" class=\"link\">Foo</a>\n        <span></span>\n      </div>\n    \n  \n\n  \n</div>",
+          "body": "<div class=\"doc_block_items\"></div>"
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "Bar",
+          "href": "../././~/Bar.html",
+          "is_symbol": true,
+          "is_first_symbol": true,
+          "is_all_symbols_part": false
+        }
+      ]
+    },
+    "search_ctx": null
+  },
+  {
+    "html_head_ctx": {
+      "title": "Foo - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "url_search_index": "../search_index.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js"
+    },
+    "sidepanel_ctx": {
+      "package_name": null,
+      "partitions": [
+        {
+          "name": "Class",
+          "symbols": [
+            {
+              "kind": {
+                "kind": "Class",
+                "char": "c",
+                "title": "Class",
+                "title_lowercase": "class",
+                "title_plural": "Classes"
+              },
+              "name": "Bar",
+              "href": "../././~/Bar.html"
+            },
+            {
+              "kind": {
+                "kind": "Class",
+                "char": "c",
+                "title": "Class",
+                "title_lowercase": "class",
+                "title_plural": "Classes"
+              },
+              "name": "Foo",
+              "href": "../././~/Foo.html"
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_group_ctx": {
+      "name": "Foo",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Class",
+            "char": "c",
+            "title": "Class",
+            "title_lowercase": "class",
+            "title_plural": "Classes"
+          },
+          "subtitle": "<div class=\"doc_block_subtitle\">\n  \n    \n    \n    \n  \n\n  \n</div>",
+          "body": "<div class=\"doc_block_items\"></div>"
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "Foo",
+          "href": "../././~/Foo.html",
+          "is_symbol": true,
+          "is_first_symbol": true,
+          "is_all_symbols_part": false
+        }
+      ]
+    },
+    "search_ctx": null
+  },
+  {
+    "html_head_ctx": {
+      "title": "x - documentation",
+      "current_file": "foo",
+      "stylesheet_url": "../../styles.css",
+      "page_stylesheet_url": "../../page.css",
+      "url_search_index": "../../search_index.js",
+      "fuse_js": "../../fuse.js",
+      "url_search": "../../search.js"
+    },
+    "sidepanel_ctx": {
+      "package_name": null,
+      "partitions": [
+        {
+          "name": "Function",
+          "symbols": [
+            {
+              "kind": {
+                "kind": "Function",
+                "char": "f",
+                "title": "Function",
+                "title_lowercase": "function",
+                "title_plural": "Functions"
+              },
+              "name": "x",
+              "href": "../.././foo/~/x.html"
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_group_ctx": {
+      "name": "x",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Function",
+            "char": "f",
+            "title": "Function",
+            "title_lowercase": "function",
+            "title_plural": "Functions"
+          },
+          "subtitle": null,
+          "body": "\n  <style scoped>\n    \n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n background-color: #056CF00C;\n border: solid 2px rgb(37 99 235);\n cursor: unset;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] > code {\n  margin: -1px;\n}\n\n  </style>\n  <input type=\"radio\" name=\"function_x\" id=\"function_x_0\" checked />\n\n<div class=\"function_overload_selectors\">\n  \n    <label for=\"function_x_0\" class=\"function_overload_label\">\n      <code>\n        <span style=\"font-weight: 700;\">x</span><span style=\"font-weight: 500;\">(): <span>void</span></span>\n      </code>\n      \n    </label>\n  \n</div>\n<div style=\"margin-top: 12px;\">\n  <div class=\"doc_block_items\" id=\"function_x_0_div\"><div>\n  Parameters\n  <div class=\"section\">\n    \n  </div>\n</div><div>\n  Return Type\n  <div class=\"section\">\n    <div class=\"doc_item\" id=\"function_x_0_return\">\n  \n<a\n    href=\"#function_x_0_return\"\n    class=\"anchor\"\n    aria-label=\"Anchor\"\n    tabIndex=-1\n>\n    <div style=\"width: 14px; height: 14px; display: inline-block;\">&#128279;</div>\n</a>\n\n  <div class=\"doc_entry\">\n    <span class=\"doc_entry_children\">\n    <code>\n      <span style=\"font-weight: 700;\"></span><span style=\"font-weight: 500;\"><span>void</span></span>\n    </code>\n    </span>\n  </div>\n  \n</div>\n\n  </div>\n</div></div>\n</div>\n"
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../../",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "foo",
+          "href": "../.././foo/~/index.html",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "x",
+          "href": "../.././foo/~/x.html",
+          "is_symbol": true,
+          "is_first_symbol": true,
+          "is_all_symbols_part": false
+        }
+      ]
+    },
+    "search_ctx": null
+  }
+]

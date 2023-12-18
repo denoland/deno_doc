@@ -9,7 +9,7 @@ use crate::DocNode;
 use crate::DocNodeKind;
 
 mod jsdoc;
-mod pages;
+pub mod pages;
 mod parameters;
 mod search;
 pub mod sidepanels;

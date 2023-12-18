@@ -248,7 +248,7 @@ fn generate_symbol_pages(
   generated_pages
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct PageCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub sidepanel_ctx: SidepanelCtx,
