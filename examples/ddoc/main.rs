@@ -189,6 +189,7 @@ fn generate_docs_directory(
     main_entrypoint,
     global_symbols: Default::default(),
     global_symbol_href_resolver: std::rc::Rc::new(|_, _| String::new()),
+    import_href_resolver: std::rc::Rc::new(|_, _| None),
     url_resolver: std::rc::Rc::new(deno_doc::html::default_url_resolver),
     rewrite_map: Some(index_map),
     hide_module_doc_title: false,

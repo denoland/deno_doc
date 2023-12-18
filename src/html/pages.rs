@@ -2,7 +2,6 @@ use super::partition_nodes_by_name;
 use super::sidepanels;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::NamespacedSymbols;
 use super::RenderContext;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
@@ -71,9 +70,8 @@ pub fn render_index(
   specifier: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
   file: Option<String>,
-) -> Result<String, anyhow::Error> {
+) -> String {
   let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
     ctx,
     specifier,
@@ -84,9 +82,16 @@ pub fn render_index(
 
   let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
 
+  // will be default on index page with no main entrypoint
+  let default = vec![];
+  let doc_nodes = specifier
+    .or(ctx.main_entrypoint.as_ref())
+    .and_then(|specifier| doc_nodes_by_url.get(specifier))
+    .unwrap_or(&default);
+
   let render_ctx = RenderContext::new(
     ctx,
-    all_symbols,
+    doc_nodes,
     if let Some(short_path) = &short_path {
       UrlResolveKind::File(short_path)
     } else {
@@ -120,7 +125,7 @@ pub fn render_index(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("index.html", &index_ctx))
+  render_ctx.render("index.html", &index_ctx)
 }
 
 #[derive(Serialize)]
@@ -132,13 +137,13 @@ struct AllSymbolsCtx {
   search_ctx: serde_json::Value,
 }
 
-pub fn render_all_symbols_page(
+pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
+  // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
-    RenderContext::new(ctx, all_symbols, UrlResolveKind::AllSymbols, None);
+    RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
   let namespace_ctx =
     super::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -162,11 +167,10 @@ pub fn generate_symbol_pages_for_module(
   doc_nodes: &[DocNode],
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let name_partitions = partition_nodes_by_name(doc_nodes);
-  let all_symbols = NamespacedSymbols::new(doc_nodes);
 
   generate_symbol_pages(
     ctx,
-    all_symbols,
+    doc_nodes,
     partitions_for_nodes,
     name_partitions,
     current_specifier,
@@ -177,7 +181,7 @@ pub fn generate_symbol_pages_for_module(
 
 fn generate_symbol_pages(
   ctx: &GenerateCtx,
-  all_symbols: NamespacedSymbols,
+  doc_nodes_for_module: &[DocNode],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   name_partitions: IndexMap<String, Vec<DocNode>>,
   current_specifier: &ModuleSpecifier,
@@ -203,7 +207,7 @@ fn generate_symbol_pages(
 
     let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
       ctx,
-      all_symbols.clone(),
+      doc_nodes_for_module,
       current_specifier,
       short_path,
       &namespace_paths,
@@ -230,7 +234,7 @@ fn generate_symbol_pages(
 
       let generated = generate_symbol_pages(
         ctx,
-        all_symbols.clone(),
+        doc_nodes_for_module,
         partitions_for_nodes,
         namespace_name_partitions,
         current_specifier,
@@ -244,7 +248,7 @@ fn generate_symbol_pages(
   generated_pages
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct PageCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub sidepanel_ctx: SidepanelCtx,
@@ -256,7 +260,7 @@ pub struct PageCtx {
 
 fn render_symbol_page(
   ctx: &GenerateCtx,
-  all_symbols: NamespacedSymbols,
+  doc_nodes_for_module: &[DocNode],
   current_specifier: &ModuleSpecifier,
   short_path: &str,
   namespace_paths: &[String],
@@ -265,7 +269,7 @@ fn render_symbol_page(
 ) -> (BreadcrumbsCtx, SymbolGroupCtx) {
   let mut render_ctx = RenderContext::new(
     ctx,
-    all_symbols,
+    doc_nodes_for_module,
     UrlResolveKind::Symbol {
       file: short_path,
       symbol: namespaced_name,
