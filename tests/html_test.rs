@@ -252,15 +252,13 @@ async fn symbol_group() {
             Some(short_path.clone()),
           );
 
-          let page_ctx = pages::PageCtx {
+          pages::PageCtx {
             html_head_ctx,
             sidepanel_ctx,
             symbol_group_ctx,
             breadcrumbs_ctx,
             search_ctx: serde_json::Value::Null,
-          };
-
-          page_ctx
+          }
         },
       ));
     }
