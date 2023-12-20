@@ -55,7 +55,12 @@
           "subtitle": "<div class=\"doc_block_subtitle\">\n  \n    \n    \n    \n      <div>\n        <span class=\"doc_block_subtitle_text\"> extends </span>\n        <a href=\"../././~/Foo.html\" class=\"link\">Foo</a>\n        <span></span>\n      </div>\n    \n  \n\n  \n</div>",
           "body": "<div class=\"doc_block_items\"></div>"
         }
-      ]
+      ],
+      "usage": {
+        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Bar } from &quot;file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts&quot;;\n</code></pre>\n</div>",
+        "raw_import_statement": "\"import { Bar } from \\\"file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts\\\";\"",
+        "empty": null
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -133,7 +138,12 @@
           "subtitle": "<div class=\"doc_block_subtitle\">\n  \n    \n    \n    \n  \n\n  \n</div>",
           "body": "<div class=\"doc_block_items\"></div>"
         }
-      ]
+      ],
+      "usage": {
+        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Foo } from &quot;file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts&quot;;\n</code></pre>\n</div>",
+        "raw_import_statement": "\"import { Foo } from \\\"file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts\\\";\"",
+        "empty": null
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -200,7 +210,12 @@
           "subtitle": null,
           "body": "\n  <style scoped>\n    \n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n background-color: #056CF00C;\n border: solid 2px rgb(37 99 235);\n cursor: unset;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] > code {\n  margin: -1px;\n}\n\n  </style>\n  <input type=\"radio\" name=\"function_x\" id=\"function_x_0\" checked />\n\n<div class=\"function_overload_selectors\">\n  \n    <label for=\"function_x_0\" class=\"function_overload_label\">\n      <code>\n        <span style=\"font-weight: 700;\">x</span><span style=\"font-weight: 500;\">(): <span>void</span></span>\n      </code>\n      \n    </label>\n  \n</div>\n<div style=\"margin-top: 12px;\">\n  <div class=\"doc_block_items\" id=\"function_x_0_div\"><div>\n  Parameters\n  <div class=\"section\">\n    \n  </div>\n</div><div>\n  Return Type\n  <div class=\"section\">\n    <div class=\"doc_item\" id=\"function_x_0_return\">\n  \n<a\n    href=\"#function_x_0_return\"\n    class=\"anchor\"\n    aria-label=\"Anchor\"\n    tabIndex=-1\n>\n    <div style=\"width: 14px; height: 14px; display: inline-block;\">&#128279;</div>\n</a>\n\n  <div class=\"doc_entry\">\n    <span class=\"doc_entry_children\">\n    <code>\n      <span style=\"font-weight: 700;\"></span><span style=\"font-weight: 500;\"><span>void</span></span>\n    </code>\n    </span>\n  </div>\n  \n</div>\n\n  </div>\n</div></div>\n</div>\n"
         }
-      ]
+      ],
+      "usage": {
+        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { x } from &quot;file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/b.ts&quot;;\n</code></pre>\n</div>",
+        "raw_import_statement": "\"import { x } from \\\"file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/b.ts\\\";\"",
+        "empty": null
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
