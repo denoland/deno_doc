@@ -254,13 +254,11 @@ pub fn setup_syntect() -> SyntectAdapter {
     ))
     .unwrap();
 
-  let syntect = comrak::plugins::syntect::SyntectAdapterBuilder::new()
+  comrak::plugins::syntect::SyntectAdapterBuilder::new()
     .theme_set(syntect::highlighting::ThemeSet::load_defaults())
     .theme("InspiredGitHub")
     .syntax_set(syntax_set)
-    .build();
-
-  syntect
+    .build()
 }
 
 pub fn generate(
