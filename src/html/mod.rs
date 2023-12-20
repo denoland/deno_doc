@@ -16,6 +16,7 @@ pub mod sidepanels;
 mod symbol;
 mod symbols;
 mod types;
+mod usage;
 mod util;
 
 pub use jsdoc::ModuleDocCtx;
@@ -65,6 +66,9 @@ impl UrlResolveKind<'_> {
 /// Arguments are current and target
 pub type UrlResolver = Rc<dyn Fn(UrlResolveKind, UrlResolveKind) -> String>;
 
+/// Argument is current specifier and current file
+pub type UsageResolver = Rc<dyn Fn(&ModuleSpecifier, &str) -> String>;
+
 pub fn default_url_resolver(
   current: UrlResolveKind,
   resolve: UrlResolveKind,
@@ -106,6 +110,7 @@ pub struct GenerateOptions {
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub import_href_resolver: ImportHrefResolver,
+  pub usage_resolver: UsageResolver,
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
@@ -121,6 +126,7 @@ pub struct GenerateCtx<'ctx> {
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub import_href_resolver: ImportHrefResolver,
+  pub usage_resolver: UsageResolver,
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
@@ -243,6 +249,13 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     "breadcrumbs.html",
     include_str!("./templates/breadcrumbs.html"),
   )?;
+  tt.add_template("usage.html", include_str!("./templates/usage.html"))?;
+
+  // icons
+  tt.add_template(
+    "icons/copy.html",
+    include_str!("./templates/icons/copy.html"),
+  )?;
   Ok(Rc::new(tt))
 }
 
@@ -266,6 +279,7 @@ pub fn generate(
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
     import_href_resolver: options.import_href_resolver,
+    usage_resolver: options.usage_resolver,
     url_resolver: options.url_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,

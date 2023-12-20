@@ -1,5 +1,4 @@
 use super::util::*;
-use crate::html::GenerateCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -268,7 +267,6 @@ pub struct ModuleDocCtx {
 
 impl ModuleDocCtx {
   pub fn new(
-    ctx: &GenerateCtx,
     render_ctx: &RenderContext,
     specifier: Option<&ModuleSpecifier>,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -286,8 +284,10 @@ impl ModuleDocCtx {
           let rendered_docs = render_markdown(docs_md, render_ctx);
 
           Self {
-            title: (!ctx.hide_module_doc_title).then(|| {
-              super::short_path_to_name(ctx.url_to_short_path(main_entrypoint))
+            title: (!render_ctx.ctx.hide_module_doc_title).then(|| {
+              super::short_path_to_name(
+                render_ctx.ctx.url_to_short_path(main_entrypoint),
+              )
             }),
             docs: rendered_docs,
           }
