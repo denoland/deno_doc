@@ -1,4 +1,3 @@
-use comrak::plugins::syntect::SyntectAdapter;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -16,6 +15,7 @@ mod search;
 pub mod sidepanels;
 mod symbol;
 mod symbols;
+mod syntect_adapter;
 mod types;
 mod util;
 
@@ -118,7 +118,7 @@ pub struct GenerateCtx<'ctx> {
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
   pub tt: TinyTemplate<'ctx>,
-  pub syntect_adapter: SyntectAdapter,
+  pub syntect_adapter: syntect_adapter::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub import_href_resolver: ImportHrefResolver,
@@ -247,14 +247,14 @@ pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   Ok(tt)
 }
 
-pub fn setup_syntect() -> SyntectAdapter {
+pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
   let syntax_set: syntect::parsing::SyntaxSet =
     syntect::dumps::from_uncompressed_data(include_bytes!(
       "./default_newlines.packdump"
     ))
     .unwrap();
 
-  comrak::plugins::syntect::SyntectAdapterBuilder::new()
+  syntect_adapter::SyntectAdapterBuilder::new()
     .theme_set(syntect::highlighting::ThemeSet::load_defaults())
     .theme("InspiredGitHub")
     .syntax_set(syntax_set)
