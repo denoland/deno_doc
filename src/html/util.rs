@@ -175,6 +175,10 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_resolve
   }
 
+  pub fn get_current_specifier(&self) -> Option<&ModuleSpecifier> {
+    self.current_specifier
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     let target_symbol_parts = target_symbol
       .split('.')

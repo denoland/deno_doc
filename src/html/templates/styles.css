@@ -446,7 +446,8 @@
 }
 
 .usage .markdown pre {
-  padding-right: 4rem !important;
+  margin: 0;
+  padding-right: 4rem;
 }
 
 .usage .usage_inner .usage_button {
@@ -468,7 +469,6 @@
 .usage .usage_button button:hover {
   background-color: rgb(209, 213, 219);
 }
-
 
 .usage .usage_button button:before {
   display: none;

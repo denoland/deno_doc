@@ -5,8 +5,10 @@ use crate::DocNodeKind;
 use serde::Serialize;
 
 fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
-  let url =
-    (ctx.ctx.usage_resolver)(ctx.get_current_resolve().get_file().unwrap());
+  let url = (ctx.ctx.usage_resolver)(
+    ctx.get_current_specifier().unwrap(),
+    ctx.get_current_resolve().get_file().unwrap(),
+  );
 
   if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
     let mut parts = symbol.split('.').collect::<Vec<&str>>();
