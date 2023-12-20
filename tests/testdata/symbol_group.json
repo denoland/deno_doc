@@ -57,8 +57,8 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Bar } from &quot;file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts&quot;;\n</code></pre>\n</div>",
-        "raw_import_statement": "\"import { Bar } from \\\"file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts\\\";\"",
+        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Bar } from &quot;.&quot;;\n</code></pre>\n</div>",
+        "raw_import_statement": "\"import { Bar } from \\\".\\\";\"",
         "empty": null
       }
     },
@@ -140,8 +140,8 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Foo } from &quot;file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts&quot;;\n</code></pre>\n</div>",
-        "raw_import_statement": "\"import { Foo } from \\\"file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/a.ts\\\";\"",
+        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Foo } from &quot;.&quot;;\n</code></pre>\n</div>",
+        "raw_import_statement": "\"import { Foo } from \\\".\\\";\"",
         "empty": null
       }
     },
@@ -212,8 +212,8 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { x } from &quot;file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/b.ts&quot;;\n</code></pre>\n</div>",
-        "raw_import_statement": "\"import { x } from \\\"file:///Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/b.ts\\\";\"",
+        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { x } from &quot;foo&quot;;\n</code></pre>\n</div>",
+        "raw_import_statement": "\"import { x } from \\\"foo\\\";\"",
         "empty": null
       }
     },

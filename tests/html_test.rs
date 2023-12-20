@@ -215,7 +215,7 @@ async fn symbol_group() {
     global_symbols: Default::default(),
     global_symbol_href_resolver: Rc::new(|_, _| String::new()),
     import_href_resolver: Rc::new(|_, _| None),
-    usage_resolver: Rc::new(|specifier, _file| specifier.to_string()),
+    usage_resolver: Rc::new(|_specifier, file| file.to_string()),
     url_resolver: Rc::new(default_url_resolver),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
