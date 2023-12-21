@@ -254,11 +254,11 @@ pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
     ))
     .unwrap();
 
-  syntect_adapter::SyntectAdapterBuilder::new()
-    .theme_set(syntect::highlighting::ThemeSet::load_defaults())
-    .theme("InspiredGitHub")
-    .syntax_set(syntax_set)
-    .build()
+  syntect_adapter::SyntectAdapter {
+    theme: Some("InspiredGitHub".to_string()),
+    syntax_set,
+    theme_set: syntect::highlighting::ThemeSet::load_defaults(),
+  }
 }
 
 pub fn generate(

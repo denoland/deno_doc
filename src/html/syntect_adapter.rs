@@ -18,23 +18,13 @@ use syntect::Error;
 
 #[derive(Debug)]
 /// Syntect syntax highlighter plugin.
-pub struct SyntectAdapter {
-  theme: Option<String>,
-  syntax_set: SyntaxSet,
-  theme_set: ThemeSet,
+pub(crate) struct SyntectAdapter {
+  pub theme: Option<String>,
+  pub syntax_set: SyntaxSet,
+  pub theme_set: ThemeSet,
 }
 
 impl SyntectAdapter {
-  /// Construct a new `SyntectAdapter` object and set the syntax highlighting theme.
-  /// If None is specified, apply CSS classes instead.
-  pub fn new(theme: Option<&str>) -> Self {
-    SyntectAdapter {
-      theme: theme.map(String::from),
-      syntax_set: SyntaxSet::load_defaults_newlines(),
-      theme_set: ThemeSet::load_defaults(),
-    }
-  }
-
   fn highlight_html(
     &self,
     code: &str,
@@ -185,71 +175,6 @@ impl<'a> Iterator for SyntectPreAttributesIter<'a> {
         Some(("style", self.syntect_style))
       }
       None => None,
-    }
-  }
-}
-
-#[derive(Debug)]
-/// A builder for [`SyntectAdapter`].
-///
-/// Allows customization of `Theme`, [`ThemeSet`], and [`SyntaxSet`].
-pub struct SyntectAdapterBuilder {
-  theme: Option<String>,
-  syntax_set: Option<SyntaxSet>,
-  theme_set: Option<ThemeSet>,
-}
-
-impl Default for SyntectAdapterBuilder {
-  fn default() -> Self {
-    SyntectAdapterBuilder {
-      theme: Some("InspiredGitHub".into()),
-      syntax_set: None,
-      theme_set: None,
-    }
-  }
-}
-
-impl SyntectAdapterBuilder {
-  /// Create a new empty [`SyntectAdapterBuilder`].
-  pub fn new() -> Self {
-    Default::default()
-  }
-
-  /// Set the theme.
-  pub fn theme(mut self, s: &str) -> Self {
-    self.theme.replace(s.into());
-    self
-  }
-
-  /// Uses CSS classes instead of a Syntect theme.
-  pub fn css(mut self) -> Self {
-    self.theme = None;
-    self
-  }
-
-  /// Set the syntax set.
-  pub fn syntax_set(mut self, s: SyntaxSet) -> Self {
-    self.syntax_set.replace(s);
-    self
-  }
-
-  /// Set the theme set.
-  pub fn theme_set(mut self, s: ThemeSet) -> Self {
-    self.theme_set.replace(s);
-    self
-  }
-
-  /// Builds the [`SyntectAdapter`]. Default values:
-  /// - `theme`: `InspiredGitHub`
-  /// - `syntax_set`: [`SyntaxSet::load_defaults_newlines()`]
-  /// - `theme_set`: [`ThemeSet::load_defaults()`]
-  pub fn build(self) -> SyntectAdapter {
-    SyntectAdapter {
-      theme: self.theme,
-      syntax_set: self
-        .syntax_set
-        .unwrap_or_else(SyntaxSet::load_defaults_newlines),
-      theme_set: self.theme_set.unwrap_or_else(ThemeSet::load_defaults),
     }
   }
 }
