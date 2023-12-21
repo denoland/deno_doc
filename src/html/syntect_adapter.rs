@@ -18,7 +18,7 @@ use syntect::Error;
 
 #[derive(Debug)]
 /// Syntect syntax highlighter plugin.
-pub(crate) struct SyntectAdapter {
+pub struct SyntectAdapter {
   pub theme: Option<String>,
   pub syntax_set: SyntaxSet,
   pub theme_set: ThemeSet,
