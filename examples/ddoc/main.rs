@@ -20,6 +20,7 @@ use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
 use std::fs::read_to_string;
+use std::rc::Rc;
 
 struct SourceFileLoader {}
 
@@ -179,13 +180,21 @@ fn generate_docs_directory(
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);
 
+  let mut index_map = IndexMap::new();
+  if let Some(main_entrypoint) = main_entrypoint.as_ref() {
+    index_map.insert(main_entrypoint.clone(), String::from("."));
+  }
+
   let options = deno_doc::html::GenerateOptions {
     package_name: Some(name),
     main_entrypoint,
     global_symbols: Default::default(),
-    global_symbol_href_resolver: std::rc::Rc::new(|_, _| String::new()),
-    url_resolver: std::rc::Rc::new(deno_doc::html::default_url_resolver),
-    rewrite_map: None,
+    global_symbol_href_resolver: Rc::new(|_, _| String::new()),
+    import_href_resolver: Rc::new(|_, _| None),
+    usage_resolver: Rc::new(|specifier, _file| specifier.to_string()),
+    url_resolver: Rc::new(deno_doc::html::default_url_resolver),
+    rewrite_map: Some(index_map),
+    hide_module_doc_title: false,
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 

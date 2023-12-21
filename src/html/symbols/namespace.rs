@@ -210,7 +210,7 @@ fn get_namespace_section_render_ctx(
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: doc_node.kind.into(),
         origin: origin.clone(),
-        href: (ctx.url_resolver)(
+        href: (ctx.ctx.url_resolver)(
           current_resolve,
           crate::html::UrlResolveKind::Symbol {
             file: origin

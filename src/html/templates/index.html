@@ -3,8 +3,7 @@
 {{ call index_sidepanel.html with sidepanel_ctx }}
 
 <div id="content" class="with_sidepanel">
-  <h2>Index</h2>
-
+  {{ call breadcrumbs.html with breadcrumbs_ctx }}
   {{ call search_bar.html with search_ctx }}
 
   <main>
@@ -17,5 +16,5 @@
 
   {{ call search_results.html with search_ctx }}
 <div>
-
-{{ call html_tail.html with html_tail_ctx }}
+</body>
+</html>
