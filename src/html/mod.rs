@@ -15,6 +15,7 @@ mod search;
 pub mod sidepanels;
 mod symbol;
 mod symbols;
+mod syntect_adapter;
 mod types;
 mod util;
 
@@ -111,13 +112,13 @@ pub struct GenerateOptions {
   pub hide_module_doc_title: bool,
 }
 
-#[derive(Clone)]
 pub struct GenerateCtx<'ctx> {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
-  pub tt: Rc<TinyTemplate<'ctx>>,
+  pub tt: TinyTemplate<'ctx>,
+  pub syntect_adapter: syntect_adapter::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub import_href_resolver: ImportHrefResolver,
@@ -179,7 +180,7 @@ pub struct DocNodeWithContext {
   pub doc_node: DocNode,
 }
 
-pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
+pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template(
@@ -243,7 +244,21 @@ pub fn setup_tt<'t>() -> Result<Rc<TinyTemplate<'t>>, anyhow::Error> {
     "breadcrumbs.html",
     include_str!("./templates/breadcrumbs.html"),
   )?;
-  Ok(Rc::new(tt))
+  Ok(tt)
+}
+
+pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
+  let syntax_set: syntect::parsing::SyntaxSet =
+    syntect::dumps::from_uncompressed_data(include_bytes!(
+      "./default_newlines.packdump"
+    ))
+    .unwrap();
+
+  syntect_adapter::SyntectAdapter {
+    theme: Some("InspiredGitHub".to_string()),
+    syntax_set,
+    theme_set: syntect::highlighting::ThemeSet::load_defaults(),
+  }
 }
 
 pub fn generate(
@@ -263,6 +278,7 @@ pub fn generate(
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     tt,
+    syntect_adapter: setup_syntect(),
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
     import_href_resolver: options.import_href_resolver,
