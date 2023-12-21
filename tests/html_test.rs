@@ -212,6 +212,7 @@ async fn symbol_group() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     tt: setup_tt().unwrap(),
+    syntect_adapter: setup_syntect(),
     global_symbols: Default::default(),
     global_symbol_href_resolver: Rc::new(|_, _| String::new()),
     import_href_resolver: Rc::new(|_, _| None),

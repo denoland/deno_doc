@@ -344,7 +344,7 @@
   line-height: 1.25rem; /* 20px */
   padding: 0.25rem 0.375rem; /* 4px 6px */
   border-radius: 0.25rem; /* 4px */
-  background-color: rgb(243 244 246);
+  background-color: rgb(243 244 246) !important;
 }
 
 .markdown pre {
@@ -355,7 +355,7 @@
   padding: 0.625rem; /* 10px */
   border-radius: 0.5rem; /* 8px */
   color: black;
-  background-color: rgb(243 244 246);
+  background-color: rgb(243 244 246) !important;
   overflow-x: auto;
 }
 

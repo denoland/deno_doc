@@ -94,7 +94,10 @@ fn render_markdown_inner(
   options.extension.tasklist = true;
   options.render.escape = true;
 
-  // TODO(@crowlKats): codeblock highlighting
+  let mut plugins = comrak::Plugins::default();
+
+  plugins.render.codefence_syntax_highlighter =
+    Some(&render_ctx.ctx.syntect_adapter);
 
   let md = if summary {
     let (title, body) = split_markdown_title(md);
@@ -108,7 +111,13 @@ fn render_markdown_inner(
   } else {
     "markdown"
   };
-  let html = comrak::markdown_to_html(&parse_links(md, render_ctx), &options);
+
+  let html = comrak::markdown_to_html_with_plugins(
+    &parse_links(md, render_ctx),
+    &options,
+    &plugins,
+  );
+
   format!(r#"<div class="{class_name}">{html}</div>"#,)
 }
 
