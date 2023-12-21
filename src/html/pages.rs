@@ -100,12 +100,8 @@ pub fn render_index(
     specifier,
   );
 
-  let module_doc = super::jsdoc::ModuleDocCtx::new(
-    ctx,
-    &render_ctx,
-    specifier,
-    doc_nodes_by_url,
-  );
+  let module_doc =
+    super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url);
 
   let root = (ctx.url_resolver)(
     file

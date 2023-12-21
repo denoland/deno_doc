@@ -20,6 +20,7 @@ use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
 use std::fs::read_to_string;
+use std::rc::Rc;
 
 struct SourceFileLoader {}
 
@@ -188,9 +189,10 @@ fn generate_docs_directory(
     package_name: Some(name),
     main_entrypoint,
     global_symbols: Default::default(),
-    global_symbol_href_resolver: std::rc::Rc::new(|_, _| String::new()),
-    import_href_resolver: std::rc::Rc::new(|_, _| None),
-    url_resolver: std::rc::Rc::new(deno_doc::html::default_url_resolver),
+    global_symbol_href_resolver: Rc::new(|_, _| String::new()),
+    import_href_resolver: Rc::new(|_, _| None),
+    usage_resolver: Rc::new(|specifier, _file| specifier.to_string()),
+    url_resolver: Rc::new(deno_doc::html::default_url_resolver),
     rewrite_map: Some(index_map),
     hide_module_doc_title: false,
   };
