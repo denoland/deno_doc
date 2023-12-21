@@ -344,7 +344,7 @@
   line-height: 1.25rem; /* 20px */
   padding: 0.25rem 0.375rem; /* 4px 6px */
   border-radius: 0.25rem; /* 4px */
-  background-color: rgb(243 244 246);
+  background-color: rgb(243 244 246) !important;
 }
 
 .markdown pre {
@@ -355,7 +355,7 @@
   padding: 0.625rem; /* 10px */
   border-radius: 0.5rem; /* 8px */
   color: black;
-  background-color: rgb(243 244 246);
+  background-color: rgb(243 244 246) !important;
   overflow-x: auto;
 }
 
@@ -434,4 +434,81 @@
 }
 .example > details > summary::-webkit-details-marker {
   display: none;
+}
+
+.usage {
+  max-width: 100%;
+  display: flex;
+}
+
+.usage .usage_inner {
+  position: relative;
+}
+
+.usage .markdown pre {
+  margin: 0;
+  padding-right: 4rem;
+}
+
+.usage .usage_inner .usage_button {
+  position: absolute;
+  top: 0;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.usage .usage_button button {
+  border-radius: 0.25rem;
+  border: 1px solid rgb(209, 213, 219);
+  padding: 0.375rem;
+  cursor: pointer;
+}
+
+.usage .usage_button button:hover {
+  background-color: rgb(209, 213, 219);
+}
+
+.usage .usage_button button:before {
+  display: none;
+  position: absolute;
+  z-index: 9998;
+  width: 0;
+  height: 0;
+  bottom: 0;
+  left: 9px;
+  content: '';
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid rgb(209, 213, 219);
+}
+
+.usage .usage_button button:after {
+  position: absolute;
+  display: none;
+  z-index: 9999;
+  border-radius: 0.25rem;
+
+  font-size: 14px;
+  line-height: 22px;
+  height: 22px;
+  bottom: -21px;
+  left: -36px;
+  width: 100px;
+
+  color: black;
+  text-align: center;
+  content: 'Click to copy';
+  background: rgb(209, 213, 219);
+}
+
+.usage .usage_button button:hover:before, .usage .usage_button button:hover:after {
+  display: block;
+}
+
+.usage .usage_button button:active:after, .usage .usage_button button:focus:after {
+  content: 'Copied!';
+  width: 70px;
+  left: -20px;
 }

@@ -1,3 +1,4 @@
+use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
 use crate::DocNodeKind;
 use deno_graph::ModuleSpecifier;
@@ -5,7 +6,6 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
-use tinytemplate::TinyTemplate;
 
 lazy_static! {
   static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
@@ -20,17 +20,17 @@ pub(crate) fn title_to_id(title: &str) -> String {
   TARGET_RE.replace_all(title, "_").to_string()
 }
 
-/// A container to hold a list of all available symbols with their namespaces:
+/// A container to hold a list of symbols with their namespaces:
 ///
 /// ["setTimeout"]
 /// ["Deno", "read"]
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
 #[derive(Clone)]
-pub struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
+struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
-  pub fn new(doc_nodes: &[crate::DocNode]) -> Self {
+  fn new(doc_nodes: &[crate::DocNode]) -> Self {
     let symbols = Self::compute_namespaced_symbols(doc_nodes, &[]);
     Self(Rc::new(symbols))
   }
@@ -42,9 +42,12 @@ impl NamespacedSymbols {
     let mut namespaced_symbols = HashSet::new();
 
     for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::ModuleDoc {
+      if doc_node.kind == DocNodeKind::ModuleDoc
+        || doc_node.declaration_kind != crate::node::DeclarationKind::Export
+      {
         continue;
       }
+      // TODO: handle export aliasing
 
       let mut name_path = current_path.to_vec();
       name_path.push(doc_node.name.clone());
@@ -83,39 +86,35 @@ impl NamespacedGlobalSymbols {
 
 pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String], &String) -> String>;
 
+pub type ImportHrefResolver = Rc<dyn Fn(&[String], &String) -> Option<String>>;
+
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  tt: Rc<TinyTemplate<'ctx>>,
-  all_symbols: NamespacedSymbols,
+  pub(crate) ctx: &'ctx GenerateCtx<'ctx>,
+  current_exports: NamespacedSymbols,
+  current_imports: HashMap<String, String>,
   current_type_params: HashSet<String>,
+  current_resolve: UrlResolveKind<'ctx>,
+  current_specifier: Option<&'ctx ModuleSpecifier>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Vec<String>,
-  global_symbols: NamespacedGlobalSymbols,
-  global_symbol_href_resolver: GlobalSymbolHrefResolver,
-  pub url_resolver: super::UrlResolver,
-  current_resolve: UrlResolveKind<'ctx>,
-  main_entrypoint: Option<ModuleSpecifier>,
-  current_specifier: Option<ModuleSpecifier>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
-    ctx: &super::GenerateCtx<'ctx>,
-    all_symbols: NamespacedSymbols,
+    ctx: &'ctx GenerateCtx<'ctx>,
+    doc_nodes: &[crate::DocNode],
     current_resolve: UrlResolveKind<'ctx>,
-    current_specifier: Option<ModuleSpecifier>,
+    current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
     Self {
-      tt: ctx.tt.clone(),
+      ctx,
+      current_exports: NamespacedSymbols::new(doc_nodes),
+      current_imports: get_current_imports(doc_nodes),
       current_type_params: Default::default(),
-      namespace_parts: vec![],
-      all_symbols,
-      global_symbols: ctx.global_symbols.clone(),
-      global_symbol_href_resolver: ctx.global_symbol_href_resolver.clone(),
-      url_resolver: ctx.url_resolver.clone(),
       current_resolve,
-      main_entrypoint: ctx.main_entrypoint.clone(),
       current_specifier,
+      namespace_parts: vec![],
     }
   }
 
@@ -148,7 +147,7 @@ impl<'ctx> RenderContext<'ctx> {
 
   pub fn with_current_specifier(
     &self,
-    current_specifier: Option<ModuleSpecifier>,
+    current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
     Self {
       current_specifier,
@@ -161,7 +160,7 @@ impl<'ctx> RenderContext<'ctx> {
   where
     Ctx: Serialize,
   {
-    self.tt.render(template, context).unwrap()
+    self.ctx.tt.render(template, context).unwrap()
   }
 
   pub fn contains_type_param(&self, name: &str) -> bool {
@@ -176,6 +175,10 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_resolve
   }
 
+  pub fn get_current_specifier(&self) -> Option<&ModuleSpecifier> {
+    self.current_specifier
+  }
+
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
     let target_symbol_parts = target_symbol
       .split('.')
@@ -188,8 +191,8 @@ impl<'ctx> RenderContext<'ctx> {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);
 
-        if self.all_symbols.contains(&current_parts) {
-          return Some((self.url_resolver)(
+        if self.current_exports.contains(&current_parts) {
+          return Some((self.ctx.url_resolver)(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
               file: self.get_current_resolve().get_file().unwrap(),
@@ -202,8 +205,8 @@ impl<'ctx> RenderContext<'ctx> {
       }
     }
 
-    if self.all_symbols.contains(&target_symbol_parts) {
-      return Some((self.url_resolver)(
+    if self.current_exports.contains(&target_symbol_parts) {
+      return Some((self.ctx.url_resolver)(
         self.get_current_resolve(),
         UrlResolveKind::Symbol {
           file: self.get_current_resolve().get_file().unwrap_or_default(), // TODO
@@ -212,10 +215,24 @@ impl<'ctx> RenderContext<'ctx> {
       ));
     }
 
-    // TODO(crowlKats): handle currentImports
+    if let Some(src) = self.current_imports.get(target_symbol) {
+      if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
+        if self.ctx.specifiers.contains(&module_specifier) {
+          return Some((self.ctx.url_resolver)(
+            self.get_current_resolve(),
+            UrlResolveKind::Symbol {
+              file: &self.ctx.url_to_short_path(&module_specifier),
+              symbol: &target_symbol_parts.join("."),
+            },
+          ));
+        }
+      }
 
-    if let Some(context) = self.global_symbols.get(&target_symbol_parts) {
-      return Some((self.global_symbol_href_resolver)(
+      return (self.ctx.import_href_resolver)(&target_symbol_parts, src);
+    }
+
+    if let Some(context) = self.ctx.global_symbols.get(&target_symbol_parts) {
+      return Some((self.ctx.global_symbol_href_resolver)(
         &target_symbol_parts,
         context,
       ));
@@ -237,7 +254,7 @@ impl<'ctx> RenderContext<'ctx> {
         vec![
           BreadcrumbCtx {
             name: "index".to_string(),
-            href: (self.url_resolver)(
+            href: (self.ctx.url_resolver)(
               self.current_resolve,
               UrlResolveKind::Root,
             ),
@@ -255,7 +272,7 @@ impl<'ctx> RenderContext<'ctx> {
         ]
       }
       UrlResolveKind::File(file) => {
-        if self.current_specifier == self.main_entrypoint {
+        if self.current_specifier == self.ctx.main_entrypoint.as_ref() {
           vec![BreadcrumbCtx {
             name: "index".to_string(),
             href: "".to_string(),
@@ -267,7 +284,7 @@ impl<'ctx> RenderContext<'ctx> {
           vec![
             BreadcrumbCtx {
               name: "index".to_string(),
-              href: (self.url_resolver)(
+              href: (self.ctx.url_resolver)(
                 self.current_resolve,
                 UrlResolveKind::Root,
               ),
@@ -288,16 +305,19 @@ impl<'ctx> RenderContext<'ctx> {
       UrlResolveKind::Symbol { file, symbol } => {
         let mut parts = vec![BreadcrumbCtx {
           name: "index".to_string(),
-          href: (self.url_resolver)(self.current_resolve, UrlResolveKind::Root),
+          href: (self.ctx.url_resolver)(
+            self.current_resolve,
+            UrlResolveKind::Root,
+          ),
           is_symbol: false,
           is_first_symbol: false,
           is_all_symbols_part: false,
         }];
 
-        if self.current_specifier != self.main_entrypoint {
+        if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
           parts.push(BreadcrumbCtx {
             name: super::short_path_to_name(file.to_string()),
-            href: (self.url_resolver)(
+            href: (self.ctx.url_resolver)(
               self.current_resolve,
               UrlResolveKind::File(file),
             ),
@@ -313,7 +333,7 @@ impl<'ctx> RenderContext<'ctx> {
             symbol_parts.push(symbol_part);
             let breadcrumb = BreadcrumbCtx {
               name: symbol_part.to_string(),
-              href: (self.url_resolver)(
+              href: (self.ctx.url_resolver)(
                 self.current_resolve,
                 UrlResolveKind::Symbol {
                   file,
@@ -386,4 +406,22 @@ impl From<DocNodeKind> for DocNodeKindCtx {
       title_plural,
     }
   }
+}
+
+fn get_current_imports(
+  doc_nodes: &[crate::DocNode],
+) -> HashMap<String, String> {
+  let mut imports = HashMap::new();
+
+  for doc_node in doc_nodes {
+    if doc_node.kind == DocNodeKind::Import {
+      let import_def = doc_node.import_def.as_ref().unwrap();
+      // TODO: handle import aliasing
+      if import_def.imported.as_ref() == Some(&doc_node.name) {
+        imports.insert(doc_node.name.clone(), import_def.src.clone());
+      }
+    }
+  }
+
+  imports
 }

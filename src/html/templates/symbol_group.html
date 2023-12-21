@@ -9,6 +9,9 @@
           {symbol.subtitle}
         </div>
       </div>
+      {{ if @first }}
+        {{ call usage.html with usage }}
+      {{ endif }}
       <div>
         {symbol.body}
       </div>

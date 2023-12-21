@@ -1,5 +1,4 @@
 use super::util::*;
-use crate::html::GenerateCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -95,7 +94,10 @@ fn render_markdown_inner(
   options.extension.tasklist = true;
   options.render.escape = true;
 
-  // TODO(@crowlKats): codeblock highlighting
+  let mut plugins = comrak::Plugins::default();
+
+  plugins.render.codefence_syntax_highlighter =
+    Some(&render_ctx.ctx.syntect_adapter);
 
   let md = if summary {
     let (title, body) = split_markdown_title(md);
@@ -109,7 +111,13 @@ fn render_markdown_inner(
   } else {
     "markdown"
   };
-  let html = comrak::markdown_to_html(&parse_links(md, render_ctx), &options);
+
+  let html = comrak::markdown_to_html_with_plugins(
+    &parse_links(md, render_ctx),
+    &options,
+    &plugins,
+  );
+
   format!(r#"<div class="{class_name}">{html}</div>"#,)
 }
 
@@ -268,7 +276,6 @@ pub struct ModuleDocCtx {
 
 impl ModuleDocCtx {
   pub fn new(
-    ctx: &GenerateCtx,
     render_ctx: &RenderContext,
     specifier: Option<&ModuleSpecifier>,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -286,8 +293,10 @@ impl ModuleDocCtx {
           let rendered_docs = render_markdown(docs_md, render_ctx);
 
           Self {
-            title: (!ctx.hide_module_doc_title).then(|| {
-              super::short_path_to_name(ctx.url_to_short_path(main_entrypoint))
+            title: (!render_ctx.ctx.hide_module_doc_title).then(|| {
+              super::short_path_to_name(
+                render_ctx.ctx.url_to_short_path(main_entrypoint),
+              )
             }),
             docs: rendered_docs,
           }

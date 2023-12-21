@@ -2,8 +2,8 @@ use super::partition_nodes_by_name;
 use super::sidepanels;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::NamespacedSymbols;
 use super::RenderContext;
+use super::SymbolGroupCtx;
 use super::UrlResolveKind;
 
 use super::FUSE_FILENAME;
@@ -12,6 +12,7 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::html::sidepanels::SidepanelCtx;
 use crate::html::util::BreadcrumbsCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
@@ -20,7 +21,7 @@ use indexmap::IndexMap;
 use serde::Serialize;
 
 #[derive(Debug, Serialize, Clone)]
-struct HtmlHeadCtx {
+pub struct HtmlHeadCtx {
   title: String,
   current_file: String,
   stylesheet_url: String,
@@ -31,7 +32,7 @@ struct HtmlHeadCtx {
 }
 
 impl HtmlHeadCtx {
-  fn new(
+  pub fn new(
     root: &str,
     page: &str,
     package_name: Option<&String>,
@@ -69,9 +70,8 @@ pub fn render_index(
   specifier: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
   file: Option<String>,
-) -> Result<String, anyhow::Error> {
+) -> String {
   let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
     ctx,
     specifier,
@@ -82,23 +82,26 @@ pub fn render_index(
 
   let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
 
+  // will be default on index page with no main entrypoint
+  let default = vec![];
+  let doc_nodes = specifier
+    .or(ctx.main_entrypoint.as_ref())
+    .and_then(|specifier| doc_nodes_by_url.get(specifier))
+    .unwrap_or(&default);
+
   let render_ctx = RenderContext::new(
     ctx,
-    all_symbols,
+    doc_nodes,
     if let Some(short_path) = &short_path {
       UrlResolveKind::File(short_path)
     } else {
       UrlResolveKind::Root
     },
-    specifier.cloned(),
+    specifier,
   );
 
-  let module_doc = super::jsdoc::ModuleDocCtx::new(
-    ctx,
-    &render_ctx,
-    specifier,
-    doc_nodes_by_url,
-  );
+  let module_doc =
+    super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url);
 
   let root = (ctx.url_resolver)(
     file
@@ -118,7 +121,7 @@ pub fn render_index(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("index.html", &index_ctx))
+  render_ctx.render("index.html", &index_ctx)
 }
 
 #[derive(Serialize)]
@@ -130,13 +133,13 @@ struct AllSymbolsCtx {
   search_ctx: serde_json::Value,
 }
 
-pub fn render_all_symbols(
+pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-  all_symbols: NamespacedSymbols,
 ) -> Result<String, anyhow::Error> {
+  // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
-    RenderContext::new(ctx, all_symbols, UrlResolveKind::AllSymbols, None);
+    RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
   let namespace_ctx =
     super::namespace::get_namespace_render_ctx(&render_ctx, partitions);
 
@@ -152,71 +155,63 @@ pub fn render_all_symbols(
   Ok(render_ctx.render("all_symbols.html", &all_symbols_ctx))
 }
 
-pub fn generate_pages_for_file(
+pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
-  current_specifier: ModuleSpecifier,
+  current_specifier: &ModuleSpecifier,
+  short_path: &str,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  short_path: String,
   doc_nodes: &[DocNode],
-) -> Result<Vec<(String, String)>, anyhow::Error> {
+) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let name_partitions = partition_nodes_by_name(doc_nodes);
-  let all_symbols = NamespacedSymbols::new(doc_nodes);
 
-  generate_pages_inner(
+  generate_symbol_pages(
     ctx,
-    current_specifier,
+    doc_nodes,
     partitions_for_nodes,
-    &short_path,
     name_partitions,
+    current_specifier,
+    short_path,
     vec![],
-    all_symbols,
   )
 }
 
-pub fn generate_pages_inner(
+fn generate_symbol_pages(
   ctx: &GenerateCtx,
-  current_specifier: ModuleSpecifier,
+  doc_nodes_for_module: &[DocNode],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  short_path: &str,
   name_partitions: IndexMap<String, Vec<DocNode>>,
+  current_specifier: &ModuleSpecifier,
+  short_path: &str,
   namespace_paths: Vec<String>,
-  all_symbols: NamespacedSymbols,
-) -> Result<Vec<(String, String)>, anyhow::Error> {
+) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut generated_pages =
     Vec::with_capacity(name_partitions.values().len() * 2);
 
   for (name, doc_nodes) in name_partitions.iter() {
-    let file_name = if short_path.is_empty() {
-      "."
-    } else {
-      short_path
-    };
     let namespaced_name = if namespace_paths.is_empty() {
       name.to_owned()
     } else {
       format!("{}.{name}", namespace_paths.join("."))
     };
-    let file_name = format!("{file_name}/~/{namespaced_name}.html");
 
-    let sidepanel_ctx = sidepanels::SidepanelCtx::new(
+    let sidepanel_ctx = SidepanelCtx::new(
       ctx,
       partitions_for_nodes,
       short_path,
       &namespaced_name,
     );
 
-    let page = render_symbol_page(
+    let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
       ctx,
-      current_specifier.clone(),
-      sidepanel_ctx,
-      &namespace_paths,
-      name,
-      doc_nodes,
-      all_symbols.clone(),
+      doc_nodes_for_module,
+      current_specifier,
       short_path,
-    )?;
+      &namespace_paths,
+      &namespaced_name,
+      doc_nodes,
+    );
 
-    generated_pages.push((file_name, page));
+    generated_pages.push((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx));
 
     if let Some(doc_node) = doc_nodes
       .iter()
@@ -233,55 +228,47 @@ pub fn generate_pages_inner(
         ns_paths
       };
 
-      let generated = generate_pages_inner(
+      let generated = generate_symbol_pages(
         ctx,
-        current_specifier.clone(),
+        doc_nodes_for_module,
         partitions_for_nodes,
-        short_path,
         namespace_name_partitions,
+        current_specifier,
+        short_path,
         namespace_paths,
-        all_symbols.clone(),
-      )?;
+      );
       generated_pages.extend_from_slice(&generated);
     }
   }
 
-  Ok(generated_pages)
+  generated_pages
 }
 
-#[derive(Serialize)]
-struct PageCtx {
-  html_head_ctx: HtmlHeadCtx,
-  sidepanel_ctx: sidepanels::SidepanelCtx,
-  symbol_group_ctx: super::symbol::SymbolGroupCtx,
-  breadcrumbs_ctx: BreadcrumbsCtx,
+#[derive(Debug, Serialize)]
+pub struct PageCtx {
+  pub html_head_ctx: HtmlHeadCtx,
+  pub sidepanel_ctx: SidepanelCtx,
+  pub symbol_group_ctx: SymbolGroupCtx,
+  pub breadcrumbs_ctx: BreadcrumbsCtx,
   // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
+  pub search_ctx: serde_json::Value,
 }
 
-#[allow(clippy::too_many_arguments)]
 fn render_symbol_page(
   ctx: &GenerateCtx,
-  current_specifier: ModuleSpecifier,
-  sidepanel_ctx: sidepanels::SidepanelCtx,
+  doc_nodes_for_module: &[DocNode],
+  current_specifier: &ModuleSpecifier,
+  short_path: &str,
   namespace_paths: &[String],
-  name: &str,
+  namespaced_name: &str,
   doc_nodes: &[DocNode],
-  all_symbols: NamespacedSymbols,
-  file: &str,
-) -> Result<String, anyhow::Error> {
-  let namespaced_name = if namespace_paths.is_empty() {
-    name.to_string()
-  } else {
-    format!("{}.{}", namespace_paths.join("."), name)
-  };
-
+) -> (BreadcrumbsCtx, SymbolGroupCtx) {
   let mut render_ctx = RenderContext::new(
     ctx,
-    all_symbols,
+    doc_nodes_for_module,
     UrlResolveKind::Symbol {
-      file,
-      symbol: &namespaced_name,
+      file: short_path,
+      symbol: namespaced_name,
     },
     Some(current_specifier),
   );
@@ -290,33 +277,8 @@ fn render_symbol_page(
   }
 
   // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group_ctx = super::symbol::SymbolGroupCtx::new(
-    &render_ctx,
-    doc_nodes,
-    &namespaced_name,
-  );
+  let symbol_group_ctx =
+    SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
 
-  let root = (ctx.url_resolver)(
-    UrlResolveKind::Symbol {
-      file,
-      symbol: &namespaced_name,
-    },
-    UrlResolveKind::Root,
-  );
-
-  let html_head_ctx = HtmlHeadCtx::new(
-    &root,
-    &namespaced_name,
-    ctx.package_name.as_ref(),
-    Some(file.to_string()),
-  );
-  let page_ctx = PageCtx {
-    html_head_ctx,
-    sidepanel_ctx,
-    symbol_group_ctx,
-    breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-    search_ctx: serde_json::Value::Null,
-  };
-
-  Ok(render_ctx.render("symbol_page.html", &page_ctx))
+  (render_ctx.get_breadcrumbs(), symbol_group_ctx)
 }

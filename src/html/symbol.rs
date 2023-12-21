@@ -1,6 +1,7 @@
 use super::symbols;
 use super::types::render_type_def;
 use super::util::RenderContext;
+use crate::html::usage::UsageCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
@@ -16,8 +17,9 @@ struct SymbolCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SymbolGroupCtx {
-  name: String,
+  pub name: String,
   symbols: Vec<SymbolCtx>,
+  usage: UsageCtx,
 }
 
 impl SymbolGroupCtx {
@@ -53,6 +55,7 @@ impl SymbolGroupCtx {
     SymbolGroupCtx {
       name: name.to_string(),
       symbols,
+      usage: UsageCtx::new(ctx, doc_nodes),
     }
   }
 }
