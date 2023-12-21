@@ -69,9 +69,9 @@ pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
 ) -> Option<Option<(JsDoc, SourceRange)>> {
   let comments = parsed_source.get_leading_comments();
-  if let Some(js_doc_comment) = comments.iter().find(|comment| {
+  if let Some(js_doc_comment) = comments.and_then(|comments| comments.iter().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
-  }) {
+  })) {
     let js_doc = parse_js_doc(js_doc_comment);
     if js_doc.tags.contains(&JsDocTag::Module) {
       if js_doc.tags.contains(&JsDocTag::Ignore) {
