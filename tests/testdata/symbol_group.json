@@ -57,7 +57,7 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Bar } from &quot;.&quot;;\n</code></pre>\n</div>",
+        "import_statement": "<div class=\"markdown\"><pre style=\"background-color:#ffffff;\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
         "raw_import_statement": "\"import { Bar } from \\\".\\\";\"",
         "empty": null
       }
@@ -140,7 +140,7 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { Foo } from &quot;.&quot;;\n</code></pre>\n</div>",
+        "import_statement": "<div class=\"markdown\"><pre style=\"background-color:#ffffff;\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
         "raw_import_statement": "\"import { Foo } from \\\".\\\";\"",
         "empty": null
       }
@@ -212,7 +212,7 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\">import { x } from &quot;foo&quot;;\n</code></pre>\n</div>",
+        "import_statement": "<div class=\"markdown\"><pre style=\"background-color:#ffffff;\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;foo&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
         "raw_import_statement": "\"import { x } from \\\"foo\\\";\"",
         "empty": null
       }
