@@ -15,7 +15,6 @@ mod search;
 pub mod sidepanels;
 mod symbol;
 mod symbols;
-mod syntect_adapter;
 mod types;
 mod usage;
 mod util;
@@ -124,7 +123,6 @@ pub struct GenerateCtx<'ctx> {
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
   pub tt: TinyTemplate<'ctx>,
-  pub syntect_adapter: syntect_adapter::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
   pub import_href_resolver: ImportHrefResolver,
@@ -266,20 +264,6 @@ pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   Ok(tt)
 }
 
-pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
-  let syntax_set: syntect::parsing::SyntaxSet =
-    syntect::dumps::from_uncompressed_data(include_bytes!(
-      "./default_newlines.packdump"
-    ))
-    .unwrap();
-
-  syntect_adapter::SyntectAdapter {
-    theme: Some("InspiredGitHub".to_string()),
-    syntax_set,
-    theme_set: syntect::highlighting::ThemeSet::load_defaults(),
-  }
-}
-
 pub fn generate(
   mut options: GenerateOptions,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -297,7 +281,6 @@ pub fn generate(
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     tt,
-    syntect_adapter: setup_syntect(),
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
     import_href_resolver: options.import_href_resolver,
