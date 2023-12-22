@@ -1076,7 +1076,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::ExportDefaultDecl(n) => {
         self.get_doc_for_export_default_decl(parsed_source, n)
       }
-      SymbolNodeRef::ExportDefaultExprLit(n, _) => {
+      SymbolNodeRef::ExportDefaultExpr(n) => {
         self.get_doc_for_export_default_expr(parsed_source, n)
       }
       SymbolNodeRef::FnDecl(n) => {
@@ -1138,6 +1138,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::Module(_)
       | SymbolNodeRef::AutoAccessor(_)
       | SymbolNodeRef::ClassMethod(_)
+      | SymbolNodeRef::ClassParamProp(_)
       | SymbolNodeRef::ClassProp(_)
       | SymbolNodeRef::Constructor(_)
       | SymbolNodeRef::TsIndexSignature(_)
@@ -1158,7 +1159,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::ClassDecl(n) => n.declare,
       SymbolNodeRef::ExportDecl(n, _) => self.get_declare_for_decl(&n.decl),
       SymbolNodeRef::ExportDefaultDecl(_) => false,
-      SymbolNodeRef::ExportDefaultExprLit(_, _) => false,
+      SymbolNodeRef::ExportDefaultExpr(_) => false,
       SymbolNodeRef::FnDecl(n) => n.declare,
       SymbolNodeRef::TsEnum(n) => n.declare,
       SymbolNodeRef::TsInterface(n) => n.declare,
@@ -1169,6 +1170,7 @@ impl<'a> DocParser<'a> {
       | SymbolNodeRef::AutoAccessor(_)
       | SymbolNodeRef::ClassMethod(_)
       | SymbolNodeRef::ClassProp(_)
+      | SymbolNodeRef::ClassParamProp(_)
       | SymbolNodeRef::Constructor(_)
       | SymbolNodeRef::TsIndexSignature(_)
       | SymbolNodeRef::TsCallSignatureDecl(_)
