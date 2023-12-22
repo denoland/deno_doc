@@ -8,7 +8,7 @@ export default {
   safelist: [
     {
       pattern:
-        /(text|bg)-(Function|Variable|Class|Enum|Interface|TypeAlias|Namespace)-(text|bg)/,
+        /^(text|bg)-(Function|Variable|Class|Enum|Interface|TypeAlias|Namespace)-(text|bg)$/,
     },
   ],
   theme: {
