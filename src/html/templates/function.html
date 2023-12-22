@@ -4,9 +4,9 @@
   </style>
   <input type="radio" name="{ overload_ctx.function_id }" id="{ overload_ctx.overload_id }" { overload_ctx.html_attrs } />
 {{ endfor }}
-<div class="function_overload_selectors">
+<div class="space-y-2">
   {{ for overload_ctx in overloads_ctx }}
-    <label for="{ overload_ctx.overload_id }" class="function_overload_label">
+    <label for="{ overload_ctx.overload_id }" class="block p-4 rounded-lg border border-gray-300 cursor-pointer hover:border-gray-100">
       <code>
         <span style="font-weight: 700;">{ overload_ctx.name }</span><span style="font-weight: 500;">{ overload_ctx.summary }</span>
       </code>

@@ -34,15 +34,15 @@ pub use util::RenderContext;
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
 
-pub const PAGE_STYLESHEET: &str = include_str!("./templates/page.css");
+pub const PAGE_STYLESHEET: &str = include_str!("./templates/pages/page.css");
 pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
-const FUSE_JS: &str = include_str!("./templates/fuse.js");
+const FUSE_JS: &str = include_str!("./templates/pages/fuse.js");
 const FUSE_FILENAME: &str = "fuse.js";
 
-const SEARCH_JS: &str = include_str!("./templates/search.js");
+const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
 #[derive(Debug, Clone, Copy)]
@@ -190,35 +190,14 @@ pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
   let mut tt = TinyTemplate::new();
   tt.set_default_formatter(&tinytemplate::format_unescaped);
   tt.add_template(
-    "html_head.html",
-    include_str!("./templates/html_head.html"),
-  )?;
-  tt.add_template(
-    "all_symbols.html",
-    include_str!("./templates/all_symbols.html"),
-  )?;
-  tt.add_template(
-    "search_bar.html",
-    include_str!("./templates/search_bar.html"),
-  )?;
-  tt.add_template(
-    "search_results.html",
-    include_str!("./templates/search_results.html"),
-  )?;
-  tt.add_template(
     "sidepanel.html",
     include_str!("./templates/sidepanel.html"),
-  )?;
-  tt.add_template(
-    "symbol_page.html",
-    include_str!("./templates/symbol_page.html"),
   )?;
   tt.add_template(
     "doc_entry.html",
     include_str!("./templates/doc_entry.html"),
   )?;
   tt.add_template("section.html", include_str!("./templates/section.html"))?;
-  tt.add_template("index.html", include_str!("./templates/index.html"))?;
   tt.add_template(
     "index_sidepanel.html",
     include_str!("./templates/index_sidepanel.html"),
@@ -251,6 +230,32 @@ pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
     include_str!("./templates/breadcrumbs.html"),
   )?;
   tt.add_template("usage.html", include_str!("./templates/usage.html"))?;
+
+  // pages
+  tt.add_template(
+    "pages/html_head.html",
+    include_str!("./templates/pages/html_head.html"),
+  )?;
+  tt.add_template(
+    "pages/all_symbols.html",
+    include_str!("./templates/pages/all_symbols.html"),
+  )?;
+  tt.add_template(
+    "pages/symbol.html",
+    include_str!("./templates/pages/symbol.html"),
+  )?;
+  tt.add_template(
+    "pages/index.html",
+    include_str!("./templates/pages/index.html"),
+  )?;
+  tt.add_template(
+    "pages/search_bar.html",
+    include_str!("./templates/pages/search_bar.html"),
+  )?;
+  tt.add_template(
+    "pages/search_results.html",
+    include_str!("./templates/pages/search_results.html"),
+  )?;
 
   // icons
   tt.add_template(
@@ -382,7 +387,7 @@ pub fn generate(
           };
 
           let symbol_page =
-            ctx.tt.render("symbol_page.html", &page_ctx).unwrap();
+            ctx.tt.render("pages/symbol.html", &page_ctx).unwrap();
 
           (file_name, symbol_page)
         },

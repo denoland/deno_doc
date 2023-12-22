@@ -1,8 +1,8 @@
 <div class="example">
   {{ call anchor.html with anchor }}
-  <details id="{ id }">
-    <summary>
-      <div class="arrow_toggle">&#x25B6;</div>
+  <details id="{ id }" class="group">
+    <summary class="list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6">
+      <div class="text-gray-600 group-open:rotate-90">&#x25B6;</div>
       { markdown_title }
     </summary>
     { markdown_body }

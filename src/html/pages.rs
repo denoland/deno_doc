@@ -121,7 +121,7 @@ pub fn render_index(
     search_ctx: serde_json::Value::Null,
   };
 
-  render_ctx.render("index.html", &index_ctx)
+  render_ctx.render("pages/index.html", &index_ctx)
 }
 
 #[derive(Serialize)]
@@ -152,7 +152,7 @@ pub(crate) fn render_all_symbols_page(
     search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("all_symbols.html", &all_symbols_ctx))
+  Ok(render_ctx.render("pages/all_symbols.html", &all_symbols_ctx))
 }
 
 pub fn generate_symbol_pages_for_module(

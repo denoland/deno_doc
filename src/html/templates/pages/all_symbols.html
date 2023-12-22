@@ -1,8 +1,8 @@
-{{ call html_head.html with html_head_ctx }}
+{{ call pages/html_head.html with html_head_ctx }}
 
 <div id="content">
   {{ call breadcrumbs.html with breadcrumbs_ctx }}
-  {{ call search_bar.html with search_ctx }}
+  {{ call pages/search_bar.html with search_ctx }}
 
   <main>
     {{ for section in namespace_ctx.sections }}
@@ -10,7 +10,7 @@
     {{ endfor }}
   </main>
 
-  {{ call search_results.html with search_ctx }}
+  {{ call pages/search_results.html with search_ctx }}
 </div>
 </body>
 </html>

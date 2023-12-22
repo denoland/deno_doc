@@ -1,11 +1,13 @@
 <div class="doc_item" id="{id}">
   {{ call anchor.html with anchor }}
-  <div class="doc_entry">
-    <span class="doc_entry_children">
+  <div class="flex justify-between">
+    <span class="flex items-center break-words gap-2">
     <code>
-      <span style="font-weight: 700;">{ name }</span><span style="font-weight: 500;">{ content }</span>
+      <span class="font-bold">{ name }</span><span class="font-medium">{ content }</span>
     </code>
     </span>
   </div>
-  { jsdoc }
+  <div class="ml-1 pl-2.5 border-l-2 border-gray-300">
+    { jsdoc }
+  </div>
 </div>

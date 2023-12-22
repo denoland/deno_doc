@@ -173,7 +173,7 @@ fn render_single_function(
     .collect::<String>();
 
   format!(
-    r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
+    r##"<div class="space-y-7" id="{overload_id}_div">{}{}{}{}</div>"##,
     crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc),
     render_type_params(ctx, &function_def.type_params),
     ctx.render(

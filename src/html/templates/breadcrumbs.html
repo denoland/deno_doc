@@ -1,7 +1,7 @@
-<div id="breadcrumbs">
+<div class="mb-6 whitespace-nowrap">
   {{ for part in parts }}
     {{ if part.is_first_symbol }}
-      <span class="breadcrumbsSymbol">
+      <span class="inline-flex">
     {{ endif }}
     {{ if not @last }}
       <a class="link" href="{part.href}"
