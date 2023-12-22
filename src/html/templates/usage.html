@@ -1,9 +1,11 @@
-<div class="usage">
-  <div class="usage_inner">
+<div class="usage max-w-full flex">
+  <div class="relative">
     {import_statement}
 
-    <div class="usage_button">
-      <button onclick='navigator?.clipboard?.writeText({raw_import_statement})'>
+    <div class="absolute top-0 right-4 flex items-center h-full">
+      <button
+        class="usage_button rounded border border-gray-300 p-1.5 cursor-pointer hover:bg-gray-300 hover:before:block hover:after:block after:content-['Click_to_copy'] focus:after:content-['Copied!'] focus:after:w-[70px] focus:after:left-[-20px]"
+        onclick='navigator?.clipboard?.writeText({raw_import_statement})'>
         {{ call icons/copy.html with empty }}
       </button>
     </div>

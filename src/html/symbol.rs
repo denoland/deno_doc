@@ -163,7 +163,7 @@ fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
   let mut functions = vec![];
 
   fn doc_block_item(docs: String, content: String) -> String {
-    format!(r#"<div class="doc_block_items">{docs}{content}</div>"#)
+    format!(r#"<div class="space-y-7">{docs}{content}</div>"#)
   }
 
   for doc_node in doc_nodes {
