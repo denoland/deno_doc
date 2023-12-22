@@ -31,44 +31,44 @@ struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
   fn new(doc_nodes: &[crate::DocNode]) -> Self {
-    let symbols = Self::compute_namespaced_symbols(doc_nodes, &[]);
+    let symbols = compute_namespaced_symbols(doc_nodes, &[]);
     Self(Rc::new(symbols))
-  }
-
-  fn compute_namespaced_symbols(
-    doc_nodes: &[crate::DocNode],
-    current_path: &[String],
-  ) -> HashSet<Vec<String>> {
-    let mut namespaced_symbols = HashSet::new();
-
-    for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::ModuleDoc
-        || doc_node.declaration_kind != crate::node::DeclarationKind::Export
-      {
-        continue;
-      }
-      // TODO: handle export aliasing
-
-      let mut name_path = current_path.to_vec();
-      name_path.push(doc_node.name.clone());
-
-      namespaced_symbols.insert(name_path.clone());
-
-      if doc_node.kind == DocNodeKind::Namespace {
-        let namespace_def = doc_node.namespace_def.as_ref().unwrap();
-        namespaced_symbols.extend(Self::compute_namespaced_symbols(
-          &namespace_def.elements,
-          &name_path,
-        ))
-      }
-    }
-
-    namespaced_symbols
   }
 
   fn contains(&self, path: &[String]) -> bool {
     self.0.contains(path)
   }
+}
+
+pub fn compute_namespaced_symbols(
+  doc_nodes: &[crate::DocNode],
+  current_path: &[String],
+) -> HashSet<Vec<String>> {
+  let mut namespaced_symbols = HashSet::new();
+
+  for doc_node in doc_nodes {
+    if doc_node.kind == DocNodeKind::ModuleDoc
+      || doc_node.declaration_kind != crate::node::DeclarationKind::Export
+    {
+      continue;
+    }
+    // TODO: handle export aliasing
+
+    let mut name_path = current_path.to_vec();
+    name_path.push(doc_node.name.clone());
+
+    namespaced_symbols.insert(name_path.clone());
+
+    if doc_node.kind == DocNodeKind::Namespace {
+      let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+      namespaced_symbols.extend(compute_namespaced_symbols(
+        &namespace_def.elements,
+        &name_path,
+      ))
+    }
+  }
+
+  namespaced_symbols
 }
 
 #[derive(Clone, Default)]
