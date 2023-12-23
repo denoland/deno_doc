@@ -52,7 +52,7 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["html", "rust"]
 rust = []
-html = ["html-escape", "comrak", "tinytemplate"]
+html = ["html-escape", "comrak", "tinytemplate", "syntect"]
 
 [profile.release]
 codegen-units = 1
