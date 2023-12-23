@@ -70,8 +70,6 @@ impl SyntaxHighlighterAdapter for SyntectAdapter {
             .unwrap_or_else(|| self.syntax_set.find_syntax_plain_text())
         });
 
-    dbg!(&syntax.name);
-
     match self.highlight_html(code, syntax) {
       Ok(highlighted_code) => output.write_all(highlighted_code.as_bytes()),
       Err(_) => output.write_all(code.as_bytes()),
