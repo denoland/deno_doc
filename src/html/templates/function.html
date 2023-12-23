@@ -6,14 +6,16 @@
 {{ endfor }}
 <div class="space-y-2">
   {{ for overload_ctx in overloads_ctx }}
-    <label for="{ overload_ctx.overload_id }" class="block p-4 rounded-lg border border-gray-300 cursor-pointer hover:border-gray-100">
+    <label for="{ overload_ctx.overload_id }" class="space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:border-stone-100">
       <code>
-        <span style="font-weight: 700;">{ overload_ctx.name }</span><span style="font-weight: 500;">{ overload_ctx.summary }</span>
+        <span class="font-bold">{ overload_ctx.name }</span><span class="font-medium">{ overload_ctx.summary }</span>
       </code>
-      { overload_ctx.summary_doc }
+      <div class="ml-1 pl-2.5 border-l-2 border-stone-300">
+        { overload_ctx.summary_doc }
+      </div>
     </label>
   {{ endfor }}
 </div>
-<div style="margin-top: 12px;">
+<div class="mt-3">
   {content}
 </div>

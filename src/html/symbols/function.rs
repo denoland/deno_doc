@@ -20,12 +20,10 @@ fn render_css_for_fn(overload_id: &str) -> String {
   display: none;
 }}
 #{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
- background-color: #056CF00C;
- border: solid 2px rgb(37 99 235);
- cursor: unset;
-}}
-#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] > code {{
-  margin: -1px;
+  background-color: #056CF00C;
+  border: solid 2px rgb(37 99 235);
+  cursor: unset;
+  padding: 9px 15px; /* 1px less to counter the increased border */
 }}
 "#
   )
@@ -69,7 +67,7 @@ pub(crate) fn render_function(
 
     let summary_doc = if !(function_def.has_body && i == 0) {
       format!(
-        r#"<div style="width: 100%;">{}</div>"#,
+        r#"<div class="w-full">{}</div>"#,
         crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
       )
     } else {

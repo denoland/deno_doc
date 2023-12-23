@@ -20,8 +20,7 @@ table {
 }
 #sidepanel {
   padding: 12px 0 12px 12px;
-  min-width: 12%;
-  max-width: 22%;
+  width: 16rem;
 }
 #content.with_sidepanel {
   border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
@@ -72,9 +71,9 @@ a {
 }
 
 #searchResults ul a:hover {
-  background-color: rgb(243 244 246);
+  background-color: rgb(245 245 244);
 }
 
 #searchResults ul > * + * {
-  border-top: 1px solid rgb(209 213 219);
+  border-top: 1px solid rgb(214 211 209);
 }

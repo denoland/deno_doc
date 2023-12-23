@@ -12,6 +12,7 @@ struct SidepanelPartitionNodeCtx {
   kind: DocNodeKindCtx,
   name: String,
   href: String,
+  active: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -48,6 +49,7 @@ impl SidepanelCtx {
               },
             ),
             name: node.doc_node.name.clone(),
+            active: symbol == node.doc_node.name,
           })
           .collect::<Vec<_>>();
         SidepanelPartitionCtx {
@@ -132,6 +134,7 @@ impl IndexSidepanelCtx {
               },
             ),
             name: node.doc_node.name,
+            active: false,
           })
           .collect::<Vec<_>>();
         SidepanelPartitionCtx { name, symbols }
