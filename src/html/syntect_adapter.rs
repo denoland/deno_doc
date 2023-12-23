@@ -5,13 +5,13 @@
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::html;
 use std::collections::HashMap;
-use std::io::{self, Write};
+use std::io::Write;
 use syntect::easy::HighlightLines;
 use syntect::highlighting::ThemeSet;
-use syntect::html::{
-  append_highlighted_html_for_styled_line, IncludeBackground,
-};
-use syntect::parsing::{SyntaxReference, SyntaxSet};
+use syntect::html::append_highlighted_html_for_styled_line;
+use syntect::html::IncludeBackground;
+use syntect::parsing::SyntaxReference;
+use syntect::parsing::SyntaxSet;
 use syntect::util::LinesWithEndings;
 use syntect::Error;
 
@@ -53,7 +53,7 @@ impl SyntaxHighlighterAdapter for SyntectAdapter {
     output: &mut dyn Write,
     lang: Option<&str>,
     code: &str,
-  ) -> io::Result<()> {
+  ) -> std::io::Result<()> {
     let lang = match lang {
       Some(l) if !l.is_empty() => l,
       _ => "Plain Text",
@@ -80,7 +80,7 @@ impl SyntaxHighlighterAdapter for SyntectAdapter {
     &self,
     output: &mut dyn Write,
     attributes: HashMap<String, String>,
-  ) -> io::Result<()> {
+  ) -> std::io::Result<()> {
     html::write_opening_tag(output, "pre", attributes)
   }
 
@@ -88,7 +88,7 @@ impl SyntaxHighlighterAdapter for SyntectAdapter {
     &self,
     output: &mut dyn Write,
     attributes: HashMap<String, String>,
-  ) -> io::Result<()> {
+  ) -> std::io::Result<()> {
     html::write_opening_tag(output, "code", attributes)
   }
 }
