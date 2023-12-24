@@ -5,6 +5,7 @@ use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct NamespaceRenderCtx {
@@ -20,7 +21,7 @@ pub struct NamespaceSectionRenderCtx {
 
 #[derive(Serialize)]
 pub struct NamespaceSectionNodeCtx {
-  pub doc_node_kind_ctx: DocNodeKindCtx,
+  pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
   pub origin: Option<String>,
   pub href: String,
   pub name: String,
@@ -71,6 +72,57 @@ pub fn partition_nodes_by_kind(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
 ) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext>> {
+  fn partition_nodes_by_kind_inner(
+    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+    doc_nodes: &[DocNodeWithContext],
+    flatten_namespaces: bool,
+  ) {
+    for node in doc_nodes {
+      if matches!(
+        node.doc_node.kind,
+        DocNodeKind::ModuleDoc | DocNodeKind::Import
+      ) {
+        continue;
+      }
+
+      if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+
+        partition_nodes_by_kind_inner(
+          partitions,
+          &namespace_def
+            .elements
+            .iter()
+            .map(|element| DocNodeWithContext {
+              origin: node.origin.clone(),
+              doc_node: element.clone(),
+            })
+            .collect::<Vec<_>>(),
+          true,
+        );
+      }
+
+      if let Some((node_kind, nodes)) =
+        partitions.iter_mut().find(|(kind, nodes)| {
+          nodes.iter().any(|n| {
+            n.doc_node.name == node.doc_node.name
+              && n.doc_node.kind != node.doc_node.kind
+              && kind != &&node.doc_node.kind
+          })
+        })
+      {
+        assert_ne!(node_kind, &node.doc_node.kind,);
+
+        nodes.push(node.clone());
+      } else {
+        let entry = partitions.entry(node.doc_node.kind).or_insert(vec![]);
+        if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
+          entry.push(node.clone());
+        }
+      }
+    }
+  }
+
   let mut partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>> =
     IndexMap::default();
 
@@ -89,94 +141,72 @@ pub fn partition_nodes_by_kind(
     .collect()
 }
 
-fn partition_nodes_by_kind_inner(
-  partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-  doc_nodes: &[DocNodeWithContext],
-  flatten_namespaces: bool,
-) {
-  for node in doc_nodes {
-    if matches!(
-      node.doc_node.kind,
-      DocNodeKind::ModuleDoc | DocNodeKind::Import
-    ) {
-      continue;
-    }
-
-    if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
-      let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
-
-      partition_nodes_by_kind_inner(
-        partitions,
-        &namespace_def
-          .elements
-          .iter()
-          .map(|element| DocNodeWithContext {
-            origin: node.origin.clone(),
-            doc_node: element.clone(),
-          })
-          .collect::<Vec<_>>(),
-        true,
-      );
-    }
-
-    let entry = partitions.entry(node.doc_node.kind).or_insert(vec![]);
-
-    if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
-      entry.push(node.clone());
-    }
-  }
-}
-
 pub fn partition_nodes_by_category(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  fn partition_nodes_by_category_inner(
+    partitions: &mut IndexMap<String, Vec<DocNodeWithContext>>,
+    doc_nodes: &[DocNodeWithContext],
+    flatten_namespaces: bool,
+  ) {
+    for node in doc_nodes {
+      if matches!(
+        node.doc_node.kind,
+        DocNodeKind::ModuleDoc | DocNodeKind::Import
+      ) {
+        continue;
+      }
+
+      if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+        partition_nodes_by_category_inner(
+          partitions,
+          &namespace_def
+            .elements
+            .iter()
+            .map(|element| DocNodeWithContext {
+              origin: node.origin.clone(),
+              doc_node: element.clone(),
+            })
+            .collect::<Vec<_>>(),
+          true,
+        )
+      }
+
+      let category = node
+        .doc_node
+        .js_doc
+        .tags
+        .iter()
+        .find_map(|tag| {
+          if let crate::js_doc::JsDocTag::Category { doc } = tag {
+            doc.as_ref().map(|doc| doc.trim().to_owned())
+          } else {
+            None
+          }
+        })
+        .unwrap_or(String::from("Uncategorized"));
+
+      let entry = partitions.entry(category).or_insert(vec![]);
+
+      if !entry.iter().any(|n| {
+        n.doc_node.name == node.doc_node.name
+          && n.doc_node.kind == node.doc_node.kind
+      }) {
+        entry.push(node.clone());
+      }
+    }
+  }
+
   let mut partitions: IndexMap<String, Vec<DocNodeWithContext>> =
     IndexMap::default();
 
-  for node in doc_nodes {
-    if matches!(
-      node.doc_node.kind,
-      DocNodeKind::ModuleDoc | DocNodeKind::Import
-    ) {
-      continue;
-    }
-
-    if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
-      let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
-      partitions.extend(partition_nodes_by_category(
-        &namespace_def
-          .elements
-          .iter()
-          .map(|element| DocNodeWithContext {
-            origin: node.origin.clone(),
-            doc_node: element.clone(),
-          })
-          .collect::<Vec<_>>(),
-        true,
-      ));
-    }
-
-    let category = node
-      .doc_node
-      .js_doc
-      .tags
-      .iter()
-      .find_map(|tag| {
-        if let crate::js_doc::JsDocTag::Category { doc } = tag {
-          doc.as_ref().map(|doc| doc.trim().to_owned())
-        } else {
-          None
-        }
-      })
-      .unwrap_or(String::from("Uncategorized"));
-
-    let entry = partitions.entry(category).or_insert(vec![]);
-
-    if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
-      entry.push(node.clone());
-    }
-  }
+  partition_nodes_by_category_inner(
+    &mut partitions,
+    doc_nodes,
+    flatten_namespaces,
+  );
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by_key(|n| n.doc_node.name.to_string());
@@ -204,34 +234,48 @@ fn get_namespace_section_render_ctx(
 ) -> NamespaceSectionRenderCtx {
   let kind_ctx = super::super::util::DocNodeKindCtx::from(*kind);
 
-  let nodes = doc_nodes
+  let mut grouped_nodes = HashMap::new();
+
+  for node in doc_nodes {
+    let entry = grouped_nodes
+      .entry(node.doc_node.name.clone())
+      .or_insert(vec![]);
+    entry.push(node);
+  }
+
+  let nodes = grouped_nodes
     .iter()
-    .map(|DocNodeWithContext { doc_node, origin }| {
+    .map(|(name, nodes)| {
       // TODO: linking, tags
 
-      let mut name = doc_node.name.clone();
+      let mut name = name.to_owned();
 
       let ns_parts = ctx.get_namespace_parts();
       if !ns_parts.is_empty() {
-        name = format!("{}.{}", ns_parts.join("."), doc_node.name);
+        name = format!("{}.{}", ns_parts.join("."), name);
       }
 
       let current_resolve = ctx.get_current_resolve();
 
       // TODO(bartlomieju): make it a template
-      let docs = crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc);
+      let docs =
+        crate::html::jsdoc::render_docs_summary(ctx, &nodes[0].doc_node.js_doc);
 
       NamespaceSectionNodeCtx {
-        doc_node_kind_ctx: doc_node.kind.into(),
+        doc_node_kind_ctx: nodes
+          .into_iter()
+          .map(|node| node.doc_node.kind.into())
+          .collect(),
         origin: if ctx.ctx.single_file_mode {
           None
         } else {
-          origin.as_deref().map(short_path_to_name)
+          nodes[0].origin.as_deref().map(short_path_to_name)
         },
         href: (ctx.ctx.url_resolver)(
           current_resolve,
           crate::html::UrlResolveKind::Symbol {
-            file: origin
+            file: nodes[0]
+              .origin
               .as_deref()
               .or_else(|| current_resolve.get_file())
               .unwrap(),

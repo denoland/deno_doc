@@ -1,3 +1,7 @@
-<div class="text-{kind} bg-{kind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="{title}">
-  {char}
+<div class="flex justify-end compound_types w-[2.125rem] shrink-0">
+  {{ for kind in @root }}
+    <div class="text-{kind.kind} bg-{kind.kind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="{kind.title}">
+      {kind.char}
+    </div>
+  {{ endfor }}
 </div>

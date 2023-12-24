@@ -74,6 +74,10 @@ summary::-webkit-details-marker {
   box-shadow: 0 calc(var(--general-border-radius) * -1) 0 0 white;
 }
 
+.compound_types > * + * {
+  @apply -ml-1.5;
+}
+
 /* doc classes */
 .doc_item {
   @apply relative;
