@@ -220,6 +220,7 @@ async fn symbol_group() {
     url_resolver: Rc::new(default_url_resolver),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
+    single_file_mode: false,
   };
 
   let mut files = vec![];
