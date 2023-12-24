@@ -4,16 +4,18 @@
       {title}
     </a>
   </h2>
-  <div class="grid grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {{ for node in nodes }}
       <div class="space-y-2">
-        <div class="flex justify-between">
-          <div class="min-w-52 flex items-center space-x-2">
+        <div class="flex justify-between gap-4">
+          <div class="min-w-52 flex items-center gap-2">
             {{ call doc_node_kind_icon.html with node.doc_node_kind_ctx }}
-            <a href="{node.href}" class="leading-none">{node.name}</a>
+            <a href="{node.href}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden">
+              {node.name}
+            </a>
           </div>
           {{ if node.origin }}
-            <div class="text-xs italic mr-4">from { node.origin }</div>
+            <div class="text-xs italic lg:mr-4 whitespace-nowrap">from { node.origin }</div>
           {{ endif }}
         </div>
         <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
