@@ -20,7 +20,7 @@ table {
 }
 #sidepanel {
   padding: 12px 0 12px 12px;
-  width: 16rem;
+  width: 18rem;
 }
 #content.with_sidepanel {
   border-radius: var(--general-border-radius) 0 0 var(--general-border-radius);
