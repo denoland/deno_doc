@@ -86,6 +86,47 @@ summary::-webkit-details-marker {
   @apply block;
 }
 
+/* markdown common */
+.markdown a, .markdown_summary a {
+  @apply link;
+}
+
+.markdown h1, .markdown_summary h1 {
+  @apply text-xl md:text-2xl lg:text-3xl;
+}
+
+.markdown h2, .markdown_summary h2 {
+  @apply text-lg md:text-xl lg:text-2xl;
+}
+
+.markdown h3, .markdown_summary h3 {
+  @apply font-bold md:text-lg md:font-normal lg:text-xl lg:font-normal;
+}
+
+.markdown h4, .markdown_summary h4 {
+  @apply font-semibold md:font-bold lg:text-lg lg:font-normal;
+}
+
+.markdown h5, .markdown_summary h5 {
+  @apply italic md:font-semibold lg:font-bold;
+}
+
+.markdown h6, .markdown_summary h6 {
+  @apply md:italic lg:font-semibold;
+}
+
+.markdown hr, .markdown_summary hr {
+  @apply m-2 border-stone-500;
+}
+
+.markdown ol, .markdown_summary ol {
+  @apply list-decimal lg:list-inside;
+}
+
+.markdown ul, .markdown_summary ul {
+  @apply lg:list-disc lg:list-inside;
+}
+
 /* markdown */
 .markdown_border {
   @apply ml-1 pl-2.5 border-l-2 border-stone-300;
@@ -103,10 +144,6 @@ summary::-webkit-details-marker {
 .markdown pre {
   @apply font-mono text-sm p-2.5 rounded-lg text-black overflow-x-auto;
   @apply bg-stone-100 !important;
-}
-
-.markdown a {
-  @apply link;
 }
 
 .markdown p {
@@ -131,10 +168,6 @@ summary::-webkit-details-marker {
 
 .markdown_summary p {
   @apply inline-block;
-}
-
-.markdown_summary a {
-  @apply link;
 }
 
 .markdown_summary :not(pre) > code {
