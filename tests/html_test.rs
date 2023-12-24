@@ -220,6 +220,7 @@ async fn symbol_group() {
     url_resolver: Rc::new(default_url_resolver),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
+    single_file_mode: false,
   };
 
   let mut files = vec![];
@@ -276,6 +277,9 @@ async fn symbol_group() {
     .join("tests")
     .join("testdata")
     .join("symbol_group.json");
+
+  // uncomment to regenerate symbol_group.json
+  //std::fs::write(&symbol_group_json_path, &files_json);
 
   let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
 

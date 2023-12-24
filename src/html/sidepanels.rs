@@ -1,7 +1,8 @@
+use super::short_path_to_name;
+use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::UrlResolveKind;
-use super::{short_path_to_name, DocNodeKindCtx};
 use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -9,9 +10,10 @@ use serde::Serialize;
 
 #[derive(Debug, Serialize, Clone)]
 struct SidepanelPartitionNodeCtx {
-  kind: DocNodeKindCtx,
+  kind: Vec<DocNodeKindCtx>,
   name: String,
   href: String,
+  active: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -36,18 +38,31 @@ impl SidepanelCtx {
     let partitions = partitions
       .into_iter()
       .map(|(name, nodes)| {
-        let symbols = nodes
-          .iter()
-          .map(|node| SidepanelPartitionNodeCtx {
-            kind: node.doc_node.kind.into(),
+        let mut grouped_nodes = IndexMap::new();
+
+        for node in nodes {
+          let entry = grouped_nodes
+            .entry(node.doc_node.name.clone())
+            .or_insert(vec![]);
+          entry.push(node);
+        }
+
+        let symbols = grouped_nodes
+          .into_iter()
+          .map(|(node_name, nodes)| SidepanelPartitionNodeCtx {
             href: (ctx.url_resolver)(
               UrlResolveKind::Symbol { file, symbol },
               UrlResolveKind::Symbol {
-                file: node.origin.as_deref().unwrap(),
-                symbol: &node.doc_node.name,
+                file: nodes[0].origin.as_deref().unwrap(),
+                symbol: &node_name,
               },
             ),
-            name: node.doc_node.name.clone(),
+            active: symbol == node_name,
+            name: node_name,
+            kind: nodes
+              .into_iter()
+              .map(|node| node.doc_node.kind.into())
+              .collect(),
           })
           .collect::<Vec<_>>();
         SidepanelPartitionCtx {
@@ -110,7 +125,7 @@ impl IndexSidepanelCtx {
               UrlResolveKind::File(&short_path)
             },
           ),
-          name: short_path_to_name(short_path),
+          name: short_path_to_name(&short_path),
         }
       })
       .collect::<Vec<_>>();
@@ -118,20 +133,30 @@ impl IndexSidepanelCtx {
     let kind_partitions = partitions
       .into_iter()
       .map(|(name, nodes)| {
-        let symbols = nodes
+        let mut grouped_nodes = IndexMap::new();
+
+        for node in nodes {
+          let entry = grouped_nodes
+            .entry(node.doc_node.name.clone())
+            .or_insert(vec![]);
+          entry.push(node);
+        }
+
+        let symbols = grouped_nodes
           .into_iter()
-          .map(|node| SidepanelPartitionNodeCtx {
-            kind: node.doc_node.kind.into(),
+          .map(|(node_name, nodes)| SidepanelPartitionNodeCtx {
+            kind: nodes.iter().map(|node| node.doc_node.kind.into()).collect(),
             href: (ctx.url_resolver)(
               current_file
                 .as_deref()
                 .map_or(UrlResolveKind::Root, UrlResolveKind::File),
               UrlResolveKind::Symbol {
-                file: node.origin.as_deref().unwrap(),
-                symbol: &node.doc_node.name,
+                file: nodes[0].origin.as_deref().unwrap(),
+                symbol: &node_name,
               },
             ),
-            name: node.doc_node.name,
+            name: node_name,
+            active: false,
           })
           .collect::<Vec<_>>();
         SidepanelPartitionCtx { name, symbols }

@@ -1,19 +1,31 @@
 <div>
-  <h2 class="text-sm leading-6 font-medium text-gray-400 py-1" id="{id}"><a href="#{id}" aria-label="Anchor">{title}</a></h2>
-  <table class="block lg:table">
+  <h2 class="text-lg leading-6 font-bold py-1" id="{id}">
+    <a href="#{id}" aria-label="Anchor">
+      {title}
+    </a>
+  </h2>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {{ for node in nodes }}
-      <tr class="block lg:table-row">
-        <td class="block py-1 pr-3 font-bold lg:table-cell">
-          { node.origin }
-          <div class="min-w-52 flex items-center space-x-2">
+      <div class="space-y-2">
+        <div class="flex justify-between gap-4">
+          <div class="min-w-52 flex items-center gap-2">
             {{ call doc_node_kind_icon.html with node.doc_node_kind_ctx }}
-            <a href="{node.href}">{node.name}</a>
+            <a href="{node.href}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden">
+              {node.name}
+            </a>
           </div>
-        </td>
-        <td class="block py-1 text-sm leading-5 text-gray-500 lg:table-cell">
-        { node.docs }
-        </td>
-      </tr>
+          {{ if node.origin }}
+            <div class="text-xs italic lg:mr-4 whitespace-nowrap">from { node.origin }</div>
+          {{ endif }}
+        </div>
+        <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
+          {{ if node.docs }}
+            { node.docs }
+          {{ else }}
+            <span class="italic">No documentation available</span>
+          {{ endif }}
+        </div>
+      </div>
     {{ endfor }}
-  </table>
+  </div>
 </div>

@@ -1,4 +1,4 @@
-import { type Config } from "npm:tailwindcss@3.3.5";
+import { type Config } from "npm:tailwindcss@3.4.0";
 
 export default {
   content: [
@@ -8,40 +8,19 @@ export default {
   safelist: [
     {
       pattern:
-        /^(text|bg)-(Function|Variable|Class|Enum|Interface|TypeAlias|Namespace)-(text|bg)$/,
+        /^(text|bg)-(Function|Variable|Class|Enum|Interface|TypeAlias|Namespace)(\/15)?$/,
     },
   ],
   theme: {
     extend: {
       colors: {
-        "Function": {
-          text: "#056CF0",
-          bg: "#026BEB1A",
-        },
-        "Variable": {
-          text: "#7E57C0",
-          bg: "#7E57C01A",
-        },
-        "Class": {
-          text: "#20B44B",
-          bg: "#2FA8501A",
-        },
-        "Enum": {
-          text: "#22ABB0",
-          bg: "#22ABB01A",
-        },
-        "Interface": {
-          text: "#D2A064",
-          bg: "#D4A0681A",
-        },
-        "TypeAlias": {
-          text: "#A4478C",
-          bg: "#A4478C1A",
-        },
-        "Namespace": {
-          text: "#D25646",
-          bg: "#D256461A",
-        },
+        "Function": "#056CF0",
+        "Variable": "#7E57C0",
+        "Class": "#20B44B",
+        "Enum": "#22ABB0",
+        "Interface": "#D2A064",
+        "TypeAlias": "#A4478C",
+        "Namespace": "#D25646",
       },
     },
   },

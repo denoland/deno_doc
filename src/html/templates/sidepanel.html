@@ -2,17 +2,22 @@
   {{ if package_name }}
     <h2 class="text-lg font-semibold"><a href="index.html"><span>{package_name}</span></a></h2>
   {{ endif }}
-  {{ for kind in partitions }}
-    <h3 class="font-bold mb-1.5">{kind.name}</h3>
-    <ul>
-      {{ for symbol in kind.symbols }}
-        <li>
-          <a href="{ symbol.href }">
-            {{ call doc_node_kind_icon.html with symbol.kind }}
-            <span>{ symbol.name }</span>
-          </a>
-        </li>
+
+  <div class="space-y-2">
+    {{ for kind in partitions }}
+      <div>
+        <h3 class="subtitle">{kind.name}</h3>
+        <ul>
+          {{ for symbol in kind.symbols }}
+          <li>
+            <a href="{ symbol.href }" title="{ symbol.name }" class="{{ if symbol.active }} active {{ endif }}">
+              {{ call doc_node_kind_icon.html with symbol.kind }}
+              <span>{ symbol.name }</span>
+            </a>
+          </li>
+          {{ endfor }}
+        </ul>
+      </div>
     {{ endfor }}
-    </ul>
-  {{ endfor }}
+  </div>
 </nav>

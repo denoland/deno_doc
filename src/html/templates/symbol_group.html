@@ -1,10 +1,10 @@
 <main class="space-y-12" id="symbol_{name}">
   {{ for symbol in symbols }}
-    <article class="space-y-8">
+    <article class="space-y-5">
       <div class="flex justify-between items-start">
         <div class="font-medium space-y-1">
-          <div class="text-xl">
-            <span class="text-{symbol.kind.kind}-text">{symbol.kind.title_lowercase}</span>&nbsp;<span class="font-bold">{name}</span>
+          <div class="text-xl leading-none">
+            <span class="text-{symbol.kind.kind}">{symbol.kind.title_lowercase}</span>&nbsp;<span class="font-bold">{name}</span>
           </div>
           {symbol.subtitle}
         </div>

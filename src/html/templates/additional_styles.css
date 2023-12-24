@@ -16,16 +16,21 @@ summary::-webkit-details-marker {
 .link:hover {
   @apply text-blue-400;
 }
+
 #sidepanel {
   @apply shrink-0 h-screen w-fit top-0 left-0 overflow-y-scroll sticky box-border overscroll-y-contain;
 
   scrollbar-width: thin;
 }
-#sidepanel label, #sidepanel a, #sidepanel h3 {
-  @apply py-1.5 pr-3 pl-2;
+#sidepanel label, #sidepanel a, #sidepanel .title, #sidepanel .subtitle {
+  @apply py-1.5 pr-4 pl-2;
 }
+#sidepanel .subtitle {
+  @apply font-bold;
+}
+
 #sidepanel ul {
-  @apply list-none pl-4;
+  @apply list-none pl-3.5;
 }
 #sidepanel li {
   @apply block;
@@ -33,13 +38,22 @@ summary::-webkit-details-marker {
 #sidepanel a {
   @apply flex items-center gap-2 leading-none relative rounded-l-lg;
 }
-#sidepanel a span {
-  @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis;
+
+#sidepanel .title {
+  @apply flex items-center gap-2.5 mt-2 text-xl font-bold;
 }
-#sidepanel a:hover, #sidepanel a .active {
+
+#sidepanel li > a > span {
+  @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis text-sm;
+}
+#sidepanel li > a:has(span) {
+  @apply py-1;
+}
+
+#sidepanel a:hover, #sidepanel a.active {
   @apply bg-white;
 }
-#sidepanel a:hover::before, #sidepanel a .active::before {
+#sidepanel a:hover:before, #sidepanel a.active:before {
   content: "";
 
   @apply absolute bg-transparent right-0 rounded-br-lg;
@@ -49,7 +63,7 @@ summary::-webkit-details-marker {
   width: var(--general-border-radius);
   box-shadow: 0 var(--general-border-radius) 0 0 white;
 }
-#sidepanel a:hover::after, #sidepanel a .active::after {
+#sidepanel a:hover:after, #sidepanel a.active:after {
   content: "";
 
   @apply absolute bg-transparent right-0 rounded-tr-lg;
@@ -59,8 +73,9 @@ summary::-webkit-details-marker {
   width: var(--general-border-radius);
   box-shadow: 0 calc(var(--general-border-radius) * -1) 0 0 white;
 }
-#sidepanel .title {
-  @apply flex items-center gap-2.5 mt-2 text-xl font-bold;
+
+.compound_types > * + * {
+  @apply -ml-1.5;
 }
 
 /* doc classes */
@@ -71,23 +86,64 @@ summary::-webkit-details-marker {
   @apply block;
 }
 
+/* markdown common */
+.markdown a, .markdown_summary a {
+  @apply link;
+}
+
+.markdown h1, .markdown_summary h1 {
+  @apply text-xl md:text-2xl lg:text-3xl;
+}
+
+.markdown h2, .markdown_summary h2 {
+  @apply text-lg md:text-xl lg:text-2xl;
+}
+
+.markdown h3, .markdown_summary h3 {
+  @apply font-bold md:text-lg md:font-normal lg:text-xl lg:font-normal;
+}
+
+.markdown h4, .markdown_summary h4 {
+  @apply font-semibold md:font-bold lg:text-lg lg:font-normal;
+}
+
+.markdown h5, .markdown_summary h5 {
+  @apply italic md:font-semibold lg:font-bold;
+}
+
+.markdown h6, .markdown_summary h6 {
+  @apply md:italic lg:font-semibold;
+}
+
+.markdown hr, .markdown_summary hr {
+  @apply m-2 border-stone-500;
+}
+
+.markdown ol, .markdown_summary ol {
+  @apply list-decimal lg:list-inside;
+}
+
+.markdown ul, .markdown_summary ul {
+  @apply lg:list-disc lg:list-inside;
+}
+
 /* markdown */
+.markdown_border {
+  @apply ml-1 pl-2.5 border-l-2 border-stone-300;
+}
+
 .markdown {
   @apply space-y-4;
 }
 
 .markdown :not(pre) > code {
   @apply font-mono text-sm py-1 px-1.5 rounded;
-  @apply bg-gray-100 !important;
+  @apply bg-stone-100 !important;
 }
 
 .markdown pre {
   @apply font-mono text-sm p-2.5 rounded-lg text-black overflow-x-auto;
-  @apply bg-gray-100 !important;
-}
-
-.markdown a {
-  @apply link;
+  @apply bg-stone-100 !important;
 }
 
 .markdown p {
@@ -99,7 +155,7 @@ summary::-webkit-details-marker {
 }
 
 .markdown td {
-  @apply p-2 border border-gray-500;
+  @apply p-2 border border-stone-500;
 }
 
 .markdown th {
@@ -107,43 +163,35 @@ summary::-webkit-details-marker {
 }
 
 .markdown_summary {
-  @apply inline text-gray-600;
+  @apply inline text-stone-600;
 }
 
 .markdown_summary p {
   @apply inline-block;
 }
 
-.markdown_summary a {
-  @apply link;
-}
-
 .markdown_summary :not(pre) > code {
-  @apply font-mono text-sm py-0.5 px-1 rounded text-gray-100;
+  @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
 }
 
 .usage .markdown pre {
-  @apply m-0 pr-16;
+  @apply m-0 pr-12;
 }
 
 .usage .usage_button:before {
   content: '';
 
-  @apply hidden absolute w-0 h-0 bottom-0 left-[9px];
+  @apply hidden absolute w-0 h-0 -bottom-1 left-2 border-x-8 border-x-transparent border-b-8 border-b-slate-300;
   z-index: 9998;
-
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid rgb(209, 213, 219);
 }
 
 .usage .usage_button:after {
-  @apply hidden absolute rounded text-sm text-black text-center bg-gray-300;
+  @apply hidden absolute rounded text-sm text-black text-center bg-stone-300;
 
   z-index: 9999;
 
   height: 20px;
-  bottom: -19px;
+  bottom: -20px;
   left: -36px;
   width: 100px;
 }

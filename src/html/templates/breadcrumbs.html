@@ -1,33 +1,26 @@
-<div class="mb-6 whitespace-nowrap">
+<div class="mb-6 whitespace-nowrap leading-none">
   {{ for part in parts }}
     {{ if part.is_first_symbol }}
       <span class="inline-flex">
     {{ endif }}
     {{ if not @last }}
-      <a class="link" href="{part.href}"
-        {{ if @first }}
-          style="font-style: italic;"
-        {{ endif }}
-
+      <a class="link {{ if @first }} italic {{ endif }}" href="{part.href}"
       >{part.name}</a>
       {{ if part.is_symbol }}
         <span>.</span>
       {{ else }}
-        <span> > </span>
+        <span class="px-1.5">></span>
       {{ endif }}
     {{ endif }}
 
     {{ if @last }}
-      <span
-        {{ if @first }}
-        style="font-style: italic;"
+      <span class="{{ if @first }}
+        italic
         {{ else }}
           {{ if part.is_all_symbols_part }}
-            style="font-style: italic;"
+            italic
           {{ endif }}
-        {{ endif }}
-
-      >
+        {{ endif }}">
         {part.name}
       </span>
     {{ endif }}

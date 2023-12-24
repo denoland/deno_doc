@@ -2,7 +2,7 @@
   {{ if class }}
     {{ if class.implements }}
       <div>
-        <span class="text-gray-400 italic"> implements </span>
+        <span class="text-stone-400 italic"> implements </span>
         {{ for implement in class.implements }}
           {implement}
           {{ if not @last }}
@@ -14,7 +14,7 @@
 
     {{ if class.extends }}
       <div>
-        <span class="text-gray-400 italic"> extends </span>
+        <span class="text-stone-400 italic"> extends </span>
         {class.extends.symbol}
         <span>{class.extends.type_args}</span>
       </div>
@@ -23,7 +23,7 @@
 
   {{ if interface }}
     <div>
-      <span class="text-gray-400 italic"> extends </span>
+      <span class="text-stone-400 italic"> extends </span>
       {{ for extend in interface.extends }}
         {extend}
         {{ if not @last }}
