@@ -190,6 +190,7 @@ pub struct DocNodeWithContext {
 
 pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   let mut reg = Handlebars::new();
+  reg.register_escape_fn(handlebars::no_escape);
   reg.set_strict_mode(true);
 
   #[cfg(debug_assertions)]
