@@ -1,5 +1,5 @@
 <div>
-  <h2 class="text-lg leading-6 font-medium py-1" id="{id}">
+  <h2 class="text-lg leading-6 font-bold py-1" id="{id}">
     <a href="#{id}" aria-label="Anchor">
       {title}
     </a>
@@ -11,14 +11,16 @@
           { node.origin }
           <div class="min-w-52 flex items-center space-x-2">
             {{ call doc_node_kind_icon.html with node.doc_node_kind_ctx }}
-            <a href="{node.href}" class="text-sm">{node.name}</a>
+            <a href="{node.href}" class="text-sm leading-none">{node.name}</a>
           </div>
         </div>
-        {{ if node.docs }}
-          <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
+        <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
+          {{ if node.docs }}
             { node.docs }
-          </div>
-        {{ endif }}
+          {{ else }}
+            <span class="italic">No documentation available</span>
+          {{ endif }}
+        </div>
       </div>
     {{ endfor }}
   </div>

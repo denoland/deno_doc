@@ -74,35 +74,7 @@ pub fn partition_nodes_by_kind(
   let mut partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>> =
     IndexMap::default();
 
-  for node in doc_nodes {
-    if matches!(
-      node.doc_node.kind,
-      DocNodeKind::ModuleDoc | DocNodeKind::Import
-    ) {
-      continue;
-    }
-
-    if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
-      let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
-      partitions.extend(partition_nodes_by_kind(
-        &namespace_def
-          .elements
-          .iter()
-          .map(|element| DocNodeWithContext {
-            origin: node.origin.clone(),
-            doc_node: element.clone(),
-          })
-          .collect::<Vec<_>>(),
-        true,
-      ));
-    }
-
-    let entry = partitions.entry(node.doc_node.kind).or_insert(vec![]);
-
-    if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
-      entry.push(node.clone());
-    }
-  }
+  partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by_key(|n| n.doc_node.name.to_string());
@@ -115,6 +87,44 @@ pub fn partition_nodes_by_kind(
       Ordering::Equal => unreachable!(),
     })
     .collect()
+}
+
+fn partition_nodes_by_kind_inner(
+  partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+  doc_nodes: &[DocNodeWithContext],
+  flatten_namespaces: bool,
+) {
+  for node in doc_nodes {
+    if matches!(
+      node.doc_node.kind,
+      DocNodeKind::ModuleDoc | DocNodeKind::Import
+    ) {
+      continue;
+    }
+
+    if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
+      let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+
+      partition_nodes_by_kind_inner(
+        partitions,
+        &namespace_def
+          .elements
+          .iter()
+          .map(|element| DocNodeWithContext {
+            origin: node.origin.clone(),
+            doc_node: element.clone(),
+          })
+          .collect::<Vec<_>>(),
+        true,
+      );
+    }
+
+    let entry = partitions.entry(node.doc_node.kind).or_insert(vec![]);
+
+    if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
+      entry.push(node.clone());
+    }
+  }
 }
 
 pub fn partition_nodes_by_category(
@@ -213,7 +223,11 @@ fn get_namespace_section_render_ctx(
 
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: doc_node.kind.into(),
-        origin: origin.as_deref().map(short_path_to_name),
+        origin: if ctx.ctx.single_file_mode {
+          None
+        } else {
+          origin.as_deref().map(short_path_to_name)
+        },
         href: (ctx.ctx.url_resolver)(
           current_resolve,
           crate::html::UrlResolveKind::Symbol {

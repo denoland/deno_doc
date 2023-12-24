@@ -132,6 +132,7 @@ pub struct GenerateCtx<'ctx> {
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
+  pub single_file_mode: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -304,6 +305,7 @@ pub fn generate(
     url_resolver: options.url_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
+    single_file_mode: doc_nodes_by_url.len() == 1,
   };
   let mut files = HashMap::new();
 
