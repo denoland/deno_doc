@@ -491,7 +491,7 @@ pub fn partition_nodes_by_name(
 
   for node in doc_nodes {
     if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-      || node.declaration_kind != crate::node::DeclarationKind::Export
+      || node.declaration_kind == crate::node::DeclarationKind::Private
     {
       continue;
     }

@@ -154,7 +154,7 @@ pub fn partition_nodes_by_category(
       .iter()
       .find_map(|tag| {
         if let crate::js_doc::JsDocTag::Category { doc } = tag {
-          doc.clone()
+          doc.as_ref().map(|doc| doc.trim().to_owned())
         } else {
           None
         }
