@@ -12,8 +12,8 @@
         <ul>
           {{~#each this.symbols ~}}
           <li>
-            <a href="{{this.href}}" title="{{this.name}}" class="{{#if symbol.active}}active{{/if}}">
-              {{~> doc_node_kind_icon symbol.kind~}}
+            <a href="{{this.href}}" title="{{this.name}}" class="{{#if this.active}}active{{/if}}">
+              {{~> doc_node_kind_icon this.kind~}}
               <span>{{this.name}}</span>
             </a>
           </li>
