@@ -37,7 +37,7 @@ struct OverloadRenderCtx {
   html_attrs: String,
   name: String,
   summary: String,
-  summary_doc: String,
+  summary_doc: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -66,12 +66,16 @@ pub(crate) fn render_function(
     let css = render_css_for_fn(&overload_id);
 
     let summary_doc = if !(function_def.has_body && i == 0) {
-      format!(
-        r#"<div class="w-full">{}</div>"#,
-        crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
-      )
+      let summary_doc =
+        crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc);
+
+      if !summary_doc.is_empty() {
+        Some(summary_doc)
+      } else {
+        None
+      }
     } else {
-      String::new()
+      None
     };
 
     let html_attrs = (i == 0)

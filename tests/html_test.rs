@@ -277,6 +277,9 @@ async fn symbol_group() {
     .join("testdata")
     .join("symbol_group.json");
 
+  // uncomment to regenerate symbol_group.json
+  //std::fs::write(&symbol_group_json_path, &files_json);
+
   let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
 
   assert_eq!(files_json, symbol_group_json);

@@ -1,19 +1,25 @@
 <div>
-  <h2 class="text-sm leading-6 font-medium text-stone-400 py-1" id="{id}"><a href="#{id}" aria-label="Anchor">{title}</a></h2>
-  <table class="block lg:table">
+  <h2 class="text-lg leading-6 font-medium py-1" id="{id}">
+    <a href="#{id}" aria-label="Anchor">
+      {title}
+    </a>
+  </h2>
+  <div class="grid grid-cols-3 gap-6">
     {{ for node in nodes }}
-      <tr class="block lg:table-row">
-        <td class="block py-1 pr-3 font-bold lg:table-cell">
+      <div class="space-y-2">
+        <div class="py-1 pr-3">
           { node.origin }
           <div class="min-w-52 flex items-center space-x-2">
             {{ call doc_node_kind_icon.html with node.doc_node_kind_ctx }}
-            <a href="{node.href}">{node.name}</a>
+            <a href="{node.href}" class="text-sm">{node.name}</a>
           </div>
-        </td>
-        <td class="block py-1 text-sm leading-5 text-stone-500 lg:table-cell">
-        { node.docs }
-        </td>
-      </tr>
+        </div>
+        {{ if node.docs }}
+          <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
+            { node.docs }
+          </div>
+        {{ endif }}
+      </div>
     {{ endfor }}
-  </table>
+  </div>
 </div>

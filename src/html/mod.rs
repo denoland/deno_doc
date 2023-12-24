@@ -168,7 +168,7 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
-fn short_path_to_name(short_path: String) -> String {
+fn short_path_to_name(short_path: &str) -> String {
   if short_path == "." {
     "main".to_string()
   } else {

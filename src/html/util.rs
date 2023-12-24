@@ -293,7 +293,7 @@ impl<'ctx> RenderContext<'ctx> {
               is_all_symbols_part: false,
             },
             BreadcrumbCtx {
-              name: super::short_path_to_name(file.to_string()),
+              name: super::short_path_to_name(file),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
@@ -316,7 +316,7 @@ impl<'ctx> RenderContext<'ctx> {
 
         if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
           parts.push(BreadcrumbCtx {
-            name: super::short_path_to_name(file.to_string()),
+            name: super::short_path_to_name(file),
             href: (self.ctx.url_resolver)(
               self.current_resolve,
               UrlResolveKind::File(file),

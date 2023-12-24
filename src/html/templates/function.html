@@ -10,9 +10,11 @@
       <code>
         <span class="font-bold">{ overload_ctx.name }</span><span class="font-medium">{ overload_ctx.summary }</span>
       </code>
-      <div class="ml-1 pl-2.5 border-l-2 border-stone-300">
-        { overload_ctx.summary_doc }
-      </div>
+      {{ if overload_ctx.summary_doc }}
+        <div class="markdown_border">
+          { overload_ctx.summary_doc }
+        </div>
+      {{ endif }}
     </label>
   {{ endfor }}
 </div>

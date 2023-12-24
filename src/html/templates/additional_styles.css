@@ -74,7 +74,6 @@ summary::-webkit-details-marker {
   box-shadow: 0 calc(var(--general-border-radius) * -1) 0 0 white;
 }
 
-
 /* doc classes */
 .doc_item {
   @apply relative;
@@ -84,6 +83,10 @@ summary::-webkit-details-marker {
 }
 
 /* markdown */
+.markdown_border {
+  @apply ml-1 pl-2.5 border-l-2 border-stone-300;
+}
+
 .markdown {
   @apply space-y-4;
 }

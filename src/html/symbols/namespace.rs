@@ -1,5 +1,5 @@
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
+use crate::html::{short_path_to_name, DocNodeWithContext};
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -24,7 +24,7 @@ pub struct NamespaceSectionNodeCtx {
   pub origin: Option<String>,
   pub href: String,
   pub name: String,
-  pub docs: String,
+  pub docs: Option<String>,
 }
 
 pub fn get_namespace_render_ctx(
@@ -207,9 +207,13 @@ fn get_namespace_section_render_ctx(
       }
 
       let current_resolve = ctx.get_current_resolve();
+
+      // TODO(bartlomieju): make it a template
+      let docs = crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc);
+
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: doc_node.kind.into(),
-        origin: origin.clone(),
+        origin: origin.as_deref().map(short_path_to_name),
         href: (ctx.ctx.url_resolver)(
           current_resolve,
           crate::html::UrlResolveKind::Symbol {
@@ -221,8 +225,7 @@ fn get_namespace_section_render_ctx(
           },
         ),
         name,
-        // TODO(bartlomieju): make it a template
-        docs: crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc),
+        docs: if !docs.is_empty() { Some(docs) } else { None },
       }
     })
     .collect::<Vec<_>>();

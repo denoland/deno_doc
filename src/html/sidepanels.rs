@@ -1,7 +1,8 @@
+use super::short_path_to_name;
+use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::UrlResolveKind;
-use super::{short_path_to_name, DocNodeKindCtx};
 use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -112,7 +113,7 @@ impl IndexSidepanelCtx {
               UrlResolveKind::File(&short_path)
             },
           ),
-          name: short_path_to_name(short_path),
+          name: short_path_to_name(&short_path),
         }
       })
       .collect::<Vec<_>>();
