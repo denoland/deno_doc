@@ -58,14 +58,13 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
-          "subtitle": "<div class=\"space-y-0.5 text-sm leading-4\">\n  \n    \n\n    \n      <div>\n        <span class=\"text-stone-400 italic\"> extends </span>\n        <a href=\"../././~/Foo.html\" class=\"link\">Foo</a>\n        <span></span>\n      </div>\n    \n  \n\n  \n</div>\n",
+          "subtitle": "<div class=\"space-y-0.5 text-sm leading-4\"><div>\n        <span class=\"text-stone-400 italic\"> extends </span><a href=\"../././~/Foo.html\" class=\"link\">Foo</a><span></span>\n      </div></div>\n",
           "body": "<div class=\"space-y-7\"></div>"
         }
       ],
       "usage": {
         "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
-        "raw_import_statement": "\"import { Bar } from \\\".\\\";\"",
-        "empty": null
+        "raw_import_statement": "\"import { Bar } from \\\".\\\";\""
       }
     },
     "breadcrumbs_ctx": {
@@ -85,8 +84,7 @@
           "is_all_symbols_part": false
         }
       ]
-    },
-    "search_ctx": null
+    }
   },
   {
     "html_head_ctx": {
@@ -147,14 +145,13 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
-          "subtitle": "<div class=\"space-y-0.5 text-sm leading-4\">\n  \n    \n\n    \n  \n\n  \n</div>\n",
+          "subtitle": "<div class=\"space-y-0.5 text-sm leading-4\"></div>\n",
           "body": "<div class=\"space-y-7\"></div>"
         }
       ],
       "usage": {
         "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
-        "raw_import_statement": "\"import { Foo } from \\\".\\\";\"",
-        "empty": null
+        "raw_import_statement": "\"import { Foo } from \\\".\\\";\""
       }
     },
     "breadcrumbs_ctx": {
@@ -174,8 +171,7 @@
           "is_all_symbols_part": false
         }
       ]
-    },
-    "search_ctx": null
+    }
   },
   {
     "html_head_ctx": {
@@ -223,13 +219,12 @@
             "title_plural": "Functions"
           },
           "subtitle": null,
-          "body": "\n  <style scoped>\n    \n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px rgb(37 99 235);\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n\n  </style>\n  <input type=\"radio\" name=\"function_x\" id=\"function_x_0\" checked />\n\n<div class=\"space-y-2\">\n  \n    <label for=\"function_x_0\" class=\"space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:border-stone-100\">\n      <code>\n        <span class=\"font-bold\">x</span><span class=\"font-medium\">(): <span>void</span></span>\n      </code>\n      \n    </label>\n  \n</div>\n<div class=\"mt-3\">\n  <div class=\"space-y-7\" id=\"function_x_0_div\"><div>\n  <h2 class=\"text-xl leading-6 font-semibold py-1\">Parameters</h2>\n  <div class=\"ml-2 mt-2 space-y-4\">\n    \n  </div>\n</div>\n<div>\n  <h2 class=\"text-xl leading-6 font-semibold py-1\">Return Type</h2>\n  <div class=\"ml-2 mt-2 space-y-4\">\n    <div class=\"doc_item\" id=\"function_x_0_return\">\n  \n<a\n    href=\"#function_x_0_return\"\n    class=\"anchor float-left leading-none hidden text-stone-600 ml-[-18px] pr-1\"\n    aria-label=\"Anchor\"\n    tabIndex=-1\n>\n    <div style=\"width: 14px; height: 14px; display: inline-block;\">&#128279;</div>\n</a>\n\n  <div class=\"flex justify-between\">\n    <span class=\"flex items-center break-words gap-2\">\n      <code>\n        <span class=\"font-bold\"></span><span class=\"font-medium\"><span>void</span></span>\n      </code>\n    </span>\n  </div>\n  <div class=\"markdown_border\">\n    \n  </div>\n</div>\n\n  </div>\n</div>\n</div>\n</div>\n"
+          "body": "<style scoped>\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px rgb(37 99 235);\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n</style>\n  <input type=\"radio\" name=\"function_x\" id=\"function_x_0\" checked /><div class=\"space-y-2\"><label for=\"function_x_0\" class=\"space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:border-stone-100\">\n      <code>\n        <span class=\"font-bold\">x</span><span class=\"font-medium\">(): <span>void</span></span>\n      </code></label></div>\n<div class=\"mt-3\"><div class=\"space-y-7\" id=\"function_x_0_div\"><div>\n  <h2 class=\"text-xl leading-6 font-semibold py-1\">Parameters</h2>\n  <div class=\"ml-2 mt-2 space-y-4\"></div>\n</div>\n<div>\n  <h2 class=\"text-xl leading-6 font-semibold py-1\">Return Type</h2>\n  <div class=\"ml-2 mt-2 space-y-4\"><div class=\"doc_item\" id=\"function_x_0_return\">\n  <a\n      href=\"#function_x_0_return\"\n      class=\"anchor float-left leading-none hidden text-stone-600 ml-[-18px] pr-1\"\n      aria-label=\"Anchor\"\n      tabIndex=-1\n  >\n  <div style=\"width: 14px; height: 14px; display: inline-block;\">&#128279;</div>\n  </a>\n  <div class=\"flex justify-between\">\n    <span class=\"flex items-center break-words gap-2\">\n      <code>\n        <span class=\"font-bold\"></span><span class=\"font-medium\"><span>void</span></span>\n      </code>\n    </span>\n  </div>\n  <div class=\"markdown_border\">\n    \n  </div>\n</div>\n</div>\n</div>\n</div></div>\n"
         }
       ],
       "usage": {
         "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;foo&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
-        "raw_import_statement": "\"import { x } from \\\"foo\\\";\"",
-        "empty": null
+        "raw_import_statement": "\"import { x } from \\\"foo\\\";\""
       }
     },
     "breadcrumbs_ctx": {
@@ -256,7 +251,6 @@
           "is_all_symbols_part": false
         }
       ]
-    },
-    "search_ctx": null
+    }
   }
 ]
