@@ -175,9 +175,9 @@ fn short_path_to_name(short_path: &str) -> String {
   } else {
     short_path
       .strip_prefix('.')
-      .unwrap_or(&short_path)
+      .unwrap_or(short_path)
       .strip_prefix('/')
-      .unwrap_or(&short_path)
+      .unwrap_or(short_path)
       .to_string()
   }
 }

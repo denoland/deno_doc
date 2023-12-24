@@ -265,7 +265,7 @@ fn get_namespace_section_render_ctx(
 
       NamespaceSectionNodeCtx {
         doc_node_kind_ctx: nodes
-          .into_iter()
+          .iter()
           .map(|node| node.doc_node.kind.into())
           .collect(),
         origin: if ctx.ctx.single_file_mode {
