@@ -7,7 +7,6 @@ use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
-use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Clone)]
 struct SidepanelPartitionNodeCtx {
@@ -39,7 +38,7 @@ impl SidepanelCtx {
     let partitions = partitions
       .into_iter()
       .map(|(name, nodes)| {
-        let mut grouped_nodes = HashMap::new();
+        let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
           let entry = grouped_nodes
@@ -134,7 +133,7 @@ impl IndexSidepanelCtx {
     let kind_partitions = partitions
       .into_iter()
       .map(|(name, nodes)| {
-        let mut grouped_nodes = HashMap::new();
+        let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
           let entry = grouped_nodes

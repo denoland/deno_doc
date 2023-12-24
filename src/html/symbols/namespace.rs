@@ -129,15 +129,17 @@ pub fn partition_nodes_by_kind(
   partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.doc_node.name.to_string());
+    nodes.sort_by(|node1, node2| {
+      node1
+        .doc_node
+        .name
+        .cmp(&node2.doc_node.name)
+        .then_with(|| node1.doc_node.kind.cmp(&node2.doc_node.kind))
+    });
   }
 
   partitions
-    .sorted_by(|key1, _value1, key2, _value2| match key1.cmp(key2) {
-      Ordering::Greater => Ordering::Greater,
-      Ordering::Less => Ordering::Less,
-      Ordering::Equal => unreachable!(),
-    })
+    .sorted_by(|kind1, _nodes1, kind2, _nodes2| kind1.cmp(kind2))
     .collect()
 }
 
