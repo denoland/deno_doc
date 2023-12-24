@@ -113,7 +113,7 @@ fn doc_block_subtitle(
     }
 
     return Some(ctx.render(
-      "doc_block_subtitle.html",
+      "doc_block_subtitle",
       &json!({
         "class": {
           "implements": class_implements,
@@ -145,7 +145,7 @@ fn doc_block_subtitle(
       .collect::<Vec<String>>();
 
     return Some(ctx.render(
-      "doc_block_subtitle.html",
+      "doc_block_subtitle",
       &json!({
         "class": null,
         "interface": {

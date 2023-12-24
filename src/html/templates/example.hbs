@@ -1,12 +1,12 @@
 <div class="example">
-  {{ call anchor.html with anchor }}
-  <details id="{ id }" class="group">
+  {{> anchor anchor }}
+  <details id="{{id}}" class="group">
     <summary class="list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6">
       <div class="text-stone-600 group-open:rotate-90">&#x25B6;</div>
-      { markdown_title }
+      {{~markdown_title~}}
     </summary>
     <div class="!ml-2 markdown_border">
-      { markdown_body }
+      {{~markdown_body~}}
     </div>
   </details>
 </div>

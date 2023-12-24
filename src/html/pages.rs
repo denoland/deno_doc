@@ -61,8 +61,6 @@ struct IndexCtx {
   sidepanel_ctx: sidepanels::IndexSidepanelCtx,
   module_doc: Option<super::jsdoc::ModuleDocCtx>,
   breadcrumbs_ctx: BreadcrumbsCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
 }
 
 pub fn render_index(
@@ -118,10 +116,9 @@ pub fn render_index(
     sidepanel_ctx,
     module_doc,
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-    search_ctx: serde_json::Value::Null,
   };
 
-  render_ctx.render("pages/index.html", &index_ctx)
+  render_ctx.render("pages/index", &index_ctx)
 }
 
 #[derive(Serialize)]
@@ -129,8 +126,6 @@ struct AllSymbolsCtx {
   html_head_ctx: HtmlHeadCtx,
   namespace_ctx: super::namespace::NamespaceRenderCtx,
   breadcrumbs_ctx: BreadcrumbsCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
 }
 
 pub(crate) fn render_all_symbols_page(
@@ -149,10 +144,9 @@ pub(crate) fn render_all_symbols_page(
     html_head_ctx,
     namespace_ctx,
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-    search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("pages/all_symbols.html", &all_symbols_ctx))
+  Ok(render_ctx.render("pages/all_symbols", &all_symbols_ctx))
 }
 
 pub fn generate_symbol_pages_for_module(
@@ -250,8 +244,6 @@ pub struct PageCtx {
   pub sidepanel_ctx: SidepanelCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  pub search_ctx: serde_json::Value,
 }
 
 fn render_symbol_page(

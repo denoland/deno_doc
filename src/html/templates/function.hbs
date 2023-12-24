@@ -1,0 +1,23 @@
+{{~#each overloads_ctx~}}
+  <style scoped>
+    {{~this.additional_css~}}
+  </style>
+  <input type="radio" name="{{this.function_id}}" id="{{this.overload_id}}" {{this.html_attrs}} />
+{{~/each~}}
+<div class="space-y-2">
+  {{~#each overloads_ctx~}}
+    <label for="{{this.overload_id}}" class="space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:border-stone-100">
+      <code>
+        <span class="font-bold">{{this.name}}</span><span class="font-medium">{{this.summary}}</span>
+      </code>
+      {{~#if this.summary_doc~}}
+        <div class="markdown_border">
+          {{~thid.summary_doc~}}
+        </div>
+      {{~/if~}}
+    </label>
+  {{~/each~}}
+</div>
+<div class="mt-3">
+  {{~content~}}
+</div>

@@ -55,7 +55,7 @@ fn render_index_signatures(
 
     let content = format!(
       r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-      ctx.render("anchor.html", &json!({ "href": &id })),
+      ctx.render("anchor", &json!({ "href": &id })),
       render_params(ctx, &index_signature.params),
     );
     items.push(content);
@@ -64,7 +64,7 @@ fn render_index_signatures(
   let content = items.join("");
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({ "title": "Index Signatures", "content": &content }),
   )
 }
@@ -110,7 +110,7 @@ fn render_call_signatures(
     .collect::<String>();
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({ "title": "Call Signatures", "content": &items }),
   )
 }
@@ -168,7 +168,7 @@ fn render_properties(
     .collect::<String>();
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({ "title": "Properties", "content": &items }),
   )
 }
@@ -218,8 +218,5 @@ fn render_methods(
     })
     .collect::<String>();
 
-  ctx.render(
-    "section.html",
-    &json!({ "title": "Methods", "content": &items }),
-  )
+  ctx.render("section", &json!({ "title": "Methods", "content": &items }))
 }

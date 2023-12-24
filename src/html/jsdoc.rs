@@ -179,7 +179,7 @@ fn render_docs_inner(
 
     if !examples.is_empty() {
       let s = ctx.render(
-        "section.html",
+        "section",
         &json!({
           "title": "Examples",
           "content": &examples.join(""),
@@ -237,7 +237,7 @@ fn get_example_render_ctx(
 fn render_example(ctx: &RenderContext, example: &str, i: usize) -> String {
   let example_render_ctx = get_example_render_ctx(example, i, ctx);
   // TODO: icons
-  ctx.render("example.html", &example_render_ctx)
+  ctx.render("example", &example_render_ctx)
 }
 
 pub(crate) fn render_doc_entry(
@@ -253,7 +253,7 @@ pub(crate) fn render_doc_entry(
 
   // TODO: sourceHref
   ctx.render(
-    "doc_entry.html",
+    "doc_entry",
     &json!({
       "id": id,
       "name": name,

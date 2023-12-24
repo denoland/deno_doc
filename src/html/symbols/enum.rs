@@ -30,8 +30,6 @@ pub(crate) fn render_enum(
     })
     .collect::<String>();
 
-  render_ctx.render(
-    "section.html",
-    &json!({ "title": "Members", "content": &items }),
-  )
+  render_ctx
+    .render("section", &json!({ "title": "Members", "content": &items }))
 }

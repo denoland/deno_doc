@@ -64,7 +64,7 @@ pub(crate) fn render_namespace(
   namespace_ctx
     .sections
     .into_iter()
-    .map(|section| ctx.render("namespace_section.html", &section))
+    .map(|section| ctx.render("namespace_section", &section))
     .collect::<String>()
 }
 

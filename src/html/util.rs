@@ -160,7 +160,7 @@ impl<'ctx> RenderContext<'ctx> {
   where
     Ctx: Serialize,
   {
-    self.ctx.tt.render(template, context).unwrap()
+    self.ctx.hbs.render(template, context).unwrap()
   }
 
   pub fn contains_type_param(&self, name: &str) -> bool {

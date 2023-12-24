@@ -1,9 +1,9 @@
 use deno_ast::ModuleSpecifier;
+use handlebars::Handlebars;
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
-use tinytemplate::TinyTemplate;
 
 use crate::DocNode;
 use crate::DocNodeKind;
@@ -123,7 +123,7 @@ pub struct GenerateCtx<'ctx> {
   pub common_ancestor: Option<PathBuf>,
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
-  pub tt: TinyTemplate<'ctx>,
+  pub hbs: Handlebars<'ctx>,
   pub syntect_adapter: syntect_adapter::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
   pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
@@ -188,83 +188,101 @@ pub struct DocNodeWithContext {
   pub doc_node: DocNode,
 }
 
-pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
-  let mut tt = TinyTemplate::new();
-  tt.set_default_formatter(&tinytemplate::format_unescaped);
-  tt.add_template(
-    "sidepanel.html",
-    include_str!("./templates/sidepanel.html"),
+pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
+  let mut reg = Handlebars::new();
+  reg.set_strict_mode(true);
+
+  #[cfg(debug_assertions)]
+  reg.set_dev_mode(true);
+
+  reg.register_template_string(
+    "sidepanel",
+    include_str!("./templates/sidepanel.hbs"),
   )?;
-  tt.add_template(
-    "doc_entry.html",
-    include_str!("./templates/doc_entry.html"),
+  reg.register_template_string(
+    "doc_entry",
+    include_str!("./templates/doc_entry.hbs"),
   )?;
-  tt.add_template("section.html", include_str!("./templates/section.html"))?;
-  tt.add_template(
-    "index_sidepanel.html",
-    include_str!("./templates/index_sidepanel.html"),
+  reg.register_template_string(
+    "section",
+    include_str!("./templates/section.hbs"),
   )?;
-  tt.add_template(
-    "doc_node_kind_icon.html",
-    include_str!("./templates/doc_node_kind_icon.html"),
+  reg.register_template_string(
+    "index_sidepanel",
+    include_str!("./templates/index_sidepanel.hbs"),
   )?;
-  tt.add_template(
-    "namespace_section.html",
-    include_str!("./templates/namespace_section.html"),
+  reg.register_template_string(
+    "doc_node_kind_icon",
+    include_str!("./templates/doc_node_kind_icon.hbs"),
   )?;
-  tt.add_template(
-    "doc_block_subtitle.html",
-    include_str!("./templates/doc_block_subtitle.html"),
+  reg.register_template_string(
+    "namespace_section",
+    include_str!("./templates/namespace_section.hbs"),
   )?;
-  tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
-  tt.add_template(
-    "symbol_group.html",
-    include_str!("./templates/symbol_group.html"),
+  reg.register_template_string(
+    "doc_block_subtitle",
+    include_str!("./templates/doc_block_subtitle.hbs"),
   )?;
-  tt.add_template("example.html", include_str!("./templates/example.html"))?;
-  tt.add_template("function.html", include_str!("./templates/function.html"))?;
-  tt.add_template(
-    "module_doc.html",
-    include_str!("./templates/module_doc.html"),
+  reg.register_template_string(
+    "anchor",
+    include_str!("./templates/anchor.hbs"),
   )?;
-  tt.add_template(
-    "breadcrumbs.html",
-    include_str!("./templates/breadcrumbs.html"),
+  reg.register_template_string(
+    "symbol_group",
+    include_str!("./templates/symbol_group.hbs"),
   )?;
-  tt.add_template("usage.html", include_str!("./templates/usage.html"))?;
+  reg.register_template_string(
+    "example",
+    include_str!("./templates/example.hbs"),
+  )?;
+  reg.register_template_string(
+    "function",
+    include_str!("./templates/function.hbs"),
+  )?;
+  reg.register_template_string(
+    "module_doc",
+    include_str!("./templates/module_doc.hbs"),
+  )?;
+  reg.register_template_string(
+    "breadcrumbs",
+    include_str!("./templates/breadcrumbs.hbs"),
+  )?;
+  reg
+    .register_template_string("usage", include_str!("./templates/usage.hbs"))?;
 
   // pages
-  tt.add_template(
-    "pages/html_head.html",
-    include_str!("./templates/pages/html_head.html"),
+  reg.register_template_string(
+    "pages/html_head",
+    include_str!("./templates/pages/html_head.hbs"),
   )?;
-  tt.add_template(
-    "pages/all_symbols.html",
-    include_str!("./templates/pages/all_symbols.html"),
+  reg.register_template_string(
+    "pages/all_symbols",
+    include_str!("./templates/pages/all_symbols.hbs"),
   )?;
-  tt.add_template(
-    "pages/symbol.html",
-    include_str!("./templates/pages/symbol.html"),
+  reg.register_template_string(
+    "pages/symbol",
+    include_str!("./templates/pages/symbol.hbs"),
   )?;
-  tt.add_template(
-    "pages/index.html",
-    include_str!("./templates/pages/index.html"),
+  reg.register_template_string(
+    "pages/index",
+    include_str!("./templates/pages/index.hbs"),
   )?;
-  tt.add_template(
-    "pages/search_bar.html",
-    include_str!("./templates/pages/search_bar.html"),
+  reg.register_template_string(
+    "pages/search_bar",
+    include_str!("./templates/pages/search_bar.hbs"),
   )?;
-  tt.add_template(
-    "pages/search_results.html",
-    include_str!("./templates/pages/search_results.html"),
+  reg.register_template_string(
+    "pages/search_results",
+    include_str!("./templates/pages/search_results.hbs"),
   )?;
 
   // icons
-  tt.add_template(
-    "icons/copy.html",
-    include_str!("./templates/icons/copy.html"),
+  reg.register_template_string(
+    "icons/copy",
+    include_str!("./templates/icons/copy.hbs"),
   )?;
-  Ok(tt)
+
+  Ok(reg)
 }
 
 pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
@@ -290,13 +308,12 @@ pub fn generate(
   }
 
   let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
-  let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
     common_ancestor,
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
-    tt,
+    hbs: setup_hbs()?,
     syntect_adapter: setup_syntect(),
     global_symbols: options.global_symbols,
     global_symbol_href_resolver: options.global_symbol_href_resolver,
@@ -385,11 +402,9 @@ pub fn generate(
             sidepanel_ctx,
             symbol_group_ctx,
             breadcrumbs_ctx,
-            search_ctx: serde_json::Value::Null,
           };
 
-          let symbol_page =
-            ctx.tt.render("pages/symbol.html", &page_ctx).unwrap();
+          let symbol_page = ctx.hbs.render("pages/symbol", &page_ctx).unwrap();
 
           (file_name, symbol_page)
         },

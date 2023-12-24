@@ -211,7 +211,7 @@ async fn symbol_group() {
       ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
-    tt: setup_tt().unwrap(),
+    hbs: setup_hbs().unwrap(),
     syntect_adapter: setup_syntect(),
     global_symbols: Default::default(),
     global_symbol_href_resolver: Rc::new(|_, _| String::new()),
@@ -262,7 +262,6 @@ async fn symbol_group() {
             sidepanel_ctx,
             symbol_group_ctx,
             breadcrumbs_ctx,
-            search_ctx: serde_json::Value::Null,
           }
         },
       ));

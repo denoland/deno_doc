@@ -100,7 +100,7 @@ pub(crate) fn render_function(
     overloads_ctx,
     content: content.join(""),
   };
-  ctx.render("function.html", &function_ctx)
+  ctx.render("function", &function_ctx)
 }
 
 pub(crate) fn render_function_summary(
@@ -179,11 +179,11 @@ fn render_single_function(
     crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc),
     render_type_params(ctx, &function_def.type_params),
     ctx.render(
-      "section.html",
+      "section",
       &json!({ "title": "Parameters", "content": &params })
     ),
     ctx.render(
-      "section.html",
+      "section",
       &json!({
         "title": "Return Type",
         "content": &render_function_return_type(
