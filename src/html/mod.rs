@@ -1,4 +1,5 @@
 use deno_ast::ModuleSpecifier;
+use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -196,6 +197,9 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   #[cfg(debug_assertions)]
   reg.set_dev_mode(true);
 
+  handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
+  reg.register_helper("concat", Box::new(concat));
+
   reg.register_template_string(
     "sidepanel",
     include_str!("./templates/sidepanel.hbs"),
@@ -221,8 +225,12 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/namespace_section.hbs"),
   )?;
   reg.register_template_string(
-    "doc_block_subtitle",
-    include_str!("./templates/doc_block_subtitle.hbs"),
+    "doc_block_subtitle_class",
+    include_str!("./templates/doc_block_subtitle_class.hbs"),
+  )?;
+  reg.register_template_string(
+    "doc_block_subtitle_interface",
+    include_str!("./templates/doc_block_subtitle_interface.hbs"),
   )?;
   reg.register_template_string(
     "anchor",
@@ -231,6 +239,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     "symbol_group",
     include_str!("./templates/symbol_group.hbs"),
+  )?;
+  reg.register_template_string(
+    "symbol_content",
+    include_str!("./templates/symbol_content.hbs"),
   )?;
   reg.register_template_string(
     "example",
@@ -358,7 +370,7 @@ pub fn generate(
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
     let all_symbols_render =
-      pages::render_all_symbols_page(&ctx, &partitions_by_kind)?;
+      pages::render_all_symbols_page(&ctx, &partitions_by_kind);
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 

@@ -64,7 +64,7 @@ pub(crate) fn render_namespace(
   namespace_ctx
     .sections
     .into_iter()
-    .map(|section| ctx.render("namespace_section", &section))
+    .map(|section| ctx.ctx.hbs.render("namespace_section", &section).unwrap())
     .collect::<String>()
 }
 
@@ -259,7 +259,6 @@ fn get_namespace_section_render_ctx(
 
       let current_resolve = ctx.get_current_resolve();
 
-      // TODO(bartlomieju): make it a template
       let docs =
         crate::html::jsdoc::render_docs_summary(ctx, &nodes[0].doc_node.js_doc);
 
@@ -285,7 +284,7 @@ fn get_namespace_section_render_ctx(
           },
         ),
         name,
-        docs: if !docs.is_empty() { Some(docs) } else { None },
+        docs,
       }
     })
     .collect::<Vec<_>>();

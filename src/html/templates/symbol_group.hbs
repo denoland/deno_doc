@@ -6,14 +6,32 @@
           <div class="text-xl leading-none">
             <span class="text-{{this.kind.kind}}">{{this.kind.title_lowercase}}</span>&nbsp;<span class="font-bold">{{../name}}</span>
           </div>
-          {{~this.subtitle~}}
+          {{~#if this.subtitle ~}}
+            <div class="space-y-0.5 text-sm leading-4">
+              {{~> (concat "doc_block_subtitle_" this.subtitle.kind) this.subtitle.value ~}}
+            </div>
+          {{~/if~}}
         </div>
       </div>
+
       {{~#if @first~}}
         {{~> usage ../usage ~}}
       {{~/if~}}
+
       <div>
-        {{~this.body~}}
+        {{~#each this.content~}}
+          {{~#if (eq kind "function")~}}
+            {{~> function value ~}}
+          {{~else~}}
+
+            {{~#if (eq kind "namespace")~}}
+              {{~value~}}
+            {{~else~}}
+              {{~> symbol_content value ~}}
+            {{~/if~}}
+
+          {{~/if~}}
+        {{~/each~}}
       </div>
     </article>
   {{~/each~}}

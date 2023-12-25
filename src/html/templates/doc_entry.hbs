@@ -1,5 +1,6 @@
 <div class="doc_item" id="{{id}}">
-  {{> anchor anchor }}
+  {{~> anchor anchor ~}}
+
   <div class="flex justify-between">
     <span class="flex items-center break-words gap-2">
       <code>
@@ -7,7 +8,10 @@
       </code>
     </span>
   </div>
-  <div class="markdown_border">
-    {{jsdoc}}
-  </div>
+
+  {{~#if js_doc~}}
+    <div class="markdown_border">
+      {{~js_doc~}}
+    </div>
+  {{~/if~}}
 </div>

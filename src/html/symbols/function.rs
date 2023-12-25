@@ -1,6 +1,9 @@
 use crate::function::FunctionDef;
-use crate::html::jsdoc::render_doc_entry;
+use crate::html::jsdoc::DocEntryCtx;
+use crate::html::jsdoc::SectionContentCtx;
+use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
+use crate::html::symbol::SymbolContentCtx;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
@@ -8,7 +11,6 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
-use serde_json::json;
 
 fn render_css_for_fn(overload_id: &str) -> String {
   format!(
@@ -29,7 +31,7 @@ fn render_css_for_fn(overload_id: &str) -> String {
   )
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
   function_id: String,
   overload_id: String,
@@ -40,19 +42,19 @@ struct OverloadRenderCtx {
   summary_doc: Option<String>,
 }
 
-#[derive(Serialize)]
-struct FunctionRenderCtx {
+#[derive(Debug, Serialize, Clone)]
+pub struct FunctionCtx {
   overloads_ctx: Vec<OverloadRenderCtx>,
-  content: String,
+  functions: Vec<SymbolContentCtx>,
 }
 
 pub(crate) fn render_function(
   ctx: &RenderContext,
   doc_nodes: Vec<&crate::DocNode>,
-) -> String {
+) -> FunctionCtx {
   // TODO: this needs to be handled more gracefully on the frontend
-  let mut content = Vec::with_capacity(doc_nodes.len());
   let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
+  let mut functions_content = Vec::with_capacity(doc_nodes.len());
 
   for (i, doc_node) in doc_nodes.into_iter().enumerate() {
     let function_def = doc_node.function_def.as_ref().unwrap();
@@ -66,14 +68,7 @@ pub(crate) fn render_function(
     let css = render_css_for_fn(&overload_id);
 
     let summary_doc = if !(function_def.has_body && i == 0) {
-      let summary_doc =
-        crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc);
-
-      if !summary_doc.is_empty() {
-        Some(summary_doc)
-      } else {
-        None
-      }
+      crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
     } else {
       None
     };
@@ -93,14 +88,13 @@ pub(crate) fn render_function(
       summary_doc,
     });
 
-    content.push(render_single_function(ctx, doc_node, &overload_id));
+    functions_content.push(render_single_function(ctx, doc_node, &overload_id));
   }
 
-  let function_ctx = FunctionRenderCtx {
+  FunctionCtx {
     overloads_ctx,
-    content: content.join(""),
-  };
-  ctx.render("function", &function_ctx)
+    functions: functions_content,
+  }
 }
 
 pub(crate) fn render_function_summary(
@@ -124,7 +118,7 @@ fn render_single_function(
   ctx: &RenderContext,
   doc_node: &crate::DocNode,
   overload_id: &str,
-) -> String {
+) -> SymbolContentCtx {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
   let current_type_params = function_def
@@ -170,31 +164,47 @@ fn render_single_function(
 
       // TODO: default_value, tags
 
-      render_doc_entry(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
+      DocEntryCtx::new(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
     })
-    .collect::<String>();
+    .collect::<Vec<DocEntryCtx>>();
 
-  format!(
-    r##"<div class="space-y-7" id="{overload_id}_div">{}{}{}{}</div>"##,
-    crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc),
-    render_type_params(ctx, &function_def.type_params),
-    ctx.render(
-      "section",
-      &json!({ "title": "Parameters", "content": &params })
+  let mut sections = vec![];
+
+  let (docs, examples) =
+    crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+
+  if let Some(examples) = examples {
+    sections.push(examples);
+  }
+
+  if let Some(type_params) = render_type_params(ctx, &function_def.type_params)
+  {
+    sections.push(type_params);
+  }
+
+  sections.push(SectionCtx {
+    title: "Parameters",
+    content: SectionContentCtx::DocEntry(params),
+  });
+
+  sections.push(SectionCtx {
+    title: "Return Type",
+    content: SectionContentCtx::DocEntry(
+      render_function_return_type(
+        function_def,
+        &doc_node.js_doc,
+        overload_id,
+        ctx,
+      )
+      .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
     ),
-    ctx.render(
-      "section",
-      &json!({
-        "title": "Return Type",
-        "content": &render_function_return_type(
-          function_def,
-          &doc_node.js_doc,
-          overload_id,
-          ctx
-        )
-      })
-    )
-  )
+  });
+
+  SymbolContentCtx {
+    id: format!("{overload_id}_div"),
+    sections,
+    docs,
+  }
 }
 
 fn render_function_return_type(
@@ -202,9 +212,9 @@ fn render_function_return_type(
   js_doc: &crate::js_doc::JsDoc,
   overload_id: &str,
   render_ctx: &RenderContext,
-) -> String {
+) -> Option<DocEntryCtx> {
   let Some(return_type) = def.return_type.as_ref() else {
-    return "".to_string();
+    return None;
   };
 
   let id = name_to_id(overload_id, "return");
@@ -217,11 +227,11 @@ fn render_function_return_type(
     }
   });
 
-  render_doc_entry(
+  Some(DocEntryCtx::new(
     render_ctx,
     &id,
     "",
     &render_type_def(render_ctx, return_type),
     return_type_doc,
-  )
+  ))
 }

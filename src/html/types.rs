@@ -1,4 +1,5 @@
-use crate::html::jsdoc::render_doc_entry;
+use crate::html::jsdoc::SectionCtx;
+use crate::html::jsdoc::{DocEntryCtx, SectionContentCtx};
 use crate::html::parameters::render_params;
 use crate::html::util::*;
 use crate::ts_type::LiteralDefKind;
@@ -6,7 +7,6 @@ use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
-use serde_json::json;
 
 pub(crate) fn render_type_def(
   ctx: &RenderContext,
@@ -371,7 +371,7 @@ fn type_def_join(
 
     let content = items.join("");
 
-    format!(r#"<div class="indent">{content}</div>"#)
+    format!(r#"<div class="ml-4">{content}</div>"#)
   }
 }
 
@@ -395,7 +395,7 @@ fn type_def_tuple(
     }
 
     let content = items.join("");
-    format!(r#"<div class="indent">[{content}]</div>"#)
+    format!(r#"<div class="ml-4">[{content}]</div>"#)
   }
 }
 
@@ -469,9 +469,9 @@ pub(crate) fn type_arguments(
 pub(crate) fn render_type_params(
   ctx: &RenderContext,
   type_params: &[TsTypeParamDef],
-) -> String {
+) -> Option<SectionCtx> {
   if type_params.is_empty() {
-    return String::new();
+    return None;
   }
 
   let mut items = Vec::with_capacity(type_params.len());
@@ -501,7 +501,7 @@ pub(crate) fn render_type_params(
       })
       .unwrap_or_default();
 
-    let content = render_doc_entry(
+    let content = DocEntryCtx::new(
       ctx,
       &id,
       &type_param.name,
@@ -512,13 +512,8 @@ pub(crate) fn render_type_params(
     items.push(content);
   }
 
-  let items = items.join("");
-
-  ctx.render(
-    "section",
-    &json!({
-      "title": "Type Parameters",
-      "content": &items
-    }),
-  )
+  Some(SectionCtx {
+    title: "Type Parameters",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }

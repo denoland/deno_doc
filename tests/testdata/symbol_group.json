@@ -58,8 +58,27 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
-          "subtitle": "<div class=\"space-y-0.5 text-sm leading-4\"><div>\n        <span class=\"text-stone-400 italic\"> extends </span><a href=\"../././~/Foo.html\" class=\"link\">Foo</a><span></span>\n      </div></div>\n",
-          "body": "<div class=\"space-y-7\"></div>"
+          "subtitle": {
+            "kind": "class",
+            "value": {
+              "implements": null,
+              "extends": {
+                "href": "../././~/Foo.html",
+                "symbol": "Foo",
+                "type_args": ""
+              }
+            }
+          },
+          "content": [
+            {
+              "kind": "other",
+              "value": {
+                "id": "",
+                "docs": null,
+                "sections": []
+              }
+            }
+          ]
         }
       ],
       "usage": {
@@ -145,8 +164,23 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
-          "subtitle": "<div class=\"space-y-0.5 text-sm leading-4\"></div>\n",
-          "body": "<div class=\"space-y-7\"></div>"
+          "subtitle": {
+            "kind": "class",
+            "value": {
+              "implements": null,
+              "extends": null
+            }
+          },
+          "content": [
+            {
+              "kind": "other",
+              "value": {
+                "id": "",
+                "docs": null,
+                "sections": []
+              }
+            }
+          ]
         }
       ],
       "usage": {
@@ -219,7 +253,56 @@
             "title_plural": "Functions"
           },
           "subtitle": null,
-          "body": "<style scoped>\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px rgb(37 99 235);\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n</style>\n  <input type=\"radio\" name=\"function_x\" id=\"function_x_0\" checked /><div class=\"space-y-2\"><label for=\"function_x_0\" class=\"space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:border-stone-100\">\n      <code>\n        <span class=\"font-bold\">x</span><span class=\"font-medium\">(): <span>void</span></span>\n      </code></label></div>\n<div class=\"mt-3\"><div class=\"space-y-7\" id=\"function_x_0_div\"><div>\n  <h2 class=\"text-xl leading-6 font-semibold py-1\">Parameters</h2>\n  <div class=\"ml-2 mt-2 space-y-4\"></div>\n</div>\n<div>\n  <h2 class=\"text-xl leading-6 font-semibold py-1\">Return Type</h2>\n  <div class=\"ml-2 mt-2 space-y-4\"><div class=\"doc_item\" id=\"function_x_0_return\">\n  <a\n      href=\"#function_x_0_return\"\n      class=\"anchor float-left leading-none hidden text-stone-600 ml-[-18px] pr-1\"\n      aria-label=\"Anchor\"\n      tabIndex=-1\n  >\n  <div style=\"width: 14px; height: 14px; display: inline-block;\">&#128279;</div>\n  </a>\n  <div class=\"flex justify-between\">\n    <span class=\"flex items-center break-words gap-2\">\n      <code>\n        <span class=\"font-bold\"></span><span class=\"font-medium\"><span>void</span></span>\n      </code>\n    </span>\n  </div>\n  <div class=\"markdown_border\">\n    \n  </div>\n</div>\n</div>\n</div>\n</div></div>\n"
+          "content": [
+            {
+              "kind": "function",
+              "value": {
+                "overloads_ctx": [
+                  {
+                    "function_id": "function_x",
+                    "overload_id": "function_x_0",
+                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px rgb(37 99 235);\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n",
+                    "html_attrs": "checked",
+                    "name": "x",
+                    "summary": "(): <span>void</span>",
+                    "summary_doc": null
+                  }
+                ],
+                "functions": [
+                  {
+                    "id": "function_x_0_div",
+                    "docs": null,
+                    "sections": [
+                      {
+                        "title": "Parameters",
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": []
+                        }
+                      },
+                      {
+                        "title": "Return Type",
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": [
+                            {
+                              "id": "function_x_0_return",
+                              "name": "",
+                              "content": "<span>void</span>",
+                              "anchor": {
+                                "id": "function_x_0_return"
+                              },
+                              "js_doc": null
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
         }
       ],
       "usage": {
