@@ -1,8 +1,10 @@
-use crate::html::jsdoc::render_doc_entry;
+use crate::html::jsdoc::DocEntryCtx;
+use crate::html::jsdoc::SectionContentCtx;
+use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
+use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_params;
 use crate::html::util::*;
-use serde_json::json;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
@@ -40,11 +42,6 @@ fn render_index_signatures(
   for (i, index_signature) in index_signatures.iter().enumerate() {
     let id = name_to_id("index_signature", &i.to_string());
 
-    let readonly = index_signature
-      .readonly
-      .then_some("<span>readonly </span>")
-      .unwrap_or_default();
-
     let ts_type = index_signature
       .ts_type
       .as_ref()
@@ -53,19 +50,21 @@ fn render_index_signatures(
       })
       .unwrap_or_default();
 
-    let content = format!(
-      r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-      ctx.render("anchor", &json!({ "href": &id })),
-      render_params(ctx, &index_signature.params),
-    );
-    items.push(content);
+    items.push(IndexSignatureCtx {
+      id: id.clone(),
+      anchor: AnchorCtx { id },
+      readonly: index_signature.readonly,
+      params: render_params(ctx, &index_signature.params),
+      ts_type,
+    });
   }
-
-  let content = items.join("");
 
   ctx.render(
     "section",
-    &json!({ "title": "Index Signatures", "content": &content }),
+    &SectionCtx {
+      title: "Index Signatures",
+      content: SectionContentCtx::IndexSignature(items),
+    },
   )
 }
 
@@ -92,7 +91,7 @@ fn render_call_signatures(
         })
         .unwrap_or_default();
 
-      render_doc_entry(
+      DocEntryCtx::new(
         ctx,
         &id,
         "",
@@ -107,11 +106,14 @@ fn render_call_signatures(
         call_signature.js_doc.doc.as_deref(),
       )
     })
-    .collect::<String>();
+    .collect::<Vec<DocEntryCtx>>();
 
   ctx.render(
     "section",
-    &json!({ "title": "Call Signatures", "content": &items }),
+    &SectionCtx {
+      title: "Call Signatures",
+      content: SectionContentCtx::DocEntry(items),
+    },
   )
 }
 
@@ -153,7 +155,7 @@ fn render_properties(
         })
         .unwrap_or_default();
 
-      render_doc_entry(
+      DocEntryCtx::new(
         ctx,
         &id,
         &if property.computed {
@@ -165,11 +167,14 @@ fn render_properties(
         property.js_doc.doc.as_deref(),
       )
     })
-    .collect::<String>();
+    .collect::<Vec<DocEntryCtx>>();
 
   ctx.render(
     "section",
-    &json!({ "title": "Properties", "content": &items }),
+    &SectionCtx {
+      title: "Properties",
+      content: SectionContentCtx::DocEntry(items),
+    },
   )
 }
 
@@ -204,7 +209,7 @@ fn render_methods(
         })
         .unwrap_or_default();
 
-      render_doc_entry(
+      DocEntryCtx::new(
         ctx,
         &id,
         &name,
@@ -216,7 +221,13 @@ fn render_methods(
         method.js_doc.doc.as_deref(),
       )
     })
-    .collect::<String>();
+    .collect::<Vec<DocEntryCtx>>();
 
-  ctx.render("section", &json!({ "title": "Methods", "content": &items }))
+  ctx.render(
+    "section",
+    &SectionCtx {
+      title: "Methods",
+      content: SectionContentCtx::DocEntry(items),
+    },
+  )
 }

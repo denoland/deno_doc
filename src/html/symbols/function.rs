@@ -1,5 +1,7 @@
 use crate::function::FunctionDef;
-use crate::html::jsdoc::render_doc_entry;
+use crate::html::jsdoc::DocEntryCtx;
+use crate::html::jsdoc::SectionContentCtx;
+use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_params;
@@ -8,7 +10,6 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
-use serde_json::json;
 
 fn render_css_for_fn(overload_id: &str) -> String {
   format!(
@@ -170,9 +171,9 @@ fn render_single_function(
 
       // TODO: default_value, tags
 
-      render_doc_entry(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
+      DocEntryCtx::new(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
     })
-    .collect::<String>();
+    .collect::<Vec<DocEntryCtx>>();
 
   format!(
     r##"<div class="space-y-7" id="{overload_id}_div">{}{}{}{}</div>"##,
@@ -180,19 +181,25 @@ fn render_single_function(
     render_type_params(ctx, &function_def.type_params),
     ctx.render(
       "section",
-      &json!({ "title": "Parameters", "content": &params })
+      &SectionCtx {
+        title: "Parameters",
+        content: SectionContentCtx::DocEntry(params)
+      }
     ),
     ctx.render(
       "section",
-      &json!({
-        "title": "Return Type",
-        "content": &render_function_return_type(
-          function_def,
-          &doc_node.js_doc,
-          overload_id,
-          ctx
+      &SectionCtx {
+        title: "Return Type",
+        content: SectionContentCtx::DocEntry(
+          render_function_return_type(
+            function_def,
+            &doc_node.js_doc,
+            overload_id,
+            ctx
+          )
+          .map_or_else(Default::default, |doc_entry| vec![doc_entry])
         )
-      })
+      }
     )
   )
 }
@@ -202,9 +209,9 @@ fn render_function_return_type(
   js_doc: &crate::js_doc::JsDoc,
   overload_id: &str,
   render_ctx: &RenderContext,
-) -> String {
+) -> Option<DocEntryCtx> {
   let Some(return_type) = def.return_type.as_ref() else {
-    return "".to_string();
+    return None;
   };
 
   let id = name_to_id(overload_id, "return");
@@ -217,11 +224,11 @@ fn render_function_return_type(
     }
   });
 
-  render_doc_entry(
+  Some(DocEntryCtx::new(
     render_ctx,
     &id,
     "",
     &render_type_def(render_ctx, return_type),
     return_type_doc,
-  )
+  ))
 }

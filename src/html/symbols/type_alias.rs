@@ -1,7 +1,6 @@
-use crate::html::jsdoc::render_doc_entry;
+use crate::html::jsdoc::{DocEntryCtx, SectionContentCtx, SectionCtx};
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use serde_json::json;
 
 pub(crate) fn render_type_alias(
   ctx: &RenderContext,
@@ -23,16 +22,16 @@ pub(crate) fn render_type_alias(
     crate::html::types::render_type_params(ctx, &type_alias_def.type_params),
     ctx.render(
       "section",
-      &json!({
-        "title": "Definition",
-        "content": &render_doc_entry(
+      &SectionCtx {
+        title: "Definition",
+        content: SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
           ctx,
           &id,
           "",
           &format!(": {}", render_type_def(ctx, &type_alias_def.ts_type)),
           None,
-        )
-      }),
+        )]),
+      },
     ),
   ]
   .join("")

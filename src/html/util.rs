@@ -425,3 +425,8 @@ fn get_current_imports(
 
   imports
 }
+
+#[derive(Debug, Serialize, Clone)]
+pub struct AnchorCtx {
+  pub id: String,
+}

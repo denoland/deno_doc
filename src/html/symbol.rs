@@ -5,13 +5,12 @@ use crate::html::usage::UsageCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
-use serde_json::json;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Clone)]
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
-  subtitle: Option<String>,
+  subtitle: Option<DocBlockSubtitleCtx>,
   body: String,
 }
 
@@ -47,7 +46,7 @@ impl SymbolGroupCtx {
       .values()
       .map(|doc_nodes| SymbolCtx {
         kind: doc_nodes[0].kind.into(),
-        subtitle: doc_block_subtitle(ctx, &doc_nodes[0]),
+        subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
         body: doc_block(ctx, doc_nodes, name),
       })
       .collect();
@@ -60,103 +59,109 @@ impl SymbolGroupCtx {
   }
 }
 
-fn doc_block_subtitle(
-  ctx: &RenderContext,
-  doc_node: &DocNode,
-) -> Option<String> {
-  if matches!(
-    doc_node.kind,
-    DocNodeKind::Function
-      | DocNodeKind::Variable
-      | DocNodeKind::Enum
-      | DocNodeKind::TypeAlias
-      | DocNodeKind::Namespace
-  ) {
-    return None;
-  }
+#[derive(Debug, Serialize, Clone)]
+struct DocBlockClassSubtitleExtendsCtx {
+  href: Option<String>,
+  symbol: String,
+  type_args: String,
+}
 
-  if matches!(doc_node.kind, DocNodeKind::Class) {
-    let class_def = doc_node.class_def.as_ref().unwrap();
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "kind", content = "value")]
+enum DocBlockSubtitleCtx {
+  Class {
+    implements: Option<Vec<String>>,
+    extends: Option<DocBlockClassSubtitleExtendsCtx>,
+  },
+  Interface {
+    extends: Vec<String>,
+  },
+}
 
-    let current_type_params = class_def
-      .type_params
-      .iter()
-      .map(|def| def.name.clone())
-      .collect::<std::collections::HashSet<String>>();
+impl DocBlockSubtitleCtx {
+  fn new(ctx: &RenderContext, doc_node: &DocNode) -> Option<Self> {
+    if matches!(
+      doc_node.kind,
+      DocNodeKind::Function
+        | DocNodeKind::Variable
+        | DocNodeKind::Enum
+        | DocNodeKind::TypeAlias
+        | DocNodeKind::Namespace
+    ) {
+      return None;
+    }
 
-    let ctx = &ctx.with_current_type_params(current_type_params);
+    if matches!(doc_node.kind, DocNodeKind::Class) {
+      let class_def = doc_node.class_def.as_ref().unwrap();
 
-    let mut class_implements = None;
-    let mut class_extends = None;
+      let current_type_params = class_def
+        .type_params
+        .iter()
+        .map(|def| def.name.clone())
+        .collect::<std::collections::HashSet<String>>();
 
-    if !class_def.implements.is_empty() {
-      let impls = class_def
-        .implements
+      let ctx = &ctx.with_current_type_params(current_type_params);
+
+      let mut class_implements = None;
+      let mut class_extends = None;
+
+      if !class_def.implements.is_empty() {
+        let impls = class_def
+          .implements
+          .iter()
+          .map(|extend| render_type_def(ctx, extend))
+          .collect::<Vec<String>>();
+
+        class_implements = Some(impls);
+      }
+
+      if let Some(extends) = class_def.extends.as_ref() {
+        class_extends = Some(DocBlockClassSubtitleExtendsCtx {
+          href: ctx.lookup_symbol_href(extends),
+          symbol: extends.to_owned(),
+          type_args: super::types::type_arguments(
+            ctx,
+            &class_def.super_type_params,
+          ),
+        });
+      }
+
+      return Some(DocBlockSubtitleCtx::Class {
+        implements: class_implements,
+        extends: class_extends,
+      });
+    }
+
+    if matches!(doc_node.kind, DocNodeKind::Interface) {
+      let interface_def = doc_node.interface_def.as_ref().unwrap();
+
+      if interface_def.extends.is_empty() {
+        return None;
+      }
+
+      let current_type_params = interface_def
+        .type_params
+        .iter()
+        .map(|def| def.name.clone())
+        .collect::<std::collections::HashSet<String>>();
+      let ctx = &ctx.with_current_type_params(current_type_params);
+
+      let extends = interface_def
+        .extends
         .iter()
         .map(|extend| render_type_def(ctx, extend))
         .collect::<Vec<String>>();
 
-      class_implements = Some(impls);
+      return Some(DocBlockSubtitleCtx::Interface { extends });
     }
 
-    if let Some(extends) = class_def.extends.as_ref() {
-      let symbol = if let Some(href) = ctx.lookup_symbol_href(extends) {
-        format!(r#"<a href="{href}" class="link">{extends}</a>"#)
-      } else {
-        format!("<span>{extends}</span>")
-      };
-
-      class_extends = Some(json!({
-        "symbol": symbol,
-        "type_args": super::types::type_arguments(ctx, &class_def.super_type_params)
-      }));
-    }
-
-    return Some(ctx.render(
-      "doc_block_subtitle",
-      &json!({
-        "class": {
-          "implements": class_implements,
-          "extends": class_extends,
-        },
-        "interface": null,
-      }),
-    ));
+    unreachable!()
   }
-
-  if matches!(doc_node.kind, DocNodeKind::Interface) {
-    let interface_def = doc_node.interface_def.as_ref().unwrap();
-
-    if interface_def.extends.is_empty() {
-      return None;
-    }
-
-    let current_type_params = interface_def
-      .type_params
-      .iter()
-      .map(|def| def.name.clone())
-      .collect::<std::collections::HashSet<String>>();
-    let ctx = &ctx.with_current_type_params(current_type_params);
-
-    let extends = interface_def
-      .extends
-      .iter()
-      .map(|extend| render_type_def(ctx, extend))
-      .collect::<Vec<String>>();
-
-    return Some(ctx.render(
-      "doc_block_subtitle",
-      &json!({
-        "class": null,
-        "interface": {
-          "extends": extends
-        }
-      }),
-    ));
-  }
-
-  unreachable!()
 }
+
+#[derive(Debug, Serialize, Clone)]
+enum SymbolBodyCtx {}
 
 fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
   let mut content_parts = Vec::with_capacity(doc_nodes.len());

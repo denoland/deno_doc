@@ -1,4 +1,5 @@
 use super::util::*;
+use crate::html::symbols::class::IndexSignatureCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -6,7 +7,6 @@ use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
-use serde_json::json;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -130,20 +130,6 @@ pub(crate) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
   render_markdown_inner(md, render_ctx, false)
 }
 
-// TODO(bartlomieju): move to a separate anchor.html module
-#[derive(Serialize)]
-struct AnchorRenderCtx {
-  href: String,
-}
-
-#[derive(Serialize)]
-struct ExampleRenderCtx {
-  anchor: AnchorRenderCtx,
-  id: String,
-  markdown_title: String,
-  markdown_body: String,
-}
-
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
 // use an enum instead?
 fn render_docs_inner(
@@ -167,7 +153,7 @@ fn render_docs_inner(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(ctx, doc, i);
+            let example = ExampleCtx::new(ctx, doc, i);
             i += 1;
             example
           })
@@ -175,15 +161,15 @@ fn render_docs_inner(
           None
         }
       })
-      .collect::<Vec<String>>();
+      .collect::<Vec<ExampleCtx>>();
 
     if !examples.is_empty() {
       let s = ctx.render(
         "section",
-        &json!({
-          "title": "Examples",
-          "content": &examples.join(""),
-        }),
+        &SectionCtx {
+          title: "Examples",
+          content: SectionContentCtx::Example(examples),
+        },
       );
       content_parts.push(s);
     }
@@ -206,64 +192,80 @@ pub(crate) fn render_docs_with_examples(
   render_docs_inner(ctx, js_doc, true, false)
 }
 
-fn get_example_render_ctx(
-  example: &str,
-  i: usize,
-  render_ctx: &RenderContext,
-) -> ExampleRenderCtx {
-  let id = name_to_id("example", &i.to_string());
+#[derive(Debug, Serialize, Clone)]
+pub struct ExampleCtx {
+  anchor: AnchorCtx,
+  id: String,
+  markdown_title: String,
+  markdown_body: String,
+}
 
-  let (maybe_title, body) = split_markdown_title(example);
-  let title = if let Some(title) = maybe_title {
-    title.to_string()
-  } else {
-    format!("Example {}", i + 1)
-  };
+impl ExampleCtx {
+  pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
+    let id = name_to_id("example", &i.to_string());
 
-  let markdown_title = render_markdown_summary(&title, render_ctx);
-  let markdown_body = render_markdown(body, render_ctx);
+    let (maybe_title, body) = split_markdown_title(example);
+    let title = if let Some(title) = maybe_title {
+      title.to_string()
+    } else {
+      format!("Example {}", i + 1)
+    };
 
-  // TODO: icons
-  ExampleRenderCtx {
-    anchor: AnchorRenderCtx {
-      href: id.to_string(),
-    },
-    id: id.to_string(),
-    markdown_title,
-    markdown_body,
+    let markdown_title = render_markdown_summary(&title, render_ctx);
+    let markdown_body = render_markdown(body, render_ctx);
+
+    // TODO: icons
+    ExampleCtx {
+      anchor: AnchorCtx { id: id.to_string() },
+      id: id.to_string(),
+      markdown_title,
+      markdown_body,
+    }
   }
 }
 
-fn render_example(ctx: &RenderContext, example: &str, i: usize) -> String {
-  let example_render_ctx = get_example_render_ctx(example, i, ctx);
-  // TODO: icons
-  ctx.render("example", &example_render_ctx)
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "content")]
+pub enum SectionContentCtx {
+  DocEntry(Vec<DocEntryCtx>),
+  Example(Vec<ExampleCtx>),
+  IndexSignature(Vec<IndexSignatureCtx>),
 }
 
-pub(crate) fn render_doc_entry(
-  ctx: &RenderContext,
-  id: &str,
-  name: &str,
-  content: &str,
-  jsdoc: Option<&str>,
-) -> String {
-  let maybe_jsdoc = jsdoc
-    .map(|doc| render_markdown(doc, ctx))
-    .unwrap_or_default();
+#[derive(Debug, Serialize, Clone)]
+pub struct SectionCtx {
+  pub title: &'static str,
+  pub content: SectionContentCtx,
+}
 
-  // TODO: sourceHref
-  ctx.render(
-    "doc_entry",
-    &json!({
-      "id": id,
-      "name": name,
-      "content": content,
-      "anchor": {
-        "href": id
-      },
-      "jsdoc": maybe_jsdoc,
-    }),
-  )
+#[derive(Debug, Serialize, Clone)]
+pub struct DocEntryCtx {
+  id: String,
+  name: String,
+  content: String,
+  anchor: AnchorCtx,
+  js_doc: Option<String>,
+}
+
+impl DocEntryCtx {
+  pub fn new(
+    ctx: &RenderContext,
+    id: &str,
+    name: &str,
+    content: &str,
+    jsdoc: Option<&str>,
+  ) -> Self {
+    let maybe_jsdoc = jsdoc.map(|doc| render_markdown(doc, ctx));
+
+    // TODO: sourceHref
+    DocEntryCtx {
+      id: id.to_string(),
+      name: name.to_string(),
+      content: content.to_string(),
+      anchor: AnchorCtx { id: id.to_string() },
+      js_doc: maybe_jsdoc,
+    }
+  }
 }
 
 #[derive(Debug, Serialize, Clone)]

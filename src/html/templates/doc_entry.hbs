@@ -7,7 +7,9 @@
       </code>
     </span>
   </div>
-  <div class="markdown_border">
-    {{jsdoc}}
-  </div>
+  {{~#if js_doc~}}
+    <div class="markdown_border">
+      {{~js_doc~}}
+    </div>
+  {{~/if~}}
 </div>

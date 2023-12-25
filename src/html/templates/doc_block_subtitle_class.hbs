@@ -1,0 +1,26 @@
+{{~#if implements~}}
+  <div>
+    <span class="text-stone-400 italic"> implements </span>
+    {{~#each implements~}}
+      {{~this~}}
+      {{~#unless @last~}}
+        <span>, </span>
+      {{~/unless~}}
+    {{~/each~}}
+  </div>
+{{~/if~}}
+
+{{~#with extends~}}
+  <div>
+    <span class="text-stone-400 italic"> extends </span>
+    {{~#if href ~}}
+      <a class="link" href="{{href}}">
+        {{~symbol~}}
+      </a>
+    {{~else~}}
+      <span>{{symbol}}</span>
+    {{~/if~}}
+    <span>{{type_args}}</span>
+  </div>
+{{~else~}}
+{{~/with~}}

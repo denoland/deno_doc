@@ -196,6 +196,9 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   #[cfg(debug_assertions)]
   reg.set_dev_mode(true);
 
+  handlebars::handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
+  reg.register_helper("concat", Box::new(concat));
+
   reg.register_template_string(
     "sidepanel",
     include_str!("./templates/sidepanel.hbs"),
@@ -221,8 +224,12 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/namespace_section.hbs"),
   )?;
   reg.register_template_string(
-    "doc_block_subtitle",
-    include_str!("./templates/doc_block_subtitle.hbs"),
+    "doc_block_subtitle_class",
+    include_str!("./templates/doc_block_subtitle_class.hbs"),
+  )?;
+  reg.register_template_string(
+    "doc_block_subtitle_interface",
+    include_str!("./templates/doc_block_subtitle_interface.hbs"),
   )?;
   reg.register_template_string(
     "anchor",
