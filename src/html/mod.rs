@@ -1,4 +1,5 @@
 use deno_ast::ModuleSpecifier;
+use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -196,7 +197,7 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   #[cfg(debug_assertions)]
   reg.set_dev_mode(true);
 
-  handlebars::handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
+  handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
   reg.register_helper("concat", Box::new(concat));
 
   reg.register_template_string(
