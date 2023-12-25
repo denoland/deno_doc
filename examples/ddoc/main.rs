@@ -50,6 +50,8 @@ impl Loader for SourceFileLoader {
 }
 
 async fn run() -> anyhow::Result<()> {
+  env_logger::init();
+
   let matches = App::new("ddoc")
     .arg(
       Arg::with_name("html")
