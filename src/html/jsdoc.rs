@@ -1,5 +1,5 @@
+use super::render_context::RenderContext;
 use super::util::*;
-use crate::html::symbols::class::IndexSignatureCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -226,50 +226,6 @@ impl ExampleCtx {
       id: id.to_string(),
       markdown_title,
       markdown_body,
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "snake_case", tag = "kind", content = "content")]
-pub enum SectionContentCtx {
-  DocEntry(Vec<DocEntryCtx>),
-  Example(Vec<ExampleCtx>),
-  IndexSignature(Vec<IndexSignatureCtx>),
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct SectionCtx {
-  pub title: &'static str,
-  pub content: SectionContentCtx,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct DocEntryCtx {
-  id: String,
-  name: String,
-  content: String,
-  anchor: AnchorCtx,
-  js_doc: Option<String>,
-}
-
-impl DocEntryCtx {
-  pub fn new(
-    ctx: &RenderContext,
-    id: &str,
-    name: &str,
-    content: &str,
-    jsdoc: Option<&str>,
-  ) -> Self {
-    let maybe_jsdoc = jsdoc.map(|doc| render_markdown(doc, ctx));
-
-    // TODO: sourceHref
-    DocEntryCtx {
-      id: id.to_string(),
-      name: name.to_string(),
-      content: content.to_string(),
-      anchor: AnchorCtx { id: id.to_string() },
-      js_doc: maybe_jsdoc,
     }
   }
 }

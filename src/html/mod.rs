@@ -12,9 +12,9 @@ use crate::DocNodeKind;
 mod jsdoc;
 pub mod pages;
 mod parameters;
+mod render_context;
 mod search;
 pub mod sidepanels;
-mod symbol;
 mod symbols;
 mod syntect_adapter;
 mod types;
@@ -23,15 +23,15 @@ mod util;
 
 pub use jsdoc::ModuleDocCtx;
 pub use pages::generate_symbol_pages_for_module;
+pub use render_context::RenderContext;
 pub use search::generate_search_index;
-pub use symbol::SymbolGroupCtx;
 pub use symbols::namespace;
+pub use symbols::SymbolGroupCtx;
 pub use util::compute_namespaced_symbols;
 pub use util::DocNodeKindCtx;
 pub use util::GlobalSymbolHrefResolver;
 pub use util::ImportHrefResolver;
 pub use util::NamespacedGlobalSymbols;
-pub use util::RenderContext;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";

@@ -1,5 +1,7 @@
+use crate::html::render_context::RenderContext;
+use crate::html::short_path_to_name;
 use crate::html::util::*;
-use crate::html::{short_path_to_name, DocNodeWithContext};
+use crate::html::DocNodeWithContext;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;

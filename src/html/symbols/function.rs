@@ -1,9 +1,7 @@
+use super::SymbolContentCtx;
 use crate::function::FunctionDef;
-use crate::html::jsdoc::DocEntryCtx;
-use crate::html::jsdoc::SectionContentCtx;
-use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
-use crate::html::symbol::SymbolContentCtx;
+use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
