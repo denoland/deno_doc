@@ -148,7 +148,6 @@ fn render_properties(
         .iter()
         .find_map(|tag| {
           if let crate::js_doc::JsDocTag::Default { value, .. } = tag {
-            // TODO: font-normal
             Some(format!(
               r#"<span><span class="font-normal"> = </span>{value}</span>"#
             ))

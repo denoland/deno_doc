@@ -371,7 +371,7 @@ fn type_def_join(
 
     let content = items.join("");
 
-    format!(r#"<div class="indent">{content}</div>"#)
+    format!(r#"<div class="ml-4">{content}</div>"#)
   }
 }
 
@@ -395,7 +395,7 @@ fn type_def_tuple(
     }
 
     let content = items.join("");
-    format!(r#"<div class="indent">[{content}]</div>"#)
+    format!(r#"<div class="ml-4">[{content}]</div>"#)
   }
 }
 
