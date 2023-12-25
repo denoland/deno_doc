@@ -48,7 +48,6 @@ clap = "2.33.3"
 criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
 tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
-env_logger = "0.10.1"
 
 [features]
 default = ["html", "rust"]
