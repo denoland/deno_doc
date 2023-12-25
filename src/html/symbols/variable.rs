@@ -16,7 +16,7 @@ pub(crate) fn render_variable(
   let id = name_to_id("variable", &doc_node.name);
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({
       "title": "type",
       "content": render_doc_entry(

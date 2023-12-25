@@ -1,0 +1,37 @@
+<div class="mb-6 whitespace-nowrap leading-none">
+  {{~#each parts~}}
+    {{~#if this.is_first_symbol~}}
+      <span class="inline-flex">
+    {{~/if~}}
+
+    {{~#unless @last~}}
+      <a class="link {{#if @first}}italic{{/if}}" href="{{this.href}}">
+        {{~this.name~}}
+      </a>
+
+      {{~#if this.is_symbol~}}
+        <span>.</span>
+      {{~else~}}
+        <span class="px-1.5">></span>
+      {{~/if~}}
+    {{~/unless~}}
+
+    {{~#if @last~}}
+      <span class="{{#if @first~}}
+        italic
+        {{~else~}}
+          {{~#if this.is_all_symbols_part}}
+            italic
+          {{~/if~}}
+        {{~/if}}">
+        {{~this.name~}}
+      </span>
+    {{~/if~}}
+
+    {{~#if @last~}}
+      {{~#if this.is_symbol~}}
+        </span>
+      {{~/if~}}
+    {{~/if~}}
+  {{~/each~}}
+</div>

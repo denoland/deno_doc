@@ -3,7 +3,7 @@ import { type Config } from "npm:tailwindcss@3.4.0";
 export default {
   content: [
     "./src/html/**/*.rs",
-    "./src/html/templates/*.html",
+    "./src/html/templates/*.hbs",
   ],
   safelist: [
     {

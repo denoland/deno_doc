@@ -59,8 +59,6 @@ fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
 pub struct UsageCtx {
   import_statement: String,
   raw_import_statement: String,
-  // TODO(crowlKats): needed because `tt` requires ctx for `call` blocks
-  empty: serde_json::Value,
 }
 
 impl UsageCtx {
@@ -73,7 +71,6 @@ impl UsageCtx {
     UsageCtx {
       import_statement: rendered_import_statement,
       raw_import_statement: format!("{import_statement:?}"),
-      empty: serde_json::Value::Null,
     }
   }
 }

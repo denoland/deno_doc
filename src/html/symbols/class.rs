@@ -32,7 +32,7 @@ pub(crate) fn render_class(
     String::new()
   } else {
     ctx.render(
-      "section.html",
+      "section",
       &json!({
         "title": "Properties",
         "content": render_class_properties(ctx, class_items.properties)
@@ -44,7 +44,7 @@ pub(crate) fn render_class(
     String::new()
   } else {
     ctx.render(
-      "section.html",
+      "section",
       &json!({
         "title": "Methods",
         "content": render_class_methods(ctx, class_items.methods),
@@ -56,7 +56,7 @@ pub(crate) fn render_class(
     String::new()
   } else {
     ctx.render(
-      "section.html",
+      "section",
       &json!({
         "title": "Static Properties",
         "content": render_class_properties(ctx, class_items.static_properties),
@@ -68,7 +68,7 @@ pub(crate) fn render_class(
     String::new()
   } else {
     ctx.render(
-      "section.html",
+      "section",
       &json!({
         "title": "Static Methods",
         "content": render_class_methods(ctx, class_items.static_methods),
@@ -109,7 +109,7 @@ fn render_constructors(
     .collect::<String>();
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({ "title": "Constructors", "content": &items }),
   )
 }
@@ -140,7 +140,7 @@ fn render_index_signatures(
 
     let content = format!(
       r#"<div class="relative hover:block" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-      ctx.render("anchor.html", &json!({ "href": &id })),
+      ctx.render("anchor", &json!({ "href": &id })),
       render_params(ctx, &index_signature.params),
     );
 
@@ -150,7 +150,7 @@ fn render_index_signatures(
   let content = items.join("");
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({ "title": "Index Signatures", "content": &content }),
   )
 }

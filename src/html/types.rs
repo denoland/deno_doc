@@ -515,7 +515,7 @@ pub(crate) fn render_type_params(
   let items = items.join("");
 
   ctx.render(
-    "section.html",
+    "section",
     &json!({
       "title": "Type Parameters",
       "content": &items

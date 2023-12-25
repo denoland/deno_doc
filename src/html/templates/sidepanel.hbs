@@ -1,0 +1,25 @@
+<nav id="sidepanel">
+  {{~#if package_name~}}
+    <h2 class="text-lg font-semibold">
+      <a href="index.html"><span>{{package_name}}</span></a>
+    </h2>
+  {{~/if~}}
+
+  <div class="space-y-2">
+    {{~#each partitions ~}}
+      <div>
+        <h3 class="subtitle">{{this.name}}</h3>
+        <ul>
+          {{~#each this.symbols ~}}
+          <li>
+            <a href="{{this.href}}" title="{{this.name}}" class="{{#if this.active}}active{{/if}}">
+              {{~> doc_node_kind_icon this.kind~}}
+              <span>{{this.name}}</span>
+            </a>
+          </li>
+          {{~/each~}}
+        </ul>
+      </div>
+    {{~/each~}}
+  </div>
+</nav>

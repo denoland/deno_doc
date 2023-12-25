@@ -1,0 +1,31 @@
+<div>
+  <h2 class="text-lg leading-6 font-bold py-1" id="{{id}}">
+    <a href="#{{id}}" aria-label="Anchor">
+      {{~title~}}
+    </a>
+  </h2>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{~#each nodes~}}
+      <div class="space-y-2">
+        <div class="flex justify-between gap-4">
+          <div class="min-w-52 flex items-center gap-2">
+            {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
+            <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden">
+              {{~this.name~}}
+            </a>
+          </div>
+          {{~#if this.origin~}}
+            <div class="text-xs italic lg:mr-4 whitespace-nowrap">from {{this.origin}}</div>
+          {{~/if~}}
+        </div>
+        <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
+          {{~#if node.docs~}}
+            {{~this.docs~}}
+          {{~else~}}
+            <span class="italic">No documentation available</span>
+          {{~/if~}}
+        </div>
+      </div>
+    {{~/each~}}
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<nav id="sidepanel">
+  {{~#if package_name~}}
+    <h2 class="text-lg font-semibold">
+      <a href="{{root_url}}"><span>{{package_name}}</span></a>
+    </h2>
+  {{~/if~}}
+
+  <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
+
+  {{~#if files~}}
+    <h3 class="title">Exports</h3>
+    <ul>
+      {{#each files}}
+        <li>
+          <a href="{{this.href}}" title="{{this.name}}"><span>{{this.name}}</span></a>
+        </li>
+      {{~/each~}}
+
+      {{~#if expand_files~}}
+        <input type="checkbox" id="fileDivider" class="hidden peer" autocomplete="off" />
+        <label for="fileDivider" class="cursor-pointer peer-checked:hidden">...</label>
+
+        {{~#each expand_files~}}
+          <li class="!hidden peer-checked:!block">
+            <a href="{{this.href}}" title="{{this.title}}"><span>{{this.name}}</span></a>
+          </li>
+        {{~/each~}}
+      {{~/if~}}
+    </ul>
+  {{~/if~}}
+
+  {{~#if kind_partitions~}}
+    <h3 class="title">APIs</h3>
+    <ul class="space-y-2">
+      {{~#each kind_partitions~}}
+      <li>
+        <h4 class="subtitle">{{this.name}}</h4>
+        <ul>
+          {{~#each this.symbols~}}
+          <li>
+            <a href="{{this.href}}" title="{{this.name}}">
+              {{~> doc_node_kind_icon this.kind ~}}
+              <span>{{this.name}}</span>
+            </a>
+          </li>
+          {{~/each~}}
+        </ul>
+      </li>
+      {{~/each~}}
+    </ul>
+  {{~/if~}}
+</nav>

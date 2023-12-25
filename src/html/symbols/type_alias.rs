@@ -22,7 +22,7 @@ pub(crate) fn render_type_alias(
   [
     crate::html::types::render_type_params(ctx, &type_alias_def.type_params),
     ctx.render(
-      "section.html",
+      "section",
       &json!({
         "title": "Definition",
         "content": &render_doc_entry(
