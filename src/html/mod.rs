@@ -240,6 +240,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/symbol_group.hbs"),
   )?;
   reg.register_template_string(
+    "symbol_content",
+    include_str!("./templates/symbol_content.hbs"),
+  )?;
+  reg.register_template_string(
     "example",
     include_str!("./templates/example.hbs"),
   )?;
@@ -365,7 +369,7 @@ pub fn generate(
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
     let all_symbols_render =
-      pages::render_all_symbols_page(&ctx, &partitions_by_kind)?;
+      pages::render_all_symbols_page(&ctx, &partitions_by_kind);
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 

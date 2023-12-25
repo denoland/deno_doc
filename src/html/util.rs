@@ -155,14 +155,6 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  #[track_caller]
-  pub fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
-  where
-    Ctx: Serialize,
-  {
-    self.ctx.hbs.render(template, context).unwrap()
-  }
-
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
   }

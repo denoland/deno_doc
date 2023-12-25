@@ -13,11 +13,25 @@
           {{~/if~}}
         </div>
       </div>
+
       {{~#if @first~}}
         {{~> usage ../usage ~}}
       {{~/if~}}
+
       <div>
-        {{~this.body~}}
+        {{~#each this.content~}}
+          {{~#if (eq kind "function")~}}
+            {{~> function value ~}}
+          {{~else~}}
+
+            {{~#if (eq kind "namespace")~}}
+              {{~value~}}
+            {{~else~}}
+              {{~> symbol_content value ~}}
+            {{~/if~}}
+
+          {{~/if~}}
+        {{~/each~}}
       </div>
     </article>
   {{~/each~}}

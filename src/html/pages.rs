@@ -118,7 +118,11 @@ pub fn render_index(
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
   };
 
-  render_ctx.render("pages/index", &index_ctx)
+  render_ctx
+    .ctx
+    .hbs
+    .render("pages/index", &index_ctx)
+    .unwrap()
 }
 
 #[derive(Serialize)]
@@ -131,7 +135,7 @@ struct AllSymbolsCtx {
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
   partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-) -> Result<String, anyhow::Error> {
+) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
     RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
@@ -146,7 +150,11 @@ pub(crate) fn render_all_symbols_page(
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
   };
 
-  Ok(render_ctx.render("pages/all_symbols", &all_symbols_ctx))
+  render_ctx
+    .ctx
+    .hbs
+    .render("pages/all_symbols", &all_symbols_ctx)
+    .unwrap()
 }
 
 pub fn generate_symbol_pages_for_module(

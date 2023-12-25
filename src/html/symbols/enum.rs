@@ -3,9 +3,9 @@ use crate::html::types::render_type_def;
 use crate::html::util::*;
 
 pub(crate) fn render_enum(
-  doc_node: &crate::DocNode,
   render_ctx: &RenderContext,
-) -> String {
+  doc_node: &crate::DocNode,
+) -> Vec<SectionCtx> {
   let mut members = doc_node.enum_def.as_ref().unwrap().members.clone();
 
   members.sort_by(|a, b| a.name.cmp(&b.name));
@@ -29,11 +29,8 @@ pub(crate) fn render_enum(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  render_ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Members",
-      content: SectionContentCtx::DocEntry(items),
-    },
-  )
+  vec![SectionCtx {
+    title: "Members",
+    content: SectionContentCtx::DocEntry(items),
+  }]
 }

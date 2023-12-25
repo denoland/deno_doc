@@ -469,9 +469,9 @@ pub(crate) fn type_arguments(
 pub(crate) fn render_type_params(
   ctx: &RenderContext,
   type_params: &[TsTypeParamDef],
-) -> String {
+) -> Option<SectionCtx> {
   if type_params.is_empty() {
-    return String::new();
+    return None;
   }
 
   let mut items = Vec::with_capacity(type_params.len());
@@ -512,11 +512,8 @@ pub(crate) fn render_type_params(
     items.push(content);
   }
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Type Parameters",
-      content: SectionContentCtx::DocEntry(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Type Parameters",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }

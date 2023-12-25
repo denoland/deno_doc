@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 pub(crate) fn render_class(
   ctx: &RenderContext,
   doc_node: &crate::DocNode,
-) -> String {
+) -> Vec<SectionCtx> {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
   let current_type_params = class_def
@@ -30,85 +30,76 @@ pub(crate) fn render_class(
     class_def.methods.clone(),
   );
 
-  let properties = if class_items.properties.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section",
-      &SectionCtx {
-        title: "Properties",
-        content: SectionContentCtx::DocEntry(render_class_properties(
-          ctx,
-          class_items.properties,
-        )),
-      },
-    )
-  };
+  let mut sections = vec![];
 
-  let methods = if class_items.methods.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section",
-      &SectionCtx {
-        title: "Methods",
-        content: SectionContentCtx::DocEntry(render_class_methods(
-          ctx,
-          class_items.methods,
-        )),
-      },
-    )
-  };
+  if let Some(constructors) =
+    render_constructors(ctx, &class_def.constructors, &doc_node.name)
+  {
+    sections.push(constructors);
+  }
 
-  let static_properties = if class_items.static_properties.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section",
-      &SectionCtx {
-        title: "Static Properties",
-        content: SectionContentCtx::DocEntry(render_class_properties(
-          ctx,
-          class_items.static_properties,
-        )),
-      },
-    )
-  };
+  if let Some(type_params) =
+    crate::html::types::render_type_params(ctx, &class_def.type_params)
+  {
+    sections.push(type_params);
+  }
 
-  let static_methods = if class_items.static_methods.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section",
-      &SectionCtx {
-        title: "Static Methods",
-        content: SectionContentCtx::DocEntry(render_class_methods(
-          ctx,
-          class_items.static_methods,
-        )),
-      },
-    )
-  };
+  if let Some(index_signatures) =
+    render_index_signatures(ctx, &class_def.index_signatures)
+  {
+    sections.push(index_signatures);
+  }
 
-  [
-    render_constructors(ctx, &class_def.constructors, &doc_node.name),
-    crate::html::types::render_type_params(ctx, &class_def.type_params),
-    render_index_signatures(ctx, &class_def.index_signatures),
-    properties,
-    methods,
-    static_properties,
-    static_methods,
-  ]
-  .join("")
+  if !class_items.properties.is_empty() {
+    sections.push(SectionCtx {
+      title: "Properties",
+      content: SectionContentCtx::DocEntry(render_class_properties(
+        ctx,
+        class_items.properties,
+      )),
+    });
+  }
+
+  if !class_items.methods.is_empty() {
+    sections.push(SectionCtx {
+      title: "Methods",
+      content: SectionContentCtx::DocEntry(render_class_methods(
+        ctx,
+        class_items.methods,
+      )),
+    });
+  }
+
+  if !class_items.static_properties.is_empty() {
+    sections.push(SectionCtx {
+      title: "Static Properties",
+      content: SectionContentCtx::DocEntry(render_class_properties(
+        ctx,
+        class_items.static_properties,
+      )),
+    });
+  }
+
+  if !class_items.static_methods.is_empty() {
+    sections.push(SectionCtx {
+      title: "Static Methods",
+      content: SectionContentCtx::DocEntry(render_class_methods(
+        ctx,
+        class_items.static_methods,
+      )),
+    })
+  }
+
+  sections
 }
 
 fn render_constructors(
   ctx: &RenderContext,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
-) -> String {
+) -> Option<SectionCtx> {
   if constructors.is_empty() {
-    return String::new();
+    return None;
   }
 
   let items = constructors
@@ -122,13 +113,10 @@ fn render_constructors(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Constructors",
-      content: SectionContentCtx::DocEntry(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Constructors",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -143,9 +131,9 @@ pub struct IndexSignatureCtx {
 fn render_index_signatures(
   ctx: &RenderContext,
   index_signatures: &[crate::class::ClassIndexSignatureDef],
-) -> String {
+) -> Option<SectionCtx> {
   if index_signatures.is_empty() {
-    return String::new();
+    return None;
   }
 
   let mut items = Vec::with_capacity(index_signatures.len());
@@ -168,13 +156,10 @@ fn render_index_signatures(
     });
   }
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Index Signatures",
-      content: SectionContentCtx::IndexSignature(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Index Signatures",
+    content: SectionContentCtx::IndexSignature(items),
+  })
 }
 
 enum PropertyOrMethod {

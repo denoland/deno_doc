@@ -137,14 +137,18 @@ fn render_docs_inner(
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
-) -> String {
-  let mut content_parts = vec![];
+) -> (Option<String>, Option<SectionCtx>) {
+  let md = if let Some(doc) = js_doc.doc.as_deref() {
+    if doc.is_empty() {
+      None
+    } else {
+      Some(render_markdown_inner(doc, ctx, summary))
+    }
+  } else {
+    None
+  };
 
-  if let Some(doc) = js_doc.doc.as_deref() {
-    content_parts.push(render_markdown_inner(doc, ctx, summary));
-  }
-
-  if render_examples {
+  let examples = if render_examples {
     let mut i = 0;
 
     let examples = js_doc
@@ -164,31 +168,33 @@ fn render_docs_inner(
       .collect::<Vec<ExampleCtx>>();
 
     if !examples.is_empty() {
-      let s = ctx.render(
-        "section",
-        &SectionCtx {
-          title: "Examples",
-          content: SectionContentCtx::Example(examples),
-        },
-      );
-      content_parts.push(s);
+      Some(SectionCtx {
+        title: "Examples",
+        content: SectionContentCtx::Example(examples),
+      })
+    } else {
+      None
     }
-  }
+  } else {
+    None
+  };
 
-  content_parts.join("")
+  (md, examples)
 }
 
 pub(crate) fn render_docs_summary(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-) -> String {
-  render_docs_inner(ctx, js_doc, false, true)
+) -> Option<String> {
+  let (docs, _examples) = render_docs_inner(ctx, js_doc, false, true);
+
+  docs
 }
 
 pub(crate) fn render_docs_with_examples(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-) -> String {
+) -> (Option<String>, Option<SectionCtx>) {
   render_docs_inner(ctx, js_doc, true, false)
 }
 

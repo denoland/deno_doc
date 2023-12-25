@@ -1,6 +1,7 @@
 use super::symbols;
 use super::types::render_type_def;
 use super::util::RenderContext;
+use crate::html::jsdoc::SectionCtx;
 use crate::html::usage::UsageCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
@@ -11,7 +12,7 @@ use std::collections::HashMap;
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   subtitle: Option<DocBlockSubtitleCtx>,
-  body: String,
+  content: Vec<SymbolCCtx>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -47,7 +48,7 @@ impl SymbolGroupCtx {
       .map(|doc_nodes| SymbolCtx {
         kind: doc_nodes[0].kind.into(),
         subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
-        body: doc_block(ctx, doc_nodes, name),
+        content: doc_block(ctx, doc_nodes, name),
       })
       .collect();
 
@@ -92,7 +93,7 @@ impl DocBlockSubtitleCtx {
       return None;
     }
 
-    if matches!(doc_node.kind, DocNodeKind::Class) {
+    if doc_node.kind == DocNodeKind::Class {
       let class_def = doc_node.class_def.as_ref().unwrap();
 
       let current_type_params = class_def
@@ -133,7 +134,7 @@ impl DocBlockSubtitleCtx {
       });
     }
 
-    if matches!(doc_node.kind, DocNodeKind::Interface) {
+    if doc_node.kind == DocNodeKind::Interface {
       let interface_def = doc_node.interface_def.as_ref().unwrap();
 
       if interface_def.extends.is_empty() {
@@ -161,56 +162,63 @@ impl DocBlockSubtitleCtx {
 }
 
 #[derive(Debug, Serialize, Clone)]
-enum SymbolBodyCtx {}
+pub struct SymbolContentCtx {
+  pub id: String,
+  pub docs: Option<String>,
+  pub sections: Vec<SectionCtx>,
+}
 
-fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
+enum SymbolCCtx {
+  Function(symbols::function::FunctionCtx),
+  Namespace(String),
+  Other(SymbolContentCtx),
+}
+
+fn doc_block(
+  ctx: &RenderContext,
+  doc_nodes: &[DocNode],
+  name: &str,
+) -> Vec<SymbolCCtx> {
   let mut content_parts = Vec::with_capacity(doc_nodes.len());
   let mut functions = vec![];
-
-  fn doc_block_item(docs: String, content: String) -> String {
-    format!(r#"<div class="space-y-7">{docs}{content}</div>"#)
-  }
 
   for doc_node in doc_nodes {
     match doc_node.kind {
       DocNodeKind::Function => functions.push(doc_node),
-      DocNodeKind::Variable => {
-        let docs =
+
+      DocNodeKind::Variable
+      | DocNodeKind::Class
+      | DocNodeKind::Enum
+      | DocNodeKind::Interface
+      | DocNodeKind::TypeAlias => {
+        let get_section_kinds = match doc_node.kind {
+          DocNodeKind::Variable => symbols::variable::render_variable,
+          DocNodeKind::Class => symbols::class::render_class,
+          DocNodeKind::Enum => symbols::r#enum::render_enum,
+          DocNodeKind::Interface => symbols::interface::render_interface,
+          DocNodeKind::TypeAlias => symbols::type_alias::render_type_alias,
+          _ => unreachable!(),
+        };
+        let mut sections = get_section_kinds(ctx, doc_node);
+
+        let (docs, examples) =
           super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-        let el = symbols::variable::render_variable(ctx, doc_node);
-        let content = doc_block_item(docs, el);
-        content_parts.push(content)
+
+        if let Some(examples) = examples {
+          sections.insert(0, examples);
+        }
+
+        content_parts.push(SymbolCCtx::Other(SymbolContentCtx {
+          id: String::new(),
+          sections,
+          docs,
+        }));
       }
-      DocNodeKind::Class => {
-        let docs =
-          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-        let el = symbols::class::render_class(ctx, doc_node);
-        let content = doc_block_item(docs, el);
-        content_parts.push(content);
-      }
-      DocNodeKind::Enum => {
-        let docs =
-          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-        let el = symbols::r#enum::render_enum(doc_node, ctx);
-        let content = doc_block_item(docs, el);
-        content_parts.push(content);
-      }
-      DocNodeKind::Interface => {
-        let docs =
-          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-        let el = symbols::interface::render_interface(ctx, doc_node);
-        let content = doc_block_item(docs, el);
-        content_parts.push(content);
-      }
-      DocNodeKind::TypeAlias => {
-        let docs =
-          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-        let el = symbols::type_alias::render_type_alias(ctx, doc_node);
-        let content = doc_block_item(docs, el);
-        content_parts.push(content);
-      }
+
       DocNodeKind::Namespace => {
-        let docs =
+        let (docs, _examples) =
           super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
         let ns_parts =
           name.split('.').map(String::from).collect::<Vec<String>>();
@@ -218,8 +226,11 @@ fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
           &ctx.with_namespace(ns_parts),
           doc_node,
         );
-        let content = doc_block_item(docs, el);
-        content_parts.push(content);
+        let content = format!(
+          r#"<div class="space-y-7">{}{el}</div>"#,
+          docs.unwrap_or_default()
+        );
+        content_parts.push(SymbolCCtx::Namespace(content));
       }
       DocNodeKind::ModuleDoc => {}
       DocNodeKind::Import => {}
@@ -227,9 +238,10 @@ fn doc_block(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> String {
   }
 
   if !functions.is_empty() {
-    let content = symbols::function::render_function(ctx, functions);
-    content_parts.push(content);
+    content_parts.push(SymbolCCtx::Function(
+      symbols::function::render_function(ctx, functions),
+    ));
   }
 
-  content_parts.join("")
+  content_parts
 }

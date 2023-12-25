@@ -3,13 +3,13 @@ use crate::html::jsdoc::SectionContentCtx;
 use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
 use crate::html::symbols::class::IndexSignatureCtx;
-use crate::html::types::render_type_params;
+use crate::html::types::{render_type_params, type_params_summary};
 use crate::html::util::*;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
   doc_node: &crate::DocNode,
-) -> String {
+) -> Vec<SectionCtx> {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
   let current_type_params = interface_def
@@ -19,22 +19,42 @@ pub(crate) fn render_interface(
     .collect::<std::collections::HashSet<String>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  [
-    render_type_params(ctx, &interface_def.type_params),
-    render_index_signatures(ctx, &interface_def.index_signatures),
-    render_call_signatures(ctx, &interface_def.call_signatures),
-    render_properties(ctx, &interface_def.properties),
-    render_methods(ctx, &interface_def.methods),
-  ]
-  .join("")
+  let mut sections = vec![];
+
+  if let Some(type_params) = render_type_params(ctx, &interface_def.type_params)
+  {
+    sections.push(type_params);
+  }
+
+  if let Some(index_signatures) =
+    render_index_signatures(ctx, &interface_def.index_signatures)
+  {
+    sections.push(index_signatures);
+  }
+
+  if let Some(call_signatures) =
+    render_call_signatures(ctx, &interface_def.call_signatures)
+  {
+    sections.push(call_signatures);
+  }
+
+  if let Some(properties) = render_properties(ctx, &interface_def.properties) {
+    sections.push(properties);
+  }
+
+  if let Some(methods) = render_methods(ctx, &interface_def.methods) {
+    sections.push(methods);
+  }
+
+  sections
 }
 
 fn render_index_signatures(
   ctx: &RenderContext,
   index_signatures: &[crate::interface::InterfaceIndexSignatureDef],
-) -> String {
+) -> Option<SectionCtx> {
   if index_signatures.is_empty() {
-    return String::new();
+    return None;
   }
 
   let mut items = Vec::with_capacity(index_signatures.len());
@@ -59,21 +79,18 @@ fn render_index_signatures(
     });
   }
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Index Signatures",
-      content: SectionContentCtx::IndexSignature(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Index Signatures",
+    content: SectionContentCtx::IndexSignature(items),
+  })
 }
 
 fn render_call_signatures(
   ctx: &RenderContext,
   call_signatures: &[crate::interface::InterfaceCallSignatureDef],
-) -> String {
+) -> Option<SectionCtx> {
   if call_signatures.is_empty() {
-    return String::new();
+    return None;
   }
 
   let items = call_signatures
@@ -97,10 +114,7 @@ fn render_call_signatures(
         "",
         &format!(
           "{}({}){ts_type}",
-          crate::html::types::type_params_summary(
-            ctx,
-            &call_signature.type_params,
-          ),
+          type_params_summary(ctx, &call_signature.type_params,),
           render_params(ctx, &call_signature.params),
         ),
         call_signature.js_doc.doc.as_deref(),
@@ -108,21 +122,18 @@ fn render_call_signatures(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Call Signatures",
-      content: SectionContentCtx::DocEntry(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Call Signatures",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }
 
 fn render_properties(
   ctx: &RenderContext,
   properties: &[crate::interface::InterfacePropertyDef],
-) -> String {
+) -> Option<SectionCtx> {
   if properties.is_empty() {
-    return String::new();
+    return None;
   }
 
   let items = properties
@@ -169,21 +180,18 @@ fn render_properties(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Properties",
-      content: SectionContentCtx::DocEntry(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Properties",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }
 
 fn render_methods(
   ctx: &RenderContext,
   methods: &[crate::interface::InterfaceMethodDef],
-) -> String {
+) -> Option<SectionCtx> {
   if methods.is_empty() {
-    return String::new();
+    return None;
   }
 
   let items = methods
@@ -215,7 +223,7 @@ fn render_methods(
         &name,
         &format!(
           "{}({}){return_type}",
-          render_type_params(ctx, &method.type_params),
+          type_params_summary(ctx, &method.type_params),
           render_params(ctx, &method.params)
         ),
         method.js_doc.doc.as_deref(),
@@ -223,11 +231,8 @@ fn render_methods(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  ctx.render(
-    "section",
-    &SectionCtx {
-      title: "Methods",
-      content: SectionContentCtx::DocEntry(items),
-    },
-  )
+  Some(SectionCtx {
+    title: "Methods",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }
