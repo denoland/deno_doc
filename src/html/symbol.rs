@@ -12,7 +12,7 @@ use std::collections::HashMap;
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   subtitle: Option<DocBlockSubtitleCtx>,
-  content: Vec<SymbolCCtx>,
+  content: Vec<SymbolInnerCtx>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -48,7 +48,7 @@ impl SymbolGroupCtx {
       .map(|doc_nodes| SymbolCtx {
         kind: doc_nodes[0].kind.into(),
         subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
-        content: doc_block(ctx, doc_nodes, name),
+        content: SymbolInnerCtx::new(ctx, doc_nodes, name),
       })
       .collect();
 
@@ -170,78 +170,76 @@ pub struct SymbolContentCtx {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
-enum SymbolCCtx {
+enum SymbolInnerCtx {
   Function(symbols::function::FunctionCtx),
   Namespace(String),
   Other(SymbolContentCtx),
 }
 
-fn doc_block(
-  ctx: &RenderContext,
-  doc_nodes: &[DocNode],
-  name: &str,
-) -> Vec<SymbolCCtx> {
-  let mut content_parts = Vec::with_capacity(doc_nodes.len());
-  let mut functions = vec![];
+impl SymbolInnerCtx {
+  fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Vec<Self> {
+    let mut content_parts = Vec::with_capacity(doc_nodes.len());
+    let mut functions = vec![];
 
-  for doc_node in doc_nodes {
-    match doc_node.kind {
-      DocNodeKind::Function => functions.push(doc_node),
+    for doc_node in doc_nodes {
+      match doc_node.kind {
+        DocNodeKind::Function => functions.push(doc_node),
 
-      DocNodeKind::Variable
-      | DocNodeKind::Class
-      | DocNodeKind::Enum
-      | DocNodeKind::Interface
-      | DocNodeKind::TypeAlias => {
-        let get_section_kinds = match doc_node.kind {
-          DocNodeKind::Variable => symbols::variable::render_variable,
-          DocNodeKind::Class => symbols::class::render_class,
-          DocNodeKind::Enum => symbols::r#enum::render_enum,
-          DocNodeKind::Interface => symbols::interface::render_interface,
-          DocNodeKind::TypeAlias => symbols::type_alias::render_type_alias,
-          _ => unreachable!(),
-        };
-        let mut sections = get_section_kinds(ctx, doc_node);
+        DocNodeKind::Variable
+        | DocNodeKind::Class
+        | DocNodeKind::Enum
+        | DocNodeKind::Interface
+        | DocNodeKind::TypeAlias => {
+          let get_section_kinds = match doc_node.kind {
+            DocNodeKind::Variable => symbols::variable::render_variable,
+            DocNodeKind::Class => symbols::class::render_class,
+            DocNodeKind::Enum => symbols::r#enum::render_enum,
+            DocNodeKind::Interface => symbols::interface::render_interface,
+            DocNodeKind::TypeAlias => symbols::type_alias::render_type_alias,
+            _ => unreachable!(),
+          };
+          let mut sections = get_section_kinds(ctx, doc_node);
 
-        let (docs, examples) =
-          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          let (docs, examples) =
+            super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
 
-        if let Some(examples) = examples {
-          sections.insert(0, examples);
+          if let Some(examples) = examples {
+            sections.insert(0, examples);
+          }
+
+          content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
+            id: String::new(),
+            sections,
+            docs,
+          }));
         }
 
-        content_parts.push(SymbolCCtx::Other(SymbolContentCtx {
-          id: String::new(),
-          sections,
-          docs,
-        }));
-      }
+        DocNodeKind::Namespace => {
+          let (docs, _examples) =
+            super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          let ns_parts =
+            name.split('.').map(String::from).collect::<Vec<String>>();
+          let el = symbols::namespace::render_namespace(
+            &ctx.with_namespace(ns_parts),
+            doc_node,
+          );
+          let content = format!(
+            r#"<div class="space-y-7">{}{el}</div>"#,
+            docs.unwrap_or_default()
+          );
+          content_parts.push(SymbolInnerCtx::Namespace(content));
+        }
+        DocNodeKind::ModuleDoc => {}
+        DocNodeKind::Import => {}
+      };
+    }
 
-      DocNodeKind::Namespace => {
-        let (docs, _examples) =
-          super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-        let ns_parts =
-          name.split('.').map(String::from).collect::<Vec<String>>();
-        let el = symbols::namespace::render_namespace(
-          &ctx.with_namespace(ns_parts),
-          doc_node,
-        );
-        let content = format!(
-          r#"<div class="space-y-7">{}{el}</div>"#,
-          docs.unwrap_or_default()
-        );
-        content_parts.push(SymbolCCtx::Namespace(content));
-      }
-      DocNodeKind::ModuleDoc => {}
-      DocNodeKind::Import => {}
-    };
+    if !functions.is_empty() {
+      content_parts.push(SymbolInnerCtx::Function(
+        symbols::function::render_function(ctx, functions),
+      ));
+    }
+
+    content_parts
   }
-
-  if !functions.is_empty() {
-    content_parts.push(SymbolCCtx::Function(
-      symbols::function::render_function(ctx, functions),
-    ));
-  }
-
-  content_parts
 }
