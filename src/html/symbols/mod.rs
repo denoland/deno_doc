@@ -1,6 +1,8 @@
+use crate::html::namespace::partition_nodes_by_kind;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsageCtx;
 use crate::html::util::SectionCtx;
+use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::DocNode;
 use crate::DocNodeKind;
@@ -169,7 +171,7 @@ impl DocBlockSubtitleCtx {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct SymbolContentCtx {
+pub struct SymbolContentCtx {
   pub id: String,
   pub docs: Option<String>,
   pub sections: Vec<SectionCtx>,
@@ -177,9 +179,8 @@ struct SymbolContentCtx {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
-enum SymbolInnerCtx {
+pub enum SymbolInnerCtx {
   Function(function::FunctionCtx),
-  Namespace(String),
   Other(SymbolContentCtx),
 }
 
@@ -189,56 +190,53 @@ impl SymbolInnerCtx {
     let mut functions = vec![];
 
     for doc_node in doc_nodes {
-      match doc_node.kind {
-        DocNodeKind::Function => functions.push(doc_node),
-
-        DocNodeKind::Variable
-        | DocNodeKind::Class
-        | DocNodeKind::Enum
-        | DocNodeKind::Interface
-        | DocNodeKind::TypeAlias => {
-          let get_section_kinds = match doc_node.kind {
-            DocNodeKind::Variable => variable::render_variable,
-            DocNodeKind::Class => class::render_class,
-            DocNodeKind::Enum => r#enum::render_enum,
-            DocNodeKind::Interface => interface::render_interface,
-            DocNodeKind::TypeAlias => type_alias::render_type_alias,
-            _ => unreachable!(),
-          };
-          let mut sections = get_section_kinds(ctx, doc_node);
-
-          let (docs, examples) =
-            super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
-
-          if let Some(examples) = examples {
-            sections.insert(0, examples);
-          }
-
-          content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
-            id: String::new(),
-            sections,
-            docs,
-          }));
+      let mut sections = match doc_node.kind {
+        DocNodeKind::Function => {
+          functions.push(doc_node);
+          continue;
         }
+
+        DocNodeKind::Variable => variable::render_variable(ctx, doc_node),
+        DocNodeKind::Class => class::render_class(ctx, doc_node),
+        DocNodeKind::Enum => r#enum::render_enum(ctx, doc_node),
+        DocNodeKind::Interface => interface::render_interface(ctx, doc_node),
+        DocNodeKind::TypeAlias => type_alias::render_type_alias(ctx, doc_node),
 
         DocNodeKind::Namespace => {
-          let (docs, _examples) =
-            super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+          let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+
+          let partitions = partition_nodes_by_kind(
+            &namespace_def
+              .elements
+              .iter()
+              .map(|node| DocNodeWithContext {
+                doc_node: node.clone(),
+                origin: None,
+              })
+              .collect::<Vec<_>>(),
+            false,
+          );
+
           let ns_parts =
             name.split('.').map(String::from).collect::<Vec<String>>();
-          let el = namespace::render_namespace(
-            &ctx.with_namespace(ns_parts),
-            doc_node,
-          );
-          let content = format!(
-            r#"<div class="space-y-7">{}{el}</div>"#,
-            docs.unwrap_or_default()
-          );
-          content_parts.push(SymbolInnerCtx::Namespace(content));
+
+          namespace::render_namespace(&ctx.with_namespace(ns_parts), partitions)
         }
-        DocNodeKind::ModuleDoc => {}
-        DocNodeKind::Import => {}
+        DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };
+
+      let (docs, examples) =
+        super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+
+      if let Some(examples) = examples {
+        sections.insert(0, examples);
+      }
+
+      content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
+        id: String::new(),
+        sections,
+        docs,
+      }));
     }
 
     if !functions.is_empty() {

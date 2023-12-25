@@ -2,72 +2,22 @@ use crate::html::render_context::RenderContext;
 use crate::html::short_path_to_name;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
-use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-#[derive(Serialize)]
-pub struct NamespaceRenderCtx {
-  pub sections: Vec<NamespaceSectionRenderCtx>,
-}
-
-#[derive(Serialize)]
-pub struct NamespaceSectionRenderCtx {
-  pub id: String,
-  pub title: String,
-  pub nodes: Vec<NamespaceSectionNodeCtx>,
-}
-
-#[derive(Serialize)]
-pub struct NamespaceSectionNodeCtx {
-  pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
-  pub origin: Option<String>,
-  pub href: String,
-  pub name: String,
-  pub docs: Option<String>,
-}
-
-pub fn get_namespace_render_ctx(
+pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-) -> NamespaceRenderCtx {
-  let mut sections = Vec::with_capacity(partitions.len());
-
-  for (kind, doc_nodes) in partitions {
-    let ns_section_ctx = get_namespace_section_render_ctx(ctx, kind, doc_nodes);
-    sections.push(ns_section_ctx)
-  }
-
-  NamespaceRenderCtx { sections }
-}
-
-pub(crate) fn render_namespace(
-  ctx: &RenderContext,
-  doc_node: &DocNode,
-) -> String {
-  let namespace_def = doc_node.namespace_def.as_ref().unwrap();
-
-  let partitions = partition_nodes_by_kind(
-    &namespace_def
-      .elements
-      .iter()
-      .map(|node| DocNodeWithContext {
-        doc_node: node.clone(),
-        origin: None,
-      })
-      .collect::<Vec<_>>(),
-    false,
-  );
-  let namespace_ctx = get_namespace_render_ctx(ctx, &partitions);
-
-  namespace_ctx
-    .sections
+  partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+) -> Vec<SectionCtx> {
+  partitions
     .into_iter()
-    .map(|section| ctx.ctx.hbs.render("namespace_section", &section).unwrap())
-    .collect::<String>()
+    .map(|(kind, doc_nodes)| {
+      get_namespace_section_render_ctx(ctx, kind, doc_nodes)
+    })
+    .collect()
 }
 
 pub fn partition_nodes_by_kind(
@@ -233,10 +183,10 @@ pub fn partition_nodes_by_category(
 
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
-  kind: &DocNodeKind,
-  doc_nodes: &[DocNodeWithContext],
-) -> NamespaceSectionRenderCtx {
-  let kind_ctx = super::super::util::DocNodeKindCtx::from(*kind);
+  kind: DocNodeKind,
+  doc_nodes: Vec<DocNodeWithContext>,
+) -> SectionCtx {
+  let kind_ctx = super::super::util::DocNodeKindCtx::from(kind);
 
   let mut grouped_nodes = HashMap::new();
 
@@ -248,52 +198,66 @@ fn get_namespace_section_render_ctx(
   }
 
   let nodes = grouped_nodes
-    .iter()
-    .map(|(name, nodes)| {
-      // TODO: linking, tags
-
-      let mut name = name.to_owned();
-
-      let ns_parts = ctx.get_namespace_parts();
-      if !ns_parts.is_empty() {
-        name = format!("{}.{}", ns_parts.join("."), name);
-      }
-
-      let current_resolve = ctx.get_current_resolve();
-
-      let docs =
-        crate::html::jsdoc::render_docs_summary(ctx, &nodes[0].doc_node.js_doc);
-
-      NamespaceSectionNodeCtx {
-        doc_node_kind_ctx: nodes
-          .iter()
-          .map(|node| node.doc_node.kind.into())
-          .collect(),
-        origin: if ctx.ctx.single_file_mode {
-          None
-        } else {
-          nodes[0].origin.as_deref().map(short_path_to_name)
-        },
-        href: (ctx.ctx.url_resolver)(
-          current_resolve,
-          crate::html::UrlResolveKind::Symbol {
-            file: nodes[0]
-              .origin
-              .as_deref()
-              .or_else(|| current_resolve.get_file())
-              .unwrap(),
-            symbol: &name,
-          },
-        ),
-        name,
-        docs,
-      }
-    })
+    .into_iter()
+    .map(|(name, nodes)| NamespaceNodeCtx::new(ctx, name, nodes))
     .collect::<Vec<_>>();
 
-  NamespaceSectionRenderCtx {
-    id: title_to_id(&kind_ctx.kind),
-    title: kind_ctx.title_plural.to_string(),
-    nodes,
+  SectionCtx {
+    title: kind_ctx.title_plural,
+    content: SectionContentCtx::NamespaceSection(nodes),
+  }
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct NamespaceNodeCtx {
+  pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
+  pub origin: Option<String>,
+  pub href: String,
+  pub name: String,
+  pub docs: Option<String>,
+}
+
+impl NamespaceNodeCtx {
+  fn new(
+    ctx: &RenderContext,
+    mut name: String,
+    nodes: Vec<DocNodeWithContext>,
+  ) -> Self {
+    // TODO: linking, tags
+
+    let ns_parts = ctx.get_namespace_parts();
+    if !ns_parts.is_empty() {
+      name = format!("{}.{}", ns_parts.join("."), name);
+    }
+
+    let current_resolve = ctx.get_current_resolve();
+
+    let docs =
+      crate::html::jsdoc::render_docs_summary(ctx, &nodes[0].doc_node.js_doc);
+
+    NamespaceNodeCtx {
+      doc_node_kind_ctx: nodes
+        .iter()
+        .map(|node| node.doc_node.kind.into())
+        .collect(),
+      origin: if ctx.ctx.single_file_mode {
+        None
+      } else {
+        nodes[0].origin.as_deref().map(short_path_to_name)
+      },
+      href: (ctx.ctx.url_resolver)(
+        current_resolve,
+        crate::html::UrlResolveKind::Symbol {
+          file: nodes[0]
+            .origin
+            .as_deref()
+            .or_else(|| current_resolve.get_file())
+            .unwrap(),
+          symbol: &name,
+        },
+      ),
+      name,
+      docs,
+    }
   }
 }

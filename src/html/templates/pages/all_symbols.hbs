@@ -4,10 +4,8 @@
   {{~> breadcrumbs breadcrumbs_ctx ~}}
   {{~> pages/search_bar ~}}
 
-  <main class="space-y-7">
-    {{~#each namespace_ctx.sections~}}
-      {{~> namespace_section this ~}}
-    {{~/each~}}
+  <main>
+    {{~> symbol_content content ~}}
   </main>
 
   {{~> pages/search_results ~}}
