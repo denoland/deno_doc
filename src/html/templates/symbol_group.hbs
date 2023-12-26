@@ -23,13 +23,7 @@
           {{~#if (eq kind "function")~}}
             {{~> function value ~}}
           {{~else~}}
-
-            {{~#if (eq kind "namespace")~}}
-              {{~value~}}
-            {{~else~}}
-              {{~> symbol_content value ~}}
-            {{~/if~}}
-
+            {{~> symbol_content value ~}}
           {{~/if~}}
         {{~/each~}}
       </div>

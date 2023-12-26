@@ -200,6 +200,9 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
   reg.register_helper("concat", Box::new(concat));
 
+  handlebars_helper!(print: |a: Json| println!("{a:#?}"));
+  reg.register_helper("print", Box::new(print));
+
   reg.register_template_string(
     "sidepanel",
     include_str!("./templates/sidepanel.hbs"),
@@ -370,7 +373,7 @@ pub fn generate(
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
     let all_symbols_render =
-      pages::render_all_symbols_page(&ctx, &partitions_by_kind);
+      pages::render_all_symbols_page(&ctx, partitions_by_kind);
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 

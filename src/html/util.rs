@@ -1,6 +1,4 @@
 use crate::html::jsdoc::render_markdown;
-use crate::html::jsdoc::ExampleCtx;
-use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::RenderContext;
 use crate::DocNodeKind;
 use serde::Serialize;
@@ -14,11 +12,6 @@ lazy_static! {
 
 pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
-}
-
-// TODO(bartlomieju): this could be a TinyTemplate formatter
-pub(crate) fn title_to_id(title: &str) -> String {
-  TARGET_RE.replace_all(title, "_").to_string()
 }
 
 /// A container to hold a list of symbols with their namespaces:
@@ -164,8 +157,9 @@ pub struct AnchorCtx {
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
   DocEntry(Vec<DocEntryCtx>),
-  Example(Vec<ExampleCtx>),
-  IndexSignature(Vec<IndexSignatureCtx>),
+  Example(Vec<super::jsdoc::ExampleCtx>),
+  IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
+  NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
 }
 
 #[derive(Debug, Serialize, Clone)]

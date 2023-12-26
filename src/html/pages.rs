@@ -1,5 +1,8 @@
 use super::partition_nodes_by_name;
 use super::sidepanels;
+use super::sidepanels::SidepanelCtx;
+use super::symbols::SymbolContentCtx;
+use super::util::BreadcrumbsCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;
@@ -12,8 +15,6 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
-use crate::html::sidepanels::SidepanelCtx;
-use crate::html::util::BreadcrumbsCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -128,25 +129,29 @@ pub fn render_index(
 #[derive(Serialize)]
 struct AllSymbolsCtx {
   html_head_ctx: HtmlHeadCtx,
-  namespace_ctx: super::namespace::NamespaceRenderCtx,
+  content: SymbolContentCtx,
   breadcrumbs_ctx: BreadcrumbsCtx,
 }
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+  partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
 ) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
     RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
-  let namespace_ctx =
-    super::namespace::get_namespace_render_ctx(&render_ctx, partitions);
+
+  let sections = super::namespace::render_namespace(&render_ctx, partitions);
 
   let html_head_ctx =
     HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
   let all_symbols_ctx = AllSymbolsCtx {
     html_head_ctx,
-    namespace_ctx,
+    content: SymbolContentCtx {
+      id: String::new(),
+      sections,
+      docs: None,
+    },
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
   };
 
