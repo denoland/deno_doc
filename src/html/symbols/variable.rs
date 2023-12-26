@@ -1,5 +1,4 @@
-use crate::html::jsdoc::SectionCtx;
-use crate::html::jsdoc::{DocEntryCtx, SectionContentCtx};
+use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 

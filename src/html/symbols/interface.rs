@@ -1,9 +1,8 @@
-use crate::html::jsdoc::DocEntryCtx;
-use crate::html::jsdoc::SectionContentCtx;
-use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
+use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
-use crate::html::types::{render_type_params, type_params_summary};
+use crate::html::types::render_type_params;
+use crate::html::types::type_params_summary;
 use crate::html::util::*;
 
 pub(crate) fn render_interface(

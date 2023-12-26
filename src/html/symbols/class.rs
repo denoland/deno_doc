@@ -1,9 +1,7 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
-use crate::html::jsdoc::DocEntryCtx;
-use crate::html::jsdoc::SectionContentCtx;
-use crate::html::jsdoc::SectionCtx;
 use crate::html::parameters::render_params;
+use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use deno_ast::swc::ast::Accessibility;

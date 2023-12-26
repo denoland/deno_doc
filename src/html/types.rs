@@ -1,7 +1,7 @@
-use crate::html::jsdoc::SectionCtx;
-use crate::html::jsdoc::{DocEntryCtx, SectionContentCtx};
-use crate::html::parameters::render_params;
-use crate::html::util::*;
+use super::parameters::render_params;
+use super::render_context::RenderContext;
+use super::util::*;
+
 use crate::ts_type::LiteralDefKind;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;

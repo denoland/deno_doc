@@ -1,5 +1,5 @@
-use crate::html::RenderContext;
-use crate::html::UrlResolveKind;
+use super::RenderContext;
+use super::UrlResolveKind;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
