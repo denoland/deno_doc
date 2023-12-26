@@ -157,9 +157,9 @@ pub struct AnchorCtx {
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
   DocEntry(Vec<DocEntryCtx>),
-  Example(Vec<crate::html::jsdoc::ExampleCtx>),
-  IndexSignature(Vec<crate::html::symbols::class::IndexSignatureCtx>),
-  NamespaceSection(Vec<crate::html::namespace::NamespaceNodeCtx>),
+  Example(Vec<super::jsdoc::ExampleCtx>),
+  IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
+  NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
 }
 
 #[derive(Debug, Serialize, Clone)]
