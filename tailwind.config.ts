@@ -31,12 +31,10 @@ export default {
   ],
   safelist: [
     {
-      pattern:
-        new RegExp(`^text-(${Object.keys(extraColors).join("|")})$`),
+      pattern: new RegExp(`^text-(${Object.keys(extraColors).join("|")})$`),
     },
     {
-      pattern:
-        new RegExp(`^bg-(${Object.keys(extraColors).join("|")})\/15$`),
+      pattern: new RegExp(`^bg-(${Object.keys(extraColors).join("|")})\/15$`),
     },
   ],
   theme: {

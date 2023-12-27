@@ -4,7 +4,7 @@
     "build": "cp LICENSE js/LICENSE && deno run --unstable -A https://deno.land/x/wasmbuild@0.15.4/main.ts  --project deno_doc_wasm --out js",
     "test": "deno test --allow-read --allow-net",
     "tailwind": "deno run -A npm:tailwindcss@3.4.0 --minify --input src/html/templates/additional_styles.css --output src/html/templates/styles.css",
-    "gen_html": "deno task tailwind && cargo run --example ddoc --features=html -- --name \"std HTTP and Assert\" --html examples/ddoc/deno.d.ts --output generated_docs/"
+    "gen_html": "deno task tailwind && cargo run --example ddoc --features=html -- --name \"std HTTP and Assert\" --html ../deno_std/http/mod.ts ../deno_std/assert/mod.ts --output generated_docs/ --main_entrypoint ../deno_std/assert/mod.ts"
   },
   "exclude": [
     "target",
