@@ -79,8 +79,8 @@ fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
 }
 
 fn render_markdown_inner(
-  md: &str,
   render_ctx: &RenderContext,
+  md: &str,
   summary: bool,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
@@ -120,14 +120,14 @@ fn render_markdown_inner(
 }
 
 pub(crate) fn render_markdown_summary(
-  md: &str,
   render_ctx: &RenderContext,
+  md: &str,
 ) -> String {
-  render_markdown_inner(md, render_ctx, true)
+  render_markdown_inner(render_ctx, md, true)
 }
 
-pub(crate) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
-  render_markdown_inner(md, render_ctx, false)
+pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
+  render_markdown_inner(render_ctx, md, false)
 }
 
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
@@ -142,7 +142,7 @@ fn render_docs_inner(
     if doc.is_empty() {
       None
     } else {
-      Some(render_markdown_inner(doc, ctx, summary))
+      Some(render_markdown_inner(ctx, doc, summary))
     }
   } else {
     None
@@ -217,8 +217,8 @@ impl ExampleCtx {
       format!("Example {}", i + 1)
     };
 
-    let markdown_title = render_markdown_summary(&title, render_ctx);
-    let markdown_body = render_markdown(body, render_ctx);
+    let markdown_title = render_markdown_summary(render_ctx, &title);
+    let markdown_body = render_markdown(render_ctx, body);
 
     // TODO: icons
     ExampleCtx {
@@ -252,7 +252,7 @@ impl ModuleDocCtx {
       docs
         .and_then(|node| node.js_doc.doc.as_ref())
         .map(|docs_md| {
-          let rendered_docs = render_markdown(docs_md, render_ctx);
+          let rendered_docs = render_markdown(render_ctx, docs_md);
 
           Self {
             title: (!render_ctx.ctx.hide_module_doc_title).then(|| {

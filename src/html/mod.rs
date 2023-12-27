@@ -117,6 +117,7 @@ pub struct GenerateOptions {
   pub url_resolver: UrlResolver,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
+  pub sidebar_flatten_namespaces: bool,
 }
 
 pub struct GenerateCtx<'ctx> {
@@ -134,6 +135,7 @@ pub struct GenerateCtx<'ctx> {
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub single_file_mode: bool,
+  pub sidebar_flatten_namespaces: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -265,6 +267,7 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   )?;
   reg
     .register_template_string("usage", include_str!("./templates/usage.hbs"))?;
+  reg.register_template_string("tag", include_str!("./templates/tag.hbs"))?;
 
   // pages
   reg.register_template_string(
@@ -339,6 +342,7 @@ pub fn generate(
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
     single_file_mode: doc_nodes_by_url.len() == 1,
+    sidebar_flatten_namespaces: options.sidebar_flatten_namespaces,
   };
   let mut files = HashMap::new();
 
@@ -383,7 +387,7 @@ pub fn generate(
       let short_path = ctx.url_to_short_path(specifier);
 
       let partitions_for_nodes =
-        get_partitions_for_file(doc_nodes, &short_path);
+        get_partitions_for_file(&ctx, doc_nodes, &short_path);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -451,6 +455,7 @@ pub fn generate(
 }
 
 pub fn get_partitions_for_file(
+  ctx: &GenerateCtx,
   doc_nodes: &[DocNode],
   short_path: &str,
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
@@ -462,17 +467,22 @@ pub fn get_partitions_for_file(
     })
     .collect::<Vec<_>>();
 
-  let categories =
-    namespace::partition_nodes_by_category(&doc_nodes_with_context, false);
+  let categories = namespace::partition_nodes_by_category(
+    &doc_nodes_with_context,
+    ctx.sidebar_flatten_namespaces,
+  );
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
-      .into_iter()
-      .map(|(kind, nodes)| {
-        let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
-        (doc_node_kind_ctx.title.to_string(), nodes)
-      })
-      .collect()
+    namespace::partition_nodes_by_kind(
+      &doc_nodes_with_context,
+      ctx.sidebar_flatten_namespaces,
+    )
+    .into_iter()
+    .map(|(kind, nodes)| {
+      let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
+      (doc_node_kind_ctx.title.to_string(), nodes)
+    })
+    .collect()
   } else {
     categories
   }
@@ -488,30 +498,11 @@ pub fn get_partitions_for_main_entrypoint(
     .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
   if let Some(doc_nodes) = doc_nodes {
-    let doc_nodes_with_context = doc_nodes
-      .iter()
-      .map(|node| DocNodeWithContext {
-        doc_node: node.clone(),
-        origin: Some(
-          ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
-        ),
-      })
-      .collect::<Vec<_>>();
-
-    let categories =
-      namespace::partition_nodes_by_category(&doc_nodes_with_context, false);
-
-    if categories.len() == 1 && categories.contains_key("Uncategorized") {
-      namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
-        .into_iter()
-        .map(|(kind, nodes)| {
-          let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
-          (doc_node_kind_ctx.title.to_string(), nodes)
-        })
-        .collect()
-    } else {
-      categories
-    }
+    get_partitions_for_file(
+      ctx,
+      doc_nodes,
+      &ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
+    )
   } else {
     Default::default()
   }

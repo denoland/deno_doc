@@ -38,9 +38,9 @@
         <ul>
           {{~#each this.symbols~}}
           <li>
-            <a href="{{this.href}}" title="{{this.name}}">
+            <a href="{{this.href}}" title="{{this.name}}" class="{{#if this.deprecated}}opacity-60{{/if}}">
               {{~> doc_node_kind_icon this.kind ~}}
-              <span>{{this.name}}</span>
+              <span class="{{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}">{{this.name}}</span>
             </a>
           </li>
           {{~/each~}}

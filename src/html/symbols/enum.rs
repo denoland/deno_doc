@@ -15,6 +15,9 @@ pub(crate) fn render_enum(
     .map(|member| {
       let id =
         name_to_id("enum", &format!("{}_{}", &doc_node.name, &member.name));
+
+      let tags = Tag::from_js_doc(&member.js_doc);
+
       DocEntryCtx::new(
         render_ctx,
         &id,
@@ -24,6 +27,7 @@ pub(crate) fn render_enum(
           .as_ref()
           .map(|init| format!(" = {}", render_type_def(render_ctx, init)))
           .unwrap_or_default(),
+        tags,
         member.js_doc.doc.as_deref(),
       )
     })

@@ -1,0 +1,29 @@
+<div class="text-{{value.kind}} bg-{{value.kind}}/15 inline-flex items-center gap-0.5 *:flex-none rounded-full font-medium leading-none {{#if large}}font-bold py-2 px-3{{else}}text-sm py-1 px-2{{/if}}">
+  {{~#if large~}}
+    {{~#if value.value~}}
+
+      {{~#if (eq value.kind "permissions")~}}
+      <span class="space-x-2">
+        {{~#each value.value~}}
+          <span>{{this}}</span>
+          {{~#unless @last~}}
+            <div class="inline border-l-2 border-stone-300"></div>
+          {{~/unless~}}
+        {{~/each~}}
+      </span>
+      {{~else~}}
+        {{~titleCase value.value~}}
+      {{~/if~}}
+
+    {{~else~}}
+      {{~titleCase value.kind~}}
+    {{~/if~}}
+
+  {{~else~}}
+    {{~#if value.value~}}
+      {{~value.value~}}
+    {{~else~}}
+      {{~value.kind~}}
+    {{~/if~}}
+  {{~/if~}}
+</div>

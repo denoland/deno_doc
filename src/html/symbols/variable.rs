@@ -1,6 +1,7 @@
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use std::collections::HashSet;
 
 pub(crate) fn render_variable(
   ctx: &RenderContext,
@@ -21,6 +22,7 @@ pub(crate) fn render_variable(
       &id,
       "",
       &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap()),
+      HashSet::new(),
       None,
     )]),
   }]

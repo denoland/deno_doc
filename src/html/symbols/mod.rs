@@ -2,12 +2,15 @@ use crate::html::namespace::partition_nodes_by_kind;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsageCtx;
 use crate::html::util::SectionCtx;
+use crate::html::util::Tag;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
+use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub mod class;
 mod r#enum;
@@ -20,6 +23,7 @@ mod variable;
 #[derive(Debug, Serialize, Clone)]
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
+  tags: HashSet<Tag>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
 }
@@ -54,10 +58,54 @@ impl SymbolGroupCtx {
 
     let symbols = split_nodes
       .values()
-      .map(|doc_nodes| SymbolCtx {
-        kind: doc_nodes[0].kind.into(),
-        subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
-        content: SymbolInnerCtx::new(ctx, doc_nodes, name),
+      .map(|doc_nodes| {
+        let all_deprecated = doc_nodes.iter().all(|node| {
+          node
+            .js_doc
+            .tags
+            .iter()
+            .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
+        });
+
+        let mut tags = HashSet::new();
+        if all_deprecated {
+          tags.insert(Tag::Deprecated);
+        }
+
+        let permissions = doc_nodes
+          .iter()
+          .flat_map(|node| {
+            node
+              .js_doc
+              .tags
+              .iter()
+              .filter_map(|tag| {
+                if let JsDocTag::Tags { tags } = tag {
+                  Some(tags.iter().filter_map(|tag| {
+                    if tag.starts_with("allow-") {
+                      Some(tag.to_owned())
+                    } else {
+                      None
+                    }
+                  }))
+                } else {
+                  None
+                }
+              })
+              .flatten()
+          })
+          .collect::<Vec<_>>();
+
+        if !permissions.is_empty() {
+          tags.insert(Tag::Permissions(permissions));
+        }
+
+        SymbolCtx {
+          tags,
+          kind: doc_nodes[0].kind.into(),
+          subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
+          content: SymbolInnerCtx::new(ctx, doc_nodes, name),
+        }
       })
       .collect();
 

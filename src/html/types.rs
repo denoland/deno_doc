@@ -1,12 +1,20 @@
 use super::parameters::render_params;
 use super::render_context::RenderContext;
 use super::util::*;
+use std::collections::HashSet;
 
 use crate::ts_type::LiteralDefKind;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
+
+pub(crate) fn render_type_def_colon(
+  ctx: &RenderContext,
+  def: &crate::ts_type::TsTypeDef,
+) -> String {
+  format!("<span>: {}</span>", render_type_def(ctx, def))
+}
 
 pub(crate) fn render_type_def(
   ctx: &RenderContext,
@@ -180,9 +188,7 @@ pub(crate) fn render_type_def(
       let ts_type = mapped
         .ts_type
         .as_ref()
-        .map(|ts_type| {
-          format!("<span>: {}</span>", render_type_def(ctx, ts_type))
-        })
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
       format!(
@@ -205,7 +211,7 @@ pub(crate) fn render_type_def(
         let ts_type = index_signature
           .ts_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!(
@@ -224,7 +230,7 @@ pub(crate) fn render_type_def(
         let ts_type = call_signature
           .ts_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!(
@@ -255,7 +261,7 @@ pub(crate) fn render_type_def(
         let ts_type = property
           .ts_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!("{readonly}{name}{optional}{ts_type}; ");
@@ -285,7 +291,7 @@ pub(crate) fn render_type_def(
         let return_type = method
           .return_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!(
@@ -506,6 +512,7 @@ pub(crate) fn render_type_params(
       &id,
       &type_param.name,
       &format!("{constraint}{default}"),
+      HashSet::new(),
       None,
     );
 

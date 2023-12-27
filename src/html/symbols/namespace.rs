@@ -6,7 +6,7 @@ use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub fn render_namespace(
   ctx: &RenderContext,
@@ -210,6 +210,7 @@ fn get_namespace_section_render_ctx(
 
 #[derive(Debug, Serialize, Clone)]
 pub struct NamespaceNodeCtx {
+  pub tags: HashSet<Tag>,
   pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
   pub origin: Option<String>,
   pub href: String,
@@ -223,7 +224,7 @@ impl NamespaceNodeCtx {
     mut name: String,
     nodes: Vec<DocNodeWithContext>,
   ) -> Self {
-    // TODO: linking, tags
+    // TODO: linking
 
     let ns_parts = ctx.get_namespace_parts();
     if !ns_parts.is_empty() {
@@ -235,7 +236,10 @@ impl NamespaceNodeCtx {
     let docs =
       crate::html::jsdoc::render_docs_summary(ctx, &nodes[0].doc_node.js_doc);
 
+    let tags = Tag::from_js_doc(&nodes[0].doc_node.js_doc);
+
     NamespaceNodeCtx {
+      tags,
       doc_node_kind_ctx: nodes
         .iter()
         .map(|node| node.doc_node.kind.into())

@@ -27,7 +27,8 @@
               ],
               "name": "Bar",
               "href": "../././~/Bar.html",
-              "active": true
+              "active": true,
+              "deprecated": false
             },
             {
               "kind": [
@@ -41,7 +42,8 @@
               ],
               "name": "Foo",
               "href": "../././~/Foo.html",
-              "active": false
+              "active": false,
+              "deprecated": false
             }
           ]
         }
@@ -58,6 +60,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "tags": [],
           "subtitle": {
             "kind": "class",
             "value": {
@@ -133,7 +136,8 @@
               ],
               "name": "Bar",
               "href": "../././~/Bar.html",
-              "active": false
+              "active": false,
+              "deprecated": false
             },
             {
               "kind": [
@@ -147,7 +151,8 @@
               ],
               "name": "Foo",
               "href": "../././~/Foo.html",
-              "active": true
+              "active": true,
+              "deprecated": false
             }
           ]
         }
@@ -164,6 +169,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "tags": [],
           "subtitle": {
             "kind": "class",
             "value": {
@@ -235,7 +241,8 @@
               ],
               "name": "x",
               "href": "../.././foo/~/x.html",
-              "active": true
+              "active": true,
+              "deprecated": false
             }
           ]
         }
@@ -252,6 +259,7 @@
             "title_lowercase": "function",
             "title_plural": "Functions"
           },
+          "tags": [],
           "subtitle": null,
           "content": [
             {
@@ -261,10 +269,11 @@
                   {
                     "function_id": "function_x",
                     "overload_id": "function_x_0",
-                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px rgb(37 99 235);\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n",
+                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px #2564EB;\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n",
                     "html_attrs": "checked",
                     "name": "x",
-                    "summary": "(): <span>void</span>",
+                    "deprecated": null,
+                    "summary": "()<span>: <span>void</span></span>",
                     "summary_doc": null
                   }
                 ],
@@ -292,6 +301,7 @@
                               "anchor": {
                                 "id": "function_x_0_return"
                               },
+                              "tags": [],
                               "js_doc": null
                             }
                           ]

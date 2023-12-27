@@ -8,6 +8,21 @@
 <div class="space-y-2">
   {{~#each overloads_ctx~}}
     <label for="{{this.overload_id}}" class="space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:border-stone-100">
+      {{~#if (ne this.deprecated null)~}}
+        <div>
+          <div class="py-1 text-red-500 flex gap-1 items-center">
+          <span class="font-semibold leading-6">
+            Deprecated
+          </span>
+          </div>
+
+          {{~#if (ne this.deprecated "")~}}
+            <div class="ml-1 pl-2 border-l-4 border-red-300">
+              {{this.deprecated}}
+            </div>
+          {{~/if~}}
+        </div>
+      {{~/if~}}
       <code>
         <span class="font-bold">{{this.name}}</span><span class="font-medium">{{this.summary}}</span>
       </code>
@@ -22,6 +37,6 @@
 
 <div class="mt-3">
   {{~#each functions~}}
-    {{~> symbol_content this ~}}}
+    {{~> symbol_content this ~}}
   {{~/each~}}
 </div>

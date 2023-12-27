@@ -1,6 +1,7 @@
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use std::collections::HashSet;
 
 pub(crate) fn render_type_alias(
   ctx: &RenderContext,
@@ -12,7 +13,7 @@ pub(crate) fn render_type_alias(
     .type_params
     .iter()
     .map(|def| def.name.clone())
-    .collect::<std::collections::HashSet<String>>();
+    .collect::<HashSet<String>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
   let id = name_to_id("typeAlias", &doc_node.name);
@@ -33,7 +34,8 @@ pub(crate) fn render_type_alias(
       ctx,
       &id,
       "",
-      &format!(": {}", render_type_def(ctx, &type_alias_def.ts_type)),
+      &render_type_def(ctx, &type_alias_def.ts_type),
+      HashSet::new(),
       None,
     )]),
   });

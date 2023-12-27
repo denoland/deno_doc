@@ -3,14 +3,22 @@ use crate::function::FunctionDef;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
+use crate::html::types::render_type_def_colon;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
+use std::collections::HashSet;
 
-fn render_css_for_fn(overload_id: &str) -> String {
+fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
+  let (bg_color, border_color) = if deprecated {
+    ("#D256460C", "#DC2626")
+  } else {
+    ("#056CF00C", "#2564EB")
+  };
+
   format!(
     r#"
 #{overload_id} {{
@@ -20,8 +28,8 @@ fn render_css_for_fn(overload_id: &str) -> String {
   display: none;
 }}
 #{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
-  background-color: #056CF00C;
-  border: solid 2px rgb(37 99 235);
+  background-color: {bg_color};
+  border: solid 2px {border_color};
   cursor: unset;
   padding: 9px 15px; /* 1px less to counter the increased border */
 }}
@@ -36,6 +44,7 @@ struct OverloadRenderCtx {
   additional_css: String,
   html_attrs: String,
   name: String,
+  deprecated: Option<String>,
   summary: String,
   summary_doc: Option<String>,
 }
@@ -61,9 +70,22 @@ pub(crate) fn render_function(
       continue;
     }
 
+    let deprecated = doc_node.js_doc.tags.iter().find_map(|tag| {
+      if let JsDocTag::Deprecated { doc } = tag {
+        Some(
+          doc
+            .as_ref()
+            .map(|doc| crate::html::jsdoc::render_markdown_summary(ctx, doc))
+            .unwrap_or_default(),
+        )
+      } else {
+        None
+      }
+    });
+
     let overload_id = name_to_id("function", &format!("{}_{i}", doc_node.name));
     let id = name_to_id("function", &doc_node.name);
-    let css = render_css_for_fn(&overload_id);
+    let css = render_css_for_fn(&overload_id, deprecated.is_some());
 
     let summary_doc = if !(function_def.has_body && i == 0) {
       crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
@@ -82,6 +104,7 @@ pub(crate) fn render_function(
       additional_css: css,
       html_attrs,
       name: doc_node.name.to_string(),
+      deprecated,
       summary: render_function_summary(function_def, ctx),
       summary_doc,
     });
@@ -102,7 +125,7 @@ pub(crate) fn render_function_summary(
   let return_type = function_def
     .return_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
+    .map(|ts_type| render_type_def_colon(render_ctx, ts_type))
     .unwrap_or_default();
 
   format!(
@@ -157,12 +180,31 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      // TODO: default_value, tags
+      // TODO: default_value
 
-      DocEntryCtx::new(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
+      let tags = if matches!(
+        param.pattern,
+        ParamPatternDef::Array { optional, .. }
+          | ParamPatternDef::Identifier { optional, .. }
+          | ParamPatternDef::Object { optional, .. }
+        if optional
+      ) {
+        HashSet::from([Tag::Optional])
+      } else {
+        HashSet::new()
+      };
+
+      DocEntryCtx::new(
+        ctx,
+        &id,
+        &name,
+        &ts_type,
+        tags,
+        param_docs.get(i).copied(),
+      )
     })
     .collect::<Vec<DocEntryCtx>>();
 
@@ -211,9 +253,7 @@ fn render_function_return_type(
   overload_id: &str,
   render_ctx: &RenderContext,
 ) -> Option<DocEntryCtx> {
-  let Some(return_type) = def.return_type.as_ref() else {
-    return None;
-  };
+  let return_type = def.return_type.as_ref()?;
 
   let id = name_to_id(overload_id, "return");
 
@@ -230,6 +270,7 @@ fn render_function_return_type(
     &id,
     "",
     &render_type_def(render_ctx, return_type),
+    HashSet::new(),
     return_type_doc,
   ))
 }
