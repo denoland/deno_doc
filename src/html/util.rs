@@ -1,6 +1,9 @@
 use crate::html::jsdoc::render_markdown;
 use crate::html::RenderContext;
+use crate::js_doc::JsDoc;
+use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
+use deno_ast::swc::ast::Accessibility;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -168,12 +171,51 @@ pub struct SectionCtx {
   pub content: SectionContentCtx,
 }
 
+#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
+pub enum Tag {
+  New,
+  Abstract,
+  Deprecated,
+  Writeonly,
+  Readonly,
+  Protected,
+  Private,
+  Optional,
+  Permissions(Vec<String>),
+  Other(String),
+}
+
+impl Tag {
+  pub fn from_accessibility(
+    accessibility: Option<Accessibility>,
+  ) -> Option<Self> {
+    match accessibility? {
+      Accessibility::Public => None,
+      Accessibility::Protected => Some(Tag::Protected),
+      Accessibility::Private => Some(Tag::Private),
+    }
+  }
+
+  pub fn from_js_doc(js_doc: &JsDoc) -> HashSet<Tag> {
+    js_doc
+      .tags
+      .iter()
+      .filter_map(|tag| match tag {
+        JsDocTag::Deprecated { .. } => Some(Tag::Deprecated),
+        _ => None,
+      })
+      .collect()
+  }
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct DocEntryCtx {
   id: String,
   name: String,
   content: String,
   anchor: AnchorCtx,
+  tags: HashSet<Tag>,
   js_doc: Option<String>,
 }
 
@@ -183,9 +225,10 @@ impl DocEntryCtx {
     id: &str,
     name: &str,
     content: &str,
+    tags: HashSet<Tag>,
     jsdoc: Option<&str>,
   ) -> Self {
-    let maybe_jsdoc = jsdoc.map(|doc| render_markdown(doc, ctx));
+    let maybe_jsdoc = jsdoc.map(|doc| render_markdown(ctx, doc));
 
     // TODO: sourceHref
     DocEntryCtx {
@@ -193,6 +236,7 @@ impl DocEntryCtx {
       name: name.to_string(),
       content: content.to_string(),
       anchor: AnchorCtx { id: id.to_string() },
+      tags,
       js_doc: maybe_jsdoc,
     }
   }

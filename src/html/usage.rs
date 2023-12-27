@@ -42,7 +42,7 @@ fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
 
     if let Some((usage_symbol, local_var)) = usage_symbol {
       usage_statement
-        .push_str(&format!("const {{ {usage_symbol} }} = {local_var};"));
+        .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
     }
 
     usage_statement
@@ -65,8 +65,8 @@ impl UsageCtx {
   pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Self {
     let import_statement = parse_usage(ctx, doc_nodes);
     let rendered_import_statement = crate::html::jsdoc::render_markdown(
-      &format!("```typescript\n{import_statement}\n```"),
       ctx,
+      &format!("```typescript\n{import_statement}\n```"),
     );
     UsageCtx {
       import_statement: rendered_import_statement,

@@ -2,12 +2,15 @@ use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
-use crate::html::types::render_type_def;
+use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde::Serialize;
 use std::collections::BTreeMap;
+use std::collections::HashSet;
+
+// TODO: overrides
 
 pub(crate) fn render_class(
   ctx: &RenderContext,
@@ -107,7 +110,14 @@ fn render_constructors(
       let id = name_to_id("constructor", &i.to_string());
 
       // TODO: tags, render constructor params
-      DocEntryCtx::new(ctx, &id, name, "()", constructor.js_doc.doc.as_deref())
+      DocEntryCtx::new(
+        ctx,
+        &id,
+        name,
+        "()",
+        HashSet::from([Tag::New]),
+        constructor.js_doc.doc.as_deref(),
+      )
     })
     .collect::<Vec<DocEntryCtx>>();
 
@@ -142,7 +152,7 @@ fn render_index_signatures(
     let ts_type = index_signature
       .ts_type
       .as_ref()
-      .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+      .map(|ts_type| render_type_def_colon(ctx, ts_type))
       .unwrap_or_default();
 
     items.push(IndexSignatureCtx {
@@ -313,7 +323,9 @@ fn render_class_accessor(
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
 ) -> DocEntryCtx {
-  let name = &getter.or(setter).unwrap().name;
+  let getter_or_setter = getter.or(setter).unwrap();
+
+  let name = &getter_or_setter.name;
   let id = name_to_id("accessor", name);
   let ts_type = getter
     .and_then(|getter| getter.function_def.return_type.as_ref())
@@ -326,17 +338,23 @@ fn render_class_accessor(
           .and_then(|param| param.ts_type.as_ref())
       })
     })
-    .map_or_else(String::new, |ts_type| {
-      format!(
-        r#"<span>: <span class="font-medium">{}</span></span>"#,
-        render_type_def(ctx, ts_type)
-      )
-    });
-  let js_doc = getter.or(setter).unwrap().js_doc.doc.as_deref();
+    .map_or_else(String::new, |ts_type| render_type_def_colon(ctx, ts_type));
+  let js_doc = getter_or_setter.js_doc.doc.as_deref();
 
-  // TODO: tags
+  let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
+  if let Some(tag) = Tag::from_accessibility(getter_or_setter.accessibility) {
+    tags.insert(tag);
+  }
+  if getter_or_setter.is_abstract {
+    tags.insert(Tag::Abstract);
+  }
+  if getter.is_some() && setter.is_none() {
+    tags.insert(Tag::Writeonly);
+  } else if getter.is_none() && setter.is_some() {
+    tags.insert(Tag::Readonly);
+  }
 
-  DocEntryCtx::new(ctx, &id, name, &ts_type, js_doc)
+  DocEntryCtx::new(ctx, &id, name, &ts_type, tags, js_doc)
 }
 
 fn render_class_method(
@@ -350,13 +368,23 @@ fn render_class_method(
 
   let id = name_to_id("method", &format!("{}_{i}", method.name));
 
-  // TODO: tags
+  let mut tags = Tag::from_js_doc(&method.js_doc);
+  if let Some(tag) = Tag::from_accessibility(method.accessibility) {
+    tags.insert(tag);
+  }
+  if method.is_abstract {
+    tags.insert(Tag::Abstract);
+  }
+  if method.optional {
+    tags.insert(Tag::Abstract);
+  }
 
   Some(DocEntryCtx::new(
     ctx,
     &id,
     &method.name,
     &super::function::render_function_summary(&method.function_def, ctx),
+    tags,
     method.js_doc.doc.as_deref(),
   ))
 }
@@ -367,12 +395,24 @@ fn render_class_property(
 ) -> DocEntryCtx {
   let id = name_to_id("property", &property.name);
 
-  // TODO: tags
+  let mut tags = Tag::from_js_doc(&property.js_doc);
+  if let Some(tag) = Tag::from_accessibility(property.accessibility) {
+    tags.insert(tag);
+  }
+  if property.is_abstract {
+    tags.insert(Tag::Abstract);
+  }
+  if property.readonly {
+    tags.insert(Tag::Readonly);
+  }
+  if property.optional {
+    tags.insert(Tag::Abstract);
+  }
 
   let ts_type = property
     .ts_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+    .map(|ts_type| render_type_def_colon(ctx, ts_type))
     .unwrap_or_default();
 
   DocEntryCtx::new(
@@ -380,6 +420,7 @@ fn render_class_property(
     &id,
     &property.name,
     &ts_type,
+    tags,
     property.js_doc.doc.as_deref(),
   )
 }

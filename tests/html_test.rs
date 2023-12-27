@@ -104,6 +104,7 @@ async fn html_doc_files() {
       url_resolver: Rc::new(default_url_resolver),
       rewrite_map: None,
       hide_module_doc_title: false,
+      sidebar_flatten_namespaces: false,
     },
     &get_files("single").await,
   )
@@ -157,6 +158,7 @@ async fn html_doc_files_rewrite() {
       url_resolver: Rc::new(default_url_resolver),
       rewrite_map: Some(rewrite_map),
       hide_module_doc_title: false,
+      sidebar_flatten_namespaces: false,
     },
     &get_files("multiple").await,
   )
@@ -221,6 +223,7 @@ async fn symbol_group() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
+    sidebar_flatten_namespaces: false,
   };
 
   let mut files = vec![];
@@ -230,7 +233,7 @@ async fn symbol_group() {
       let short_path = ctx.url_to_short_path(specifier);
 
       let partitions_for_nodes =
-        get_partitions_for_file(doc_nodes, &short_path);
+        get_partitions_for_file(&ctx, doc_nodes, &short_path);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,

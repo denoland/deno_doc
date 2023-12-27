@@ -11,6 +11,13 @@
               {{~> (concat "doc_block_subtitle_" this.subtitle.kind) this.subtitle.value ~}}
             </div>
           {{~/if~}}
+          {{~#if this.tags~}}
+            <div class="space-x-2">
+              {{~#each this.tags~}}
+                {{~> tag value=this large=true ~}}
+              {{~/each~}}
+            </div>
+          {{~/if~}}
         </div>
       </div>
 

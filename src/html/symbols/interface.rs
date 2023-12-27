@@ -1,6 +1,7 @@
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
+use crate::html::types::render_type_def_colon;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
@@ -64,9 +65,7 @@ fn render_index_signatures(
     let ts_type = index_signature
       .ts_type
       .as_ref()
-      .map(|ts_type| {
-        format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
-      })
+      .map(|ts_type| render_type_def_colon(ctx, ts_type))
       .unwrap_or_default();
 
     items.push(IndexSignatureCtx {
@@ -97,15 +96,14 @@ fn render_call_signatures(
     .enumerate()
     .map(|(i, call_signature)| {
       let id = name_to_id("call_signature", &i.to_string());
-      // TODO: tags
 
       let ts_type = call_signature
         .ts_type
         .as_ref()
-        .map(|ts_type| {
-          format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
-        })
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
+
+      let tags = Tag::from_js_doc(&call_signature.js_doc);
 
       DocEntryCtx::new(
         ctx,
@@ -116,6 +114,7 @@ fn render_call_signatures(
           type_params_summary(ctx, &call_signature.type_params,),
           render_params(ctx, &call_signature.params),
         ),
+        tags,
         call_signature.js_doc.doc.as_deref(),
       )
     })
@@ -139,8 +138,6 @@ fn render_properties(
     .iter()
     .map(|property| {
       let id = name_to_id("property", &property.name);
-      // TODO: tags
-
       let default_value = property
         .js_doc
         .tags
@@ -159,10 +156,16 @@ fn render_properties(
       let ts_type = property
         .ts_type
         .as_ref()
-        .map(|ts_type| {
-          format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
-        })
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
+
+      let mut tags = Tag::from_js_doc(&property.js_doc);
+      if property.readonly {
+        tags.insert(Tag::Readonly);
+      }
+      if property.optional {
+        tags.insert(Tag::Optional);
+      }
 
       DocEntryCtx::new(
         ctx,
@@ -173,6 +176,7 @@ fn render_properties(
           property.name.clone()
         },
         &format!("{ts_type}{default_value}"),
+        tags,
         property.js_doc.doc.as_deref(),
       )
     })
@@ -197,7 +201,6 @@ fn render_methods(
     .enumerate()
     .map(|(i, method)| {
       let id = name_to_id("call_signature", &format!("{}_{i}", method.name));
-      // TODO: tags
 
       let name = if method.name == "new" {
         "<span>new</span>".to_string()
@@ -210,10 +213,16 @@ fn render_methods(
       let return_type = method
         .return_type
         .as_ref()
-        .map(|ts_type| {
-          format!(": {}", crate::html::types::render_type_def(ctx, ts_type))
-        })
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
+
+      let mut tags = Tag::from_js_doc(&method.js_doc);
+      /* TODO: if method.kind {
+        tags.push(Tag::ReadOnly);
+      }*/
+      if method.optional {
+        tags.insert(Tag::Optional);
+      }
 
       DocEntryCtx::new(
         ctx,
@@ -224,6 +233,7 @@ fn render_methods(
           type_params_summary(ctx, &method.type_params),
           render_params(ctx, &method.params)
         ),
+        tags,
         method.js_doc.doc.as_deref(),
       )
     })

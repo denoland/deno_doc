@@ -3,6 +3,15 @@
     <div class="space-y-2">
       <div class="flex justify-between gap-4">
         <div class="min-w-52 flex items-center gap-2">
+          {{!-- TODO: figure out design of tags in namespace view
+          {{~#if tags~}}
+            <span class="space-x-1">
+              {{~#each tags~}}
+                {{~> tag value=this ~}}
+              {{~/each~}}
+            </span>
+          {{~/if~}} --}}
+
           {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
           <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden">
             {{~this.name~}}
