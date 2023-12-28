@@ -136,18 +136,11 @@ pub trait HrefResolver {
   }
 
   /// Resolver for global symbols, like the Deno namespace or other built-ins
-  fn resolve_global_symbol(
-    &self,
-    symbol: &[String],
-    context: &String,
-  ) -> String;
+  fn resolve_global_symbol(&self, symbol: &[String], context: &str) -> String;
 
   /// Resolver for symbols from non-relative imports
-  fn resolve_import_href(
-    &self,
-    symbol: &[String],
-    src: &String,
-  ) -> Option<String>;
+  fn resolve_import_href(&self, symbol: &[String], src: &str)
+    -> Option<String>;
 
   /// Resolve the URL used in "usage" blocks.
   fn resolve_usage(

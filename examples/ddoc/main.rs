@@ -178,7 +178,7 @@ impl HrefResolver for EmptyResolver {
   fn resolve_global_symbol(
     &self,
     _symbol: &[String],
-    _context: &String,
+    _context: &str,
   ) -> String {
     String::new()
   }
@@ -186,7 +186,7 @@ impl HrefResolver for EmptyResolver {
   fn resolve_import_href(
     &self,
     _symbol: &[String],
-    _src: &String,
+    _src: &str,
   ) -> Option<String> {
     None
   }
