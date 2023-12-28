@@ -28,8 +28,8 @@ pub use search::generate_search_index;
 pub use symbols::namespace;
 pub use symbols::SymbolGroupCtx;
 pub use util::compute_namespaced_symbols;
-pub use util::DocHrefResolver;
 pub use util::DocNodeKindCtx;
+pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
 pub use util::UrlResolveKind;
 
@@ -56,7 +56,7 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub global_symbols: NamespacedGlobalSymbols,
-  pub href_resolver: Rc<dyn DocHrefResolver>,
+  pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub sidebar_flatten_namespaces: bool,
@@ -70,7 +70,7 @@ pub struct GenerateCtx<'ctx> {
   pub hbs: Handlebars<'ctx>,
   pub syntect_adapter: syntect_adapter::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
-  pub href_resolver: Rc<dyn DocHrefResolver>,
+  pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub single_file_mode: bool,

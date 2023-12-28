@@ -3,7 +3,7 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
-use deno_doc::html::DocHrefResolver;
+use deno_doc::html::HrefResolver;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -174,7 +174,7 @@ fn main() {
 
 struct EmptyResolver();
 
-impl DocHrefResolver for EmptyResolver {
+impl HrefResolver for EmptyResolver {
   fn resolve_global_symbol(
     &self,
     _symbol: &[String],

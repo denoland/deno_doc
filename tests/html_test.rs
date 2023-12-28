@@ -40,7 +40,7 @@ impl Loader for SourceFileLoader {
 
 struct EmptyResolver {}
 
-impl DocHrefResolver for EmptyResolver {
+impl HrefResolver for EmptyResolver {
   fn resolve_global_symbol(
     &self,
     _symbol: &[String],

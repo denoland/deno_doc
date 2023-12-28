@@ -103,7 +103,7 @@ impl UrlResolveKind<'_> {
 }
 
 /// A trait used to define various functions used to resolve urls.
-pub trait DocHrefResolver {
+pub trait HrefResolver {
   fn resolve_path(
     &self,
     current: UrlResolveKind,
