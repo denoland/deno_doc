@@ -4,7 +4,7 @@
 
     <div class="absolute top-0 right-2 flex items-center h-full">
       <button
-        class="usage_button rounded border border-stone-300 p-1.5 cursor-pointer hover:bg-stone-300 hover:before:block hover:after:block after:content-['Click_to_copy'] focus:after:content-['Copied!'] focus:after:w-[70px] focus:after:left-[-20px]"
+        class="usage_button rounded p-1.5 cursor-pointer hover:bg-stone-300 hover:before:block hover:after:block after:content-['Click_to_copy'] focus:after:content-['Copied!'] focus:after:w-[70px] focus:after:left-[-20px]"
         onclick='navigator?.clipboard?.writeText({{raw_import_statement}})'>
         {{~> icons/copy ~}}
       </button>

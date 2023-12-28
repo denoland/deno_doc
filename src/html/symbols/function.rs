@@ -146,7 +146,7 @@ fn render_single_function(
     .type_params
     .iter()
     .map(|def| def.name.clone())
-    .collect::<std::collections::HashSet<String>>();
+    .collect::<HashSet<String>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
   // TODO: tags
@@ -204,6 +204,7 @@ fn render_single_function(
         &ts_type,
         tags,
         param_docs.get(i).copied(),
+        &doc_node.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -217,7 +218,8 @@ fn render_single_function(
     sections.push(examples);
   }
 
-  if let Some(type_params) = render_type_params(ctx, &function_def.type_params)
+  if let Some(type_params) =
+    render_type_params(ctx, &function_def.type_params, &doc_node.location)
   {
     sections.push(type_params);
   }
@@ -230,13 +232,8 @@ fn render_single_function(
   sections.push(SectionCtx {
     title: "Return Type",
     content: SectionContentCtx::DocEntry(
-      render_function_return_type(
-        function_def,
-        &doc_node.js_doc,
-        overload_id,
-        ctx,
-      )
-      .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
+      render_function_return_type(ctx, function_def, doc_node, overload_id)
+        .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
     ),
   });
 
@@ -248,16 +245,16 @@ fn render_single_function(
 }
 
 fn render_function_return_type(
-  def: &FunctionDef,
-  js_doc: &crate::js_doc::JsDoc,
-  overload_id: &str,
   render_ctx: &RenderContext,
+  def: &FunctionDef,
+  doc_node: &crate::DocNode,
+  overload_id: &str,
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
   let id = name_to_id(overload_id, "return");
 
-  let return_type_doc = js_doc.tags.iter().find_map(|tag| {
+  let return_type_doc = doc_node.js_doc.tags.iter().find_map(|tag| {
     if let JsDocTag::Return { doc, .. } = tag {
       doc.as_deref()
     } else {
@@ -272,5 +269,6 @@ fn render_function_return_type(
     &render_type_def(render_ctx, return_type),
     HashSet::new(),
     return_type_doc,
+    &doc_node.location,
   ))
 }

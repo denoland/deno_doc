@@ -26,6 +26,7 @@ struct SymbolCtx {
   tags: HashSet<Tag>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
+  source_href: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -38,13 +39,9 @@ pub struct SymbolGroupCtx {
 impl SymbolGroupCtx {
   pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Self {
     let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
-    // TODO(bartlomieju): I'm not sure what this meant to do
-    // let mut is_reexport = false;
 
     for doc_node in doc_nodes {
       if doc_node.kind == DocNodeKind::Import {
-        // TODO(bartlomieju): I'm not sure what this meant to do
-        // is_reexport = true;
         continue;
       }
 
@@ -105,6 +102,10 @@ impl SymbolGroupCtx {
           kind: doc_nodes[0].kind.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
+          source_href: ctx
+            .ctx
+            .href_resolver
+            .resolve_source(&doc_nodes[0].location),
         }
       })
       .collect();
@@ -157,7 +158,7 @@ impl DocBlockSubtitleCtx {
         .type_params
         .iter()
         .map(|def| def.name.clone())
-        .collect::<std::collections::HashSet<String>>();
+        .collect::<HashSet<String>>();
 
       let ctx = &ctx.with_current_type_params(current_type_params);
 
@@ -202,7 +203,7 @@ impl DocBlockSubtitleCtx {
         .type_params
         .iter()
         .map(|def| def.name.clone())
-        .collect::<std::collections::HashSet<String>>();
+        .collect::<HashSet<String>>();
       let ctx = &ctx.with_current_type_params(current_type_params);
 
       let extends = interface_def

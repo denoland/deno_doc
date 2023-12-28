@@ -103,7 +103,7 @@ impl<'ctx> RenderContext<'ctx> {
         current_parts.extend_from_slice(&target_symbol_parts);
 
         if self.current_exports.contains(&current_parts) {
-          return Some((self.ctx.url_resolver)(
+          return Some(self.ctx.href_resolver.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
               file: self.get_current_resolve().get_file().unwrap(),
@@ -117,7 +117,7 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if self.current_exports.contains(&target_symbol_parts) {
-      return Some((self.ctx.url_resolver)(
+      return Some(self.ctx.href_resolver.resolve_path(
         self.get_current_resolve(),
         UrlResolveKind::Symbol {
           file: self.get_current_resolve().get_file().unwrap_or_default(), // TODO
@@ -129,7 +129,7 @@ impl<'ctx> RenderContext<'ctx> {
     if let Some(src) = self.current_imports.get(target_symbol) {
       if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
         if self.ctx.specifiers.contains(&module_specifier) {
-          return Some((self.ctx.url_resolver)(
+          return Some(self.ctx.href_resolver.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
               file: &self.ctx.url_to_short_path(&module_specifier),
@@ -139,14 +139,19 @@ impl<'ctx> RenderContext<'ctx> {
         }
       }
 
-      return (self.ctx.import_href_resolver)(&target_symbol_parts, src);
+      return self
+        .ctx
+        .href_resolver
+        .resolve_import_href(&target_symbol_parts, src);
     }
 
     if let Some(context) = self.ctx.global_symbols.get(&target_symbol_parts) {
-      return Some((self.ctx.global_symbol_href_resolver)(
-        &target_symbol_parts,
-        context,
-      ));
+      return Some(
+        self
+          .ctx
+          .href_resolver
+          .resolve_global_symbol(&target_symbol_parts, context),
+      );
     }
 
     None
@@ -165,10 +170,10 @@ impl<'ctx> RenderContext<'ctx> {
         vec![
           BreadcrumbCtx {
             name: "index".to_string(),
-            href: (self.ctx.url_resolver)(
-              self.current_resolve,
-              UrlResolveKind::Root,
-            ),
+            href: self
+              .ctx
+              .href_resolver
+              .resolve_path(self.current_resolve, UrlResolveKind::Root),
             is_symbol: false,
             is_first_symbol: false,
             is_all_symbols_part: false,
@@ -195,10 +200,10 @@ impl<'ctx> RenderContext<'ctx> {
           vec![
             BreadcrumbCtx {
               name: "index".to_string(),
-              href: (self.ctx.url_resolver)(
-                self.current_resolve,
-                UrlResolveKind::Root,
-              ),
+              href: self
+                .ctx
+                .href_resolver
+                .resolve_path(self.current_resolve, UrlResolveKind::Root),
               is_symbol: false,
               is_first_symbol: false,
               is_all_symbols_part: false,
@@ -216,10 +221,10 @@ impl<'ctx> RenderContext<'ctx> {
       UrlResolveKind::Symbol { file, symbol } => {
         let mut parts = vec![BreadcrumbCtx {
           name: "index".to_string(),
-          href: (self.ctx.url_resolver)(
-            self.current_resolve,
-            UrlResolveKind::Root,
-          ),
+          href: self
+            .ctx
+            .href_resolver
+            .resolve_path(self.current_resolve, UrlResolveKind::Root),
           is_symbol: false,
           is_first_symbol: false,
           is_all_symbols_part: false,
@@ -228,10 +233,10 @@ impl<'ctx> RenderContext<'ctx> {
         if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
           parts.push(BreadcrumbCtx {
             name: super::short_path_to_name(file),
-            href: (self.ctx.url_resolver)(
-              self.current_resolve,
-              UrlResolveKind::File(file),
-            ),
+            href: self
+              .ctx
+              .href_resolver
+              .resolve_path(self.current_resolve, UrlResolveKind::File(file)),
             is_symbol: false,
             is_first_symbol: false,
             is_all_symbols_part: false,
@@ -244,7 +249,7 @@ impl<'ctx> RenderContext<'ctx> {
             symbol_parts.push(symbol_part);
             let breadcrumb = BreadcrumbCtx {
               name: symbol_part.to_string(),
-              href: (self.ctx.url_resolver)(
+              href: self.ctx.href_resolver.resolve_path(
                 self.current_resolve,
                 UrlResolveKind::Symbol {
                   file,

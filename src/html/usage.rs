@@ -5,7 +5,7 @@ use crate::DocNodeKind;
 use serde::Serialize;
 
 fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
-  let url = (ctx.ctx.usage_resolver)(
+  let url = ctx.ctx.href_resolver.resolve_usage(
     ctx.get_current_specifier().unwrap(),
     ctx.get_current_resolve().get_file().unwrap(),
   );

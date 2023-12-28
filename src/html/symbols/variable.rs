@@ -24,6 +24,7 @@ pub(crate) fn render_variable(
       &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap()),
       HashSet::new(),
       None,
+      &doc_node.location,
     )]),
   }]
 }

@@ -475,6 +475,7 @@ pub(crate) fn type_arguments(
 pub(crate) fn render_type_params(
   ctx: &RenderContext,
   type_params: &[TsTypeParamDef],
+  location: &crate::Location,
 ) -> Option<SectionCtx> {
   if type_params.is_empty() {
     return None;
@@ -514,6 +515,7 @@ pub(crate) fn render_type_params(
       &format!("{constraint}{default}"),
       HashSet::new(),
       None,
+      location,
     );
 
     items.push(content);

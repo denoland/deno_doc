@@ -4,6 +4,7 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
+use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -81,9 +82,83 @@ impl NamespacedGlobalSymbols {
   }
 }
 
-pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String], &String) -> String>;
+/// Different current and target locations
+#[derive(Debug, Clone, Copy)]
+pub enum UrlResolveKind<'a> {
+  Root,
+  AllSymbols,
+  File(&'a str),
+  Symbol { file: &'a str, symbol: &'a str },
+}
 
-pub type ImportHrefResolver = Rc<dyn Fn(&[String], &String) -> Option<String>>;
+impl UrlResolveKind<'_> {
+  pub fn get_file(&self) -> Option<&str> {
+    match self {
+      UrlResolveKind::Root => None,
+      UrlResolveKind::AllSymbols => None,
+      UrlResolveKind::File(file) => Some(file),
+      UrlResolveKind::Symbol { file, .. } => Some(file),
+    }
+  }
+}
+
+/// A trait used to define various functions used to resolve urls.
+pub trait DocHrefResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    let backs = match current {
+      UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+        .repeat(if file == "." {
+          1
+        } else {
+          file.split('/').count() + 1
+        }),
+      UrlResolveKind::Root => String::new(),
+      UrlResolveKind::AllSymbols => String::from("./"),
+    };
+
+    match target {
+      UrlResolveKind::Root => backs,
+      UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
+      UrlResolveKind::Symbol {
+        file: target_file,
+        symbol: target_symbol,
+      } => {
+        format!("{backs}./{target_file}/~/{target_symbol}.html")
+      }
+      UrlResolveKind::File(target_file) => {
+        format!("{backs}./{target_file}/~/index.html")
+      }
+    }
+  }
+
+  /// Resolver for global symbols, like the Deno namespace or other built-ins
+  fn resolve_global_symbol(
+    &self,
+    symbol: &[String],
+    context: &String,
+  ) -> String;
+
+  /// Resolver for symbols from non-relative imports
+  fn resolve_import_href(
+    &self,
+    symbol: &[String],
+    src: &String,
+  ) -> Option<String>;
+
+  /// Resolve the URL used in "usage" blocks.
+  fn resolve_usage(
+    &self,
+    current_specifier: &ModuleSpecifier,
+    current_file: &str,
+  ) -> String;
+
+  /// Resolve the URL used in source code link buttons.
+  fn resolve_source(&self, location: &crate::Location) -> String;
+}
 
 #[derive(Debug, Serialize, Clone)]
 pub struct BreadcrumbCtx {
@@ -217,6 +292,7 @@ pub struct DocEntryCtx {
   anchor: AnchorCtx,
   tags: HashSet<Tag>,
   js_doc: Option<String>,
+  source_href: String,
 }
 
 impl DocEntryCtx {
@@ -227,10 +303,11 @@ impl DocEntryCtx {
     content: &str,
     tags: HashSet<Tag>,
     jsdoc: Option<&str>,
+    location: &crate::Location,
   ) -> Self {
     let maybe_jsdoc = jsdoc.map(|doc| render_markdown(ctx, doc));
+    let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
-    // TODO: sourceHref
     DocEntryCtx {
       id: id.to_string(),
       name: name.to_string(),
@@ -238,6 +315,7 @@ impl DocEntryCtx {
       anchor: AnchorCtx { id: id.to_string() },
       tags,
       js_doc: maybe_jsdoc,
+      source_href,
     }
   }
 }

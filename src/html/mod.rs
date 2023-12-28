@@ -28,10 +28,10 @@ pub use search::generate_search_index;
 pub use symbols::namespace;
 pub use symbols::SymbolGroupCtx;
 pub use util::compute_namespaced_symbols;
+pub use util::DocHrefResolver;
 pub use util::DocNodeKindCtx;
-pub use util::GlobalSymbolHrefResolver;
-pub use util::ImportHrefResolver;
 pub use util::NamespacedGlobalSymbols;
+pub use util::UrlResolveKind;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -47,61 +47,6 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-#[derive(Debug, Clone, Copy)]
-pub enum UrlResolveKind<'a> {
-  Root,
-  AllSymbols,
-  File(&'a str),
-  Symbol { file: &'a str, symbol: &'a str },
-}
-
-impl UrlResolveKind<'_> {
-  fn get_file(&self) -> Option<&str> {
-    match self {
-      UrlResolveKind::Root => None,
-      UrlResolveKind::AllSymbols => None,
-      UrlResolveKind::File(file) => Some(file),
-      UrlResolveKind::Symbol { file, .. } => Some(file),
-    }
-  }
-}
-
-/// Arguments are current and target
-pub type UrlResolver = Rc<dyn Fn(UrlResolveKind, UrlResolveKind) -> String>;
-
-/// Argument is current specifier and current file
-pub type UsageResolver = Rc<dyn Fn(&ModuleSpecifier, &str) -> String>;
-
-pub fn default_url_resolver(
-  current: UrlResolveKind,
-  resolve: UrlResolveKind,
-) -> String {
-  let backs = match current {
-    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-      .repeat(if file == "." {
-        1
-      } else {
-        file.split('/').count() + 1
-      }),
-    UrlResolveKind::Root => String::new(),
-    UrlResolveKind::AllSymbols => String::from("./"),
-  };
-
-  match resolve {
-    UrlResolveKind::Root => backs,
-    UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
-    UrlResolveKind::Symbol {
-      file: target_file,
-      symbol: target_symbol,
-    } => {
-      format!("{backs}./{target_file}/~/{target_symbol}.html")
-    }
-    UrlResolveKind::File(target_file) => {
-      format!("{backs}./{target_file}/~/index.html")
-    }
-  }
-}
-
 #[derive(Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
@@ -111,10 +56,7 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub global_symbols: NamespacedGlobalSymbols,
-  pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
-  pub import_href_resolver: ImportHrefResolver,
-  pub usage_resolver: UsageResolver,
-  pub url_resolver: UrlResolver,
+  pub href_resolver: Rc<dyn DocHrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub sidebar_flatten_namespaces: bool,
@@ -128,10 +70,7 @@ pub struct GenerateCtx<'ctx> {
   pub hbs: Handlebars<'ctx>,
   pub syntect_adapter: syntect_adapter::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
-  pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
-  pub import_href_resolver: ImportHrefResolver,
-  pub usage_resolver: UsageResolver,
-  pub url_resolver: UrlResolver,
+  pub href_resolver: Rc<dyn DocHrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub single_file_mode: bool,
@@ -268,6 +207,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg
     .register_template_string("usage", include_str!("./templates/usage.hbs"))?;
   reg.register_template_string("tag", include_str!("./templates/tag.hbs"))?;
+  reg.register_template_string(
+    "source_button",
+    include_str!("./templates/source_button.hbs"),
+  )?;
 
   // pages
   reg.register_template_string(
@@ -299,6 +242,14 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     "icons/copy",
     include_str!("./templates/icons/copy.hbs"),
+  )?;
+  reg.register_template_string(
+    "icons/link",
+    include_str!("./templates/icons/link.hbs"),
+  )?;
+  reg.register_template_string(
+    "icons/source",
+    include_str!("./templates/icons/source.hbs"),
   )?;
 
   Ok(reg)
@@ -335,10 +286,7 @@ pub fn generate(
     hbs: setup_hbs()?,
     syntect_adapter: setup_syntect(),
     global_symbols: options.global_symbols,
-    global_symbol_href_resolver: options.global_symbol_href_resolver,
-    import_href_resolver: options.import_href_resolver,
-    usage_resolver: options.usage_resolver,
-    url_resolver: options.url_resolver,
+    href_resolver: options.href_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
     single_file_mode: doc_nodes_by_url.len() == 1,
@@ -399,7 +347,7 @@ pub fn generate(
 
       files.extend(symbol_pages.into_iter().map(
         |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
-          let root = (ctx.url_resolver)(
+          let root = ctx.href_resolver.resolve_path(
             UrlResolveKind::Symbol {
               file: &short_path,
               symbol: &symbol_group_ctx.name,

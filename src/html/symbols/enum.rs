@@ -29,6 +29,7 @@ pub(crate) fn render_enum(
           .unwrap_or_default(),
         tags,
         member.js_doc.doc.as_deref(),
+        &member.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();

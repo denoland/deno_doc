@@ -22,7 +22,7 @@ pub(crate) fn render_class(
     .type_params
     .iter()
     .map(|def| def.name.clone())
-    .collect::<std::collections::HashSet<String>>();
+    .collect::<HashSet<String>>();
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 
@@ -39,9 +39,11 @@ pub(crate) fn render_class(
     sections.push(constructors);
   }
 
-  if let Some(type_params) =
-    crate::html::types::render_type_params(ctx, &class_def.type_params)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &class_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 
@@ -109,14 +111,22 @@ fn render_constructors(
     .map(|(i, constructor)| {
       let id = name_to_id("constructor", &i.to_string());
 
-      // TODO: tags, render constructor params
+      let params = constructor
+        .params
+        .iter()
+        .map(|param| param.param.clone())
+        .collect::<Vec<_>>();
+
+      let params = render_params(ctx, &params);
+
       DocEntryCtx::new(
         ctx,
         &id,
         name,
-        "()",
+        &format!("({params})"),
         HashSet::from([Tag::New]),
         constructor.js_doc.doc.as_deref(),
+        &constructor.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -134,6 +144,7 @@ pub struct IndexSignatureCtx {
   pub readonly: bool,
   pub params: String,
   pub ts_type: String,
+  pub source_href: String,
 }
 
 fn render_index_signatures(
@@ -161,6 +172,10 @@ fn render_index_signatures(
       readonly: index_signature.readonly,
       params: render_params(ctx, &index_signature.params),
       ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&index_signature.location),
     });
   }
 
@@ -354,7 +369,15 @@ fn render_class_accessor(
     tags.insert(Tag::Readonly);
   }
 
-  DocEntryCtx::new(ctx, &id, name, &ts_type, tags, js_doc)
+  DocEntryCtx::new(
+    ctx,
+    &id,
+    name,
+    &ts_type,
+    tags,
+    js_doc,
+    &getter_or_setter.location,
+  )
 }
 
 fn render_class_method(
@@ -386,6 +409,7 @@ fn render_class_method(
     &super::function::render_function_summary(&method.function_def, ctx),
     tags,
     method.js_doc.doc.as_deref(),
+    &method.location,
   ))
 }
 
@@ -422,6 +446,7 @@ fn render_class_property(
     &ts_type,
     tags,
     property.js_doc.doc.as_deref(),
+    &property.location,
   )
 }
 

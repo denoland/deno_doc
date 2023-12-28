@@ -1,4 +1,4 @@
-<div class="doc_item" id="{{id}}">
+<div class="anchorable" id="{{id}}">
   {{~> anchor anchor ~}}
 
   <div class="flex justify-between">
@@ -15,6 +15,10 @@
         <span class="font-bold">{{name}}</span><span class="font-medium">{{content}}</span>
       </code>
     </span>
+
+    {{~#if source_href~}}
+      {{~> source_button source_href ~}}
+    {{~/if~}}
   </div>
 
   {{~#if js_doc~}}

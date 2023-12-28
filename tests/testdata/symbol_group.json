@@ -81,7 +81,8 @@
                 "sections": []
               }
             }
-          ]
+          ],
+          "source_href": ""
         }
       ],
       "usage": {
@@ -186,7 +187,8 @@
                 "sections": []
               }
             }
-          ]
+          ],
+          "source_href": ""
         }
       ],
       "usage": {
@@ -302,7 +304,8 @@
                                 "id": "function_x_0_return"
                               },
                               "tags": [],
-                              "js_doc": null
+                              "js_doc": null,
+                              "source_href": ""
                             }
                           ]
                         }
@@ -312,7 +315,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "source_href": ""
         }
       ],
       "usage": {
