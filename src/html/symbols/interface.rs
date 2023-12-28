@@ -21,7 +21,8 @@ pub(crate) fn render_interface(
 
   let mut sections = vec![];
 
-  if let Some(type_params) = render_type_params(ctx, &interface_def.type_params)
+  if let Some(type_params) =
+    render_type_params(ctx, &interface_def.type_params, &doc_node.location)
   {
     sections.push(type_params);
   }
@@ -74,6 +75,10 @@ fn render_index_signatures(
       readonly: index_signature.readonly,
       params: render_params(ctx, &index_signature.params),
       ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&index_signature.location),
     });
   }
 
@@ -116,6 +121,7 @@ fn render_call_signatures(
         ),
         tags,
         call_signature.js_doc.doc.as_deref(),
+        &call_signature.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -178,6 +184,7 @@ fn render_properties(
         &format!("{ts_type}{default_value}"),
         tags,
         property.js_doc.doc.as_deref(),
+        &property.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -235,6 +242,7 @@ fn render_methods(
         ),
         tags,
         method.js_doc.doc.as_deref(),
+        &method.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();

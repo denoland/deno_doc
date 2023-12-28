@@ -79,10 +79,10 @@ summary::-webkit-details-marker {
 }
 
 /* doc classes */
-.doc_item {
+.anchorable {
   @apply relative;
 }
-.doc_item:hover .anchor {
+.anchorable:hover .anchor {
   @apply block;
 }
 

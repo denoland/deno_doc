@@ -3,6 +3,7 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
+use deno_doc::html::HrefResolver;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -171,6 +172,38 @@ fn main() {
   block_on(future);
 }
 
+struct EmptyResolver();
+
+impl HrefResolver for EmptyResolver {
+  fn resolve_global_symbol(
+    &self,
+    _symbol: &[String],
+    _context: &str,
+  ) -> String {
+    String::new()
+  }
+
+  fn resolve_import_href(
+    &self,
+    _symbol: &[String],
+    _src: &str,
+  ) -> Option<String> {
+    None
+  }
+
+  fn resolve_usage(
+    &self,
+    current_specifier: &deno_ast::ModuleSpecifier,
+    _current_file: &str,
+  ) -> String {
+    current_specifier.to_string()
+  }
+
+  fn resolve_source(&self, location: &deno_doc::Location) -> String {
+    location.filename.clone()
+  }
+}
+
 fn generate_docs_directory(
   name: String,
   output_dir: String,
@@ -189,10 +222,7 @@ fn generate_docs_directory(
     package_name: Some(name),
     main_entrypoint,
     global_symbols: Default::default(),
-    global_symbol_href_resolver: Rc::new(|_, _| String::new()),
-    import_href_resolver: Rc::new(|_, _| None),
-    usage_resolver: Rc::new(|specifier, _file| specifier.to_string()),
-    url_resolver: Rc::new(deno_doc::html::default_url_resolver),
+    href_resolver: Rc::new(EmptyResolver()),
     rewrite_map: Some(index_map),
     hide_module_doc_title: false,
     sidebar_flatten_namespaces: false,

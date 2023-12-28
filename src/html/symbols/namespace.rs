@@ -249,9 +249,9 @@ impl NamespaceNodeCtx {
       } else {
         nodes[0].origin.as_deref().map(short_path_to_name)
       },
-      href: (ctx.ctx.url_resolver)(
+      href: ctx.ctx.href_resolver.resolve_path(
         current_resolve,
-        crate::html::UrlResolveKind::Symbol {
+        UrlResolveKind::Symbol {
           file: nodes[0]
             .origin
             .as_deref()

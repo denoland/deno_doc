@@ -102,7 +102,7 @@ pub fn render_index(
   let module_doc =
     super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url);
 
-  let root = (ctx.url_resolver)(
+  let root = ctx.href_resolver.resolve_path(
     file
       .as_deref()
       .map_or(UrlResolveKind::Root, UrlResolveKind::File),

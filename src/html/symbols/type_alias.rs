@@ -22,9 +22,11 @@ pub(crate) fn render_type_alias(
 
   let mut sections = vec![];
 
-  if let Some(type_params) =
-    crate::html::types::render_type_params(ctx, &type_alias_def.type_params)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &type_alias_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 
@@ -37,6 +39,7 @@ pub(crate) fn render_type_alias(
       &render_type_def(ctx, &type_alias_def.ts_type),
       HashSet::new(),
       None,
+      &doc_node.location,
     )]),
   });
 

@@ -79,7 +79,7 @@ impl SidepanelCtx {
             SidepanelPartitionSymbolCtx::new(
               &nodes,
               symbol == node_name,
-              (ctx.url_resolver)(
+              ctx.href_resolver.resolve_path(
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
                   file: nodes[0].origin.as_deref().unwrap(),
@@ -138,7 +138,7 @@ impl IndexSidepanelCtx {
       .map(|url| {
         let short_path = ctx.url_to_short_path(url);
         IndexSidepanelFileCtx {
-          href: (ctx.url_resolver)(
+          href: ctx.href_resolver.resolve_path(
             current_file
               .as_deref()
               .map_or(UrlResolveKind::Root, UrlResolveKind::File),
@@ -173,7 +173,7 @@ impl IndexSidepanelCtx {
             SidepanelPartitionSymbolCtx::new(
               &nodes,
               false,
-              (ctx.url_resolver)(
+              ctx.href_resolver.resolve_path(
                 current_file
                   .as_deref()
                   .map_or(UrlResolveKind::Root, UrlResolveKind::File),
@@ -199,13 +199,13 @@ impl IndexSidepanelCtx {
 
     Self {
       package_name: ctx.package_name.clone(),
-      root_url: (ctx.url_resolver)(
+      root_url: ctx.href_resolver.resolve_path(
         current_file
           .as_deref()
           .map_or(UrlResolveKind::Root, UrlResolveKind::File),
         UrlResolveKind::Root,
       ),
-      all_symbols_url: (ctx.url_resolver)(
+      all_symbols_url: ctx.href_resolver.resolve_path(
         current_file
           .as_deref()
           .map_or(UrlResolveKind::Root, UrlResolveKind::File),
