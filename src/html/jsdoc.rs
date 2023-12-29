@@ -136,11 +136,11 @@ fn render_markdown_inner(
       match current_level.cmp(&level) {
         Ordering::Equal => {}
         Ordering::Less => {
-          toc_content.push(format!(r#"<li><ul class="ml-4 space-y-2">"#));
+          toc_content.push(r#"<li><ul class="ml-4 space-y-2">"#.to_string());
           current_level = level;
         }
         Ordering::Greater => {
-          toc_content.push(format!("</ul></li>"));
+          toc_content.push("</ul></li>".to_string());
           current_level = level;
         }
       }
