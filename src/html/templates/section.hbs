@@ -4,7 +4,7 @@
   {{~#if (eq content.kind "namespace_section")~}}
     {{~> namespace_section content.content ~}}
   {{~else~}}
-    <div class="ml-2 mt-2 space-y-4">
+    <div class="ml-2 mt-1 space-y-3">
       {{~#each content.content~}}
         {{~> (lookup ../content "kind") this ~}}
       {{~/each~}}

@@ -9,6 +9,7 @@ use std::rc::Rc;
 use crate::DocNode;
 use crate::DocNodeKind;
 
+mod comrak_adapters;
 mod jsdoc;
 pub mod pages;
 mod parameters;
@@ -16,7 +17,6 @@ mod render_context;
 mod search;
 pub mod sidepanels;
 mod symbols;
-mod syntect_adapter;
 mod types;
 mod usage;
 mod util;
@@ -68,7 +68,7 @@ pub struct GenerateCtx<'ctx> {
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
   pub hbs: Handlebars<'ctx>,
-  pub syntect_adapter: syntect_adapter::SyntectAdapter,
+  pub syntect_adapter: comrak_adapters::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
@@ -255,14 +255,14 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   Ok(reg)
 }
 
-pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
+pub fn setup_syntect() -> comrak_adapters::SyntectAdapter {
   let syntax_set: syntect::parsing::SyntaxSet =
     syntect::dumps::from_uncompressed_data(include_bytes!(
       "./default_newlines.packdump"
     ))
     .unwrap();
 
-  syntect_adapter::SyntectAdapter {
+  comrak_adapters::SyntectAdapter {
     syntax_set,
     theme_set: syntect::highlighting::ThemeSet::load_defaults(),
   }

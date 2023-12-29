@@ -133,7 +133,11 @@ summary::-webkit-details-marker {
 }
 
 .markdown {
-  @apply space-y-4;
+  @apply space-y-3;
+}
+
+.markdown h1 > code, .markdown h2 > code, .markdown h3 > code, .markdown h4 > code, .markdown h5 > code, .markdown h6 > code {
+  font-size: inherit !important;
 }
 
 .markdown :not(pre) > code {

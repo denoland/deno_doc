@@ -7,6 +7,7 @@ use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
+use std::cmp::Ordering;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -82,6 +83,7 @@ fn render_markdown_inner(
   render_ctx: &RenderContext,
   md: &str,
   summary: bool,
+  render_toc: bool,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -98,6 +100,10 @@ fn render_markdown_inner(
 
   plugins.render.codefence_syntax_highlighter =
     Some(&render_ctx.ctx.syntect_adapter);
+
+  let heading_adapter =
+    crate::html::comrak_adapters::HeadingToCAdapter::default();
+  plugins.render.heading_adapter = Some(&heading_adapter);
 
   let md = if summary {
     let (title, body) = split_markdown_title(md);
@@ -116,18 +122,64 @@ fn render_markdown_inner(
     &options,
     &plugins,
   );
-  format!(r#"<div class="{class_name}">{html}</div>"#,)
+
+  let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
+
+  if render_toc {
+    let toc = heading_adapter.get_toc();
+    let mut toc_content =
+      vec![String::from(r#"<ul class="space-y-2 sticky top-4 block">"#)];
+
+    let mut current_level = 1;
+
+    for (level, heading, anchor) in toc {
+      match current_level.cmp(&level) {
+        Ordering::Equal => {}
+        Ordering::Less => {
+          toc_content.push(format!(r#"<li><ul class="ml-4 space-y-2">"#));
+          current_level = level;
+        }
+        Ordering::Greater => {
+          toc_content.push(format!("</ul></li>"));
+          current_level = level;
+        }
+      }
+
+      toc_content.push(format!(
+        r##"<li><a class="hover:underline block overflow-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
+      ));
+    }
+
+    toc_content.push(String::from("</ul>"));
+
+    markdown = format!(
+      r#"<div class="flex flex-row gap-7">
+        {markdown}
+        <nav class="flex-none max-w-64 text-sm">{}</nav>
+      </div>"#,
+      toc_content.join("")
+    );
+  }
+
+  markdown
 }
 
 pub(crate) fn render_markdown_summary(
   render_ctx: &RenderContext,
   md: &str,
 ) -> String {
-  render_markdown_inner(render_ctx, md, true)
+  render_markdown_inner(render_ctx, md, true, false)
 }
 
 pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
-  render_markdown_inner(render_ctx, md, false)
+  render_markdown_inner(render_ctx, md, false, false)
+}
+
+pub(crate) fn render_markdown_with_toc(
+  render_ctx: &RenderContext,
+  md: &str,
+) -> String {
+  render_markdown_inner(render_ctx, md, false, true)
 }
 
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
@@ -142,7 +194,7 @@ fn render_docs_inner(
     if doc.is_empty() {
       None
     } else {
-      Some(render_markdown_inner(ctx, doc, summary))
+      Some(render_markdown_inner(ctx, doc, summary, false))
     }
   } else {
     None
@@ -252,7 +304,7 @@ impl ModuleDocCtx {
       docs
         .and_then(|node| node.js_doc.doc.as_ref())
         .map(|docs_md| {
-          let rendered_docs = render_markdown(render_ctx, docs_md);
+          let rendered_docs = render_markdown_with_toc(render_ctx, docs_md);
 
           Self {
             title: (!render_ctx.ctx.hide_module_doc_title).then(|| {

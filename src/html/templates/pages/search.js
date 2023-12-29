@@ -129,14 +129,14 @@ function renderResults(results) {
       ? `${result.nsQualifiers}.${result.name}`
       : result.name;
     html += `<li>
-<a href="${pathToRoot}${result.file}/~/${label}.html">
-    <div>
-        <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
+<a href="${pathToRoot}${result.file}/~/${label}.html" class="flex rounded-lg">
+    <div class="flex items-center">
+        <div class="text-${rustKind} bg-${rustKind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="${title}">
             ${symbol}
         </div>
-        <span>${label}</span>
+        <span class="text-sm">${label}</span>
     </div>
-    <div>${result.location.filename}:${result.location.line}</div>
+    <div class="text-xs italic text-stone-400">${result.location.filename}:${result.location.line}</div>
 </a>
 </li>`;
   }
