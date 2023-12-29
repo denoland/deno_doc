@@ -153,9 +153,9 @@ fn render_markdown_inner(
     toc_content.push(String::from("</ul>"));
 
     markdown = format!(
-      r#"<div class="flex flex-row gap-7">
+      r#"<div class="flex max-lg:flex-col-reverse gap-7">
         {markdown}
-        <nav class="flex-none max-w-64 text-sm">{}</nav>
+        <nav class="flex-none max-w-64 text-sm max-lg:hidden">{}</nav>
       </div>"#,
       toc_content.join("")
     );

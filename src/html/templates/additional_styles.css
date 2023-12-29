@@ -1,4 +1,3 @@
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -18,7 +17,7 @@ summary::-webkit-details-marker {
 }
 
 #sidepanel {
-  @apply shrink-0 h-screen w-fit top-0 left-0 overflow-y-scroll sticky box-border overscroll-y-contain;
+  @apply shrink-0 box-border lg:h-screen lg:w-fit lg:sticky lg:top-0 lg:left-0 lg:overflow-y-scroll lg:overscroll-y-contain;
 
   scrollbar-width: thin;
 }
@@ -180,6 +179,10 @@ summary::-webkit-details-marker {
 
 .usage .markdown pre {
   @apply m-0 pr-12;
+}
+
+.usage .markdown pre code {
+  @apply block overflow-scroll;
 }
 
 .usage .usage_button:before {
