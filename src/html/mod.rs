@@ -145,6 +145,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_helper("print", Box::new(print));
 
   reg.register_template_string(
+    "sidepanel_common",
+    include_str!("./templates/sidepanel_common.hbs"),
+  )?;
+  reg.register_template_string(
     "sidepanel",
     include_str!("./templates/sidepanel.hbs"),
   )?;
@@ -250,6 +254,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     "icons/source",
     include_str!("./templates/icons/source.hbs"),
+  )?;
+  reg.register_template_string(
+    "icons/menu",
+    include_str!("./templates/icons/menu.hbs"),
   )?;
 
   Ok(reg)
