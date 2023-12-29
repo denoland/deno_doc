@@ -5,7 +5,7 @@
 }
 body {
   margin: 0;
-  background-color: rgb(231 229 228);
+  background-color: rgb(238, 238, 238);
   display: flex;
 }
 table {
@@ -13,10 +13,9 @@ table {
   border-collapse: collapse;
 }
 #content {
-  padding: 30px;
+  padding: 28px;
   width: 100%;
   background-color: white;
-  overflow-y: auto;
 }
 #sidepanel {
   padding: 12px 0 12px 12px;
@@ -40,7 +39,7 @@ a {
   padding: 0.575rem;
   box-sizing: border-box;
   border: none;
-  background-color: rgb(231 229 228);
+  background-color: rgb(238, 238, 238);
   border-radius: 10px;
   font-size: 1rem;
   margin-bottom: 1.5rem;
@@ -56,24 +55,14 @@ a {
   display: flex;
   gap: 1rem;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   justify-content: space-between;
   line-height: 1;
 }
-#searchResults ul a div:first-child {
-  display: flex;
+#searchResults ul a > div:first-child {
   gap: 10px;
-  align-items: center;
-}
-#searchResults ul a div:last-child {
-  color: gray;
-  font-style: italic;
 }
 
 #searchResults ul a:hover {
   background-color: rgb(245 245 244);
-}
-
-#searchResults ul > * + * {
-  border-top: 1px solid rgb(214 211 209);
 }
