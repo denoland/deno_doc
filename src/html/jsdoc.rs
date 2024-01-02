@@ -1,3 +1,4 @@
+use super::render_context::RenderContext;
 use super::util::*;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -6,7 +7,7 @@ use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
-use serde_json::json;
+use std::cmp::Ordering;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -79,9 +80,10 @@ fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
 }
 
 fn render_markdown_inner(
-  md: &str,
   render_ctx: &RenderContext,
+  md: &str,
   summary: bool,
+  render_toc: bool,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -99,6 +101,10 @@ fn render_markdown_inner(
   plugins.render.codefence_syntax_highlighter =
     Some(&render_ctx.ctx.syntect_adapter);
 
+  let heading_adapter =
+    crate::html::comrak_adapters::HeadingToCAdapter::default();
+  plugins.render.heading_adapter = Some(&heading_adapter);
+
   let md = if summary {
     let (title, body) = split_markdown_title(md);
     title.unwrap_or(body)
@@ -111,39 +117,69 @@ fn render_markdown_inner(
   } else {
     "markdown"
   };
-
   let html = comrak::markdown_to_html_with_plugins(
     &parse_links(md, render_ctx),
     &options,
     &plugins,
   );
 
-  format!(r#"<div class="{class_name}">{html}</div>"#,)
+  let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
+
+  if render_toc {
+    let toc = heading_adapter.get_toc();
+    let mut toc_content =
+      vec![String::from(r#"<ul class="space-y-2 sticky top-4 block">"#)];
+
+    let mut current_level = 1;
+
+    for (level, heading, anchor) in toc {
+      match current_level.cmp(&level) {
+        Ordering::Equal => {}
+        Ordering::Less => {
+          toc_content.push(r#"<li><ul class="ml-4 space-y-2">"#.to_string());
+          current_level = level;
+        }
+        Ordering::Greater => {
+          toc_content.push("</ul></li>".to_string());
+          current_level = level;
+        }
+      }
+
+      toc_content.push(format!(
+        r##"<li><a class="hover:underline block overflow-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
+      ));
+    }
+
+    toc_content.push(String::from("</ul>"));
+
+    markdown = format!(
+      r#"<div class="flex max-lg:flex-col-reverse gap-7">
+        {markdown}
+        <nav class="flex-none max-w-64 text-sm max-lg:hidden">{}</nav>
+      </div>"#,
+      toc_content.join("")
+    );
+  }
+
+  markdown
 }
 
 pub(crate) fn render_markdown_summary(
-  md: &str,
   render_ctx: &RenderContext,
+  md: &str,
 ) -> String {
-  render_markdown_inner(md, render_ctx, true)
+  render_markdown_inner(render_ctx, md, true, false)
 }
 
-pub(crate) fn render_markdown(md: &str, render_ctx: &RenderContext) -> String {
-  render_markdown_inner(md, render_ctx, false)
+pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
+  render_markdown_inner(render_ctx, md, false, false)
 }
 
-// TODO(bartlomieju): move to a separate anchor.html module
-#[derive(Serialize)]
-struct AnchorRenderCtx {
-  href: String,
-}
-
-#[derive(Serialize)]
-struct ExampleRenderCtx {
-  anchor: AnchorRenderCtx,
-  id: String,
-  markdown_title: String,
-  markdown_body: String,
+pub(crate) fn render_markdown_with_toc(
+  render_ctx: &RenderContext,
+  md: &str,
+) -> String {
+  render_markdown_inner(render_ctx, md, false, true)
 }
 
 // TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
@@ -153,14 +189,18 @@ fn render_docs_inner(
   js_doc: &JsDoc,
   render_examples: bool,
   summary: bool,
-) -> String {
-  let mut content_parts = vec![];
+) -> (Option<String>, Option<SectionCtx>) {
+  let md = if let Some(doc) = js_doc.doc.as_deref() {
+    if doc.is_empty() {
+      None
+    } else {
+      Some(render_markdown_inner(ctx, doc, summary, false))
+    }
+  } else {
+    None
+  };
 
-  if let Some(doc) = js_doc.doc.as_deref() {
-    content_parts.push(render_markdown_inner(doc, ctx, summary));
-  }
-
-  if render_examples {
+  let examples = if render_examples {
     let mut i = 0;
 
     let examples = js_doc
@@ -169,7 +209,7 @@ fn render_docs_inner(
       .filter_map(|tag| {
         if let JsDocTag::Example { doc } = tag {
           doc.as_ref().map(|doc| {
-            let example = render_example(ctx, doc, i);
+            let example = ExampleCtx::new(ctx, doc, i);
             i += 1;
             example
           })
@@ -177,95 +217,69 @@ fn render_docs_inner(
           None
         }
       })
-      .collect::<Vec<String>>();
+      .collect::<Vec<ExampleCtx>>();
 
     if !examples.is_empty() {
-      let s = ctx.render(
-        "section.html",
-        &json!({
-          "title": "Examples",
-          "content": &examples.join(""),
-        }),
-      );
-      content_parts.push(s);
+      Some(SectionCtx {
+        title: "Examples",
+        content: SectionContentCtx::Example(examples),
+      })
+    } else {
+      None
     }
-  }
+  } else {
+    None
+  };
 
-  content_parts.join("")
+  (md, examples)
 }
 
 pub(crate) fn render_docs_summary(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-) -> String {
-  render_docs_inner(ctx, js_doc, false, true)
+) -> Option<String> {
+  let (docs, _examples) = render_docs_inner(ctx, js_doc, false, true);
+
+  docs
 }
 
 pub(crate) fn render_docs_with_examples(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-) -> String {
+) -> (Option<String>, Option<SectionCtx>) {
   render_docs_inner(ctx, js_doc, true, false)
 }
 
-fn get_example_render_ctx(
-  example: &str,
-  i: usize,
-  render_ctx: &RenderContext,
-) -> ExampleRenderCtx {
-  let id = name_to_id("example", &i.to_string());
+#[derive(Debug, Serialize, Clone)]
+pub struct ExampleCtx {
+  anchor: AnchorCtx,
+  id: String,
+  markdown_title: String,
+  markdown_body: String,
+}
 
-  let (maybe_title, body) = split_markdown_title(example);
-  let title = if let Some(title) = maybe_title {
-    title.to_string()
-  } else {
-    format!("Example {}", i + 1)
-  };
+impl ExampleCtx {
+  pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
+    let id = name_to_id("example", &i.to_string());
 
-  let markdown_title = render_markdown_summary(&title, render_ctx);
-  let markdown_body = render_markdown(body, render_ctx);
+    let (maybe_title, body) = split_markdown_title(example);
+    let title = if let Some(title) = maybe_title {
+      title.to_string()
+    } else {
+      format!("Example {}", i + 1)
+    };
 
-  // TODO: icons
-  ExampleRenderCtx {
-    anchor: AnchorRenderCtx {
-      href: id.to_string(),
-    },
-    id: id.to_string(),
-    markdown_title,
-    markdown_body,
+    let markdown_title = render_markdown_summary(render_ctx, &title);
+    let markdown_body = render_markdown(render_ctx, body);
+
+    // TODO: icons
+    ExampleCtx {
+      anchor: AnchorCtx { id: id.to_string() },
+      id: id.to_string(),
+      markdown_title,
+      markdown_body,
+    }
   }
-}
-
-fn render_example(ctx: &RenderContext, example: &str, i: usize) -> String {
-  let example_render_ctx = get_example_render_ctx(example, i, ctx);
-  // TODO: icons
-  ctx.render("example.html", &example_render_ctx)
-}
-
-pub(crate) fn render_doc_entry(
-  ctx: &RenderContext,
-  id: &str,
-  name: &str,
-  content: &str,
-  jsdoc: Option<&str>,
-) -> String {
-  let maybe_jsdoc = jsdoc
-    .map(|doc| render_markdown(doc, ctx))
-    .unwrap_or_default();
-
-  // TODO: sourceHref
-  ctx.render(
-    "doc_entry.html",
-    &json!({
-      "id": id,
-      "name": name,
-      "content": content,
-      "anchor": {
-        "href": id
-      },
-      "jsdoc": maybe_jsdoc,
-    }),
-  )
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -290,12 +304,12 @@ impl ModuleDocCtx {
       docs
         .and_then(|node| node.js_doc.doc.as_ref())
         .map(|docs_md| {
-          let rendered_docs = render_markdown(docs_md, render_ctx);
+          let rendered_docs = render_markdown_with_toc(render_ctx, docs_md);
 
           Self {
             title: (!render_ctx.ctx.hide_module_doc_title).then(|| {
               super::short_path_to_name(
-                render_ctx.ctx.url_to_short_path(main_entrypoint),
+                &render_ctx.ctx.url_to_short_path(main_entrypoint),
               )
             }),
             docs: rendered_docs,

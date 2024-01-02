@@ -1,5 +1,5 @@
-use super::types::render_type_def;
-use super::util::*;
+use super::render_context::RenderContext;
+use super::types::render_type_def_colon;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
 
@@ -28,7 +28,7 @@ pub(crate) fn render_params(
 
     let content = items.join("");
 
-    format!(r#"<div style="margin-left: 1rem;">{content}</div>"#)
+    format!(r#"<div class="ml-4">{content}</div>"#)
   }
 }
 
@@ -41,9 +41,7 @@ fn render_param(ctx: &RenderContext, param: &ParamDef, i: usize) -> String {
   };
 
   let ts_type = ts_type
-    .map(|ts_type| {
-      format!(r#"<span>: {}</span>"#, render_type_def(ctx, ts_type))
-    })
+    .map(|ts_type| render_type_def_colon(ctx, ts_type))
     .unwrap_or_default();
 
   let question_mark = match param.pattern {

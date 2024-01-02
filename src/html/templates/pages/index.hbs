@@ -1,0 +1,18 @@
+{{~> pages/html_head html_head_ctx ~}}
+
+{{~> index_sidepanel sidepanel_ctx ~}}
+
+<div id="content">
+  {{~> breadcrumbs breadcrumbs_ctx ~}}
+  {{~> pages/search_bar ~}}
+
+  <main>
+    {{~#if module_doc ~}}
+      {{~> module_doc module_doc ~}}
+    {{~/if~}}
+  </main>
+
+  {{~> pages/search_results ~}}
+<div>
+</body>
+</html>

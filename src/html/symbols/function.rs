@@ -1,16 +1,24 @@
+use super::SymbolContentCtx;
 use crate::function::FunctionDef;
-use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
+use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
+use crate::html::types::render_type_def_colon;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
-use serde_json::json;
+use std::collections::HashSet;
 
-fn render_css_for_fn(overload_id: &str) -> String {
+fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
+  let (bg_color, border_color) = if deprecated {
+    ("#D256460C", "#DC2626")
+  } else {
+    ("#056CF00C", "#2564EB")
+  };
+
   format!(
     r#"
 #{overload_id} {{
@@ -20,41 +28,40 @@ fn render_css_for_fn(overload_id: &str) -> String {
   display: none;
 }}
 #{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
- background-color: #056CF00C;
- border: solid 2px rgb(37 99 235);
- cursor: unset;
-}}
-#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] > code {{
-  margin: -1px;
+  background-color: {bg_color};
+  border: solid 2px {border_color};
+  cursor: unset;
+  padding: 9px 15px; /* 1px less to counter the increased border */
 }}
 "#
   )
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
   function_id: String,
   overload_id: String,
   additional_css: String,
   html_attrs: String,
   name: String,
+  deprecated: Option<String>,
   summary: String,
-  summary_doc: String,
+  summary_doc: Option<String>,
 }
 
-#[derive(Serialize)]
-struct FunctionRenderCtx {
+#[derive(Debug, Serialize, Clone)]
+pub struct FunctionCtx {
   overloads_ctx: Vec<OverloadRenderCtx>,
-  content: String,
+  functions: Vec<SymbolContentCtx>,
 }
 
 pub(crate) fn render_function(
   ctx: &RenderContext,
   doc_nodes: Vec<&crate::DocNode>,
-) -> String {
+) -> FunctionCtx {
   // TODO: this needs to be handled more gracefully on the frontend
-  let mut content = Vec::with_capacity(doc_nodes.len());
   let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
+  let mut functions_content = Vec::with_capacity(doc_nodes.len());
 
   for (i, doc_node) in doc_nodes.into_iter().enumerate() {
     let function_def = doc_node.function_def.as_ref().unwrap();
@@ -63,17 +70,27 @@ pub(crate) fn render_function(
       continue;
     }
 
+    let deprecated = doc_node.js_doc.tags.iter().find_map(|tag| {
+      if let JsDocTag::Deprecated { doc } = tag {
+        Some(
+          doc
+            .as_ref()
+            .map(|doc| crate::html::jsdoc::render_markdown_summary(ctx, doc))
+            .unwrap_or_default(),
+        )
+      } else {
+        None
+      }
+    });
+
     let overload_id = name_to_id("function", &format!("{}_{i}", doc_node.name));
     let id = name_to_id("function", &doc_node.name);
-    let css = render_css_for_fn(&overload_id);
+    let css = render_css_for_fn(&overload_id, deprecated.is_some());
 
     let summary_doc = if !(function_def.has_body && i == 0) {
-      format!(
-        r#"<div style="width: 100%;">{}</div>"#,
-        crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
-      )
+      crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
     } else {
-      String::new()
+      None
     };
 
     let html_attrs = (i == 0)
@@ -87,18 +104,18 @@ pub(crate) fn render_function(
       additional_css: css,
       html_attrs,
       name: doc_node.name.to_string(),
+      deprecated,
       summary: render_function_summary(function_def, ctx),
       summary_doc,
     });
 
-    content.push(render_single_function(ctx, doc_node, &overload_id));
+    functions_content.push(render_single_function(ctx, doc_node, &overload_id));
   }
 
-  let function_ctx = FunctionRenderCtx {
+  FunctionCtx {
     overloads_ctx,
-    content: content.join(""),
-  };
-  ctx.render("function.html", &function_ctx)
+    functions: functions_content,
+  }
 }
 
 pub(crate) fn render_function_summary(
@@ -108,7 +125,7 @@ pub(crate) fn render_function_summary(
   let return_type = function_def
     .return_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(render_ctx, ts_type)))
+    .map(|ts_type| render_type_def_colon(render_ctx, ts_type))
     .unwrap_or_default();
 
   format!(
@@ -122,14 +139,14 @@ fn render_single_function(
   ctx: &RenderContext,
   doc_node: &crate::DocNode,
   overload_id: &str,
-) -> String {
+) -> SymbolContentCtx {
   let function_def = doc_node.function_def.as_ref().unwrap();
 
   let current_type_params = function_def
     .type_params
     .iter()
     .map(|def| def.name.clone())
-    .collect::<std::collections::HashSet<String>>();
+    .collect::<HashSet<String>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
   // TODO: tags
@@ -163,51 +180,81 @@ fn render_single_function(
       };
 
       let ts_type = ts_type
-        .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      // TODO: default_value, tags
+      // TODO: default_value
 
-      render_doc_entry(ctx, &id, &name, &ts_type, param_docs.get(i).copied())
+      let tags = if matches!(
+        param.pattern,
+        ParamPatternDef::Array { optional, .. }
+          | ParamPatternDef::Identifier { optional, .. }
+          | ParamPatternDef::Object { optional, .. }
+        if optional
+      ) {
+        HashSet::from([Tag::Optional])
+      } else {
+        HashSet::new()
+      };
+
+      DocEntryCtx::new(
+        ctx,
+        &id,
+        &name,
+        &ts_type,
+        tags,
+        param_docs.get(i).copied(),
+        &doc_node.location,
+      )
     })
-    .collect::<String>();
+    .collect::<Vec<DocEntryCtx>>();
 
-  format!(
-    r##"<div class="doc_block_items" id="{overload_id}_div">{}{}{}{}</div>"##,
-    crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc),
-    render_type_params(ctx, &function_def.type_params),
-    ctx.render(
-      "section.html",
-      &json!({ "title": "Parameters", "content": &params })
+  let mut sections = vec![];
+
+  let (docs, examples) =
+    crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+
+  if let Some(examples) = examples {
+    sections.push(examples);
+  }
+
+  if let Some(type_params) =
+    render_type_params(ctx, &function_def.type_params, &doc_node.location)
+  {
+    sections.push(type_params);
+  }
+
+  sections.push(SectionCtx {
+    title: "Parameters",
+    content: SectionContentCtx::DocEntry(params),
+  });
+
+  sections.push(SectionCtx {
+    title: "Return Type",
+    content: SectionContentCtx::DocEntry(
+      render_function_return_type(ctx, function_def, doc_node, overload_id)
+        .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
     ),
-    ctx.render(
-      "section.html",
-      &json!({
-        "title": "Return Type",
-        "content": &render_function_return_type(
-          function_def,
-          &doc_node.js_doc,
-          overload_id,
-          ctx
-        )
-      })
-    )
-  )
+  });
+
+  SymbolContentCtx {
+    id: format!("{overload_id}_div"),
+    sections,
+    docs,
+  }
 }
 
 fn render_function_return_type(
-  def: &FunctionDef,
-  js_doc: &crate::js_doc::JsDoc,
-  overload_id: &str,
   render_ctx: &RenderContext,
-) -> String {
-  let Some(return_type) = def.return_type.as_ref() else {
-    return "".to_string();
-  };
+  def: &FunctionDef,
+  doc_node: &crate::DocNode,
+  overload_id: &str,
+) -> Option<DocEntryCtx> {
+  let return_type = def.return_type.as_ref()?;
 
   let id = name_to_id(overload_id, "return");
 
-  let return_type_doc = js_doc.tags.iter().find_map(|tag| {
+  let return_type_doc = doc_node.js_doc.tags.iter().find_map(|tag| {
     if let JsDocTag::Return { doc, .. } = tag {
       doc.as_deref()
     } else {
@@ -215,11 +262,13 @@ fn render_function_return_type(
     }
   });
 
-  render_doc_entry(
+  Some(DocEntryCtx::new(
     render_ctx,
     &id,
     "",
     &render_type_def(render_ctx, return_type),
+    HashSet::new(),
     return_type_doc,
-  )
+    &doc_node.location,
+  ))
 }

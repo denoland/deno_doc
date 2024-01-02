@@ -1,104 +1,52 @@
 use deno_ast::ModuleSpecifier;
+use handlebars::handlebars_helper;
+use handlebars::Handlebars;
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
-use tinytemplate::TinyTemplate;
 
 use crate::DocNode;
 use crate::DocNodeKind;
 
+mod comrak_adapters;
 mod jsdoc;
 pub mod pages;
 mod parameters;
+mod render_context;
 mod search;
 pub mod sidepanels;
-mod symbol;
 mod symbols;
-mod syntect_adapter;
 mod types;
 mod usage;
 mod util;
 
 pub use jsdoc::ModuleDocCtx;
 pub use pages::generate_symbol_pages_for_module;
+pub use render_context::RenderContext;
 pub use search::generate_search_index;
-pub use symbol::SymbolGroupCtx;
 pub use symbols::namespace;
+pub use symbols::SymbolContentCtx;
+pub use symbols::SymbolGroupCtx;
+pub use util::compute_namespaced_symbols;
 pub use util::DocNodeKindCtx;
-pub use util::GlobalSymbolHrefResolver;
-pub use util::ImportHrefResolver;
+pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
-pub use util::RenderContext;
+pub use util::UrlResolveKind;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
 
-pub const PAGE_STYLESHEET: &str = include_str!("./templates/page.css");
+pub const PAGE_STYLESHEET: &str = include_str!("./templates/pages/page.css");
 pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
-const FUSE_JS: &str = include_str!("./templates/fuse.js");
+const FUSE_JS: &str = include_str!("./templates/pages/fuse.js");
 const FUSE_FILENAME: &str = "fuse.js";
 
-const SEARCH_JS: &str = include_str!("./templates/search.js");
+const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
-
-#[derive(Debug, Clone, Copy)]
-pub enum UrlResolveKind<'a> {
-  Root,
-  AllSymbols,
-  File(&'a str),
-  Symbol { file: &'a str, symbol: &'a str },
-}
-
-impl UrlResolveKind<'_> {
-  fn get_file(&self) -> Option<&str> {
-    match self {
-      UrlResolveKind::Root => None,
-      UrlResolveKind::AllSymbols => None,
-      UrlResolveKind::File(file) => Some(file),
-      UrlResolveKind::Symbol { file, .. } => Some(file),
-    }
-  }
-}
-
-/// Arguments are current and target
-pub type UrlResolver = Rc<dyn Fn(UrlResolveKind, UrlResolveKind) -> String>;
-
-/// Argument is current specifier and current file
-pub type UsageResolver = Rc<dyn Fn(&ModuleSpecifier, &str) -> String>;
-
-pub fn default_url_resolver(
-  current: UrlResolveKind,
-  resolve: UrlResolveKind,
-) -> String {
-  let backs = match current {
-    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-      .repeat(if file == "." {
-        1
-      } else {
-        file.split('/').count() + 1
-      }),
-    UrlResolveKind::Root => String::new(),
-    UrlResolveKind::AllSymbols => String::from("./"),
-  };
-
-  match resolve {
-    UrlResolveKind::Root => backs,
-    UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
-    UrlResolveKind::Symbol {
-      file: target_file,
-      symbol: target_symbol,
-    } => {
-      format!("{backs}./{target_file}/~/{target_symbol}.html")
-    }
-    UrlResolveKind::File(target_file) => {
-      format!("{backs}./{target_file}/~/index.html")
-    }
-  }
-}
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -109,12 +57,10 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub global_symbols: NamespacedGlobalSymbols,
-  pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
-  pub import_href_resolver: ImportHrefResolver,
-  pub usage_resolver: UsageResolver,
-  pub url_resolver: UrlResolver,
+  pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
+  pub sidebar_flatten_namespaces: bool,
 }
 
 pub struct GenerateCtx<'ctx> {
@@ -122,15 +68,14 @@ pub struct GenerateCtx<'ctx> {
   pub common_ancestor: Option<PathBuf>,
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
-  pub tt: TinyTemplate<'ctx>,
-  pub syntect_adapter: syntect_adapter::SyntectAdapter,
+  pub hbs: Handlebars<'ctx>,
+  pub syntect_adapter: comrak_adapters::SyntectAdapter,
   pub global_symbols: NamespacedGlobalSymbols,
-  pub global_symbol_href_resolver: GlobalSymbolHrefResolver,
-  pub import_href_resolver: ImportHrefResolver,
-  pub usage_resolver: UsageResolver,
-  pub url_resolver: UrlResolver,
+  pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
+  pub single_file_mode: bool,
+  pub sidebar_flatten_namespaces: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -167,15 +112,15 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
-fn short_path_to_name(short_path: String) -> String {
+fn short_path_to_name(short_path: &str) -> String {
   if short_path == "." {
     "main".to_string()
   } else {
     short_path
       .strip_prefix('.')
-      .unwrap_or(&short_path)
+      .unwrap_or(short_path)
       .strip_prefix('/')
-      .unwrap_or(&short_path)
+      .unwrap_or(short_path)
       .to_string()
   }
 }
@@ -186,89 +131,151 @@ pub struct DocNodeWithContext {
   pub doc_node: DocNode,
 }
 
-pub fn setup_tt<'t>() -> Result<TinyTemplate<'t>, anyhow::Error> {
-  let mut tt = TinyTemplate::new();
-  tt.set_default_formatter(&tinytemplate::format_unescaped);
-  tt.add_template(
-    "html_head.html",
-    include_str!("./templates/html_head.html"),
+pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
+  let mut reg = Handlebars::new();
+  reg.register_escape_fn(handlebars::no_escape);
+  reg.set_strict_mode(true);
+
+  #[cfg(debug_assertions)]
+  reg.set_dev_mode(true);
+
+  handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
+  reg.register_helper("concat", Box::new(concat));
+
+  handlebars_helper!(print: |a: Json| println!("{a:#?}"));
+  reg.register_helper("print", Box::new(print));
+
+  reg.register_template_string(
+    "sidepanel_common",
+    include_str!("./templates/sidepanel_common.hbs"),
   )?;
-  tt.add_template(
-    "all_symbols.html",
-    include_str!("./templates/all_symbols.html"),
+  reg.register_template_string(
+    "sidepanel",
+    include_str!("./templates/sidepanel.hbs"),
   )?;
-  tt.add_template(
-    "search_bar.html",
-    include_str!("./templates/search_bar.html"),
+  reg.register_template_string(
+    "doc_entry",
+    include_str!("./templates/doc_entry.hbs"),
   )?;
-  tt.add_template(
-    "search_results.html",
-    include_str!("./templates/search_results.html"),
+  reg.register_template_string(
+    "section",
+    include_str!("./templates/section.hbs"),
   )?;
-  tt.add_template(
-    "sidepanel.html",
-    include_str!("./templates/sidepanel.html"),
+  reg.register_template_string(
+    "index_sidepanel",
+    include_str!("./templates/index_sidepanel.hbs"),
   )?;
-  tt.add_template(
-    "symbol_page.html",
-    include_str!("./templates/symbol_page.html"),
+  reg.register_template_string(
+    "doc_node_kind_icon",
+    include_str!("./templates/doc_node_kind_icon.hbs"),
   )?;
-  tt.add_template(
-    "doc_entry.html",
-    include_str!("./templates/doc_entry.html"),
+  reg.register_template_string(
+    "namespace_section",
+    include_str!("./templates/namespace_section.hbs"),
   )?;
-  tt.add_template("section.html", include_str!("./templates/section.html"))?;
-  tt.add_template("index.html", include_str!("./templates/index.html"))?;
-  tt.add_template(
-    "index_sidepanel.html",
-    include_str!("./templates/index_sidepanel.html"),
+  reg.register_template_string(
+    "doc_block_subtitle_class",
+    include_str!("./templates/doc_block_subtitle_class.hbs"),
   )?;
-  tt.add_template(
-    "doc_node_kind_icon.html",
-    include_str!("./templates/doc_node_kind_icon.html"),
+  reg.register_template_string(
+    "doc_block_subtitle_interface",
+    include_str!("./templates/doc_block_subtitle_interface.hbs"),
   )?;
-  tt.add_template(
-    "namespace_section.html",
-    include_str!("./templates/namespace_section.html"),
+  reg.register_template_string(
+    "anchor",
+    include_str!("./templates/anchor.hbs"),
   )?;
-  tt.add_template(
-    "doc_block_subtitle.html",
-    include_str!("./templates/doc_block_subtitle.html"),
+  reg.register_template_string(
+    "symbol_group",
+    include_str!("./templates/symbol_group.hbs"),
   )?;
-  tt.add_template("anchor.html", include_str!("./templates/anchor.html"))?;
-  tt.add_template(
-    "symbol_group.html",
-    include_str!("./templates/symbol_group.html"),
+  reg.register_template_string(
+    "symbol_content",
+    include_str!("./templates/symbol_content.hbs"),
   )?;
-  tt.add_template("example.html", include_str!("./templates/example.html"))?;
-  tt.add_template("function.html", include_str!("./templates/function.html"))?;
-  tt.add_template(
-    "module_doc.html",
-    include_str!("./templates/module_doc.html"),
+  reg.register_template_string(
+    "example",
+    include_str!("./templates/example.hbs"),
   )?;
-  tt.add_template(
-    "breadcrumbs.html",
-    include_str!("./templates/breadcrumbs.html"),
+  reg.register_template_string(
+    "function",
+    include_str!("./templates/function.hbs"),
   )?;
-  tt.add_template("usage.html", include_str!("./templates/usage.html"))?;
+  reg.register_template_string(
+    "module_doc",
+    include_str!("./templates/module_doc.hbs"),
+  )?;
+  reg.register_template_string(
+    "breadcrumbs",
+    include_str!("./templates/breadcrumbs.hbs"),
+  )?;
+  reg
+    .register_template_string("usage", include_str!("./templates/usage.hbs"))?;
+  reg.register_template_string("tag", include_str!("./templates/tag.hbs"))?;
+  reg.register_template_string(
+    "source_button",
+    include_str!("./templates/source_button.hbs"),
+  )?;
+  reg.register_template_string(
+    "deprecated",
+    include_str!("./templates/deprecated.hbs"),
+  )?;
+
+  // pages
+  reg.register_template_string(
+    "pages/html_head",
+    include_str!("./templates/pages/html_head.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/all_symbols",
+    include_str!("./templates/pages/all_symbols.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/symbol",
+    include_str!("./templates/pages/symbol.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/index",
+    include_str!("./templates/pages/index.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/search_bar",
+    include_str!("./templates/pages/search_bar.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/search_results",
+    include_str!("./templates/pages/search_results.hbs"),
+  )?;
 
   // icons
-  tt.add_template(
-    "icons/copy.html",
-    include_str!("./templates/icons/copy.html"),
+  reg.register_template_string(
+    "icons/copy",
+    include_str!("./templates/icons/copy.hbs"),
   )?;
-  Ok(tt)
+  reg.register_template_string(
+    "icons/link",
+    include_str!("./templates/icons/link.hbs"),
+  )?;
+  reg.register_template_string(
+    "icons/source",
+    include_str!("./templates/icons/source.hbs"),
+  )?;
+  reg.register_template_string(
+    "icons/menu",
+    include_str!("./templates/icons/menu.hbs"),
+  )?;
+
+  Ok(reg)
 }
 
-pub fn setup_syntect() -> syntect_adapter::SyntectAdapter {
+pub fn setup_syntect() -> comrak_adapters::SyntectAdapter {
   let syntax_set: syntect::parsing::SyntaxSet =
     syntect::dumps::from_uncompressed_data(include_bytes!(
       "./default_newlines.packdump"
     ))
     .unwrap();
 
-  syntect_adapter::SyntectAdapter {
-    theme: Some("InspiredGitHub".to_string()),
+  comrak_adapters::SyntectAdapter {
     syntax_set,
     theme_set: syntect::highlighting::ThemeSet::load_defaults(),
   }
@@ -284,21 +291,19 @@ pub fn generate(
   }
 
   let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
-  let tt = setup_tt()?;
   let ctx = GenerateCtx {
     package_name: options.package_name,
     common_ancestor,
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
-    tt,
+    hbs: setup_hbs()?,
     syntect_adapter: setup_syntect(),
     global_symbols: options.global_symbols,
-    global_symbol_href_resolver: options.global_symbol_href_resolver,
-    import_href_resolver: options.import_href_resolver,
-    usage_resolver: options.usage_resolver,
-    url_resolver: options.url_resolver,
+    href_resolver: options.href_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
+    single_file_mode: doc_nodes_by_url.len() == 1,
+    sidebar_flatten_namespaces: options.sidebar_flatten_namespaces,
   };
   let mut files = HashMap::new();
 
@@ -333,7 +338,7 @@ pub fn generate(
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
     let all_symbols_render =
-      pages::render_all_symbols_page(&ctx, &partitions_by_kind)?;
+      pages::render_all_symbols_page(&ctx, partitions_by_kind);
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 
@@ -343,7 +348,7 @@ pub fn generate(
       let short_path = ctx.url_to_short_path(specifier);
 
       let partitions_for_nodes =
-        get_partitions_for_file(doc_nodes, &short_path);
+        get_partitions_for_file(&ctx, doc_nodes, &short_path);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -355,7 +360,7 @@ pub fn generate(
 
       files.extend(symbol_pages.into_iter().map(
         |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
-          let root = (ctx.url_resolver)(
+          let root = ctx.href_resolver.resolve_path(
             UrlResolveKind::Symbol {
               file: &short_path,
               symbol: &symbol_group_ctx.name,
@@ -378,11 +383,9 @@ pub fn generate(
             sidepanel_ctx,
             symbol_group_ctx,
             breadcrumbs_ctx,
-            search_ctx: serde_json::Value::Null,
           };
 
-          let symbol_page =
-            ctx.tt.render("symbol_page.html", &page_ctx).unwrap();
+          let symbol_page = ctx.hbs.render("pages/symbol", &page_ctx).unwrap();
 
           (file_name, symbol_page)
         },
@@ -413,6 +416,7 @@ pub fn generate(
 }
 
 pub fn get_partitions_for_file(
+  ctx: &GenerateCtx,
   doc_nodes: &[DocNode],
   short_path: &str,
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
@@ -424,17 +428,22 @@ pub fn get_partitions_for_file(
     })
     .collect::<Vec<_>>();
 
-  let categories =
-    namespace::partition_nodes_by_category(&doc_nodes_with_context, false);
+  let categories = namespace::partition_nodes_by_category(
+    &doc_nodes_with_context,
+    ctx.sidebar_flatten_namespaces,
+  );
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
-      .into_iter()
-      .map(|(kind, nodes)| {
-        let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
-        (doc_node_kind_ctx.title.to_string(), nodes)
-      })
-      .collect()
+    namespace::partition_nodes_by_kind(
+      &doc_nodes_with_context,
+      ctx.sidebar_flatten_namespaces,
+    )
+    .into_iter()
+    .map(|(kind, nodes)| {
+      let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
+      (doc_node_kind_ctx.title.to_string(), nodes)
+    })
+    .collect()
   } else {
     categories
   }
@@ -450,30 +459,11 @@ pub fn get_partitions_for_main_entrypoint(
     .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
   if let Some(doc_nodes) = doc_nodes {
-    let doc_nodes_with_context = doc_nodes
-      .iter()
-      .map(|node| DocNodeWithContext {
-        doc_node: node.clone(),
-        origin: Some(
-          ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
-        ),
-      })
-      .collect::<Vec<_>>();
-
-    let categories =
-      namespace::partition_nodes_by_category(&doc_nodes_with_context, false);
-
-    if categories.len() == 1 && categories.contains_key("Uncategorized") {
-      namespace::partition_nodes_by_kind(&doc_nodes_with_context, false)
-        .into_iter()
-        .map(|(kind, nodes)| {
-          let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
-          (doc_node_kind_ctx.title.to_string(), nodes)
-        })
-        .collect()
-    } else {
-      categories
-    }
+    get_partitions_for_file(
+      ctx,
+      doc_nodes,
+      &ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
+    )
   } else {
     Default::default()
   }
@@ -486,7 +476,7 @@ pub fn partition_nodes_by_name(
 
   for node in doc_nodes {
     if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-      || node.declaration_kind != crate::node::DeclarationKind::Export
+      || node.declaration_kind == crate::node::DeclarationKind::Private
     {
       continue;
     }

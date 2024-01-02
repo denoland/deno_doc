@@ -1,12 +1,20 @@
-use crate::html::jsdoc::render_doc_entry;
-use crate::html::parameters::render_params;
-use crate::html::util::*;
+use super::parameters::render_params;
+use super::render_context::RenderContext;
+use super::util::*;
+use std::collections::HashSet;
+
 use crate::ts_type::LiteralDefKind;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
-use serde_json::json;
+
+pub(crate) fn render_type_def_colon(
+  ctx: &RenderContext,
+  def: &crate::ts_type::TsTypeDef,
+) -> String {
+  format!("<span>: {}</span>", render_type_def(ctx, def))
+}
 
 pub(crate) fn render_type_def(
   ctx: &RenderContext,
@@ -180,9 +188,7 @@ pub(crate) fn render_type_def(
       let ts_type = mapped
         .ts_type
         .as_ref()
-        .map(|ts_type| {
-          format!("<span>: {}</span>", render_type_def(ctx, ts_type))
-        })
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
       format!(
@@ -205,7 +211,7 @@ pub(crate) fn render_type_def(
         let ts_type = index_signature
           .ts_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!(
@@ -224,7 +230,7 @@ pub(crate) fn render_type_def(
         let ts_type = call_signature
           .ts_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!(
@@ -255,7 +261,7 @@ pub(crate) fn render_type_def(
         let ts_type = property
           .ts_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!("{readonly}{name}{optional}{ts_type}; ");
@@ -285,7 +291,7 @@ pub(crate) fn render_type_def(
         let return_type = method
           .return_type
           .as_ref()
-          .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+          .map(|ts_type| render_type_def_colon(ctx, ts_type))
           .unwrap_or_default();
 
         let item = format!(
@@ -371,7 +377,7 @@ fn type_def_join(
 
     let content = items.join("");
 
-    format!(r#"<div class="indent">{content}</div>"#)
+    format!(r#"<div class="ml-4">{content}</div>"#)
   }
 }
 
@@ -395,7 +401,7 @@ fn type_def_tuple(
     }
 
     let content = items.join("");
-    format!(r#"<div class="indent">[{content}]</div>"#)
+    format!(r#"<div class="ml-4">[{content}]</div>"#)
   }
 }
 
@@ -469,9 +475,10 @@ pub(crate) fn type_arguments(
 pub(crate) fn render_type_params(
   ctx: &RenderContext,
   type_params: &[TsTypeParamDef],
-) -> String {
+  location: &crate::Location,
+) -> Option<SectionCtx> {
   if type_params.is_empty() {
-    return String::new();
+    return None;
   }
 
   let mut items = Vec::with_capacity(type_params.len());
@@ -501,24 +508,21 @@ pub(crate) fn render_type_params(
       })
       .unwrap_or_default();
 
-    let content = render_doc_entry(
+    let content = DocEntryCtx::new(
       ctx,
       &id,
       &type_param.name,
       &format!("{constraint}{default}"),
+      HashSet::new(),
       None,
+      location,
     );
 
     items.push(content);
   }
 
-  let items = items.join("");
-
-  ctx.render(
-    "section.html",
-    &json!({
-      "title": "Type Parameters",
-      "content": &items
-    }),
-  )
+  Some(SectionCtx {
+    title: "Type Parameters",
+    content: SectionContentCtx::DocEntry(items),
+  })
 }

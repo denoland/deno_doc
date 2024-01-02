@@ -1,0 +1,43 @@
+<main class="space-y-12" id="symbol_{{name}}">
+  {{~#each symbols~}}
+    <article class="space-y-5">
+      <div class="flex justify-between items-start">
+        <div class="font-medium space-y-1">
+          <div class="text-xl leading-none">
+            <span class="text-{{this.kind.kind}}">{{this.kind.title_lowercase}}</span>&nbsp;<span class="font-bold">{{../name}}</span>
+          </div>
+          {{~#if this.subtitle ~}}
+            <div class="space-y-0.5 text-sm leading-4">
+              {{~> (concat "doc_block_subtitle_" this.subtitle.kind) this.subtitle.value ~}}
+            </div>
+          {{~/if~}}
+          {{~#if this.tags~}}
+            <div class="space-x-2">
+              {{~#each this.tags~}}
+                {{~> tag value=this large=true ~}}
+              {{~/each~}}
+            </div>
+          {{~/if~}}
+        </div>
+
+        {{~> source_button this.source_href ~}}
+      </div>
+
+      {{~> deprecated this.deprecated ~}}
+
+      {{~#if @first~}}
+        {{~> usage ../usage ~}}
+      {{~/if~}}
+
+      <div>
+        {{~#each this.content~}}
+          {{~#if (eq kind "function")~}}
+            {{~> function value ~}}
+          {{~else~}}
+            {{~> symbol_content value ~}}
+          {{~/if~}}
+        {{~/each~}}
+      </div>
+    </article>
+  {{~/each~}}
+</main>

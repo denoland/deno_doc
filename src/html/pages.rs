@@ -1,5 +1,8 @@
 use super::partition_nodes_by_name;
 use super::sidepanels;
+use super::sidepanels::SidepanelCtx;
+use super::symbols::SymbolContentCtx;
+use super::util::BreadcrumbsCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;
@@ -12,8 +15,6 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
-use crate::html::sidepanels::SidepanelCtx;
-use crate::html::util::BreadcrumbsCtx;
 use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -61,8 +62,6 @@ struct IndexCtx {
   sidepanel_ctx: sidepanels::IndexSidepanelCtx,
   module_doc: Option<super::jsdoc::ModuleDocCtx>,
   breadcrumbs_ctx: BreadcrumbsCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
 }
 
 pub fn render_index(
@@ -103,7 +102,7 @@ pub fn render_index(
   let module_doc =
     super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url);
 
-  let root = (ctx.url_resolver)(
+  let root = ctx.href_resolver.resolve_path(
     file
       .as_deref()
       .map_or(UrlResolveKind::Root, UrlResolveKind::File),
@@ -118,41 +117,49 @@ pub fn render_index(
     sidepanel_ctx,
     module_doc,
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-    search_ctx: serde_json::Value::Null,
   };
 
-  render_ctx.render("index.html", &index_ctx)
+  render_ctx
+    .ctx
+    .hbs
+    .render("pages/index", &index_ctx)
+    .unwrap()
 }
 
 #[derive(Serialize)]
 struct AllSymbolsCtx {
   html_head_ctx: HtmlHeadCtx,
-  namespace_ctx: super::namespace::NamespaceRenderCtx,
+  content: SymbolContentCtx,
   breadcrumbs_ctx: BreadcrumbsCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  search_ctx: serde_json::Value,
 }
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: &IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-) -> Result<String, anyhow::Error> {
+  partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
     RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
-  let namespace_ctx =
-    super::namespace::get_namespace_render_ctx(&render_ctx, partitions);
+
+  let sections = super::namespace::render_namespace(&render_ctx, partitions);
 
   let html_head_ctx =
     HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
   let all_symbols_ctx = AllSymbolsCtx {
     html_head_ctx,
-    namespace_ctx,
+    content: SymbolContentCtx {
+      id: String::new(),
+      sections,
+      docs: None,
+    },
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-    search_ctx: serde_json::Value::Null,
   };
 
-  Ok(render_ctx.render("all_symbols.html", &all_symbols_ctx))
+  render_ctx
+    .ctx
+    .hbs
+    .render("pages/all_symbols", &all_symbols_ctx)
+    .unwrap()
 }
 
 pub fn generate_symbol_pages_for_module(
@@ -250,8 +257,6 @@ pub struct PageCtx {
   pub sidepanel_ctx: SidepanelCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
-  // TODO(bartlomieju): needed because `tt` requires ctx for `call` blocks
-  pub search_ctx: serde_json::Value,
 }
 
 fn render_symbol_page(

@@ -1,7 +1,10 @@
-use crate::html::GenerateCtx;
-use crate::html::UrlResolveKind;
+use crate::html::jsdoc::render_markdown;
+use crate::html::RenderContext;
+use crate::js_doc::JsDoc;
+use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
-use deno_graph::ModuleSpecifier;
+use deno_ast::swc::ast::Accessibility;
+use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -15,11 +18,6 @@ pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
   format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
 }
 
-// TODO(bartlomieju): this could be a TinyTemplate formatter
-pub(crate) fn title_to_id(title: &str) -> String {
-  TARGET_RE.replace_all(title, "_").to_string()
-}
-
 /// A container to hold a list of symbols with their namespaces:
 ///
 /// ["setTimeout"]
@@ -27,48 +25,48 @@ pub(crate) fn title_to_id(title: &str) -> String {
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
 #[derive(Clone)]
-struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
+pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
-  fn new(doc_nodes: &[crate::DocNode]) -> Self {
-    let symbols = Self::compute_namespaced_symbols(doc_nodes, &[]);
+  pub(crate) fn new(doc_nodes: &[crate::DocNode]) -> Self {
+    let symbols = compute_namespaced_symbols(doc_nodes, &[]);
     Self(Rc::new(symbols))
   }
 
-  fn compute_namespaced_symbols(
-    doc_nodes: &[crate::DocNode],
-    current_path: &[String],
-  ) -> HashSet<Vec<String>> {
-    let mut namespaced_symbols = HashSet::new();
-
-    for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::ModuleDoc
-        || doc_node.declaration_kind != crate::node::DeclarationKind::Export
-      {
-        continue;
-      }
-      // TODO: handle export aliasing
-
-      let mut name_path = current_path.to_vec();
-      name_path.push(doc_node.name.clone());
-
-      namespaced_symbols.insert(name_path.clone());
-
-      if doc_node.kind == DocNodeKind::Namespace {
-        let namespace_def = doc_node.namespace_def.as_ref().unwrap();
-        namespaced_symbols.extend(Self::compute_namespaced_symbols(
-          &namespace_def.elements,
-          &name_path,
-        ))
-      }
-    }
-
-    namespaced_symbols
-  }
-
-  fn contains(&self, path: &[String]) -> bool {
+  pub(crate) fn contains(&self, path: &[String]) -> bool {
     self.0.contains(path)
   }
+}
+
+pub fn compute_namespaced_symbols(
+  doc_nodes: &[crate::DocNode],
+  current_path: &[String],
+) -> HashSet<Vec<String>> {
+  let mut namespaced_symbols = HashSet::new();
+
+  for doc_node in doc_nodes {
+    if doc_node.kind == DocNodeKind::ModuleDoc
+      || doc_node.declaration_kind != crate::node::DeclarationKind::Export
+    {
+      continue;
+    }
+    // TODO: handle export aliasing
+
+    let mut name_path = current_path.to_vec();
+    name_path.push(doc_node.name.clone());
+
+    namespaced_symbols.insert(name_path.clone());
+
+    if doc_node.kind == DocNodeKind::Namespace {
+      let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+      namespaced_symbols.extend(compute_namespaced_symbols(
+        &namespace_def.elements,
+        &name_path,
+      ))
+    }
+  }
+
+  namespaced_symbols
 }
 
 #[derive(Clone, Default)]
@@ -79,299 +77,94 @@ impl NamespacedGlobalSymbols {
     Self(Rc::new(symbols))
   }
 
-  fn get(&self, path: &[String]) -> Option<&String> {
+  pub fn get(&self, path: &[String]) -> Option<&String> {
     self.0.get(path)
   }
 }
 
-pub type GlobalSymbolHrefResolver = Rc<dyn Fn(&[String], &String) -> String>;
-
-pub type ImportHrefResolver = Rc<dyn Fn(&[String], &String) -> Option<String>>;
-
-#[derive(Clone)]
-pub struct RenderContext<'ctx> {
-  pub(crate) ctx: &'ctx GenerateCtx<'ctx>,
-  current_exports: NamespacedSymbols,
-  current_imports: HashMap<String, String>,
-  current_type_params: HashSet<String>,
-  current_resolve: UrlResolveKind<'ctx>,
-  current_specifier: Option<&'ctx ModuleSpecifier>,
-  /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Vec<String>,
+/// Different current and target locations
+#[derive(Debug, Clone, Copy)]
+pub enum UrlResolveKind<'a> {
+  Root,
+  AllSymbols,
+  File(&'a str),
+  Symbol { file: &'a str, symbol: &'a str },
 }
 
-impl<'ctx> RenderContext<'ctx> {
-  pub fn new(
-    ctx: &'ctx GenerateCtx<'ctx>,
-    doc_nodes: &[crate::DocNode],
-    current_resolve: UrlResolveKind<'ctx>,
-    current_specifier: Option<&'ctx ModuleSpecifier>,
-  ) -> Self {
-    Self {
-      ctx,
-      current_exports: NamespacedSymbols::new(doc_nodes),
-      current_imports: get_current_imports(doc_nodes),
-      current_type_params: Default::default(),
-      current_resolve,
-      current_specifier,
-      namespace_parts: vec![],
+impl UrlResolveKind<'_> {
+  pub fn get_file(&self) -> Option<&str> {
+    match self {
+      UrlResolveKind::Root => None,
+      UrlResolveKind::AllSymbols => None,
+      UrlResolveKind::File(file) => Some(file),
+      UrlResolveKind::Symbol { file, .. } => Some(file),
     }
   }
+}
 
-  pub fn with_current_type_params(
+/// A trait used to define various functions used to resolve urls.
+pub trait HrefResolver {
+  fn resolve_path(
     &self,
-    current_type_params: HashSet<String>,
-  ) -> Self {
-    Self {
-      current_type_params,
-      ..self.clone()
-    }
-  }
-
-  pub fn with_namespace(&self, namespace_parts: Vec<String>) -> Self {
-    Self {
-      namespace_parts,
-      ..self.clone()
-    }
-  }
-
-  pub fn with_current_resolve(
-    &self,
-    current_resolve: UrlResolveKind<'ctx>,
-  ) -> Self {
-    Self {
-      current_resolve,
-      ..self.clone()
-    }
-  }
-
-  pub fn with_current_specifier(
-    &self,
-    current_specifier: Option<&'ctx ModuleSpecifier>,
-  ) -> Self {
-    Self {
-      current_specifier,
-      ..self.clone()
-    }
-  }
-
-  #[track_caller]
-  pub fn render<Ctx>(&self, template: &str, context: &Ctx) -> String
-  where
-    Ctx: Serialize,
-  {
-    self.ctx.tt.render(template, context).unwrap()
-  }
-
-  pub fn contains_type_param(&self, name: &str) -> bool {
-    self.current_type_params.contains(name)
-  }
-
-  pub fn get_namespace_parts(&self) -> Vec<String> {
-    self.namespace_parts.clone()
-  }
-
-  pub fn get_current_resolve(&self) -> UrlResolveKind {
-    self.current_resolve
-  }
-
-  pub fn get_current_specifier(&self) -> Option<&ModuleSpecifier> {
-    self.current_specifier
-  }
-
-  pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
-    let target_symbol_parts = target_symbol
-      .split('.')
-      .map(String::from)
-      .collect::<Vec<_>>();
-
-    if !self.namespace_parts.is_empty() {
-      let mut parts = self.namespace_parts.clone();
-      while !parts.is_empty() {
-        let mut current_parts = parts.clone();
-        current_parts.extend_from_slice(&target_symbol_parts);
-
-        if self.current_exports.contains(&current_parts) {
-          return Some((self.ctx.url_resolver)(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: self.get_current_resolve().get_file().unwrap(),
-              symbol: &current_parts.join("."),
-            },
-          ));
-        }
-
-        parts.pop();
-      }
-    }
-
-    if self.current_exports.contains(&target_symbol_parts) {
-      return Some((self.ctx.url_resolver)(
-        self.get_current_resolve(),
-        UrlResolveKind::Symbol {
-          file: self.get_current_resolve().get_file().unwrap_or_default(), // TODO
-          symbol: &target_symbol_parts.join("."),
-        },
-      ));
-    }
-
-    if let Some(src) = self.current_imports.get(target_symbol) {
-      if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if self.ctx.specifiers.contains(&module_specifier) {
-          return Some((self.ctx.url_resolver)(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: &self.ctx.url_to_short_path(&module_specifier),
-              symbol: &target_symbol_parts.join("."),
-            },
-          ));
-        }
-      }
-
-      return (self.ctx.import_href_resolver)(&target_symbol_parts, src);
-    }
-
-    if let Some(context) = self.ctx.global_symbols.get(&target_symbol_parts) {
-      return Some((self.ctx.global_symbol_href_resolver)(
-        &target_symbol_parts,
-        context,
-      ));
-    }
-
-    None
-  }
-
-  pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
-    let parts = match self.current_resolve {
-      UrlResolveKind::Root => vec![BreadcrumbCtx {
-        name: "index".to_string(),
-        href: "".to_string(),
-        is_symbol: false,
-        is_first_symbol: false,
-        is_all_symbols_part: false,
-      }],
-      UrlResolveKind::AllSymbols => {
-        vec![
-          BreadcrumbCtx {
-            name: "index".to_string(),
-            href: (self.ctx.url_resolver)(
-              self.current_resolve,
-              UrlResolveKind::Root,
-            ),
-            is_symbol: false,
-            is_first_symbol: false,
-            is_all_symbols_part: false,
-          },
-          BreadcrumbCtx {
-            name: "all symbols".to_string(),
-            href: "".to_string(),
-            is_symbol: false,
-            is_first_symbol: false,
-            is_all_symbols_part: true,
-          },
-        ]
-      }
-      UrlResolveKind::File(file) => {
-        if self.current_specifier == self.ctx.main_entrypoint.as_ref() {
-          vec![BreadcrumbCtx {
-            name: "index".to_string(),
-            href: "".to_string(),
-            is_symbol: false,
-            is_first_symbol: false,
-            is_all_symbols_part: false,
-          }]
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    let backs = match current {
+      UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+        .repeat(if file == "." {
+          1
         } else {
-          vec![
-            BreadcrumbCtx {
-              name: "index".to_string(),
-              href: (self.ctx.url_resolver)(
-                self.current_resolve,
-                UrlResolveKind::Root,
-              ),
-              is_symbol: false,
-              is_first_symbol: false,
-              is_all_symbols_part: false,
-            },
-            BreadcrumbCtx {
-              name: super::short_path_to_name(file.to_string()),
-              href: "".to_string(),
-              is_symbol: false,
-              is_first_symbol: false,
-              is_all_symbols_part: false,
-            },
-          ]
-        }
-      }
-      UrlResolveKind::Symbol { file, symbol } => {
-        let mut parts = vec![BreadcrumbCtx {
-          name: "index".to_string(),
-          href: (self.ctx.url_resolver)(
-            self.current_resolve,
-            UrlResolveKind::Root,
-          ),
-          is_symbol: false,
-          is_first_symbol: false,
-          is_all_symbols_part: false,
-        }];
-
-        if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
-          parts.push(BreadcrumbCtx {
-            name: super::short_path_to_name(file.to_string()),
-            href: (self.ctx.url_resolver)(
-              self.current_resolve,
-              UrlResolveKind::File(file),
-            ),
-            is_symbol: false,
-            is_first_symbol: false,
-            is_all_symbols_part: false,
-          });
-        }
-
-        let (_, symbol_parts) = symbol.split('.').enumerate().fold(
-          (vec![], vec![]),
-          |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
-            symbol_parts.push(symbol_part);
-            let breadcrumb = BreadcrumbCtx {
-              name: symbol_part.to_string(),
-              href: (self.ctx.url_resolver)(
-                self.current_resolve,
-                UrlResolveKind::Symbol {
-                  file,
-                  symbol: &symbol_parts.join("."),
-                },
-              ),
-              is_symbol: true,
-              is_first_symbol: i == 0,
-              is_all_symbols_part: false,
-            };
-            breadcrumbs.push(breadcrumb);
-
-            (symbol_parts, breadcrumbs)
-          },
-        );
-
-        parts.extend(symbol_parts);
-
-        parts
-      }
+          file.split('/').count() + 1
+        }),
+      UrlResolveKind::Root => String::new(),
+      UrlResolveKind::AllSymbols => String::from("./"),
     };
 
-    BreadcrumbsCtx { parts }
+    match target {
+      UrlResolveKind::Root => backs,
+      UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
+      UrlResolveKind::Symbol {
+        file: target_file,
+        symbol: target_symbol,
+      } => {
+        format!("{backs}./{target_file}/~/{target_symbol}.html")
+      }
+      UrlResolveKind::File(target_file) => {
+        format!("{backs}./{target_file}/~/index.html")
+      }
+    }
   }
+
+  /// Resolver for global symbols, like the Deno namespace or other built-ins
+  fn resolve_global_symbol(&self, symbol: &[String], context: &str) -> String;
+
+  /// Resolver for symbols from non-relative imports
+  fn resolve_import_href(&self, symbol: &[String], src: &str)
+    -> Option<String>;
+
+  /// Resolve the URL used in "usage" blocks.
+  fn resolve_usage(
+    &self,
+    current_specifier: &ModuleSpecifier,
+    current_file: &str,
+  ) -> String;
+
+  /// Resolve the URL used in source code link buttons.
+  fn resolve_source(&self, location: &crate::Location) -> String;
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct BreadcrumbCtx {
-  name: String,
-  href: String,
-  is_symbol: bool,
-  is_first_symbol: bool,
-  is_all_symbols_part: bool,
+  pub name: String,
+  pub href: String,
+  pub is_symbol: bool,
+  pub is_first_symbol: bool,
+  pub is_all_symbols_part: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct BreadcrumbsCtx {
-  parts: Vec<BreadcrumbCtx>,
+  pub parts: Vec<BreadcrumbCtx>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -408,7 +201,7 @@ impl From<DocNodeKind> for DocNodeKindCtx {
   }
 }
 
-fn get_current_imports(
+pub(crate) fn get_current_imports(
   doc_nodes: &[crate::DocNode],
 ) -> HashMap<String, String> {
   let mut imports = HashMap::new();
@@ -424,4 +217,98 @@ fn get_current_imports(
   }
 
   imports
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct AnchorCtx {
+  pub id: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "content")]
+pub enum SectionContentCtx {
+  DocEntry(Vec<DocEntryCtx>),
+  Example(Vec<super::jsdoc::ExampleCtx>),
+  IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
+  NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct SectionCtx {
+  pub title: &'static str,
+  pub content: SectionContentCtx,
+}
+
+#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
+pub enum Tag {
+  New,
+  Abstract,
+  Deprecated,
+  Writeonly,
+  Readonly,
+  Protected,
+  Private,
+  Optional,
+  Permissions(Vec<String>),
+  Other(String),
+}
+
+impl Tag {
+  pub fn from_accessibility(
+    accessibility: Option<Accessibility>,
+  ) -> Option<Self> {
+    match accessibility? {
+      Accessibility::Public => None,
+      Accessibility::Protected => Some(Tag::Protected),
+      Accessibility::Private => Some(Tag::Private),
+    }
+  }
+
+  pub fn from_js_doc(js_doc: &JsDoc) -> HashSet<Tag> {
+    js_doc
+      .tags
+      .iter()
+      .filter_map(|tag| match tag {
+        JsDocTag::Deprecated { .. } => Some(Tag::Deprecated),
+        _ => None,
+      })
+      .collect()
+  }
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct DocEntryCtx {
+  id: String,
+  name: String,
+  content: String,
+  anchor: AnchorCtx,
+  tags: HashSet<Tag>,
+  js_doc: Option<String>,
+  source_href: String,
+}
+
+impl DocEntryCtx {
+  pub fn new(
+    ctx: &RenderContext,
+    id: &str,
+    name: &str,
+    content: &str,
+    tags: HashSet<Tag>,
+    jsdoc: Option<&str>,
+    location: &crate::Location,
+  ) -> Self {
+    let maybe_jsdoc = jsdoc.map(|doc| render_markdown(ctx, doc));
+    let source_href = ctx.ctx.href_resolver.resolve_source(location);
+
+    DocEntryCtx {
+      id: id.to_string(),
+      name: name.to_string(),
+      content: content.to_string(),
+      anchor: AnchorCtx { id: id.to_string() },
+      tags,
+      js_doc: maybe_jsdoc,
+      source_href,
+    }
+  }
 }

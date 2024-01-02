@@ -128,15 +128,15 @@ function renderResults(results) {
     const label = result.nsQualifiers
       ? `${result.nsQualifiers}.${result.name}`
       : result.name;
-    html += `<li>
-<a href="${pathToRoot}${result.file}/~/${label}.html">
-    <div>
-        <div class="symbol_kind kind_${rustKind}_text kind_${rustKind}_bg" title="${title}">
-            ${symbol}
-        </div>
-        <span>${label}</span>
+    html += `<li class="block">
+<a href="${pathToRoot}${result.file}/~/${label}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100">
+    <div class="flex items-center gap-2.5">
+      <div class="text-${rustKind} bg-${rustKind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="${title}">
+        ${symbol}
+      </div>
+      <span class="text-sm leading-none">${label}</span>
     </div>
-    <div>${result.location.filename}:${result.location.line}</div>
+    <div class="text-xs italic text-stone-400 overflow-hidden whitespace-nowrap text-ellipsis" dir="rtl">${result.location.filename}:${result.location.line}</div>
 </a>
 </li>`;
   }

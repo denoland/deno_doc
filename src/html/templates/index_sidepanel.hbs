@@ -1,0 +1,50 @@
+<nav id="sidepanel">
+  {{~> sidepanel_common package_name=package_name ~}}
+
+  <div class="max-lg:hidden peer-checked:block">
+    <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
+
+    {{~#if files~}}
+      <h3 class="title">Exports</h3>
+      <ul>
+        {{#each files}}
+          <li>
+            <a href="{{this.href}}" title="{{this.name}}"><span>{{this.name}}</span></a>
+          </li>
+        {{~/each~}}
+
+        {{~#if expand_files~}}
+          <input type="checkbox" id="fileDivider" class="hidden peer" autocomplete="off" />
+          <label for="fileDivider" class="cursor-pointer peer-checked:hidden">...</label>
+
+          {{~#each expand_files~}}
+            <li class="!hidden peer-checked:!block">
+              <a href="{{this.href}}" title="{{this.title}}"><span>{{this.name}}</span></a>
+            </li>
+          {{~/each~}}
+        {{~/if~}}
+      </ul>
+    {{~/if~}}
+
+    {{~#if kind_partitions~}}
+      <h3 class="title">APIs</h3>
+      <ul class="space-y-2">
+        {{~#each kind_partitions~}}
+          <li>
+            <h4 class="subtitle">{{this.name}}</h4>
+            <ul>
+              {{~#each this.symbols~}}
+                <li>
+                  <a href="{{this.href}}" title="{{this.name}}" {{#if this.deprecated}}class="opacity-60"{{/if}}>
+                    {{~> doc_node_kind_icon this.kind ~}}
+                    <span {{#if this.deprecated}}class="line-through decoration-2 decoration-stone-500/70 text-stone-500"{{/if}}>{{this.name}}</span>
+                  </a>
+                </li>
+              {{~/each~}}
+            </ul>
+          </li>
+        {{~/each~}}
+      </ul>
+    {{~/if~}}
+  </div>
+</nav>

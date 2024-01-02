@@ -1,0 +1,21 @@
+<nav id="sidepanel">
+  {{~> sidepanel_common package_name=package_name ~}}
+
+  <div class="space-y-2 max-lg:hidden peer-checked:block">
+    {{~#each partitions ~}}
+      <div>
+        <h3 class="subtitle">{{this.name}}</h3>
+        <ul>
+          {{~#each this.symbols ~}}
+          <li>
+            <a href="{{this.href}}" title="{{this.name}}" class="{{#if this.active}}active{{/if}} {{#if this.deprecated}}opacity-60{{/if}}">
+              {{~> doc_node_kind_icon this.kind~}}
+              <span {{#if this.deprecated}}class="line-through decoration-2 decoration-stone-500/70 text-stone-500"{{/if}}>{{this.name}}</span>
+            </a>
+          </li>
+          {{~/each~}}
+        </ul>
+      </div>
+    {{~/each~}}
+  </div>
+</nav>

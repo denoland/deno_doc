@@ -33,9 +33,9 @@ mod visibility;
 
 pub use node::DocNode;
 pub use node::DocNodeKind;
+pub use node::Location;
 
 use node::ImportDef;
-use node::Location;
 use node::ReexportKind;
 use params::ParamDef;
 

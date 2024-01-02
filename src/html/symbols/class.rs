@@ -1,25 +1,28 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
-use crate::html::jsdoc::render_doc_entry;
 use crate::html::parameters::render_params;
-use crate::html::types::render_type_def;
+use crate::html::render_context::RenderContext;
+use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
-use serde_json::json;
+use serde::Serialize;
 use std::collections::BTreeMap;
+use std::collections::HashSet;
+
+// TODO: overrides
 
 pub(crate) fn render_class(
   ctx: &RenderContext,
   doc_node: &crate::DocNode,
-) -> String {
+) -> Vec<SectionCtx> {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
   let current_type_params = class_def
     .type_params
     .iter()
     .map(|def| def.name.clone())
-    .collect::<std::collections::HashSet<String>>();
+    .collect::<HashSet<String>>();
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 
@@ -28,73 +31,78 @@ pub(crate) fn render_class(
     class_def.methods.clone(),
   );
 
-  let properties = if class_items.properties.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section.html",
-      &json!({
-        "title": "Properties",
-        "content": render_class_properties(ctx, class_items.properties)
-      }),
-    )
-  };
+  let mut sections = vec![];
 
-  let methods = if class_items.methods.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section.html",
-      &json!({
-        "title": "Methods",
-        "content": render_class_methods(ctx, class_items.methods),
-      }),
-    )
-  };
+  if let Some(constructors) =
+    render_constructors(ctx, &class_def.constructors, &doc_node.name)
+  {
+    sections.push(constructors);
+  }
 
-  let static_properties = if class_items.static_properties.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section.html",
-      &json!({
-        "title": "Static Properties",
-        "content": render_class_properties(ctx, class_items.static_properties),
-      }),
-    )
-  };
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &class_def.type_params,
+    &doc_node.location,
+  ) {
+    sections.push(type_params);
+  }
 
-  let static_methods = if class_items.static_methods.is_empty() {
-    String::new()
-  } else {
-    ctx.render(
-      "section.html",
-      &json!({
-        "title": "Static Methods",
-        "content": render_class_methods(ctx, class_items.static_methods),
-      }),
-    )
-  };
+  if let Some(index_signatures) =
+    render_index_signatures(ctx, &class_def.index_signatures)
+  {
+    sections.push(index_signatures);
+  }
 
-  [
-    render_constructors(ctx, &class_def.constructors, &doc_node.name),
-    crate::html::types::render_type_params(ctx, &class_def.type_params),
-    render_index_signatures(ctx, &class_def.index_signatures),
-    properties,
-    methods,
-    static_properties,
-    static_methods,
-  ]
-  .join("")
+  if !class_items.properties.is_empty() {
+    sections.push(SectionCtx {
+      title: "Properties",
+      content: SectionContentCtx::DocEntry(render_class_properties(
+        ctx,
+        class_items.properties,
+      )),
+    });
+  }
+
+  if !class_items.methods.is_empty() {
+    sections.push(SectionCtx {
+      title: "Methods",
+      content: SectionContentCtx::DocEntry(render_class_methods(
+        ctx,
+        class_items.methods,
+      )),
+    });
+  }
+
+  if !class_items.static_properties.is_empty() {
+    sections.push(SectionCtx {
+      title: "Static Properties",
+      content: SectionContentCtx::DocEntry(render_class_properties(
+        ctx,
+        class_items.static_properties,
+      )),
+    });
+  }
+
+  if !class_items.static_methods.is_empty() {
+    sections.push(SectionCtx {
+      title: "Static Methods",
+      content: SectionContentCtx::DocEntry(render_class_methods(
+        ctx,
+        class_items.static_methods,
+      )),
+    })
+  }
+
+  sections
 }
 
 fn render_constructors(
   ctx: &RenderContext,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
-) -> String {
+) -> Option<SectionCtx> {
   if constructors.is_empty() {
-    return String::new();
+    return None;
   }
 
   let items = constructors
@@ -103,23 +111,48 @@ fn render_constructors(
     .map(|(i, constructor)| {
       let id = name_to_id("constructor", &i.to_string());
 
-      // TODO: tags, render constructor params
-      render_doc_entry(ctx, &id, name, "()", constructor.js_doc.doc.as_deref())
-    })
-    .collect::<String>();
+      let params = constructor
+        .params
+        .iter()
+        .map(|param| param.param.clone())
+        .collect::<Vec<_>>();
 
-  ctx.render(
-    "section.html",
-    &json!({ "title": "Constructors", "content": &items }),
-  )
+      let params = render_params(ctx, &params);
+
+      DocEntryCtx::new(
+        ctx,
+        &id,
+        name,
+        &format!("({params})"),
+        HashSet::from([Tag::New]),
+        constructor.js_doc.doc.as_deref(),
+        &constructor.location,
+      )
+    })
+    .collect::<Vec<DocEntryCtx>>();
+
+  Some(SectionCtx {
+    title: "Constructors",
+    content: SectionContentCtx::DocEntry(items),
+  })
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct IndexSignatureCtx {
+  pub id: String,
+  pub anchor: AnchorCtx,
+  pub readonly: bool,
+  pub params: String,
+  pub ts_type: String,
+  pub source_href: String,
 }
 
 fn render_index_signatures(
   ctx: &RenderContext,
   index_signatures: &[crate::class::ClassIndexSignatureDef],
-) -> String {
+) -> Option<SectionCtx> {
   if index_signatures.is_empty() {
-    return String::new();
+    return None;
   }
 
   let mut items = Vec::with_capacity(index_signatures.len());
@@ -127,32 +160,29 @@ fn render_index_signatures(
   for (i, index_signature) in index_signatures.iter().enumerate() {
     let id = name_to_id("index_signature", &i.to_string());
 
-    let readonly = index_signature
-      .readonly
-      .then_some("<span>readonly </span>")
-      .unwrap_or_default();
-
     let ts_type = index_signature
       .ts_type
       .as_ref()
-      .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+      .map(|ts_type| render_type_def_colon(ctx, ts_type))
       .unwrap_or_default();
 
-    let content = format!(
-      r#"<div class="doc_item" id="{id}">{}{readonly}[{}]{ts_type}</div>"#,
-      ctx.render("anchor.html", &json!({ "href": &id })),
-      render_params(ctx, &index_signature.params),
-    );
-
-    items.push(content);
+    items.push(IndexSignatureCtx {
+      id: id.clone(),
+      anchor: AnchorCtx { id },
+      readonly: index_signature.readonly,
+      params: render_params(ctx, &index_signature.params),
+      ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&index_signature.location),
+    });
   }
 
-  let content = items.join("");
-
-  ctx.render(
-    "section.html",
-    &json!({ "title": "Index Signatures", "content": &content }),
-  )
+  Some(SectionCtx {
+    title: "Index Signatures",
+    content: SectionContentCtx::IndexSignature(items),
+  })
 }
 
 enum PropertyOrMethod {
@@ -307,8 +337,10 @@ fn render_class_accessor(
   ctx: &RenderContext,
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
-) -> String {
-  let name = &getter.or(setter).unwrap().name;
+) -> DocEntryCtx {
+  let getter_or_setter = getter.or(setter).unwrap();
+
+  let name = &getter_or_setter.name;
   let id = name_to_id("accessor", name);
   let ts_type = getter
     .and_then(|getter| getter.function_def.return_type.as_ref())
@@ -321,70 +353,109 @@ fn render_class_accessor(
           .and_then(|param| param.ts_type.as_ref())
       })
     })
-    .map_or_else(String::new, |ts_type| {
-      format!(
-        r#"<span>: <span class="font-medium">{}</span></span>"#,
-        render_type_def(ctx, ts_type)
-      )
-    });
-  let js_doc = getter.or(setter).unwrap().js_doc.doc.as_deref();
+    .map_or_else(String::new, |ts_type| render_type_def_colon(ctx, ts_type));
+  let js_doc = getter_or_setter.js_doc.doc.as_deref();
 
-  // TODO: tags
+  let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
+  if let Some(tag) = Tag::from_accessibility(getter_or_setter.accessibility) {
+    tags.insert(tag);
+  }
+  if getter_or_setter.is_abstract {
+    tags.insert(Tag::Abstract);
+  }
+  if getter.is_some() && setter.is_none() {
+    tags.insert(Tag::Writeonly);
+  } else if getter.is_none() && setter.is_some() {
+    tags.insert(Tag::Readonly);
+  }
 
-  render_doc_entry(ctx, &id, name, &ts_type, js_doc)
+  DocEntryCtx::new(
+    ctx,
+    &id,
+    name,
+    &ts_type,
+    tags,
+    js_doc,
+    &getter_or_setter.location,
+  )
 }
 
 fn render_class_method(
   ctx: &RenderContext,
   method: &ClassMethodDef,
   i: usize,
-) -> String {
+) -> Option<DocEntryCtx> {
   if method.function_def.has_body && i != 0 {
-    return String::new();
+    return None;
   }
 
   let id = name_to_id("method", &format!("{}_{i}", method.name));
 
-  // TODO: tags
+  let mut tags = Tag::from_js_doc(&method.js_doc);
+  if let Some(tag) = Tag::from_accessibility(method.accessibility) {
+    tags.insert(tag);
+  }
+  if method.is_abstract {
+    tags.insert(Tag::Abstract);
+  }
+  if method.optional {
+    tags.insert(Tag::Abstract);
+  }
 
-  render_doc_entry(
+  Some(DocEntryCtx::new(
     ctx,
     &id,
     &method.name,
     &super::function::render_function_summary(&method.function_def, ctx),
+    tags,
     method.js_doc.doc.as_deref(),
-  )
+    &method.location,
+  ))
 }
 
 fn render_class_property(
   ctx: &RenderContext,
   property: &ClassPropertyDef,
-) -> String {
+) -> DocEntryCtx {
   let id = name_to_id("property", &property.name);
 
-  // TODO: tags
+  let mut tags = Tag::from_js_doc(&property.js_doc);
+  if let Some(tag) = Tag::from_accessibility(property.accessibility) {
+    tags.insert(tag);
+  }
+  if property.is_abstract {
+    tags.insert(Tag::Abstract);
+  }
+  if property.readonly {
+    tags.insert(Tag::Readonly);
+  }
+  if property.optional {
+    tags.insert(Tag::Abstract);
+  }
 
   let ts_type = property
     .ts_type
     .as_ref()
-    .map(|ts_type| format!(": {}", render_type_def(ctx, ts_type)))
+    .map(|ts_type| render_type_def_colon(ctx, ts_type))
     .unwrap_or_default();
 
-  render_doc_entry(
+  DocEntryCtx::new(
     ctx,
     &id,
     &property.name,
     &ts_type,
+    tags,
     property.js_doc.doc.as_deref(),
+    &property.location,
   )
 }
 
 fn render_class_properties(
   ctx: &RenderContext,
   properties: Vec<PropertyOrMethod>,
-) -> String {
+) -> Vec<DocEntryCtx> {
   let mut properties = properties.into_iter().peekable();
-  let mut out = String::new();
+  let mut out = vec![];
 
   while let Some(property) = properties.next() {
     let content = match property {
@@ -419,7 +490,7 @@ fn render_class_properties(
       }
     };
 
-    out.push_str(&content)
+    out.push(content)
   }
 
   out
@@ -428,15 +499,14 @@ fn render_class_properties(
 fn render_class_methods(
   ctx: &RenderContext,
   methods: BTreeMap<String, Vec<ClassMethodDef>>,
-) -> String {
+) -> Vec<DocEntryCtx> {
   methods
     .values()
-    .map(|methods| {
+    .flat_map(|methods| {
       methods
         .iter()
         .enumerate()
-        .map(|(i, method)| render_class_method(ctx, method, i))
-        .collect::<String>()
+        .filter_map(|(i, method)| render_class_method(ctx, method, i))
     })
     .collect()
 }

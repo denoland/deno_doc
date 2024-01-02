@@ -1,0 +1,29 @@
+<div class="anchorable text-sm" id="{{id}}">
+  {{~> anchor anchor ~}}
+
+  <div class="flex justify-between">
+    <span class="flex items-center break-words gap-2">
+      {{~#if tags~}}
+        <span class="space-x-1">
+          {{~#each tags~}}
+            {{~> tag value=this ~}}
+          {{~/each~}}
+        </span>
+      {{~/if~}}
+
+      <code>
+        <span class="font-bold">{{name}}</span><span class="font-medium">{{content}}</span>
+      </code>
+    </span>
+
+    {{~#if source_href~}}
+      {{~> source_button source_href ~}}
+    {{~/if~}}
+  </div>
+
+  {{~#if js_doc~}}
+    <div class="markdown_border">
+      {{~js_doc~}}
+    </div>
+  {{~/if~}}
+</div>

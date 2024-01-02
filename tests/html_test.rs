@@ -38,6 +38,38 @@ impl Loader for SourceFileLoader {
   }
 }
 
+struct EmptyResolver {}
+
+impl HrefResolver for EmptyResolver {
+  fn resolve_global_symbol(
+    &self,
+    _symbol: &[String],
+    _context: &str,
+  ) -> String {
+    String::new()
+  }
+
+  fn resolve_import_href(
+    &self,
+    _symbol: &[String],
+    _src: &str,
+  ) -> Option<String> {
+    None
+  }
+
+  fn resolve_usage(
+    &self,
+    _current_specifier: &ModuleSpecifier,
+    current_file: &str,
+  ) -> String {
+    current_file.to_string()
+  }
+
+  fn resolve_source(&self, _location: &deno_doc::Location) -> String {
+    String::new()
+  }
+}
+
 async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   let files = read_dir(
     std::env::current_dir()
@@ -98,12 +130,10 @@ async fn html_doc_files() {
       package_name: None,
       main_entrypoint: None,
       global_symbols: Default::default(),
-      global_symbol_href_resolver: Rc::new(|_, _| String::new()),
-      import_href_resolver: Rc::new(|_, _| None),
-      usage_resolver: Rc::new(|specifier, _file| specifier.to_string()),
-      url_resolver: Rc::new(default_url_resolver),
+      href_resolver: Rc::new(EmptyResolver {}),
       rewrite_map: None,
       hide_module_doc_title: false,
+      sidebar_flatten_namespaces: false,
     },
     &get_files("single").await,
   )
@@ -151,12 +181,10 @@ async fn html_doc_files_rewrite() {
       package_name: None,
       main_entrypoint: None,
       global_symbols: Default::default(),
-      global_symbol_href_resolver: Rc::new(|_, _| String::new()),
-      import_href_resolver: Rc::new(|_, _| None),
-      usage_resolver: Rc::new(|specifier, _file| specifier.to_string()),
-      url_resolver: Rc::new(default_url_resolver),
+      href_resolver: Rc::new(EmptyResolver {}),
       rewrite_map: Some(rewrite_map),
       hide_module_doc_title: false,
+      sidebar_flatten_namespaces: false,
     },
     &get_files("multiple").await,
   )
@@ -211,15 +239,14 @@ async fn symbol_group() {
       ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
-    tt: setup_tt().unwrap(),
+    hbs: setup_hbs().unwrap(),
     syntect_adapter: setup_syntect(),
     global_symbols: Default::default(),
-    global_symbol_href_resolver: Rc::new(|_, _| String::new()),
-    import_href_resolver: Rc::new(|_, _| None),
-    usage_resolver: Rc::new(|_specifier, file| file.to_string()),
-    url_resolver: Rc::new(default_url_resolver),
+    href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
+    single_file_mode: false,
+    sidebar_flatten_namespaces: false,
   };
 
   let mut files = vec![];
@@ -229,7 +256,7 @@ async fn symbol_group() {
       let short_path = ctx.url_to_short_path(specifier);
 
       let partitions_for_nodes =
-        get_partitions_for_file(doc_nodes, &short_path);
+        get_partitions_for_file(&ctx, doc_nodes, &short_path);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -241,7 +268,7 @@ async fn symbol_group() {
 
       files.extend(symbol_pages.into_iter().map(
         |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
-          let root = (ctx.url_resolver)(
+          let root = ctx.href_resolver.resolve_path(
             UrlResolveKind::Symbol {
               file: &short_path,
               symbol: &symbol_group_ctx.name,
@@ -261,7 +288,6 @@ async fn symbol_group() {
             sidepanel_ctx,
             symbol_group_ctx,
             breadcrumbs_ctx,
-            search_ctx: serde_json::Value::Null,
           }
         },
       ));
@@ -276,6 +302,9 @@ async fn symbol_group() {
     .join("tests")
     .join("testdata")
     .join("symbol_group.json");
+
+  // uncomment to regenerate symbol_group.json
+  //std::fs::write(&symbol_group_json_path, &files_json);
 
   let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
 

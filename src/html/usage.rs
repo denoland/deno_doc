@@ -1,11 +1,11 @@
-use crate::html::RenderContext;
-use crate::html::UrlResolveKind;
+use super::RenderContext;
+use super::UrlResolveKind;
 use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
 
 fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
-  let url = (ctx.ctx.usage_resolver)(
+  let url = ctx.ctx.href_resolver.resolve_usage(
     ctx.get_current_specifier().unwrap(),
     ctx.get_current_resolve().get_file().unwrap(),
   );
@@ -42,7 +42,7 @@ fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
 
     if let Some((usage_symbol, local_var)) = usage_symbol {
       usage_statement
-        .push_str(&format!("const {{ {usage_symbol} }} = {local_var};"));
+        .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
     }
 
     usage_statement
@@ -59,21 +59,18 @@ fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> String {
 pub struct UsageCtx {
   import_statement: String,
   raw_import_statement: String,
-  // TODO(crowlKats): needed because `tt` requires ctx for `call` blocks
-  empty: serde_json::Value,
 }
 
 impl UsageCtx {
   pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Self {
     let import_statement = parse_usage(ctx, doc_nodes);
     let rendered_import_statement = crate::html::jsdoc::render_markdown(
-      &format!("```typescript\n{import_statement}\n```"),
       ctx,
+      &format!("```typescript\n{import_statement}\n```"),
     );
     UsageCtx {
       import_statement: rendered_import_statement,
       raw_import_statement: format!("{import_statement:?}"),
-      empty: serde_json::Value::Null,
     }
   }
 }
