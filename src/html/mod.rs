@@ -26,6 +26,7 @@ pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
 pub use symbols::namespace;
+pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use util::compute_namespaced_symbols;
 pub use util::DocNodeKindCtx;
