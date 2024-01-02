@@ -26,6 +26,7 @@ pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
 pub use symbols::namespace;
+pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use util::compute_namespaced_symbols;
 pub use util::DocNodeKindCtx;
@@ -214,6 +215,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     "source_button",
     include_str!("./templates/source_button.hbs"),
+  )?;
+  reg.register_template_string(
+    "deprecated",
+    include_str!("./templates/deprecated.hbs"),
   )?;
 
   // pages

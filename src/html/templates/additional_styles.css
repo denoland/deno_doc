@@ -29,13 +29,13 @@ summary::-webkit-details-marker {
 }
 
 #sidepanel ul {
-  @apply list-none pl-3.5;
+  @apply list-none;
 }
 #sidepanel li {
   @apply block;
 }
 #sidepanel a {
-  @apply flex items-center gap-2 leading-none relative rounded-l-lg;
+  @apply flex items-center gap-2 leading-none relative rounded-lg;
 }
 
 #sidepanel .title {
@@ -50,27 +50,7 @@ summary::-webkit-details-marker {
 }
 
 #sidepanel a:hover, #sidepanel a.active {
-  @apply bg-white;
-}
-#sidepanel a:hover:before, #sidepanel a.active:before {
-  content: "";
-
-  @apply absolute bg-transparent right-0 rounded-br-lg;
-
-  top: calc(var(--general-border-radius) * -2);
-  height: calc(var(--general-border-radius) * 2);
-  width: var(--general-border-radius);
-  box-shadow: 0 var(--general-border-radius) 0 0 white;
-}
-#sidepanel a:hover:after, #sidepanel a.active:after {
-  content: "";
-
-  @apply absolute bg-transparent right-0 rounded-tr-lg;
-
-  bottom: calc(var(--general-border-radius) * -2);
-  height: calc(var(--general-border-radius) * 2);
-  width: var(--general-border-radius);
-  box-shadow: 0 calc(var(--general-border-radius) * -1) 0 0 white;
+  @apply bg-stone-200;
 }
 
 .compound_types > * + * {

@@ -3,14 +3,11 @@
 @tailwind utilities;
 
 body {
-  @apply flex flex-col lg:flex-row bg-stone-100;
+  @apply flex flex-col lg:flex-row;
 }
 #content {
-  @apply w-full p-7 bg-white;
+  @apply w-full p-7 max-w-screen-xl;
 }
 #sidepanel {
   @apply py-3 pl-3 lg:w-72;
-}
-#content.with_sidepanel {
-  @apply rounded-l-lg;
 }
