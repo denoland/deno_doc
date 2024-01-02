@@ -1,6 +1,6 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
   {{~#each this~}}
-    <div class="space-y-2">
+    <div class="space-y-2 {{#if this.deprecated}}opacity-60{{/if}}">
       <div class="flex justify-between gap-4">
         <div class="min-w-52 flex items-center gap-2">
           {{!-- TODO: figure out design of tags in namespace view
@@ -13,7 +13,7 @@
           {{~/if~}} --}}
 
           {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
-          <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden">
+          <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden {{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}">
             {{~this.name~}}
           </a>
         </div>

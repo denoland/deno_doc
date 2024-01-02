@@ -2,11 +2,12 @@ use crate::html::render_context::RenderContext;
 use crate::html::short_path_to_name;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
+use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
 use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
@@ -82,11 +83,28 @@ pub fn partition_nodes_by_kind(
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(|node1, node2| {
-      node1
+      let node1_is_deprecated = node1
         .doc_node
-        .name
-        .cmp(&node2.doc_node.name)
-        .then_with(|| node1.doc_node.kind.cmp(&node2.doc_node.kind))
+        .js_doc
+        .tags
+        .iter()
+        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+      let node2_is_deprecated = node2
+        .doc_node
+        .js_doc
+        .tags
+        .iter()
+        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+
+      (!node2_is_deprecated)
+        .cmp(&!node1_is_deprecated)
+        .then_with(|| {
+          node1
+            .doc_node
+            .name
+            .cmp(&node2.doc_node.name)
+            .then_with(|| node1.doc_node.kind.cmp(&node2.doc_node.kind))
+        })
     });
   }
 
@@ -188,7 +206,7 @@ fn get_namespace_section_render_ctx(
 ) -> SectionCtx {
   let kind_ctx = super::super::util::DocNodeKindCtx::from(kind);
 
-  let mut grouped_nodes = HashMap::new();
+  let mut grouped_nodes = IndexMap::new();
 
   for node in doc_nodes {
     let entry = grouped_nodes
@@ -216,6 +234,7 @@ pub struct NamespaceNodeCtx {
   pub href: String,
   pub name: String,
   pub docs: Option<String>,
+  pub deprecated: bool,
 }
 
 impl NamespaceNodeCtx {
@@ -262,6 +281,14 @@ impl NamespaceNodeCtx {
       ),
       name,
       docs,
+      deprecated: nodes.iter().all(|node| {
+        node
+          .doc_node
+          .js_doc
+          .tags
+          .iter()
+          .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
+      }),
     }
   }
 }

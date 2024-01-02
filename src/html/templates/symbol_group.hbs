@@ -1,4 +1,4 @@
-<main class="space-y-12" id="symbol_{name}">
+<main class="space-y-12" id="symbol_{{name}}">
   {{~#each symbols~}}
     <article class="space-y-5">
       <div class="flex justify-between items-start">
@@ -22,6 +22,8 @@
 
         {{~> source_button this.source_href ~}}
       </div>
+
+      {{~> deprecated this.deprecated ~}}
 
       {{~#if @first~}}
         {{~> usage ../usage ~}}

@@ -26,6 +26,7 @@ struct SymbolCtx {
   tags: HashSet<Tag>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
+  deprecated: Option<String>,
   source_href: String,
 }
 
@@ -97,6 +98,25 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions));
         }
 
+        let deprecated = if all_deprecated {
+          doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
+            if let JsDocTag::Deprecated { doc } = tag {
+              Some(
+                doc
+                  .as_ref()
+                  .map(|doc| {
+                    crate::html::jsdoc::render_markdown_summary(ctx, doc)
+                  })
+                  .unwrap_or_default(),
+              )
+            } else {
+              None
+            }
+          })
+        } else {
+          None
+        };
+
         SymbolCtx {
           tags,
           kind: doc_nodes[0].kind.into(),
@@ -106,6 +126,7 @@ impl SymbolGroupCtx {
             .ctx
             .href_resolver
             .resolve_source(&doc_nodes[0].location),
+          deprecated,
         }
       })
       .collect();
