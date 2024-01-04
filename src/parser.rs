@@ -18,7 +18,6 @@ use crate::util::swc::get_text_info_location;
 use crate::util::swc::js_doc_for_range;
 use crate::util::swc::module_export_name_value;
 use crate::util::swc::module_js_doc_for_source;
-use crate::util::symbol::fully_qualified_symbol_name;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
@@ -1041,7 +1040,7 @@ impl<'a> DocParser<'a> {
         .symbol(decl_with_deps.symbol_id.symbol_id)
         .unwrap();
       let Some(decl_name) =
-        fully_qualified_symbol_name(doc_module_info, decl_symbol)
+        doc_module_info.fully_qualified_symbol_name(decl_symbol)
       else {
         continue;
       };

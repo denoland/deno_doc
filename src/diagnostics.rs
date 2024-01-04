@@ -7,7 +7,6 @@ use crate::node::NamespaceDef;
 use crate::ts_type::TsTypeDef;
 use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
-use crate::util::symbol::fully_qualified_symbol_name;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
 use crate::DocNodeKind;
@@ -106,7 +105,7 @@ impl DiagnosticsCollector {
       return; // ignore
     }
     let Some(reference) =
-      fully_qualified_symbol_name(referenced_module, referenced_symbol)
+      referenced_module.fully_qualified_symbol_name(referenced_symbol)
     else {
       return;
     };

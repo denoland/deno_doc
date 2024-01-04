@@ -22,50 +22,6 @@ pub fn get_module_info<'a>(
   }
 }
 
-pub fn fully_qualified_symbol_name(
-  module: ModuleInfoRef,
-  symbol: &Symbol,
-) -> Option<String> {
-  debug_assert_eq!(module.module_id(), symbol.module_id());
-  let mut text = String::new();
-  let mut last: Option<&Symbol> = None;
-  let mut next = Some(symbol);
-  while let Some(symbol) = next {
-    if symbol.parent_id().is_none() {
-      break; // ignore the source file
-    }
-    if !text.is_empty() {
-      let prop_was_member = last
-        .map(|l| symbol.members().contains(&l.symbol_id()))
-        .unwrap_or(false);
-      let part_name = symbol.maybe_name()?;
-      let prop_was_class_member = prop_was_member
-        && symbol
-          .decls()
-          .first()
-          .map(|d| d.is_class())
-          .unwrap_or(false);
-      text = if prop_was_class_member {
-        format!("{}.prototype.{}", part_name, text)
-      } else if prop_was_member {
-        // not the best, but good enough
-        format!("{}[\"{}\"]", part_name, text.replace('"', "\\\""))
-      } else {
-        format!("{}.{}", part_name, text)
-      };
-    } else {
-      text = symbol.maybe_name()?.to_string();
-    }
-    last = next;
-    next = symbol.parent_id().and_then(|id| module.symbol(id));
-  }
-  if text.is_empty() {
-    None
-  } else {
-    Some(text)
-  }
-}
-
 pub fn symbol_has_ignorable_js_doc_tag(
   module: ModuleInfoRef,
   symbol: &Symbol,
