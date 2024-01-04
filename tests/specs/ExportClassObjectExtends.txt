@@ -20,6 +20,11 @@ Defined in file:///mod.ts:4:1
 class Bar extends obj.Foo
 
 
+Defined in file:///mod.ts:1:1
+
+private class Foo
+
+
 
 # output.json
 [
@@ -39,6 +44,27 @@ class Bar extends obj.Foo
       "indexSignatures": [],
       "methods": [],
       "extends": "obj.Foo",
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "class",
+    "name": "Foo",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
       "implements": [],
       "typeParams": [],
       "superTypeParams": []
