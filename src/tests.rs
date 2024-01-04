@@ -7,7 +7,6 @@ use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -43,6 +42,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
       &mut memory_loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         ..Default::default()
       },
     )
@@ -75,12 +75,12 @@ async fn content_type_handling() {
       &mut memory_loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         ..Default::default()
       },
     )
     .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
@@ -116,7 +116,6 @@ async fn types_header_handling() {
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
   let analyzer = create_analyzer();
-  let parser = analyzer.as_capturing_parser();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -124,11 +123,12 @@ async fn types_header_handling() {
       &mut memory_loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         ..Default::default()
       },
     )
     .await;
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap();
@@ -200,8 +200,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -329,8 +328,7 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -399,8 +397,7 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -456,8 +453,7 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -548,8 +544,7 @@ export namespace Deno {
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse(&specifier)
     .unwrap();
@@ -636,8 +631,7 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -697,8 +691,7 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -759,8 +752,7 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -820,10 +812,9 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let parser = analyzer.as_capturing_parser();
   let entries = DocParser::new(
     &graph,
-    parser,
+    &analyzer,
     DocParserOptions {
       private: true,
       ..Default::default()
@@ -883,8 +874,7 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  let parser = analyzer.as_capturing_parser();
-  DocParser::new(&graph, parser, DocParserOptions::default())
+  DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -901,8 +891,7 @@ async fn json_module() {
   )
   .await;
 
-  let parser = analyzer.as_capturing_parser();
-  let entries = DocParser::new(&graph, parser, DocParserOptions::default())
+  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&specifier)
     .unwrap();
@@ -1021,6 +1010,5 @@ async fn json_module() {
 }
 
 fn create_analyzer() -> CapturingModuleAnalyzer {
-  let source_parser = DefaultModuleParser::new_for_analysis();
-  CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None)
+  CapturingModuleAnalyzer::default()
 }

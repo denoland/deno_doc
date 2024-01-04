@@ -8,7 +8,6 @@ use deno_doc::DocPrinter;
 use deno_graph::source::MemoryLoader;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 
 pub struct BuildResult {
@@ -46,7 +45,7 @@ impl TestBuilder {
   }
 
   pub async fn build(&mut self) -> BuildResult {
-    let analyzer = create_analyzer();
+    let analyzer = CapturingModuleAnalyzer::default();
     let mut graph = deno_graph::ModuleGraph::new(GraphKind::TypesOnly);
     let entry_point_url = ModuleSpecifier::parse(&self.entry_point).unwrap();
     let roots = vec![entry_point_url.clone()];
@@ -56,15 +55,15 @@ impl TestBuilder {
         &mut self.loader,
         BuildOptions {
           module_analyzer: Some(&analyzer),
+          module_parser: Some(&analyzer),
           ..Default::default()
         },
       )
       .await;
     graph.valid().unwrap();
-    let parser = analyzer.as_capturing_parser();
     let parser = DocParser::new(
       &graph,
-      parser,
+      &analyzer,
       DocParserOptions {
         private: self.private,
         diagnostics: true,
@@ -82,9 +81,4 @@ impl TestBuilder {
       text_output: doc,
     }
   }
-}
-
-fn create_analyzer() -> CapturingModuleAnalyzer {
-  let source_parser = DefaultModuleParser::new_for_analysis();
-  CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None)
 }

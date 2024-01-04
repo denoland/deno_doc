@@ -195,15 +195,15 @@ async fn inner_doc(
       &mut loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
         ..Default::default()
       },
     )
     .await;
-  let parser = analyzer.as_capturing_parser();
   let entries = DocParser::new(
     &graph,
-    parser,
+    &analyzer,
     deno_doc::DocParserOptions {
       diagnostics: false,
       private: include_all,

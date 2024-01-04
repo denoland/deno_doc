@@ -50,13 +50,13 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::ModuleParser;
 use deno_graph::symbols::EsmModuleInfo;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -129,7 +129,7 @@ pub struct DocParser<'a> {
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    parser: CapturingModuleParser<'a>,
+    parser: &'a dyn ModuleParser,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
     let root_symbol = deno_graph::symbols::RootSymbol::new(graph, parser);

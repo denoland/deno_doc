@@ -114,6 +114,7 @@ async fn run() -> anyhow::Result<()> {
       &mut loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         ..Default::default()
       },
     )
@@ -121,7 +122,7 @@ async fn run() -> anyhow::Result<()> {
 
   let parser = DocParser::new(
     &graph,
-    analyzer.as_capturing_parser(),
+    &analyzer,
     DocParserOptions {
       diagnostics: false,
       private,
