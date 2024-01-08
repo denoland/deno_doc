@@ -49,7 +49,6 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::ModuleParser;
 use deno_graph::symbols::EsmModuleInfo;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
@@ -58,6 +57,7 @@ use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
+use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
 
 use std::borrow::Cow;
