@@ -97,6 +97,7 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
       &mut loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         ..Default::default()
       },
     )
@@ -104,7 +105,7 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
 
   let parser = DocParser::new(
     &graph,
-    analyzer.as_capturing_parser(),
+    &analyzer,
     DocParserOptions {
       diagnostics: false,
       private: false,

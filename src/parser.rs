@@ -18,7 +18,6 @@ use crate::util::swc::get_text_info_location;
 use crate::util::swc::js_doc_for_range;
 use crate::util::swc::module_export_name_value;
 use crate::util::swc::module_js_doc_for_source;
-use crate::util::symbol::fully_qualified_symbol_name;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
@@ -56,9 +55,9 @@ use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::CapturingModuleParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
+use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
 
 use std::borrow::Cow;
@@ -129,7 +128,7 @@ pub struct DocParser<'a> {
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    parser: CapturingModuleParser<'a>,
+    parser: &'a dyn ModuleParser,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
     let root_symbol = deno_graph::symbols::RootSymbol::new(graph, parser);
@@ -1041,7 +1040,7 @@ impl<'a> DocParser<'a> {
         .symbol(decl_with_deps.symbol_id.symbol_id)
         .unwrap();
       let Some(decl_name) =
-        fully_qualified_symbol_name(doc_module_info, decl_symbol)
+        doc_module_info.fully_qualified_symbol_name(decl_symbol)
       else {
         continue;
       };
@@ -1076,7 +1075,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::ExportDefaultDecl(n) => {
         self.get_doc_for_export_default_decl(parsed_source, n)
       }
-      SymbolNodeRef::ExportDefaultExprLit(n, _) => {
+      SymbolNodeRef::ExportDefaultExpr(n) => {
         self.get_doc_for_export_default_expr(parsed_source, n)
       }
       SymbolNodeRef::FnDecl(n) => {
@@ -1138,6 +1137,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::Module(_)
       | SymbolNodeRef::AutoAccessor(_)
       | SymbolNodeRef::ClassMethod(_)
+      | SymbolNodeRef::ClassParamProp(_)
       | SymbolNodeRef::ClassProp(_)
       | SymbolNodeRef::Constructor(_)
       | SymbolNodeRef::TsIndexSignature(_)
@@ -1158,7 +1158,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::ClassDecl(n) => n.declare,
       SymbolNodeRef::ExportDecl(n, _) => self.get_declare_for_decl(&n.decl),
       SymbolNodeRef::ExportDefaultDecl(_) => false,
-      SymbolNodeRef::ExportDefaultExprLit(_, _) => false,
+      SymbolNodeRef::ExportDefaultExpr(_) => false,
       SymbolNodeRef::FnDecl(n) => n.declare,
       SymbolNodeRef::TsEnum(n) => n.declare,
       SymbolNodeRef::TsInterface(n) => n.declare,
@@ -1169,6 +1169,7 @@ impl<'a> DocParser<'a> {
       | SymbolNodeRef::AutoAccessor(_)
       | SymbolNodeRef::ClassMethod(_)
       | SymbolNodeRef::ClassProp(_)
+      | SymbolNodeRef::ClassParamProp(_)
       | SymbolNodeRef::Constructor(_)
       | SymbolNodeRef::TsIndexSignature(_)
       | SymbolNodeRef::TsCallSignatureDecl(_)

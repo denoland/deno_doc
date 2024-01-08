@@ -7,6 +7,7 @@ use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 
 use deno_ast::SourceRange;
 use deno_graph::symbols::DefinitionPath;
+use deno_graph::symbols::ResolveDepsMode;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
@@ -86,7 +87,12 @@ impl SymbolVisibility {
         .decls()
         .iter()
         .filter(|d| !d.has_overloads())
-        .flat_map(|decl| decl.deps().into_iter().map(move |dep| (decl, dep)))
+        .flat_map(|decl| {
+          decl
+            .deps(ResolveDepsMode::TypesOnly)
+            .into_iter()
+            .map(move |dep| (decl, dep))
+        })
         .map(|(decl, dep)| (symbol, decl, dep))
         .chain(
           symbol
@@ -100,7 +106,10 @@ impl SymbolVisibility {
                 .iter()
                 .filter(|m| !m.has_overloads())
                 .flat_map(move |decl| {
-                  decl.deps().into_iter().map(move |dep| (symbol, decl, dep))
+                  decl
+                    .deps(ResolveDepsMode::TypesOnly)
+                    .into_iter()
+                    .map(move |dep| (symbol, decl, dep))
                 })
             }),
         );

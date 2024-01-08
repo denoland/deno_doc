@@ -37,12 +37,12 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       &mut memory_loader,
       BuildOptions {
         module_analyzer: Some(&analyzer),
+        module_parser: Some(&analyzer),
         ..Default::default()
       },
     )
     .await;
-  let parser = analyzer.as_capturing_parser();
-  DocParser::new(&graph, parser, DocParserOptions::default())
+  DocParser::new(&graph, &analyzer, DocParserOptions::default())
     .unwrap()
     .parse_with_reexports(&root)
     .unwrap()
