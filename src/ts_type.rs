@@ -1,4 +1,4 @@
-// Copyright 2020-2022 the Deno authors. All rights reserved. MIT license.
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use crate::colors;
 use crate::display::display_computed;
