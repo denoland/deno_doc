@@ -3,7 +3,7 @@ import type { MessageEntity } from "./a.ts";
 export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
 
 # a.ts
-export * from "./c.ts";
+export * from "./b.ts";
 
 # b.ts
 export * from "./c.ts";
