@@ -1104,7 +1104,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::UsingVar(_, _, _) => {
         // makes no sense for using declarations to be in the public API
         None
-      },
+      }
       SymbolNodeRef::ExportDecl(export_decl, inner) => match inner {
         ExportDeclRef::Class(n) => {
           self.get_doc_for_class_decl(parsed_source, n, &export_decl.range())
