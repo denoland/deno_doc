@@ -1101,6 +1101,10 @@ impl<'a> DocParser<'a> {
           ident,
           &parent_decl.range(),
         ),
+      SymbolNodeRef::UsingVar(_, _, _) => {
+        // makes no sense for using declarations to be in the public API
+        None
+      }
       SymbolNodeRef::ExportDecl(export_decl, inner) => match inner {
         ExportDeclRef::Class(n) => {
           self.get_doc_for_class_decl(parsed_source, n, &export_decl.range())
@@ -1165,6 +1169,7 @@ impl<'a> DocParser<'a> {
       SymbolNodeRef::TsNamespace(n) => n.declare,
       SymbolNodeRef::TsTypeAlias(n) => n.declare,
       SymbolNodeRef::Var(n, _, _) => n.declare,
+      SymbolNodeRef::UsingVar(_, _, _) => false,
       SymbolNodeRef::Module(_)
       | SymbolNodeRef::AutoAccessor(_)
       | SymbolNodeRef::ClassMethod(_)
