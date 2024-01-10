@@ -1,3 +1,4 @@
+use crate::html::short_path_to_name;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::node::Location;
@@ -19,10 +20,12 @@ struct SearchIndexNode {
   kind: DocNodeKind,
   name: String,
   file: String,
+  file_name: String,
   #[serde(serialize_with = "join_qualifiers")]
   ns_qualifiers: Vec<String>,
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
+  deprecated: bool,
 }
 
 fn doc_node_into_search_index_nodes_inner(
@@ -30,6 +33,20 @@ fn doc_node_into_search_index_nodes_inner(
   doc_node: &DocNodeWithContext,
   ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
+  if matches!(
+    doc_node.doc_node.kind,
+    DocNodeKind::Import | DocNodeKind::ModuleDoc
+  ) {
+    return vec![];
+  }
+
+  let deprecated = doc_node
+    .doc_node
+    .js_doc
+    .tags
+    .iter()
+    .any(|tag| matches!(tag, crate::JsDocTag::Deprecated { .. }));
+
   if !matches!(doc_node.doc_node.kind, DocNodeKind::Namespace) {
     let mut location = doc_node.doc_node.location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
@@ -40,9 +57,11 @@ fn doc_node_into_search_index_nodes_inner(
       kind: doc_node.doc_node.kind,
       name: doc_node.doc_node.name.to_string(),
       file: doc_node.origin.clone().unwrap(),
+      file_name: short_path_to_name(&doc_node.origin.clone().unwrap()),
       ns_qualifiers: ns_qualifiers.clone(),
       location,
       declaration_kind: doc_node.doc_node.declaration_kind,
+      deprecated,
     }];
   }
 
@@ -59,9 +78,11 @@ fn doc_node_into_search_index_nodes_inner(
     kind: doc_node.doc_node.kind,
     name: doc_node.doc_node.name.to_string(),
     file: doc_node.origin.clone().unwrap(),
+    file_name: short_path_to_name(&doc_node.origin.clone().unwrap()),
     ns_qualifiers: ns_qualifiers.clone(),
     location,
     declaration_kind: doc_node.doc_node.declaration_kind,
+    deprecated,
   });
 
   for el in &ns_def.elements {
@@ -77,9 +98,11 @@ fn doc_node_into_search_index_nodes_inner(
       kind: el.kind,
       name: el.name.to_string(),
       file: doc_node.origin.clone().unwrap(),
+      file_name: short_path_to_name(&doc_node.origin.clone().unwrap()),
       ns_qualifiers: ns_qualifiers_,
       location,
       declaration_kind: el.declaration_kind,
+      deprecated,
     });
 
     if el.kind == DocNodeKind::Namespace {
@@ -121,13 +144,23 @@ pub fn generate_search_index(
     })
     .collect::<Vec<_>>();
 
-  let doc_nodes = doc_nodes.iter().fold(
+  let mut doc_nodes = doc_nodes.iter().fold(
     Vec::with_capacity(doc_nodes.len()),
     |mut output, node| {
       output.extend_from_slice(&doc_node_into_search_index_nodes(ctx, node));
       output
     },
   );
+
+  doc_nodes.sort_by(|a, b| a.file.cmp(&b.file));
+  doc_nodes.dedup_by(|a, b| {
+    a.deprecated == b.deprecated
+      && a.name == b.name
+      && a.kind == b.kind
+      && a.location == b.location
+      && a.ns_qualifiers == b.ns_qualifiers
+      && a.declaration_kind == b.declaration_kind
+  });
 
   let search_index = json!({
     "nodes": doc_nodes
