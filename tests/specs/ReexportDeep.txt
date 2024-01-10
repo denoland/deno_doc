@@ -1,0 +1,133 @@
+# mod.ts
+// import type { MessageEntity } from 'https://deno.land/x/grammy@v1.19.2/types.ts';
+import type { MessageEntity } from "./a.ts";
+export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
+export * from "./a.ts";
+
+# a.ts
+export * from "./c.ts";
+
+# b.ts
+export * from "./c.ts";
+
+# c.ts
+export declare namespace MessageEntity {
+  export interface TextLinkMessageEntity {
+    type: "text_link";
+  }
+}
+
+# diagnostics
+[
+  "file:///c.ts:1:1 Missing JSDoc comment.",
+  "file:///c.ts:2:3 Missing JSDoc comment.",
+  "file:///c.ts:3:5 Missing JSDoc comment.",
+  "file:///mod.ts:3:1 Missing JSDoc comment."
+]
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+type UrlMessageEntity = MessageEntity.TextLinkMessageEntity
+
+Defined in file:///c.ts:1:1
+
+namespace MessageEntity
+
+  interface TextLinkMessageEntity
+
+Defined in file:///mod.ts:2:1
+
+
+
+# output.json
+[
+  {
+    "kind": "namespace",
+    "name": "MessageEntity",
+    "location": {
+      "filename": "file:///c.ts",
+      "line": 1,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "interface",
+          "name": "TextLinkMessageEntity",
+          "location": {
+            "filename": "file:///c.ts",
+            "line": 2,
+            "col": 2
+          },
+          "declarationKind": "export",
+          "interfaceDef": {
+            "extends": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "type",
+                "location": {
+                  "filename": "file:///c.ts",
+                  "line": 3,
+                  "col": 4
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "text_link",
+                  "kind": "literal",
+                  "literal": {
+                    "kind": "string",
+                    "string": "text_link"
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "kind": "typeAlias",
+    "name": "UrlMessageEntity",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 0
+    },
+    "declarationKind": "export",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "MessageEntity.TextLinkMessageEntity",
+        "kind": "typeRef",
+        "typeRef": {
+          "typeParams": null,
+          "typeName": "MessageEntity.TextLinkMessageEntity"
+        }
+      },
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "import",
+    "name": "MessageEntity",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0
+    },
+    "declarationKind": "private",
+    "importDef": {
+      "src": "file:///a.ts",
+      "imported": "MessageEntity"
+    }
+  }
+]
