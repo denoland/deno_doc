@@ -82,7 +82,8 @@ fn doc_node_into_search_index_nodes_inner(
     deprecated,
   });
 
-  let mut grouped_nodes = IndexMap::new();
+  let mut grouped_nodes: IndexMap<String, Vec<&crate::DocNode>> =
+    IndexMap::new();
 
   for node in &ns_def.elements {
     if matches!(node.kind, DocNodeKind::Import | DocNodeKind::ModuleDoc) {
@@ -90,7 +91,9 @@ fn doc_node_into_search_index_nodes_inner(
     }
 
     let entry = grouped_nodes.entry(node.name.clone()).or_insert(vec![]);
-    entry.push(node);
+    if !entry.iter().any(|n| n.kind == node.kind) {
+      entry.push(node);
+    }
   }
 
   for (el_name, el_nodes) in &grouped_nodes {
@@ -161,7 +164,8 @@ pub fn generate_search_index(
     })
     .collect::<Vec<_>>();
 
-  let mut grouped_nodes = IndexMap::new();
+  let mut grouped_nodes: IndexMap<String, Vec<&DocNodeWithContext>> =
+    IndexMap::new();
 
   for node in &doc_nodes {
     if matches!(
@@ -174,7 +178,9 @@ pub fn generate_search_index(
     let entry = grouped_nodes
       .entry(node.doc_node.name.clone())
       .or_insert(vec![]);
-    entry.push(node);
+    if !entry.iter().any(|n| n.doc_node.kind == node.doc_node.kind) {
+      entry.push(node);
+    }
   }
 
   let mut doc_nodes = grouped_nodes
