@@ -26,10 +26,7 @@ fn doc_node_into_search_index_nodes_inner(
   doc_nodes: &[&DocNodeWithContext],
   ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
-  let kinds = doc_nodes
-    .iter()
-    .map(|node| node.doc_node.kind.clone())
-    .collect();
+  let kinds = doc_nodes.iter().map(|node| node.doc_node.kind).collect();
 
   let deprecated = doc_nodes.iter().all(|node| {
     node
@@ -111,7 +108,7 @@ fn doc_node_into_search_index_nodes_inner(
       format!("{}.{}", ns_qualifiers_.join("."), el_name)
     };
 
-    let kinds = el_nodes.iter().map(|node| node.kind.clone()).collect();
+    let kinds = el_nodes.iter().map(|node| node.kind).collect();
 
     nodes.push(SearchIndexNode {
       kind: kinds,
