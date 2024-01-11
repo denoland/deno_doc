@@ -40,9 +40,9 @@ pub struct InterfaceMethodDef {
   pub name: String,
   pub kind: deno_ast::swc::ast::MethodKind,
   pub location: Location,
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub computed: bool,
   pub optional: bool,
   pub params: Vec<ParamDef>,
@@ -92,10 +92,10 @@ impl Display for InterfaceMethodDef {
 pub struct InterfacePropertyDef {
   pub name: String,
   pub location: Location,
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
   pub computed: bool,
   pub optional: bool,
@@ -138,7 +138,7 @@ impl Display for InterfacePropertyDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceIndexSignatureDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub readonly: bool,
   pub params: Vec<ParamDef>,
@@ -166,7 +166,7 @@ impl Display for InterfaceIndexSignatureDef {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceCallSignatureDef {
   pub location: Location,
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,

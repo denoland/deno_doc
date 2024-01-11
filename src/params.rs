@@ -48,7 +48,7 @@ pub enum ParamPatternDef {
 pub struct ParamDef {
   #[serde(flatten)]
   pub pattern: ParamPatternDef,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub decorators: Vec<DecoratorDef>,
   pub ts_type: Option<TsTypeDef>,
 }

@@ -18,7 +18,7 @@ use std::fmt::Result as FmtResult;
 #[serde(rename_all = "camelCase")]
 pub struct DecoratorDef {
   pub name: String,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub args: Vec<String>,
   pub location: Location,
 }

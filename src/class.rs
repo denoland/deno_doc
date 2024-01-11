@@ -53,13 +53,13 @@ cfg_if! {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassConstructorParamDef {
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
   #[serde(flatten)]
   pub param: ParamDef,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
 }
 
@@ -80,12 +80,12 @@ impl Display for ClassConstructorParamDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassConstructorDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_optional: bool,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub has_body: bool,
   pub name: String,
   pub params: Vec<ClassConstructorParamDef>,
@@ -108,17 +108,17 @@ impl Display for ClassConstructorDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassPropertyDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub ts_type: Option<TsTypeDef>,
   pub readonly: bool,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub decorators: Vec<DecoratorDef>,
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
   pub name: String,
   pub location: Location,
@@ -163,7 +163,7 @@ impl Display for ClassPropertyDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassIndexSignatureDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub readonly: bool,
   pub params: Vec<ParamDef>,
@@ -190,13 +190,13 @@ impl Display for ClassIndexSignatureDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassMethodDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
   pub name: String,
   pub kind: deno_ast::swc::ast::MethodKind,
@@ -252,7 +252,7 @@ pub struct ClassDef {
   pub implements: Vec<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
   pub super_type_params: Vec<TsTypeDef>,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub decorators: Vec<DecoratorDef>,
 }
 

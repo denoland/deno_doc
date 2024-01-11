@@ -700,16 +700,16 @@ pub enum LiteralDefKind {
 pub struct LiteralDef {
   pub kind: LiteralDefKind,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub number: Option<f64>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub string: Option<String>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_types: Option<Vec<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub boolean: Option<bool>,
 }
 
@@ -799,9 +799,9 @@ pub struct TsInferDef {
 #[serde(rename_all = "camelCase")]
 pub struct TsImportTypeDef {
   pub specifier: String,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub qualifier: Option<String>,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_params: Option<Vec<TsTypeDef>>,
 }
 
@@ -828,14 +828,14 @@ pub struct TsIndexedAccessDef {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsMappedTypeDef {
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub readonly: Option<TruePlusMinus>,
   pub type_param: Box<TsTypeParamDef>,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub name_type: Option<Box<TsTypeDef>>,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub optional: Option<TruePlusMinus>,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<Box<TsTypeDef>>,
 }
 
@@ -845,7 +845,7 @@ pub struct LiteralMethodDef {
   pub name: String,
   pub kind: deno_ast::swc::ast::MethodKind,
   pub params: Vec<ParamDef>,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub computed: bool,
   pub optional: bool,
   pub return_type: Option<TsTypeDef>,
@@ -873,7 +873,7 @@ impl Display for LiteralMethodDef {
 pub struct LiteralPropertyDef {
   pub name: String,
   pub params: Vec<ParamDef>,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
   pub computed: bool,
   pub optional: bool,
@@ -973,67 +973,67 @@ pub struct TsTypeDef {
 
   pub kind: Option<TsTypeDefKind>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub keyword: Option<String>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub literal: Option<LiteralDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_ref: Option<TsTypeRefDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub union: Option<Vec<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub intersection: Option<Vec<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub array: Option<Box<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub tuple: Option<Vec<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_operator: Option<Box<TsTypeOperatorDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub parenthesized: Option<Box<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub rest: Option<Box<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub optional: Option<Box<TsTypeDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_query: Option<String>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub this: Option<bool>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub fn_or_constructor: Option<Box<TsFnOrConstructorDef>>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub conditional_type: Option<TsConditionalDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub infer: Option<TsInferDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub indexed_access: Option<TsIndexedAccessDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub mapped_type: Option<TsMappedTypeDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_literal: Option<TsTypeLiteralDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_predicate: Option<TsTypePredicateDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub import_type: Option<TsImportTypeDef>,
 }
 

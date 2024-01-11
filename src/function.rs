@@ -19,12 +19,12 @@ use serde::{Deserialize, Serialize};
 pub struct FunctionDef {
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
-  #[serde(skip_serializing_if = "is_false")]
+  #[serde(skip_serializing_if = "is_false", default)]
   pub has_body: bool,
   pub is_async: bool,
   pub is_generator: bool,
   pub type_params: Vec<TsTypeParamDef>,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub decorators: Vec<DecoratorDef>,
 }
 

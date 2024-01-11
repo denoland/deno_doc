@@ -16,9 +16,9 @@ use crate::Location;
 #[serde(rename_all = "camelCase")]
 pub struct EnumMemberDef {
   pub name: String,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub init: Option<TsTypeDef>,
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub location: Location,
 }

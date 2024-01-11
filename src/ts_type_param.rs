@@ -10,10 +10,10 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 pub struct TsTypeParamDef {
   pub name: String,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub constraint: Option<TsTypeDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub default: Option<TsTypeDef>,
 }
 
