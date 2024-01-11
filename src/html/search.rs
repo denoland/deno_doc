@@ -7,13 +7,6 @@ use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use serde_json::json;
 
-fn join_qualifiers<S>(qualifiers: &[String], s: S) -> Result<S::Ok, S::Error>
-where
-  S: serde::Serializer,
-{
-  s.serialize_str(&qualifiers.join("."))
-}
-
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchIndexNode {
@@ -21,8 +14,6 @@ struct SearchIndexNode {
   name: String,
   file: String,
   file_name: String,
-  #[serde(serialize_with = "join_qualifiers")]
-  ns_qualifiers: Vec<String>,
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
   deprecated: bool,
@@ -47,6 +38,12 @@ fn doc_node_into_search_index_nodes_inner(
     .iter()
     .any(|tag| matches!(tag, crate::JsDocTag::Deprecated { .. }));
 
+  let name = if ns_qualifiers.is_empty() {
+    doc_node.doc_node.name.to_string()
+  } else {
+    format!("{}.{}", ns_qualifiers.join("."), doc_node.doc_node.name)
+  };
+
   if !matches!(doc_node.doc_node.kind, DocNodeKind::Namespace) {
     let mut location = doc_node.doc_node.location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
@@ -55,10 +52,9 @@ fn doc_node_into_search_index_nodes_inner(
 
     return vec![SearchIndexNode {
       kind: doc_node.doc_node.kind,
-      name: doc_node.doc_node.name.to_string(),
+      name,
       file: doc_node.origin.clone().unwrap(),
       file_name: short_path_to_name(&doc_node.origin.clone().unwrap()),
-      ns_qualifiers: ns_qualifiers.clone(),
       location,
       declaration_kind: doc_node.doc_node.declaration_kind,
       deprecated,
@@ -76,10 +72,9 @@ fn doc_node_into_search_index_nodes_inner(
 
   nodes.push(SearchIndexNode {
     kind: doc_node.doc_node.kind,
-    name: doc_node.doc_node.name.to_string(),
+    name,
     file: doc_node.origin.clone().unwrap(),
     file_name: short_path_to_name(&doc_node.origin.clone().unwrap()),
-    ns_qualifiers: ns_qualifiers.clone(),
     location,
     declaration_kind: doc_node.doc_node.declaration_kind,
     deprecated,
@@ -94,12 +89,17 @@ fn doc_node_into_search_index_nodes_inner(
     let location_url_str = ctx.url_to_short_path(&location_url);
     location.filename = location_url_str;
 
+    let name = if ns_qualifiers_.is_empty() {
+      el.name.to_string()
+    } else {
+      format!("{}.{}", ns_qualifiers_.join("."), el.name)
+    };
+
     nodes.push(SearchIndexNode {
       kind: el.kind,
-      name: el.name.to_string(),
+      name,
       file: doc_node.origin.clone().unwrap(),
       file_name: short_path_to_name(&doc_node.origin.clone().unwrap()),
-      ns_qualifiers: ns_qualifiers_,
       location,
       declaration_kind: el.declaration_kind,
       deprecated,
@@ -144,13 +144,10 @@ pub fn generate_search_index(
     })
     .collect::<Vec<_>>();
 
-  let mut doc_nodes = doc_nodes.iter().fold(
-    Vec::with_capacity(doc_nodes.len()),
-    |mut output, node| {
-      output.extend_from_slice(&doc_node_into_search_index_nodes(ctx, node));
-      output
-    },
-  );
+  let mut doc_nodes = doc_nodes
+    .iter()
+    .flat_map(|node| doc_node_into_search_index_nodes(ctx, node))
+    .collect::<Vec<_>>();
 
   doc_nodes.sort_by(|a, b| a.file.cmp(&b.file));
   doc_nodes.dedup_by(|a, b| {
@@ -158,7 +155,6 @@ pub fn generate_search_index(
       && a.name == b.name
       && a.kind == b.kind
       && a.location == b.location
-      && a.ns_qualifiers == b.ns_qualifiers
       && a.declaration_kind == b.declaration_kind
   });
 
