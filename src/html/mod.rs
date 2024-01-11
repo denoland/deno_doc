@@ -220,6 +220,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     "deprecated",
     include_str!("./templates/deprecated.hbs"),
   )?;
+  reg.register_template_string(
+    "index_signature",
+    include_str!("./templates/index_signature.hbs"),
+  )?;
 
   // pages
   reg.register_template_string(
