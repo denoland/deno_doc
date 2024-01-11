@@ -120,18 +120,22 @@ function renderResults(results) {
   let html = `<ul>`;
 
   for (const result of results) {
-    // console.log("result", result);
-    const [rustKind, title, symbol] = docNodeKindToStringVariants(result.kind);
+    const kind = result.kind.map((kind) => {
+      const [rustKind, title, symbol] = docNodeKindToStringVariants(kind);
+      return `<div class="text-${rustKind} bg-${rustKind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="${title}">
+        ${symbol}
+      </div>`;
+    }).join("");
 
     html += `<li class="block">
-<a href="${pathToRoot}${result.file}/~/${result.label}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100">
+<a href="${pathToRoot}${result.file}/~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100">
     <div class="flex items-center gap-2.5">
-      <div class="text-${rustKind} bg-${rustKind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="${title}">
-        ${symbol}
+      <div class="flex justify-end compound_types w-[2.125rem] shrink-0">
+        ${kind}
       </div>
-      <span class="text-sm leading-none">${result.label}</span>
+      <span class="text-sm leading-none">${result.name}</span>
     </div>
-    <div class="text-xs italic text-stone-400 overflow-hidden whitespace-nowrap text-ellipsis" dir="rtl">${result.location.filename}:${result.location.line}</div>
+    <div class="text-xs italic text-stone-400 overflow-hidden whitespace-nowrap text-ellipsis">${result.location.filename}:${result.location.line}</div>
 </a>
 </li>`;
   }
