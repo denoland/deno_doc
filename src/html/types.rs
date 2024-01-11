@@ -35,14 +35,14 @@ pub(crate) fn render_type_def(
         LiteralDefKind::Number
         | LiteralDefKind::BigInt
         | LiteralDefKind::Boolean => {
-          format!("<span>{}</span>", def.repr)
+          format!("<span>{}</span>", html_escape::encode_safe(&def.repr))
         }
         LiteralDefKind::String => {
-          format!("<span>{:?}</span>", def.repr)
+          format!("<span>{:?}</span>", html_escape::encode_safe(&def.repr))
         }
         LiteralDefKind::Template => {
           // TODO(@kitsonk) do this properly and escape properly
-          format!("<span>`{}`</span>", def.repr)
+          format!("<span>`{}`</span>", html_escape::encode_safe(&def.repr))
         }
       }
     }
@@ -61,10 +61,13 @@ pub(crate) fn render_type_def(
       let name = if let Some(href) = href {
         format!(
           r#"<a href="{href}" class="link">{}</a>"#,
-          type_ref.type_name
+          html_escape::encode_safe(&type_ref.type_name)
         )
       } else {
-        format!(r#"<span>{}</span>"#, type_ref.type_name)
+        format!(
+          r#"<span>{}</span>"#,
+          html_escape::encode_safe(&type_ref.type_name)
+        )
       };
 
       format!(
@@ -251,9 +254,9 @@ pub(crate) fn render_type_def(
           .unwrap_or_default();
 
         let name = if property.computed {
-          format!("[{}]", property.name)
+          format!("[{}]", html_escape::encode_safe(&property.name))
         } else {
-          property.name.clone()
+          html_escape::encode_safe(&property.name).to_string()
         };
 
         let optional = property.optional.then_some("?").unwrap_or_default();
@@ -316,7 +319,7 @@ pub(crate) fn render_type_def(
       let param_type = if let crate::ts_type::ThisOrIdent::Identifier { name } =
         &type_predicate.param
       {
-        name.clone()
+        html_escape::encode_safe(name).to_string()
       } else {
         "<span>this</span>".to_string()
       };
@@ -335,7 +338,9 @@ pub(crate) fn render_type_def(
       let qualifier = import_type
         .qualifier
         .as_ref()
-        .map(|qualifier| format!("<span>.{qualifier}</span>"))
+        .map(|qualifier| {
+          format!("<span>.{}</span>", html_escape::encode_safe(qualifier))
+        })
         .unwrap_or_default();
 
       let type_arguments = import_type
@@ -346,7 +351,7 @@ pub(crate) fn render_type_def(
 
       format!(
         r#"<span>import</span>("{}"){qualifier}{type_arguments}"#,
-        import_type.specifier,
+        html_escape::encode_safe(&import_type.specifier),
       )
     }
   }
