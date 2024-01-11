@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+use deno_doc::DocNode;
 use deno_graph::source::Source;
 use pretty_assertions::assert_eq;
 
@@ -77,5 +78,9 @@ async fn test_doc_specs() {
       "Should be same for {}",
       test_file_path.display()
     );
+
+    // Check that the JSON output is round-trippable.
+    let _parsed_json_output: Vec<DocNode> =
+      serde_json::from_str(&json_output).unwrap();
   }
 }

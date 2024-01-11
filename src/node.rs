@@ -114,31 +114,31 @@ pub struct DocNode {
   pub name: String,
   pub location: Location,
   pub declaration_kind: DeclarationKind,
-  #[serde(skip_serializing_if = "JsDoc::is_empty")]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub function_def: Option<super::function::FunctionDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub variable_def: Option<super::variable::VariableDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub enum_def: Option<super::r#enum::EnumDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub class_def: Option<super::class::ClassDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_alias_def: Option<super::type_alias::TypeAliasDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub namespace_def: Option<NamespaceDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub interface_def: Option<super::interface::InterfaceDef>,
 
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub import_def: Option<ImportDef>,
 }
 

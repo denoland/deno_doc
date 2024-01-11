@@ -20,9 +20,9 @@ lazy_static! {
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct JsDoc {
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub doc: Option<String>,
-  #[serde(skip_serializing_if = "Vec::is_empty")]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub tags: Vec<JsDocTag>,
 }
 
@@ -81,12 +81,12 @@ pub enum JsDocTag {
   /// `@callback Predicate comment`
   Callback {
     name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@category comment`
   Category {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@constructor` or `@class`
@@ -94,30 +94,30 @@ pub enum JsDocTag {
   /// `@default {value} comment`
   Default {
     value: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@deprecated comment`
   Deprecated {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@enum {type} comment`
   Enum {
     #[serde(rename = "type")]
     type_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   Example {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@extends {type} comment`
   Extends {
     #[serde(rename = "type")]
     type_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@ignore`
@@ -129,13 +129,13 @@ pub enum JsDocTag {
   /// or `@param {type} [name] comment`
   Param {
     name: String,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none", default)]
     type_ref: Option<String>,
-    #[serde(skip_serializing_if = "core::ops::Not::not")]
+    #[serde(skip_serializing_if = "core::ops::Not::not", default)]
     optional: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     default: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@public`
@@ -145,9 +145,9 @@ pub enum JsDocTag {
   /// `@property {type} name comment` or `@prop {type} name comment`
   Property {
     name: String,
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default)]
     type_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@protected`
@@ -156,9 +156,9 @@ pub enum JsDocTag {
   ReadOnly,
   /// `@return {type} comment` or `@returns {type} comment`
   Return {
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none", default)]
     type_ref: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@tags allow-read, allow-write`
@@ -168,14 +168,14 @@ pub enum JsDocTag {
   /// `@template T comment`
   Template {
     name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@this {type} comment`
   This {
     #[serde(rename = "type")]
     type_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@typedef {type} name comment`
@@ -183,7 +183,7 @@ pub enum JsDocTag {
     name: String,
     #[serde(rename = "type")]
     type_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   /// `@type {type} comment`
@@ -191,7 +191,7 @@ pub enum JsDocTag {
   TypeRef {
     #[serde(rename = "type")]
     type_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
   Unsupported {
