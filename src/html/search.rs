@@ -27,14 +27,12 @@ fn doc_node_into_search_index_nodes_inner(
 ) -> Vec<SearchIndexNode> {
   let kinds = doc_nodes.iter().map(|node| node.doc_node.kind).collect();
 
-  let deprecated = doc_nodes.iter().all(|node| {
-    node
-      .doc_node
-      .js_doc
-      .tags
+  let deprecated = super::util::all_deprecated(
+    &doc_nodes
       .iter()
-      .any(|tag| matches!(tag, crate::js_doc::JsDocTag::Deprecated { .. }))
-  });
+      .map(|node| &node.doc_node)
+      .collect::<Vec<_>>(),
+  );
 
   let name = if ns_qualifiers.is_empty() {
     name.to_string()
@@ -127,7 +125,7 @@ fn doc_node_into_search_index_nodes_inner(
           origin: doc_nodes[0].origin.clone(),
           doc_node: el_nodes[0].clone(),
         }],
-        ns_qualifiers.clone(),
+        ns_qualifiers_.clone(),
       ));
     }
   }

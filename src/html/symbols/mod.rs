@@ -57,13 +57,8 @@ impl SymbolGroupCtx {
     let symbols = split_nodes
       .values()
       .map(|doc_nodes| {
-        let all_deprecated = doc_nodes.iter().all(|node| {
-          node
-            .js_doc
-            .tags
-            .iter()
-            .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
-        });
+        let all_deprecated =
+          super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
         let mut tags = HashSet::new();
         if all_deprecated {

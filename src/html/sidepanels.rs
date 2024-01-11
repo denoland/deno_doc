@@ -3,7 +3,6 @@ use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::UrlResolveKind;
-use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -30,14 +29,9 @@ impl SidepanelPartitionSymbolCtx {
       name,
       href,
       active,
-      deprecated: nodes.iter().all(|node| {
-        node
-          .doc_node
-          .js_doc
-          .tags
-          .iter()
-          .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
-      }),
+      deprecated: super::util::all_deprecated(
+        &nodes.iter().map(|node| &node.doc_node).collect::<Vec<_>>(),
+      ),
     }
   }
 }

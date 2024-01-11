@@ -311,3 +311,56 @@ async fn symbol_group() {
 
   assert_eq!(files_json, symbol_group_json);
 }
+
+#[tokio::test]
+async fn symbol_search() {
+  let multiple_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("multiple");
+
+  let doc_nodes_by_url = get_files("multiple").await;
+
+  let mut rewrite_map = IndexMap::new();
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ".".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
+    "foo".to_string(),
+  );
+
+  let ctx = GenerateCtx {
+    package_name: None,
+    common_ancestor: None,
+    main_entrypoint: Some(
+      ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ),
+    specifiers: rewrite_map.keys().cloned().collect(),
+    hbs: setup_hbs().unwrap(),
+    syntect_adapter: setup_syntect(),
+    global_symbols: Default::default(),
+    href_resolver: Rc::new(EmptyResolver {}),
+    rewrite_map: Some(rewrite_map),
+    hide_module_doc_title: false,
+    single_file_mode: false,
+    sidebar_flatten_namespaces: false,
+  };
+
+  let search_index = generate_search_index(&ctx, &doc_nodes_by_url).unwrap();
+
+  let symbol_search_json_path = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("symbol_search.json");
+
+  // uncomment to regenerate symbol_search.json
+  //std::fs::write(&symbol_search_json_path, &search_index);
+
+  let symbol_search_json = read_to_string(symbol_search_json_path).unwrap();
+
+  assert_eq!(search_index, symbol_search_json);
+}
