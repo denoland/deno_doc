@@ -14,7 +14,6 @@ struct SearchIndexNode {
   kind: Vec<DocNodeKind>,
   name: String,
   file: String,
-  file_name: String,
   location: Location,
   declaration_kind: crate::node::DeclarationKind,
   deprecated: bool,
@@ -46,14 +45,14 @@ fn doc_node_into_search_index_nodes_inner(
   if !matches!(doc_nodes[0].doc_node.kind, DocNodeKind::Namespace) {
     let mut location = doc_nodes[0].doc_node.location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    let location_url_str = ctx.url_to_short_path(&location_url);
+    let location_url_str =
+      short_path_to_name(&ctx.url_to_short_path(&location_url));
     location.filename = location_url_str;
 
     return vec![SearchIndexNode {
       kind: kinds,
       name,
       file: doc_nodes[0].origin.clone().unwrap(),
-      file_name: short_path_to_name(&doc_nodes[0].origin.clone().unwrap()),
       location,
       declaration_kind: doc_nodes[0].doc_node.declaration_kind,
       deprecated,
@@ -66,14 +65,14 @@ fn doc_node_into_search_index_nodes_inner(
 
   let mut location = doc_nodes[0].doc_node.location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-  let location_url_str = ctx.url_to_short_path(&location_url);
+  let location_url_str =
+    short_path_to_name(&ctx.url_to_short_path(&location_url));
   location.filename = location_url_str;
 
   nodes.push(SearchIndexNode {
     kind: kinds,
     name,
     file: doc_nodes[0].origin.clone().unwrap(),
-    file_name: short_path_to_name(&doc_nodes[0].origin.clone().unwrap()),
     location,
     declaration_kind: doc_nodes[0].doc_node.declaration_kind,
     deprecated,
@@ -99,7 +98,8 @@ fn doc_node_into_search_index_nodes_inner(
 
     let mut location = el_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    let location_url_str = ctx.url_to_short_path(&location_url);
+    let location_url_str =
+      short_path_to_name(&ctx.url_to_short_path(&location_url));
     location.filename = location_url_str;
 
     let name = if ns_qualifiers_.is_empty() {
@@ -114,7 +114,6 @@ fn doc_node_into_search_index_nodes_inner(
       kind: kinds,
       name,
       file: doc_nodes[0].origin.clone().unwrap(),
-      file_name: short_path_to_name(&doc_nodes[0].origin.clone().unwrap()),
       location,
       declaration_kind: el_nodes[0].declaration_kind,
       deprecated,
