@@ -151,7 +151,8 @@ fn render_properties(
         .find_map(|tag| {
           if let crate::js_doc::JsDocTag::Default { value, .. } = tag {
             Some(format!(
-              r#"<span><span class="font-normal"> = </span>{value}</span>"#
+              r#"<span><span class="font-normal"> = </span>{}</span>"#,
+              html_escape::encode_safe(value)
             ))
           } else {
             None
