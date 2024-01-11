@@ -5,16 +5,10 @@
     "test": "deno test --allow-read --allow-net",
     "tailwind": "deno run -A npm:tailwindcss@3.4.0 --minify --input src/html/templates/additional_styles.css --output src/html/templates/styles.css",
     "tailwind_page": "deno run -A npm:tailwindcss@3.4.0 --minify --config src/html/templates/pages/tailwind.config.ts --input src/html/templates/pages/additional_page.css --output src/html/templates/pages/page.css",
-    "gen_html": "deno task tailwind && deno task tailwind_page && cargo run --example ddoc --features=html -- --name \"Deno\" --html ./examples/ddoc/deno.d.ts --output generated_docs/"
+    "gen_html": "deno task tailwind && deno task tailwind_page && cargo run --example ddoc --features=html -- --name \"std HTTP and Assert\" --html ../deno_std/http/mod.ts ../deno_std/assert/mod.ts --output generated_docs/ --main_entrypoint ../deno_std/assert/mod.ts"
   },
   "exclude": [
     "target",
     "benches/fixtures"
-  ],
-  "deploy": {
-    "project": "30177a53-8516-419d-9c16-696a57efe326",
-    "exclude": [],
-    "include": [],
-    "entrypoint": "https://deno.land/std@0.208.0/http/file_server.ts"
-  }
+  ]
 }
