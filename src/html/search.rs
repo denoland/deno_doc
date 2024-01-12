@@ -146,7 +146,7 @@ fn doc_node_into_search_index_nodes(
 pub fn generate_search_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<crate::DocNode>>,
-) -> Result<String, anyhow::Error> {
+) -> serde_json::Value {
   // TODO(bartlomieju): remove
   let doc_nodes = doc_nodes_by_url
     .iter()
@@ -195,14 +195,15 @@ pub fn generate_search_index(
     "nodes": doc_nodes
   });
 
-  Ok(serde_json::to_string(&search_index)?)
+  search_index
 }
 
 pub(crate) fn get_search_index_file(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<crate::DocNode>>,
 ) -> Result<String, anyhow::Error> {
-  let search_index_str = generate_search_index(ctx, doc_nodes_by_url)?;
+  let search_index = generate_search_index(ctx, doc_nodes_by_url);
+  let search_index_str = serde_json::to_string(&search_index)?;
 
   let index = format!(
     r#"(function () {{

@@ -349,7 +349,9 @@ async fn symbol_search() {
     sidebar_flatten_namespaces: false,
   };
 
-  let search_index = generate_search_index(&ctx, &doc_nodes_by_url).unwrap();
+  let search_index = generate_search_index(&ctx, &doc_nodes_by_url);
+  let mut file_json = serde_json::to_string_pretty(&search_index).unwrap();
+  file_json.push('\n');
 
   let symbol_search_json_path = std::env::current_dir()
     .unwrap()
@@ -358,9 +360,9 @@ async fn symbol_search() {
     .join("symbol_search.json");
 
   // uncomment to regenerate symbol_search.json
-  //std::fs::write(&symbol_search_json_path, &search_index);
+  //std::fs::write(&symbol_search_json_path, &file_json);
 
   let symbol_search_json = read_to_string(symbol_search_json_path).unwrap();
 
-  assert_eq!(search_index, symbol_search_json);
+  assert_eq!(file_json, symbol_search_json);
 }
