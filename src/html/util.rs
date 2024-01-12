@@ -312,3 +312,13 @@ impl DocEntryCtx {
     }
   }
 }
+
+pub(crate) fn all_deprecated(nodes: &[&crate::DocNode]) -> bool {
+  nodes.iter().all(|node| {
+    node
+      .js_doc
+      .tags
+      .iter()
+      .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
+  })
+}

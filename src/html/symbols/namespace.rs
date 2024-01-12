@@ -281,14 +281,9 @@ impl NamespaceNodeCtx {
       ),
       name,
       docs,
-      deprecated: nodes.iter().all(|node| {
-        node
-          .doc_node
-          .js_doc
-          .tags
-          .iter()
-          .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
-      }),
+      deprecated: all_deprecated(
+        &nodes.iter().map(|node| &node.doc_node).collect::<Vec<_>>(),
+      ),
     }
   }
 }
