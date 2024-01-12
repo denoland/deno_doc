@@ -60,7 +60,8 @@ pub(crate) fn render_type_def(
 
       let name = if let Some(href) = href {
         format!(
-          r#"<a href="{href}" class="link">{}</a>"#,
+          r#"<a href="{}" class="link">{}</a>"#,
+          html_escape::encode_safe(&href),
           html_escape::encode_safe(&type_ref.type_name)
         )
       } else {
