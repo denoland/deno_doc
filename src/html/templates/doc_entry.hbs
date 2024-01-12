@@ -12,7 +12,7 @@
       {{~/if~}}
 
       <code>
-        <span class="font-bold">{{name}}</span><span class="font-medium">{{content}}</span>
+        <span class="font-bold">{{name}}</span><span class="font-medium">{{{content}}}</span>
       </code>
     </span>
 
@@ -23,7 +23,7 @@
 
   {{~#if js_doc~}}
     <div class="markdown_border">
-      {{~js_doc~}}
+      {{{~js_doc~}}}
     </div>
   {{~/if~}}
 </div>

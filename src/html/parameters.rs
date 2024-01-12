@@ -62,7 +62,9 @@ pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
       format!(r#"(unnamed {i})"#),
     ),
     ParamPatternDef::Assign { left, .. } => param_name(left, i),
-    ParamPatternDef::Identifier { name, .. } => (name.clone(), name.clone()),
+    ParamPatternDef::Identifier { name, .. } => {
+      (html_escape::encode_safe(name).to_string(), name.clone())
+    }
     ParamPatternDef::Rest { arg } => (
       format!("<span>...{}</span>", param_name(arg, i).0),
       format!("(...{})", param_name(arg, i).1),

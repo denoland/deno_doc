@@ -1,6 +1,6 @@
 {{~#each overloads_ctx~}}
   <style scoped>
-    {{~this.additional_css~}}
+    {{{~this.additional_css~}}}
   </style>
   <input type="radio" name="{{this.function_id}}" id="{{this.overload_id}}" {{this.html_attrs}} />
 {{~/each~}}
@@ -10,11 +10,11 @@
     <label for="{{this.overload_id}}" class="space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:bg-stone-100">
       {{~> deprecated this.deprecated ~}}
       <code class="text-sm">
-        <span class="font-bold">{{this.name}}</span><span class="font-medium">{{this.summary}}</span>
+        <span class="font-bold">{{this.name}}</span><span class="font-medium">{{{this.summary}}}</span>
       </code>
       {{~#if this.summary_doc~}}
         <div class="markdown_border">
-          {{~this.summary_doc~}}
+          {{{~this.summary_doc~}}}
         </div>
       {{~/if~}}
     </label>
