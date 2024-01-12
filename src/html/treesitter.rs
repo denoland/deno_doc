@@ -47,11 +47,11 @@ impl TreeSitterHighlighter {
 }
 
 impl SyntaxHighlighterAdapter for TreeSitterHighlighter {
-  fn write_highlighted<'a>(
+  fn write_highlighted(
     &self,
     output: &mut dyn std::io::prelude::Write,
     lang: Option<&str>,
-    code: &'a str,
+    code: &str,
   ) -> std::io::Result<()> {
     let lang = lang.unwrap_or_default();
     let config = (self.language_cb)(lang);
