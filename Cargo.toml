@@ -59,17 +59,10 @@ tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
 [features]
-default = ["html", "tree-sitter-all", "rust"]
+default = ["html", "rust"]
 rust = []
-html = ["html-escape", "comrak", "handlebars", "tree-sitter-highlight"]
+html = ["html-escape", "comrak", "handlebars", "tree-sitter-highlight", "tree-sitter-all"]
 tree-sitter-all = ["tree-sitter-javascript", "tree-sitter-typescript", "tree-sitter-json", "tree-sitter-regex", "tree-sitter-css", "tree-sitter-toml", "tree-sitter-md"]
-tree-sitter-javascript = ["dep:tree-sitter-javascript"]
-tree-sitter-typescript = ["dep:tree-sitter-typescript"]
-tree-sitter-json = ["dep:tree-sitter-json"]
-tree-sitter-regex = ["dep:tree-sitter-regex"]
-tree-sitter-css = ["dep:tree-sitter-css"]
-tree-sitter-toml = ["dep:tree-sitter-toml"]
-tree-sitter-md = ["dep:tree-sitter-md"]
 
 [profile.release]
 codegen-units = 1

@@ -105,23 +105,14 @@ pub fn tree_sitter_language_cb(
 ) -> Option<&'static HighlightConfiguration> {
   for lang in lang.split(',') {
     let cfg = match lang.trim() {
-      #[cfg(feature = "tree-sitter-javascript")]
       "js" | "javascript" => tree_sitter_language_javascript(),
-      #[cfg(feature = "tree-sitter-javascript")]
       "jsx" => tree_sitter_language_jsx(),
-      #[cfg(feature = "tree-sitter-typescript")]
       "ts" | "typescript" => tree_sitter_language_typescript(),
-      #[cfg(feature = "tree-sitter-typescript")]
       "tsx" => tree_sitter_language_tsx(),
-      #[cfg(feature = "tree-sitter-json")]
       "json" => tree_sitter_language_json(),
-      #[cfg(feature = "tree-sitter-css")]
       "css" => tree_sitter_language_css(),
-      #[cfg(feature = "tree-sitter-md")]
       "md" | "markdown" => tree_sitter_language_markdown(),
-      #[cfg(feature = "tree-sitter-toml")]
       "toml" => tree_sitter_language_toml(),
-      #[cfg(feature = "tree-sitter-regex")]
       "regex" => tree_sitter_language_regex(),
       _ => continue,
     };
@@ -130,7 +121,6 @@ pub fn tree_sitter_language_cb(
   None
 }
 
-#[cfg(feature = "tree-sitter-javascript")]
 pub fn tree_sitter_language_javascript() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -146,7 +136,6 @@ pub fn tree_sitter_language_javascript() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-javascript")]
 pub fn tree_sitter_language_jsx() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -167,7 +156,6 @@ pub fn tree_sitter_language_jsx() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-typescript")]
 pub fn tree_sitter_language_typescript() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -193,7 +181,6 @@ pub fn tree_sitter_language_typescript() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-typescript")]
 pub fn tree_sitter_language_tsx() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -220,7 +207,6 @@ pub fn tree_sitter_language_tsx() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-json")]
 fn tree_sitter_language_json() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -236,7 +222,6 @@ fn tree_sitter_language_json() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-css")]
 fn tree_sitter_language_css() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -252,7 +237,6 @@ fn tree_sitter_language_css() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-md")]
 fn tree_sitter_language_markdown() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -268,7 +252,6 @@ fn tree_sitter_language_markdown() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-toml")]
 fn tree_sitter_language_toml() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
@@ -284,7 +267,6 @@ fn tree_sitter_language_toml() -> &'static HighlightConfiguration {
   })
 }
 
-#[cfg(feature = "tree-sitter-regex")]
 fn tree_sitter_language_regex() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
