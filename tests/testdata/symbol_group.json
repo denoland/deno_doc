@@ -87,7 +87,7 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+        "import_statement": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span class=\"pl-k\">import</span> { <span class=\"pl-v\">Bar</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">&quot;.&quot;</span>;\n</code></pre>\n</div>",
         "raw_import_statement": "\"import { Bar } from \\\".\\\";\""
       }
     },
@@ -194,7 +194,7 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+        "import_statement": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span class=\"pl-k\">import</span> { <span class=\"pl-v\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">&quot;.&quot;</span>;\n</code></pre>\n</div>",
         "raw_import_statement": "\"import { Foo } from \\\".\\\";\""
       }
     },
@@ -323,7 +323,7 @@
         }
       ],
       "usage": {
-        "import_statement": "<div class=\"markdown\"><pre><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;foo&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+        "import_statement": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span class=\"pl-k\">import</span> { x } <span class=\"pl-k\">from</span> <span class=\"pl-s\">&quot;foo&quot;</span>;\n</code></pre>\n</div>",
         "raw_import_statement": "\"import { x } from \\\"foo\\\";\""
       }
     },
