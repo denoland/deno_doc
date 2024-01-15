@@ -42,6 +42,5 @@ export default {
       colors: extraColors,
     },
   },
-  important: ".ddoc",
   darkMode: "class",
 } as Config;

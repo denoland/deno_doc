@@ -241,7 +241,7 @@ async fn symbol_group() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
-    syntect_adapter: setup_syntect(),
+    tree_sitter_highlighter: setup_tree_sitter(),
     global_symbols: Default::default(),
     href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),
@@ -305,7 +305,7 @@ async fn symbol_group() {
     .join("symbol_group.json");
 
   // uncomment to regenerate symbol_group.json
-  //std::fs::write(&symbol_group_json_path, &files_json);
+  // std::fs::write(&symbol_group_json_path, &files_json);
 
   let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
 
@@ -340,7 +340,7 @@ async fn symbol_search() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
-    syntect_adapter: setup_syntect(),
+    tree_sitter_highlighter: setup_tree_sitter(),
     global_symbols: Default::default(),
     href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),

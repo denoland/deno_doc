@@ -99,7 +99,7 @@ fn render_markdown_inner(
   let mut plugins = comrak::Plugins::default();
 
   plugins.render.codefence_syntax_highlighter =
-    Some(&render_ctx.ctx.syntect_adapter);
+    Some(&render_ctx.ctx.tree_sitter_highlighter);
 
   let heading_adapter =
     crate::html::comrak_adapters::HeadingToCAdapter::default();
