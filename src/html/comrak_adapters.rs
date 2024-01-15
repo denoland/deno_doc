@@ -1,7 +1,3 @@
-// Copied and modified from https://github.com/kivikakk/comrak/blob/main/src/plugins/syntect.rs
-
-//! Adapter for the Syntect syntax highlighter plugin.
-
 use comrak::adapters::HeadingAdapter;
 use comrak::adapters::HeadingMeta;
 use comrak::nodes::Sourcepos;
