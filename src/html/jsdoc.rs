@@ -285,7 +285,8 @@ impl ExampleCtx {
 #[derive(Debug, Serialize, Clone)]
 pub struct ModuleDocCtx {
   title: Option<String>,
-  docs: String,
+  deprecated: Option<String>,
+  docs: Option<String>,
 }
 
 impl ModuleDocCtx {
@@ -301,20 +302,31 @@ impl ModuleDocCtx {
         .iter()
         .find(|n| n.kind == DocNodeKind::ModuleDoc);
 
-      docs
-        .and_then(|node| node.js_doc.doc.as_ref())
-        .map(|docs_md| {
-          let rendered_docs = render_markdown_with_toc(render_ctx, docs_md);
+      docs.map(|node| {
+        let rendered_docs = node
+          .js_doc
+          .doc
+          .as_ref()
+          .map(|doc| render_markdown_with_toc(render_ctx, doc));
 
-          Self {
-            title: (!render_ctx.ctx.hide_module_doc_title).then(|| {
-              super::short_path_to_name(
-                &render_ctx.ctx.url_to_short_path(main_entrypoint),
-              )
-            }),
-            docs: rendered_docs,
+        let deprecated = node.js_doc.tags.iter().find_map(|tag| {
+          if let JsDocTag::Deprecated { doc } = tag {
+            doc.to_owned()
+          } else {
+            Some("".to_string())
           }
-        })
+        });
+
+        Self {
+          title: (!render_ctx.ctx.hide_module_doc_title).then(|| {
+            super::short_path_to_name(
+              &render_ctx.ctx.url_to_short_path(main_entrypoint),
+            )
+          }),
+          deprecated,
+          docs: rendered_docs,
+        }
+      })
     } else {
       None
     }
