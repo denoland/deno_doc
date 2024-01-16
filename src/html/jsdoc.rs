@@ -284,9 +284,9 @@ impl ExampleCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ModuleDocCtx {
-  title: Option<String>,
-  deprecated: Option<String>,
-  docs: Option<String>,
+  pub title: Option<String>,
+  pub deprecated: Option<String>,
+  pub docs: Option<String>,
 }
 
 impl ModuleDocCtx {
@@ -311,9 +311,9 @@ impl ModuleDocCtx {
 
         let deprecated = node.js_doc.tags.iter().find_map(|tag| {
           if let JsDocTag::Deprecated { doc } = tag {
-            doc.to_owned()
+            Some(doc.to_owned().unwrap_or_default())
           } else {
-            Some("".to_string())
+            None
           }
         });
 
