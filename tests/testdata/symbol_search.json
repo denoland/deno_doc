@@ -8,7 +8,7 @@
       "file": ".",
       "location": {
         "filename": "main",
-        "line": 1,
+        "line": 9,
         "col": 0
       },
       "declarationKind": "export",
@@ -22,7 +22,7 @@
       "file": ".",
       "location": {
         "filename": "main",
-        "line": 3,
+        "line": 11,
         "col": 0
       },
       "declarationKind": "export",
