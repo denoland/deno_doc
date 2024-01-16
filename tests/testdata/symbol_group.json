@@ -184,7 +184,7 @@
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": null,
+                "docs": "<div class=\"markdown\"><p>some Foo docs</p>\n</div>",
                 "sections": []
               }
             }
