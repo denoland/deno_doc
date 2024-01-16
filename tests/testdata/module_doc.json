@@ -1,0 +1,8 @@
+[
+  {
+    "title": "main",
+    "deprecated": null,
+    "docs": "<div class=\"flex max-lg:flex-col-reverse gap-7\">\n        <div class=\"markdown\"><p>Some docs</p>\n</div>\n        <nav class=\"flex-none max-w-64 text-sm max-lg:hidden\"><ul class=\"space-y-2 sticky top-4 block\"></ul></nav>\n      </div>"
+  },
+  null
+]

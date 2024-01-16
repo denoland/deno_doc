@@ -366,3 +366,73 @@ async fn symbol_search() {
 
   assert_eq!(file_json, symbol_search_json);
 }
+
+#[tokio::test]
+async fn module_doc() {
+  let multiple_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("multiple");
+
+  let doc_nodes_by_url = get_files("multiple").await;
+
+  let mut rewrite_map = IndexMap::new();
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ".".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
+    "foo".to_string(),
+  );
+
+  let ctx = GenerateCtx {
+    package_name: None,
+    common_ancestor: None,
+    main_entrypoint: Some(
+      ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ),
+    specifiers: rewrite_map.keys().cloned().collect(),
+    hbs: setup_hbs().unwrap(),
+    tree_sitter_highlighter: setup_tree_sitter(),
+    global_symbols: Default::default(),
+    href_resolver: Rc::new(EmptyResolver {}),
+    rewrite_map: Some(rewrite_map),
+    hide_module_doc_title: false,
+    single_file_mode: true,
+    sidebar_flatten_namespaces: false,
+  };
+
+  let mut module_docs = vec![];
+
+  for specifier in &ctx.specifiers {
+    let short_path = ctx.url_to_short_path(specifier);
+    let doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
+    let render_ctx = RenderContext::new(
+      &ctx,
+      doc_nodes,
+      UrlResolveKind::File(&short_path),
+      Some(specifier),
+    );
+    let module_doc =
+      ModuleDocCtx::new(&render_ctx, Some(specifier), &doc_nodes_by_url);
+
+    module_docs.push(module_doc);
+  }
+
+  let mut file_json = serde_json::to_string_pretty(&module_docs).unwrap();
+  file_json.push('\n');
+
+  let module_docs_json_path = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("module_doc.json");
+
+  // uncomment to regenerate symbol_search.json
+  //std::fs::write(&module_docs_json_path, &file_json);
+
+  let module_docs_json = read_to_string(module_docs_json_path).unwrap();
+  assert_eq!(file_json, module_docs_json);
+}
