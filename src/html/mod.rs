@@ -24,6 +24,7 @@ mod util;
 
 pub use self::treesitter::tree_sitter_language_cb;
 pub use self::treesitter::TreeSitterHighlighter;
+pub use jsdoc::markdown_to_html;
 pub use jsdoc::ModuleDocCtx;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;

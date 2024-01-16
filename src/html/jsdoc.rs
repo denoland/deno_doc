@@ -1,5 +1,6 @@
 use super::render_context::RenderContext;
 use super::util::*;
+use crate::html::TreeSitterHighlighter;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -79,11 +80,11 @@ fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
   }
 }
 
-fn render_markdown_inner(
-  render_ctx: &RenderContext,
+pub fn markdown_to_html(
   md: &str,
   summary: bool,
   render_toc: bool,
+  highlighter: &TreeSitterHighlighter,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -97,10 +98,7 @@ fn render_markdown_inner(
   options.render.escape = true;
 
   let mut plugins = comrak::Plugins::default();
-
-  plugins.render.codefence_syntax_highlighter =
-    Some(&render_ctx.ctx.tree_sitter_highlighter);
-
+  plugins.render.codefence_syntax_highlighter = Some(highlighter);
   let heading_adapter =
     crate::html::comrak_adapters::HeadingToCAdapter::default();
   plugins.render.heading_adapter = Some(&heading_adapter);
@@ -117,11 +115,7 @@ fn render_markdown_inner(
   } else {
     "markdown"
   };
-  let html = comrak::markdown_to_html_with_plugins(
-    &parse_links(md, render_ctx),
-    &options,
-    &plugins,
-  );
+  let html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
 
   let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
 
@@ -162,6 +156,20 @@ fn render_markdown_inner(
   }
 
   markdown
+}
+
+pub(crate) fn render_markdown_inner(
+  render_ctx: &RenderContext,
+  md: &str,
+  summary: bool,
+  render_toc: bool,
+) -> String {
+  markdown_to_html(
+    &parse_links(md, render_ctx),
+    summary,
+    render_toc,
+    &render_ctx.ctx.tree_sitter_highlighter,
+  )
 }
 
 pub(crate) fn render_markdown_summary(
