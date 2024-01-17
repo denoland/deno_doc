@@ -69,7 +69,7 @@ summary::-webkit-details-marker {
 }
 
 .markdown {
-  a {
+  a:not(.no_color) {
     @apply link;
   }
 

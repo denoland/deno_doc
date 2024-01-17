@@ -277,7 +277,7 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
 }
 
 pub fn setup_tree_sitter() -> TreeSitterHighlighter {
-  TreeSitterHighlighter::new(tree_sitter_language_cb)
+  TreeSitterHighlighter::new(tree_sitter_language_cb, false)
 }
 
 pub fn generate(

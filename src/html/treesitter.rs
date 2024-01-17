@@ -37,13 +37,18 @@ fn classes(highlight: Highlight) -> &'static [u8] {
 
 pub struct TreeSitterHighlighter {
   language_cb: fn(&str) -> Option<&'static HighlightConfiguration>,
+  show_line_numbers: bool,
 }
 
 impl TreeSitterHighlighter {
   pub fn new(
     language_cb: fn(&str) -> Option<&'static HighlightConfiguration>,
+    show_line_numbers: bool,
   ) -> Self {
-    Self { language_cb }
+    Self {
+      language_cb,
+      show_line_numbers,
+    }
   }
 }
 
@@ -66,7 +71,34 @@ impl SyntaxHighlighterAdapter for TreeSitterHighlighter {
           match renderer
             .render(highlighter, source, &|highlight| classes(highlight))
           {
-            Ok(()) => return output.write_all(&renderer.html),
+            Ok(()) => {
+              if self.show_line_numbers {
+                let mut line_numbers = String::from(
+                  r#"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">"#,
+                );
+
+                let mut lines = String::from(r#"<div class="grow">"#);
+
+                for (i, line) in renderer.lines().enumerate() {
+                  let n = i + 1;
+                  line_numbers.push_str(&format!(
+                    r##"<a href="#L{n}" class="no_color block">{n}</a>"##,
+                  ));
+
+                  lines.push_str(&format!(
+                    r#"<span id="L{n}" class="block target:bg-yellow-200">{line}</span>"#
+                  ));
+                }
+
+                line_numbers.push_str("</div>");
+                output.write_all(line_numbers.as_bytes())?;
+
+                lines.push_str("</div>");
+                return output.write_all(lines.as_bytes());
+              } else {
+                return output.write_all(&renderer.html);
+              }
+            }
             Err(err) => {
               eprintln!("Error rendering code: {}", err);
             }
@@ -95,8 +127,14 @@ impl SyntaxHighlighterAdapter for TreeSitterHighlighter {
   fn write_code_tag(
     &self,
     output: &mut dyn std::io::prelude::Write,
-    attributes: std::collections::HashMap<String, String>,
+    mut attributes: std::collections::HashMap<String, String>,
   ) -> std::io::Result<()> {
+    if self.show_line_numbers {
+      attributes
+        .entry("class".into())
+        .or_default()
+        .push_str(" flex gap-2");
+    }
     comrak::html::write_opening_tag(output, "code", attributes)
   }
 }
