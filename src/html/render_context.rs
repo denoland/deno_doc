@@ -145,16 +145,10 @@ impl<'ctx> RenderContext<'ctx> {
         .resolve_import_href(&target_symbol_parts, src);
     }
 
-    if let Some(context) = self.ctx.global_symbols.get(&target_symbol_parts) {
-      return Some(
-        self
-          .ctx
-          .href_resolver
-          .resolve_global_symbol(&target_symbol_parts, context),
-      );
-    }
-
-    None
+    self
+      .ctx
+      .href_resolver
+      .resolve_global_symbol(&target_symbol_parts)
   }
 
   pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {

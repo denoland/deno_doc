@@ -41,12 +41,8 @@ impl Loader for SourceFileLoader {
 struct EmptyResolver {}
 
 impl HrefResolver for EmptyResolver {
-  fn resolve_global_symbol(
-    &self,
-    _symbol: &[String],
-    _context: &str,
-  ) -> String {
-    String::new()
+  fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
+    None
   }
 
   fn resolve_import_href(
@@ -130,7 +126,6 @@ async fn html_doc_files() {
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
-      global_symbols: Default::default(),
       href_resolver: Rc::new(EmptyResolver {}),
       rewrite_map: None,
       hide_module_doc_title: false,
@@ -181,7 +176,6 @@ async fn html_doc_files_rewrite() {
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
-      global_symbols: Default::default(),
       href_resolver: Rc::new(EmptyResolver {}),
       rewrite_map: Some(rewrite_map),
       hide_module_doc_title: false,
@@ -242,7 +236,6 @@ async fn symbol_group() {
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
     tree_sitter_highlighter: setup_tree_sitter(),
-    global_symbols: Default::default(),
     href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
@@ -341,7 +334,6 @@ async fn symbol_search() {
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
     tree_sitter_highlighter: setup_tree_sitter(),
-    global_symbols: Default::default(),
     href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
@@ -396,7 +388,6 @@ async fn module_doc() {
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
     tree_sitter_highlighter: setup_tree_sitter(),
-    global_symbols: Default::default(),
     href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
