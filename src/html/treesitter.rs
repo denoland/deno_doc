@@ -1,4 +1,3 @@
-use std::io::Write;
 use std::sync::OnceLock;
 
 use comrak::adapters::SyntaxHighlighterAdapter;
