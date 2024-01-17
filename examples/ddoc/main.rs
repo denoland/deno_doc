@@ -176,12 +176,8 @@ fn main() {
 struct EmptyResolver();
 
 impl HrefResolver for EmptyResolver {
-  fn resolve_global_symbol(
-    &self,
-    _symbol: &[String],
-    _context: &str,
-  ) -> String {
-    String::new()
+  fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
+    None
   }
 
   fn resolve_import_href(
@@ -222,7 +218,6 @@ fn generate_docs_directory(
   let options = deno_doc::html::GenerateOptions {
     package_name: Some(name),
     main_entrypoint,
-    global_symbols: Default::default(),
     href_resolver: Rc::new(EmptyResolver()),
     rewrite_map: Some(index_map),
     hide_module_doc_title: false,

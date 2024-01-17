@@ -136,7 +136,7 @@ pub trait HrefResolver {
   }
 
   /// Resolver for global symbols, like the Deno namespace or other built-ins
-  fn resolve_global_symbol(&self, symbol: &[String], context: &str) -> String;
+  fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String>;
 
   /// Resolver for symbols from non-relative imports
   fn resolve_import_href(&self, symbol: &[String], src: &str)

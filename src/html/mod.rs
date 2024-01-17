@@ -62,7 +62,6 @@ pub struct GenerateOptions {
   /// If only a single file is specified during generation, this will always
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
-  pub global_symbols: NamespacedGlobalSymbols,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
@@ -76,7 +75,6 @@ pub struct GenerateCtx<'ctx> {
   pub specifiers: Vec<ModuleSpecifier>,
   pub hbs: Handlebars<'ctx>,
   pub tree_sitter_highlighter: TreeSitterHighlighter,
-  pub global_symbols: NamespacedGlobalSymbols,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
@@ -299,7 +297,6 @@ pub fn generate(
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     hbs: setup_hbs()?,
     tree_sitter_highlighter: setup_tree_sitter(),
-    global_symbols: options.global_symbols,
     href_resolver: options.href_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
