@@ -122,7 +122,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 2,
-      "col": 13
+      "col": 13,
+      "byteIndex": 25
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -146,7 +147,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 4,
-      "col": 13
+      "col": 13,
+      "byteIndex": 61
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -170,7 +172,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 6,
-      "col": 13
+      "col": 13,
+      "byteIndex": 97
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -194,7 +197,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 8,
-      "col": 13
+      "col": 13,
+      "byteIndex": 133
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -218,7 +222,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 10,
-      "col": 13
+      "col": 13,
+      "byteIndex": 169
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -242,7 +247,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 12,
-      "col": 13
+      "col": 13,
+      "byteIndex": 205
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -266,7 +272,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 14,
-      "col": 13
+      "col": 13,
+      "byteIndex": 241
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -290,7 +297,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 16,
-      "col": 13
+      "col": 13,
+      "byteIndex": 277
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -314,7 +322,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 18,
-      "col": 13
+      "col": 13,
+      "byteIndex": 313
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -338,7 +347,8 @@ class MyClass
     "location": {
       "filename": "file:///other.ts",
       "line": 20,
-      "col": 13
+      "col": 13,
+      "byteIndex": 349
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -362,7 +372,8 @@ class MyClass
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
-      "col": 0
+      "col": 0,
+      "byteIndex": 166
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -393,7 +404,8 @@ class MyClass
           "location": {
             "filename": "file:///mod.ts",
             "line": 11,
-            "col": 2
+            "col": 2,
+            "byteIndex": 205
           }
         },
         {
@@ -417,7 +429,8 @@ class MyClass
           "location": {
             "filename": "file:///mod.ts",
             "line": 13,
-            "col": 2
+            "col": 2,
+            "byteIndex": 242
           }
         }
       ],
@@ -435,7 +448,8 @@ class MyClass
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 115
     },
     "declarationKind": "private",
     "classDef": {
@@ -456,7 +470,8 @@ class MyClass
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 0
+      "col": 0,
+      "byteIndex": 134
     },
     "declarationKind": "private",
     "classDef": {

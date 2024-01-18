@@ -41,7 +41,8 @@ private interface YesDiagnostic
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 15
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -78,7 +79,8 @@ private interface YesDiagnostic
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
-            "col": 2
+            "col": 2,
+            "byteIndex": 40
           }
         },
         {
@@ -106,7 +108,8 @@ private interface YesDiagnostic
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
-            "col": 2
+            "col": 2,
+            "byteIndex": 91
           }
         }
       ],
@@ -122,7 +125,8 @@ private interface YesDiagnostic
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,
-      "col": 0
+      "col": 0,
+      "byteIndex": 133
     },
     "declarationKind": "private",
     "interfaceDef": {

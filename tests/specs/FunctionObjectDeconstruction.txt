@@ -20,7 +20,8 @@ function f({a, b, ...c}): void
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "functionDef": {

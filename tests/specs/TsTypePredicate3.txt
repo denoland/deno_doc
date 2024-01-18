@@ -25,7 +25,8 @@ class C
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "classDef": {
@@ -69,7 +70,8 @@ class C
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 19
           }
         }
       ],

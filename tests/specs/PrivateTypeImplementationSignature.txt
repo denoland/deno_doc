@@ -60,7 +60,8 @@ namespace SameName
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 15
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -76,7 +77,8 @@ namespace SameName
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 0
+      "col": 0,
+      "byteIndex": 59
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -104,7 +106,8 @@ namespace SameName
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
-      "col": 0
+      "col": 0,
+      "byteIndex": 122
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -131,7 +134,8 @@ namespace SameName
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
-      "col": 0
+      "col": 0,
+      "byteIndex": 162
     },
     "declarationKind": "export",
     "functionDef": {
@@ -156,7 +160,8 @@ namespace SameName
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
-      "col": 0
+      "col": 0,
+      "byteIndex": 205
     },
     "declarationKind": "private",
     "interfaceDef": {
@@ -174,7 +179,8 @@ namespace SameName
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
-      "col": 0
+      "col": 0,
+      "byteIndex": 233
     },
     "declarationKind": "private",
     "interfaceDef": {

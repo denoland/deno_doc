@@ -24,7 +24,8 @@ interface default
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 0
+      "col": 0,
+      "byteIndex": 28
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -39,7 +40,8 @@ interface default
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
-            "col": 4
+            "col": 4,
+            "byteIndex": 90
           },
           "jsDoc": {
             "doc": "Read n bytes"

@@ -32,7 +32,8 @@ private namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 105
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -53,7 +54,8 @@ private namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 163
     },
     "declarationKind": "private",
     "namespaceDef": {
@@ -64,7 +66,8 @@ private namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,
-            "col": 2
+            "col": 2,
+            "byteIndex": 208
           },
           "declarationKind": "export",
           "jsDoc": {

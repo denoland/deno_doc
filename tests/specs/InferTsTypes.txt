@@ -154,7 +154,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 11
+      "col": 11,
+      "byteIndex": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -172,7 +173,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 11
+      "col": 11,
+      "byteIndex": 35
     },
     "declarationKind": "export",
     "variableDef": {
@@ -190,7 +192,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 11
+      "col": 11,
+      "byteIndex": 55
     },
     "declarationKind": "export",
     "variableDef": {
@@ -208,7 +211,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 11
+      "col": 11,
+      "byteIndex": 77
     },
     "declarationKind": "export",
     "variableDef": {
@@ -226,7 +230,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 11
+      "col": 11,
+      "byteIndex": 99
     },
     "declarationKind": "export",
     "variableDef": {
@@ -247,7 +252,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 11
+      "col": 11,
+      "byteIndex": 124
     },
     "declarationKind": "export",
     "variableDef": {
@@ -265,7 +271,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
-      "col": 0
+      "col": 0,
+      "byteIndex": 141
     },
     "declarationKind": "export",
     "functionDef": {
@@ -287,7 +294,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
-      "col": 0
+      "col": 0,
+      "byteIndex": 193
     },
     "declarationKind": "export",
     "functionDef": {
@@ -318,7 +326,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
-      "col": 0
+      "col": 0,
+      "byteIndex": 260
     },
     "declarationKind": "export",
     "functionDef": {
@@ -336,7 +345,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 22,
-      "col": 0
+      "col": 0,
+      "byteIndex": 337
     },
     "declarationKind": "export",
     "functionDef": {
@@ -354,7 +364,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 28,
-      "col": 0
+      "col": 0,
+      "byteIndex": 447
     },
     "declarationKind": "export",
     "functionDef": {
@@ -372,7 +383,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 31,
-      "col": 0
+      "col": 0,
+      "byteIndex": 492
     },
     "declarationKind": "export",
     "classDef": {
@@ -403,7 +415,8 @@ namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 32,
-            "col": 2
+            "col": 2,
+            "byteIndex": 517
           }
         },
         {
@@ -437,7 +450,8 @@ namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 34,
-            "col": 2
+            "col": 2,
+            "byteIndex": 533
           }
         },
         {
@@ -458,7 +472,8 @@ namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 37,
-            "col": 2
+            "col": 2,
+            "byteIndex": 560
           }
         },
         {
@@ -479,7 +494,8 @@ namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 43,
-            "col": 2
+            "col": 2,
+            "byteIndex": 650
           }
         },
         {
@@ -500,7 +516,8 @@ namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 47,
-            "col": 2
+            "col": 2,
+            "byteIndex": 714
           }
         }
       ],
@@ -516,7 +533,8 @@ namespace MyNamespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 51,
-      "col": 0
+      "col": 0,
+      "byteIndex": 747
     },
     "declarationKind": "export",
     "namespaceDef": {
@@ -527,7 +545,8 @@ namespace MyNamespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 53,
-            "col": 2
+            "col": 2,
+            "byteIndex": 831
           },
           "declarationKind": "declare",
           "functionDef": {

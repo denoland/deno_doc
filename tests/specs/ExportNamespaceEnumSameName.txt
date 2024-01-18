@@ -34,7 +34,8 @@ namespace RootNs
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "namespaceDef": {
@@ -45,7 +46,8 @@ namespace RootNs
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 28
           },
           "declarationKind": "export",
           "namespaceDef": {
@@ -56,7 +58,8 @@ namespace RootNs
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 3,
-                  "col": 4
+                  "col": 4,
+                  "byteIndex": 60
                 },
                 "declarationKind": "export",
                 "enumDef": {
@@ -72,7 +75,8 @@ namespace RootNs
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,
-            "col": 2
+            "col": 2,
+            "byteIndex": 91
           },
           "declarationKind": "export",
           "enumDef": {

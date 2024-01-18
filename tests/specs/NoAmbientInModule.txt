@@ -21,7 +21,8 @@ function bar(): void
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 32
     },
     "declarationKind": "export",
     "functionDef": {

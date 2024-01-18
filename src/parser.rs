@@ -1231,6 +1231,7 @@ fn parse_json_module_doc_node(
         filename: specifier.to_string(),
         col: 0,
         line: 1,
+        byte_index: 0,
       },
       declaration_kind: DeclarationKind::Export,
       variable_def: Some(VariableDef {

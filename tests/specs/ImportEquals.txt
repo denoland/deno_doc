@@ -28,7 +28,8 @@ interface Options
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 2
+      "col": 2,
+      "byteIndex": 24
     },
     "declarationKind": "export",
     "interfaceDef": {

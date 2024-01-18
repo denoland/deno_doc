@@ -56,7 +56,8 @@ private namespace MyNamespace3
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "typeAliasDef": {
@@ -74,7 +75,8 @@ private namespace MyNamespace3
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 82
     },
     "declarationKind": "private",
     "namespaceDef": {
@@ -85,7 +87,8 @@ private namespace MyNamespace3
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
-            "col": 2
+            "col": 2,
+            "byteIndex": 259
           },
           "declarationKind": "export",
           "classDef": {
@@ -107,7 +110,8 @@ private namespace MyNamespace3
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 13,
-                  "col": 4
+                  "col": 4,
+                  "byteIndex": 286
                 }
               }
             ],
@@ -128,7 +132,8 @@ private namespace MyNamespace3
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
-      "col": 0
+      "col": 0,
+      "byteIndex": 156
     },
     "declarationKind": "private",
     "namespaceDef": {
@@ -139,7 +144,8 @@ private namespace MyNamespace3
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
-            "col": 2
+            "col": 2,
+            "byteIndex": 259
           },
           "declarationKind": "export",
           "classDef": {
@@ -161,7 +167,8 @@ private namespace MyNamespace3
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 13,
-                  "col": 4
+                  "col": 4,
+                  "byteIndex": 286
                 }
               }
             ],
@@ -182,7 +189,8 @@ private namespace MyNamespace3
     "location": {
       "filename": "file:///mod.ts",
       "line": 11,
-      "col": 0
+      "col": 0,
+      "byteIndex": 232
     },
     "declarationKind": "private",
     "namespaceDef": {
@@ -193,7 +201,8 @@ private namespace MyNamespace3
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
-            "col": 2
+            "col": 2,
+            "byteIndex": 259
           },
           "declarationKind": "export",
           "classDef": {
@@ -215,7 +224,8 @@ private namespace MyNamespace3
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 13,
-                  "col": 4
+                  "col": 4,
+                  "byteIndex": 286
                 }
               }
             ],

@@ -22,7 +22,8 @@ const foo: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 6
+      "col": 6,
+      "byteIndex": 6
     },
     "declarationKind": "export",
     "variableDef": {

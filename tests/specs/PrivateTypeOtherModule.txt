@@ -48,7 +48,8 @@ Defined in file:///mod.ts:1:1
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 64
     },
     "declarationKind": "export",
     "classDef": {
@@ -73,7 +74,8 @@ Defined in file:///mod.ts:1:1
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
-            "col": 2
+            "col": 2,
+            "byteIndex": 112
           }
         },
         {
@@ -94,7 +96,8 @@ Defined in file:///mod.ts:1:1
           "location": {
             "filename": "file:///mod.ts",
             "line": 5,
-            "col": 2
+            "col": 2,
+            "byteIndex": 147
           }
         }
       ],
@@ -112,7 +115,8 @@ Defined in file:///mod.ts:1:1
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "private",
     "importDef": {
@@ -126,7 +130,8 @@ Defined in file:///mod.ts:1:1
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "private",
     "importDef": {

@@ -38,6 +38,7 @@ pub enum DocNodeKind {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+#[serde(rename_all = "camelCase")]
 pub struct Location {
   pub filename: String,
   /// The 1-indexed display line.
@@ -45,6 +46,8 @@ pub struct Location {
   pub line: usize,
   /// The 0-indexed display column.
   pub col: usize,
+  /// The 0-indexed byte offset in the source text.
+  pub byte_index: usize,
 }
 
 impl Ord for Location {
@@ -152,6 +155,7 @@ impl Default for DocNode {
         filename: "".to_string(),
         line: 0,
         col: 0,
+        byte_index: 0,
       },
       js_doc: JsDoc::default(),
       function_def: None,

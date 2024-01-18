@@ -26,7 +26,8 @@ interface I
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "interfaceDef": {
@@ -38,7 +39,8 @@ interface I
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 23
           },
           "optional": false,
           "params": [

@@ -9,7 +9,8 @@
       "location": {
         "filename": "main",
         "line": 9,
-        "col": 0
+        "col": 0,
+        "byteIndex": 58
       },
       "declarationKind": "export",
       "deprecated": false
@@ -23,7 +24,8 @@
       "location": {
         "filename": "main",
         "line": 11,
-        "col": 0
+        "col": 0,
+        "byteIndex": 79
       },
       "declarationKind": "export",
       "deprecated": false
@@ -37,7 +39,8 @@
       "location": {
         "filename": "foo",
         "line": 1,
-        "col": 0
+        "col": 0,
+        "byteIndex": 0
       },
       "declarationKind": "export",
       "deprecated": false

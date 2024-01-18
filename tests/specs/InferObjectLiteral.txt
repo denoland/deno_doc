@@ -37,7 +37,8 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 17
+      "col": 17,
+      "byteIndex": 92
     },
     "declarationKind": "export",
     "variableDef": {

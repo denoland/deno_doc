@@ -29,7 +29,8 @@ namespace Namespace
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "namespaceDef": {
@@ -40,7 +41,8 @@ namespace Namespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 31
           },
           "declarationKind": "export",
           "functionDef": {
@@ -72,7 +74,8 @@ namespace Namespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
-            "col": 2
+            "col": 2,
+            "byteIndex": 71
           },
           "declarationKind": "export",
           "functionDef": {
@@ -104,7 +107,8 @@ namespace Namespace
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
-            "col": 2
+            "col": 2,
+            "byteIndex": 111
           },
           "declarationKind": "export",
           "functionDef": {

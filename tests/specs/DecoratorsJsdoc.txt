@@ -28,7 +28,8 @@ class A
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 21
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -53,7 +54,8 @@ class A
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
-            "col": 2
+            "col": 2,
+            "byteIndex": 40
           }
         }
       ],
@@ -69,7 +71,8 @@ class A
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 1
+            "col": 1,
+            "byteIndex": 14
           }
         }
       ]

@@ -52,7 +52,8 @@ class Data
     "location": {
       "filename": "file:///data.ts",
       "line": 8,
-      "col": 0
+      "col": 0,
+      "byteIndex": 98
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -83,7 +84,8 @@ class Data
           "location": {
             "filename": "file:///data.ts",
             "line": 10,
-            "col": 2
+            "col": 2,
+            "byteIndex": 133
           }
         },
         {
@@ -107,7 +109,8 @@ class Data
           "location": {
             "filename": "file:///data.ts",
             "line": 12,
-            "col": 2
+            "col": 2,
+            "byteIndex": 174
           }
         },
         {
@@ -136,7 +139,8 @@ class Data
           "location": {
             "filename": "file:///data.ts",
             "line": 14,
-            "col": 2
+            "col": 2,
+            "byteIndex": 234
           }
         }
       ],

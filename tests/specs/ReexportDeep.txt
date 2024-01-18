@@ -39,7 +39,8 @@ Defined in file:///mod.ts:1:1
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 45
     },
     "declarationKind": "export",
     "typeAliasDef": {
@@ -60,7 +61,8 @@ Defined in file:///mod.ts:1:1
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "private",
     "importDef": {

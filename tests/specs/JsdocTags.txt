@@ -37,7 +37,8 @@ function a(b, c, d): void
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
-      "col": 0
+      "col": 0,
+      "byteIndex": 149
     },
     "declarationKind": "export",
     "jsDoc": {

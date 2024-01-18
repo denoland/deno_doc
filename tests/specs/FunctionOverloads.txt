@@ -28,7 +28,8 @@ function a(b: number): number
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "functionDef": {
@@ -60,7 +61,8 @@ function a(b: number): number
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 38
     },
     "declarationKind": "export",
     "functionDef": {
@@ -92,7 +94,8 @@ function a(b: number): number
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 76
     },
     "declarationKind": "export",
     "functionDef": {

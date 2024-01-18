@@ -33,7 +33,8 @@ private interface AssignOpts
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 39
     },
     "declarationKind": "export",
     "functionDef": {
@@ -148,7 +149,8 @@ private interface AssignOpts
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "private",
     "interfaceDef": {
@@ -160,7 +162,8 @@ private interface AssignOpts
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 25
           },
           "params": [],
           "computed": false,
