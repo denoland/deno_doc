@@ -40,7 +40,8 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -57,7 +58,8 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
-      "col": 0
+      "col": 0,
+      "byteIndex": 115
     },
     "declarationKind": "export",
     "jsDoc": {

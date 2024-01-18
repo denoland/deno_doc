@@ -37,7 +37,8 @@ private namespace Test
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 44
     },
     "declarationKind": "export",
     "interfaceDef": {
@@ -49,7 +50,8 @@ private namespace Test
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
-            "col": 2
+            "col": 2,
+            "byteIndex": 72
           },
           "params": [],
           "computed": false,
@@ -76,7 +78,8 @@ private namespace Test
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "private",
     "namespaceDef": {
@@ -87,7 +90,8 @@ private namespace Test
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 19
           },
           "declarationKind": "export",
           "classDef": {

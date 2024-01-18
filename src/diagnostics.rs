@@ -134,7 +134,8 @@ impl DiagnosticsCollector {
           .unwrap_or_else(|| Location {
             filename: referenced_module.specifier().to_string(),
             line: 1,
-            col: 1,
+            col: 0,
+            byte_index: 0,
           }),
       },
     })

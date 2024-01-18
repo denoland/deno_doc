@@ -22,7 +22,8 @@ class default
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 17
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -75,7 +76,8 @@ class default
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
-            "col": 4
+            "col": 4,
+            "byteIndex": 81
           }
         }
       ],

@@ -24,7 +24,8 @@ class A
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
-      "col": 0
+      "col": 0,
+      "byteIndex": 109
     },
     "declarationKind": "export",
     "jsDoc": {

@@ -56,7 +56,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 11
+      "col": 11,
+      "byteIndex": 11
     },
     "declarationKind": "export",
     "variableDef": {
@@ -74,7 +75,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 11
+      "col": 11,
+      "byteIndex": 37
     },
     "declarationKind": "export",
     "variableDef": {
@@ -92,7 +94,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 11
+      "col": 11,
+      "byteIndex": 59
     },
     "declarationKind": "export",
     "variableDef": {
@@ -110,7 +113,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 11
+      "col": 11,
+      "byteIndex": 84
     },
     "declarationKind": "export",
     "variableDef": {
@@ -128,7 +132,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 11
+      "col": 11,
+      "byteIndex": 113
     },
     "declarationKind": "export",
     "variableDef": {
@@ -149,7 +154,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 11
+      "col": 11,
+      "byteIndex": 150
     },
     "declarationKind": "export",
     "variableDef": {
@@ -167,7 +173,8 @@ let tpl: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
-      "col": 11
+      "col": 11,
+      "byteIndex": 182
     },
     "declarationKind": "export",
     "variableDef": {

@@ -56,7 +56,8 @@ class PublicType2
     "location": {
       "filename": "https://localhost/mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "functionDef": {
@@ -74,7 +75,8 @@ class PublicType2
     "location": {
       "filename": "https://localhost/mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 58
     },
     "declarationKind": "export",
     "classDef": {
@@ -99,7 +101,8 @@ class PublicType2
           "location": {
             "filename": "https://localhost/mod.ts",
             "line": 6,
-            "col": 2
+            "col": 2,
+            "byteIndex": 86
           }
         }
       ],
@@ -117,7 +120,8 @@ class PublicType2
     "location": {
       "filename": "http://localhost/mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "functionDef": {
@@ -135,7 +139,8 @@ class PublicType2
     "location": {
       "filename": "http://localhost/mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 59
     },
     "declarationKind": "export",
     "classDef": {
@@ -160,7 +165,8 @@ class PublicType2
           "location": {
             "filename": "http://localhost/mod.ts",
             "line": 6,
-            "col": 2
+            "col": 2,
+            "byteIndex": 88
           }
         }
       ],

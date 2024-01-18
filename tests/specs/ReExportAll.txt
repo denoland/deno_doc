@@ -42,7 +42,8 @@ class Test
     "location": {
       "filename": "file:///b.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "classDef": {
@@ -63,7 +64,8 @@ class Test
     "location": {
       "filename": "file:///a.ts",
       "line": 1,
-      "col": 6
+      "col": 6,
+      "byteIndex": 6
     },
     "declarationKind": "export",
     "variableDef": {

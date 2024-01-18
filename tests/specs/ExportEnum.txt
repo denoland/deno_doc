@@ -30,7 +30,8 @@ enum Hello
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 0
+      "col": 0,
+      "byteIndex": 38
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -51,7 +52,8 @@ enum Hello
           "location": {
             "filename": "file:///mod.ts",
             "line": 5,
-            "col": 4
+            "col": 4,
+            "byteIndex": 62
           }
         },
         {
@@ -70,7 +72,8 @@ enum Hello
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,
-            "col": 4
+            "col": 4,
+            "byteIndex": 111
           }
         }
       ]

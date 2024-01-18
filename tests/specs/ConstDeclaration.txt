@@ -20,7 +20,8 @@ const Const: 0
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 13
+      "col": 13,
+      "byteIndex": 13
     },
     "declarationKind": "export",
     "variableDef": {

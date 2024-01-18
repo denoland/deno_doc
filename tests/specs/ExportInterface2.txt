@@ -25,7 +25,8 @@ interface TypedIface<T>
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "interfaceDef": {
@@ -37,7 +38,8 @@ interface TypedIface<T>
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 4
+            "col": 4,
+            "byteIndex": 37
           },
           "optional": false,
           "params": [],

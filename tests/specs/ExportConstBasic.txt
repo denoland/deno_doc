@@ -79,7 +79,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 13
+      "col": 13,
+      "byteIndex": 45
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -103,7 +104,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 13
+      "col": 13,
+      "byteIndex": 82
     },
     "declarationKind": "export",
     "variableDef": {
@@ -194,7 +196,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
-      "col": 13
+      "col": 13,
+      "byteIndex": 221
     },
     "declarationKind": "export",
     "variableDef": {
@@ -215,7 +218,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
-      "col": 13
+      "col": 13,
+      "byteIndex": 245
     },
     "declarationKind": "export",
     "variableDef": {
@@ -236,7 +240,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
-      "col": 13
+      "col": 13,
+      "byteIndex": 272
     },
     "declarationKind": "export",
     "variableDef": {
@@ -257,7 +262,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 15,
-      "col": 13
+      "col": 13,
+      "byteIndex": 300
     },
     "declarationKind": "export",
     "variableDef": {
@@ -278,7 +284,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
-      "col": 13
+      "col": 13,
+      "byteIndex": 330
     },
     "declarationKind": "export",
     "variableDef": {
@@ -299,7 +306,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 17,
-      "col": 13
+      "col": 13,
+      "byteIndex": 362
     },
     "declarationKind": "export",
     "variableDef": {
@@ -329,7 +337,8 @@ const tpl2: string
     "location": {
       "filename": "file:///mod.ts",
       "line": 18,
-      "col": 13
+      "col": 13,
+      "byteIndex": 389
     },
     "declarationKind": "export",
     "variableDef": {

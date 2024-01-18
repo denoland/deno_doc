@@ -37,7 +37,8 @@ namespace RootNs
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 23
     },
     "declarationKind": "declare",
     "jsDoc": {
@@ -51,7 +52,8 @@ namespace RootNs
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
-            "col": 10
+            "col": 10,
+            "byteIndex": 60
           },
           "declarationKind": "export",
           "variableDef": {

@@ -20,7 +20,8 @@ type Flatten<T> = T extends Array<infer U> ? U : T
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "typeAliasDef": {

@@ -77,7 +77,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 17
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -130,7 +131,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 19,
-            "col": 4
+            "col": 4,
+            "byteIndex": 453
           }
         }
       ],
@@ -150,7 +152,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
-            "col": 4
+            "col": 4,
+            "byteIndex": 80
           }
         },
         {
@@ -168,7 +171,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
-            "col": 4
+            "col": 4,
+            "byteIndex": 112
           }
         },
         {
@@ -186,7 +190,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 5,
-            "col": 4
+            "col": 4,
+            "byteIndex": 146
           }
         },
         {
@@ -204,7 +209,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
-            "col": 4
+            "col": 4,
+            "byteIndex": 175
           }
         },
         {
@@ -223,7 +229,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,
-            "col": 4
+            "col": 4,
+            "byteIndex": 196
           }
         },
         {
@@ -255,7 +262,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 8,
-            "col": 4
+            "col": 4,
+            "byteIndex": 226
           }
         },
         {
@@ -273,7 +281,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 9,
-            "col": 4
+            "col": 4,
+            "byteIndex": 261
           }
         },
         {
@@ -306,7 +315,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 10,
-            "col": 4
+            "col": 4,
+            "byteIndex": 276
           }
         },
         {
@@ -344,7 +354,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 11,
-            "col": 4
+            "col": 4,
+            "byteIndex": 296
           }
         }
       ],
@@ -374,7 +385,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 14,
-            "col": 4
+            "col": 4,
+            "byteIndex": 347
           }
         }
       ],
@@ -413,7 +425,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 22,
-            "col": 4
+            "col": 4,
+            "byteIndex": 571
           }
         },
         {
@@ -441,7 +454,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 27,
-            "col": 4
+            "col": 4,
+            "byteIndex": 649
           }
         },
         {
@@ -467,7 +481,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "location": {
             "filename": "file:///mod.ts",
             "line": 31,
-            "col": 4
+            "col": 4,
+            "byteIndex": 686
           }
         }
       ],

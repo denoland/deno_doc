@@ -26,7 +26,8 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "typeAliasDef": {

@@ -81,7 +81,8 @@ type Test = OtherPrivateType
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
-      "col": 0
+      "col": 0,
+      "byteIndex": 109
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -107,7 +108,8 @@ type Test = OtherPrivateType
           "location": {
             "filename": "file:///mod.ts",
             "line": 9,
-            "col": 2
+            "col": 2,
+            "byteIndex": 187
           }
         },
         {
@@ -128,7 +130,8 @@ type Test = OtherPrivateType
           "location": {
             "filename": "file:///mod.ts",
             "line": 15,
-            "col": 2
+            "col": 2,
+            "byteIndex": 240
           }
         }
       ],
@@ -152,7 +155,8 @@ type Test = OtherPrivateType
           "location": {
             "filename": "file:///mod.ts",
             "line": 11,
-            "col": 2
+            "col": 2,
+            "byteIndex": 196
           }
         }
       ],
@@ -168,7 +172,8 @@ type Test = OtherPrivateType
     "location": {
       "filename": "file:///mod.ts",
       "line": 19,
-      "col": 0
+      "col": 0,
+      "byteIndex": 284
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -197,7 +202,8 @@ type Test = OtherPrivateType
           "location": {
             "filename": "file:///mod.ts",
             "line": 21,
-            "col": 2
+            "col": 2,
+            "byteIndex": 326
           }
         }
       ],
@@ -229,7 +235,8 @@ type Test = OtherPrivateType
           "location": {
             "filename": "file:///mod.ts",
             "line": 24,
-            "col": 2
+            "col": 2,
+            "byteIndex": 354
           }
         }
       ],
@@ -245,7 +252,8 @@ type Test = OtherPrivateType
     "location": {
       "filename": "file:///mod.ts",
       "line": 34,
-      "col": 0
+      "col": 0,
+      "byteIndex": 480
     },
     "declarationKind": "export",
     "typeAliasDef": {
@@ -266,7 +274,8 @@ type Test = OtherPrivateType
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 0
+      "col": 0,
+      "byteIndex": 64
     },
     "declarationKind": "private",
     "jsDoc": {

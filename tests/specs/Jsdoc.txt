@@ -51,7 +51,8 @@ interface B
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 0
+      "col": 0,
+      "byteIndex": 43
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -75,7 +76,8 @@ interface B
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
-      "col": 0
+      "col": 0,
+      "byteIndex": 106
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -96,7 +98,8 @@ interface B
     "location": {
       "filename": "file:///mod.ts",
       "line": 18,
-      "col": 0
+      "col": 0,
+      "byteIndex": 172
     },
     "declarationKind": "export",
     "jsDoc": {

@@ -28,7 +28,8 @@ function noop(): void
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 48
     },
     "declarationKind": "export",
     "jsDoc": {

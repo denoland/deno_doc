@@ -51,7 +51,8 @@ namespace Tabs
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
-      "col": 0
+      "col": 0,
+      "byteIndex": 47
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -65,7 +66,8 @@ namespace Tabs
           "location": {
             "filename": "file:///mod.ts",
             "line": 16,
-            "col": 4
+            "col": 4,
+            "byteIndex": 126
           },
           "declarationKind": "export",
           "jsDoc": {
@@ -80,7 +82,8 @@ namespace Tabs
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 24,
-                  "col": 8
+                  "col": 8,
+                  "byteIndex": 212
                 },
                 "jsDoc": {
                   "doc": "Line 1\n\nLine 2\n\n\tIndented"

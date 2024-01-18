@@ -56,7 +56,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 13
+      "col": 13,
+      "byteIndex": 13
     },
     "declarationKind": "export",
     "variableDef": {
@@ -78,7 +79,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 19
+      "col": 19,
+      "byteIndex": 41
     },
     "declarationKind": "export",
     "variableDef": {
@@ -100,7 +102,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 19
+      "col": 19,
+      "byteIndex": 72
     },
     "declarationKind": "export",
     "variableDef": {
@@ -122,7 +125,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 19
+      "col": 19,
+      "byteIndex": 102
     },
     "declarationKind": "export",
     "variableDef": {
@@ -155,7 +159,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 19
+      "col": 19,
+      "byteIndex": 135
     },
     "declarationKind": "export",
     "variableDef": {
@@ -177,7 +182,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 19
+      "col": 19,
+      "byteIndex": 169
     },
     "declarationKind": "export",
     "variableDef": {
@@ -199,7 +205,8 @@ const g: ("a" | 1 | true)[]
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
-      "col": 19
+      "col": 19,
+      "byteIndex": 205
     },
     "declarationKind": "export",
     "variableDef": {

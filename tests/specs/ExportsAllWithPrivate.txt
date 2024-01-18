@@ -65,7 +65,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "functionDef": {
@@ -87,7 +88,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 39
     },
     "declarationKind": "export",
     "classDef": {
@@ -108,7 +110,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
-      "col": 0
+      "col": 0,
+      "byteIndex": 68
     },
     "declarationKind": "export",
     "interfaceDef": {
@@ -126,7 +129,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
-      "col": 0
+      "col": 0,
+      "byteIndex": 105
     },
     "declarationKind": "export",
     "namespaceDef": {
@@ -139,7 +143,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 23
     },
     "declarationKind": "private",
     "functionDef": {
@@ -161,7 +166,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
-      "col": 0
+      "col": 0,
+      "byteIndex": 57
     },
     "declarationKind": "private",
     "classDef": {
@@ -182,7 +188,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
-      "col": 0
+      "col": 0,
+      "byteIndex": 90
     },
     "declarationKind": "private",
     "interfaceDef": {
@@ -200,7 +207,8 @@ private namespace H
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
-      "col": 0
+      "col": 0,
+      "byteIndex": 127
     },
     "declarationKind": "private",
     "namespaceDef": {

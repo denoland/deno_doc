@@ -28,7 +28,8 @@ enum Enum
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "export",
     "enumDef": {
@@ -38,7 +39,8 @@ enum Enum
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 2
+            "col": 2,
+            "byteIndex": 21
           }
         },
         {
@@ -49,7 +51,8 @@ enum Enum
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
-            "col": 2
+            "col": 2,
+            "byteIndex": 56
           }
         }
       ]

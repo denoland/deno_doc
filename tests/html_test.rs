@@ -352,7 +352,7 @@ async fn symbol_search() {
     .join("symbol_search.json");
 
   // uncomment to regenerate symbol_search.json
-  //std::fs::write(&symbol_search_json_path, &file_json);
+  // std::fs::write(&symbol_search_json_path, &file_json);
 
   let symbol_search_json = read_to_string(symbol_search_json_path).unwrap();
 

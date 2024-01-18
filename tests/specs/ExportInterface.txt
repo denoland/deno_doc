@@ -48,7 +48,8 @@ interface Reader extends Foo, Bar
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
-      "col": 0
+      "col": 0,
+      "byteIndex": 64
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -80,7 +81,8 @@ interface Reader extends Foo, Bar
           "location": {
             "filename": "file:///mod.ts",
             "line": 10,
-            "col": 4
+            "col": 4,
+            "byteIndex": 135
           },
           "jsDoc": {
             "doc": "Read n bytes"
@@ -156,7 +158,8 @@ interface Reader extends Foo, Bar
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
-            "col": 4
+            "col": 4,
+            "byteIndex": 215
           }
         }
       ],
@@ -169,7 +172,8 @@ interface Reader extends Foo, Bar
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
-      "col": 0
+      "col": 0,
+      "byteIndex": 0
     },
     "declarationKind": "private",
     "interfaceDef": {
@@ -187,7 +191,8 @@ interface Reader extends Foo, Bar
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
-      "col": 0
+      "col": 0,
+      "byteIndex": 18
     },
     "declarationKind": "private",
     "interfaceDef": {

@@ -38,7 +38,8 @@ namespace RootNs
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
-      "col": 0
+      "col": 0,
+      "byteIndex": 23
     },
     "declarationKind": "declare",
     "jsDoc": {
@@ -52,7 +53,8 @@ namespace RootNs
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
-            "col": 10
+            "col": 10,
+            "byteIndex": 60
           },
           "declarationKind": "export",
           "variableDef": {
@@ -73,7 +75,8 @@ namespace RootNs
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
-            "col": 4
+            "col": 4,
+            "byteIndex": 108
           },
           "declarationKind": "export",
           "jsDoc": {
@@ -87,7 +90,8 @@ namespace RootNs
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 7,
-                  "col": 6
+                  "col": 6,
+                  "byteIndex": 135
                 },
                 "declarationKind": "export",
                 "enumDef": {
@@ -105,7 +109,8 @@ namespace RootNs
                       "location": {
                         "filename": "file:///mod.ts",
                         "line": 8,
-                        "col": 8
+                        "col": 8,
+                        "byteIndex": 154
                       }
                     },
                     {
@@ -121,7 +126,8 @@ namespace RootNs
                       "location": {
                         "filename": "file:///mod.ts",
                         "line": 9,
-                        "col": 8
+                        "col": 8,
+                        "byteIndex": 169
                       }
                     },
                     {
@@ -137,7 +143,8 @@ namespace RootNs
                       "location": {
                         "filename": "file:///mod.ts",
                         "line": 10,
-                        "col": 8
+                        "col": 8,
+                        "byteIndex": 184
                       }
                     }
                   ]
