@@ -77,7 +77,7 @@ jobs:
       - name: Get tag version
         if: contains(matrix.os, 'ubuntu') && startsWith(github.ref, 'refs/tags/')
         id: get_tag_version
-        run: echo ::set-output name=TAG_VERSION::${GITHUB_REF/refs\/tags\//}
+        run: echo TAG_VERSION=${GITHUB_REF/refs\/tags\//} >> "$GITHUB_OUTPUT"
 
       - name: Publish deno.land/x
         uses: denoland/publish-folder@82ce065074e7174baf444332c4b7c40869a4909a
