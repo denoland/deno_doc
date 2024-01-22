@@ -394,9 +394,9 @@ checksum = "5c297a1c74b71ae29df00c3e22dd9534821d60eb9af5a0192823fa2acea70c2a"
 
 [[package]]
 name = "deno_ast"
-version = "1.0.0"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d19e5fe5dfe61c87726fdf404babc2369adfec28d5a83adee7ef06f6ce0ec68"
+checksum = "d83d58de6f05f4eb41ec518c19067e3e40cd0edd3d366ad95c601bc6e71bdf49"
 dependencies = [
  "deno_media_type",
  "dprint-swc-ext",
@@ -470,9 +470,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.63.2"
+version = "0.63.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b2fce4e5ae279e181e53a3fa0e9018956356d6b977cc741b665eebe5398a01c"
+checksum = "81e4dafc06b0025d3a2920977a1e2ef87d8521d774ad9a167f5049cb31b76ccc"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -506,9 +506,9 @@ dependencies = [
 
 [[package]]
 name = "deno_semver"
-version = "0.5.2"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8169e0148da1946836e6e405bb7eefda411816577e3f2e5749bc6ae1ef952d13"
+checksum = "b49e14effd9df8ed261f7a1a34ac19bbaf0fa940c59bd19a6d8313cf41525e1c"
 dependencies = [
  "monch",
  "once_cell",
@@ -954,9 +954,9 @@ dependencies = [
 
 [[package]]
 name = "monch"
-version = "0.4.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4519a88847ba2d5ead3dc53f1060ec6a571de93f325d9c5c4968147382b1cbc3"
+checksum = "b52c1b33ff98142aecea13138bd399b68aa7ab5d9546c300988c345004001eea"
 
 [[package]]
 name = "new_debug_unreachable"
