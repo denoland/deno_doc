@@ -20,12 +20,14 @@
           {{~/if~}}
         </div>
 
-        {{~> source_button this.source_href ~}}
+        {{~#if source_href~}}
+          {{~> source_button this.source_href ~}}
+        {{~/if~}}
       </div>
 
       {{~> deprecated this.deprecated ~}}
 
-      {{~#if @first~}}
+      {{~#if (and @first ../usage)~}}
         {{~> usage ../usage ~}}
       {{~/if~}}
 

@@ -192,12 +192,12 @@ impl HrefResolver for EmptyResolver {
     &self,
     current_specifier: &deno_ast::ModuleSpecifier,
     _current_file: &str,
-  ) -> String {
-    current_specifier.to_string()
+  ) -> Option<String> {
+    Some(current_specifier.to_string())
   }
 
-  fn resolve_source(&self, location: &deno_doc::Location) -> String {
-    location.filename.clone()
+  fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
+    Some(location.filename.clone())
   }
 }
 
