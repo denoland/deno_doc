@@ -57,12 +57,12 @@ impl HrefResolver for EmptyResolver {
     &self,
     _current_specifier: &ModuleSpecifier,
     current_file: &str,
-  ) -> String {
-    current_file.to_string()
+  ) -> Option<String> {
+    Some(current_file.to_string())
   }
 
-  fn resolve_source(&self, _location: &deno_doc::Location) -> String {
-    String::new()
+  fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
+    None
   }
 }
 
@@ -298,7 +298,7 @@ async fn symbol_group() {
     .join("symbol_group.json");
 
   // uncomment to regenerate symbol_group.json
-  // std::fs::write(&symbol_group_json_path, &files_json);
+  //std::fs::write(&symbol_group_json_path, &files_json);
 
   let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
 
@@ -352,7 +352,7 @@ async fn symbol_search() {
     .join("symbol_search.json");
 
   // uncomment to regenerate symbol_search.json
-  // std::fs::write(&symbol_search_json_path, &file_json);
+  //std::fs::write(&symbol_search_json_path, &file_json);
 
   let symbol_search_json = read_to_string(symbol_search_json_path).unwrap();
 

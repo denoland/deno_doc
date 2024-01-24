@@ -147,10 +147,10 @@ pub trait HrefResolver {
     &self,
     current_specifier: &ModuleSpecifier,
     current_file: &str,
-  ) -> String;
+  ) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
-  fn resolve_source(&self, location: &crate::Location) -> String;
+  fn resolve_source(&self, location: &crate::Location) -> Option<String>;
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -285,7 +285,7 @@ pub struct DocEntryCtx {
   anchor: AnchorCtx,
   tags: HashSet<Tag>,
   js_doc: Option<String>,
-  source_href: String,
+  source_href: Option<String>,
 }
 
 impl DocEntryCtx {

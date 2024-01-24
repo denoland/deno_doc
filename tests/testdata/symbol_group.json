@@ -83,7 +83,7 @@
             }
           ],
           "deprecated": null,
-          "source_href": ""
+          "source_href": null
         }
       ],
       "usage": {
@@ -190,7 +190,7 @@
             }
           ],
           "deprecated": null,
-          "source_href": ""
+          "source_href": null
         }
       ],
       "usage": {
@@ -307,7 +307,7 @@
                               },
                               "tags": [],
                               "js_doc": null,
-                              "source_href": ""
+                              "source_href": null
                             }
                           ]
                         }
@@ -319,7 +319,7 @@
             }
           ],
           "deprecated": null,
-          "source_href": ""
+          "source_href": null
         }
       ],
       "usage": {

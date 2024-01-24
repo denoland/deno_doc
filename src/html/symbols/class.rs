@@ -144,7 +144,7 @@ pub struct IndexSignatureCtx {
   pub readonly: bool,
   pub params: String,
   pub ts_type: String,
-  pub source_href: String,
+  pub source_href: Option<String>,
 }
 
 fn render_index_signatures(

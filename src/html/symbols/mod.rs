@@ -27,14 +27,14 @@ struct SymbolCtx {
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
   deprecated: Option<String>,
-  source_href: String,
+  source_href: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
-  usage: UsageCtx,
+  usage: Option<UsageCtx>,
 }
 
 impl SymbolGroupCtx {
