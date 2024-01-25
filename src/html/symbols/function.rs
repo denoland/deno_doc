@@ -224,7 +224,7 @@ fn render_single_function(
     sections.push(type_params);
   }
 
-  if params.len() > 0 {
+  if !params.is_empty() {
     sections.push(SectionCtx {
       title: "Parameters",
       content: SectionContentCtx::DocEntry(params),
