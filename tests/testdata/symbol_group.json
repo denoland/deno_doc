@@ -287,13 +287,6 @@
                     "docs": null,
                     "sections": [
                       {
-                        "title": "Parameters",
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": []
-                        }
-                      },
-                      {
                         "title": "Return Type",
                         "content": {
                           "kind": "doc_entry",

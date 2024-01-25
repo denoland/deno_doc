@@ -46,7 +46,7 @@ pub fn compute_namespaced_symbols(
 
   for doc_node in doc_nodes {
     if doc_node.kind == DocNodeKind::ModuleDoc
-      || doc_node.declaration_kind != crate::node::DeclarationKind::Export
+      || doc_node.declaration_kind == crate::node::DeclarationKind::Private
     {
       continue;
     }

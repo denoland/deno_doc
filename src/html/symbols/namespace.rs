@@ -34,7 +34,9 @@ pub fn partition_nodes_by_kind(
       if matches!(
         node.doc_node.kind,
         DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) {
+      ) || node.doc_node.declaration_kind
+        == crate::node::DeclarationKind::Private
+      {
         continue;
       }
 
@@ -126,7 +128,9 @@ pub fn partition_nodes_by_category(
       if matches!(
         node.doc_node.kind,
         DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) {
+      ) || node.doc_node.declaration_kind
+        == crate::node::DeclarationKind::Private
+      {
         continue;
       }
 
