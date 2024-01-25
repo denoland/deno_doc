@@ -224,10 +224,12 @@ fn render_single_function(
     sections.push(type_params);
   }
 
-  sections.push(SectionCtx {
-    title: "Parameters",
-    content: SectionContentCtx::DocEntry(params),
-  });
+  if params.len() > 0 {
+    sections.push(SectionCtx {
+      title: "Parameters",
+      content: SectionContentCtx::DocEntry(params),
+    });
+  }
 
   sections.push(SectionCtx {
     title: "Return Type",

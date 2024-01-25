@@ -332,6 +332,8 @@ pub fn generate(
       })
       .collect::<Vec<DocNodeWithContext>>();
 
+    dbg!(&all_doc_nodes);
+
     let partitions_by_kind =
       namespace::partition_nodes_by_kind(&all_doc_nodes, true);
 
