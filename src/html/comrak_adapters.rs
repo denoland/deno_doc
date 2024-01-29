@@ -24,6 +24,7 @@ use syntect::Error;
 pub struct SyntectAdapter {
   pub syntax_set: SyntaxSet,
   pub theme_set: ThemeSet,
+  pub show_line_numbers: bool,
 }
 
 const THEME: &str = "InspiredGitHub";
@@ -38,16 +39,41 @@ impl SyntectAdapter {
     let theme = &self.theme_set.themes[THEME];
     let mut highlighter = HighlightLines::new(syntax, theme);
 
-    let mut output = String::new();
-    for line in LinesWithEndings::from(code) {
+    let mut line_numbers = String::new();
+    let mut lines = String::new();
+
+    for (i, line) in LinesWithEndings::from(code).enumerate() {
+      let n = i + 1;
+
+      if self.show_line_numbers {
+        line_numbers.push_str(&format!(
+          r##"<a href="#L{n}" class="no_color block">{n}</a>"##,
+        ));
+
+        lines.push_str(&format!(
+          r#"<span id="L{n}" class="block target:bg-yellow-200">"#
+        ));
+      }
+
       let regions = highlighter.highlight_line(line, &self.syntax_set)?;
       append_highlighted_html_for_styled_line(
         &regions[..],
         IncludeBackground::No,
-        &mut output,
+        &mut lines,
       )?;
+
+      if self.show_line_numbers {
+        lines.push_str("</span>");
+      }
     }
-    Ok(output)
+
+    if self.show_line_numbers {
+      Ok(format!(
+        r##"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">{line_numbers}</div><div class="grow">{lines}</div>"##
+      ))
+    } else {
+      Ok(lines)
+    }
   }
 }
 
@@ -83,16 +109,26 @@ impl SyntaxHighlighterAdapter for SyntectAdapter {
   fn write_pre_tag(
     &self,
     output: &mut dyn Write,
-    attributes: HashMap<String, String>,
+    mut attributes: HashMap<String, String>,
   ) -> std::io::Result<()> {
+    attributes
+      .entry("class".into())
+      .or_default()
+      .push_str(" highlight");
     comrak::html::write_opening_tag(output, "pre", attributes)
   }
 
   fn write_code_tag(
     &self,
     output: &mut dyn Write,
-    attributes: HashMap<String, String>,
+    mut attributes: HashMap<String, String>,
   ) -> std::io::Result<()> {
+    if self.show_line_numbers {
+      attributes
+        .entry("class".into())
+        .or_default()
+        .push_str(" flex gap-2");
+    }
     comrak::html::write_opening_tag(output, "code", attributes)
   }
 }

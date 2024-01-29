@@ -9,7 +9,7 @@ use std::rc::Rc;
 use crate::DocNode;
 use crate::DocNodeKind;
 
-mod comrak_adapters;
+pub mod comrak_adapters;
 mod jsdoc;
 pub mod pages;
 mod parameters;
@@ -272,16 +272,16 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   Ok(reg)
 }
 
-pub fn setup_syntect() -> comrak_adapters::SyntectAdapter {
-  let syntax_set: syntect::parsing::SyntaxSet =
-    syntect::dumps::from_uncompressed_data(include_bytes!(
+pub fn setup_syntect(
+  show_line_numbers: bool,
+) -> comrak_adapters::SyntectAdapter {
+  comrak_adapters::SyntectAdapter {
+    syntax_set: syntect::dumps::from_uncompressed_data(include_bytes!(
       "./default_newlines.packdump"
     ))
-    .unwrap();
-
-  comrak_adapters::SyntectAdapter {
-    syntax_set,
+    .unwrap(),
     theme_set: syntect::highlighting::ThemeSet::load_defaults(),
+    show_line_numbers,
   }
 }
 
@@ -301,7 +301,7 @@ pub fn generate(
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     hbs: setup_hbs()?,
-    syntect_adapter: setup_syntect(),
+    syntect_adapter: setup_syntect(false),
     href_resolver: options.href_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
