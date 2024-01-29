@@ -46,6 +46,7 @@ pub struct Location {
   pub line: usize,
   /// The 0-indexed display column.
   pub col: usize,
+  #[serde(default)]
   /// The 0-indexed byte offset in the source text.
   pub byte_index: usize,
 }
