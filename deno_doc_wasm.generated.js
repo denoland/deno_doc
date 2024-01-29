@@ -432,12 +432,12 @@ const imports = {
       const ret = getStringFromWasm0(arg0, arg1);
       return addHeapObject(ret);
     },
-    __wbindgen_number_new: function (arg0) {
-      const ret = arg0;
-      return addHeapObject(ret);
-    },
     __wbg_new_bfd4534b584a9593: function () {
       const ret = new Map();
+      return addHeapObject(ret);
+    },
+    __wbindgen_number_new: function (arg0) {
+      const ret = arg0;
       return addHeapObject(ret);
     },
     __wbg_call_11073254314c3f34: function () {
@@ -671,7 +671,7 @@ const imports = {
       const ret = getObject(arg0).queueMicrotask;
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper484: function (arg0, arg1, arg2) {
+    __wbindgen_closure_wrapper485: function (arg0, arg1, arg2) {
       const ret = makeMutClosure(arg0, arg1, 220, __wbg_adapter_48);
       return addHeapObject(ret);
     },
