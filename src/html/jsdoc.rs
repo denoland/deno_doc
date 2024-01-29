@@ -1,6 +1,6 @@
 use super::render_context::RenderContext;
 use super::util::*;
-use crate::html::TreeSitterHighlighter;
+use crate::html::comrak_adapters::SyntectAdapter;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -84,7 +84,7 @@ pub fn markdown_to_html(
   md: &str,
   summary: bool,
   render_toc: bool,
-  highlighter: &TreeSitterHighlighter,
+  highlighter: &SyntectAdapter,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -168,7 +168,7 @@ pub(crate) fn render_markdown_inner(
     &parse_links(md, render_ctx),
     summary,
     render_toc,
-    &render_ctx.ctx.tree_sitter_highlighter,
+    &render_ctx.ctx.syntect_adapter,
   )
 }
 
