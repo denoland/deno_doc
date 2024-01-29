@@ -159,6 +159,16 @@ async fn types_header_handling() {
   );
 }
 
+#[test]
+fn location_byte_index_serde_default() {
+  serde_json::from_value::<crate::Location>(json!({
+    "filename": "",
+    "line": 0,
+    "col": 1,
+  }))
+  .unwrap();
+}
+
 #[tokio::test]
 async fn reexports() {
   let nested_reexport_source_code = r#"
