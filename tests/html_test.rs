@@ -387,7 +387,7 @@ async fn module_doc() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
-    tree_sitter_highlighter: setup_tree_sitter(),
+    syntect_adapter: setup_syntect(),
     href_resolver: Rc::new(EmptyResolver {}),
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
