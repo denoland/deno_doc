@@ -432,12 +432,12 @@ const imports = {
       const ret = getStringFromWasm0(arg0, arg1);
       return addHeapObject(ret);
     },
-    __wbg_new_bfd4534b584a9593: function () {
-      const ret = new Map();
-      return addHeapObject(ret);
-    },
     __wbindgen_number_new: function (arg0) {
       const ret = arg0;
+      return addHeapObject(ret);
+    },
+    __wbg_new_bfd4534b584a9593: function () {
+      const ret = new Map();
       return addHeapObject(ret);
     },
     __wbg_call_11073254314c3f34: function () {
