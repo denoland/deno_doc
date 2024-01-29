@@ -17,13 +17,10 @@ mod render_context;
 mod search;
 pub mod sidepanels;
 mod symbols;
-mod treesitter;
 mod types;
 mod usage;
 mod util;
 
-pub use self::treesitter::tree_sitter_language_cb;
-pub use self::treesitter::TreeSitterHighlighter;
 pub use jsdoc::markdown_to_html;
 pub use jsdoc::ModuleDocCtx;
 pub use pages::generate_symbol_pages_for_module;
@@ -32,7 +29,6 @@ pub use search::generate_search_index;
 pub use symbols::namespace;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
-pub use treesitter::CAPTURE_NAMES as TREE_SITTER_HIGHLIGHTER_CAPTURE_NAMES;
 pub use util::compute_namespaced_symbols;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
@@ -74,7 +70,7 @@ pub struct GenerateCtx<'ctx> {
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
   pub hbs: Handlebars<'ctx>,
-  pub tree_sitter_highlighter: TreeSitterHighlighter,
+  pub syntect_adapter: comrak_adapters::SyntectAdapter,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
@@ -276,8 +272,17 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   Ok(reg)
 }
 
-pub fn setup_tree_sitter() -> TreeSitterHighlighter {
-  TreeSitterHighlighter::new(tree_sitter_language_cb, false)
+pub fn setup_syntect() -> comrak_adapters::SyntectAdapter {
+  let syntax_set: syntect::parsing::SyntaxSet =
+    syntect::dumps::from_uncompressed_data(include_bytes!(
+      "./default_newlines.packdump"
+    ))
+    .unwrap();
+
+  comrak_adapters::SyntectAdapter {
+    syntax_set,
+    theme_set: syntect::highlighting::ThemeSet::load_defaults(),
+  }
 }
 
 pub fn generate(
@@ -296,7 +301,7 @@ pub fn generate(
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     hbs: setup_hbs()?,
-    tree_sitter_highlighter: setup_tree_sitter(),
+    syntect_adapter: setup_syntect(),
     href_resolver: options.href_resolver,
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
