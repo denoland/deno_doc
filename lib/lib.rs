@@ -9,7 +9,6 @@ use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::source::ModuleLoadResponse;
 use deno_graph::source::ResolveError;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
@@ -164,11 +163,9 @@ async fn inner_doc(
       console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
     }
     let import_map_specifier = ModuleSpecifier::parse(&import_map)?;
-    if let Some(LoadResponse::Module(ModuleLoadResponse {
-      content,
-      specifier,
-      ..
-    })) = loader
+    if let Some(LoadResponse::Module {
+      content, specifier, ..
+    }) = loader
       .load(&import_map_specifier, false, CacheSetting::Use)
       .await?
     {
