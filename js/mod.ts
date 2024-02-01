@@ -102,7 +102,7 @@ export async function doc(
     specifier,
     includeAll,
     (specifier: string, isDynamic: boolean, cacheSetting: CacheSetting) => {
-      return load(specifier, isDynamic, cacheSetting).then(result => {
+      return load(specifier, isDynamic, cacheSetting).then((result) => {
         if (result?.kind === "module") {
           if (typeof result.content === "string") {
             result.content = encoder.encode(result.content);
