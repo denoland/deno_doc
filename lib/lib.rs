@@ -3,11 +3,13 @@
 #![allow(clippy::unused_unit)]
 
 use anyhow::anyhow;
+use anyhow::Context;
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::source::ModuleLoadResponse;
 use deno_graph::source::ResolveError;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
@@ -162,13 +164,17 @@ async fn inner_doc(
       console_warn!("An import map is specified as well as a resolve function, ignoring resolve function.");
     }
     let import_map_specifier = ModuleSpecifier::parse(&import_map)?;
-    if let Some(LoadResponse::Module {
-      content, specifier, ..
-    }) = loader
+    if let Some(LoadResponse::Module(ModuleLoadResponse {
+      content,
+      specifier,
+      ..
+    })) = loader
       .load(&import_map_specifier, false, CacheSetting::Use)
       .await?
     {
-      let result = import_map::parse_from_json(&specifier, content.as_ref())?;
+      let text = String::from_utf8(content.to_vec())
+        .context("Failed decoding import map.")?;
+      let result = import_map::parse_from_json(&specifier, &text)?;
       if print_import_map_diagnostics && !result.diagnostics.is_empty() {
         console_warn!(
           "Import map diagnostics:\n{}",

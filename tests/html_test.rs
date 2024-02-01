@@ -7,8 +7,7 @@ use deno_graph::{
 };
 use futures::future;
 use indexmap::IndexMap;
-use std::fs::read_dir;
-use std::fs::read_to_string;
+use std::fs;
 use std::rc::Rc;
 
 struct SourceFileLoader {}
@@ -22,7 +21,7 @@ impl Loader for SourceFileLoader {
   ) -> LoadFuture {
     let result = if specifier.scheme() == "file" {
       let path = specifier.to_file_path().unwrap();
-      read_to_string(path)
+      fs::read(path)
         .map(|content| {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
@@ -67,7 +66,7 @@ impl HrefResolver for EmptyResolver {
 }
 
 async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
-  let files = read_dir(
+  let files = fs::read_dir(
     std::env::current_dir()
       .unwrap()
       .join("tests")
@@ -300,7 +299,7 @@ async fn symbol_group() {
   // uncomment to regenerate symbol_group.json
   //std::fs::write(&symbol_group_json_path, &files_json);
 
-  let symbol_group_json = read_to_string(symbol_group_json_path).unwrap();
+  let symbol_group_json = fs::read_to_string(symbol_group_json_path).unwrap();
 
   assert_eq!(files_json, symbol_group_json);
 }
@@ -354,7 +353,7 @@ async fn symbol_search() {
   // uncomment to regenerate symbol_search.json
   //std::fs::write(&symbol_search_json_path, &file_json);
 
-  let symbol_search_json = read_to_string(symbol_search_json_path).unwrap();
+  let symbol_search_json = fs::read_to_string(symbol_search_json_path).unwrap();
 
   assert_eq!(file_json, symbol_search_json);
 }
@@ -424,6 +423,6 @@ async fn module_doc() {
   // uncomment to regenerate symbol_search.json
   //std::fs::write(&module_docs_json_path, &file_json);
 
-  let module_docs_json = read_to_string(module_docs_json_path).unwrap();
+  let module_docs_json = fs::read_to_string(module_docs_json_path).unwrap();
   assert_eq!(file_json, module_docs_json);
 }

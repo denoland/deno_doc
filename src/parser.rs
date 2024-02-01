@@ -49,7 +49,7 @@ use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::symbols::EsmModuleInfo;
+use deno_graph::symbols::EsModuleInfo;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
@@ -225,7 +225,7 @@ impl<'a> DocParser<'a> {
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
     match module {
-      Module::Esm(_) | Module::Json(_) => {
+      Module::Js(_) | Module::Json(_) => {
         let module_info = self.get_module_info(module.specifier())?;
         let module_doc_nodes =
           self.get_doc_nodes_for_module_info(module_info)?;
@@ -304,7 +304,7 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_nodes_for_module_imports(
     &self,
-    module_info: &EsmModuleInfo,
+    module_info: &EsModuleInfo,
   ) -> Result<Vec<DocNode>, DocError> {
     let parsed_source = module_info.source();
     let referrer = module_info.specifier();
@@ -368,7 +368,7 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_var_declarator_ident(
     &self,
-    module_info: &EsmModuleInfo,
+    module_info: &EsModuleInfo,
     var_decl: &VarDecl,
     var_declarator: &VarDeclarator,
     ident: &Ident,
@@ -511,7 +511,7 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_ts_namespace(
     &self,
-    module_info: &EsmModuleInfo,
+    module_info: &EsModuleInfo,
     symbol: &Symbol,
     ts_module: &TsModuleDecl,
     full_range: &SourceRange,
@@ -914,7 +914,7 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_nodes_for_module_info_body(
     &self,
-    module_info: &EsmModuleInfo,
+    module_info: &EsModuleInfo,
   ) -> Vec<DocNode> {
     let mut doc_nodes = Vec::new();
     let parsed_source = module_info.source();
@@ -1063,7 +1063,7 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_symbol_node_ref(
     &self,
-    module_info: &EsmModuleInfo,
+    module_info: &EsModuleInfo,
     symbol: &Symbol,
     node: SymbolNodeRef<'_>,
   ) -> Option<DocNode> {
@@ -1286,7 +1286,7 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
   }
 }
 
-fn module_has_import(module_info: &EsmModuleInfo) -> bool {
+fn module_has_import(module_info: &EsModuleInfo) -> bool {
   module_info.source().module().body.iter().any(|m| {
     matches!(
       m,
