@@ -3,7 +3,7 @@
 use deno_ast::swc::ast::Pat;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
-use deno_graph::symbols::EsmModuleInfo;
+use deno_graph::symbols::EsModuleInfo;
 use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
 use serde::Serialize;
@@ -20,7 +20,7 @@ pub struct VariableDef {
 }
 
 pub fn get_docs_for_var_declarator(
-  module_info: &EsmModuleInfo,
+  module_info: &EsModuleInfo,
   var_decl: &deno_ast::swc::ast::VarDecl,
   var_declarator: &deno_ast::swc::ast::VarDeclarator,
 ) -> Vec<(String, VariableDef, Option<SourceRange>)> {

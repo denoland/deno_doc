@@ -20,7 +20,7 @@ use futures::executor::block_on;
 use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
-use std::fs::read_to_string;
+use std::fs;
 use std::rc::Rc;
 
 struct SourceFileLoader {}
@@ -34,7 +34,7 @@ impl Loader for SourceFileLoader {
   ) -> LoadFuture {
     let result = if specifier.scheme() == "file" {
       let path = specifier.to_file_path().unwrap();
-      read_to_string(path)
+      fs::read(path)
         .map(|content| {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),

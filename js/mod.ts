@@ -2,16 +2,18 @@
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode } from "./types.d.ts";
-import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.53.0/loader.ts";
+import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.64.1/loader.ts";
 import type {
   CacheSetting,
   LoadResponse,
-} from "https://deno.land/x/deno_graph@0.53.0/mod.ts";
+} from "https://deno.land/x/deno_graph@0.64.1/mod.ts";
 
 export type {
   CacheSetting,
   LoadResponse,
-} from "https://deno.land/x/deno_graph@0.53.0/mod.ts";
+} from "https://deno.land/x/deno_graph@0.64.1/mod.ts";
+
+const encoder = new TextEncoder();
 
 export interface DocOptions {
   /** An optional URL string which provides a location of an import map to be
@@ -99,7 +101,19 @@ export async function doc(
   return wasm.doc(
     specifier,
     includeAll,
-    load,
+    (specifier: string, isDynamic: boolean, cacheSetting: CacheSetting) => {
+      return load(specifier, isDynamic, cacheSetting).then((result) => {
+        if (result?.kind === "module") {
+          if (typeof result.content === "string") {
+            result.content = encoder.encode(result.content);
+          }
+          // need to convert to an array for serde_wasm_bindgen to work
+          // deno-lint-ignore no-explicit-any
+          (result as any).content = Array.from(result.content);
+        }
+        return result;
+      });
+    },
     resolve,
     importMap,
     printImportMapDiagnostics,

@@ -3,6 +3,7 @@
 #![allow(clippy::unused_unit)]
 
 use anyhow::anyhow;
+use anyhow::Context;
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
@@ -168,7 +169,9 @@ async fn inner_doc(
       .load(&import_map_specifier, false, CacheSetting::Use)
       .await?
     {
-      let result = import_map::parse_from_json(&specifier, content.as_ref())?;
+      let text = String::from_utf8(content.to_vec())
+        .context("Failed decoding import map.")?;
+      let result = import_map::parse_from_json(&specifier, &text)?;
       if print_import_map_diagnostics && !result.diagnostics.is_empty() {
         console_warn!(
           "Import map diagnostics:\n{}",
