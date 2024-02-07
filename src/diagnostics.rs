@@ -13,13 +13,17 @@ use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::swc::ast::Accessibility;
+use deno_ast::ModuleSpecifier;
 use deno_ast::SourceRange;
+use deno_ast::SourceTextInfo;
 use deno_graph::symbols::ModuleInfoRef;
+use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::borrow::Cow;
 use std::collections::HashSet;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DocDiagnosticKind {
@@ -34,10 +38,22 @@ pub enum DocDiagnosticKind {
   },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DocDiagnostic {
   pub location: Location,
   pub kind: DocDiagnosticKind,
+  pub text_info: SourceTextInfo,
+}
+
+impl std::fmt::Debug for DocDiagnostic {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    // exclude text_info
+    f.debug_struct("DocDiagnostic")
+      .field("location", &self.location)
+      .field("kind", &self.kind)
+      .field("text_info", &"<omitted>")
+      .finish()
+  }
 }
 
 impl DocDiagnostic {
@@ -74,15 +90,25 @@ impl DocDiagnostic {
   }
 }
 
-#[derive(Default)]
-pub struct DiagnosticsCollector {
+pub struct DiagnosticsCollector<'a> {
+  root_symbol: Rc<RootSymbol<'a>>,
   seen_private_types_in_public: HashSet<(UniqueSymbolId, UniqueSymbolId)>,
   seen_jsdoc_missing: HashSet<Location>,
   seen_missing_type_refs: HashSet<Location>,
   diagnostics: Vec<DocDiagnostic>,
 }
 
-impl DiagnosticsCollector {
+impl<'a> DiagnosticsCollector<'a> {
+  pub fn new(root_symbol: Rc<RootSymbol<'a>>) -> Self {
+    Self {
+      root_symbol,
+      seen_private_types_in_public: Default::default(),
+      seen_jsdoc_missing: Default::default(),
+      seen_missing_type_refs: Default::default(),
+      diagnostics: Default::default(),
+    }
+  }
+
   pub fn add_private_type_in_public(
     &mut self,
     decl_module: ModuleInfoRef,
@@ -116,6 +142,7 @@ impl DiagnosticsCollector {
         decl_module.text_info(),
         decl_range.start,
       ),
+      text_info: decl_module.text_info().clone(),
       kind: DocDiagnosticKind::PrivateTypeRef {
         name: decl_name.to_string(),
         reference: reference.to_string(),
@@ -143,7 +170,7 @@ impl DiagnosticsCollector {
 
   pub fn take_diagnostics(&mut self) -> Vec<DocDiagnostic> {
     let inner = std::mem::take(&mut self.diagnostics);
-    *self = Default::default(); // reset
+    *self = Self::new(self.root_symbol.clone()); // reset
     inner
   }
 
@@ -156,10 +183,13 @@ impl DiagnosticsCollector {
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_jsdoc_missing.insert(location.clone())
     {
-      self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::MissingJsDoc,
-      })
+      if let Some(text_info) = self.maybe_get_text_info(location) {
+        self.diagnostics.push(DocDiagnostic {
+          location: location.clone(),
+          kind: DocDiagnosticKind::MissingJsDoc,
+          text_info,
+        });
+      }
     }
   }
 
@@ -173,10 +203,13 @@ impl DiagnosticsCollector {
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
     {
-      self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::MissingExplicitType,
-      })
+      if let Some(text_info) = self.maybe_get_text_info(location) {
+        self.diagnostics.push(DocDiagnostic {
+          location: location.clone(),
+          kind: DocDiagnosticKind::MissingExplicitType,
+          text_info,
+        })
+      }
     }
   }
 
@@ -190,19 +223,50 @@ impl DiagnosticsCollector {
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
     {
-      self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::MissingReturnType,
-      })
+      if let Some(text_info) = self.maybe_get_text_info(location) {
+        self.diagnostics.push(DocDiagnostic {
+          location: location.clone(),
+          kind: DocDiagnosticKind::MissingReturnType,
+          text_info,
+        });
+      }
+    }
+  }
+
+  fn maybe_get_text_info(&self, location: &Location) -> Option<SourceTextInfo> {
+    fn try_get(
+      root_symbol: &RootSymbol,
+      location: &Location,
+    ) -> Option<SourceTextInfo> {
+      let specifier = ModuleSpecifier::parse(&location.filename).ok()?;
+      Some(
+        root_symbol
+          .module_from_specifier(&specifier)?
+          .text_info()
+          .clone(),
+      )
+    }
+
+    match try_get(&self.root_symbol, location) {
+      Some(text_info) => Some(text_info),
+      None => {
+        // should never happen
+        debug_assert!(
+          false,
+          "Failed to get text info for {}",
+          location.filename
+        );
+        None
+      }
     }
   }
 }
 
-struct DiagnosticDocNodeVisitor<'a> {
-  diagnostics: &'a mut DiagnosticsCollector,
+struct DiagnosticDocNodeVisitor<'a, 'b> {
+  diagnostics: &'a mut DiagnosticsCollector<'b>,
 }
 
-impl<'a> DiagnosticDocNodeVisitor<'a> {
+impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
   pub fn visit_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
     let mut last_node: Option<&DocNode> = None;
     for doc_node in doc_nodes {
