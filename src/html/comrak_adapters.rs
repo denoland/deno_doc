@@ -174,4 +174,4 @@ impl HeadingAdapter for HeadingToCAdapter {
   }
 }
 
-pub type URLRewriter = std::rc::Rc<dyn Fn(&str) -> String>;
+pub type URLRewriter = std::rc::Rc<dyn Fn(&Option<&str>, &str) -> String>;

@@ -146,7 +146,7 @@ pub trait HrefResolver {
   fn resolve_usage(
     &self,
     current_specifier: &ModuleSpecifier,
-    current_file: &str,
+    current_file: Option<&str>,
   ) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.

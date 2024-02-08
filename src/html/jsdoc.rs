@@ -90,6 +90,7 @@ pub fn markdown_to_html(
   render_toc: bool,
   highlighter: &SyntectAdapter,
   url_rewriter: &Option<URLRewriter>,
+  current_file: &Option<&str>,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -130,7 +131,7 @@ pub fn markdown_to_html(
           let mut data = node.data.borrow_mut();
           match &mut data.value {
             NodeValue::Link(link) | NodeValue::Image(link) => {
-              link.url = url_rewriter(&link.url);
+              link.url = url_rewriter(current_file, &link.url);
             }
             _ => {}
           }
@@ -198,6 +199,7 @@ pub(crate) fn render_markdown_inner(
     render_toc,
     &render_ctx.ctx.syntect_adapter,
     &render_ctx.ctx.url_rewriter,
+    &render_ctx.get_current_resolve().get_file(),
   )
 }
 
@@ -319,7 +321,7 @@ impl ExampleCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Default)]
 pub struct ModuleDocCtx {
   pub title: Option<String>,
   pub deprecated: Option<String>,
@@ -330,44 +332,47 @@ pub struct ModuleDocCtx {
 impl ModuleDocCtx {
   pub fn new(
     render_ctx: &RenderContext,
-    specifier: Option<&ModuleSpecifier>,
+    specifier: &ModuleSpecifier,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  ) -> Option<Self> {
-    if let Some(main_entrypoint) = specifier {
-      let module_doc_nodes = doc_nodes_by_url.get(main_entrypoint).unwrap();
+  ) -> Self {
+    let module_doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
 
-      let docs = module_doc_nodes
-        .iter()
-        .find(|n| n.kind == DocNodeKind::ModuleDoc);
-
-      docs.map(|node| {
-        let rendered_docs = node
-          .js_doc
-          .doc
-          .as_ref()
-          .map(|doc| render_markdown_with_toc(render_ctx, doc));
-
-        let deprecated = node.js_doc.tags.iter().find_map(|tag| {
-          if let JsDocTag::Deprecated { doc } = tag {
-            Some(doc.to_owned().unwrap_or_default())
-          } else {
-            None
-          }
-        });
-
-        Self {
-          title: (!render_ctx.ctx.hide_module_doc_title).then(|| {
-            super::short_path_to_name(
-              &render_ctx.ctx.url_to_short_path(main_entrypoint),
-            )
-          }),
-          deprecated,
-          usage: UsageCtx::new(render_ctx, &[]),
-          docs: rendered_docs,
-        }
-      })
+    let title = if !render_ctx.ctx.hide_module_doc_title {
+      Some(super::short_path_to_name(
+        &render_ctx.ctx.url_to_short_path(specifier),
+      ))
     } else {
       None
+    };
+
+    let (deprecated, docs) = if let Some(node) = module_doc_nodes
+      .iter()
+      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+    {
+      let deprecated = node.js_doc.tags.iter().find_map(|tag| {
+        if let JsDocTag::Deprecated { doc } = tag {
+          Some(doc.to_owned().unwrap_or_default())
+        } else {
+          None
+        }
+      });
+
+      let docs = node
+        .js_doc
+        .doc
+        .as_ref()
+        .map(|doc| render_markdown_with_toc(render_ctx, doc));
+
+      (deprecated, docs)
+    } else {
+      (None, None)
+    };
+
+    Self {
+      title,
+      deprecated,
+      usage: UsageCtx::new(render_ctx, &[]),
+      docs,
     }
   }
 }

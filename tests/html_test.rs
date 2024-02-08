@@ -414,7 +414,7 @@ async fn module_doc() {
       Some(specifier),
     );
     let module_doc =
-      ModuleDocCtx::new(&render_ctx, Some(specifier), &doc_nodes_by_url);
+      ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
 
     module_docs.push(module_doc);
   }

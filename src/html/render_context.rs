@@ -9,7 +9,7 @@ use std::collections::HashSet;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  pub(crate) ctx: &'ctx GenerateCtx<'ctx>,
+  pub ctx: &'ctx GenerateCtx<'ctx>,
   current_exports: NamespacedSymbols,
   current_imports: HashMap<String, String>,
   current_type_params: HashSet<String>,
@@ -50,26 +50,6 @@ impl<'ctx> RenderContext<'ctx> {
   pub fn with_namespace(&self, namespace_parts: Vec<String>) -> Self {
     Self {
       namespace_parts,
-      ..self.clone()
-    }
-  }
-
-  pub fn with_current_resolve(
-    &self,
-    current_resolve: UrlResolveKind<'ctx>,
-  ) -> Self {
-    Self {
-      current_resolve,
-      ..self.clone()
-    }
-  }
-
-  pub fn with_current_specifier(
-    &self,
-    current_specifier: Option<&'ctx ModuleSpecifier>,
-  ) -> Self {
-    Self {
-      current_specifier,
       ..self.clone()
     }
   }
