@@ -126,6 +126,7 @@ async fn html_doc_files() {
       package_name: None,
       main_entrypoint: None,
       href_resolver: Rc::new(EmptyResolver {}),
+      usage_composer: None,
       rewrite_map: None,
       hide_module_doc_title: false,
       sidebar_flatten_namespaces: false,
@@ -176,6 +177,7 @@ async fn html_doc_files_rewrite() {
       package_name: None,
       main_entrypoint: None,
       href_resolver: Rc::new(EmptyResolver {}),
+      usage_composer: None,
       rewrite_map: Some(rewrite_map),
       hide_module_doc_title: false,
       sidebar_flatten_namespaces: false,
@@ -236,6 +238,7 @@ async fn symbol_group() {
     hbs: setup_hbs().unwrap(),
     syntect_adapter: setup_syntect(false),
     href_resolver: Rc::new(EmptyResolver {}),
+    usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
@@ -292,7 +295,7 @@ async fn symbol_group() {
 
   let symbol_group_json_path = std::env::current_dir()
     .unwrap()
-    .join("tests")
+    .join("tescts")
     .join("testdata")
     .join("symbol_group.json");
 
@@ -334,6 +337,7 @@ async fn symbol_search() {
     hbs: setup_hbs().unwrap(),
     syntect_adapter: setup_syntect(false),
     href_resolver: Rc::new(EmptyResolver {}),
+    usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
@@ -388,6 +392,7 @@ async fn module_doc() {
     hbs: setup_hbs().unwrap(),
     syntect_adapter: setup_syntect(false),
     href_resolver: Rc::new(EmptyResolver {}),
+    usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: true,
