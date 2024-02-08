@@ -295,7 +295,7 @@ async fn symbol_group() {
 
   let symbol_group_json_path = std::env::current_dir()
     .unwrap()
-    .join("tescts")
+    .join("tests")
     .join("testdata")
     .join("symbol_group.json");
 
