@@ -219,6 +219,7 @@ fn generate_docs_directory(
     package_name: Some(name),
     main_entrypoint,
     href_resolver: Rc::new(EmptyResolver()),
+    usage_composer: None,
     rewrite_map: Some(index_map),
     hide_module_doc_title: false,
     sidebar_flatten_namespaces: false,

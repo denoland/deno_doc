@@ -4,12 +4,27 @@ use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
 
-fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<String> {
-  let url = ctx.ctx.href_resolver.resolve_usage(
-    ctx.get_current_specifier().unwrap(),
-    ctx.get_current_resolve().get_file().unwrap(),
-  )?;
+fn render_css_for_usage(name: &str) -> String {
+  format!(
+    r#"
+#{name}:checked ~ *:last-child > :not(#{name}_content) {{
+  display: none;
+}}
+#{name}:checked ~ nav:first-of-type > label[for='{name}'] > div {{
+  border-bottom-width: 2px;
+  cursor: unset;
+  border-color: rgb(0 0 0);
+  padding-bottom: 0.375rem !important; /* 6px */
+}}
+"#
+  )
+}
 
+pub fn usage_to_md(
+  ctx: &RenderContext,
+  doc_nodes: &[DocNode],
+  url: String,
+) -> String {
   let usage =
     if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
       let mut parts = symbol.split('.').collect::<Vec<&str>>();
@@ -55,25 +70,50 @@ fn parse_usage(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<String> {
       format!(r#"import * as {import_symbol} from "{url}";"#)
     };
 
-  Some(usage)
+  format!("```typescript\n{usage}\n```")
 }
 
 #[derive(Clone, Debug, Serialize)]
 pub struct UsageCtx {
-  import_statement: String,
-  raw_import_statement: String,
+  name: String,
+  content: String,
+  additional_css: String,
 }
 
 impl UsageCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Self> {
-    let import_statement = parse_usage(ctx, doc_nodes)?;
-    let rendered_import_statement = crate::html::jsdoc::render_markdown(
-      ctx,
-      &format!("```typescript\n{import_statement}\n```"),
-    );
-    Some(UsageCtx {
-      import_statement: rendered_import_statement,
-      raw_import_statement: format!("{import_statement:?}"),
-    })
+  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Vec<Self>> {
+    let url = ctx.ctx.href_resolver.resolve_usage(
+      ctx.get_current_specifier().unwrap(),
+      ctx.get_current_resolve().get_file().unwrap(),
+    )?;
+
+    if let Some(usage_composer) = &ctx.ctx.usage_composer {
+      let usages = usage_composer(ctx, doc_nodes, url);
+
+      let usages = usages
+        .into_iter()
+        .map(|(name, content)| UsageCtx {
+          additional_css: render_css_for_usage(&name),
+          name,
+          content: crate::html::jsdoc::render_markdown(ctx, &content),
+        })
+        .collect::<Vec<UsageCtx>>();
+
+      if usages.is_empty() {
+        None
+      } else {
+        Some(usages)
+      }
+    } else {
+      let import_statement = usage_to_md(ctx, doc_nodes, url);
+      let rendered_import_statement =
+        crate::html::jsdoc::render_markdown(ctx, &import_statement);
+
+      Some(vec![UsageCtx {
+        name: "".to_string(),
+        content: rendered_import_statement,
+        additional_css: "".to_string(),
+      }])
+    }
   }
 }

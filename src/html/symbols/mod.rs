@@ -34,7 +34,7 @@ struct SymbolCtx {
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
-  usage: Option<UsageCtx>,
+  usage: Option<Vec<UsageCtx>>,
 }
 
 impl SymbolGroupCtx {

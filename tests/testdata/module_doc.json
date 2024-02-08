@@ -2,6 +2,13 @@
   {
     "title": "main",
     "deprecated": null,
+    "usage": [
+      {
+        "name": "",
+        "content": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#0086b3;\">* </span><span style=\"font-weight:bold;color:#a71d5d;\">as </span><span style=\"color:#323232;\">mod </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+        "additional_css": ""
+      }
+    ],
     "docs": "<div class=\"flex max-lg:flex-col-reverse gap-7\">\n        <div class=\"markdown\"><p>Some docs</p>\n</div>\n        <nav class=\"flex-none max-w-64 text-sm max-lg:hidden\"><ul class=\"space-y-2 sticky top-4 block\"></ul></nav>\n      </div>"
   },
   null
