@@ -122,11 +122,11 @@ pub fn markdown_to_html(
   };
 
   let arena = comrak::Arena::new();
-  let mut node = comrak::parse_document(&arena, md, &options);
+  let node = comrak::parse_document(&arena, md, &options);
   if let Some(url_rewriter) = url_rewriter {
     for node in node.traverse() {
       match node {
-        NodeEdge::Start(mut node) => {
+        NodeEdge::Start(node) => {
           let mut data = node.data.borrow_mut();
           match &mut data.value {
             NodeValue::Link(link) | NodeValue::Image(link) => {

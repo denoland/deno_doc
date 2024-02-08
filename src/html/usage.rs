@@ -83,8 +83,8 @@ pub struct UsageCtx {
 impl UsageCtx {
   pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Vec<Self>> {
     let url = ctx.ctx.href_resolver.resolve_usage(
-      ctx.get_current_specifier().unwrap(),
-      ctx.get_current_resolve().get_file().unwrap(),
+      ctx.get_current_specifier()?,
+      ctx.get_current_resolve().get_file()?,
     )?;
 
     if let Some(usage_composer) = &ctx.ctx.usage_composer {
