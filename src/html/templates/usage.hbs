@@ -1,10 +1,27 @@
-<div class="usage relative">
-  {{{~import_statement~}}}
-  <div class="absolute top-0 right-2 flex items-center h-full">
-    <button
-      class="usage_button rounded p-1.5 cursor-pointer border bg-stone-50 hover:bg-stone-300 hover:before:block hover:after:block after:content-['Click_to_copy'] focus:after:content-['Copied!'] focus:after:w-[70px] focus:after:left-[-20px]"
-      onclick='navigator?.clipboard?.writeText({{raw_import_statement}})'>
-      {{~> icons/copy ~}}
-    </button>
+<div>
+  {{~#each this~}}
+    <style scoped>
+        {{{~additional_css~}}}
+    </style>
+
+    <input type="radio" name="usage" id="{{name}}" {{~#if @first~}}checked{{~/if~}} />
+  {{~/each~}}
+
+  <nav class="{{~#if (eq (len this) 1)~}}hidden{{~/if~}} mt-3 border-b border-gray-300 flex gap-1 flex-row mb-2">
+    {{~#each this~}}
+      <label for="{{name}}" class="md:px-2.5 text-sm md:text-base leading-none rounded-t-md md:hover:bg-gray-100 md:hover:border-b border-gray-300 md:hover:-mb-px">
+        <div class="pt-2 pb-2">
+          {{name}}
+        </div>
+      </label>
+    {{~/each~}}
+  </nav>
+
+  <div>
+    {{~#each this~}}
+      <div id="{{name}}_content">
+        {{{~content~}}}
+      </div>
+    {{~/each~}}
   </div>
 </div>

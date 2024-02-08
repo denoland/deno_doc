@@ -26,7 +26,20 @@ pub(crate) fn render_type_def(
 
   match kind {
     TsTypeDefKind::Keyword => {
-      format!("<span>{}</span>", def.keyword.as_ref().unwrap())
+      let keyword = def.keyword.as_ref().unwrap();
+
+      if let Some(href) = ctx
+        .ctx
+        .href_resolver
+        .resolve_global_symbol(&[keyword.to_owned()])
+      {
+        format!(
+          r#"<a href="{}" class="link">{keyword}</a>"#,
+          html_escape::encode_safe(&href),
+        )
+      } else {
+        format!("<span>{keyword}</span>")
+      }
     }
     TsTypeDefKind::Literal => {
       let lit = def.literal.as_ref().unwrap();
@@ -389,10 +402,10 @@ fn type_def_join(
 
 fn type_def_tuple(
   ctx: &RenderContext,
-  union: &[crate::ts_type::TsTypeDef],
+  tuple_items: &[crate::ts_type::TsTypeDef],
 ) -> String {
-  if union.len() <= 3 {
-    let items = union
+  if tuple_items.len() <= 3 {
+    let items = tuple_items
       .iter()
       .map(|element| render_type_def(ctx, element))
       .collect::<Vec<String>>()
@@ -400,14 +413,17 @@ fn type_def_tuple(
 
     format!("<span>[{items}]</span>")
   } else {
-    let mut items = Vec::with_capacity(union.len());
+    let mut items = Vec::with_capacity(tuple_items.len());
 
-    for element in union {
-      items.push(format!("<div>{}</div>, ", render_type_def(ctx, element)));
+    for element in tuple_items {
+      items.push(format!(
+        r#"<div><span>{}</span>, </div>"#,
+        render_type_def(ctx, element)
+      ));
     }
 
     let content = items.join("");
-    format!(r#"<div class="ml-4">[{content}]</div>"#)
+    format!(r#"<span>[</span><div class="pl-4">{content}</div><span>]</span>"#)
   }
 }
 
