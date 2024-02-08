@@ -4,10 +4,18 @@ export interface Interface {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:2:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:1:1
+  | 
+1 | export interface Interface {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:2:3
+  | 
+2 |   readonly [index: number]: Interface;
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

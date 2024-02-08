@@ -8,9 +8,17 @@ export class Other {
 class YesDiagnostic {}
 
 # diagnostics
-[
-  "file:///mod.ts:4:3 Type 'Other.prototype.prop' references type 'YesDiagnostic' which is not exported from a root module."
-]
+error[private-type-ref]: public type 'Other.prototype.prop' references private type 'YesDiagnostic'
+ --> file:///mod.ts:4:3
+  | 
+4 |   prop: YesDiagnostic
+  |   ^
+  = hint: make the referenced type public or remove the reference
+  | 
+7 | class YesDiagnostic {}
+  | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
 Defined in file:///mod.ts:2:1

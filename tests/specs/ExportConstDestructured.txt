@@ -17,10 +17,18 @@ export const {
 export const { f, g: h } = d;
 
 # diagnostics
-[
-  "file:///mod.ts:16:16 Missing JSDoc comment.",
-  "file:///mod.ts:16:22 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> file:///mod.ts:16:16
+   | 
+16 | export const { f, g: h } = d;
+   |                ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> file:///mod.ts:16:22
+   | 
+16 | export const { f, g: h } = d;
+   |                      ^
 
 # output.txt
 Defined in file:///mod.ts:6:3

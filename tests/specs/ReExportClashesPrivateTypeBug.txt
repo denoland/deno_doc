@@ -37,10 +37,30 @@ export const Test9 = 1;
 export const Test10 = 1;
 
 # diagnostics
-[
-  "file:///mod.ts:11:3 Type 'MyClass.prototype.internal' references type 'Internal1' which is not exported from a root module.",
-  "file:///mod.ts:13:3 Type 'MyClass.prototype.internal2' references type 'Internal2' which is not exported from a root module."
-]
+error[private-type-ref]: public type 'MyClass.prototype.internal' references private type 'Internal1'
+  --> file:///mod.ts:11:3
+   | 
+11 |   internal: Internal1;
+   |   ^
+   = hint: make the referenced type public or remove the reference
+   | 
+ 5 | class Internal1 {}
+   | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'MyClass.prototype.internal2' references private type 'Internal2'
+  --> file:///mod.ts:13:3
+   | 
+13 |   internal2: Internal2;
+   |   ^
+   = hint: make the referenced type public or remove the reference
+   | 
+ 6 | class Internal2 {}
+   | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
 Defined in file:///other.ts:2:14

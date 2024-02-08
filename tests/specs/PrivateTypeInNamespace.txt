@@ -8,12 +8,44 @@ export interface Output {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:6:3 Type 'Output[\"other\"]' references type 'Test' which is not exported from a root module.",
-  "file:///mod.ts:6:3 Type 'Output[\"other\"]' references type 'Test.Other' which is not exported from a root module.",
-  "file:///mod.ts:5:1 Missing JSDoc comment.",
-  "file:///mod.ts:6:3 Missing JSDoc comment."
-]
+error[private-type-ref]: public type 'Output["other"]' references private type 'Test'
+ --> file:///mod.ts:6:3
+  | 
+6 |   other: Test.Other;
+  |   ^
+  = hint: make the referenced type public or remove the reference
+  | 
+1 | namespace Test {
+  | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'Output["other"]' references private type 'Test.Other'
+ --> file:///mod.ts:6:3
+  | 
+6 |   other: Test.Other;
+  |   ^
+  = hint: make the referenced type public or remove the reference
+  | 
+2 |   export class Other {}
+  |   - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:5:1
+  | 
+5 | export interface Output {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:6:3
+  | 
+6 |   other: Test.Other;
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:5:1

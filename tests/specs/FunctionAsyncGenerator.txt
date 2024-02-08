@@ -2,10 +2,18 @@
 export async function* ag() {}
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:1:1 Missing return type."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:1:1
+  | 
+1 | export async function* ag() {}
+  | ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> file:///mod.ts:1:1
+  | 
+1 | export async function* ag() {}
+  | ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

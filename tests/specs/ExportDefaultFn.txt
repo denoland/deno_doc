@@ -8,10 +8,18 @@ export default function foo(a: number) {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:1:1 Missing return type."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:1:1
+  | 
+1 | export default function foo(a: number) {
+  | ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> file:///mod.ts:1:1
+  | 
+1 | export default function foo(a: number) {
+  | ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

@@ -7,13 +7,39 @@ export interface I {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:2:3 Missing JSDoc comment.",
-  "file:///mod.ts:3:3 Missing JSDoc comment.",
-  "file:///mod.ts:4:3 Missing JSDoc comment.",
-  "file:///mod.ts:5:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:1:1
+  | 
+1 | export interface I {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:2:3
+  | 
+2 |   p: string;
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:3:3
+  | 
+3 |   po?: number;
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:4:3
+  | 
+4 |   readonly pro: string;
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:5:3
+  | 
+5 |   [pc]: string;
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

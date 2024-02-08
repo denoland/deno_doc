@@ -6,11 +6,25 @@ export namespace Namespace {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:2:3 Missing JSDoc comment.",
-  "file:///mod.ts:3:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:1:1
+  | 
+1 | export namespace Namespace {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:2:3
+  | 
+2 |   export function a(b: string): string;
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:3:3
+  | 
+3 |   export function a(b: number): number;
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

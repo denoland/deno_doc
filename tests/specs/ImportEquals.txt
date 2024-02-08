@@ -9,9 +9,11 @@ import Options = Test.Options;
 export { Options };
 
 # diagnostics
-[
-  "file:///mod.ts:2:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:2:3
+  | 
+2 |   export interface Options {
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:2:3

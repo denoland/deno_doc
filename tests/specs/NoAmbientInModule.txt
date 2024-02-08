@@ -3,9 +3,11 @@ declare function foo(): number;
 export function bar() {};
 
 # diagnostics
-[
-  "file:///mod.ts:2:1 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:2:1
+  | 
+2 | export function bar() {};
+  | ^
 
 # output.txt
 Defined in file:///mod.ts:2:1

@@ -6,15 +6,53 @@ export interface I {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:2:3 Missing JSDoc comment.",
-  "file:///mod.ts:2:3 Missing return type.",
-  "file:///mod.ts:3:3 Missing JSDoc comment.",
-  "file:///mod.ts:3:3 Missing return type.",
-  "file:///mod.ts:4:3 Missing JSDoc comment.",
-  "file:///mod.ts:4:3 Missing return type."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:1:1
+  | 
+1 | export interface I {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:2:3
+  | 
+2 |   m(a, b);
+  |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> file:///mod.ts:2:3
+  | 
+2 |   m(a, b);
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:3:3
+  | 
+3 |   mo?(c);
+  |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> file:///mod.ts:3:3
+  | 
+3 |   mo?(c);
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:4:3
+  | 
+4 |   [mc](d);
+  |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> file:///mod.ts:4:3
+  | 
+4 |   [mc](d);
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

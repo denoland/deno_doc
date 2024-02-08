@@ -14,10 +14,18 @@ declare namespace RootNs {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:3:11 Missing JSDoc comment.",
-  "file:///mod.ts:7:7 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:3:11
+  | 
+3 |     const a = "a";
+  |           ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:7:7
+  | 
+7 |       enum Foo {
+  |       ^
 
 # output.txt
 Defined in file:///mod.ts:2:1

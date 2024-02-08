@@ -12,6 +12,14 @@ use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::Location;
 
+use deno_ast::diagnostics::Diagnostic;
+use deno_ast::diagnostics::DiagnosticLevel;
+use deno_ast::diagnostics::DiagnosticLocation;
+use deno_ast::diagnostics::DiagnosticSnippet;
+use deno_ast::diagnostics::DiagnosticSnippetHighlight;
+use deno_ast::diagnostics::DiagnosticSnippetHighlightStyle;
+use deno_ast::diagnostics::DiagnosticSourcePos;
+use deno_ast::diagnostics::DiagnosticSourceRange;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::ModuleSpecifier;
 use deno_ast::SourceRange;
@@ -56,37 +64,108 @@ impl std::fmt::Debug for DocDiagnostic {
   }
 }
 
-impl DocDiagnostic {
-  pub fn message(&self) -> Cow<str> {
+impl Diagnostic for DocDiagnostic {
+  fn level(&self) -> DiagnosticLevel {
+    DiagnosticLevel::Error
+  }
+
+  fn code(&self) -> impl std::fmt::Display + '_ {
+    match self.kind {
+      DocDiagnosticKind::MissingJsDoc => "missing-jsdoc",
+      DocDiagnosticKind::MissingExplicitType => "missing-explicit-type",
+      DocDiagnosticKind::MissingReturnType => "missing-return-type",
+      DocDiagnosticKind::PrivateTypeRef { .. } => "private-type-ref",
+    }
+  }
+
+  fn message(&self) -> impl std::fmt::Display + '_ {
     match &self.kind {
       DocDiagnosticKind::MissingJsDoc => {
-        Cow::Borrowed("Missing JSDoc comment.")
+        Cow::Borrowed("exported symbol is missing JSDoc documentation")
       }
       DocDiagnosticKind::MissingExplicitType => {
-        Cow::Borrowed("Missing explicit type.")
+        Cow::Borrowed("exported symbol is missing an explicit type annotation")
       }
-      DocDiagnosticKind::MissingReturnType => {
-        Cow::Borrowed("Missing return type.")
-      }
+      DocDiagnosticKind::MissingReturnType => Cow::Borrowed(
+        "exported function is missing an explicit return type annotation",
+      ),
       DocDiagnosticKind::PrivateTypeRef {
-        name,
-        reference,
-        reference_location,
-      } => {
-        let mut message =
-          format!("Type '{}' references type '{}' ", name, reference);
-        if reference_location.filename != self.location.filename {
-          message.push_str(&format!(
-            "({}:{}:{}) ",
-            reference_location.filename,
-            reference_location.line,
-            reference_location.col + 1
-          ));
-        }
-        message.push_str("which is not exported from a root module.");
-        Cow::Owned(message)
+        reference, name, ..
+      } => Cow::Owned(format!(
+        "public type '{name}' references private type '{reference}'",
+      )),
+    }
+  }
+
+  fn location(&self) -> DiagnosticLocation {
+    let specifier = ModuleSpecifier::parse(&self.location.filename).unwrap();
+    DiagnosticLocation::ModulePosition {
+      specifier: Cow::Owned(specifier),
+      source_pos: DiagnosticSourcePos::ByteIndex(self.location.byte_index),
+      text_info: Cow::Borrowed(&self.text_info),
+    }
+  }
+
+  fn snippet(&self) -> Option<DiagnosticSnippet<'_>> {
+    Some(DiagnosticSnippet {
+      source: Cow::Borrowed(&self.text_info),
+      highlight: DiagnosticSnippetHighlight {
+        style: DiagnosticSnippetHighlightStyle::Error,
+        range: DiagnosticSourceRange {
+          start: DiagnosticSourcePos::ByteIndex(self.location.byte_index),
+          end: DiagnosticSourcePos::ByteIndex(self.location.byte_index + 1),
+        },
+        description: None,
+      },
+    })
+  }
+
+  fn hint(&self) -> Option<impl std::fmt::Display + '_> {
+    match &self.kind {
+      DocDiagnosticKind::PrivateTypeRef { .. } => {
+        Some("make the referenced type public or remove the reference")
+      }
+      _ => None,
+    }
+  }
+  fn snippet_fixed(&self) -> Option<DiagnosticSnippet<'_>> {
+    match &self.kind {
+      DocDiagnosticKind::PrivateTypeRef {
+        reference_location, ..
+      } => Some(DiagnosticSnippet {
+        source: Cow::Borrowed(&self.text_info),
+        highlight: DiagnosticSnippetHighlight {
+          style: DiagnosticSnippetHighlightStyle::Hint,
+          range: DiagnosticSourceRange {
+            start: DiagnosticSourcePos::ByteIndex(
+              reference_location.byte_index,
+            ),
+            end: DiagnosticSourcePos::ByteIndex(
+              reference_location.byte_index + 1,
+            ),
+          },
+          description: Some(Cow::Borrowed("this is the referenced type")),
+        },
+      }),
+      _ => None,
+    }
+  }
+
+  fn info(&self) -> std::borrow::Cow<'_, [std::borrow::Cow<'_, str>]> {
+    match &self.kind {
+      DocDiagnosticKind::MissingJsDoc => Cow::Borrowed(&[]),
+      DocDiagnosticKind::MissingExplicitType => Cow::Borrowed(&[]),
+      DocDiagnosticKind::MissingReturnType => Cow::Borrowed(&[]),
+      DocDiagnosticKind::PrivateTypeRef { .. } => {
+        Cow::Borrowed(&[Cow::Borrowed(
+          "to ensure documentation is complete all types that are exposed in the public API must be public",
+        )])
       }
     }
+  }
+
+  fn docs_url(&self) -> Option<impl std::fmt::Display + '_> {
+    None::<&str>
   }
 }
 

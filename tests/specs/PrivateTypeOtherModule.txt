@@ -16,14 +16,64 @@ export namespace MyNamespace {
 export class YesDiagnostic2 {}
 
 # diagnostics
-[
-  "file:///mod.ts:3:1 Type 'MyClass' references type 'YesDiagnostic2' (file:///diagnostic.ts:7:1) which is not exported from a root module.",
-  "file:///mod.ts:4:3 Type 'MyClass.prototype.prop' references type 'MyNamespace' (file:///diagnostic.ts:3:1) which is not exported from a root module.",
-  "file:///mod.ts:4:3 Type 'MyClass.prototype.prop' references type 'MyNamespace.YesDiagnostic' (file:///diagnostic.ts:4:3) which is not exported from a root module.",
-  "file:///mod.ts:3:1 Missing JSDoc comment.",
-  "file:///mod.ts:4:3 Missing JSDoc comment.",
-  "file:///mod.ts:5:3 Missing JSDoc comment."
-]
+error[private-type-ref]: public type 'MyClass' references private type 'YesDiagnostic2'
+ --> file:///mod.ts:3:1
+  | 
+3 | export class MyClass extends YesDiagnostic2 {
+  | ^
+  = hint: make the referenced type public or remove the reference
+  | 
+3 | export class MyClass extends YesDiagnostic2 {
+  |                          - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'MyClass.prototype.prop' references private type 'MyNamespace'
+ --> file:///mod.ts:4:3
+  | 
+4 |   prop: MyNamespace.YesDiagnostic;
+  |   ^
+  = hint: make the referenced type public or remove the reference
+  | 
+1 | import { MyNamespace, YesDiagnostic2 } from "./diagnostic.ts";
+  |                        - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'MyClass.prototype.prop' references private type 'MyNamespace.YesDiagnostic'
+ --> file:///mod.ts:4:3
+  | 
+4 |   prop: MyNamespace.YesDiagnostic;
+  |   ^
+  = hint: make the referenced type public or remove the reference
+  | 
+1 | import { MyNamespace, YesDiagnostic2 } from "./diagnostic.ts";
+  |                                                         - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:3:1
+  | 
+3 | export class MyClass extends YesDiagnostic2 {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:4:3
+  | 
+4 |   prop: MyNamespace.YesDiagnostic;
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> file:///mod.ts:5:3
+  | 
+5 |   other: Uint8Array;
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:3:1
