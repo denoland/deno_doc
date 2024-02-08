@@ -1,6 +1,7 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::comrak_adapters::SyntectAdapter;
+use crate::html::usage::UsageCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -294,6 +295,7 @@ impl ExampleCtx {
 pub struct ModuleDocCtx {
   pub title: Option<String>,
   pub deprecated: Option<String>,
+  pub usage: Option<Vec<UsageCtx>>,
   pub docs: Option<String>,
 }
 
@@ -332,6 +334,7 @@ impl ModuleDocCtx {
             )
           }),
           deprecated,
+          usage: UsageCtx::new(render_ctx, &[]),
           docs: rendered_docs,
         }
       })
