@@ -3,7 +3,7 @@ export const Const = 0;
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:14
+ --> /mod.ts:1:14
   | 
 1 | export const Const = 0;
   |              ^

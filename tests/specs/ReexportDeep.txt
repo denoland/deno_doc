@@ -17,7 +17,7 @@ export declare namespace MessageEntity {
 
 # diagnostics
 error[private-type-ref]: public type 'UrlMessageEntity' references private type 'MessageEntity'
- --> file:///mod.ts:2:1
+ --> /mod.ts:2:1
   | 
 2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
   | ^
@@ -30,7 +30,7 @@ error[private-type-ref]: public type 'UrlMessageEntity' references private type 
 
 
 error[private-type-ref]: public type 'UrlMessageEntity' references private type 'MessageEntity.TextLinkMessageEntity'
- --> file:///mod.ts:2:1
+ --> /mod.ts:2:1
   | 
 2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
   | ^
@@ -43,7 +43,7 @@ error[private-type-ref]: public type 'UrlMessageEntity' references private type 
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:1
+ --> /mod.ts:2:1
   | 
 2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
   | ^

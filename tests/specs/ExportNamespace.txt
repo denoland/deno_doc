@@ -19,28 +19,28 @@ export namespace RootNs.OtherNs {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:18
+ --> /mod.ts:3:18
   | 
 3 |     export const a = "a";
   |                  ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:7:7
+ --> /mod.ts:7:7
   | 
 7 |       export enum Foo {
   |       ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:15:8
+  --> /mod.ts:15:8
    | 
 15 | export namespace RootNs.OtherNs {
    |        ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:16:3
+  --> /mod.ts:16:3
    | 
 16 |   export class Other {}
    |   ^

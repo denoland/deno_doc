@@ -18,14 +18,14 @@ export const { f, g: h } = d;
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:16:16
+  --> /mod.ts:16:16
    | 
 16 | export const { f, g: h } = d;
    |                ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:16:22
+  --> /mod.ts:16:22
    | 
 16 | export const { f, g: h } = d;
    |                      ^

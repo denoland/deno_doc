@@ -11,28 +11,28 @@ export namespace RootNs {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export namespace RootNs {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   export namespace NestedNs {
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:5
+ --> /mod.ts:3:5
   | 
 3 |     export enum Foo {
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:7:3
+ --> /mod.ts:7:3
   | 
 7 |   export enum Foo {
   |   ^

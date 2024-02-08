@@ -14,7 +14,7 @@ interface NoDiagnostic {}
 
 # diagnostics
 error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references private type 'YesDiagnostic'
-  --> file:///mod.ts:3:3
+  --> /mod.ts:3:3
    | 
  3 |   protected secondMethod(): YesDiagnostic {
    |   ^
@@ -27,14 +27,14 @@ error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:3
+ --> /mod.ts:3:3
   | 
 3 |   protected secondMethod(): YesDiagnostic {
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:6:3
+ --> /mod.ts:6:3
   | 
 6 |   private myMethod(): NoDiagnostic {
   |   ^

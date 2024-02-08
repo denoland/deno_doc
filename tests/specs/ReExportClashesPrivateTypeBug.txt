@@ -38,7 +38,7 @@ export const Test10 = 1;
 
 # diagnostics
 error[private-type-ref]: public type 'MyClass.prototype.internal' references private type 'Internal1'
-  --> file:///mod.ts:11:3
+  --> /mod.ts:11:3
    | 
 11 |   internal: Internal1;
    |   ^
@@ -51,7 +51,7 @@ error[private-type-ref]: public type 'MyClass.prototype.internal' references pri
 
 
 error[private-type-ref]: public type 'MyClass.prototype.internal2' references private type 'Internal2'
-  --> file:///mod.ts:13:3
+  --> /mod.ts:13:3
    | 
 13 |   internal2: Internal2;
    |   ^

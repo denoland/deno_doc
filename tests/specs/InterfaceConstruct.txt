@@ -5,21 +5,21 @@ export interface I {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export interface I {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   new(name: string);
   |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   new(name: string);
   |   ^

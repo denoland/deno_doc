@@ -17,7 +17,7 @@ export class YesDiagnostic2 {}
 
 # diagnostics
 error[private-type-ref]: public type 'MyClass' references private type 'YesDiagnostic2'
- --> file:///mod.ts:3:1
+ --> /mod.ts:3:1
   | 
 3 | export class MyClass extends YesDiagnostic2 {
   | ^
@@ -30,7 +30,7 @@ error[private-type-ref]: public type 'MyClass' references private type 'YesDiagn
 
 
 error[private-type-ref]: public type 'MyClass.prototype.prop' references private type 'MyNamespace'
- --> file:///mod.ts:4:3
+ --> /mod.ts:4:3
   | 
 4 |   prop: MyNamespace.YesDiagnostic;
   |   ^
@@ -43,7 +43,7 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
 
 
 error[private-type-ref]: public type 'MyClass.prototype.prop' references private type 'MyNamespace.YesDiagnostic'
- --> file:///mod.ts:4:3
+ --> /mod.ts:4:3
   | 
 4 |   prop: MyNamespace.YesDiagnostic;
   |   ^
@@ -56,21 +56,21 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:1
+ --> /mod.ts:3:1
   | 
 3 | export class MyClass extends YesDiagnostic2 {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:4:3
+ --> /mod.ts:4:3
   | 
 4 |   prop: MyNamespace.YesDiagnostic;
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:5:3
+ --> /mod.ts:5:3
   | 
 5 |   other: Uint8Array;
   |   ^

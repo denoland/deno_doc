@@ -9,7 +9,7 @@ class YesDiagnostic {}
 
 # diagnostics
 error[private-type-ref]: public type 'Other.prototype.prop' references private type 'YesDiagnostic'
- --> file:///mod.ts:4:3
+ --> /mod.ts:4:3
   | 
 4 |   prop: YesDiagnostic
   |   ^

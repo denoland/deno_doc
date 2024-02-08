@@ -19,7 +19,7 @@ interface NoDiagnostic {}
 
 # diagnostics
 error[private-type-ref]: public type 'SameName' references private type 'YesDiagnostic1'
-  --> file:///mod.ts:4:1
+  --> /mod.ts:4:1
    | 
  4 | export function SameName(): YesDiagnostic1 {
    | ^
@@ -32,7 +32,7 @@ error[private-type-ref]: public type 'SameName' references private type 'YesDiag
 
 
 error[private-type-ref]: public type 'test' references private type 'YesDiagnostic2'
-  --> file:///mod.ts:8:1
+  --> /mod.ts:8:1
    | 
  8 | export function test(): YesDiagnostic2;
    | ^

@@ -4,14 +4,14 @@ export function f(): Generic<[string, number]> { return {}; }
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export interface Generic<T> {}
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:1
+ --> /mod.ts:2:1
   | 
 2 | export function f(): Generic<[string, number]> { return {}; }
   | ^

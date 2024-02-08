@@ -6,21 +6,21 @@ export class C extends B {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export class C extends B {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:3
+ --> /mod.ts:3:3
   | 
 3 |   override b: string;
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   override a(): void {}
   |   ^

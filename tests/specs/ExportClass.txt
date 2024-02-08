@@ -34,63 +34,63 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:4:5
+ --> /mod.ts:4:5
   | 
 4 |     protected protected1: number;
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:5:5
+ --> /mod.ts:5:5
   | 
 5 |     public public1: boolean;
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:6:5
+ --> /mod.ts:6:5
   | 
 6 |     public2: number;
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:7:5
+ --> /mod.ts:7:5
   | 
 7 |     override public3: string;
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:8:5
+ --> /mod.ts:8:5
   | 
 8 |     m = new Map<string, string>();
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:9:5
+ --> /mod.ts:9:5
   | 
 9 |     s = "foo";
   |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:10:5
+  --> /mod.ts:10:5
    | 
 10 |     a = [1, "foo"];
    |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:11:5
+  --> /mod.ts:11:5
    | 
 11 |     fn = (a: string): void => {};
    |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:31:5
+  --> /mod.ts:31:5
    | 
 31 |     override s() {}
    |     ^

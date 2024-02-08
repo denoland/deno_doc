@@ -9,7 +9,7 @@ export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, 
 
 # diagnostics
 error[private-type-ref]: public type 'foo' references private type 'AssignOpts'
- --> file:///mod.ts:5:1
+ --> /mod.ts:5:1
   | 
 5 | export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
   | ^
@@ -22,7 +22,7 @@ error[private-type-ref]: public type 'foo' references private type 'AssignOpts'
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:5:1
+ --> /mod.ts:5:1
   | 
 5 | export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
   | ^

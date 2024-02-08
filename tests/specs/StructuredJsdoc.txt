@@ -22,14 +22,14 @@ export class A {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:4:3
+ --> /mod.ts:4:3
   | 
 4 |   p = false;
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:19:3
+  --> /mod.ts:19:3
    | 
 19 |   a() {}
    |   ^

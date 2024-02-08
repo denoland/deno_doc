@@ -428,14 +428,15 @@ checksum = "5c297a1c74b71ae29df00c3e22dd9534821d60eb9af5a0192823fa2acea70c2a"
 
 [[package]]
 name = "deno_ast"
-version = "0.33.1"
+version = "0.33.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0723db85fd120e682785be5c6b721b5dfae59135f492de97636569203012ebd8"
+checksum = "9fdafff817ae3ad89672d54cd8daebc86dc352065ccc18691605043e6b845d00"
 dependencies = [
  "deno_media_type",
  "deno_terminal",
  "dprint-swc-ext",
  "once_cell",
+ "percent-encoding",
  "serde",
  "swc_atoms",
  "swc_common",

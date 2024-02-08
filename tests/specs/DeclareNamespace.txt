@@ -15,14 +15,14 @@ declare namespace RootNs {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:11
+ --> /mod.ts:3:11
   | 
 3 |     const a = "a";
   |           ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:7:7
+ --> /mod.ts:7:7
   | 
 7 |       enum Foo {
   |       ^

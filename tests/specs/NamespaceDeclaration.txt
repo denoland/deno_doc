@@ -3,7 +3,7 @@ export namespace Namespace {}
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export namespace Namespace {}
   | ^

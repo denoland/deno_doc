@@ -6,28 +6,28 @@ export interface Thing {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export interface Thing {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   get size(): number;
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:3:3
+ --> /mod.ts:3:3
   | 
 3 |   set size(value: number | string);
   |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
- --> file:///mod.ts:3:3
+ --> /mod.ts:3:3
   | 
 3 |   set size(value: number | string);
   |   ^

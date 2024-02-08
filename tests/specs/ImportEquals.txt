@@ -10,7 +10,7 @@ export { Options };
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   export interface Options {
   |   ^

@@ -17,7 +17,7 @@ namespace MyNamespace3 {
 
 # diagnostics
 error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace'
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
   | ^
@@ -30,7 +30,7 @@ error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references
 
 
 error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace2'
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
   | ^
@@ -43,7 +43,7 @@ error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references
 
 
 error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3'
-  --> file:///mod.ts:1:1
+  --> /mod.ts:1:1
    | 
  1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
    | ^
@@ -56,7 +56,7 @@ error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references
 
 
 error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3.MyClass'
-  --> file:///mod.ts:1:1
+  --> /mod.ts:1:1
    | 
  1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
    | ^
@@ -69,7 +69,7 @@ error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
   | ^

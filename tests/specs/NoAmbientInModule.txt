@@ -4,7 +4,7 @@ export function bar() {};
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:1
+ --> /mod.ts:2:1
   | 
 2 | export function bar() {};
   | ^

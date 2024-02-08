@@ -9,7 +9,7 @@ export interface Output {
 
 # diagnostics
 error[private-type-ref]: public type 'Output["other"]' references private type 'Test'
- --> file:///mod.ts:6:3
+ --> /mod.ts:6:3
   | 
 6 |   other: Test.Other;
   |   ^
@@ -22,7 +22,7 @@ error[private-type-ref]: public type 'Output["other"]' references private type '
 
 
 error[private-type-ref]: public type 'Output["other"]' references private type 'Test.Other'
- --> file:///mod.ts:6:3
+ --> /mod.ts:6:3
   | 
 6 |   other: Test.Other;
   |   ^
@@ -35,14 +35,14 @@ error[private-type-ref]: public type 'Output["other"]' references private type '
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:5:1
+ --> /mod.ts:5:1
   | 
 5 | export interface Output {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:6:3
+ --> /mod.ts:6:3
   | 
 6 |   other: Test.Other;
   |   ^

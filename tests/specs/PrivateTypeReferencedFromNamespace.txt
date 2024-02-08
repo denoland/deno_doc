@@ -12,7 +12,7 @@ interface NoDiagnostic {}
 
 # diagnostics
 error[private-type-ref]: public type 'Test.Other' references private type 'YesDiagnostic'
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   export class Other extends YesDiagnostic {
   |   ^
@@ -25,14 +25,14 @@ error[private-type-ref]: public type 'Test.Other' references private type 'YesDi
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export namespace Test {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:3
+ --> /mod.ts:2:3
   | 
 2 |   export class Other extends YesDiagnostic {
   |   ^

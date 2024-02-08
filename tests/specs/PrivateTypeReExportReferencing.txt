@@ -25,7 +25,7 @@ interface PrivateReferencedInIgnore {}
 
 # diagnostics
 error[private-type-ref]: public type 'Data.prototype.prop' references private type 'PrivateNotExported'
-  --> file:///data.ts:10:3
+  --> /data.ts:10:3
    | 
 10 |   prop: PrivateNotExported;
    |   ^
@@ -38,7 +38,7 @@ error[private-type-ref]: public type 'Data.prototype.prop' references private ty
 
 
 error[private-type-ref]: public type 'Data.prototype.prop2' references private type 'PrivateExportedButNotFromModTs'
-  --> file:///data.ts:12:3
+  --> /data.ts:12:3
    | 
 12 |   prop2: PrivateExportedButNotFromModTs;
    |   ^

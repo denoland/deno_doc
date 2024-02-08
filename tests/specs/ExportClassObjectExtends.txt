@@ -6,7 +6,7 @@ export class Bar extends obj.Foo {}
 
 # diagnostics
 error[private-type-ref]: public type 'Bar' references private type 'obj'
- --> file:///mod.ts:4:1
+ --> /mod.ts:4:1
   | 
 4 | export class Bar extends obj.Foo {}
   | ^
@@ -19,7 +19,7 @@ error[private-type-ref]: public type 'Bar' references private type 'obj'
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:4:1
+ --> /mod.ts:4:1
   | 
 4 | export class Bar extends obj.Foo {}
   | ^

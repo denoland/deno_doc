@@ -19,42 +19,42 @@ export class A {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:2:1
+ --> /mod.ts:2:1
   | 
 2 | export class A {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:5:3
+ --> /mod.ts:5:3
   | 
 5 |   @format("Hello, %s")
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:8:3
+ --> /mod.ts:8:3
   | 
 8 |   @configurable(false)
   |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
- --> file:///mod.ts:8:3
+ --> /mod.ts:8:3
   | 
 8 |   @configurable(false)
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> file:///mod.ts:13:3
+  --> /mod.ts:13:3
    | 
 13 |   @enumerable(false)
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> file:///mod.ts:13:3
+  --> /mod.ts:13:3
    | 
 13 |   @enumerable(false)
    |   ^

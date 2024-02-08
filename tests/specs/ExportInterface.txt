@@ -15,7 +15,7 @@ export interface Reader extends Foo, Bar {
 
 # diagnostics
 error[private-type-ref]: public type 'Reader' references private type 'Foo'
- --> file:///mod.ts:8:1
+ --> /mod.ts:8:1
   | 
 8 | export interface Reader extends Foo, Bar {
   | ^
@@ -28,7 +28,7 @@ error[private-type-ref]: public type 'Reader' references private type 'Foo'
 
 
 error[private-type-ref]: public type 'Reader' references private type 'Bar'
- --> file:///mod.ts:8:1
+ --> /mod.ts:8:1
   | 
 8 | export interface Reader extends Foo, Bar {
   | ^

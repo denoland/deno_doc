@@ -3,14 +3,14 @@ export function add<T>(a: T, b: T) { return a + b; }
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export function add<T>(a: T, b: T) { return a + b; }
   | ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
- --> file:///mod.ts:1:1
+ --> /mod.ts:1:1
   | 
 1 | export function add<T>(a: T, b: T) { return a + b; }
   | ^
