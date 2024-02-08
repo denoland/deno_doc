@@ -69,16 +69,16 @@ impl Diagnostic for DocDiagnostic {
     DiagnosticLevel::Error
   }
 
-  fn code(&self) -> impl std::fmt::Display + '_ {
-    match self.kind {
+  fn code(&self) -> Cow<'_, str> {
+    Cow::Borrowed(match self.kind {
       DocDiagnosticKind::MissingJsDoc => "missing-jsdoc",
       DocDiagnosticKind::MissingExplicitType => "missing-explicit-type",
       DocDiagnosticKind::MissingReturnType => "missing-return-type",
       DocDiagnosticKind::PrivateTypeRef { .. } => "private-type-ref",
-    }
+    })
   }
 
-  fn message(&self) -> impl std::fmt::Display + '_ {
+  fn message(&self) -> Cow<'_, str> {
     match &self.kind {
       DocDiagnosticKind::MissingJsDoc => {
         Cow::Borrowed("exported symbol is missing JSDoc documentation")
@@ -120,11 +120,11 @@ impl Diagnostic for DocDiagnostic {
     })
   }
 
-  fn hint(&self) -> Option<impl std::fmt::Display + '_> {
+  fn hint(&self) -> Option<Cow<'_, str>> {
     match &self.kind {
-      DocDiagnosticKind::PrivateTypeRef { .. } => {
-        Some("make the referenced type public or remove the reference")
-      }
+      DocDiagnosticKind::PrivateTypeRef { .. } => Some(Cow::Borrowed(
+        "make the referenced type public or remove the reference",
+      )),
       _ => None,
     }
   }
@@ -164,8 +164,8 @@ impl Diagnostic for DocDiagnostic {
     }
   }
 
-  fn docs_url(&self) -> Option<impl std::fmt::Display + '_> {
-    None::<&str>
+  fn docs_url(&self) -> Option<Cow<'_, str>> {
+    None
   }
 }
 

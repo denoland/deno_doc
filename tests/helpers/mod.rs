@@ -7,7 +7,6 @@ mod test_builder;
 
 use deno_graph::ModuleSpecifier;
 use indexmap::IndexMap;
-use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde::Serialize;
 pub use test_builder::*;
@@ -17,7 +16,7 @@ pub struct Spec {
   pub files: Vec<SpecFile>,
   pub output_json_file: SpecFile,
   pub output_doc_file: SpecFile,
-  pub diagnostics: Vec<String>,
+  pub diagnostics: String,
 }
 
 impl Spec {
@@ -32,8 +31,7 @@ impl Spec {
     }
     if !self.diagnostics.is_empty() {
       text.push_str("# diagnostics\n");
-      text.push_str(&serde_json::to_string_pretty(&self.diagnostics).unwrap());
-      text.push_str("\n\n");
+      text.push_str(&self.diagnostics);
     }
     text.push_str(&self.output_doc_file.emit());
     text.push('\n');
@@ -140,7 +138,7 @@ fn parse_spec(text: String) -> Spec {
       .position(|f| f.specifier == "output.txt")
       .unwrap(),
   );
-  let diagnostics = take_vec_file(&mut files, "diagnostics");
+  let diagnostics = take_text_file(&mut files, "diagnostics");
   Spec {
     private: options.map(|o| o.private).unwrap_or(false),
     files,
@@ -150,15 +148,12 @@ fn parse_spec(text: String) -> Spec {
   }
 }
 
-fn take_vec_file<T: DeserializeOwned>(
-  files: &mut Vec<SpecFile>,
-  name: &str,
-) -> Vec<T> {
+fn take_text_file(files: &mut Vec<SpecFile>, name: &str) -> String {
   if let Some(index) = files.iter().position(|f| f.specifier == name) {
     let file = files.remove(index);
-    serde_json::from_str(&file.text).unwrap()
+    file.text
   } else {
-    Vec::new()
+    String::new()
   }
 }
 
