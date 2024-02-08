@@ -7,9 +7,6 @@ use serde::Serialize;
 fn render_css_for_usage(name: &str) -> String {
   format!(
     r#"
-#{name} {{
-  display: none;
-}}
 #{name}:checked ~ *:last-child > :not(#{name}_content) {{
   display: none;
 }}

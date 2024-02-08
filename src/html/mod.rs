@@ -51,6 +51,9 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
+pub type UsageComposer =
+  Rc<dyn Fn(&RenderContext, &[DocNode], String) -> IndexMap<String, String>>;
+
 #[derive(Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
@@ -60,9 +63,7 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Option<
-    Rc<dyn Fn(&RenderContext, &[DocNode], String) -> IndexMap<String, String>>,
-  >,
+  pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub sidebar_flatten_namespaces: bool,
@@ -76,9 +77,7 @@ pub struct GenerateCtx<'ctx> {
   pub hbs: Handlebars<'ctx>,
   pub syntect_adapter: comrak_adapters::SyntectAdapter,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Option<
-    Rc<dyn Fn(&RenderContext, &[DocNode], String) -> IndexMap<String, String>>,
-  >,
+  pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub single_file_mode: bool,

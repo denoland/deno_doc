@@ -4,10 +4,10 @@
         {{{~additional_css~}}}
     </style>
 
-    <input type="radio" name="usage" id="{{name}}" {{~#if @first~}}checked{{~/if~}} />
+    <input type="radio" name="usage" id="{{name}}" class="hidden" {{~#if @first~}}checked{{~/if~}} />
   {{~/each~}}
 
-  <nav class="{{~#if (eq (len this) 1)~}}hidden{{~/if~}} mt-3 border-b border-gray-300 flex gap-1 flex-row mb-2">
+  <nav class="{{~#if (eq (len this) 1)~}}hidden{{~/if}} mt-3 border-b border-gray-300 flex gap-1 flex-row mb-2">
     {{~#each this~}}
       <label for="{{name}}" class="md:px-2.5 text-sm md:text-base leading-none rounded-t-md md:hover:bg-gray-100 md:hover:border-b border-gray-300 md:hover:-mb-px">
         <div class="pt-2 pb-2">
