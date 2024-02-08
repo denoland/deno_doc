@@ -2,9 +2,12 @@
 export const tpl: `test${number}` = `test1`;
 
 # diagnostics
-[
-  "file:///mod.ts:1:14 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:14
+  | 
+1 | export const tpl: `test${number}` = `test1`;
+  |              ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:14

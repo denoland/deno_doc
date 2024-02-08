@@ -66,13 +66,14 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub enum DocError {
   Resolve(String),
   #[allow(dead_code)]
   Io(std::io::Error),
-  Parse(deno_ast::Diagnostic),
+  Parse(deno_ast::ParseDiagnostic),
 }
 
 impl Error for DocError {}
@@ -88,8 +89,8 @@ impl fmt::Display for DocError {
   }
 }
 
-impl From<deno_ast::Diagnostic> for DocError {
-  fn from(error: deno_ast::Diagnostic) -> DocError {
+impl From<deno_ast::ParseDiagnostic> for DocError {
+  fn from(error: deno_ast::ParseDiagnostic) -> DocError {
     DocError::Parse(error)
   }
 }
@@ -120,9 +121,9 @@ pub struct DocParserOptions {
 pub struct DocParser<'a> {
   graph: &'a ModuleGraph,
   private: bool,
-  root_symbol: deno_graph::symbols::RootSymbol<'a>,
+  root_symbol: Rc<deno_graph::symbols::RootSymbol<'a>>,
   visibility: SymbolVisibility,
-  diagnostics: Option<RefCell<DiagnosticsCollector>>,
+  diagnostics: Option<RefCell<DiagnosticsCollector<'a>>>,
 }
 
 impl<'a> DocParser<'a> {
@@ -131,19 +132,21 @@ impl<'a> DocParser<'a> {
     parser: &'a dyn ModuleParser,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
-    let root_symbol = deno_graph::symbols::RootSymbol::new(graph, parser);
+    let root_symbol =
+      Rc::new(deno_graph::symbols::RootSymbol::new(graph, parser));
     let visibility = SymbolVisibility::build(graph, &root_symbol)?;
 
+    let diagnostics = if options.diagnostics {
+      Some(RefCell::new(DiagnosticsCollector::new(root_symbol.clone())))
+    } else {
+      None
+    };
     Ok(DocParser {
       graph,
       private: options.private,
       root_symbol,
       visibility,
-      diagnostics: if options.diagnostics {
-        Some(Default::default())
-      } else {
-        None
-      },
+      diagnostics,
     })
   }
 

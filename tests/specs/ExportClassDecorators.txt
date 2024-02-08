@@ -20,15 +20,54 @@ export class A {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:2:1 Missing JSDoc comment.",
-  "file:///mod.ts:5:3 Missing JSDoc comment.",
-  "file:///mod.ts:8:3 Missing JSDoc comment.",
-  "file:///mod.ts:8:3 Missing return type.",
-  "file:///mod.ts:13:3 Missing JSDoc comment.",
-  "file:///mod.ts:13:3 Missing return type.",
-  "file:///mod.ts:18:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:2:1
+  | 
+2 | export class A {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:5:3
+  | 
+5 |   @format("Hello, %s")
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:8:3
+  | 
+8 |   @configurable(false)
+  |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> /mod.ts:8:3
+  | 
+8 |   @configurable(false)
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:13:3
+   | 
+13 |   @enumerable(false)
+   |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:13:3
+   | 
+13 |   @enumerable(false)
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:18:3
+   | 
+18 |   method(@readonly param: string) {}
+   |   ^
+
 
 # output.txt
 Defined in file:///mod.ts:2:1

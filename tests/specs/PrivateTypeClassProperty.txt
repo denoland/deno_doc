@@ -16,13 +16,64 @@ namespace MyNamespace3 {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Type 'PrivatePropThroughNamespaceRef' references type 'MyNamespace' which is not exported from a root module.",
-  "file:///mod.ts:1:1 Type 'PrivatePropThroughNamespaceRef' references type 'MyNamespace2' which is not exported from a root module.",
-  "file:///mod.ts:1:1 Type 'PrivatePropThroughNamespaceRef' references type 'MyNamespace3' which is not exported from a root module.",
-  "file:///mod.ts:1:1 Type 'PrivatePropThroughNamespaceRef' references type 'MyNamespace3.MyClass' which is not exported from a root module.",
-  "file:///mod.ts:1:1 Missing JSDoc comment."
-]
+error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace'
+ --> /mod.ts:1:1
+  | 
+1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
+  | ^
+  = hint: make the referenced type public or remove the reference
+  | 
+3 | namespace MyNamespace {
+  | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace2'
+ --> /mod.ts:1:1
+  | 
+1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
+  | ^
+  = hint: make the referenced type public or remove the reference
+  | 
+7 | namespace MyNamespace2 {
+  | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3'
+  --> /mod.ts:1:1
+   | 
+ 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
+   | ^
+   = hint: make the referenced type public or remove the reference
+   | 
+11 | namespace MyNamespace3 {
+   | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3.MyClass'
+  --> /mod.ts:1:1
+   | 
+ 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
+   | ^
+   = hint: make the referenced type public or remove the reference
+   | 
+12 |   export class MyClass {
+   |   - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:1

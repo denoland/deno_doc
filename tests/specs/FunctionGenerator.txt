@@ -2,10 +2,19 @@
 export function* g() {}
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:1:1 Missing return type."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | export function* g() {}
+  | ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> /mod.ts:1:1
+  | 
+1 | export function* g() {}
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:1

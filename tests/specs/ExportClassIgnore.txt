@@ -36,13 +36,40 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:5:5 Missing JSDoc comment.",
-  "file:///mod.ts:8:5 Missing JSDoc comment.",
-  "file:///mod.ts:13:5 Missing JSDoc comment.",
-  "file:///mod.ts:14:5 Missing JSDoc comment.",
-  "file:///mod.ts:15:5 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:5:5
+  | 
+5 |     protected protected1: number;
+  |     ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:8:5
+  | 
+8 |     public2: number;
+  |     ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:13:5
+   | 
+13 |     s = "foo";
+   |     ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:14:5
+   | 
+14 |     a = [1, "foo"];
+   |     ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:15:5
+   | 
+15 |     fn = (a: string): void => {};
+   |     ^
+
 
 # output.txt
 Defined in file:///mod.ts:2:1

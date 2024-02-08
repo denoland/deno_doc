@@ -7,9 +7,12 @@ export function noop() {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:5:1 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:5:1
+  | 
+5 | export function noop() {
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:5:1

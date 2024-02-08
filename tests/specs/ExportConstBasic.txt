@@ -21,16 +21,61 @@ export const tpl2 = `Value: ${num}`;
 export const tpl3 = `Value: ${num}`;
 
 # diagnostics
-[
-  "file:///mod.ts:4:14 Missing JSDoc comment.",
-  "file:///mod.ts:12:14 Missing JSDoc comment.",
-  "file:///mod.ts:13:14 Missing JSDoc comment.",
-  "file:///mod.ts:14:14 Missing JSDoc comment.",
-  "file:///mod.ts:15:14 Missing JSDoc comment.",
-  "file:///mod.ts:16:14 Missing JSDoc comment.",
-  "file:///mod.ts:17:14 Missing JSDoc comment.",
-  "file:///mod.ts:18:14 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:4:14
+  | 
+4 | export const env: {
+  |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:12:14
+   | 
+12 | export const num = 100;
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:13:14
+   | 
+13 | export const bool = false;
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:14:14
+   | 
+14 | export const bigint = 123n;
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:15:14
+   | 
+15 | export const regex = /hello/;
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:16:14
+   | 
+16 | export const date = new Date();
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:17:14
+   | 
+17 | export const tpl1 = `foo`;
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:18:14
+   | 
+18 | export const tpl2 = `Value: ${num}`;
+   |              ^
+
 
 # output.txt
 Defined in file:///mod.ts:14:14

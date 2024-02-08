@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+use deno_ast::diagnostics::Diagnostic;
 use deno_doc::DocNode;
 use deno_graph::source::Source;
 use pretty_assertions::assert_eq;
@@ -41,15 +42,11 @@ async fn test_doc_specs() {
       .diagnostics
       .iter()
       .map(|d| {
-        format!(
-          "{}:{}:{} {}",
-          d.location.filename,
-          d.location.line,
-          d.location.col + 1,
-          d.message(),
-        )
+        console_static_text::ansi::strip_ansi_codes(&d.display().to_string())
+          .to_string()
       })
-      .collect::<Vec<_>>();
+      .collect::<Vec<_>>()
+      .join("\n");
     let spec = if update_var.as_ref().map(|v| v.as_str()) == Ok("1") {
       let mut spec = spec;
       spec.output_json_file.text = json_output.clone();

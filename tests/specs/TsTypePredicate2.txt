@@ -2,9 +2,12 @@
 export function foo(bar: A | B): asserts bar is B {}
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | export function foo(bar: A | B): asserts bar is B {}
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:1

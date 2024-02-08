@@ -13,11 +13,32 @@ interface YesDiagnostic {}
 interface NoDiagnostic {}
 
 # diagnostics
-[
-  "file:///mod.ts:3:3 Type 'MyClass.prototype.secondMethod' references type 'YesDiagnostic' which is not exported from a root module.",
-  "file:///mod.ts:3:3 Missing JSDoc comment.",
-  "file:///mod.ts:6:3 Missing JSDoc comment."
-]
+error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references private type 'YesDiagnostic'
+  --> /mod.ts:3:3
+   | 
+ 3 |   protected secondMethod(): YesDiagnostic {
+   |   ^
+   = hint: make the referenced type public or remove the reference
+   | 
+10 | interface YesDiagnostic {}
+   | - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:3:3
+  | 
+3 |   protected secondMethod(): YesDiagnostic {
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:6:3
+  | 
+6 |   private myMethod(): NoDiagnostic {
+  |   ^
+
 
 # output.txt
 Defined in file:///mod.ts:2:1

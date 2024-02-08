@@ -8,9 +8,12 @@ export type A = {
 };
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | export type A = {
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:1

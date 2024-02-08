@@ -12,14 +12,26 @@ use crate::variable::VariableDef;
 use crate::DocNodeKind;
 use crate::Location;
 
+use deno_ast::diagnostics::Diagnostic;
+use deno_ast::diagnostics::DiagnosticLevel;
+use deno_ast::diagnostics::DiagnosticLocation;
+use deno_ast::diagnostics::DiagnosticSnippet;
+use deno_ast::diagnostics::DiagnosticSnippetHighlight;
+use deno_ast::diagnostics::DiagnosticSnippetHighlightStyle;
+use deno_ast::diagnostics::DiagnosticSourcePos;
+use deno_ast::diagnostics::DiagnosticSourceRange;
 use deno_ast::swc::ast::Accessibility;
+use deno_ast::ModuleSpecifier;
 use deno_ast::SourceRange;
+use deno_ast::SourceTextInfo;
 use deno_graph::symbols::ModuleInfoRef;
+use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::borrow::Cow;
 use std::collections::HashSet;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DocDiagnosticKind {
@@ -34,55 +46,148 @@ pub enum DocDiagnosticKind {
   },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct DocDiagnostic {
   pub location: Location,
   pub kind: DocDiagnosticKind,
+  pub text_info: SourceTextInfo,
 }
 
-impl DocDiagnostic {
-  pub fn message(&self) -> Cow<str> {
-    match &self.kind {
-      DocDiagnosticKind::MissingJsDoc => {
-        Cow::Borrowed("Missing JSDoc comment.")
-      }
-      DocDiagnosticKind::MissingExplicitType => {
-        Cow::Borrowed("Missing explicit type.")
-      }
-      DocDiagnosticKind::MissingReturnType => {
-        Cow::Borrowed("Missing return type.")
-      }
-      DocDiagnosticKind::PrivateTypeRef {
-        name,
-        reference,
-        reference_location,
-      } => {
-        let mut message =
-          format!("Type '{}' references type '{}' ", name, reference);
-        if reference_location.filename != self.location.filename {
-          message.push_str(&format!(
-            "({}:{}:{}) ",
-            reference_location.filename,
-            reference_location.line,
-            reference_location.col + 1
-          ));
-        }
-        message.push_str("which is not exported from a root module.");
-        Cow::Owned(message)
-      }
-    }
+impl std::fmt::Debug for DocDiagnostic {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    // exclude text_info
+    f.debug_struct("DocDiagnostic")
+      .field("location", &self.location)
+      .field("kind", &self.kind)
+      .field("text_info", &"<omitted>")
+      .finish()
   }
 }
 
-#[derive(Default)]
-pub struct DiagnosticsCollector {
+impl Diagnostic for DocDiagnostic {
+  fn level(&self) -> DiagnosticLevel {
+    DiagnosticLevel::Error
+  }
+
+  fn code(&self) -> Cow<'_, str> {
+    Cow::Borrowed(match self.kind {
+      DocDiagnosticKind::MissingJsDoc => "missing-jsdoc",
+      DocDiagnosticKind::MissingExplicitType => "missing-explicit-type",
+      DocDiagnosticKind::MissingReturnType => "missing-return-type",
+      DocDiagnosticKind::PrivateTypeRef { .. } => "private-type-ref",
+    })
+  }
+
+  fn message(&self) -> Cow<'_, str> {
+    match &self.kind {
+      DocDiagnosticKind::MissingJsDoc => {
+        Cow::Borrowed("exported symbol is missing JSDoc documentation")
+      }
+      DocDiagnosticKind::MissingExplicitType => {
+        Cow::Borrowed("exported symbol is missing an explicit type annotation")
+      }
+      DocDiagnosticKind::MissingReturnType => Cow::Borrowed(
+        "exported function is missing an explicit return type annotation",
+      ),
+      DocDiagnosticKind::PrivateTypeRef {
+        reference, name, ..
+      } => Cow::Owned(format!(
+        "public type '{name}' references private type '{reference}'",
+      )),
+    }
+  }
+
+  fn location(&self) -> DiagnosticLocation {
+    let specifier = ModuleSpecifier::parse(&self.location.filename).unwrap();
+    DiagnosticLocation::ModulePosition {
+      specifier: Cow::Owned(specifier),
+      source_pos: DiagnosticSourcePos::ByteIndex(self.location.byte_index),
+      text_info: Cow::Borrowed(&self.text_info),
+    }
+  }
+
+  fn snippet(&self) -> Option<DiagnosticSnippet<'_>> {
+    Some(DiagnosticSnippet {
+      source: Cow::Borrowed(&self.text_info),
+      highlight: DiagnosticSnippetHighlight {
+        style: DiagnosticSnippetHighlightStyle::Error,
+        range: DiagnosticSourceRange {
+          start: DiagnosticSourcePos::ByteIndex(self.location.byte_index),
+          end: DiagnosticSourcePos::ByteIndex(self.location.byte_index + 1),
+        },
+        description: None,
+      },
+    })
+  }
+
+  fn hint(&self) -> Option<Cow<'_, str>> {
+    match &self.kind {
+      DocDiagnosticKind::PrivateTypeRef { .. } => Some(Cow::Borrowed(
+        "make the referenced type public or remove the reference",
+      )),
+      _ => None,
+    }
+  }
+  fn snippet_fixed(&self) -> Option<DiagnosticSnippet<'_>> {
+    match &self.kind {
+      DocDiagnosticKind::PrivateTypeRef {
+        reference_location, ..
+      } => Some(DiagnosticSnippet {
+        source: Cow::Borrowed(&self.text_info),
+        highlight: DiagnosticSnippetHighlight {
+          style: DiagnosticSnippetHighlightStyle::Hint,
+          range: DiagnosticSourceRange {
+            start: DiagnosticSourcePos::ByteIndex(
+              reference_location.byte_index,
+            ),
+            end: DiagnosticSourcePos::ByteIndex(
+              reference_location.byte_index + 1,
+            ),
+          },
+          description: Some(Cow::Borrowed("this is the referenced type")),
+        },
+      }),
+      _ => None,
+    }
+  }
+
+  fn info(&self) -> std::borrow::Cow<'_, [std::borrow::Cow<'_, str>]> {
+    match &self.kind {
+      DocDiagnosticKind::MissingJsDoc => Cow::Borrowed(&[]),
+      DocDiagnosticKind::MissingExplicitType => Cow::Borrowed(&[]),
+      DocDiagnosticKind::MissingReturnType => Cow::Borrowed(&[]),
+      DocDiagnosticKind::PrivateTypeRef { .. } => {
+        Cow::Borrowed(&[Cow::Borrowed(
+          "to ensure documentation is complete all types that are exposed in the public API must be public",
+        )])
+      }
+    }
+  }
+
+  fn docs_url(&self) -> Option<Cow<'_, str>> {
+    None
+  }
+}
+
+pub struct DiagnosticsCollector<'a> {
+  root_symbol: Rc<RootSymbol<'a>>,
   seen_private_types_in_public: HashSet<(UniqueSymbolId, UniqueSymbolId)>,
   seen_jsdoc_missing: HashSet<Location>,
   seen_missing_type_refs: HashSet<Location>,
   diagnostics: Vec<DocDiagnostic>,
 }
 
-impl DiagnosticsCollector {
+impl<'a> DiagnosticsCollector<'a> {
+  pub fn new(root_symbol: Rc<RootSymbol<'a>>) -> Self {
+    Self {
+      root_symbol,
+      seen_private_types_in_public: Default::default(),
+      seen_jsdoc_missing: Default::default(),
+      seen_missing_type_refs: Default::default(),
+      diagnostics: Default::default(),
+    }
+  }
+
   pub fn add_private_type_in_public(
     &mut self,
     decl_module: ModuleInfoRef,
@@ -116,6 +221,7 @@ impl DiagnosticsCollector {
         decl_module.text_info(),
         decl_range.start,
       ),
+      text_info: decl_module.text_info().clone(),
       kind: DocDiagnosticKind::PrivateTypeRef {
         name: decl_name.to_string(),
         reference: reference.to_string(),
@@ -143,7 +249,7 @@ impl DiagnosticsCollector {
 
   pub fn take_diagnostics(&mut self) -> Vec<DocDiagnostic> {
     let inner = std::mem::take(&mut self.diagnostics);
-    *self = Default::default(); // reset
+    *self = Self::new(self.root_symbol.clone()); // reset
     inner
   }
 
@@ -156,10 +262,13 @@ impl DiagnosticsCollector {
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_jsdoc_missing.insert(location.clone())
     {
-      self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::MissingJsDoc,
-      })
+      if let Some(text_info) = self.maybe_get_text_info(location) {
+        self.diagnostics.push(DocDiagnostic {
+          location: location.clone(),
+          kind: DocDiagnosticKind::MissingJsDoc,
+          text_info,
+        });
+      }
     }
   }
 
@@ -173,10 +282,13 @@ impl DiagnosticsCollector {
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
     {
-      self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::MissingExplicitType,
-      })
+      if let Some(text_info) = self.maybe_get_text_info(location) {
+        self.diagnostics.push(DocDiagnostic {
+          location: location.clone(),
+          kind: DocDiagnosticKind::MissingExplicitType,
+          text_info,
+        })
+      }
     }
   }
 
@@ -190,19 +302,50 @@ impl DiagnosticsCollector {
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
     {
-      self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
-        kind: DocDiagnosticKind::MissingReturnType,
-      })
+      if let Some(text_info) = self.maybe_get_text_info(location) {
+        self.diagnostics.push(DocDiagnostic {
+          location: location.clone(),
+          kind: DocDiagnosticKind::MissingReturnType,
+          text_info,
+        });
+      }
+    }
+  }
+
+  fn maybe_get_text_info(&self, location: &Location) -> Option<SourceTextInfo> {
+    fn try_get(
+      root_symbol: &RootSymbol,
+      location: &Location,
+    ) -> Option<SourceTextInfo> {
+      let specifier = ModuleSpecifier::parse(&location.filename).ok()?;
+      Some(
+        root_symbol
+          .module_from_specifier(&specifier)?
+          .text_info()
+          .clone(),
+      )
+    }
+
+    match try_get(&self.root_symbol, location) {
+      Some(text_info) => Some(text_info),
+      None => {
+        // should never happen
+        debug_assert!(
+          false,
+          "Failed to get text info for {}",
+          location.filename
+        );
+        None
+      }
     }
   }
 }
 
-struct DiagnosticDocNodeVisitor<'a> {
-  diagnostics: &'a mut DiagnosticsCollector,
+struct DiagnosticDocNodeVisitor<'a, 'b> {
+  diagnostics: &'a mut DiagnosticsCollector<'b>,
 }
 
-impl<'a> DiagnosticDocNodeVisitor<'a> {
+impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
   pub fn visit_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
     let mut last_node: Option<&DocNode> = None;
     for doc_node in doc_nodes {

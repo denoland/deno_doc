@@ -4,10 +4,19 @@ export function a(b: number): number;
 export function a(b: string | number): string | number {}
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:2:1 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | export function a(b: string): string;
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:2:1
+  | 
+2 | export function a(b: number): number;
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:1

@@ -18,12 +18,33 @@ export namespace RootNs.OtherNs {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:3:18 Missing JSDoc comment.",
-  "file:///mod.ts:7:7 Missing JSDoc comment.",
-  "file:///mod.ts:15:8 Missing JSDoc comment.",
-  "file:///mod.ts:16:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:3:18
+  | 
+3 |     export const a = "a";
+  |                  ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:7:7
+  | 
+7 |       export enum Foo {
+  |       ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:15:8
+   | 
+15 | export namespace RootNs.OtherNs {
+   |        ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:16:3
+   | 
+16 |   export class Other {}
+   |   ^
+
 
 # output.txt
 Defined in file:///mod.ts:2:1

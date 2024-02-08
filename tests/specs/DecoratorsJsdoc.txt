@@ -6,9 +6,12 @@ export class A {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:4:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:4:3
+  | 
+4 |   a: string = "a";
+  |   ^
+
 
 # output.txt
 Defined in file:///mod.ts:3:1

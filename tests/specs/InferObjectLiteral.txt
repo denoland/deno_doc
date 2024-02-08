@@ -19,9 +19,12 @@ const s: symbol = Symbol.for("s");
     };
 
 # diagnostics
-[
-  "file:///mod.ts:4:18 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:4:18
+  | 
+4 |     export const a = {
+  |                  ^
+
 
 # output.txt
 Defined in file:///mod.ts:4:18

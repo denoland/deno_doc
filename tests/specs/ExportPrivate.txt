@@ -4,9 +4,12 @@ const foo: string = "foo";
 export { foo };
 
 # diagnostics
-[
-  "file:///mod.ts:1:7 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:7
+  | 
+1 | const foo: string = "foo";
+  |       ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:7

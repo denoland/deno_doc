@@ -4,10 +4,19 @@ export class A {
 }
 
 # diagnostics
-[
-  "file:///mod.ts:1:1 Missing JSDoc comment.",
-  "file:///mod.ts:2:3 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | export class A {
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:2:3
+  | 
+2 |   constructor(public readonly name: string, private private: number, public override public: boolean) {}
+  |   ^
+
 
 # output.txt
 Defined in file:///mod.ts:1:1

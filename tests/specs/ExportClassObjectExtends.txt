@@ -5,10 +5,25 @@ const obj = { Foo }
 export class Bar extends obj.Foo {}
 
 # diagnostics
-[
-  "file:///mod.ts:4:1 Type 'Bar' references type 'obj' which is not exported from a root module.",
-  "file:///mod.ts:4:1 Missing JSDoc comment."
-]
+error[private-type-ref]: public type 'Bar' references private type 'obj'
+ --> /mod.ts:4:1
+  | 
+4 | export class Bar extends obj.Foo {}
+  | ^
+  = hint: make the referenced type public or remove the reference
+  | 
+2 | const obj = { Foo }
+  |       - this is the referenced type
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:4:1
+  | 
+4 | export class Bar extends obj.Foo {}
+  | ^
+
 
 # output.txt
 Defined in file:///mod.ts:2:7

@@ -87,7 +87,7 @@ pub(crate) fn module_js_doc_for_source(
 
 pub fn get_location(parsed_source: &ParsedSource, pos: SourcePos) -> Location {
   get_text_info_location(
-    parsed_source.specifier(),
+    parsed_source.specifier().as_str(),
     parsed_source.text_info(),
     pos,
   )

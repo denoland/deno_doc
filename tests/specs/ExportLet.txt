@@ -8,15 +8,54 @@ export let sym = Symbol("baz");
 export let tpl = `foobarbaz`;
 
 # diagnostics
-[
-  "file:///mod.ts:1:12 Missing JSDoc comment.",
-  "file:///mod.ts:2:12 Missing JSDoc comment.",
-  "file:///mod.ts:3:12 Missing JSDoc comment.",
-  "file:///mod.ts:4:12 Missing JSDoc comment.",
-  "file:///mod.ts:5:12 Missing JSDoc comment.",
-  "file:///mod.ts:6:12 Missing JSDoc comment.",
-  "file:///mod.ts:7:12 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:12
+  | 
+1 | export let str = "hello";
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:2:12
+  | 
+2 | export let num = 100;
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:3:12
+  | 
+3 | export let bool = false;
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:4:12
+  | 
+4 | export let dateStr = Date();
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:5:12
+  | 
+5 | export let regex = RegExp("foobar");
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:6:12
+  | 
+6 | export let sym = Symbol("baz");
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:7:12
+  | 
+7 | export let tpl = `foobarbaz`;
+  |            ^
+
 
 # output.txt
 Defined in file:///mod.ts:3:12

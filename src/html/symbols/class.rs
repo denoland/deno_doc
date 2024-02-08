@@ -349,7 +349,7 @@ fn render_class_accessor(
         setter
           .function_def
           .params
-          .get(0)
+          .first()
           .and_then(|param| param.ts_type.as_ref())
       })
     })

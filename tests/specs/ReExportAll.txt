@@ -18,10 +18,19 @@ export { Test } from "./b.ts";
 export { Test, test1 } from "./c.ts";
 
 # diagnostics
-[
-  "file:///b.ts:1:1 Missing JSDoc comment.",
-  "file:///a.ts:1:7 Missing JSDoc comment."
-]
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /b.ts:1:1
+  | 
+1 | export class Test {}
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /a.ts:1:7
+  | 
+1 | const test1: string = "";
+  |       ^
+
 
 # output.txt
 Defined in file:///a.ts:1:7
