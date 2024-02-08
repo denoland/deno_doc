@@ -45,6 +45,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 16 |   export class Other {}
    |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:2:1
 

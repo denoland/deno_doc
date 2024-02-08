@@ -57,6 +57,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 12 |   isSomething(): this is Something {
    |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:4:1
 

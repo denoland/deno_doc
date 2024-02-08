@@ -39,6 +39,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 6 |   private myMethod(): NoDiagnostic {
   |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:2:1
 

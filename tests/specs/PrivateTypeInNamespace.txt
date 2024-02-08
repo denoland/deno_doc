@@ -47,6 +47,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 6 |   other: Test.Other;
   |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:5:1
 

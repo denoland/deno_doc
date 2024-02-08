@@ -25,6 +25,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 |   override a(): void {}
   |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:1:1
 

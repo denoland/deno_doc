@@ -236,6 +236,7 @@ error[missing-return-type]: exported function is missing an explicit return type
 53 |   declare function cannotInfer();
    |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:16:1
 

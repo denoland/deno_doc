@@ -74,6 +74,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
   | ^
 
+
 # output.txt
 Defined in file:///mod.ts:1:1
 

@@ -17,6 +17,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 |   readonly [key: string]: number;
   |   ^
 
+
 # output.txt
 Defined in file:///mod.ts:1:1
 

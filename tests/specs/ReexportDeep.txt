@@ -48,6 +48,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
   | ^
 
+
 # output.txt
 Defined in file:///mod.ts:2:1
 

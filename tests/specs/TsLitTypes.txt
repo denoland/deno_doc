@@ -40,6 +40,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 5 | export type numLit = 5;
   | ^
 
+
 # output.txt
 Defined in file:///mod.ts:1:1
 

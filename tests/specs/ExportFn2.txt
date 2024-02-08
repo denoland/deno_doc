@@ -27,6 +27,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 5 | export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
   | ^
 
+
 # output.txt
 Defined in file:///mod.ts:5:1
 

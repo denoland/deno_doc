@@ -32,6 +32,7 @@ impl Spec {
     if !self.diagnostics.is_empty() {
       text.push_str("# diagnostics\n");
       text.push_str(&self.diagnostics);
+      text.push('\n');
     }
     text.push_str(&self.output_doc_file.emit());
     text.push('\n');

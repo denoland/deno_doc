@@ -49,6 +49,7 @@ error[private-type-ref]: public type 'Data.prototype.prop2' references private t
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
+
 # output.txt
 Defined in file:///data.ts:8:1
 

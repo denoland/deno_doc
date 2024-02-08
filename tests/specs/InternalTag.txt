@@ -41,6 +41,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 34 | export type Test = OtherPrivateType;
    | ^
 
+
 # output.txt
 Defined in file:///mod.ts:7:1
 

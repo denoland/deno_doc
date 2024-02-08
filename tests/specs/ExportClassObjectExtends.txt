@@ -24,6 +24,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 4 | export class Bar extends obj.Foo {}
   | ^
 
+
 # output.txt
 Defined in file:///mod.ts:2:7
 
