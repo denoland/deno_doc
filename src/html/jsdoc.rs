@@ -1,11 +1,14 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::comrak_adapters::SyntectAdapter;
+use crate::html::comrak_adapters::URLRewriter;
 use crate::html::usage::UsageCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
+use comrak::arena_tree::NodeEdge;
+use comrak::nodes::NodeValue;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
@@ -86,6 +89,7 @@ pub fn markdown_to_html(
   summary: bool,
   render_toc: bool,
   highlighter: &SyntectAdapter,
+  url_rewriter: &Option<URLRewriter>,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -116,7 +120,30 @@ pub fn markdown_to_html(
   } else {
     "markdown"
   };
-  let html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
+
+  let arena = comrak::Arena::new();
+  let mut node = comrak::parse_document(&arena, md, &options);
+  if let Some(url_rewriter) = url_rewriter {
+    for node in node.traverse() {
+      match node {
+        NodeEdge::Start(mut node) => {
+          let mut data = node.data.borrow_mut();
+          match &mut data.value {
+            NodeValue::Link(link) | NodeValue::Image(link) => {
+              link.url = url_rewriter(&link.url);
+            }
+            _ => {}
+          }
+        }
+        NodeEdge::End(_) => {}
+      }
+    }
+  }
+
+  let mut raw_html = Vec::<u8>::new();
+  comrak::format_html_with_plugins(node, &options, &mut raw_html, &plugins)
+    .unwrap();
+  let html = String::from_utf8(raw_html).unwrap();
 
   let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
 
@@ -170,6 +197,7 @@ pub(crate) fn render_markdown_inner(
     summary,
     render_toc,
     &render_ctx.ctx.syntect_adapter,
+    &render_ctx.ctx.url_rewriter,
   )
 }
 
