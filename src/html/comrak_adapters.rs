@@ -174,4 +174,7 @@ impl HeadingAdapter for HeadingToCAdapter {
   }
 }
 
-pub type URLRewriter = std::rc::Rc<dyn Fn(&Option<&str>, &str) -> String>;
+#[cfg(feature = "ammonia")]
+pub type URLRewriter = Arc<
+  dyn (Fn(Option<&deno_ast::ModuleSpecifier>, &str) -> String) + Send + Sync,
+>;
