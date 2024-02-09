@@ -1,6 +1,6 @@
 use super::render_context::RenderContext;
 use super::util::*;
-use crate::html::comrak_adapters::SyntectAdapter;
+use crate::html::comrak_adapters::HighlightAdapter;
 use crate::html::usage::UsageCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -99,7 +99,7 @@ pub fn markdown_to_html(
   md: &str,
   summary: bool,
   render_toc: bool,
-  highlighter: &SyntectAdapter,
+  highlighter: &HighlightAdapter,
   #[cfg(feature = "ammonia")] url_rewriter: &Option<URLRewriter>,
   #[cfg(feature = "ammonia")] current_specifier: Option<ModuleSpecifier>,
 ) -> String {
@@ -143,23 +143,30 @@ pub fn markdown_to_html(
   let html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
 
   #[cfg(feature = "ammonia")]
-  let html = ammonia::Builder::default()
-    .add_tags(["video"])
-    .add_generic_attributes(["id"])
-    .add_allowed_classes("pre", ["highlight"])
-    .add_tag_attributes("span", ["style"])
-    .link_rel(Some("nofollow"))
-    .url_relative(url_rewriter.as_ref().map_or(
-      ammonia::UrlRelative::PassThrough,
-      |url_rewriter| {
-        ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
-          current_specifier,
-          url_rewriter: url_rewriter.clone(),
-        }))
-      },
-    ))
-    .clean(&html)
-    .to_string();
+  let html = {
+    let mut ammonia_builder = ammonia::Builder::default();
+
+    ammonia_builder
+      .add_tags(["video"])
+      .add_generic_attributes(["id"])
+      .add_allowed_classes("pre", ["highlight"])
+      .add_tag_attributes("span", ["style"])
+      .link_rel(Some("nofollow"))
+      .url_relative(url_rewriter.as_ref().map_or(
+        ammonia::UrlRelative::PassThrough,
+        |url_rewriter| {
+          ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
+            current_specifier,
+            url_rewriter: url_rewriter.clone(),
+          }))
+        },
+      ));
+
+    #[cfg(feature = "tree-sitter")]
+    ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
+
+    ammonia_builder.clean(&html).to_string()
+  };
 
   let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
 
@@ -213,7 +220,7 @@ pub(crate) fn render_markdown_inner(
     &parse_links(md, render_ctx),
     summary,
     render_toc,
-    &render_ctx.ctx.syntect_adapter,
+    &render_ctx.ctx.highlight_adapter,
     #[cfg(feature = "ammonia")]
     &render_ctx.ctx.url_rewriter,
     #[cfg(feature = "ammonia")]

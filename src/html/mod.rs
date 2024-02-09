@@ -17,6 +17,8 @@ mod render_context;
 mod search;
 pub mod sidepanels;
 mod symbols;
+#[cfg(feature = "tree-sitter")]
+mod tree_sitter;
 mod types;
 mod usage;
 mod util;
@@ -75,7 +77,7 @@ pub struct GenerateCtx<'ctx> {
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub specifiers: Vec<ModuleSpecifier>,
   pub hbs: Handlebars<'ctx>,
-  pub syntect_adapter: comrak_adapters::SyntectAdapter,
+  pub highlight_adapter: comrak_adapters::HighlightAdapter,
   #[cfg(feature = "ammonia")]
   pub url_rewriter: Option<comrak_adapters::URLRewriter>,
   pub href_resolver: Rc<dyn HrefResolver>,
@@ -280,15 +282,19 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   Ok(reg)
 }
 
-pub fn setup_syntect(
+pub fn setup_highlighter(
   show_line_numbers: bool,
-) -> comrak_adapters::SyntectAdapter {
-  comrak_adapters::SyntectAdapter {
+) -> comrak_adapters::HighlightAdapter {
+  comrak_adapters::HighlightAdapter {
+    #[cfg(feature = "syntect")]
     syntax_set: syntect::dumps::from_uncompressed_data(include_bytes!(
       "./default_newlines.packdump"
     ))
     .unwrap(),
+    #[cfg(feature = "syntect")]
     theme_set: syntect::highlighting::ThemeSet::load_defaults(),
+    #[cfg(feature = "tree-sitter")]
+    language_cb: tree_sitter::tree_sitter_language_cb,
     show_line_numbers,
   }
 }
@@ -309,7 +315,7 @@ pub fn generate(
     main_entrypoint: options.main_entrypoint,
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     hbs: setup_hbs()?,
-    syntect_adapter: setup_syntect(false),
+    highlight_adapter: setup_highlighter(false),
     #[cfg(feature = "ammonia")]
     url_rewriter: None,
     href_resolver: options.href_resolver,

@@ -10,39 +10,34 @@ use std::collections::HashMap;
 use std::io::Write;
 use std::sync::Arc;
 use std::sync::Mutex;
-use syntect::easy::HighlightLines;
-use syntect::highlighting::ThemeSet;
-use syntect::html::append_highlighted_html_for_styled_line;
-use syntect::html::IncludeBackground;
-use syntect::parsing::SyntaxReference;
-use syntect::parsing::SyntaxSet;
-use syntect::util::LinesWithEndings;
-use syntect::Error;
 
 #[derive(Debug)]
 /// Syntect syntax highlighter plugin.
-pub struct SyntectAdapter {
-  pub syntax_set: SyntaxSet,
-  pub theme_set: ThemeSet,
+pub struct HighlightAdapter {
+  #[cfg(feature = "syntect")]
+  pub syntax_set: syntect::parsing::SyntaxSet,
+  #[cfg(feature = "syntect")]
+  pub theme_set: syntect::highlighting::ThemeSet,
+  #[cfg(feature = "tree-sitter")]
+  pub language_cb:
+    fn(&str) -> Option<&'static tree_sitter_highlight::HighlightConfiguration>,
   pub show_line_numbers: bool,
 }
 
-const THEME: &str = "InspiredGitHub";
-
-impl SyntectAdapter {
-  fn highlight_html(
+impl HighlightAdapter {
+  fn highlight_html<'a, I, H>(
     &self,
-    code: &str,
-    syntax: &SyntaxReference,
-  ) -> Result<String, Error> {
-    // syntect::html::highlighted_html_for_string, without the opening/closing <pre>.
-    let theme = &self.theme_set.themes[THEME];
-    let mut highlighter = HighlightLines::new(syntax, theme);
-
+    iter: I,
+    mut highlighter: H,
+  ) -> Result<String, anyhow::Error>
+  where
+    I: Iterator<Item = &'a str>,
+    H: FnMut(&mut String, &str) -> Result<(), anyhow::Error>,
+  {
     let mut line_numbers = String::new();
     let mut lines = String::new();
 
-    for (i, line) in LinesWithEndings::from(code).enumerate() {
+    for (i, line) in iter.enumerate() {
       let n = i + 1;
 
       if self.show_line_numbers {
@@ -55,12 +50,7 @@ impl SyntectAdapter {
         ));
       }
 
-      let regions = highlighter.highlight_line(line, &self.syntax_set)?;
-      append_highlighted_html_for_styled_line(
-        &regions[..],
-        IncludeBackground::No,
-        &mut lines,
-      )?;
+      highlighter(&mut lines, line)?;
 
       if self.show_line_numbers {
         lines.push_str("</span>");
@@ -69,7 +59,7 @@ impl SyntectAdapter {
 
     if self.show_line_numbers {
       Ok(format!(
-        r##"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">{line_numbers}</div><div class="grow">{lines}</div>"##
+        r##"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">{line_numbers}</div><div class="grow overflow-x-scroll">{lines}</div>"##
       ))
     } else {
       Ok(lines)
@@ -77,7 +67,8 @@ impl SyntectAdapter {
   }
 }
 
-impl SyntaxHighlighterAdapter for SyntectAdapter {
+impl SyntaxHighlighterAdapter for HighlightAdapter {
+  #[cfg(all(feature = "syntect", not(feature = "tree-sitter")))]
   fn write_highlighted(
     &self,
     output: &mut dyn Write,
@@ -100,10 +91,67 @@ impl SyntaxHighlighterAdapter for SyntectAdapter {
             .unwrap_or_else(|| self.syntax_set.find_syntax_plain_text())
         });
 
-    match self.highlight_html(code, syntax) {
+    let theme = &self.theme_set.themes["InspiredGitHub"];
+    let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
+
+    match self.highlight_html(
+      syntect::util::LinesWithEndings::from(code),
+      |lines, line| {
+        let regions = highlighter.highlight_line(line, &self.syntax_set)?;
+        syntect::html::append_highlighted_html_for_styled_line(
+          &regions[..],
+          syntect::html::IncludeBackground::No,
+          lines,
+        )?;
+
+        Ok(())
+      },
+    ) {
       Ok(highlighted_code) => output.write_all(highlighted_code.as_bytes()),
       Err(_) => output.write_all(code.as_bytes()),
     }
+  }
+
+  #[cfg(all(feature = "tree-sitter", not(feature = "syntect")))]
+  fn write_highlighted(
+    &self,
+    output: &mut dyn Write,
+    lang: Option<&str>,
+    code: &str,
+  ) -> std::io::Result<()> {
+    let lang = lang.unwrap_or_default();
+    let config = (self.language_cb)(lang);
+    let source = code.as_bytes();
+    if let Some(config) = config {
+      let mut highlighter = tree_sitter_highlight::Highlighter::new();
+      let res = highlighter.highlight(config, source, None, self.language_cb);
+      match res {
+        Ok(highlighter) => {
+          let mut renderer = tree_sitter_highlight::HtmlRenderer::new();
+          match renderer.render(highlighter, source, &|highlight| {
+            crate::html::tree_sitter::classes(highlight)
+          }) {
+            Ok(()) => {
+              let html = self
+                .highlight_html(renderer.lines(), |lines, line| {
+                  lines.push_str(line);
+                  Ok(())
+                })
+                .unwrap();
+
+              return output.write_all(html.as_bytes());
+            }
+            Err(err) => {
+              eprintln!("Error rendering code: {}", err);
+            }
+          };
+        }
+        Err(err) => {
+          eprintln!("Error highlighting code: {}", err);
+        }
+      }
+    }
+    comrak::html::escape(output, source)
   }
 
   fn write_pre_tag(

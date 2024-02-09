@@ -43,6 +43,16 @@ handlebars = { version = "5.0", optional = true, features = ["string_helpers"] }
 syntect = { version = "5.1.0", optional = true, default-features = false, features = [ "parsing", "default-syntaxes", "default-themes", "html", "dump-load", "regex-onig" ] }
 ammonia = { version = "3.3.0", optional = true }
 
+tree-sitter-highlight = { version = "0.20.1", optional = true }
+tree-sitter-javascript = { version = "0.20.1", optional = true }
+tree-sitter-typescript = { version = "0.20.3", optional = true }
+tree-sitter-json = { version = "0.20.1", optional = true }
+tree-sitter-regex = { version = "0.20.0", optional = true }
+tree-sitter-css = { version = "0.20.0", optional = true }
+tree-sitter-toml = { version = "0.20.0", optional = true }
+tree-sitter-md = { version = "0.1.7", optional = true }
+tree-sitter-rust = { version = "0.20.4", optional = true }
+
 [dev-dependencies]
 anyhow = { version = "1.0.58" }
 clap = "2.33.3"
@@ -54,7 +64,8 @@ pretty_assertions = "1.0.0"
 [features]
 default = ["html", "rust"]
 rust = []
-html = ["html-escape", "comrak", "handlebars", "syntect"]
+html = ["html-escape", "comrak", "handlebars"]
+tree-sitter = ["tree-sitter-highlight", "tree-sitter-javascript", "tree-sitter-typescript", "tree-sitter-json", "tree-sitter-regex", "tree-sitter-css", "tree-sitter-toml", "tree-sitter-md", "tree-sitter-rust"]
 
 [profile.release]
 codegen-units = 1
