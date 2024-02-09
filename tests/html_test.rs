@@ -300,8 +300,9 @@ async fn symbol_group() {
     .join("testdata")
     .join("symbol_group.json");
 
-  // uncomment to regenerate symbol_group.json
-  //std::fs::write(&symbol_group_json_path, &files_json);
+  if std::env::var("UPDATE").is_ok() {
+    fs::write(&symbol_group_json_path, &files_json).unwrap();
+  }
 
   let symbol_group_json = fs::read_to_string(symbol_group_json_path).unwrap();
 
@@ -356,8 +357,9 @@ async fn symbol_search() {
     .join("testdata")
     .join("symbol_search.json");
 
-  // uncomment to regenerate symbol_search.json
-  //std::fs::write(&symbol_search_json_path, &file_json);
+  if std::env::var("UPDATE").is_ok() {
+    fs::write(&symbol_search_json_path, &file_json).unwrap();
+  }
 
   let symbol_search_json = fs::read_to_string(symbol_search_json_path).unwrap();
 
@@ -428,8 +430,9 @@ async fn module_doc() {
     .join("testdata")
     .join("module_doc.json");
 
-  // uncomment to regenerate symbol_search.json
-  //std::fs::write(&module_docs_json_path, &file_json);
+  if std::env::var("UPDATE").is_ok() {
+    fs::write(&module_docs_json_path, &file_json).unwrap();
+  }
 
   let module_docs_json = fs::read_to_string(module_docs_json_path).unwrap();
   assert_eq!(file_json, module_docs_json);

@@ -89,7 +89,7 @@
       "usage": [
         {
           "name": "",
-          "content": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
           "additional_css": ""
         }
       ]
@@ -199,7 +199,7 @@
       "usage": [
         {
           "name": "",
-          "content": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;.&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
           "additional_css": ""
         }
       ]
@@ -324,7 +324,7 @@
       "usage": [
         {
           "name": "",
-          "content": "<div class=\"markdown\"><pre class=\" highlight\"><code class=\"language-typescript\"><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">&quot;foo&quot;</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\"foo\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
           "additional_css": ""
         }
       ]

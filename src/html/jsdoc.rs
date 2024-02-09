@@ -1,18 +1,19 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::comrak_adapters::SyntectAdapter;
-use crate::html::comrak_adapters::URLRewriter;
 use crate::html::usage::UsageCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
-use comrak::arena_tree::NodeEdge;
-use comrak::nodes::NodeValue;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::cmp::Ordering;
+
+#[cfg(feature = "ammonia")]
+use crate::html::comrak_adapters::URLRewriter;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -23,10 +24,7 @@ lazy_static! {
     regex::Regex::new(r"(^\.{0,2}\/)|(^[A-Za-z]+:\S)").unwrap();
 }
 
-fn parse_links<'a>(
-  md: &'a str,
-  ctx: &RenderContext,
-) -> std::borrow::Cow<'a, str> {
+fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
   JSDOC_LINK_RE.replace_all(md, |captures: &regex::Captures| {
     let code = captures
       .name("modifier")
@@ -84,13 +82,26 @@ fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
   }
 }
 
+#[cfg(feature = "ammonia")]
+struct AmmoniaRelativeUrlEvaluator {
+  current_specifier: Option<ModuleSpecifier>,
+  url_rewriter: URLRewriter,
+}
+
+#[cfg(feature = "ammonia")]
+impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
+  fn evaluate<'a>(&self, url: &'a str) -> Option<Cow<'a, str>> {
+    Some((self.url_rewriter)(self.current_specifier.as_ref(), url).into())
+  }
+}
+
 pub fn markdown_to_html(
   md: &str,
   summary: bool,
   render_toc: bool,
   highlighter: &SyntectAdapter,
-  url_rewriter: &Option<URLRewriter>,
-  current_file: &Option<&str>,
+  #[cfg(feature = "ammonia")] url_rewriter: &Option<URLRewriter>,
+  #[cfg(feature = "ammonia")] current_specifier: Option<ModuleSpecifier>,
 ) -> String {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
@@ -101,7 +112,14 @@ pub fn markdown_to_html(
   options.extension.table = true;
   options.extension.tagfilter = true;
   options.extension.tasklist = true;
-  options.render.escape = true;
+  #[cfg(not(feature = "ammonia"))]
+  {
+    options.render.escape = true;
+  }
+  #[cfg(feature = "ammonia")]
+  {
+    options.render.unsafe_ = true; // its fine because we run ammonia afterwards
+  }
 
   let mut plugins = comrak::Plugins::default();
   plugins.render.codefence_syntax_highlighter = Some(highlighter);
@@ -122,36 +140,34 @@ pub fn markdown_to_html(
     "markdown"
   };
 
-  let arena = comrak::Arena::new();
-  let node = comrak::parse_document(&arena, md, &options);
-  if let Some(url_rewriter) = url_rewriter {
-    for node in node.traverse() {
-      match node {
-        NodeEdge::Start(node) => {
-          let mut data = node.data.borrow_mut();
-          match &mut data.value {
-            NodeValue::Link(link) | NodeValue::Image(link) => {
-              link.url = url_rewriter(current_file, &link.url);
-            }
-            _ => {}
-          }
-        }
-        NodeEdge::End(_) => {}
-      }
-    }
-  }
+  let html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
 
-  let mut raw_html = Vec::<u8>::new();
-  comrak::format_html_with_plugins(node, &options, &mut raw_html, &plugins)
-    .unwrap();
-  let html = String::from_utf8(raw_html).unwrap();
+  #[cfg(feature = "ammonia")]
+  let html = ammonia::Builder::default()
+    .add_tags(["video"])
+    .add_generic_attributes(["id"])
+    .add_allowed_classes("pre", ["highlight"])
+    .add_tag_attributes("span", ["style"])
+    .link_rel(Some("nofollow"))
+    .url_relative(url_rewriter.as_ref().map_or(
+      ammonia::UrlRelative::PassThrough,
+      |url_rewriter| {
+        ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
+          current_specifier,
+          url_rewriter: url_rewriter.clone(),
+        }))
+      },
+    ))
+    .clean(&html)
+    .to_string();
 
   let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
 
   if render_toc {
     let toc = heading_adapter.get_toc();
-    let mut toc_content =
-      vec![String::from(r#"<ul class="space-y-2 sticky top-4 block">"#)];
+    let mut toc_content = vec![String::from(
+      r#"<ul class="space-y-2 block overflow-y-scroll h-full">"#,
+    )];
 
     let mut current_level = 1;
 
@@ -169,7 +185,7 @@ pub fn markdown_to_html(
       }
 
       toc_content.push(format!(
-        r##"<li><a class="hover:underline block overflow-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
+        r##"<li><a class="hover:underline block overflow-x-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
       ));
     }
 
@@ -178,7 +194,7 @@ pub fn markdown_to_html(
     markdown = format!(
       r#"<div class="flex max-lg:flex-col-reverse gap-7">
         {markdown}
-        <nav class="flex-none max-w-64 text-sm max-lg:hidden">{}</nav>
+        <nav class="flex-none max-w-56 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border">{}</nav>
       </div>"#,
       toc_content.join("")
     );
@@ -198,8 +214,10 @@ pub(crate) fn render_markdown_inner(
     summary,
     render_toc,
     &render_ctx.ctx.syntect_adapter,
+    #[cfg(feature = "ammonia")]
     &render_ctx.ctx.url_rewriter,
-    &render_ctx.get_current_resolve().get_file(),
+    #[cfg(feature = "ammonia")]
+    render_ctx.get_current_specifier().cloned(),
   )
 }
 
@@ -311,7 +329,6 @@ impl ExampleCtx {
     let markdown_title = render_markdown_summary(render_ctx, &title);
     let markdown_body = render_markdown(render_ctx, body);
 
-    // TODO: icons
     ExampleCtx {
       anchor: AnchorCtx { id: id.to_string() },
       id: id.to_string(),

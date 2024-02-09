@@ -364,9 +364,9 @@ fn render_class_accessor(
     tags.insert(Tag::Abstract);
   }
   if getter.is_some() && setter.is_none() {
-    tags.insert(Tag::Writeonly);
-  } else if getter.is_none() && setter.is_some() {
     tags.insert(Tag::Readonly);
+  } else if getter.is_none() && setter.is_some() {
+    tags.insert(Tag::Writeonly);
   }
 
   DocEntryCtx::new(

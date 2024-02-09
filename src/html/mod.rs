@@ -76,6 +76,7 @@ pub struct GenerateCtx<'ctx> {
   pub specifiers: Vec<ModuleSpecifier>,
   pub hbs: Handlebars<'ctx>,
   pub syntect_adapter: comrak_adapters::SyntectAdapter,
+  #[cfg(feature = "ammonia")]
   pub url_rewriter: Option<comrak_adapters::URLRewriter>,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
@@ -309,6 +310,7 @@ pub fn generate(
     specifiers: doc_nodes_by_url.keys().cloned().collect(),
     hbs: setup_hbs()?,
     syntect_adapter: setup_syntect(false),
+    #[cfg(feature = "ammonia")]
     url_rewriter: None,
     href_resolver: options.href_resolver,
     usage_composer: options.usage_composer,
