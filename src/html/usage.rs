@@ -10,11 +10,13 @@ fn render_css_for_usage(name: &str) -> String {
 #{name}:checked ~ *:last-child > :not(#{name}_content) {{
   display: none;
 }}
-#{name}:checked ~ nav:first-of-type > label[for='{name}'] > div {{
+#{name}:checked ~ nav:first-of-type > label[for='{name}'] {{
   border-bottom-width: 2px;
   cursor: unset;
-  border-color: rgb(0 0 0);
-  padding-bottom: 0.375rem !important; /* 6px */
+  border-color: rgb(17 24 39);
+}}
+#{name}:not:checked ~ nav:first-of-type > label[for='{name}'] {{
+  border-color: rgb(209 213 219);
 }}
 "#
   )
@@ -84,7 +86,7 @@ impl UsageCtx {
   pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Vec<Self>> {
     let url = ctx.ctx.href_resolver.resolve_usage(
       ctx.get_current_specifier()?,
-      ctx.get_current_resolve().get_file()?,
+      ctx.get_current_resolve().get_file(),
     )?;
 
     if let Some(usage_composer) = &ctx.ctx.usage_composer {

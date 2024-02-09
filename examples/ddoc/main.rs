@@ -191,7 +191,7 @@ impl HrefResolver for EmptyResolver {
   fn resolve_usage(
     &self,
     current_specifier: &deno_ast::ModuleSpecifier,
-    _current_file: &str,
+    _current_file: Option<&str>,
   ) -> Option<String> {
     Some(current_specifier.to_string())
   }

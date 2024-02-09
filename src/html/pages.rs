@@ -99,8 +99,9 @@ pub fn render_index(
     specifier,
   );
 
-  let module_doc =
-    super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url);
+  let module_doc = specifier.map(|specifier| {
+    super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url)
+  });
 
   let root = ctx.href_resolver.resolve_path(
     file
