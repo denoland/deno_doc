@@ -150,7 +150,6 @@ pub fn markdown_to_html(
       .add_tags(["video"])
       .add_generic_attributes(["id"])
       .add_allowed_classes("pre", ["highlight"])
-      .add_tag_attributes("span", ["style"])
       .link_rel(Some("nofollow"))
       .url_relative(url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,
@@ -161,6 +160,9 @@ pub fn markdown_to_html(
           }))
         },
       ));
+
+    #[cfg(feature = "syntect")]
+    ammonia_builder.add_tag_attributes("span", ["style"]);
 
     #[cfg(feature = "tree-sitter")]
     ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
