@@ -236,7 +236,7 @@ async fn symbol_group() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
-    highlight_adapter: setup_syntect(false),
+    highlight_adapter: setup_highlighter(false),
     url_rewriter: None,
     href_resolver: Rc::new(EmptyResolver {}),
     usage_composer: None,
@@ -294,11 +294,18 @@ async fn symbol_group() {
   let mut files_json = serde_json::to_string_pretty(&files).unwrap();
   files_json.push('\n');
 
-  let symbol_group_json_path = std::env::current_dir()
+  let testdata_path = std::env::current_dir()
     .unwrap()
     .join("tests")
-    .join("testdata")
-    .join("symbol_group.json");
+    .join("testdata");
+
+  #[cfg(feature = "syntect")]
+  let symbol_group_json_path = testdata_path.join("symbol_group-syntect.json");
+  #[cfg(feature = "tree-sitter")]
+  let symbol_group_json_path =
+    testdata_path.join("symbol_group-tree-sitter.json");
+  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
+  let symbol_group_json_path = testdata_path.join("symbol_group.json");
 
   if std::env::var("UPDATE").is_ok() {
     fs::write(&symbol_group_json_path, &files_json).unwrap();
@@ -337,7 +344,7 @@ async fn symbol_search() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
-    highlight_adapter: setup_syntect(false),
+    highlight_adapter: setup_highlighter(false),
     url_rewriter: None,
     href_resolver: Rc::new(EmptyResolver {}),
     usage_composer: None,
@@ -394,7 +401,7 @@ async fn module_doc() {
     ),
     specifiers: rewrite_map.keys().cloned().collect(),
     hbs: setup_hbs().unwrap(),
-    highlight_adapter: setup_syntect(false),
+    highlight_adapter: setup_highlighter(false),
     url_rewriter: None,
     href_resolver: Rc::new(EmptyResolver {}),
     usage_composer: None,
@@ -424,11 +431,17 @@ async fn module_doc() {
   let mut file_json = serde_json::to_string_pretty(&module_docs).unwrap();
   file_json.push('\n');
 
-  let module_docs_json_path = std::env::current_dir()
+  let testdata_path = std::env::current_dir()
     .unwrap()
     .join("tests")
-    .join("testdata")
-    .join("module_doc.json");
+    .join("testdata");
+
+  #[cfg(feature = "syntect")]
+  let module_docs_json_path = testdata_path.join("module_doc-syntect.json");
+  #[cfg(feature = "tree-sitter")]
+  let module_docs_json_path = testdata_path.join("module_doc-tree-sitter.json");
+  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
+  let module_docs_json_path = testdata_path.join("module_doc.json");
 
   if std::env::var("UPDATE").is_ok() {
     fs::write(&module_docs_json_path, &file_json).unwrap();

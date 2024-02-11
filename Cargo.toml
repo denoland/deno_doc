@@ -62,7 +62,7 @@ tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
 [features]
-default = ["html", "rust"]
+default = ["html", "rust", "ammonia"]
 rust = []
 html = ["html-escape", "comrak", "handlebars"]
 tree-sitter = ["tree-sitter-highlight", "tree-sitter-javascript", "tree-sitter-typescript", "tree-sitter-json", "tree-sitter-regex", "tree-sitter-css", "tree-sitter-toml", "tree-sitter-md", "tree-sitter-rust"]

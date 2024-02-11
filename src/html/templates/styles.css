@@ -14,7 +14,6 @@ summary::-webkit-details-marker {
   @apply text-blue-600 transition duration-75;
 }
 
-
 .link:hover {
   @apply text-blue-400;
 }
@@ -74,11 +73,11 @@ summary::-webkit-details-marker {
   }
 
   h1 {
-    @apply text-xl md:text-2xl lg:text-3xl;
+    @apply text-xl md:text-2xl lg:text-3xl border-b border-stone-300 pb-1;
   }
 
   h2 {
-    @apply text-lg md:text-xl lg:text-2xl;
+    @apply text-lg md:text-xl lg:text-2xl border-b border-stone-300 pb-1;
   }
 
   h3 {
@@ -111,7 +110,7 @@ summary::-webkit-details-marker {
 
   /* Inline code */
   :not(pre) > code {
-    @apply font-mono text-sm py-1 px-1.5 rounded bg-stone-200;
+    @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
   }
 
   h1 > code, h2 > code, h3 > code, h4 > code, h5 > code, h6 > code {

@@ -59,9 +59,19 @@ jobs:
       - name: Build
         run: deno task build && cargo build --locked --all-targets --all-features
 
-      - name: Test
+      - name: Test (no highlighter)
         run: |
-          cargo test --locked --all-targets --all-features
+          cargo test --locked --all-targets
+          deno test --allow-read --allow-net
+
+      - name: Test (syntect)
+        run: |
+          cargo test --locked --all-targets --features=syntect
+          deno test --allow-read --allow-net
+
+      - name: Test (tree-sitter)
+        run: |
+          cargo test --locked --all-targets --features=tree-sitter
           deno test --allow-read --allow-net
 
       - name: Publish

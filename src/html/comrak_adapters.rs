@@ -154,6 +154,24 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     comrak::html::escape(output, source)
   }
 
+  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
+  fn write_highlighted(
+    &self,
+    output: &mut dyn Write,
+    _lang: Option<&str>,
+    code: &str,
+  ) -> std::io::Result<()> {
+    let html = self
+      .highlight_html(code.lines(), |lines, line| {
+        lines.push_str(line);
+
+        Ok(())
+      })
+      .unwrap();
+
+    output.write_all(html.as_bytes())
+  }
+
   fn write_pre_tag(
     &self,
     output: &mut dyn Write,
