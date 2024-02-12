@@ -163,7 +163,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
   ) -> std::io::Result<()> {
     let html = self
       .highlight_html(code.lines(), |lines, line| {
-        lines.push_str(line);
+        lines.push_str(&format!("{line}\n"));
 
         Ok(())
       })

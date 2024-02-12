@@ -352,6 +352,7 @@ pub struct ModuleDocCtx {
   pub title: Option<String>,
   pub deprecated: Option<String>,
   pub usage: Option<Vec<UsageCtx>>,
+  pub examples: Option<Vec<ExampleCtx>>,
   pub docs: Option<String>,
 }
 
@@ -371,7 +372,7 @@ impl ModuleDocCtx {
       None
     };
 
-    let (deprecated, docs) = if let Some(node) = module_doc_nodes
+    let (deprecated, examples, docs) = if let Some(node) = module_doc_nodes
       .iter()
       .find(|n| n.kind == DocNodeKind::ModuleDoc)
     {
@@ -383,21 +384,48 @@ impl ModuleDocCtx {
         }
       });
 
+      let mut i = 0;
+      let examples = {
+        let examples = node
+          .js_doc
+          .tags
+          .iter()
+          .filter_map(|tag| {
+            if let JsDocTag::Example { doc } = tag {
+              doc.as_ref().map(|doc| {
+                let example = ExampleCtx::new(render_ctx, doc, i);
+                i += 1;
+                example
+              })
+            } else {
+              None
+            }
+          })
+          .collect::<Vec<ExampleCtx>>();
+
+        if examples.is_empty() {
+          None
+        } else {
+          Some(examples)
+        }
+      };
+
       let docs = node
         .js_doc
         .doc
         .as_ref()
         .map(|doc| render_markdown_with_toc(render_ctx, doc));
 
-      (deprecated, docs)
+      (deprecated, examples, docs)
     } else {
-      (None, None)
+      (None, None, None)
     };
 
     Self {
       title,
       deprecated,
       usage: UsageCtx::new(render_ctx, &[]),
+      examples,
       docs,
     }
   }
