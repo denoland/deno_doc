@@ -7,7 +7,7 @@
     <input type="radio" name="usage" id="{{name}}" class="hidden" {{~#if @first~}}checked{{~/if~}} />
   {{~/each~}}
 
-  <nav class="{{~#if (gt (len this) 1)~}}hidden{{~/if}} border-b border-gray-300 flex gap-1 flex-row mb-2">
+  <nav class="{{~#if (gte (len this) 1)~}}hidden{{~/if}} border-b border-gray-300 flex gap-1 flex-row mb-2">
     {{~#each this~}}
       <label for="{{name}}" class="md:px-4 px-2 py-1 text-sm md:text-base leading-none rounded-t-md md:hover:bg-gray-100 md:hover:border-b-2">
         {{name}}

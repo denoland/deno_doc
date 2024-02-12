@@ -13,4 +13,15 @@
   {{~#if docs~}}
     {{{docs}}}
   {{~/if~}}
+
+  {{~#if examples~}}
+    <div>
+      <h2 class="text-xl leading-6 font-semibold py-1">Examples</h2>
+      <div class="space-y-3">
+        {{~#each examples~}}
+          {{~> example this ~}}
+        {{~/each~}}
+      </div>
+    </div>
+  {{~/if~}}
 </section>
