@@ -86,13 +86,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-v\">Bar</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-v\">Bar</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -196,13 +199,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-v\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-v\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -321,13 +327,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { x } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\"foo\"</span>;\n</code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { x } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\"foo\"</span>;\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [

@@ -219,8 +219,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     "breadcrumbs",
     include_str!("./templates/breadcrumbs.hbs"),
   )?;
-  reg
-    .register_template_string("usage", include_str!("./templates/usage.hbs"))?;
+  reg.register_template_string(
+    "usages",
+    include_str!("./templates/usages.hbs"),
+  )?;
   reg.register_template_string("tag", include_str!("./templates/tag.hbs"))?;
   reg.register_template_string(
     "source_button",

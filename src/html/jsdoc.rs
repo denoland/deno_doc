@@ -1,7 +1,7 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::comrak_adapters::HighlightAdapter;
-use crate::html::usage::UsageCtx;
+use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
@@ -351,7 +351,7 @@ impl ExampleCtx {
 pub struct ModuleDocCtx {
   pub title: Option<String>,
   pub deprecated: Option<String>,
-  pub usage: Option<Vec<UsageCtx>>,
+  pub usages: Option<UsagesCtx>,
   pub examples: Option<Vec<ExampleCtx>>,
   pub docs: Option<String>,
 }
@@ -424,7 +424,7 @@ impl ModuleDocCtx {
     Self {
       title,
       deprecated,
-      usage: UsageCtx::new(render_ctx, &[]),
+      usages: UsagesCtx::new(render_ctx, &[]),
       examples,
       docs,
     }

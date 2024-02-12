@@ -1,5 +1,5 @@
 <div>
-  {{~#each this~}}
+  {{~#each usages~}}
     <style scoped>
       {{{~additional_css~}}}
     </style>
@@ -7,8 +7,8 @@
     <input type="radio" name="usage" id="{{name}}" class="hidden" {{~#if @first~}}checked{{~/if~}} />
   {{~/each~}}
 
-  <nav class="{{~#if (gte (len this) 1)~}}hidden{{~/if}} border-b border-gray-300 flex gap-1 flex-row mb-2">
-    {{~#each this~}}
+  <nav class="{{~#unless ../show_tabs~}}hidden{{~/unless}} border-b border-gray-300 flex gap-1 flex-row mb-2">
+    {{~#each usages~}}
       <label for="{{name}}" class="md:px-4 px-2 py-1 text-sm md:text-base leading-none rounded-t-md md:hover:bg-gray-100 md:hover:border-b-2">
         {{name}}
       </label>
@@ -16,7 +16,7 @@
   </nav>
 
   <div>
-    {{~#each this~}}
+    {{~#each usages~}}
       <div id="{{name}}_content">
         {{{~content~}}}
       </div>
