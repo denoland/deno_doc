@@ -86,13 +86,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { Bar } from \".\";\n</code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { Bar } from \".\";\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -196,13 +199,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { Foo } from \".\";\n</code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { Foo } from \".\";\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -321,13 +327,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { x } from \"foo\";\n</code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { x } from \"foo\";\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [

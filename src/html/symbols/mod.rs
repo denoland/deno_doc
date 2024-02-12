@@ -1,6 +1,6 @@
 use crate::html::namespace::partition_nodes_by_kind;
 use crate::html::types::render_type_def;
-use crate::html::usage::UsageCtx;
+use crate::html::usage::UsagesCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
 use crate::html::DocNodeWithContext;
@@ -34,7 +34,7 @@ struct SymbolCtx {
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
-  usage: Option<Vec<UsageCtx>>,
+  usages: Option<UsagesCtx>,
 }
 
 impl SymbolGroupCtx {
@@ -129,7 +129,7 @@ impl SymbolGroupCtx {
     SymbolGroupCtx {
       name: name.to_string(),
       symbols,
-      usage: UsageCtx::new(ctx, doc_nodes),
+      usages: UsagesCtx::new(ctx, doc_nodes),
     }
   }
 }

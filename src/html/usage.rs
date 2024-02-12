@@ -76,14 +76,20 @@ pub fn usage_to_md(
 }
 
 #[derive(Clone, Debug, Serialize)]
+pub struct UsagesCtx {
+  show_tabs: bool,
+  usages: Vec<UsageCtx>,
+}
+
+#[derive(Clone, Debug, Serialize)]
 pub struct UsageCtx {
   name: String,
   content: String,
   additional_css: String,
 }
 
-impl UsageCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Vec<Self>> {
+impl UsagesCtx {
+  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Self> {
     let url = ctx.ctx.href_resolver.resolve_usage(
       ctx.get_current_specifier()?,
       ctx.get_current_resolve().get_file(),
@@ -99,23 +105,29 @@ impl UsageCtx {
           name,
           content: crate::html::jsdoc::render_markdown(ctx, &content),
         })
-        .collect::<Vec<UsageCtx>>();
+        .collect::<Vec<_>>();
 
       if usages.is_empty() {
         None
       } else {
-        Some(usages)
+        Some(UsagesCtx {
+          show_tabs: true,
+          usages,
+        })
       }
     } else {
       let import_statement = usage_to_md(ctx, doc_nodes, url);
       let rendered_import_statement =
         crate::html::jsdoc::render_markdown(ctx, &import_statement);
 
-      Some(vec![UsageCtx {
-        name: "".to_string(),
-        content: rendered_import_statement,
-        additional_css: "".to_string(),
-      }])
+      Some(UsagesCtx {
+        show_tabs: false,
+        usages: vec![UsageCtx {
+          name: "".to_string(),
+          content: rendered_import_statement,
+          additional_css: "".to_string(),
+        }],
+      })
     }
   }
 }

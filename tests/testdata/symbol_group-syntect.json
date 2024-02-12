@@ -86,13 +86,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -196,13 +199,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -321,13 +327,16 @@
           "source_href": null
         }
       ],
-      "usage": [
-        {
-          "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\"foo\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
-          "additional_css": ""
-        }
-      ]
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\"foo\"</span><span style=\"color:#323232;\">;\n</span></code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
     },
     "breadcrumbs_ctx": {
       "parts": [
