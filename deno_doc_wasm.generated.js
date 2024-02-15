@@ -1,7 +1,7 @@
 // @generated file from wasmbuild -- do not edit
 // deno-lint-ignore-file
 // deno-fmt-ignore-file
-// source-hash: 996ca78b2c32bac846dbbd33f9890f658a0e6015
+// source-hash: 538315ffceebf4a7178cb6b58d0f01e2e9a72516
 let wasm;
 
 const heap = new Array(128).fill(undefined);
@@ -295,7 +295,7 @@ function handleError(f, args) {
     wasm.__wbindgen_exn_store(addHeapObject(e));
   }
 }
-function __wbg_adapter_106(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_104(arg0, arg1, arg2, arg3) {
   wasm.wasm_bindgen__convert__closures__invoke2_mut__h5ba674df8999d5ef(
     arg0,
     arg1,
@@ -424,12 +424,12 @@ const imports = {
     __wbg_set_841ac57cff3d672b: function (arg0, arg1, arg2) {
       getObject(arg0)[takeObject(arg1)] = takeObject(arg2);
     },
-    __wbg_new_9fb8d994e1c0aaac: function () {
-      const ret = new Object();
-      return addHeapObject(ret);
-    },
     __wbindgen_string_new: function (arg0, arg1) {
       const ret = getStringFromWasm0(arg0, arg1);
+      return addHeapObject(ret);
+    },
+    __wbg_new_9fb8d994e1c0aaac: function () {
+      const ret = new Object();
       return addHeapObject(ret);
     },
     __wbg_new_bfd4534b584a9593: function () {
@@ -438,25 +438,6 @@ const imports = {
     },
     __wbindgen_number_new: function (arg0) {
       const ret = arg0;
-      return addHeapObject(ret);
-    },
-    __wbg_call_11073254314c3f34: function () {
-      return handleError(function (arg0, arg1, arg2, arg3, arg4) {
-        const ret = getObject(arg0).call(
-          getObject(arg1),
-          getObject(arg2),
-          getObject(arg3),
-          getObject(arg4),
-        );
-        return addHeapObject(ret);
-      }, arguments);
-    },
-    __wbg_resolve_6e1c6553a82f85b7: function (arg0) {
-      const ret = Promise.resolve(getObject(arg0));
-      return addHeapObject(ret);
-    },
-    __wbg_then_8371cc12cfedc5a2: function (arg0, arg1, arg2) {
-      const ret = getObject(arg0).then(getObject(arg1), getObject(arg2));
       return addHeapObject(ret);
     },
     __wbg_call_9079ecd7da811539: function () {
@@ -469,6 +450,14 @@ const imports = {
         return addHeapObject(ret);
       }, arguments);
     },
+    __wbg_resolve_6e1c6553a82f85b7: function (arg0) {
+      const ret = Promise.resolve(getObject(arg0));
+      return addHeapObject(ret);
+    },
+    __wbg_then_8371cc12cfedc5a2: function (arg0, arg1, arg2) {
+      const ret = getObject(arg0).then(getObject(arg1), getObject(arg2));
+      return addHeapObject(ret);
+    },
     __wbg_new_60f57089c7563e81: function (arg0, arg1) {
       try {
         var state0 = { a: arg0, b: arg1 };
@@ -476,7 +465,7 @@ const imports = {
           const a = state0.a;
           state0.a = 0;
           try {
-            return __wbg_adapter_106(a, state0.b, arg0, arg1);
+            return __wbg_adapter_104(a, state0.b, arg0, arg1);
           } finally {
             state0.a = a;
           }
@@ -671,8 +660,8 @@ const imports = {
       const ret = getObject(arg0).queueMicrotask;
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper551: function (arg0, arg1, arg2) {
-      const ret = makeMutClosure(arg0, arg1, 225, __wbg_adapter_48);
+    __wbindgen_closure_wrapper550: function (arg0, arg1, arg2) {
+      const ret = makeMutClosure(arg0, arg1, 226, __wbg_adapter_48);
       return addHeapObject(ret);
     },
   },
