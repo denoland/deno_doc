@@ -67,7 +67,7 @@ jobs:
       - name: Test (syntect)
         run: |
           cargo test --locked --all-targets --features=syntect
-          deno test --allow-read --allow-ne --allow-env --allow-writet
+          deno test --allow-read --allow-net --allow-env --allow-writet
 
       - name: Test (tree-sitter)
         run: |
