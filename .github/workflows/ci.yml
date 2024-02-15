@@ -62,12 +62,12 @@ jobs:
       - name: Test (no highlighter)
         run: |
           cargo test --locked --all-targets
-          deno test --allow-read --allow-net
+          deno test --allow-read --allow-net --allow-env --allow-write
 
       - name: Test (syntect)
         run: |
           cargo test --locked --all-targets --features=syntect
-          deno test --allow-read --allow-net
+          deno test --allow-read --allow-ne --allow-env --allow-writet
 
       - name: Test (tree-sitter)
         run: |
