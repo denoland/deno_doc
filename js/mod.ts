@@ -106,7 +106,12 @@ export async function doc(
       cacheSetting: CacheSetting;
       checksum: string | undefined;
     }) => {
-      return load(specifier, options.isDynamic, options.cacheSetting, options.checksum).then((result) => {
+      return load(
+        specifier,
+        options.isDynamic,
+        options.cacheSetting,
+        options.checksum,
+      ).then((result) => {
         if (result?.kind === "module") {
           if (typeof result.content === "string") {
             result.content = encoder.encode(result.content);
