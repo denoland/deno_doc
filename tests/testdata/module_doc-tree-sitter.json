@@ -7,13 +7,13 @@
       "usages": [
         {
           "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> <span class=\"pl-c1\">*</span> <span class=\"pl-k\">as</span> mod <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code></pre>\n</div>",
+          "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> <span class=\"pl-c1\">*</span> <span class=\"pl-k\">as</span> mod <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code></pre>\n</div>",
           "additional_css": ""
         }
       ]
     },
     "examples": null,
-    "docs": "<div class=\"flex max-lg:flex-col-reverse gap-7\">\n        <div class=\"markdown\"><p>Some docs</p>\n</div>\n        <nav class=\"flex-none max-w-56 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border\"><ul class=\"space-y-2 block overflow-y-scroll h-full\"></ul></nav>\n      </div>"
+    "docs": "<div class=\"flex max-lg:flex-col-reverse gap-7\">\n        <div class=\"markdown flex-1\"><p>Some docs</p>\n</div>\n        <nav class=\"flex-none max-w-56 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border\"><ul class=\"space-y-2 block overflow-y-auto h-full\"></ul></nav>\n      </div>"
   },
   {
     "title": "foo",
@@ -23,7 +23,7 @@
       "usages": [
         {
           "name": "",
-          "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> <span class=\"pl-c1\">*</span> <span class=\"pl-k\">as</span> mod <span class=\"pl-k\">from</span> <span class=\"pl-s\">\"foo\"</span>;\n</code></pre>\n</div>",
+          "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> <span class=\"pl-c1\">*</span> <span class=\"pl-k\">as</span> mod <span class=\"pl-k\">from</span> <span class=\"pl-s\">\"foo\"</span>;\n</code></pre>\n</div>",
           "additional_css": ""
         }
       ]

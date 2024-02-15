@@ -170,12 +170,13 @@ pub fn markdown_to_html(
     ammonia_builder.clean(&html).to_string()
   };
 
-  let mut markdown = format!(r#"<div class="{class_name}">{html}</div>"#);
+  let mut markdown =
+    format!(r#"<div class="{class_name} flex-1">{html}</div>"#);
 
   if render_toc {
     let toc = heading_adapter.get_toc();
     let mut toc_content = vec![String::from(
-      r#"<ul class="space-y-2 block overflow-y-scroll h-full">"#,
+      r#"<ul class="space-y-2 block overflow-y-auto h-full">"#,
     )];
 
     let mut current_level = 1;

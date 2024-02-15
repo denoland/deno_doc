@@ -5,24 +5,13 @@
     <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
 
     {{~#if files~}}
-      <h3 class="title">Exports</h3>
+      <h3 class="title">Modules</h3>
       <ul>
         {{#each files}}
           <li>
             <a href="{{this.href}}" title="{{this.name}}"><span>{{this.name}}</span></a>
           </li>
         {{~/each~}}
-
-        {{~#if expand_files~}}
-          <input type="checkbox" id="fileDivider" class="hidden peer" autocomplete="off" />
-          <label for="fileDivider" class="cursor-pointer peer-checked:hidden">...</label>
-
-          {{~#each expand_files~}}
-            <li class="!hidden peer-checked:!block">
-              <a href="{{this.href}}" title="{{this.name}}"><span>{{this.name}}</span></a>
-            </li>
-          {{~/each~}}
-        {{~/if~}}
       </ul>
     {{~/if~}}
 
