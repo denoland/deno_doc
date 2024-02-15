@@ -1,10 +1,16 @@
 use deno_ast::ModuleSpecifier;
 use deno_doc::html::*;
-use deno_doc::{DocNode, DocParser, DocParserOptions};
-use deno_graph::source::{LoadFuture, LoadResponse, Loader};
-use deno_graph::{
-  BuildOptions, CapturingModuleAnalyzer, GraphKind, ModuleGraph,
-};
+use deno_doc::DocNode;
+use deno_doc::DocParser;
+use deno_doc::DocParserOptions;
+use deno_graph::source::LoadFuture;
+use deno_graph::source::LoadOptions;
+use deno_graph::source::LoadResponse;
+use deno_graph::source::Loader;
+use deno_graph::BuildOptions;
+use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
 use futures::future;
 use indexmap::IndexMap;
 use std::fs;
@@ -16,8 +22,7 @@ impl Loader for SourceFileLoader {
   fn load(
     &mut self,
     specifier: &ModuleSpecifier,
-    _is_dynamic: bool,
-    _cache_setting: deno_graph::source::CacheSetting,
+    _options: LoadOptions,
   ) -> LoadFuture {
     let result = if specifier.scheme() == "file" {
       let path = specifier.to_file_path().unwrap();
