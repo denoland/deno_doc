@@ -72,6 +72,3 @@ codegen-units = 1
 incremental = true
 lto = true
 opt-level = "s"
-
-[patch.crates-io]
-deno_graph = { path = "../deno_graph" }
