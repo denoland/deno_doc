@@ -72,7 +72,7 @@ jobs:
       - name: Test (tree-sitter)
         run: |
           cargo test --locked --all-targets --features=tree-sitter
-          deno test -A
+          deno test --allow-read --allow-net --allow-env=DENO_DIR --allow-write
 
       - name: Publish
         if: |
