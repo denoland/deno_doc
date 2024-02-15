@@ -2,16 +2,16 @@
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode } from "./types.d.ts";
-import { load as defaultLoad } from "https://deno.land/x/deno_graph@0.64.1/loader.ts";
+import { createCache } from "https://deno.land/x/deno_cache@0.7.1/mod.ts";
 import type {
   CacheSetting,
   LoadResponse,
-} from "https://deno.land/x/deno_graph@0.64.1/mod.ts";
+} from "https://deno.land/x/deno_graph@0.66.0/mod.ts";
 
 export type {
   CacheSetting,
   LoadResponse,
-} from "https://deno.land/x/deno_graph@0.64.1/mod.ts";
+} from "https://deno.land/x/deno_graph@0.66.0/mod.ts";
 
 const encoder = new TextEncoder();
 
@@ -90,7 +90,7 @@ export async function doc(
   options: DocOptions = {},
 ): Promise<Array<DocNode>> {
   const {
-    load = defaultLoad,
+    load = createCache().load,
     includeAll = false,
     resolve,
     importMap,
@@ -101,8 +101,17 @@ export async function doc(
   return wasm.doc(
     specifier,
     includeAll,
-    (specifier: string, isDynamic: boolean, cacheSetting: CacheSetting) => {
-      return load(specifier, isDynamic, cacheSetting).then((result) => {
+    (specifier: string, options: {
+      isDynamic: boolean;
+      cacheSetting: CacheSetting;
+      checksum: string | undefined;
+    }) => {
+      return load(
+        specifier,
+        options.isDynamic,
+        options.cacheSetting,
+        options.checksum,
+      ).then((result) => {
         if (result?.kind === "module") {
           if (typeof result.content === "string") {
             result.content = encoder.encode(result.content);

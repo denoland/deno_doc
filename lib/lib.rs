@@ -7,6 +7,7 @@ use anyhow::Context;
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
+use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::source::ResolveError;
@@ -46,14 +47,25 @@ impl Loader for JsLoader {
   fn load(
     &mut self,
     specifier: &ModuleSpecifier,
-    is_dynamic: bool,
-    cache_setting: CacheSetting,
+    options: LoadOptions,
   ) -> LoadFuture {
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct JsLoadOptions {
+      pub is_dynamic: bool,
+      pub cache_setting: &'static str,
+      pub checksum: Option<String>,
+    }
+
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
-    let arg1 = JsValue::from(is_dynamic);
-    let arg2 = JsValue::from(cache_setting.as_js_str());
-    let result = self.load.call3(&this, &arg0, &arg1, &arg2);
+    let arg1 = serde_wasm_bindgen::to_value(&JsLoadOptions {
+      is_dynamic: options.is_dynamic,
+      cache_setting: options.cache_setting.as_js_str(),
+      checksum: options.maybe_checksum.map(|c| c.into_string()),
+    })
+    .unwrap();
+    let result = self.load.call2(&this, &arg0, &arg1);
     let f = async move {
       let response = match result {
         Ok(result) => JsFuture::from(js_sys::Promise::resolve(&result)).await,
@@ -166,7 +178,14 @@ async fn inner_doc(
     if let Some(LoadResponse::Module {
       content, specifier, ..
     }) = loader
-      .load(&import_map_specifier, false, CacheSetting::Use)
+      .load(
+        &import_map_specifier,
+        LoadOptions {
+          is_dynamic: false,
+          cache_setting: CacheSetting::Use,
+          maybe_checksum: None,
+        },
+      )
       .await?
     {
       let text = String::from_utf8(content.to_vec())
