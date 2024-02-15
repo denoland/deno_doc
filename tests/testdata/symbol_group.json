@@ -91,7 +91,7 @@
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { Bar } from \".\";\n</code></pre>\n</div>",
+            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code>import { Bar } from \".\";\n</code></pre>\n</div>",
             "additional_css": ""
           }
         ]
@@ -190,7 +190,7 @@
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": "<div class=\"markdown\"><p>some Foo docs</p>\n</div>",
+                "docs": "<div class=\"markdown flex-1\"><p>some Foo docs</p>\n</div>",
                 "sections": []
               }
             }
@@ -204,7 +204,7 @@
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { Foo } from \".\";\n</code></pre>\n</div>",
+            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code>import { Foo } from \".\";\n</code></pre>\n</div>",
             "additional_css": ""
           }
         ]
@@ -332,7 +332,7 @@
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { x } from \"foo\";\n</code></pre>\n</div>",
+            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code>import { x } from \"foo\";\n</code></pre>\n</div>",
             "additional_css": ""
           }
         ]

@@ -59,7 +59,7 @@ impl HighlightAdapter {
 
     if self.show_line_numbers {
       Ok(format!(
-        r##"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">{line_numbers}</div><div class="grow overflow-x-scroll">{lines}</div>"##
+        r##"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">{line_numbers}</div><div class="grow overflow-x-auto">{lines}</div>"##
       ))
     } else {
       Ok(lines)
