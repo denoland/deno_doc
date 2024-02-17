@@ -3,6 +3,8 @@
 #![recursion_limit = "256"]
 #![deny(clippy::disallowed_methods)]
 #![deny(clippy::disallowed_types)]
+#![deny(clippy::print_stderr)]
+#![deny(clippy::print_stdout)]
 
 #[macro_use]
 extern crate cfg_if;
