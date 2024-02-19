@@ -83,6 +83,7 @@ pub struct GenerateCtx<'ctx> {
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
   pub single_file_mode: bool,
+  pub sidebar_hide_all_symbols: bool,
   pub sidebar_flatten_namespaces: bool,
 }
 
@@ -323,6 +324,7 @@ pub fn generate(
     rewrite_map: options.rewrite_map,
     hide_module_doc_title: options.hide_module_doc_title,
     single_file_mode: doc_nodes_by_url.len() == 1,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: options.sidebar_flatten_namespaces,
   };
   let mut files = HashMap::new();
