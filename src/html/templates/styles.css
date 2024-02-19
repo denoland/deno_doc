@@ -148,6 +148,10 @@ summary::-webkit-details-marker {
   @apply space-y-3 shrink min-w-0;
 }
 
+.markdown img {
+  display: inline-block;
+}
+
 .markdown_summary {
   @apply inline text-stone-600;
 }
