@@ -177,7 +177,7 @@ pub fn markdown_to_html(
   };
 
   let toc = if render_toc {
-    let toc = heading_adapter.get_toc();
+    let toc = heading_adapter.into_toc();
 
     if toc.is_empty() {
       None

@@ -206,7 +206,7 @@ pub struct HeadingToCAdapter {
 }
 
 impl HeadingToCAdapter {
-  pub fn get_toc(self) -> Vec<(u8, String, String)> {
+  pub fn into_toc(self) -> Vec<(u8, String, String)> {
     self.toc.into_inner().unwrap()
   }
 }
