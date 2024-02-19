@@ -136,6 +136,10 @@ summary::-webkit-details-marker {
   th {
     @apply font-bold text-center;
   }
+
+  img {
+    display: inline-block;
+  }
 }
 
 
@@ -146,10 +150,6 @@ summary::-webkit-details-marker {
 
 .markdown {
   @apply space-y-3 shrink min-w-0;
-}
-
-.markdown img {
-  display: inline-block;
 }
 
 .markdown_summary {
