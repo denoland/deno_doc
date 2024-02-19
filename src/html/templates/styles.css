@@ -139,14 +139,6 @@ summary::-webkit-details-marker {
   th {
     @apply font-bold text-center;
   }
-
-  img {
-    @apply inline;
-  }
-
-  table {
-    @apply w-fit;
-  }
 }
 
 .markdown_border {
