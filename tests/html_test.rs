@@ -60,9 +60,13 @@ impl HrefResolver for EmptyResolver {
   fn resolve_usage(
     &self,
     _current_specifier: &ModuleSpecifier,
-    current_file: Option<&str>,
+    current_file: Option<&ShortPath>,
   ) -> Option<String> {
-    Some(current_file.unwrap_or_default().to_string())
+    Some(
+      current_file
+        .map(|current_file| current_file.as_str().to_string())
+        .unwrap_or_default(),
+    )
   }
 
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {

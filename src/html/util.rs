@@ -1,4 +1,4 @@
-use crate::html::RenderContext;
+use crate::html::{RenderContext, ShortPath};
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
@@ -86,12 +86,15 @@ impl NamespacedGlobalSymbols {
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
-  File(&'a str),
-  Symbol { file: &'a str, symbol: &'a str },
+  File(&'a ShortPath),
+  Symbol {
+    file: &'a ShortPath,
+    symbol: &'a str,
+  },
 }
 
 impl UrlResolveKind<'_> {
-  pub fn get_file(&self) -> Option<&str> {
+  pub fn get_file(&self) -> Option<&ShortPath> {
     match self {
       UrlResolveKind::Root => None,
       UrlResolveKind::AllSymbols => None,
@@ -110,10 +113,10 @@ pub trait HrefResolver {
   ) -> String {
     let backs = match current {
       UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-        .repeat(if file == "." {
+        .repeat(if file.as_str() == "." {
           1
         } else {
-          file.split('/').count() + 1
+          file.as_str().split('/').count() + 1
         }),
       UrlResolveKind::Root => String::new(),
       UrlResolveKind::AllSymbols => String::from("./"),
@@ -126,10 +129,10 @@ pub trait HrefResolver {
         file: target_file,
         symbol: target_symbol,
       } => {
-        format!("{backs}./{target_file}/~/{target_symbol}.html")
+        format!("{backs}./{}/~/{target_symbol}.html", target_file.as_str())
       }
       UrlResolveKind::File(target_file) => {
-        format!("{backs}./{target_file}/~/index.html")
+        format!("{backs}./{}/~/index.html", target_file.as_str())
       }
     }
   }
@@ -145,7 +148,7 @@ pub trait HrefResolver {
   fn resolve_usage(
     &self,
     current_specifier: &ModuleSpecifier,
-    current_file: Option<&str>,
+    current_file: Option<&ShortPath>,
   ) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.

@@ -6,6 +6,7 @@ use super::util::BreadcrumbsCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;
+use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
 
@@ -37,7 +38,7 @@ impl HtmlHeadCtx {
     root: &str,
     page: &str,
     package_name: Option<&String>,
-    current_file: Option<String>,
+    current_file: Option<ShortPath>,
   ) -> Self {
     Self {
       title: format!(
@@ -46,7 +47,11 @@ impl HtmlHeadCtx {
           .map(|package_name| format!("{package_name} "))
           .unwrap_or_default()
       ),
-      current_file: current_file.unwrap_or_default(),
+      current_file: current_file
+        .as_ref()
+        .map(|current_file| current_file.as_str())
+        .unwrap_or_default()
+        .to_string(),
       stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
       page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
@@ -69,7 +74,7 @@ pub fn render_index(
   specifier: Option<&ModuleSpecifier>,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
   partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-  file: Option<String>,
+  file: Option<ShortPath>,
 ) -> String {
   let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
     ctx,
@@ -91,11 +96,9 @@ pub fn render_index(
   let render_ctx = RenderContext::new(
     ctx,
     doc_nodes,
-    if let Some(short_path) = &short_path {
-      UrlResolveKind::File(short_path)
-    } else {
-      UrlResolveKind::Root
-    },
+    short_path
+      .as_ref()
+      .map_or(UrlResolveKind::Root, UrlResolveKind::File),
     specifier,
   );
 
@@ -105,7 +108,7 @@ pub fn render_index(
 
   let root = ctx.href_resolver.resolve_path(
     file
-      .as_deref()
+      .as_ref()
       .map_or(UrlResolveKind::Root, UrlResolveKind::File),
     UrlResolveKind::Root,
   );
@@ -166,7 +169,7 @@ pub(crate) fn render_all_symbols_page(
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   current_specifier: &ModuleSpecifier,
-  short_path: &str,
+  short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   doc_nodes: &[DocNode],
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
@@ -189,7 +192,7 @@ fn generate_symbol_pages(
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   name_partitions: IndexMap<String, Vec<DocNode>>,
   current_specifier: &ModuleSpecifier,
-  short_path: &str,
+  short_path: &ShortPath,
   namespace_paths: Vec<String>,
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut generated_pages =
@@ -264,7 +267,7 @@ fn render_symbol_page(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNode],
   current_specifier: &ModuleSpecifier,
-  short_path: &str,
+  short_path: &ShortPath,
   namespace_paths: &[String],
   namespaced_name: &str,
   doc_nodes: &[DocNode],
