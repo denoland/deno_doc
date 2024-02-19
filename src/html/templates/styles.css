@@ -103,12 +103,16 @@ summary::-webkit-details-marker {
     @apply m-2 border-stone-500;
   }
 
+  ol, ul {
+    @apply list-outside ml-4;
+  }
+
   ol {
-    @apply list-decimal list-inside;
+    @apply list-decimal;
   }
 
   ul {
-    @apply list-disc list-inside;
+    @apply list-disc;
   }
 
   /* Inline code */
