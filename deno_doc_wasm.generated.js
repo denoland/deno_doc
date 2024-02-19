@@ -432,12 +432,12 @@ const imports = {
       const ret = new Object();
       return addHeapObject(ret);
     },
-    __wbg_new_bfd4534b584a9593: function () {
-      const ret = new Map();
-      return addHeapObject(ret);
-    },
     __wbindgen_number_new: function (arg0) {
       const ret = arg0;
+      return addHeapObject(ret);
+    },
+    __wbg_new_bfd4534b584a9593: function () {
+      const ret = new Map();
       return addHeapObject(ret);
     },
     __wbg_call_9079ecd7da811539: function () {
@@ -660,7 +660,7 @@ const imports = {
       const ret = getObject(arg0).queueMicrotask;
       return addHeapObject(ret);
     },
-    __wbindgen_closure_wrapper550: function (arg0, arg1, arg2) {
+    __wbindgen_closure_wrapper553: function (arg0, arg1, arg2) {
       const ret = makeMutClosure(arg0, arg1, 226, __wbg_adapter_48);
       return addHeapObject(ret);
     },
