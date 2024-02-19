@@ -248,6 +248,7 @@ async fn symbol_group() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
 
@@ -356,6 +357,7 @@ async fn symbol_search() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
 
@@ -413,6 +415,7 @@ async fn module_doc() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: true,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
 
@@ -428,7 +431,7 @@ async fn module_doc() {
       Some(specifier),
     );
     let module_doc =
-      ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
+      jsdoc::ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
 
     module_docs.push(module_doc);
   }

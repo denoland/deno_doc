@@ -2,7 +2,9 @@
   {{~> sidepanel_common package_name=package_name ~}}
 
   <div class="max-lg:hidden peer-checked:block">
-    <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
+    {{~#if all_symbols_url~}}
+      <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
+    {{~/if~}}
 
     {{~#if files~}}
       <h3 class="title">Modules</h3>

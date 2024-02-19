@@ -1,6 +1,5 @@
 use super::render_context::RenderContext;
 use super::util::*;
-use crate::html::comrak_adapters::HighlightAdapter;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -95,14 +94,18 @@ impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
   }
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct Markdown {
+  pub html: String,
+  pub toc: Option<String>,
+}
+
 pub fn markdown_to_html(
+  render_ctx: &RenderContext,
   md: &str,
   summary: bool,
   render_toc: bool,
-  highlighter: &HighlightAdapter,
-  #[cfg(feature = "ammonia")] url_rewriter: &Option<URLRewriter>,
-  #[cfg(feature = "ammonia")] current_specifier: Option<ModuleSpecifier>,
-) -> String {
+) -> Markdown {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
@@ -122,16 +125,19 @@ pub fn markdown_to_html(
   }
 
   let mut plugins = comrak::Plugins::default();
-  plugins.render.codefence_syntax_highlighter = Some(highlighter);
+  plugins.render.codefence_syntax_highlighter =
+    Some(&render_ctx.ctx.highlight_adapter);
   let heading_adapter =
     crate::html::comrak_adapters::HeadingToCAdapter::default();
   plugins.render.heading_adapter = Some(&heading_adapter);
 
+  let md = parse_links(md, render_ctx);
+
   let md = if summary {
-    let (title, body) = split_markdown_title(md);
+    let (title, body) = split_markdown_title(md.as_ref());
     title.unwrap_or(body)
   } else {
-    md
+    md.as_ref()
   };
 
   let class_name = if summary {
@@ -151,11 +157,11 @@ pub fn markdown_to_html(
       .add_generic_attributes(["id"])
       .add_allowed_classes("pre", ["highlight"])
       .link_rel(Some("nofollow"))
-      .url_relative(url_rewriter.as_ref().map_or(
+      .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,
         |url_rewriter| {
           ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
-            current_specifier,
+            current_specifier: render_ctx.get_current_specifier().cloned(),
             url_rewriter: url_rewriter.clone(),
           }))
         },
@@ -170,151 +176,107 @@ pub fn markdown_to_html(
     ammonia_builder.clean(&html).to_string()
   };
 
-  let mut markdown =
-    format!(r#"<div class="{class_name} flex-1">{html}</div>"#);
+  let toc = if render_toc {
+    let toc = heading_adapter.into_toc();
 
-  if render_toc {
-    let toc = heading_adapter.get_toc();
-    let mut toc_content = vec![String::from(
-      r#"<ul class="space-y-2 block overflow-y-auto h-full">"#,
-    )];
+    if toc.is_empty() {
+      None
+    } else {
+      let mut toc_content = vec![String::from(
+        r#"<ul class="space-y-2 block overflow-y-auto h-full">"#,
+      )];
 
-    let mut current_level = 1;
+      let mut current_level = 1;
 
-    for (level, heading, anchor) in toc {
-      match current_level.cmp(&level) {
-        Ordering::Equal => {}
-        Ordering::Less => {
-          toc_content.push(r#"<li><ul class="ml-4 space-y-2">"#.to_string());
-          current_level = level;
+      for (level, heading, anchor) in toc {
+        match current_level.cmp(&level) {
+          Ordering::Equal => {}
+          Ordering::Less => {
+            toc_content.push(r#"<li><ul class="ml-4 space-y-2">"#.to_string());
+            current_level = level;
+          }
+          Ordering::Greater => {
+            toc_content.push("</ul></li>".to_string());
+            current_level = level;
+          }
         }
-        Ordering::Greater => {
-          toc_content.push("</ul></li>".to_string());
-          current_level = level;
-        }
+
+        toc_content.push(format!(
+          r##"<li><a class="hover:underline block overflow-x-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
+        ));
       }
 
-      toc_content.push(format!(
-        r##"<li><a class="hover:underline block overflow-x-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
-      ));
+      toc_content.push(String::from("</ul>"));
+
+      Some(toc_content.join(""))
     }
+  } else {
+    None
+  };
 
-    toc_content.push(String::from("</ul>"));
-
-    markdown = format!(
-      r#"<div class="flex max-lg:flex-col-reverse gap-7">
-        {markdown}
-        <nav class="flex-none max-w-56 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border">{}</nav>
-      </div>"#,
-      toc_content.join("")
-    );
+  Markdown {
+    html: format!(r#"<div class="{class_name} flex-1">{html}</div>"#),
+    toc,
   }
-
-  markdown
-}
-
-pub(crate) fn render_markdown_inner(
-  render_ctx: &RenderContext,
-  md: &str,
-  summary: bool,
-  render_toc: bool,
-) -> String {
-  markdown_to_html(
-    &parse_links(md, render_ctx),
-    summary,
-    render_toc,
-    &render_ctx.ctx.highlight_adapter,
-    #[cfg(feature = "ammonia")]
-    &render_ctx.ctx.url_rewriter,
-    #[cfg(feature = "ammonia")]
-    render_ctx.get_current_specifier().cloned(),
-  )
 }
 
 pub(crate) fn render_markdown_summary(
   render_ctx: &RenderContext,
   md: &str,
 ) -> String {
-  render_markdown_inner(render_ctx, md, true, false)
+  markdown_to_html(render_ctx, md, true, false).html
 }
 
 pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
-  render_markdown_inner(render_ctx, md, false, false)
+  markdown_to_html(render_ctx, md, false, false).html
 }
 
-pub(crate) fn render_markdown_with_toc(
-  render_ctx: &RenderContext,
-  md: &str,
-) -> String {
-  render_markdown_inner(render_ctx, md, false, true)
-}
-
-// TODO(bartlomieju): `render_examples` and `summary` are mutually exclusive,
-// use an enum instead?
-fn render_docs_inner(
+pub(crate) fn jsdoc_body_to_html(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-  render_examples: bool,
   summary: bool,
-) -> (Option<String>, Option<SectionCtx>) {
-  let md = if let Some(doc) = js_doc.doc.as_deref() {
+) -> Option<String> {
+  if let Some(doc) = js_doc.doc.as_deref() {
     if doc.is_empty() {
       None
     } else {
-      Some(render_markdown_inner(ctx, doc, summary, false))
+      Some(markdown_to_html(ctx, doc, summary, false).html)
     }
   } else {
     None
-  };
+  }
+}
 
-  let examples = if render_examples {
-    let mut i = 0;
+pub(crate) fn jsdoc_examples(
+  ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> Option<SectionCtx> {
+  let mut i = 0;
 
-    let examples = js_doc
-      .tags
-      .iter()
-      .filter_map(|tag| {
-        if let JsDocTag::Example { doc } = tag {
-          doc.as_ref().map(|doc| {
-            let example = ExampleCtx::new(ctx, doc, i);
-            i += 1;
-            example
-          })
-        } else {
-          None
-        }
-      })
-      .collect::<Vec<ExampleCtx>>();
+  let examples = js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Example { doc } = tag {
+        doc.as_ref().map(|doc| {
+          let example = ExampleCtx::new(ctx, doc, i);
+          i += 1;
+          example
+        })
+      } else {
+        None
+      }
+    })
+    .collect::<Vec<ExampleCtx>>();
 
-    if !examples.is_empty() {
-      Some(SectionCtx {
-        title: "Examples",
-        content: SectionContentCtx::Example(examples),
-      })
-    } else {
-      None
-    }
+  if !examples.is_empty() {
+    Some(SectionCtx {
+      title: "Examples",
+      content: SectionContentCtx::Example(examples),
+    })
   } else {
     None
-  };
-
-  (md, examples)
-}
-
-pub(crate) fn render_docs_summary(
-  ctx: &RenderContext,
-  js_doc: &JsDoc,
-) -> Option<String> {
-  let (docs, _examples) = render_docs_inner(ctx, js_doc, false, true);
-
-  docs
-}
-
-pub(crate) fn render_docs_with_examples(
-  ctx: &RenderContext,
-  js_doc: &JsDoc,
-) -> (Option<String>, Option<SectionCtx>) {
-  render_docs_inner(ctx, js_doc, true, false)
+  }
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -353,8 +315,8 @@ pub struct ModuleDocCtx {
   pub title: Option<String>,
   pub deprecated: Option<String>,
   pub usages: Option<UsagesCtx>,
-  pub examples: Option<Vec<ExampleCtx>>,
-  pub docs: Option<String>,
+  pub examples: Option<SectionCtx>,
+  pub docs: Option<Markdown>,
 }
 
 impl ModuleDocCtx {
@@ -385,37 +347,13 @@ impl ModuleDocCtx {
         }
       });
 
-      let mut i = 0;
-      let examples = {
-        let examples = node
-          .js_doc
-          .tags
-          .iter()
-          .filter_map(|tag| {
-            if let JsDocTag::Example { doc } = tag {
-              doc.as_ref().map(|doc| {
-                let example = ExampleCtx::new(render_ctx, doc, i);
-                i += 1;
-                example
-              })
-            } else {
-              None
-            }
-          })
-          .collect::<Vec<ExampleCtx>>();
-
-        if examples.is_empty() {
-          None
-        } else {
-          Some(examples)
-        }
-      };
+      let examples = jsdoc_examples(render_ctx, &node.js_doc);
 
       let docs = node
         .js_doc
         .doc
         .as_ref()
-        .map(|doc| render_markdown_with_toc(render_ctx, doc));
+        .map(|doc| markdown_to_html(render_ctx, doc, false, true));
 
       (deprecated, examples, docs)
     } else {

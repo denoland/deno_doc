@@ -108,7 +108,7 @@ struct IndexSidepanelFileCtx {
 pub struct IndexSidepanelCtx {
   package_name: Option<String>,
   root_url: String,
-  all_symbols_url: String,
+  all_symbols_url: Option<String>,
   kind_partitions: Vec<SidepanelPartitionCtx>,
   files: Vec<IndexSidepanelFileCtx>,
 }
@@ -191,12 +191,14 @@ impl IndexSidepanelCtx {
           .map_or(UrlResolveKind::Root, UrlResolveKind::File),
         UrlResolveKind::Root,
       ),
-      all_symbols_url: ctx.href_resolver.resolve_path(
-        current_file
-          .as_deref()
-          .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-        UrlResolveKind::AllSymbols,
-      ),
+      all_symbols_url: ctx.sidebar_hide_all_symbols.then(|| {
+        ctx.href_resolver.resolve_path(
+          current_file
+            .as_deref()
+            .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+          UrlResolveKind::AllSymbols,
+        )
+      }),
       kind_partitions,
       files,
     }

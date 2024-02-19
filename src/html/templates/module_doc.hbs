@@ -1,27 +1,28 @@
-<section class="space-y-2">
-  {{~#if title~}}
-    <h2 class="text-lg font-semibold font-mono">{{title}}</h2>
-    <hr class="mt-2 mb-4" />
-  {{~/if~}}
+<section {{#if docs.toc}}class="flex max-lg:flex-col-reverse gap-6"{{/if}}>
+  <div class="space-y-2 flex-1 {{#if docs.toc}}min-w-0{{/if}}">
+    {{~#if title~}}
+      <h2 class="text-lg font-semibold font-mono">{{title}}</h2>
+      <hr class="mt-2 mb-4" />
+    {{~/if~}}
 
-  {{~> deprecated deprecated ~}}
+    {{~> deprecated deprecated ~}}
 
-  {{~#if usages~}}
-    {{~> usages usages ~}}
-  {{~/if~}}
+    {{~#if usages~}}
+      {{~> usages usages ~}}
+    {{~/if~}}
 
-  {{~#if docs~}}
-    {{{docs}}}
-  {{~/if~}}
+    {{~#if docs~}}
+      {{{docs.html}}}
+    {{~/if~}}
 
-  {{~#if examples~}}
-    <div>
-      <h2 class="text-xl leading-6 font-semibold py-1">Examples</h2>
-      <div class="space-y-3">
-        {{~#each examples~}}
-          {{~> example this ~}}
-        {{~/each~}}
-      </div>
-    </div>
+    {{~#if examples~}}
+      {{~> section examples }}
+    {{~/if~}}
+  </div>
+
+  {{~#if docs.toc~}}
+    <nav class="flex-none max-w-52 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border">
+      {{{~docs.toc~}}}
+    </nav>
   {{~/if~}}
 </section>
