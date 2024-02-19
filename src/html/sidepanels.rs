@@ -120,7 +120,7 @@ impl IndexSidepanelCtx {
     current_entrypoint: Option<&ModuleSpecifier>,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
     partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-    current_file: &Option<ShortPath>,
+    current_file: Option<&ShortPath>,
   ) -> Self {
     let files = doc_nodes_by_url
       .keys()
@@ -135,9 +135,7 @@ impl IndexSidepanelCtx {
           short_path.as_str().is_empty() || short_path.as_str() == ".";
         IndexSidepanelFileCtx {
           href: ctx.href_resolver.resolve_path(
-            current_file
-              .as_ref()
-              .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+            current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
             if ctx.main_entrypoint.is_some()
               && ctx.main_entrypoint.as_ref() == Some(url)
             {
@@ -171,9 +169,7 @@ impl IndexSidepanelCtx {
               &nodes,
               false,
               ctx.href_resolver.resolve_path(
-                current_file
-                  .as_ref()
-                  .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+                current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
                   file: nodes[0].origin.as_ref().unwrap(),
                   symbol: &node_name,
@@ -190,16 +186,12 @@ impl IndexSidepanelCtx {
     Self {
       package_name: ctx.package_name.clone(),
       root_url: ctx.href_resolver.resolve_path(
-        current_file
-          .as_ref()
-          .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+        current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
         UrlResolveKind::Root,
       ),
       all_symbols_url: (!ctx.sidebar_hide_all_symbols).then(|| {
         ctx.href_resolver.resolve_path(
-          current_file
-            .as_ref()
-            .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+          current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
           UrlResolveKind::AllSymbols,
         )
       }),

@@ -81,7 +81,7 @@ pub fn render_index(
     specifier,
     doc_nodes_by_url,
     partitions,
-    &file,
+    file.as_ref(),
   );
 
   let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
