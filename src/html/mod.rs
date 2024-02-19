@@ -10,7 +10,7 @@ use crate::DocNode;
 use crate::DocNodeKind;
 
 pub mod comrak_adapters;
-mod jsdoc;
+pub mod jsdoc;
 pub mod pages;
 mod parameters;
 mod render_context;
@@ -23,8 +23,6 @@ mod types;
 mod usage;
 mod util;
 
-pub use jsdoc::markdown_to_html;
-pub use jsdoc::ModuleDocCtx;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;

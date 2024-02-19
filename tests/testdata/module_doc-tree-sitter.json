@@ -13,7 +13,10 @@
       ]
     },
     "examples": null,
-    "docs": "<div class=\"flex max-lg:flex-col-reverse gap-7\">\n        <div class=\"markdown flex-1\"><p>Some docs</p>\n</div>\n        <nav class=\"flex-none max-w-56 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border\"><ul class=\"space-y-2 block overflow-y-auto h-full\"></ul></nav>\n      </div>"
+    "docs": {
+      "html": "<div class=\"markdown flex-1\"><p>Some docs</p>\n</div>",
+      "toc": null
+    }
   },
   {
     "title": "foo",

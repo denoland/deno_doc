@@ -88,7 +88,7 @@ pub(crate) fn render_function(
     let css = render_css_for_fn(&overload_id, deprecated.is_some());
 
     let summary_doc = if !(function_def.has_body && i == 0) {
-      crate::html::jsdoc::render_docs_summary(ctx, &doc_node.js_doc)
+      crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, true)
     } else {
       None
     };
@@ -211,8 +211,9 @@ fn render_single_function(
 
   let mut sections = vec![];
 
-  let (docs, examples) =
-    crate::html::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+  let docs =
+    crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
+  let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
 
   if let Some(examples) = examples {
     sections.push(examples);

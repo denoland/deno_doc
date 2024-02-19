@@ -1,4 +1,3 @@
-use crate::html::jsdoc::render_markdown;
 use crate::html::RenderContext;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -298,7 +297,8 @@ impl DocEntryCtx {
     jsdoc: Option<&str>,
     location: &crate::Location,
   ) -> Self {
-    let maybe_jsdoc = jsdoc.map(|doc| render_markdown(ctx, doc));
+    let maybe_jsdoc =
+      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc));
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {

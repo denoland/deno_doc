@@ -201,14 +201,13 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
 
 #[derive(Default)]
 pub struct HeadingToCAdapter {
-  toc: Arc<Mutex<Vec<(u8, String, String)>>>,
-  anchorizer: Arc<Mutex<comrak::html::Anchorizer>>,
+  toc: Mutex<Vec<(u8, String, String)>>,
+  anchorizer: Mutex<comrak::html::Anchorizer>,
 }
 
 impl HeadingToCAdapter {
-  pub fn get_toc(&self) -> Vec<(u8, String, String)> {
-    let lock = self.toc.lock().unwrap();
-    lock.clone()
+  pub fn get_toc(self) -> Vec<(u8, String, String)> {
+    self.toc.into_inner().unwrap()
   }
 }
 
