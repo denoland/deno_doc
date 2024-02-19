@@ -1,10 +1,10 @@
 <div>
-  <h2 class="text-xl leading-6 font-semibold py-1">{{title}}</h2>
+  <h2 class="text-xl leading-6 font-semibold py-1 mb-4">{{title}}</h2>
 
   {{~#if (eq content.kind "namespace_section")~}}
     {{~> namespace_section content.content ~}}
   {{~else~}}
-    <div class="ml-2 mt-1 space-y-3">
+    <div class="ml-2 space-y-3">
       {{~#each content.content~}}
         {{~> (lookup ../content "kind") this ~}}
       {{~/each~}}

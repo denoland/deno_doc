@@ -256,8 +256,11 @@ impl NamespaceNodeCtx {
 
     let current_resolve = ctx.get_current_resolve();
 
-    let docs =
-      crate::html::jsdoc::render_docs_summary(ctx, &nodes[0].doc_node.js_doc);
+    let docs = crate::html::jsdoc::jsdoc_body_to_html(
+      ctx,
+      &nodes[0].doc_node.js_doc,
+      true,
+    );
 
     let tags = Tag::from_js_doc(&nodes[0].doc_node.js_doc);
 
