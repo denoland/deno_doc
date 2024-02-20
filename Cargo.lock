@@ -524,7 +524,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.67.0"
+version = "0.68.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "47a122de1af66e3b5389a914ce0bf6296271138d259fb78259b839ca7e0722a7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -544,7 +546,6 @@ dependencies = [
  "serde_json",
  "sha2",
  "thiserror",
- "twox-hash",
  "url",
 ]
 
@@ -2264,17 +2265,6 @@ checksum = "c8bc1d2c24276a48ef097a71b56888ac9db63717e8f8d0b324668a27fd619670"
 dependencies = [
  "cc",
  "tree-sitter",
-]
-
-[[package]]
-name = "twox-hash"
-version = "1.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
-dependencies = [
- "cfg-if",
- "rand",
- "static_assertions",
 ]
 
 [[package]]
