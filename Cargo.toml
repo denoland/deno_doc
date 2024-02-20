@@ -40,7 +40,14 @@ termcolor = "1.1.2"
 html-escape = { version = "0.2.13", optional = true }
 comrak = { version = "0.20.0", optional = true, default-features = false }
 handlebars = { version = "5.0", optional = true, features = ["string_helpers"] }
-syntect = { version = "5.1.0", optional = true, default-features = false, features = ["parsing", "default-syntaxes", "default-themes", "html", "dump-load", "regex-onig"] }
+syntect = { version = "5.1.0", optional = true, default-features = false, features = [
+  "parsing",
+  "default-syntaxes",
+  "default-themes",
+  "html",
+  "dump-load",
+  "regex-onig",
+] }
 ammonia = { version = "3.3.0", optional = true }
 
 tree-sitter-highlight = { version = "0.20.1", optional = true }
