@@ -143,6 +143,10 @@ summary::-webkit-details-marker {
   th {
     @apply font-bold text-center;
   }
+
+  img {
+    display: inline-block;
+  }
 }
 
 .markdown_border {
