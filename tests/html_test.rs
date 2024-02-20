@@ -60,9 +60,13 @@ impl HrefResolver for EmptyResolver {
   fn resolve_usage(
     &self,
     _current_specifier: &ModuleSpecifier,
-    current_file: Option<&str>,
+    current_file: Option<&ShortPath>,
   ) -> Option<String> {
-    Some(current_file.unwrap_or_default().to_string())
+    Some(
+      current_file
+        .map(|current_file| current_file.as_str().to_string())
+        .unwrap_or_default(),
+    )
   }
 
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
@@ -248,6 +252,7 @@ async fn symbol_group() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
 
@@ -356,6 +361,7 @@ async fn symbol_search() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: false,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
 
@@ -413,6 +419,7 @@ async fn module_doc() {
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
     single_file_mode: true,
+    sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
 
@@ -428,7 +435,7 @@ async fn module_doc() {
       Some(specifier),
     );
     let module_doc =
-      ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
+      jsdoc::ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
 
     module_docs.push(module_doc);
   }

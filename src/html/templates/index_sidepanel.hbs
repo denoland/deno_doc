@@ -2,14 +2,16 @@
   {{~> sidepanel_common package_name=package_name ~}}
 
   <div class="max-lg:hidden peer-checked:block">
-    <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
+    {{~#if all_symbols_url~}}
+      <a class="mt-1" href="{{all_symbols_url}}">All symbols</a>
+    {{~/if~}}
 
     {{~#if files~}}
       <h3 class="title">Modules</h3>
       <ul>
         {{#each files}}
           <li>
-            <a href="{{this.href}}" title="{{this.name}}"><span>{{this.name}}</span></a>
+            <a href="{{this.href}}" title="{{this.name}}"><span {{#if this.is_main_entrypoint}}class="italic"{{/if}}>{{this.name}}</span></a>
           </li>
         {{~/each~}}
       </ul>

@@ -67,7 +67,10 @@ summary::-webkit-details-marker {
   @apply block;
 }
 
+/* markdown */
 .markdown {
+  @apply space-y-3 shrink min-w-0;
+
   a:not(.no_color) {
     @apply link;
   }
@@ -100,12 +103,16 @@ summary::-webkit-details-marker {
     @apply m-2 border-stone-500;
   }
 
+  ol, ul {
+    @apply list-outside ml-4;
+  }
+
   ol {
-    @apply list-decimal lg:list-inside;
+    @apply list-decimal;
   }
 
   ul {
-    @apply list-disc lg:list-inside;
+    @apply list-disc;
   }
 
   /* Inline code */
@@ -136,16 +143,14 @@ summary::-webkit-details-marker {
   th {
     @apply font-bold text-center;
   }
+
+  img {
+    display: inline-block;
+  }
 }
 
-
-/* markdown */
 .markdown_border {
-  @apply ml-1 pl-2.5 border-l-2 border-stone-300;
-}
-
-.markdown {
-  @apply space-y-3 shrink min-w-0;
+  @apply ml-1 pl-2.5 border-l-2 border-stone-300/40;
 }
 
 .markdown_summary {

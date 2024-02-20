@@ -290,8 +290,9 @@ impl SymbolInnerCtx {
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };
 
-      let (docs, examples) =
-        super::jsdoc::render_docs_with_examples(ctx, &doc_node.js_doc);
+      let docs =
+        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
+      let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
 
       if let Some(examples) = examples {
         sections.insert(0, examples);

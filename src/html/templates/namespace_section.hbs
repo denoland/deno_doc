@@ -1,30 +1,31 @@
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
   {{~#each this~}}
     <div class="space-y-2 {{#if this.deprecated}}opacity-60{{/if}}">
-      <div class="flex justify-between gap-4">
-        <div class="min-w-52 flex items-center gap-2">
-          {{!-- TODO: figure out design of tags in namespace view
-          {{~#if tags~}}
-            <span class="space-x-1">
-              {{~#each tags~}}
-                {{~> tag value=this ~}}
-              {{~/each~}}
-            </span>
-          {{~/if~}} --}}
+      <div class="flex gap-2 items-center">
+        {{!-- TODO: figure out design of tags in namespace view
+        {{~#if tags~}}
+          <span class="space-x-1">
+            {{~#each tags~}}
+              {{~> tag value=this ~}}
+            {{~/each~}}
+          </span>
+        {{~/if~}} --}}
+        {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
 
-          {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
-          <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden {{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}">
+        <div class="flex justify-between gap-4 grow items-end">
+          <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden {{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}" title="{{this.name}}">
             {{~this.name~}}
           </a>
+
+          {{~#if this.origin_name~}}
+            <div class="text-xs italic lg:mr-4 whitespace-nowrap text-stone-400 truncate" title="{{this.origin_name}}">from {{this.origin_name}}</div>
+          {{~/if~}}
         </div>
-        {{~#if this.origin~}}
-          <div class="text-xs italic lg:mr-4 whitespace-nowrap text-stone-400">from {{this.origin}}</div>
-        {{~/if~}}
       </div>
       <div class="block py-1 text-sm leading-5 text-stone-600 !ml-2 markdown_border">
         {{~#if this.docs~}}
           {{{~this.docs~}}}
-          {{~else~}}
+        {{~else~}}
           <span class="italic">No documentation available</span>
         {{~/if~}}
       </div>
