@@ -328,9 +328,7 @@ impl ModuleDocCtx {
     let module_doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
 
     let title = if !render_ctx.ctx.hide_module_doc_title {
-      Some(super::short_path_to_name(
-        &render_ctx.ctx.url_to_short_path(specifier),
-      ))
+      Some(render_ctx.ctx.url_to_short_path(specifier).to_name())
     } else {
       None
     };

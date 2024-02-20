@@ -97,13 +97,18 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if self.current_exports.contains(&target_symbol_parts) {
-      return Some(self.ctx.href_resolver.resolve_path(
-        self.get_current_resolve(),
-        UrlResolveKind::Symbol {
-          file: self.get_current_resolve().get_file().unwrap_or_default(), // TODO
-          symbol: &target_symbol_parts.join("."),
-        },
-      ));
+      return Some(
+        self.ctx.href_resolver.resolve_path(
+          self.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: self
+              .get_current_resolve()
+              .get_file()
+              .expect("is in file because has exports"),
+            symbol: &target_symbol_parts.join("."),
+          },
+        ),
+      );
     }
 
     if let Some(src) = self.current_imports.get(target_symbol) {
@@ -183,7 +188,7 @@ impl<'ctx> RenderContext<'ctx> {
               is_all_symbols_part: false,
             },
             BreadcrumbCtx {
-              name: super::short_path_to_name(file),
+              name: file.to_name(),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
@@ -206,7 +211,7 @@ impl<'ctx> RenderContext<'ctx> {
 
         if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
           parts.push(BreadcrumbCtx {
-            name: super::short_path_to_name(file),
+            name: file.to_name(),
             href: self
               .ctx
               .href_resolver

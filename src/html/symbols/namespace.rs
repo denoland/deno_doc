@@ -1,5 +1,4 @@
 use crate::html::render_context::RenderContext;
-use crate::html::short_path_to_name;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
@@ -234,7 +233,7 @@ fn get_namespace_section_render_ctx(
 pub struct NamespaceNodeCtx {
   pub tags: HashSet<Tag>,
   pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
-  pub origin: Option<String>,
+  pub origin_name: Option<String>,
   pub href: String,
   pub name: String,
   pub docs: Option<String>,
@@ -270,17 +269,17 @@ impl NamespaceNodeCtx {
         .iter()
         .map(|node| node.doc_node.kind.into())
         .collect(),
-      origin: if ctx.ctx.single_file_mode {
+      origin_name: if ctx.ctx.single_file_mode {
         None
       } else {
-        nodes[0].origin.as_deref().map(short_path_to_name)
+        nodes[0].origin.as_ref().map(|origin| origin.to_name())
       },
       href: ctx.ctx.href_resolver.resolve_path(
         current_resolve,
         UrlResolveKind::Symbol {
           file: nodes[0]
             .origin
-            .as_deref()
+            .as_ref()
             .or_else(|| current_resolve.get_file())
             .unwrap(),
           symbol: &name,

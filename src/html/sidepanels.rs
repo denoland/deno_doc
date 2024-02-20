@@ -1,7 +1,7 @@
-use super::short_path_to_name;
 use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use super::ShortPath;
 use super::UrlResolveKind;
 use crate::DocNode;
 use deno_ast::ModuleSpecifier;
@@ -52,7 +52,7 @@ impl SidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
     partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
-    file: &str,
+    file: &ShortPath,
     symbol: &str,
   ) -> Self {
     let partitions = partitions
@@ -76,7 +76,7 @@ impl SidepanelCtx {
               ctx.href_resolver.resolve_path(
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
-                  file: nodes[0].origin.as_deref().unwrap(),
+                  file: nodes[0].origin.as_ref().unwrap(),
                   symbol: &node_name,
                 },
               ),
@@ -102,6 +102,7 @@ impl SidepanelCtx {
 struct IndexSidepanelFileCtx {
   name: String,
   href: String,
+  is_main_entrypoint: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -119,7 +120,7 @@ impl IndexSidepanelCtx {
     current_entrypoint: Option<&ModuleSpecifier>,
     doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
     partitions: IndexMap<String, Vec<DocNodeWithContext>>,
-    current_file: &Option<String>,
+    current_file: Option<&ShortPath>,
   ) -> Self {
     let files = doc_nodes_by_url
       .keys()
@@ -130,11 +131,11 @@ impl IndexSidepanelCtx {
       })
       .map(|url| {
         let short_path = ctx.url_to_short_path(url);
+        let is_main_entrypoint =
+          short_path.as_str().is_empty() || short_path.as_str() == ".";
         IndexSidepanelFileCtx {
           href: ctx.href_resolver.resolve_path(
-            current_file
-              .as_deref()
-              .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+            current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
             if ctx.main_entrypoint.is_some()
               && ctx.main_entrypoint.as_ref() == Some(url)
             {
@@ -143,7 +144,8 @@ impl IndexSidepanelCtx {
               UrlResolveKind::File(&short_path)
             },
           ),
-          name: short_path_to_name(&short_path),
+          name: short_path.to_name(),
+          is_main_entrypoint,
         }
       })
       .collect::<Vec<_>>();
@@ -167,11 +169,9 @@ impl IndexSidepanelCtx {
               &nodes,
               false,
               ctx.href_resolver.resolve_path(
-                current_file
-                  .as_deref()
-                  .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+                current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
-                  file: nodes[0].origin.as_deref().unwrap(),
+                  file: nodes[0].origin.as_ref().unwrap(),
                   symbol: &node_name,
                 },
               ),
@@ -186,16 +186,12 @@ impl IndexSidepanelCtx {
     Self {
       package_name: ctx.package_name.clone(),
       root_url: ctx.href_resolver.resolve_path(
-        current_file
-          .as_deref()
-          .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+        current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
         UrlResolveKind::Root,
       ),
-      all_symbols_url: ctx.sidebar_hide_all_symbols.then(|| {
+      all_symbols_url: (!ctx.sidebar_hide_all_symbols).then(|| {
         ctx.href_resolver.resolve_path(
-          current_file
-            .as_deref()
-            .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+          current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
           UrlResolveKind::AllSymbols,
         )
       }),
