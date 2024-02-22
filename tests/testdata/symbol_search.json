@@ -7,7 +7,7 @@
       "name": "Foo",
       "file": ".",
       "location": {
-        "filename": "main",
+        "filename": "",
         "line": 9,
         "col": 0,
         "byteIndex": 58
@@ -22,7 +22,7 @@
       "name": "Bar",
       "file": ".",
       "location": {
-        "filename": "main",
+        "filename": "",
         "line": 11,
         "col": 0,
         "byteIndex": 79

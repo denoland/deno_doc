@@ -30,7 +30,7 @@ impl SidepanelPartitionSymbolCtx {
       href,
       active,
       deprecated: super::util::all_deprecated(
-        &nodes.iter().map(|node| &node.doc_node).collect::<Vec<_>>(),
+        &nodes.iter().map(|node| node.doc_node).collect::<Vec<_>>(),
       ),
     }
   }
@@ -102,7 +102,6 @@ impl SidepanelCtx {
 struct IndexSidepanelFileCtx {
   name: String,
   href: String,
-  is_main_entrypoint: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -125,14 +124,17 @@ impl IndexSidepanelCtx {
     let files = doc_nodes_by_url
       .keys()
       .filter(|url| {
-        current_entrypoint
-          .map(|current_entrypoint| *url != current_entrypoint)
+        ctx
+          .main_entrypoint
+          .as_ref()
+          .map(|main_entrypoint| *url != main_entrypoint)
           .unwrap_or(true)
+          && current_entrypoint
+            .map(|current_entrypoint| *url != current_entrypoint)
+            .unwrap_or(true)
       })
       .map(|url| {
         let short_path = ctx.url_to_short_path(url);
-        let is_main_entrypoint =
-          short_path.as_str().is_empty() || short_path.as_str() == ".";
         IndexSidepanelFileCtx {
           href: ctx.href_resolver.resolve_path(
             current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
@@ -145,7 +147,6 @@ impl IndexSidepanelCtx {
             },
           ),
           name: short_path.to_name(),
-          is_main_entrypoint,
         }
       })
       .collect::<Vec<_>>();

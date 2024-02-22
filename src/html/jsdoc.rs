@@ -31,12 +31,13 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       == "code";
     let value = captures.name("value").unwrap().as_str();
 
-    let (title, link) =
-      if let Some(index) = value.find('|').or_else(|| value.find(' ')) {
-        value.split_at(index)
-      } else {
-        ("", value)
-      };
+    let (link, title) = if let Some((link, title)) =
+      value.split_once('|').or_else(|| value.split_once(' '))
+    {
+      (link.trim(), title.trim())
+    } else {
+      (value, "")
+    };
 
     let (title, link) = if let Some(href) = ctx.lookup_symbol_href(link) {
       let title = if title.is_empty() { link } else { title };

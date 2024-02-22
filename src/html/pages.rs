@@ -213,7 +213,7 @@ pub fn generate_symbol_page(
     if name_parts.peek().is_none() {
       break nodes.cloned().collect::<Vec<_>>();
     }
-    namespace_paths.push(next_part.to_string());
+    namespace_paths.push(next_part);
     if let Some(namespace) =
       nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
     {
@@ -251,7 +251,7 @@ fn generate_symbol_pages_inner(
   name_partitions: IndexMap<String, Vec<DocNode>>,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
-  namespace_paths: Vec<String>,
+  namespace_paths: Vec<&str>,
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut generated_pages =
     Vec::with_capacity(name_partitions.values().len() * 2);
@@ -293,7 +293,7 @@ fn generate_symbol_pages_inner(
 
       let namespace_paths = {
         let mut ns_paths = namespace_paths.clone();
-        ns_paths.push(name.to_string());
+        ns_paths.push(name);
         ns_paths
       };
 
@@ -326,7 +326,7 @@ fn render_symbol_page(
   doc_nodes_for_module: &[DocNode],
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
-  namespace_paths: &[String],
+  namespace_paths: &[&str],
   namespaced_name: &str,
   doc_nodes: &[DocNode],
 ) -> (BreadcrumbsCtx, SymbolGroupCtx) {

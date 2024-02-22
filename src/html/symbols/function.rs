@@ -145,8 +145,8 @@ fn render_single_function(
   let current_type_params = function_def
     .type_params
     .iter()
-    .map(|def| def.name.clone())
-    .collect::<HashSet<String>>();
+    .map(|def| def.name.as_str())
+    .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
   // TODO: tags

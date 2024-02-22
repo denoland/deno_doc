@@ -203,24 +203,6 @@ impl From<DocNodeKind> for DocNodeKindCtx {
   }
 }
 
-pub(crate) fn get_current_imports(
-  doc_nodes: &[crate::DocNode],
-) -> HashMap<String, String> {
-  let mut imports = HashMap::new();
-
-  for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::Import {
-      let import_def = doc_node.import_def.as_ref().unwrap();
-      // TODO: handle import aliasing
-      if import_def.imported.as_ref() == Some(&doc_node.name) {
-        imports.insert(doc_node.name.clone(), import_def.src.clone());
-      }
-    }
-  }
-
-  imports
-}
-
 #[derive(Debug, Serialize, Clone)]
 pub struct AnchorCtx {
   pub id: String,

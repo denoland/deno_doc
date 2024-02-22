@@ -20,13 +20,13 @@ pub fn render_namespace(
     .collect()
 }
 
-pub fn partition_nodes_by_kind(
-  doc_nodes: &[DocNodeWithContext],
+pub fn partition_nodes_by_kind<'a>(
+  doc_nodes: &[DocNodeWithContext<'a>],
   flatten_namespaces: bool,
-) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext>> {
-  fn partition_nodes_by_kind_inner(
-    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
-    doc_nodes: &[DocNodeWithContext],
+) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext<'a>>> {
+  fn partition_nodes_by_kind_inner<'b>(
+    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext<'b>>>,
+    doc_nodes: &[DocNodeWithContext<'b>],
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
@@ -49,7 +49,7 @@ pub fn partition_nodes_by_kind(
             .iter()
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
-              doc_node: element.clone(),
+              doc_node: element,
             })
             .collect::<Vec<_>>(),
           true,
@@ -114,13 +114,13 @@ pub fn partition_nodes_by_kind(
     .collect()
 }
 
-pub fn partition_nodes_by_category(
-  doc_nodes: &[DocNodeWithContext],
+pub fn partition_nodes_by_category<'a>(
+  doc_nodes: &[DocNodeWithContext<'a>],
   flatten_namespaces: bool,
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
-  fn partition_nodes_by_category_inner(
-    partitions: &mut IndexMap<String, Vec<DocNodeWithContext>>,
-    doc_nodes: &[DocNodeWithContext],
+) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
+  fn partition_nodes_by_category_inner<'b>(
+    partitions: &mut IndexMap<String, Vec<DocNodeWithContext<'b>>>,
+    doc_nodes: &[DocNodeWithContext<'b>],
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
@@ -142,7 +142,7 @@ pub fn partition_nodes_by_category(
             .iter()
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
-              doc_node: element.clone(),
+              doc_node: element,
             })
             .collect::<Vec<_>>(),
           true,
@@ -155,7 +155,7 @@ pub fn partition_nodes_by_category(
         .tags
         .iter()
         .find_map(|tag| {
-          if let crate::js_doc::JsDocTag::Category { doc } = tag {
+          if let JsDocTag::Category { doc } = tag {
             doc.as_ref().map(|doc| doc.trim().to_owned())
           } else {
             None
@@ -279,7 +279,7 @@ impl NamespaceNodeCtx {
         UrlResolveKind::Symbol {
           file: nodes[0]
             .origin
-            .as_ref()
+            .as_deref()
             .or_else(|| current_resolve.get_file())
             .unwrap(),
           symbol: &name,
@@ -288,7 +288,7 @@ impl NamespaceNodeCtx {
       name,
       docs,
       deprecated: all_deprecated(
-        &nodes.iter().map(|node| &node.doc_node).collect::<Vec<_>>(),
+        &nodes.iter().map(|node| node.doc_node).collect::<Vec<_>>(),
       ),
     }
   }

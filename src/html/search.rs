@@ -29,7 +29,7 @@ fn doc_node_into_search_index_nodes_inner(
   let deprecated = super::util::all_deprecated(
     &doc_nodes
       .iter()
-      .map(|node| &node.doc_node)
+      .map(|node| node.doc_node)
       .collect::<Vec<_>>(),
   );
 
@@ -42,8 +42,16 @@ fn doc_node_into_search_index_nodes_inner(
   if !matches!(doc_nodes[0].doc_node.kind, DocNodeKind::Namespace) {
     let mut location = doc_nodes[0].doc_node.location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    let location_url_str = ctx.url_to_short_path(&location_url).to_name();
-    location.filename = location_url_str;
+    location.filename = if ctx
+      .main_entrypoint
+      .as_ref()
+      .map(|main_entrypoint| main_entrypoint != &location_url)
+      .unwrap_or(true)
+    {
+      ctx.url_to_short_path(&location_url).to_name()
+    } else {
+      String::new()
+    };
 
     return vec![SearchIndexNode {
       kind: kinds,
@@ -65,8 +73,16 @@ fn doc_node_into_search_index_nodes_inner(
 
   let mut location = doc_nodes[0].doc_node.location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-  let location_url_str = ctx.url_to_short_path(&location_url).to_name();
-  location.filename = location_url_str;
+  location.filename = if ctx
+    .main_entrypoint
+    .as_ref()
+    .map(|main_entrypoint| main_entrypoint != &location_url)
+    .unwrap_or(true)
+  {
+    ctx.url_to_short_path(&location_url).to_name()
+  } else {
+    String::new()
+  };
 
   nodes.push(SearchIndexNode {
     kind: kinds,
@@ -101,8 +117,16 @@ fn doc_node_into_search_index_nodes_inner(
 
     let mut location = el_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    let location_url_str = ctx.url_to_short_path(&location_url).to_name();
-    location.filename = location_url_str;
+    location.filename = if ctx
+      .main_entrypoint
+      .as_ref()
+      .map(|main_entrypoint| main_entrypoint != &location_url)
+      .unwrap_or(true)
+    {
+      ctx.url_to_short_path(&location_url).to_name()
+    } else {
+      String::new()
+    };
 
     let name = if ns_qualifiers_.is_empty() {
       el_name.to_string()
@@ -131,7 +155,7 @@ fn doc_node_into_search_index_nodes_inner(
         &el_nodes[0].name,
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
-          doc_node: el_nodes[0].clone(),
+          doc_node: el_nodes[0],
         }],
         ns_qualifiers_.clone(),
       ));
@@ -160,8 +184,8 @@ pub fn generate_search_index(
     .iter()
     .flat_map(|(specifier, nodes)| {
       nodes.iter().map(|node| DocNodeWithContext {
-        origin: Some(ctx.url_to_short_path(specifier)),
-        doc_node: node.clone(),
+        origin: Some(std::borrow::Cow::Owned(ctx.url_to_short_path(specifier))),
+        doc_node: node,
       })
     })
     .collect::<Vec<_>>();

@@ -21,8 +21,8 @@ pub(crate) fn render_class(
   let current_type_params = class_def
     .type_params
     .iter()
-    .map(|def| def.name.clone())
-    .collect::<HashSet<String>>();
+    .map(|def| def.name.as_str())
+    .collect::<HashSet<&str>>();
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 

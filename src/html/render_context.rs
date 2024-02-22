@@ -4,20 +4,22 @@ use crate::html::util::NamespacedSymbols;
 use crate::html::GenerateCtx;
 use crate::html::ShortPath;
 use crate::html::UrlResolveKind;
+use crate::DocNodeKind;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
   pub ctx: &'ctx GenerateCtx<'ctx>,
   current_exports: NamespacedSymbols,
-  current_imports: HashMap<String, String>,
-  current_type_params: HashSet<String>,
+  current_imports: Rc<HashMap<String, String>>,
+  current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   current_specifier: Option<&'ctx ModuleSpecifier>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Vec<String>,
+  namespace_parts: Rc<Vec<&'ctx str>>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -30,27 +32,27 @@ impl<'ctx> RenderContext<'ctx> {
     Self {
       ctx,
       current_exports: NamespacedSymbols::new(doc_nodes),
-      current_imports: crate::html::util::get_current_imports(doc_nodes),
+      current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,
       current_specifier,
-      namespace_parts: vec![],
+      namespace_parts: Rc::new(vec![]),
     }
   }
 
   pub fn with_current_type_params(
     &self,
-    current_type_params: HashSet<String>,
+    current_type_params: HashSet<&'ctx str>,
   ) -> Self {
     Self {
-      current_type_params,
+      current_type_params: Rc::new(current_type_params),
       ..self.clone()
     }
   }
 
-  pub fn with_namespace(&self, namespace_parts: Vec<String>) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Vec<&'ctx str>) -> Self {
     Self {
-      namespace_parts,
+      namespace_parts: Rc::new(namespace_parts),
       ..self.clone()
     }
   }
@@ -59,8 +61,8 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_namespace_parts(&self) -> Vec<String> {
-    self.namespace_parts.clone()
+  pub fn get_namespace_parts(&self) -> &[&str] {
+    &self.namespace_parts
   }
 
   pub fn get_current_resolve(&self) -> UrlResolveKind {
@@ -78,7 +80,11 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      let mut parts = self.namespace_parts.clone();
+      let mut parts = self
+        .namespace_parts
+        .iter()
+        .map(|part| part.to_string())
+        .collect::<Vec<String>>();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);
@@ -254,5 +260,130 @@ impl<'ctx> RenderContext<'ctx> {
     };
 
     BreadcrumbsCtx { parts }
+  }
+}
+
+fn get_current_imports(
+  doc_nodes: &[crate::DocNode],
+) -> HashMap<String, String> {
+  let mut imports = HashMap::new();
+
+  for doc_node in doc_nodes {
+    if doc_node.kind == DocNodeKind::Import {
+      let import_def = doc_node.import_def.as_ref().unwrap();
+      // TODO: handle import aliasing
+      if import_def.imported.as_ref() == Some(&doc_node.name) {
+        imports.insert(doc_node.name.clone(), import_def.src.clone());
+      }
+    }
+  }
+
+  imports
+}
+
+#[cfg(test)]
+mod test {
+  use super::*;
+  use crate::html::setup_hbs;
+  use crate::html::setup_highlighter;
+  use crate::html::HrefResolver;
+  use crate::node::DeclarationKind;
+  use crate::node::ImportDef;
+  use crate::DocNode;
+  use crate::Location;
+
+  struct TestResolver();
+
+  impl HrefResolver for TestResolver {
+    fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
+      if symbol == ["bar"] {
+        Some("global$bar".to_string())
+      } else {
+        None
+      }
+    }
+
+    fn resolve_import_href(
+      &self,
+      symbol: &[String],
+      src: &str,
+    ) -> Option<String> {
+      Some(format!("{src}/{}", symbol.join(".")))
+    }
+
+    fn resolve_usage(
+      &self,
+      current_specifier: &deno_ast::ModuleSpecifier,
+      _current_file: Option<&ShortPath>,
+    ) -> Option<String> {
+      Some(current_specifier.to_string())
+    }
+
+    fn resolve_source(&self, location: &Location) -> Option<String> {
+      Some(location.filename.clone())
+    }
+  }
+
+  #[test]
+  fn lookup_symbol_href() {
+    let ctx = GenerateCtx {
+      package_name: None,
+      common_ancestor: None,
+      main_entrypoint: None,
+      specifiers: vec![],
+      hbs: setup_hbs().unwrap(),
+      highlight_adapter: setup_highlighter(false),
+      url_rewriter: None,
+      href_resolver: std::rc::Rc::new(TestResolver()),
+      usage_composer: None,
+      rewrite_map: None,
+      hide_module_doc_title: false,
+      single_file_mode: false,
+      sidebar_hide_all_symbols: false,
+      sidebar_flatten_namespaces: false,
+    };
+
+    let doc_nodes: Vec<DocNode> = vec![DocNode {
+      kind: DocNodeKind::Import,
+      name: "foo".to_string(),
+      location: Location {
+        filename: "a".to_string(),
+        line: 0,
+        col: 0,
+        byte_index: 0,
+      },
+      declaration_kind: DeclarationKind::Private,
+      js_doc: Default::default(),
+      function_def: None,
+      variable_def: None,
+      enum_def: None,
+      class_def: None,
+      type_alias_def: None,
+      namespace_def: None,
+      interface_def: None,
+      import_def: Some(ImportDef {
+        src: "b".to_string(),
+        imported: Some("foo".to_string()),
+      }),
+    }];
+
+    // globals
+    let render_ctx =
+      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root, None);
+    assert_eq!(render_ctx.lookup_symbol_href("bar").unwrap(), "global$bar");
+
+    // imports
+    let render_ctx =
+      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root, None);
+    assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
+
+    let short_path = ShortPath::from("a".to_string());
+    let render_ctx = RenderContext::new(
+      &ctx,
+      &doc_nodes,
+      UrlResolveKind::File(&short_path),
+      None,
+    );
+    assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
   }
 }

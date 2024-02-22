@@ -58,13 +58,16 @@ summary::-webkit-details-marker {
   @apply -ml-1.5;
 }
 
-/* doc classes */
 .anchorable {
   @apply relative;
 }
 
 .anchorable:hover .anchor {
   @apply block;
+}
+
+.usage pre.highlight {
+  @apply border border-gray-300;
 }
 
 /* markdown */

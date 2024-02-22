@@ -13,6 +13,7 @@ use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use futures::future;
 use indexmap::IndexMap;
+use std::borrow::Cow;
 use std::fs;
 use std::rc::Rc;
 
@@ -263,7 +264,7 @@ async fn symbol_group() {
       let short_path = ctx.url_to_short_path(specifier);
 
       let partitions_for_nodes =
-        get_partitions_for_file(&ctx, doc_nodes, &short_path);
+        get_partitions_for_file(&ctx, doc_nodes, Cow::Borrowed(&short_path));
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
