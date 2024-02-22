@@ -224,6 +224,10 @@ pub fn generate_symbol_page(
     }
   };
 
+  if doc_nodes.is_empty() {
+    return None;
+  }
+
   let sidepanel_ctx =
     SidepanelCtx::new(ctx, partitions_for_nodes, short_path, name);
 
