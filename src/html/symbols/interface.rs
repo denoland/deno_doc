@@ -15,8 +15,8 @@ pub(crate) fn render_interface(
   let current_type_params = interface_def
     .type_params
     .iter()
-    .map(|def| def.name.clone())
-    .collect::<std::collections::HashSet<String>>();
+    .map(|def| def.name.as_str())
+    .collect::<std::collections::HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
   let mut sections = vec![];

@@ -2,6 +2,7 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -153,9 +154,9 @@ impl From<String> for ShortPath {
 }
 
 #[derive(Clone, Debug)]
-pub struct DocNodeWithContext {
-  pub origin: Option<ShortPath>,
-  pub doc_node: DocNode,
+pub struct DocNodeWithContext<'a> {
+  pub origin: Option<Cow<'a, ShortPath>>,
+  pub doc_node: &'a DocNode,
 }
 
 pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
@@ -368,8 +369,8 @@ pub fn generate(
       .iter()
       .flat_map(|(specifier, nodes)| {
         nodes.iter().map(|node| DocNodeWithContext {
-          origin: Some(ctx.url_to_short_path(specifier)),
-          doc_node: node.clone(),
+          origin: Some(Cow::Owned(ctx.url_to_short_path(specifier))),
+          doc_node: node,
         })
       })
       .collect::<Vec<DocNodeWithContext>>();
@@ -388,7 +389,7 @@ pub fn generate(
       let short_path = ctx.url_to_short_path(specifier);
 
       let partitions_for_nodes =
-        get_partitions_for_file(&ctx, doc_nodes, &short_path);
+        get_partitions_for_file(&ctx, doc_nodes, Cow::Borrowed(&short_path));
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -455,15 +456,15 @@ pub fn generate(
   Ok(files)
 }
 
-pub fn get_partitions_for_file(
+pub fn get_partitions_for_file<'a>(
   ctx: &GenerateCtx,
-  doc_nodes: &[DocNode],
-  short_path: &ShortPath,
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  doc_nodes: &'a [DocNode],
+  short_path: Cow<'a, ShortPath>,
+) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
   let doc_nodes_with_context = doc_nodes
     .iter()
     .map(|node| DocNodeWithContext {
-      doc_node: node.clone(),
+      doc_node: node,
       origin: Some(short_path.clone()),
     })
     .collect::<Vec<_>>();
@@ -489,10 +490,10 @@ pub fn get_partitions_for_file(
   }
 }
 
-pub fn get_partitions_for_main_entrypoint(
+pub fn get_partitions_for_main_entrypoint<'a>(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  doc_nodes_by_url: &'a IndexMap<ModuleSpecifier, Vec<DocNode>>,
+) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
   let doc_nodes = ctx
     .main_entrypoint
     .as_ref()
@@ -502,7 +503,7 @@ pub fn get_partitions_for_main_entrypoint(
     get_partitions_for_file(
       ctx,
       doc_nodes,
-      &ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap()),
+      Cow::Owned(ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap())),
     )
   } else {
     Default::default()

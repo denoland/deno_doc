@@ -61,9 +61,6 @@ impl SymbolGroupCtx {
           super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
         let mut tags = HashSet::new();
-        if all_deprecated {
-          tags.insert(Tag::Deprecated);
-        }
 
         let permissions = doc_nodes
           .iter()
@@ -93,7 +90,10 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions));
         }
 
-        let deprecated = if all_deprecated {
+        let deprecated = if all_deprecated
+          && !(doc_nodes[0].kind == DocNodeKind::Function
+            && doc_nodes.len() == 1)
+        {
           doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
             if let JsDocTag::Deprecated { doc } = tag {
               Some(
@@ -173,8 +173,8 @@ impl DocBlockSubtitleCtx {
       let current_type_params = class_def
         .type_params
         .iter()
-        .map(|def| def.name.clone())
-        .collect::<HashSet<String>>();
+        .map(|def| def.name.as_str())
+        .collect::<HashSet<&str>>();
 
       let ctx = &ctx.with_current_type_params(current_type_params);
 
@@ -218,8 +218,8 @@ impl DocBlockSubtitleCtx {
       let current_type_params = interface_def
         .type_params
         .iter()
-        .map(|def| def.name.clone())
-        .collect::<HashSet<String>>();
+        .map(|def| def.name.as_str())
+        .collect::<HashSet<&str>>();
       let ctx = &ctx.with_current_type_params(current_type_params);
 
       let extends = interface_def
@@ -269,21 +269,18 @@ impl SymbolInnerCtx {
 
         DocNodeKind::Namespace => {
           let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+          let namespace_nodes = namespace_def
+            .elements
+            .iter()
+            .map(|node| DocNodeWithContext {
+              doc_node: node,
+              origin: None,
+            })
+            .collect::<Vec<_>>();
 
-          let partitions = partition_nodes_by_kind(
-            &namespace_def
-              .elements
-              .iter()
-              .map(|node| DocNodeWithContext {
-                doc_node: node.clone(),
-                origin: None,
-              })
-              .collect::<Vec<_>>(),
-            false,
-          );
+          let partitions = partition_nodes_by_kind(&namespace_nodes, false);
 
-          let ns_parts =
-            name.split('.').map(String::from).collect::<Vec<String>>();
+          let ns_parts = name.split('.').collect::<Vec<&str>>();
 
           namespace::render_namespace(&ctx.with_namespace(ns_parts), partitions)
         }
