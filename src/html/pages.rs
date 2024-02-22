@@ -175,7 +175,7 @@ pub fn generate_symbol_pages_for_module(
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let name_partitions = partition_nodes_by_name(doc_nodes);
 
-  generate_symbol_pages(
+  generate_symbol_pages_inner(
     ctx,
     doc_nodes,
     partitions_for_nodes,
@@ -186,7 +186,61 @@ pub fn generate_symbol_pages_for_module(
   )
 }
 
-fn generate_symbol_pages(
+pub fn generate_symbol_page(
+  ctx: &GenerateCtx,
+  current_specifier: &ModuleSpecifier,
+  short_path: &ShortPath,
+  partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
+  doc_nodes_for_module: &[DocNode],
+  name: &str,
+) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
+  let mut name_parts = name.split('.').peekable();
+
+  let mut doc_nodes = doc_nodes_for_module;
+
+  let mut namespace_paths = vec![];
+
+  let doc_nodes = loop {
+    let next_part = name_parts.next()?;
+    let mut nodes = doc_nodes.iter().filter(|node| {
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
+      {
+        return false;
+      }
+      node.name == next_part
+    });
+    if name_parts.peek().is_none() {
+      break nodes.cloned().collect::<Vec<_>>();
+    }
+    namespace_paths.push(next_part.to_string());
+    if let Some(namespace) =
+      nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
+    {
+      let namespace = namespace.namespace_def.as_ref().unwrap();
+      doc_nodes = &namespace.elements;
+    } else {
+      return None;
+    }
+  };
+
+  let sidepanel_ctx =
+    SidepanelCtx::new(ctx, partitions_for_nodes, short_path, name);
+
+  let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
+    ctx,
+    doc_nodes_for_module,
+    current_specifier,
+    short_path,
+    &namespace_paths,
+    name,
+    &doc_nodes,
+  );
+
+  Some((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx))
+}
+
+fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNode],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
@@ -239,7 +293,7 @@ fn generate_symbol_pages(
         ns_paths
       };
 
-      let generated = generate_symbol_pages(
+      let generated = generate_symbol_pages_inner(
         ctx,
         doc_nodes_for_module,
         partitions_for_nodes,

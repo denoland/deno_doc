@@ -23,6 +23,7 @@ mod types;
 mod usage;
 mod util;
 
+pub use pages::generate_symbol_page;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
