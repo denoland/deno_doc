@@ -2,6 +2,7 @@ use crate::html::util::BreadcrumbCtx;
 use crate::html::util::BreadcrumbsCtx;
 use crate::html::util::NamespacedSymbols;
 use crate::html::GenerateCtx;
+use crate::html::ShortPath;
 use crate::html::UrlResolveKind;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
@@ -101,10 +102,11 @@ impl<'ctx> RenderContext<'ctx> {
         self.ctx.href_resolver.resolve_path(
           self.get_current_resolve(),
           UrlResolveKind::Symbol {
-            file: self
+            file: &self
               .get_current_resolve()
               .get_file()
-              .expect("is in file because has exports"),
+              .cloned()
+              .unwrap_or_else(|| ShortPath::from(String::from("."))),
             symbol: &target_symbol_parts.join("."),
           },
         ),
