@@ -296,7 +296,7 @@ mod test {
 
   impl HrefResolver for TestResolver {
     fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
-      if symbol == &["bar"] {
+      if symbol == ["bar"] {
         Some("global$bar".to_string())
       } else {
         None
