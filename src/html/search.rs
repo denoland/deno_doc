@@ -105,7 +105,7 @@ fn doc_node_into_search_index_nodes_inner(
       continue;
     }
 
-    let entry = grouped_nodes.entry(node.name.clone()).or_insert(vec![]);
+    let entry = grouped_nodes.entry(node.name.clone()).or_default();
     if !entry.iter().any(|n| n.kind == node.kind) {
       entry.push(node);
     }
@@ -201,9 +201,7 @@ pub fn generate_search_index(
       continue;
     }
 
-    let entry = grouped_nodes
-      .entry(node.doc_node.name.clone())
-      .or_insert(vec![]);
+    let entry = grouped_nodes.entry(node.doc_node.name.clone()).or_default();
     if !entry.iter().any(|n| n.doc_node.kind == node.doc_node.kind) {
       entry.push(node);
     }

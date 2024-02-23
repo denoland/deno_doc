@@ -533,9 +533,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.69.0"
+version = "0.69.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98448adebbc12b8b1fc0eb42ce06cf3830dff0dcb48f3276039360b90405612f"
+checksum = "2798952afefd96567e93e15db4817f083cac81712210c92b8179bd0bfa0c2222"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -959,12 +959,13 @@ dependencies = [
 
 [[package]]
 name = "import_map"
-version = "0.18.0"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ecd467768fe83c2860e70e5de5297a7366a230ff53e1da2158bdac2384cd39d"
+checksum = "696717335b077e26921a60be7b7bdc15d1246074f1ac79d9e8560792535f7d07"
 dependencies = [
- "indexmap 1.9.3",
+ "indexmap 2.1.0",
  "log",
+ "percent-encoding",
  "serde",
  "serde_json",
  "url",
@@ -978,7 +979,6 @@ checksum = "bd070e393353796e801d209ad339e89596eb4c8d430d18ede6a1cced8fafbd99"
 dependencies = [
  "autocfg",
  "hashbrown 0.12.3",
- "serde",
 ]
 
 [[package]]

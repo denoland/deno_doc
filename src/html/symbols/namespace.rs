@@ -69,7 +69,7 @@ pub fn partition_nodes_by_kind<'a>(
 
         nodes.push(node.clone());
       } else {
-        let entry = partitions.entry(node.doc_node.kind).or_insert(vec![]);
+        let entry = partitions.entry(node.doc_node.kind).or_default();
         if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
           entry.push(node.clone());
         }
@@ -163,7 +163,7 @@ pub fn partition_nodes_by_category<'a>(
         })
         .unwrap_or(String::from("Uncategorized"));
 
-      let entry = partitions.entry(category).or_insert(vec![]);
+      let entry = partitions.entry(category).or_default();
 
       if !entry.iter().any(|n| {
         n.doc_node.name == node.doc_node.name
