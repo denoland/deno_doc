@@ -19,6 +19,7 @@ use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use deno_graph::Range;
 use import_map::ImportMap;
+use import_map::ImportMapOptions;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
@@ -190,7 +191,15 @@ async fn inner_doc(
     {
       let text = String::from_utf8(content.to_vec())
         .context("Failed decoding import map.")?;
-      let result = import_map::parse_from_json(&specifier, &text)?;
+      let result = import_map::parse_from_json_with_options(
+        &specifier,
+        &text,
+        ImportMapOptions {
+          address_hook: None,
+          // always do this for simplicity
+          expand_imports: true,
+        },
+      )?;
       if print_import_map_diagnostics && !result.diagnostics.is_empty() {
         console_warn!(
           "Import map diagnostics:\n{}",
