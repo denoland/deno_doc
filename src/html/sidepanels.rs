@@ -102,6 +102,7 @@ impl SidepanelCtx {
 struct IndexSidepanelFileCtx {
   name: String,
   href: String,
+  active: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -129,9 +130,6 @@ impl IndexSidepanelCtx {
           .as_ref()
           .map(|main_entrypoint| *url != main_entrypoint)
           .unwrap_or(true)
-          && current_entrypoint
-            .map(|current_entrypoint| *url != current_entrypoint)
-            .unwrap_or(true)
       })
       .map(|url| {
         let short_path = ctx.url_to_short_path(url);
@@ -147,6 +145,8 @@ impl IndexSidepanelCtx {
             },
           ),
           name: short_path.to_name(),
+          active: current_entrypoint
+            .is_some_and(|current_entrypoint| current_entrypoint == url),
         }
       })
       .collect::<Vec<_>>();
