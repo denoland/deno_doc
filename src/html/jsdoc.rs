@@ -388,7 +388,7 @@ impl ModuleDocCtx {
       );
 
       sections.extend(super::namespace::render_namespace(
-        &render_ctx,
+        render_ctx,
         partitions_by_kind,
       ));
     }
