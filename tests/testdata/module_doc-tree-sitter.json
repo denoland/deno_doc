@@ -12,10 +12,11 @@
         }
       ]
     },
-    "examples": null,
-    "docs": {
-      "html": "<div class=\"markdown flex-1\"><p>Some docs</p>\n</div>",
-      "toc": null
+    "toc": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": "<div class=\"markdown flex-1\"><p>Some docs</p>\n</div>",
+      "sections": []
     }
   },
   {
@@ -31,7 +32,37 @@
         }
       ]
     },
-    "examples": null,
-    "docs": null
+    "toc": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
+      "sections": [
+        {
+          "title": "Functions",
+          "content": {
+            "kind": "namespace_section",
+            "content": [
+              {
+                "tags": [],
+                "doc_node_kind_ctx": [
+                  {
+                    "kind": "Function",
+                    "char": "f",
+                    "title": "Function",
+                    "title_lowercase": "function",
+                    "title_plural": "Functions"
+                  }
+                ],
+                "origin_name": null,
+                "href": "../.././foo/~/x.html",
+                "name": "x",
+                "docs": null,
+                "deprecated": false
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

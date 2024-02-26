@@ -316,8 +316,8 @@ pub struct ModuleDocCtx {
   pub title: Option<String>,
   pub deprecated: Option<String>,
   pub usages: Option<UsagesCtx>,
-  pub examples: Option<SectionCtx>,
-  pub docs: Option<Markdown>,
+  pub toc: Option<String>,
+  pub sections: super::SymbolContentCtx,
 }
 
 impl ModuleDocCtx {
@@ -334,7 +334,9 @@ impl ModuleDocCtx {
       None
     };
 
-    let (deprecated, examples, docs) = if let Some(node) = module_doc_nodes
+    let mut sections = vec![];
+
+    let (deprecated, html, toc) = if let Some(node) = module_doc_nodes
       .iter()
       .find(|n| n.kind == DocNodeKind::ModuleDoc)
     {
@@ -346,25 +348,61 @@ impl ModuleDocCtx {
         }
       });
 
-      let examples = jsdoc_examples(render_ctx, &node.js_doc);
+      if let Some(examples) = jsdoc_examples(render_ctx, &node.js_doc) {
+        sections.push(examples);
+      }
 
-      let docs = node
+      let (html, toc) = if let Some(markdown) = node
         .js_doc
         .doc
         .as_ref()
-        .map(|doc| markdown_to_html(render_ctx, doc, false, true));
+        .map(|doc| markdown_to_html(render_ctx, doc, false, true))
+      {
+        (Some(markdown.html), markdown.toc)
+      } else {
+        (None, None)
+      };
 
-      (deprecated, examples, docs)
+      (deprecated, html, toc)
     } else {
       (None, None, None)
     };
+
+    if !render_ctx
+      .ctx
+      .main_entrypoint
+      .as_ref()
+      .is_some_and(|main_entrypoint| main_entrypoint == specifier)
+    {
+      let module_doc_nodes_with_context = module_doc_nodes
+        .iter()
+        .map(|node| crate::html::DocNodeWithContext {
+          origin: None,
+          doc_node: node,
+        })
+        .collect::<Vec<_>>();
+
+      let partitions_by_kind = super::namespace::partition_nodes_by_kind(
+        &module_doc_nodes_with_context,
+        true,
+      );
+
+      sections.extend(super::namespace::render_namespace(
+        &render_ctx,
+        partitions_by_kind,
+      ));
+    }
 
     Self {
       title,
       deprecated,
       usages: UsagesCtx::new(render_ctx, &[]),
-      examples,
-      docs,
+      toc,
+      sections: super::SymbolContentCtx {
+        id: "module_doc".to_string(),
+        docs: html,
+        sections,
+      },
     }
   }
 }

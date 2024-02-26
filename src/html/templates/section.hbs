@@ -1,5 +1,7 @@
 <div>
   <h2 class="text-xl leading-6 font-semibold py-1 mb-4">{{title}}</h2>
+  {{print "foo"}}
+  {{print this}}
 
   {{~#if (eq content.kind "namespace_section")~}}
     {{~> namespace_section content.content ~}}

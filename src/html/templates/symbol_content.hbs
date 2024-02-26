@@ -1,5 +1,7 @@
 <div class="space-y-7" id="{{id}}">
-  {{{~docs~}}}
+  {{~#if docs~}}
+    {{{~docs~}}}
+  {{~/if~}}
 
   {{~#each sections~}}
     {{~> section this ~}}
