@@ -334,7 +334,7 @@ impl ModuleDocCtx {
       None
     };
 
-    let mut sections = vec![];
+    let mut sections = Vec::with_capacity(7);
 
     let (deprecated, html, toc) = if let Some(node) = module_doc_nodes
       .iter()

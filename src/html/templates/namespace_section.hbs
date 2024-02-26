@@ -1,7 +1,4 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  {{print "bar"}}
-  {{print this}}
-
   {{~#each this~}}
     <div class="space-y-2 {{#if this.deprecated}}opacity-60{{/if}}">
       <div class="flex gap-2 items-center">
