@@ -23,7 +23,7 @@ mod r#enum;
 mod function;
 mod interface;
 pub mod js_doc;
-mod node;
+pub mod node;
 mod params;
 mod parser;
 mod ts_type;
