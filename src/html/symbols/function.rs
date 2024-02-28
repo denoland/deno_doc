@@ -16,7 +16,10 @@ fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
   let (bg_color, border_color) = if deprecated {
     ("#D256460C", "#DC2626")
   } else {
-    ("var(--ddoc-selection-selected-bg)", "var(--ddoc-selection-selected-border-color)")
+    (
+      "var(--ddoc-selection-selected-bg)",
+      "var(--ddoc-selection-selected-border-color)",
+    )
   };
 
   format!(
