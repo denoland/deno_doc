@@ -16,7 +16,7 @@ fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
   let (bg_color, border_color) = if deprecated {
     ("#D256460C", "#DC2626")
   } else {
-    ("#056CF00C", "#2564EB")
+    ("var(--ddoc-selection-selected-bg)", "var(--ddoc-selection-selected-border-color)")
   };
 
   format!(
@@ -29,9 +29,9 @@ fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
 }}
 #{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
   background-color: {bg_color};
-  border: solid 2px {border_color};
+  border: solid var(--ddoc-selection-border-width) {border_color};
   cursor: unset;
-  padding: 9px 15px; /* 1px less to counter the increased border */
+  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */
 }}
 "#
   )

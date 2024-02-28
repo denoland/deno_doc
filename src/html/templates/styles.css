@@ -5,9 +5,12 @@ summary::-webkit-details-marker {
   @apply hidden;
 }
 
-
-:root {
-  --general-border-radius: 8px;
+& {
+  --ddoc-selection-border-width: 2px;
+  --ddoc-selection-border-color-default: #d6d3d1;
+  --ddoc-selection-selected-border-color: #2564eb;
+  --ddoc-selection-selected-bg: #056cf00c;
+  --ddoc-selection-padding: 9px 15px;
 }
 
 .link {
@@ -22,7 +25,10 @@ summary::-webkit-details-marker {
   @apply shrink-0 box-border lg:h-screen lg:sticky lg:top-0 lg:left-0 lg:overflow-y-auto lg:overscroll-y-contain;
   scrollbar-width: thin;
 }
-#sidepanel label, #sidepanel a, #sidepanel .title, #sidepanel .subtitle {
+#sidepanel label,
+#sidepanel a,
+#sidepanel .title,
+#sidepanel .subtitle {
   @apply py-1.5 pr-4 pl-2;
 }
 #sidepanel .subtitle {
@@ -50,7 +56,8 @@ summary::-webkit-details-marker {
   @apply py-1;
 }
 
-#sidepanel a:hover, #sidepanel a.active {
+#sidepanel a:hover,
+#sidepanel a.active {
   @apply bg-stone-200;
 }
 
@@ -106,7 +113,8 @@ summary::-webkit-details-marker {
     @apply m-2 border-stone-500;
   }
 
-  ol, ul {
+  ol,
+  ul {
     @apply list-outside ml-4;
   }
 
@@ -123,7 +131,12 @@ summary::-webkit-details-marker {
     @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
   }
 
-  h1 > code, h2 > code, h3 > code, h4 > code, h5 > code, h6 > code {
+  h1 > code,
+  h2 > code,
+  h3 > code,
+  h4 > code,
+  h5 > code,
+  h6 > code {
     font-size: inherit !important;
   }
 

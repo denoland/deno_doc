@@ -285,7 +285,7 @@
                   {
                     "function_id": "function_x",
                     "overload_id": "function_x_0",
-                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: #056CF00C;\n  border: solid 2px #2564EB;\n  cursor: unset;\n  padding: 9px 15px; /* 1px less to counter the increased border */\n}\n",
+                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n",
                     "html_attrs": "checked",
                     "name": "x",
                     "deprecated": null,
