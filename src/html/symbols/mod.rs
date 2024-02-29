@@ -235,7 +235,7 @@ impl DocBlockSubtitleCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Default)]
 pub struct SymbolContentCtx {
   pub id: String,
   pub docs: Option<String>,

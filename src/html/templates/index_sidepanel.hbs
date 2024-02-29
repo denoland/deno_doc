@@ -11,7 +11,9 @@
       <ul>
         {{#each files}}
           <li>
-            <a href="{{this.href}}" title="{{this.name}}"><span>{{this.name}}</span></a>
+            <a href="{{this.href}}" title="{{this.name}}" {{#if this.active}}class="active"{{/if}}>
+              <span>{{this.name}}</span>
+            </a>
           </li>
         {{~/each~}}
       </ul>

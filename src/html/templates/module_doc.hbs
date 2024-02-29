@@ -1,5 +1,5 @@
-<section {{#if docs.toc}}class="flex max-lg:flex-col-reverse gap-6"{{/if}}>
-  <div class="space-y-2 flex-1 {{#if docs.toc}}min-w-0{{/if}}">
+<section {{#if toc}}class="flex max-lg:flex-col-reverse gap-6"{{/if}}>
+  <div class="space-y-2 flex-1 {{#if toc}}min-w-0{{/if}}">
     {{~#if title~}}
       <h2 class="text-lg font-semibold font-mono">{{title}}</h2>
       <hr class="mt-2 mb-4" />
@@ -11,18 +11,12 @@
       {{~> usages usages ~}}
     {{~/if~}}
 
-    {{~#if docs~}}
-      {{{docs.html}}}
-    {{~/if~}}
-
-    {{~#if examples~}}
-      {{~> section examples }}
-    {{~/if~}}
+    {{~> symbol_content sections ~}}
   </div>
 
-  {{~#if docs.toc~}}
+  {{~#if toc~}}
     <nav class="flex-none max-w-52 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border">
-      {{{~docs.toc~}}}
+      {{{~toc~}}}
     </nav>
   {{~/if~}}
 </section>

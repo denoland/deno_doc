@@ -12,7 +12,7 @@
         {{~/if~}} --}}
         {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
 
-        <div class="flex justify-between gap-4 grow items-end">
+        <div class="flex justify-between gap-4 flex-1 min-w-0 items-end">
           <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden {{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}" title="{{this.name}}">
             {{~this.name~}}
           </a>
