@@ -155,6 +155,7 @@ fn doc_node_into_search_index_nodes_inner(
         &el_nodes[0].name,
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
+          namespace: None,
           doc_node: el_nodes[0],
         }],
         ns_qualifiers_.clone(),
@@ -185,6 +186,7 @@ pub fn generate_search_index(
     .flat_map(|(specifier, nodes)| {
       nodes.iter().map(|node| DocNodeWithContext {
         origin: Some(std::borrow::Cow::Owned(ctx.url_to_short_path(specifier))),
+        namespace: None,
         doc_node: node,
       })
     })

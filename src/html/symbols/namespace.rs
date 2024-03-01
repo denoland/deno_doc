@@ -27,6 +27,7 @@ pub fn partition_nodes_by_kind<'a>(
   fn partition_nodes_by_kind_inner<'b>(
     partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext<'b>>>,
     doc_nodes: &[DocNodeWithContext<'b>],
+    namespace: Vec<String>,
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
@@ -41,6 +42,8 @@ pub fn partition_nodes_by_kind<'a>(
 
       if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
         let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+        let mut namespace = namespace.clone();
+        namespace.push(node.doc_node.name.clone());
 
         partition_nodes_by_kind_inner(
           partitions,
@@ -49,9 +52,11 @@ pub fn partition_nodes_by_kind<'a>(
             .iter()
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
+              namespace: Some(namespace.clone()),
               doc_node: element,
             })
             .collect::<Vec<_>>(),
+          namespace,
           true,
         );
       }
@@ -80,7 +85,12 @@ pub fn partition_nodes_by_kind<'a>(
   let mut partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>> =
     IndexMap::default();
 
-  partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
+  partition_nodes_by_kind_inner(
+    &mut partitions,
+    doc_nodes,
+    vec![],
+    flatten_namespaces,
+  );
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(|node1, node2| {
@@ -121,6 +131,7 @@ pub fn partition_nodes_by_category<'a>(
   fn partition_nodes_by_category_inner<'b>(
     partitions: &mut IndexMap<String, Vec<DocNodeWithContext<'b>>>,
     doc_nodes: &[DocNodeWithContext<'b>],
+    namespace: Vec<String>,
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
@@ -135,6 +146,9 @@ pub fn partition_nodes_by_category<'a>(
 
       if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
         let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+        let mut namespace = namespace.clone();
+        namespace.push(node.doc_node.name.clone());
+
         partition_nodes_by_category_inner(
           partitions,
           &namespace_def
@@ -142,9 +156,11 @@ pub fn partition_nodes_by_category<'a>(
             .iter()
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
+              namespace: Some(namespace.clone()),
               doc_node: element,
             })
             .collect::<Vec<_>>(),
+          namespace,
           true,
         )
       }
@@ -180,6 +196,7 @@ pub fn partition_nodes_by_category<'a>(
   partition_nodes_by_category_inner(
     &mut partitions,
     doc_nodes,
+    vec![],
     flatten_namespaces,
   );
 
@@ -213,7 +230,11 @@ fn get_namespace_section_render_ctx(
 
   for node in doc_nodes {
     let entry = grouped_nodes
-      .entry(node.doc_node.name.clone())
+      .entry(if let Some(namespace) = &node.namespace {
+        format!("{}.{}", namespace.join("."), node.doc_node.name)
+      } else {
+        node.doc_node.name.clone()
+      })
       .or_insert(vec![]);
     entry.push(node);
   }

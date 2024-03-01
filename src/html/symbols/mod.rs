@@ -274,6 +274,7 @@ impl SymbolInnerCtx {
             .iter()
             .map(|node| DocNodeWithContext {
               doc_node: node,
+              namespace: None,
               origin: None,
             })
             .collect::<Vec<_>>();

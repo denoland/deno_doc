@@ -378,6 +378,7 @@ impl ModuleDocCtx {
         .iter()
         .map(|node| crate::html::DocNodeWithContext {
           origin: None,
+          namespace: None,
           doc_node: node,
         })
         .collect::<Vec<_>>();
