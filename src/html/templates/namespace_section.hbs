@@ -12,13 +12,13 @@
         {{~/if~}} --}}
         {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
 
-        <div class="flex justify-between gap-4 flex-1 min-w-0 items-end">
-          <a href="{{this.href}}" class="leading-none whitespace-nowrap text-ellipsis overflow-hidden {{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}" title="{{this.name}}">
+        <div class="flex justify-between gap-4 flex-1 min-w-0 items-end overflow-hidden">
+          <a href="{{this.href}}" class="leading-none truncate {{#if this.deprecated}}line-through decoration-2 decoration-stone-500/70 text-stone-500{{/if}}" title="{{this.name}}">
             {{~this.name~}}
           </a>
 
           {{~#if this.origin_name~}}
-            <div class="text-xs italic lg:mr-4 whitespace-nowrap text-stone-400 truncate" title="{{this.origin_name}}">from {{this.origin_name}}</div>
+            <div class="text-xs italic lg:mr-4 text-stone-400 truncate" title="{{this.origin_name}}">from {{this.origin_name}}</div>
           {{~/if~}}
         </div>
       </div>
