@@ -243,6 +243,8 @@ impl Display for ClassMethodDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassDef {
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub default_name: Option<String>,
   pub is_abstract: bool,
   pub constructors: Vec<ClassConstructorDef>,
   pub properties: Vec<ClassPropertyDef>,
@@ -259,6 +261,7 @@ pub struct ClassDef {
 pub fn class_to_class_def(
   parsed_source: &ParsedSource,
   class: &deno_ast::swc::ast::Class,
+  default_name: Option<String>,
 ) -> (ClassDef, JsDoc) {
   use deno_ast::swc::ast::Expr;
 
@@ -361,8 +364,11 @@ pub fn class_to_class_def(
         {
           let method_name =
             prop_name_to_string(Some(parsed_source), &class_method.key);
-          let fn_def =
-            function_to_function_def(parsed_source, &class_method.function);
+          let fn_def = function_to_function_def(
+            parsed_source,
+            &class_method.function,
+            None,
+          );
           let method_def = ClassMethodDef {
             js_doc: method_js_doc,
             accessibility: class_method.accessibility,
@@ -467,6 +473,7 @@ pub fn class_to_class_def(
 
   (
     ClassDef {
+      default_name,
       is_abstract: class.is_abstract,
       extends,
       implements,
@@ -488,7 +495,7 @@ pub fn get_doc_for_class_decl(
 ) -> (String, ClassDef, JsDoc) {
   let class_name = class_decl.ident.sym.to_string();
   let (class_def, js_doc) =
-    class_to_class_def(parsed_source, &class_decl.class);
+    class_to_class_def(parsed_source, &class_decl.class, None);
 
   (class_name, class_def, js_doc)
 }

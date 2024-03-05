@@ -58,6 +58,7 @@ impl From<InterfaceMethodDef> for DocNode {
       DeclarationKind::Private,
       def.js_doc,
       FunctionDef {
+        default_name: None,
         params: def.params,
         return_type: def.return_type,
         has_body: false,
@@ -176,6 +177,8 @@ pub struct InterfaceCallSignatureDef {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceDef {
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub default_name: Option<String>,
   pub extends: Vec<TsTypeDef>,
   pub methods: Vec<InterfaceMethodDef>,
   pub properties: Vec<InterfacePropertyDef>,
@@ -228,6 +231,7 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
 pub fn get_doc_for_ts_interface_decl(
   parsed_source: &ParsedSource,
   interface_decl: &deno_ast::swc::ast::TsInterfaceDecl,
+  default_name: Option<String>,
 ) -> (String, InterfaceDef) {
   let interface_name = interface_decl.id.sym.to_string();
 
@@ -459,6 +463,7 @@ pub fn get_doc_for_ts_interface_decl(
     .collect::<Vec<TsTypeDef>>();
 
   let interface_def = InterfaceDef {
+    default_name,
     extends,
     methods,
     properties,

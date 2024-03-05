@@ -17,6 +17,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FunctionDef {
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub default_name: Option<String>,
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
   #[serde(skip_serializing_if = "is_false", default)]
@@ -31,6 +33,7 @@ pub struct FunctionDef {
 pub fn function_to_function_def(
   parsed_source: &ParsedSource,
   function: &deno_ast::swc::ast::Function,
+  default_name: Option<String>,
 ) -> FunctionDef {
   let params = function
     .params
@@ -71,6 +74,7 @@ pub fn function_to_function_def(
   let decorators = decorators_to_defs(parsed_source, &function.decorators);
 
   FunctionDef {
+    default_name,
     params,
     return_type: maybe_return_type,
     has_body,
@@ -86,7 +90,7 @@ pub fn get_doc_for_fn_decl(
   fn_decl: &deno_ast::swc::ast::FnDecl,
 ) -> (String, FunctionDef) {
   let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(parsed_source, &fn_decl.function);
+  let fn_def = function_to_function_def(parsed_source, &fn_decl.function, None);
   (name, fn_def)
 }
 
