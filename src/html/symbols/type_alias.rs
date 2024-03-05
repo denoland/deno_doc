@@ -16,7 +16,7 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let id = name_to_id("typeAlias", &doc_node.name);
+  let id = name_to_id("typeAlias", doc_node.get_name());
 
   // TODO: tags, TypeParamsDoc
 

@@ -62,7 +62,7 @@ impl SidepanelCtx {
 
         for node in nodes {
           let entry = grouped_nodes
-            .entry(node.doc_node.name.clone())
+            .entry(node.doc_node.get_name())
             .or_insert(vec![]);
           entry.push(node);
         }
@@ -77,10 +77,10 @@ impl SidepanelCtx {
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
                   file: nodes[0].origin.as_ref().unwrap(),
-                  symbol: &node_name,
+                  symbol: node_name,
                 },
               ),
-              node_name,
+              node_name.to_string(),
             )
           })
           .collect::<Vec<_>>();
@@ -158,7 +158,7 @@ impl IndexSidepanelCtx {
 
         for node in &nodes {
           let entry = grouped_nodes
-            .entry(node.doc_node.name.clone())
+            .entry(node.doc_node.get_name())
             .or_insert(vec![]);
           entry.push(node);
         }
@@ -173,10 +173,10 @@ impl IndexSidepanelCtx {
                 current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
                   file: nodes[0].origin.as_ref().unwrap(),
-                  symbol: &node_name,
+                  symbol: node_name,
                 },
               ),
-              node_name,
+              node_name.to_string(),
             )
           })
           .collect::<Vec<_>>();

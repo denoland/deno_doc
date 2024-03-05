@@ -272,8 +272,8 @@ fn get_current_imports(
     if doc_node.kind == DocNodeKind::Import {
       let import_def = doc_node.import_def.as_ref().unwrap();
       // TODO: handle import aliasing
-      if import_def.imported.as_ref() == Some(&doc_node.name) {
-        imports.insert(doc_node.name.clone(), import_def.src.clone());
+      if import_def.imported.as_deref() == Some(doc_node.get_name()) {
+        imports.insert(doc_node.get_name().to_string(), import_def.src.clone());
       }
     }
   }

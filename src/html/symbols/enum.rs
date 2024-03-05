@@ -13,8 +13,10 @@ pub(crate) fn render_enum(
   let items = members
     .into_iter()
     .map(|member| {
-      let id =
-        name_to_id("enum", &format!("{}_{}", &doc_node.name, &member.name));
+      let id = name_to_id(
+        "enum",
+        &format!("{}_{}", doc_node.get_name(), &member.name),
+      );
 
       let tags = Tag::from_js_doc(&member.js_doc);
 

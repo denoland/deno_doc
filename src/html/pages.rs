@@ -208,7 +208,7 @@ pub fn generate_symbol_page(
       {
         return false;
       }
-      node.name == next_part
+      node.get_name() == next_part
     });
     if name_parts.peek().is_none() {
       break nodes.cloned().collect::<Vec<_>>();
