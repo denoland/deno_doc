@@ -18,11 +18,12 @@ struct SearchIndexNode {
   deprecated: bool,
 }
 
-fn doc_node_into_search_index_nodes_inner(
+/// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
+/// node is flattened into a list of its elements.
+fn doc_node_into_search_index_nodes(
   ctx: &GenerateCtx,
   name: &str,
   doc_nodes: &[&DocNodeWithContext],
-  ns_qualifiers: Vec<String>,
 ) -> Vec<SearchIndexNode> {
   let kinds = doc_nodes.iter().map(|node| node.doc_node.kind).collect();
 
@@ -33,10 +34,10 @@ fn doc_node_into_search_index_nodes_inner(
       .collect::<Vec<_>>(),
   );
 
-  let name = if ns_qualifiers.is_empty() {
+  let name = if doc_nodes[0].ns_qualifiers.is_empty() {
     name.to_string()
   } else {
-    format!("{}.{}", ns_qualifiers.join("."), name)
+    format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
   };
 
   if !matches!(doc_nodes[0].doc_node.kind, DocNodeKind::Namespace) {
@@ -112,7 +113,7 @@ fn doc_node_into_search_index_nodes_inner(
   }
 
   for (el_name, el_nodes) in &grouped_nodes {
-    let mut ns_qualifiers_ = ns_qualifiers.clone();
+    let mut ns_qualifiers_ = (*doc_nodes[0].ns_qualifiers).clone();
     ns_qualifiers_.push(ns_name.to_string());
 
     let mut location = el_nodes[0].location.clone();
@@ -150,15 +151,14 @@ fn doc_node_into_search_index_nodes_inner(
     });
 
     if el_nodes[0].kind == DocNodeKind::Namespace {
-      nodes.extend_from_slice(&doc_node_into_search_index_nodes_inner(
+      nodes.extend_from_slice(&doc_node_into_search_index_nodes(
         ctx,
         &el_nodes[0].name,
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
-          namespace: None,
+          ns_qualifiers: std::rc::Rc::new(ns_qualifiers_),
           doc_node: el_nodes[0],
         }],
-        ns_qualifiers_.clone(),
       ));
     }
   }
@@ -166,27 +166,16 @@ fn doc_node_into_search_index_nodes_inner(
   nodes
 }
 
-/// A single DocNode can produce multiple SearchIndexNode - eg. a namespace
-/// node is flattened into a list of its elements.
-fn doc_node_into_search_index_nodes(
-  ctx: &GenerateCtx,
-  name: &str,
-  doc_nodes: &[&DocNodeWithContext],
-) -> Vec<SearchIndexNode> {
-  doc_node_into_search_index_nodes_inner(ctx, name, doc_nodes, vec![])
-}
-
 pub fn generate_search_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<crate::DocNode>>,
 ) -> serde_json::Value {
-  // TODO(bartlomieju): remove
   let doc_nodes = doc_nodes_by_url
     .iter()
     .flat_map(|(specifier, nodes)| {
       nodes.iter().map(|node| DocNodeWithContext {
         origin: Some(std::borrow::Cow::Owned(ctx.url_to_short_path(specifier))),
-        namespace: None,
+        ns_qualifiers: std::rc::Rc::new(vec![]),
         doc_node: node,
       })
     })
