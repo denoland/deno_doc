@@ -156,6 +156,7 @@ impl From<String> for ShortPath {
 #[derive(Clone, Debug)]
 pub struct DocNodeWithContext<'a> {
   pub origin: Option<Cow<'a, ShortPath>>,
+  pub ns_qualifiers: Rc<Vec<String>>,
   pub doc_node: &'a DocNode,
 }
 
@@ -370,6 +371,7 @@ pub fn generate(
       .flat_map(|(specifier, nodes)| {
         nodes.iter().map(|node| DocNodeWithContext {
           origin: Some(Cow::Owned(ctx.url_to_short_path(specifier))),
+          ns_qualifiers: Rc::new(vec![]),
           doc_node: node,
         })
       })
@@ -466,6 +468,7 @@ pub fn get_partitions_for_file<'a>(
     .map(|node| DocNodeWithContext {
       doc_node: node,
       origin: Some(short_path.clone()),
+      ns_qualifiers: Rc::new(vec![]),
     })
     .collect::<Vec<_>>();
 

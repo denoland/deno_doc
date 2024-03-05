@@ -274,6 +274,7 @@ impl SymbolInnerCtx {
             .iter()
             .map(|node| DocNodeWithContext {
               doc_node: node,
+              ns_qualifiers: std::rc::Rc::new(vec![]),
               origin: None,
             })
             .collect::<Vec<_>>();

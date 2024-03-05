@@ -41,6 +41,10 @@ pub fn partition_nodes_by_kind<'a>(
 
       if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
         let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+        let mut namespace = (*node.ns_qualifiers).clone();
+        namespace.push(node.doc_node.name.clone());
+
+        let ns_qualifiers = std::rc::Rc::new(namespace);
 
         partition_nodes_by_kind_inner(
           partitions,
@@ -49,6 +53,7 @@ pub fn partition_nodes_by_kind<'a>(
             .iter()
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
+              ns_qualifiers: ns_qualifiers.clone(),
               doc_node: element,
             })
             .collect::<Vec<_>>(),
@@ -135,6 +140,11 @@ pub fn partition_nodes_by_category<'a>(
 
       if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
         let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+        let mut namespace = (*node.ns_qualifiers).clone();
+        namespace.push(node.doc_node.name.clone());
+
+        let ns_qualifiers = std::rc::Rc::new(namespace);
+
         partition_nodes_by_category_inner(
           partitions,
           &namespace_def
@@ -142,6 +152,7 @@ pub fn partition_nodes_by_category<'a>(
             .iter()
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
+              ns_qualifiers: ns_qualifiers.clone(),
               doc_node: element,
             })
             .collect::<Vec<_>>(),
@@ -213,7 +224,11 @@ fn get_namespace_section_render_ctx(
 
   for node in doc_nodes {
     let entry = grouped_nodes
-      .entry(node.doc_node.name.clone())
+      .entry(if !node.ns_qualifiers.is_empty() {
+        format!("{}.{}", node.ns_qualifiers.join("."), node.doc_node.name)
+      } else {
+        node.doc_node.name.clone()
+      })
       .or_insert(vec![]);
     entry.push(node);
   }
