@@ -178,7 +178,7 @@ pub struct InterfaceCallSignatureDef {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  // set when the interface is a default export
+  /// set when the interface is a default export
   pub def_name: Option<String>,
   pub extends: Vec<TsTypeDef>,
   pub methods: Vec<InterfaceMethodDef>,
