@@ -328,14 +328,12 @@ impl DocNode {
 
   pub fn get_name(&self) -> &str {
     let default_name = match self.kind {
-      DocNodeKind::Class => {
-        self.class_def.as_ref().unwrap().default_name.as_ref()
-      }
+      DocNodeKind::Class => self.class_def.as_ref().unwrap().def_name.as_ref(),
       DocNodeKind::Function => {
-        self.function_def.as_ref().unwrap().default_name.as_ref()
+        self.function_def.as_ref().unwrap().def_name.as_ref()
       }
       DocNodeKind::Interface => {
-        self.interface_def.as_ref().unwrap().default_name.as_ref()
+        self.interface_def.as_ref().unwrap().def_name.as_ref()
       }
       DocNodeKind::Enum
       | DocNodeKind::Import

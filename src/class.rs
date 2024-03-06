@@ -244,7 +244,7 @@ impl Display for ClassMethodDef {
 #[serde(rename_all = "camelCase")]
 pub struct ClassDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub default_name: Option<String>,
+  pub def_name: Option<String>,
   pub is_abstract: bool,
   pub constructors: Vec<ClassConstructorDef>,
   pub properties: Vec<ClassPropertyDef>,
@@ -261,7 +261,7 @@ pub struct ClassDef {
 pub fn class_to_class_def(
   parsed_source: &ParsedSource,
   class: &deno_ast::swc::ast::Class,
-  default_name: Option<String>,
+  def_name: Option<String>,
 ) -> (ClassDef, JsDoc) {
   use deno_ast::swc::ast::Expr;
 
@@ -473,7 +473,7 @@ pub fn class_to_class_def(
 
   (
     ClassDef {
-      default_name,
+      def_name,
       is_abstract: class.is_abstract,
       extends,
       implements,

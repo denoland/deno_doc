@@ -30,6 +30,7 @@ class default
       "doc": "Class doc"
     },
     "classDef": {
+      "defName": "Foobar",
       "isAbstract": false,
       "constructors": [
         {

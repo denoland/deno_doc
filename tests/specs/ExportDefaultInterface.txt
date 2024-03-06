@@ -32,6 +32,7 @@ interface default
       "doc": "Interface js doc"
     },
     "interfaceDef": {
+      "defName": "Reader",
       "extends": [],
       "methods": [
         {
