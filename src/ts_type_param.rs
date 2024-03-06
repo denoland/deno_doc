@@ -2,6 +2,7 @@
 use crate::ts_type::TsTypeDef;
 use deno_ast::swc::ast::TsTypeParam;
 use deno_ast::swc::ast::TsTypeParamDecl;
+use deno_ast::ParsedSource;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
@@ -30,19 +31,21 @@ impl Display for TsTypeParamDef {
   }
 }
 
-impl From<&TsTypeParam> for TsTypeParamDef {
-  fn from(param: &TsTypeParam) -> TsTypeParamDef {
+impl From<(&TsTypeParam, &ParsedSource)> for TsTypeParamDef {
+  fn from(
+    (param, parsed_source): (&TsTypeParam, &ParsedSource),
+  ) -> TsTypeParamDef {
     let name = param.name.sym.to_string();
     let constraint: Option<TsTypeDef> =
       if let Some(ts_type) = param.constraint.as_ref() {
-        let type_def: TsTypeDef = (&**ts_type).into();
+        let type_def: TsTypeDef = (&**ts_type, parsed_source).into();
         Some(type_def)
       } else {
         None
       };
     let default: Option<TsTypeDef> =
       if let Some(ts_type) = param.default.as_ref() {
-        let type_def: TsTypeDef = (&**ts_type).into();
+        let type_def: TsTypeDef = (&**ts_type, parsed_source).into();
         Some(type_def)
       } else {
         None
@@ -57,13 +60,14 @@ impl From<&TsTypeParam> for TsTypeParamDef {
 }
 
 pub fn maybe_type_param_decl_to_type_param_defs(
+  parsed_source: &ParsedSource,
   maybe_type_param_decl: Option<&TsTypeParamDecl>,
 ) -> Vec<TsTypeParamDef> {
   if let Some(type_params_decl) = maybe_type_param_decl {
     type_params_decl
       .params
       .iter()
-      .map(|type_param| type_param.into())
+      .map(|type_param| (type_param, parsed_source).into())
       .collect::<Vec<TsTypeParamDef>>()
   } else {
     vec![]

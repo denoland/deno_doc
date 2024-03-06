@@ -252,17 +252,19 @@ pub fn get_doc_for_ts_interface_decl(
           let mut params = vec![];
 
           for param in &ts_method_sig.params {
-            let param_def =
-              ts_fn_param_to_param_def(Some(parsed_source), param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let name = expr_to_name(&ts_method_sig.key);
 
-          let maybe_return_type =
-            ts_method_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+          let maybe_return_type = ts_method_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_method_sig.type_params.as_deref(),
           );
 
@@ -286,8 +288,10 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let name = expr_to_name(&ts_getter_sig.key);
 
-          let maybe_return_type =
-            ts_getter_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+          let maybe_return_type = ts_getter_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
 
           let method_def = InterfaceMethodDef {
             name,
@@ -310,7 +314,7 @@ pub fn get_doc_for_ts_interface_decl(
           let name = expr_to_name(&ts_setter_sig.key);
 
           let param_def =
-            ts_fn_param_to_param_def(Some(parsed_source), &ts_setter_sig.param);
+            ts_fn_param_to_param_def(parsed_source, &ts_setter_sig.param);
           let params = vec![param_def];
 
           let method_def = InterfaceMethodDef {
@@ -336,14 +340,17 @@ pub fn get_doc_for_ts_interface_decl(
           let mut params = vec![];
 
           for param in &ts_prop_sig.params {
-            let param_def =
-              ts_fn_param_to_param_def(Some(parsed_source), param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
-          let ts_type = ts_prop_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+          let ts_type = ts_prop_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_prop_sig.type_params.as_deref(),
           );
 
@@ -367,14 +374,17 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let mut params = vec![];
           for param in &ts_call_sig.params {
-            let param_def =
-              ts_fn_param_to_param_def(Some(parsed_source), param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
-          let ts_type = ts_call_sig.type_ann.as_deref().map(ts_type_ann_to_def);
+          let ts_type = ts_call_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_call_sig.type_params.as_deref(),
           );
 
@@ -394,15 +404,14 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let mut params = vec![];
           for param in &ts_index_sig.params {
-            // todo(kitsonk): investigate why `None` is provided here
-            let param_def = ts_fn_param_to_param_def(None, param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let ts_type = ts_index_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| (&*rt.type_ann, parsed_source).into());
 
           let index_sig_def = InterfaceIndexSignatureDef {
             location: get_location(parsed_source, ts_index_sig.start()),
@@ -421,19 +430,19 @@ pub fn get_doc_for_ts_interface_decl(
           let mut params = vec![];
 
           for param in &ts_construct_sig.params {
-            let param_def =
-              ts_fn_param_to_param_def(Some(parsed_source), param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_construct_sig.type_params.as_deref(),
           );
 
           let maybe_return_type = ts_construct_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| (&*rt.type_ann, parsed_source).into());
 
           let construct_sig_def = InterfaceMethodDef {
             name: "new".to_string(),
@@ -454,13 +463,14 @@ pub fn get_doc_for_ts_interface_decl(
   }
 
   let type_params = maybe_type_param_decl_to_type_param_defs(
+    parsed_source,
     interface_decl.type_params.as_deref(),
   );
 
   let extends = interface_decl
     .extends
     .iter()
-    .map(|expr| expr.into())
+    .map(|expr| (expr, parsed_source).into())
     .collect::<Vec<TsTypeDef>>();
 
   let interface_def = InterfaceDef {

@@ -13,12 +13,13 @@ pub struct TypeAliasDef {
 }
 
 pub fn get_doc_for_ts_type_alias_decl(
-  _parsed_source: &ParsedSource,
+  parsed_source: &ParsedSource,
   type_alias_decl: &deno_ast::swc::ast::TsTypeAliasDecl,
 ) -> (String, TypeAliasDef) {
   let alias_name = type_alias_decl.id.sym.to_string();
-  let ts_type = type_alias_decl.type_ann.as_ref().into();
+  let ts_type = (type_alias_decl.type_ann.as_ref(), parsed_source).into();
   let type_params = maybe_type_param_decl_to_type_param_defs(
+    parsed_source,
     type_alias_decl.type_params.as_deref(),
   );
   let type_alias_def = TypeAliasDef {

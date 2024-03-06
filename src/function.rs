@@ -42,33 +42,38 @@ pub fn function_to_function_def(
     .map(|param| param_to_param_def(parsed_source, param))
     .collect();
 
-  let maybe_return_type =
-    match function.return_type.as_deref().map(ts_type_ann_to_def) {
-      Some(return_type) => Some(return_type),
-      None
-        if !function.is_generator
-          && function.body.is_some()
-          && get_return_stmt_with_arg_from_function(function).is_none() =>
-      {
-        if function.is_async {
-          Some(TsTypeDef {
-            repr: "Promise".to_string(),
-            kind: Some(crate::ts_type::TsTypeDefKind::TypeRef),
-            type_ref: Some(crate::ts_type::TsTypeRefDef {
-              type_params: Some(vec![TsTypeDef::keyword("void")]),
-              type_name: "Promise".to_string(),
-            }),
-            ..Default::default()
-          })
-        } else {
-          Some(TsTypeDef::keyword("void"))
-        }
+  let maybe_return_type = match function
+    .return_type
+    .as_deref()
+    .map(|return_type| ts_type_ann_to_def(return_type, parsed_source))
+  {
+    Some(return_type) => Some(return_type),
+    None
+      if !function.is_generator
+        && function.body.is_some()
+        && get_return_stmt_with_arg_from_function(function).is_none() =>
+    {
+      if function.is_async {
+        Some(TsTypeDef {
+          repr: "Promise".to_string(),
+          kind: Some(crate::ts_type::TsTypeDefKind::TypeRef),
+          type_ref: Some(crate::ts_type::TsTypeRefDef {
+            type_params: Some(vec![TsTypeDef::keyword("void")]),
+            type_name: "Promise".to_string(),
+          }),
+          ..Default::default()
+        })
+      } else {
+        Some(TsTypeDef::keyword("void"))
       }
-      None => None,
-    };
+    }
+    None => None,
+  };
 
-  let type_params =
-    maybe_type_param_decl_to_type_param_defs(function.type_params.as_deref());
+  let type_params = maybe_type_param_decl_to_type_param_defs(
+    parsed_source,
+    function.type_params.as_deref(),
+  );
 
   let has_body = function.body.is_some();
 

@@ -40,7 +40,7 @@ pub fn get_docs_for_var_declarator(
     _ => None,
   };
   let maybe_ts_type = maybe_ts_type_ann
-    .map(|def| ts_type_ann_to_def(def.as_ref()))
+    .map(|def| ts_type_ann_to_def(def.as_ref(), module_info.source()))
     .or_else(|| {
       if let Some(ref_name) = ref_name {
         module_info.symbol_from_swc(&ref_name).and_then(|symbol| {
@@ -52,7 +52,10 @@ pub fn get_docs_for_var_declarator(
             {
               if let Pat::Ident(ident) = &var_declarator.name {
                 if let Some(type_ann) = &ident.type_ann {
-                  return Some(ts_type_ann_to_def(type_ann));
+                  return Some(ts_type_ann_to_def(
+                    type_ann,
+                    module_info.source(),
+                  ));
                 }
               }
             }
@@ -92,7 +95,7 @@ pub fn get_docs_for_var_declarator(
       for prop in &pat.props {
         let (name, reassign_name, maybe_range) = match prop {
           deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
-            crate::params::prop_name_to_string(None, &kv.key),
+            crate::params::prop_name_to_string(module_info.source(), &kv.key),
             match &*kv.value {
               deno_ast::swc::ast::Pat::Ident(ident) => {
                 Some(ident.sym.to_string())
