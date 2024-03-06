@@ -27,50 +27,64 @@ pub fn usage_to_md(
   doc_nodes: &[DocNode],
   url: &str,
 ) -> String {
-  let usage =
-    if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
-      let mut parts = symbol.split('.').collect::<Vec<&str>>();
+  let usage = if let UrlResolveKind::Symbol { symbol, file } =
+    ctx.get_current_resolve()
+  {
+    let mut parts = symbol.split('.').collect::<Vec<&str>>();
 
-      let import_symbol = parts[0];
+    let is_default = doc_nodes[0].name == "default";
 
-      let usage_symbol = if parts.len() > 1 {
-        parts.pop().map(|usage_symbol| {
-          (
-            usage_symbol,
-            // if it is namespaces within namespaces, we simply re-join them together
-            // instead of trying to figure out some sort of nested restructuring
-            parts.join("."),
-          )
-        })
-      } else {
-        None
-      };
+    let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
+      file.to_name()
+    } else {
+      parts[0].to_string()
+    };
 
-      let is_type = doc_nodes.iter().all(|doc_node| {
-        matches!(
-          doc_node.kind,
-          DocNodeKind::TypeAlias | DocNodeKind::Interface
+    let usage_symbol = if parts.len() > 1 {
+      parts.pop().map(|usage_symbol| {
+        (
+          usage_symbol,
+          // if it is namespaces within namespaces, we simply re-join them together
+          // instead of trying to figure out some sort of nested restructuring
+          parts.join("."),
         )
-      });
+      })
+    } else {
+      None
+    };
 
-      let mut usage_statement = format!(
+    let is_type = doc_nodes.iter().all(|doc_node| {
+      matches!(
+        doc_node.kind,
+        DocNodeKind::TypeAlias | DocNodeKind::Interface
+      )
+    });
+
+    let mut usage_statement = if is_default {
+      format!(
+        r#"import {}{import_symbol} from "{url}";"#,
+        if is_type { "type " } else { "" }
+      )
+    } else {
+      format!(
         r#"import {{ {}{import_symbol} }} from "{url}";"#,
         if is_type { "type " } else { "" }
-      );
-
-      if let Some((usage_symbol, local_var)) = usage_symbol {
-        usage_statement
-          .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
-      }
-
-      usage_statement
-    } else {
-      // when the imported symbol is a namespace import, we try to guess at an
-      // intelligent camelized name for the import based on the package name.
-      let import_symbol = "mod";
-
-      format!(r#"import * as {import_symbol} from "{url}";"#)
+      )
     };
+
+    if let Some((usage_symbol, local_var)) = usage_symbol {
+      usage_statement
+        .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
+    }
+
+    usage_statement
+  } else {
+    // when the imported symbol is a namespace import, we try to guess at an
+    // intelligent camelized name for the import based on the package name.
+    let import_symbol = "mod";
+
+    format!(r#"import * as {import_symbol} from "{url}";"#)
+  };
 
   format!("```typescript\n{usage}\n```")
 }
