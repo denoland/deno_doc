@@ -44,6 +44,21 @@
               "href": "../././~/Foo.html",
               "active": false,
               "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foobar",
+              "href": "../././~/Foobar.html",
+              "active": false,
+              "deprecated": false
             }
           ]
         }
@@ -161,6 +176,21 @@
               "href": "../././~/Foo.html",
               "active": true,
               "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foobar",
+              "href": "../././~/Foobar.html",
+              "active": false,
+              "deprecated": false
             }
           ]
         }
@@ -222,6 +252,134 @@
         {
           "name": "Foo",
           "href": "../././~/Foo.html",
+          "is_symbol": true,
+          "is_first_symbol": true,
+          "is_all_symbols_part": false
+        }
+      ]
+    }
+  },
+  {
+    "html_head_ctx": {
+      "title": "Foobar - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "url_search_index": "../search_index.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js"
+    },
+    "sidepanel_ctx": {
+      "package_name": null,
+      "partitions": [
+        {
+          "name": "Class",
+          "symbols": [
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Bar",
+              "href": "../././~/Bar.html",
+              "active": false,
+              "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foo",
+              "href": "../././~/Foo.html",
+              "active": false,
+              "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foobar",
+              "href": "../././~/Foobar.html",
+              "active": true,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_group_ctx": {
+      "name": "Foobar",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Class",
+            "char": "c",
+            "title": "Class",
+            "title_lowercase": "class",
+            "title_plural": "Classes"
+          },
+          "tags": [],
+          "subtitle": {
+            "kind": "class",
+            "value": {
+              "implements": null,
+              "extends": null
+            }
+          },
+          "content": [
+            {
+              "kind": "other",
+              "value": {
+                "id": "",
+                "docs": null,
+                "sections": []
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ],
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code>import { Foobar } from \".\";\n</code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "Foobar",
+          "href": "../././~/Foobar.html",
           "is_symbol": true,
           "is_first_symbol": true,
           "is_all_symbols_part": false

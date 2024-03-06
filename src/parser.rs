@@ -460,6 +460,7 @@ impl<'a> DocParser<'a> {
     let (name, interface_def) = super::interface::get_doc_for_ts_interface_decl(
       parsed_source,
       ts_interface_decl,
+      None,
     );
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::interface(
@@ -646,8 +647,13 @@ impl<'a> DocParser<'a> {
 
     let doc_node = match &export_default_decl.decl {
       DefaultDecl::Class(class_expr) => {
-        let (class_def, decorator_js_doc) =
-          crate::class::class_to_class_def(parsed_source, &class_expr.class);
+        let default_name =
+          class_expr.ident.as_ref().map(|ident| ident.sym.to_string());
+        let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
+          parsed_source,
+          &class_expr.class,
+          default_name,
+        );
         let js_doc = if js_doc.is_empty() {
           decorator_js_doc
         } else {
@@ -662,9 +668,12 @@ impl<'a> DocParser<'a> {
         )
       }
       DefaultDecl::Fn(fn_expr) => {
+        let default_name =
+          fn_expr.ident.as_ref().map(|ident| ident.sym.to_string());
         let function_def = crate::function::function_to_function_def(
           parsed_source,
           &fn_expr.function,
+          default_name,
         );
         DocNode::function(
           name,
@@ -675,10 +684,12 @@ impl<'a> DocParser<'a> {
         )
       }
       DefaultDecl::TsInterfaceDecl(interface_decl) => {
+        let default_name = interface_decl.id.sym.to_string();
         let (_, interface_def) =
           crate::interface::get_doc_for_ts_interface_decl(
             parsed_source,
             interface_decl,
+            Some(default_name),
           );
         DocNode::interface(
           name,

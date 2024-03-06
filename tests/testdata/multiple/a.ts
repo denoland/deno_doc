@@ -9,3 +9,5 @@
 export class Foo {}
 
 export class Bar extends Foo {}
+
+export default class Foobar {}

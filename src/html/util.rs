@@ -52,7 +52,7 @@ pub fn compute_namespaced_symbols(
     // TODO: handle export aliasing
 
     let mut name_path = current_path.to_vec();
-    name_path.push(doc_node.name.clone());
+    name_path.push(doc_node.get_name().to_string());
 
     namespaced_symbols.insert(name_path.clone());
 

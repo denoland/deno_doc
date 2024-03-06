@@ -86,8 +86,9 @@ pub(crate) fn render_function(
       }
     });
 
-    let overload_id = name_to_id("function", &format!("{}_{i}", doc_node.name));
-    let id = name_to_id("function", &doc_node.name);
+    let overload_id =
+      name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
+    let id = name_to_id("function", doc_node.get_name());
     let css = render_css_for_fn(&overload_id, deprecated.is_some());
 
     let summary_doc = if !(function_def.has_body && i == 0) {
@@ -106,7 +107,7 @@ pub(crate) fn render_function(
       overload_id: overload_id.to_string(),
       additional_css: css,
       html_attrs,
-      name: doc_node.name.to_string(),
+      name: doc_node.get_name().to_string(),
       deprecated,
       summary: render_function_summary(function_def, ctx),
       summary_doc,

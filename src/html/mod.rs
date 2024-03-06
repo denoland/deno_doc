@@ -526,13 +526,13 @@ pub fn partition_nodes_by_name(
     }
 
     partitions
-      .entry(node.name.clone())
+      .entry(node.get_name().to_string())
       .or_insert(vec![])
       .push(node.clone());
   }
 
   for val in partitions.values_mut() {
-    val.sort_by_key(|n| n.name.to_string());
+    val.sort_by_key(|n| n.kind);
   }
 
   partitions.sort_by(|k1, _v1, k2, _v2| k1.cmp(k2));

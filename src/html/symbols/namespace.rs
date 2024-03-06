@@ -42,7 +42,7 @@ pub fn partition_nodes_by_kind<'a>(
       if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
         let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
         let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.doc_node.name.clone());
+        namespace.push(node.doc_node.get_name().to_string());
 
         let ns_qualifiers = std::rc::Rc::new(namespace);
 
@@ -64,7 +64,7 @@ pub fn partition_nodes_by_kind<'a>(
       if let Some((node_kind, nodes)) =
         partitions.iter_mut().find(|(kind, nodes)| {
           nodes.iter().any(|n| {
-            n.doc_node.name == node.doc_node.name
+            n.doc_node.get_name() == node.doc_node.get_name()
               && n.doc_node.kind != node.doc_node.kind
               && kind != &&node.doc_node.kind
           })
@@ -75,7 +75,10 @@ pub fn partition_nodes_by_kind<'a>(
         nodes.push(node.clone());
       } else {
         let entry = partitions.entry(node.doc_node.kind).or_default();
-        if !entry.iter().any(|n| n.doc_node.name == node.doc_node.name) {
+        if !entry
+          .iter()
+          .any(|n| n.doc_node.get_name() == node.doc_node.get_name())
+        {
           entry.push(node.clone());
         }
       }
@@ -107,8 +110,8 @@ pub fn partition_nodes_by_kind<'a>(
         .then_with(|| {
           node1
             .doc_node
-            .name
-            .cmp(&node2.doc_node.name)
+            .get_name()
+            .cmp(node2.doc_node.get_name())
             .then_with(|| node1.doc_node.kind.cmp(&node2.doc_node.kind))
         })
     });
@@ -141,7 +144,7 @@ pub fn partition_nodes_by_category<'a>(
       if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
         let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
         let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.doc_node.name.clone());
+        namespace.push(node.doc_node.get_name().to_string());
 
         let ns_qualifiers = std::rc::Rc::new(namespace);
 
@@ -177,7 +180,7 @@ pub fn partition_nodes_by_category<'a>(
       let entry = partitions.entry(category).or_default();
 
       if !entry.iter().any(|n| {
-        n.doc_node.name == node.doc_node.name
+        n.doc_node.get_name() == node.doc_node.get_name()
           && n.doc_node.kind == node.doc_node.kind
       }) {
         entry.push(node.clone());
@@ -195,7 +198,7 @@ pub fn partition_nodes_by_category<'a>(
   );
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.doc_node.name.to_string());
+    nodes.sort_by_key(|n| n.doc_node.get_name());
   }
 
   partitions
@@ -225,9 +228,13 @@ fn get_namespace_section_render_ctx(
   for node in doc_nodes {
     let entry = grouped_nodes
       .entry(if !node.ns_qualifiers.is_empty() {
-        format!("{}.{}", node.ns_qualifiers.join("."), node.doc_node.name)
+        format!(
+          "{}.{}",
+          node.ns_qualifiers.join("."),
+          node.doc_node.get_name()
+        )
       } else {
-        node.doc_node.name.clone()
+        node.doc_node.get_name().to_string()
       })
       .or_insert(vec![]);
     entry.push(node);

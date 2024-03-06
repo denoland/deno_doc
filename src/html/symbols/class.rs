@@ -34,7 +34,7 @@ pub(crate) fn render_class(
   let mut sections = vec![];
 
   if let Some(constructors) =
-    render_constructors(ctx, &class_def.constructors, &doc_node.name)
+    render_constructors(ctx, &class_def.constructors, doc_node.get_name())
   {
     sections.push(constructors);
   }

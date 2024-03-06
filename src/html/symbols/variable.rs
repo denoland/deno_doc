@@ -13,7 +13,7 @@ pub(crate) fn render_variable(
     return vec![];
   }
 
-  let id = name_to_id("variable", &doc_node.name);
+  let id = name_to_id("variable", doc_node.get_name());
 
   vec![SectionCtx {
     title: "Type",

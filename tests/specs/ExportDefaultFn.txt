@@ -41,6 +41,7 @@ function default(a: number)
     },
     "declarationKind": "export",
     "functionDef": {
+      "defName": "foo",
       "params": [
         {
           "kind": "identifier",

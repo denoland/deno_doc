@@ -70,7 +70,7 @@ fn doc_node_into_search_index_nodes(
 
   let ns_def = doc_nodes[0].doc_node.namespace_def.as_ref().unwrap();
   let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
-  let ns_name = doc_nodes[0].doc_node.name.to_string();
+  let ns_name = doc_nodes[0].doc_node.get_name().to_string();
 
   let mut location = doc_nodes[0].doc_node.location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
@@ -98,23 +98,22 @@ fn doc_node_into_search_index_nodes(
     deprecated,
   });
 
-  let mut grouped_nodes: IndexMap<String, Vec<&crate::DocNode>> =
-    IndexMap::new();
+  let mut grouped_nodes: IndexMap<&str, Vec<&crate::DocNode>> = IndexMap::new();
 
   for node in &ns_def.elements {
     if matches!(node.kind, DocNodeKind::Import | DocNodeKind::ModuleDoc) {
       continue;
     }
 
-    let entry = grouped_nodes.entry(node.name.clone()).or_default();
+    let entry = grouped_nodes.entry(node.get_name()).or_default();
     if !entry.iter().any(|n| n.kind == node.kind) {
       entry.push(node);
     }
   }
 
-  for (el_name, el_nodes) in &grouped_nodes {
+  for (el_name, el_nodes) in grouped_nodes {
     let mut ns_qualifiers_ = (*doc_nodes[0].ns_qualifiers).clone();
-    ns_qualifiers_.push(ns_name.to_string());
+    ns_qualifiers_.push(ns_name.clone());
 
     let mut location = el_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
@@ -153,7 +152,7 @@ fn doc_node_into_search_index_nodes(
     if el_nodes[0].kind == DocNodeKind::Namespace {
       nodes.extend_from_slice(&doc_node_into_search_index_nodes(
         ctx,
-        &el_nodes[0].name,
+        el_nodes[0].get_name(),
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: std::rc::Rc::new(ns_qualifiers_),
@@ -181,7 +180,7 @@ pub fn generate_search_index(
     })
     .collect::<Vec<_>>();
 
-  let mut grouped_nodes: IndexMap<String, Vec<&DocNodeWithContext>> =
+  let mut grouped_nodes: IndexMap<&str, Vec<&DocNodeWithContext>> =
     IndexMap::new();
 
   for node in &doc_nodes {
@@ -192,7 +191,7 @@ pub fn generate_search_index(
       continue;
     }
 
-    let entry = grouped_nodes.entry(node.doc_node.name.clone()).or_default();
+    let entry = grouped_nodes.entry(node.doc_node.get_name()).or_default();
     if !entry.iter().any(|n| n.doc_node.kind == node.doc_node.kind) {
       entry.push(node);
     }
