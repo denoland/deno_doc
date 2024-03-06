@@ -35,7 +35,7 @@ fn doc_node_into_search_index_nodes(
   );
 
   let name = if doc_nodes
-    .get(0)
+    .first()
     .expect("doc_nodes should not be empty")
     .ns_qualifiers
     .is_empty()
