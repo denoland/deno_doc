@@ -31,25 +31,17 @@ impl Display for TsTypeParamDef {
   }
 }
 
-impl From<(&TsTypeParam, &ParsedSource)> for TsTypeParamDef {
-  fn from(
-    (param, parsed_source): (&TsTypeParam, &ParsedSource),
-  ) -> TsTypeParamDef {
+impl TsTypeParamDef {
+  pub fn new(parsed_source: &ParsedSource, param: &TsTypeParam) -> Self {
     let name = param.name.sym.to_string();
-    let constraint: Option<TsTypeDef> =
-      if let Some(ts_type) = param.constraint.as_ref() {
-        let type_def: TsTypeDef = (&**ts_type, parsed_source).into();
-        Some(type_def)
-      } else {
-        None
-      };
-    let default: Option<TsTypeDef> =
-      if let Some(ts_type) = param.default.as_ref() {
-        let type_def: TsTypeDef = (&**ts_type, parsed_source).into();
-        Some(type_def)
-      } else {
-        None
-      };
+    let constraint = param
+      .constraint
+      .as_ref()
+      .map(|constraint| TsTypeDef::new(parsed_source, constraint));
+    let default = param
+      .default
+      .as_ref()
+      .map(|default| TsTypeDef::new(parsed_source, default));
 
     TsTypeParamDef {
       name,
@@ -67,8 +59,8 @@ pub fn maybe_type_param_decl_to_type_param_defs(
     type_params_decl
       .params
       .iter()
-      .map(|type_param| (type_param, parsed_source).into())
-      .collect::<Vec<TsTypeParamDef>>()
+      .map(|type_param| TsTypeParamDef::new(parsed_source, type_param))
+      .collect::<Vec<_>>()
   } else {
     vec![]
   }

@@ -4,7 +4,6 @@ use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
 use crate::display::display_optional;
 use crate::display::SliceDisplayer;
-use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 
 use deno_ast::swc::ast::ObjectPatProp;
@@ -150,7 +149,7 @@ pub fn ident_to_param_def(
   let ts_type = ident
     .type_ann
     .as_deref()
-    .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Identifier {
@@ -169,7 +168,7 @@ fn rest_pat_to_param_def(
   let ts_type = rest_pat
     .type_ann
     .as_deref()
-    .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Rest {
@@ -211,7 +210,7 @@ fn object_pat_to_param_def(
   let ts_type = object_pat
     .type_ann
     .as_deref()
-    .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Object {
@@ -235,7 +234,7 @@ fn array_pat_to_param_def(
   let ts_type = array_pat
     .type_ann
     .as_deref()
-    .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Array {

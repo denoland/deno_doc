@@ -9,7 +9,6 @@ use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
-use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
@@ -258,10 +257,10 @@ pub fn get_doc_for_ts_interface_decl(
 
           let name = expr_to_name(&ts_method_sig.key);
 
-          let maybe_return_type = ts_method_sig
-            .type_ann
-            .as_deref()
-            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+          let maybe_return_type =
+            ts_method_sig.type_ann.as_deref().map(|type_ann| {
+              TsTypeDef::new(parsed_source, &type_ann.type_ann)
+            });
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
@@ -288,10 +287,10 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let name = expr_to_name(&ts_getter_sig.key);
 
-          let maybe_return_type = ts_getter_sig
-            .type_ann
-            .as_deref()
-            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+          let maybe_return_type =
+            ts_getter_sig.type_ann.as_deref().map(|type_ann| {
+              TsTypeDef::new(parsed_source, &type_ann.type_ann)
+            });
 
           let method_def = InterfaceMethodDef {
             name,
@@ -344,10 +343,9 @@ pub fn get_doc_for_ts_interface_decl(
             params.push(param_def);
           }
 
-          let ts_type = ts_prop_sig
-            .type_ann
-            .as_deref()
-            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+          let ts_type = ts_prop_sig.type_ann.as_deref().map(|type_ann| {
+            TsTypeDef::new(parsed_source, &type_ann.type_ann)
+          });
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
@@ -378,10 +376,9 @@ pub fn get_doc_for_ts_interface_decl(
             params.push(param_def);
           }
 
-          let ts_type = ts_call_sig
-            .type_ann
-            .as_deref()
-            .map(|type_ann| ts_type_ann_to_def(type_ann, parsed_source));
+          let ts_type = ts_call_sig.type_ann.as_deref().map(|type_ann| {
+            TsTypeDef::new(parsed_source, &type_ann.type_ann)
+          });
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
@@ -411,7 +408,7 @@ pub fn get_doc_for_ts_interface_decl(
           let ts_type = ts_index_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann, parsed_source).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let index_sig_def = InterfaceIndexSignatureDef {
             location: get_location(parsed_source, ts_index_sig.start()),
@@ -442,7 +439,7 @@ pub fn get_doc_for_ts_interface_decl(
           let maybe_return_type = ts_construct_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann, parsed_source).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let construct_sig_def = InterfaceMethodDef {
             name: "new".to_string(),
@@ -470,7 +467,7 @@ pub fn get_doc_for_ts_interface_decl(
   let extends = interface_decl
     .extends
     .iter()
-    .map(|expr| (expr, parsed_source).into())
+    .map(|expr| TsTypeDef::ts_expr_with_type_args(parsed_source, expr))
     .collect::<Vec<TsTypeDef>>();
 
   let interface_def = InterfaceDef {

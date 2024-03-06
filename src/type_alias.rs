@@ -17,7 +17,7 @@ pub fn get_doc_for_ts_type_alias_decl(
   type_alias_decl: &deno_ast::swc::ast::TsTypeAliasDecl,
 ) -> (String, TypeAliasDef) {
   let alias_name = type_alias_decl.id.sym.to_string();
-  let ts_type = (type_alias_decl.type_ann.as_ref(), parsed_source).into();
+  let ts_type = TsTypeDef::new(parsed_source, &type_alias_decl.type_ann);
   let type_params = maybe_type_param_decl_to_type_param_defs(
     parsed_source,
     type_alias_decl.type_params.as_deref(),

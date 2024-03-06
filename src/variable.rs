@@ -9,7 +9,6 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::ts_type::infer_simple_ts_type_from_var_decl;
-use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -35,12 +34,12 @@ pub fn get_docs_for_var_declarator(
     });
 
   let maybe_ts_type_ann = match &var_declarator.name {
-    deno_ast::swc::ast::Pat::Ident(ident) => ident.type_ann.as_ref(),
-    deno_ast::swc::ast::Pat::Object(pat) => pat.type_ann.as_ref(),
+    Pat::Ident(ident) => ident.type_ann.as_ref(),
+    Pat::Object(pat) => pat.type_ann.as_ref(),
     _ => None,
   };
   let maybe_ts_type = maybe_ts_type_ann
-    .map(|def| ts_type_ann_to_def(def.as_ref(), module_info.source()))
+    .map(|def| TsTypeDef::new(module_info.source(), &def.type_ann))
     .or_else(|| {
       if let Some(ref_name) = ref_name {
         module_info.symbol_from_swc(&ref_name).and_then(|symbol| {
@@ -52,9 +51,9 @@ pub fn get_docs_for_var_declarator(
             {
               if let Pat::Ident(ident) = &var_declarator.name {
                 if let Some(type_ann) = &ident.type_ann {
-                  return Some(ts_type_ann_to_def(
-                    type_ann,
+                  return Some(TsTypeDef::new(
                     module_info.source(),
+                    &type_ann.type_ann,
                   ));
                 }
               }
