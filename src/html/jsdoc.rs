@@ -147,16 +147,16 @@ pub fn markdown_to_html(
     "markdown"
   };
 
-  let html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
+  let mut html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
 
   #[cfg(feature = "ammonia")]
-  let html = {
+  {
     let mut ammonia_builder = ammonia::Builder::default();
 
     ammonia_builder
       .add_tags(["video", "button", "svg", "path"])
       .add_generic_attributes(["id"])
-      .add_tag_attributes("button", ["onclick"])
+      .add_tag_attributes("button", ["data-copy"])
       .add_tag_attributes(
         "svg",
         ["width", "height", "viewBox", "fill", "xmlns"],
@@ -193,8 +193,18 @@ pub fn markdown_to_html(
     #[cfg(feature = "tree-sitter")]
     ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
 
-    ammonia_builder.clean(&html).to_string()
-  };
+    html = ammonia_builder.clean(&html).to_string();
+  }
+
+  html.push_str(
+    r#"<script>
+for (const button of document.getElementsByTagName("button")) {
+  if (button.dataset["copy"]) {
+    button.onclick = () => navigator?.clipboard?.writeText(button.dataset["copy"]);
+  }
+}
+</script>"#,
+  );
 
   let toc = if render_toc {
     let toc = heading_adapter.into_toc();

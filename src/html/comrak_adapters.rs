@@ -74,7 +74,8 @@ impl HighlightAdapter {
     write!(output, "</code>")?;
     write!(
       output,
-      r#"<button class="button" onclick='navigator?.clipboard?.writeText({source:?})'>{}</button>"#,
+      r#"<button class="button" data-copy="{}">{}</button>"#,
+      html_escape::encode_safe(source),
       include_str!("./templates/icons/copy.svg")
     )?;
     write!(output, "<code>")
