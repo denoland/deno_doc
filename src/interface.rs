@@ -257,10 +257,10 @@ pub fn get_doc_for_ts_interface_decl(
 
           let name = expr_to_name(&ts_method_sig.key);
 
-          let maybe_return_type =
-            ts_method_sig.type_ann.as_deref().map(|type_ann| {
-              TsTypeDef::new(parsed_source, &type_ann.type_ann)
-            });
+          let maybe_return_type = ts_method_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
@@ -287,10 +287,10 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let name = expr_to_name(&ts_getter_sig.key);
 
-          let maybe_return_type =
-            ts_getter_sig.type_ann.as_deref().map(|type_ann| {
-              TsTypeDef::new(parsed_source, &type_ann.type_ann)
-            });
+          let maybe_return_type = ts_getter_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
           let method_def = InterfaceMethodDef {
             name,
@@ -343,9 +343,10 @@ pub fn get_doc_for_ts_interface_decl(
             params.push(param_def);
           }
 
-          let ts_type = ts_prop_sig.type_ann.as_deref().map(|type_ann| {
-            TsTypeDef::new(parsed_source, &type_ann.type_ann)
-          });
+          let ts_type = ts_prop_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
@@ -376,9 +377,10 @@ pub fn get_doc_for_ts_interface_decl(
             params.push(param_def);
           }
 
-          let ts_type = ts_call_sig.type_ann.as_deref().map(|type_ann| {
-            TsTypeDef::new(parsed_source, &type_ann.type_ann)
-          });
+          let ts_type = ts_call_sig
+            .type_ann
+            .as_deref()
+            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
