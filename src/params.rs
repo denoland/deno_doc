@@ -260,7 +260,7 @@ pub fn assign_pat_to_param_def(
   ParamDef {
     pattern: ParamPatternDef::Assign {
       left: Box::new(pat_to_param_def(parsed_source, &assign_pat.left)),
-      right: "[UNSUPPORTED]".to_string(),
+      right: crate::interface::expr_to_name(&assign_pat.right),
     },
     decorators: Vec::new(),
     ts_type: infer_ts_type,
