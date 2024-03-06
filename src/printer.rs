@@ -204,7 +204,7 @@ impl<'a> DocPrinter<'a> {
   fn format_jsdoc_tag_doc(
     &self,
     w: &mut Formatter<'_>,
-    doc: &String,
+    doc: &str,
     indent: i64,
   ) -> FmtResult {
     for line in doc.lines() {
