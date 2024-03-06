@@ -285,19 +285,19 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   // icons
   reg.register_template_string(
     "icons/copy",
-    include_str!("./templates/icons/copy.hbs"),
+    include_str!("./templates/icons/copy.svg"),
   )?;
   reg.register_template_string(
     "icons/link",
-    include_str!("./templates/icons/link.hbs"),
+    include_str!("./templates/icons/link.svg"),
   )?;
   reg.register_template_string(
     "icons/source",
-    include_str!("./templates/icons/source.hbs"),
+    include_str!("./templates/icons/source.svg"),
   )?;
   reg.register_template_string(
     "icons/menu",
-    include_str!("./templates/icons/menu.hbs"),
+    include_str!("./templates/icons/menu.svg"),
   )?;
 
   Ok(reg)
