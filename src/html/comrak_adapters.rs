@@ -71,10 +71,10 @@ impl HighlightAdapter {
     output: &mut dyn Write,
     source: &str,
   ) -> std::io::Result<()> {
-    write!(output, "</code>")?;
+    write!(output, "</code></div>")?;
     write!(
       output,
-      r#"<button class="button" data-copy="{}">{}</button>"#,
+      r#"<button class="context_button" data-copy="{}">{}</button>"#,
       html_escape::encode_safe(source),
       include_str!("./templates/icons/copy.svg")
     )?;
@@ -209,6 +209,8 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     output: &mut dyn Write,
     mut attributes: HashMap<String, String>,
   ) -> std::io::Result<()> {
+    write!(output, "<div>")?;
+
     if self.show_line_numbers {
       attributes
         .entry("class".into())

@@ -127,7 +127,7 @@ summary::-webkit-details-marker {
   }
 
   /* Inline code */
-  :not(pre) > code {
+  :not(pre > div) > code {
     @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
   }
 
@@ -141,7 +141,15 @@ summary::-webkit-details-marker {
   }
 
   pre {
-    @apply font-mono text-sm p-4 rounded-lg text-black bg-stone-100 overflow-x-auto;
+    @apply font-mono text-sm rounded-lg text-black bg-stone-100;
+
+    div {
+      @apply p-4 overflow-x-auto;
+    }
+
+    & > code {
+      @apply hidden;
+    }
   }
 
   p {
@@ -177,19 +185,19 @@ summary::-webkit-details-marker {
   @apply inline-block;
 }
 
-.markdown_summary :not(pre) > code {
+.markdown_summary :not(pre > div) > code {
   @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
 }
 
-.button {
-  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-300;
+.context_button {
+  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-300 leading-[0];
 }
 
 .markdown .highlight {
   @apply relative;
 
-  .button {
-    @apply absolute top-4 right-4;
+  .context_button {
+    @apply absolute top-4 right-4 opacity-60 hover:opacity-100;
   }
 
   /*!

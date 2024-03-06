@@ -175,7 +175,7 @@ pub fn markdown_to_html(
         ],
       )
       .add_allowed_classes("pre", ["highlight"])
-      .add_allowed_classes("button", ["button"])
+      .add_allowed_classes("button", ["context_button"])
       .link_rel(Some("nofollow"))
       .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,
