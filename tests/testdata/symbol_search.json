@@ -32,6 +32,21 @@
     },
     {
       "kind": [
+        "class"
+      ],
+      "name": "Foobar",
+      "file": ".",
+      "location": {
+        "filename": "",
+        "line": 13,
+        "col": 0,
+        "byteIndex": 112
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "function"
       ],
       "name": "x",
