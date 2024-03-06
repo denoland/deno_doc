@@ -613,7 +613,7 @@ if (true) {
       .unwrap(),
       json!({
         "tags": [{
-          "kind":"tags",
+          "kind": "tags",
           "tags": ["allow-read", "allow-write"],
         }]
       })
@@ -622,9 +622,38 @@ if (true) {
       serde_json::to_value(JsDoc::from("@see foo".to_string())).unwrap(),
       json!({
         "tags": [{
-          "kind":"see",
+          "kind": "see",
           "doc": "foo"
         }]
+      })
+    );
+
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"@tags allow-read, allow-write
+@example some example
+const a = "a";
+@category foo
+@see bar
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "tags",
+          "tags": ["allow-read", "allow-write"]
+        }, {
+          "kind": "example",
+          "doc": "some example\nconst a = \"a\";"
+        }, {
+          "kind": "category",
+          "doc": "foo"
+        }, {
+          "kind": "see",
+          "doc": "bar"
+        }]
+
       })
     );
   }
