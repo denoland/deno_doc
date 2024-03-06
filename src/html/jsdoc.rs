@@ -154,9 +154,28 @@ pub fn markdown_to_html(
     let mut ammonia_builder = ammonia::Builder::default();
 
     ammonia_builder
-      .add_tags(["video"])
+      .add_tags(["video", "button", "svg", "path"])
       .add_generic_attributes(["id"])
+      .add_tag_attributes("button", ["onclick"])
+      .add_tag_attributes(
+        "svg",
+        ["width", "height", "viewBox", "fill", "xmlns"],
+      )
+      .add_tag_attributes(
+        "path",
+        [
+          "d",
+          "fill",
+          "fill-rule",
+          "clip-rule",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
+      )
       .add_allowed_classes("pre", ["highlight"])
+      .add_allowed_classes("button", ["button"])
       .link_rel(Some("nofollow"))
       .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,

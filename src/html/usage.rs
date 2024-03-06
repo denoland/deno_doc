@@ -25,7 +25,7 @@ fn render_css_for_usage(name: &str) -> String {
 pub fn usage_to_md(
   ctx: &RenderContext,
   doc_nodes: &[DocNode],
-  url: String,
+  url: &str,
 ) -> String {
   let usage =
     if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
@@ -116,7 +116,7 @@ impl UsagesCtx {
         })
       }
     } else {
-      let import_statement = usage_to_md(ctx, doc_nodes, url);
+      let import_statement = usage_to_md(ctx, doc_nodes, &url);
       let rendered_import_statement =
         crate::html::jsdoc::render_markdown(ctx, &import_statement);
 

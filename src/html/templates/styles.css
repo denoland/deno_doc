@@ -149,7 +149,7 @@ summary::-webkit-details-marker {
   }
 
   table {
-    @apply table-auto;
+    @apply block table-auto overflow-auto w-max max-w-full;
   }
 
   td {
@@ -181,7 +181,17 @@ summary::-webkit-details-marker {
   @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
 }
 
+.button {
+  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-300;
+}
+
 .markdown .highlight {
+  @apply relative;
+
+  .button {
+    @apply absolute top-4 right-4;
+  }
+
   /*!
   * GitHub Light v0.5.0
   * Copyright (c) 2012 - 2017 GitHub, Inc.
