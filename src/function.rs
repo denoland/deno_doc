@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct FunctionDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  // set when the function is a default export and has a name in its declaration
+  /// set when the function is a default export and has a name in its declaration
   pub def_name: Option<String>,
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
