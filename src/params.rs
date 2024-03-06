@@ -254,7 +254,7 @@ pub fn assign_pat_to_param_def(
   let infer_ts_type = crate::ts_type::infer_ts_type_from_expr(
     parsed_source,
     &assign_pat.right,
-    true,
+    false,
   );
 
   ParamDef {
