@@ -196,16 +196,6 @@ pub fn markdown_to_html(
     html = ammonia_builder.clean(&html).to_string();
   }
 
-  html.push_str(
-    r#"<script>
-for (const button of document.getElementsByTagName("button")) {
-  if (button.dataset["copy"]) {
-    button.onclick = () => navigator?.clipboard?.writeText(button.dataset["copy"]);
-  }
-}
-</script>"#,
-  );
-
   let toc = if render_toc {
     let toc = heading_adapter.into_toc();
 
