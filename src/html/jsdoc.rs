@@ -278,11 +278,9 @@ pub(crate) fn jsdoc_examples(
     .iter()
     .filter_map(|tag| {
       if let JsDocTag::Example { doc } = tag {
-        doc.as_ref().map(|doc| {
-          let example = ExampleCtx::new(ctx, doc, i);
-          i += 1;
-          example
-        })
+        let example = ExampleCtx::new(ctx, doc, i);
+        i += 1;
+        Some(example)
       } else {
         None
       }

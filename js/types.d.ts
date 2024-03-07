@@ -83,6 +83,7 @@ export interface DocNodeImport extends DocNodeBase {
 export type Accessibility = "public" | "protected" | "private";
 
 export interface ClassDef {
+  defName?: string;
   isAbstract: boolean;
   constructors: ClassConstructorDef[];
   properties: ClassPropertyDef[];
@@ -162,6 +163,7 @@ export interface EnumMemberDef {
 }
 
 export interface FunctionDef {
+  defName?: string;
   params: ParamDef[];
   returnType?: TsTypeDef;
   hasBody?: boolean;
@@ -177,6 +179,7 @@ export interface ImportDef {
 }
 
 export interface InterfaceDef {
+  defName?: string;
   extends: TsTypeDef[];
   methods: InterfaceMethodDef[];
   properties: InterfacePropertyDef[];
@@ -251,11 +254,13 @@ export type JsDocTagKind =
   | "this"
   | "typedef"
   | "type"
+  | "see"
   | "unsupported";
 
 export type JsDocTag =
   | JsDocTagOnly
   | JsDocTagDoc
+  | JsDocTagDocRequired
   | JsDocTagNamed
   | JsDocTagValued
   | JsDocTagTyped
@@ -281,8 +286,13 @@ export interface JsDocTagOnly extends JsDocTagBase {
 }
 
 export interface JsDocTagDoc extends JsDocTagBase {
-  kind: "category" | "deprecated" | "example";
+  kind: "deprecated";
   doc?: string;
+}
+
+export interface JsDocTagDocRequired extends JsDocTagBase {
+  kind: "category" | "example" | "see";
+  doc: string;
 }
 
 export interface JsDocTagNamed extends JsDocTagBase {

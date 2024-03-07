@@ -201,6 +201,18 @@ impl<'a> DocPrinter<'a> {
     }
   }
 
+  fn format_jsdoc_tag_doc(
+    &self,
+    w: &mut Formatter<'_>,
+    doc: &str,
+    indent: i64,
+  ) -> FmtResult {
+    for line in doc.lines() {
+      writeln!(w, "{}{}", Indent(indent + 2), colors::gray(line))?;
+    }
+    writeln!(w)
+  }
+
   fn format_jsdoc_tag(
     &self,
     w: &mut Formatter<'_>,
@@ -220,7 +232,7 @@ impl<'a> DocPrinter<'a> {
       }
       JsDocTag::Category { doc } => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("category"))?;
-        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+        self.format_jsdoc_tag_doc(w, doc, indent)
       }
       JsDocTag::Constructor => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("constructor"))
@@ -251,7 +263,7 @@ impl<'a> DocPrinter<'a> {
       }
       JsDocTag::Example { doc } => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("example"))?;
-        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+        self.format_jsdoc_tag_doc(w, doc, indent)
       }
       JsDocTag::Extends { type_ref, doc } => {
         writeln!(
@@ -388,6 +400,10 @@ impl<'a> DocPrinter<'a> {
           colors::magenta(&name[1..]),
           value
         )
+      }
+      JsDocTag::See { doc } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("see"))?;
+        self.format_jsdoc_tag_doc(w, doc, indent)
       }
     }
   }
