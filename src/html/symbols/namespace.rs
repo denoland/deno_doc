@@ -170,7 +170,7 @@ pub fn partition_nodes_by_category<'a>(
         .iter()
         .find_map(|tag| {
           if let JsDocTag::Category { doc } = tag {
-            doc.as_ref().map(|doc| doc.trim().to_owned())
+            Some(doc.trim().to_owned())
           } else {
             None
           }

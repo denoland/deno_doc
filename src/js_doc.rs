@@ -5,7 +5,8 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(category|deprecated|example|tags)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(category|see|example|tags)(?:\s+(.+))").unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r"^\s*@(constructor|class|ignore|module|public|private|protected|readonly)").unwrap();
@@ -86,8 +87,8 @@ pub enum JsDocTag {
   },
   /// `@category comment`
   Category {
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    #[serde(default)]
+    doc: String,
   },
   /// `@constructor` or `@class`
   Constructor,
@@ -109,9 +110,10 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
+  /// `@example comment`
   Example {
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    #[serde(default)]
+    doc: String,
   },
   /// `@extends {type} comment`
   Extends {
@@ -194,6 +196,10 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
+  /// `@see comment`
+  See {
+    doc: String,
+  },
   Unsupported {
     value: String,
   },
@@ -259,14 +265,19 @@ impl From<String> for JsDocTag {
       let kind = caps.get(1).unwrap().as_str();
       let doc = caps.get(2).map(|m| m.as_str().to_string());
       match kind {
-        "category" => Self::Category { doc },
         "deprecated" => Self::Deprecated { doc },
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
+    } else if let Some(caps) = JS_DOC_TAG_DOC_RE.captures(&value) {
+      let kind = caps.get(1).unwrap().as_str();
+      let doc = caps.get(2).unwrap().as_str().to_string();
+      match kind {
+        "category" => Self::Category { doc },
         "example" => Self::Example { doc },
         "tags" => Self::Tags {
-          tags: doc
-            .map(|s| s.split(',').map(|i| i.trim().to_string()).collect())
-            .unwrap_or_default(),
+          tags: doc.split(',').map(|i| i.trim().to_string()).collect(),
         },
+        "see" => Self::See { doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
@@ -548,26 +559,6 @@ if (true) {
   #[test]
   fn test_js_doc_tag_maybe_doc() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@category".to_string())).unwrap(),
-      json!({
-        "tags": [{
-          "kind": "category",
-        }]
-      })
-    );
-    assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@category Functional Components".to_string()
-      ))
-      .unwrap(),
-      json!({
-        "tags": [{
-          "kind": "category",
-          "doc": "Functional Components",
-        }]
-      })
-    );
-    assert_eq!(
       serde_json::to_value(JsDoc::from("@deprecated".to_string())).unwrap(),
       json!({
         "tags": [{
@@ -587,11 +578,19 @@ if (true) {
         }]
       })
     );
+  }
+
+  #[test]
+  fn test_js_doc_tag_doc() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@example".to_string())).unwrap(),
+      serde_json::to_value(JsDoc::from(
+        "@category Functional Components".to_string()
+      ))
+      .unwrap(),
       json!({
         "tags": [{
-          "kind": "example"
+          "kind": "category",
+          "doc": "Functional Components",
         }]
       })
     );
@@ -614,9 +613,47 @@ if (true) {
       .unwrap(),
       json!({
         "tags": [{
-          "kind":"tags",
+          "kind": "tags",
           "tags": ["allow-read", "allow-write"],
         }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@see foo".to_string())).unwrap(),
+      json!({
+        "tags": [{
+          "kind": "see",
+          "doc": "foo"
+        }]
+      })
+    );
+
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"@tags allow-read, allow-write
+@example some example
+const a = "a";
+@category foo
+@see bar
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "tags",
+          "tags": ["allow-read", "allow-write"]
+        }, {
+          "kind": "example",
+          "doc": "some example\nconst a = \"a\";"
+        }, {
+          "kind": "category",
+          "doc": "foo"
+        }, {
+          "kind": "see",
+          "doc": "bar"
+        }]
+
       })
     );
   }
