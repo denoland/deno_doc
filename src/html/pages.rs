@@ -12,6 +12,7 @@ use super::UrlResolveKind;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
+use super::SCRIPT_FILENAME;
 use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
@@ -29,6 +30,7 @@ pub struct HtmlHeadCtx {
   stylesheet_url: String,
   page_stylesheet_url: String,
   url_search_index: String,
+  script_js: String,
   fuse_js: String,
   url_search: String,
 }
@@ -55,6 +57,7 @@ impl HtmlHeadCtx {
       stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
       page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
+      script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
       url_search: format!("{root}{SEARCH_FILENAME}"),
     }

@@ -65,6 +65,21 @@ impl HighlightAdapter {
       Ok(lines)
     }
   }
+
+  fn write_button(
+    &self,
+    output: &mut dyn Write,
+    source: &str,
+  ) -> std::io::Result<()> {
+    write!(output, "</code>")?;
+    write!(
+      output,
+      r#"<button class="context_button" data-copy="{}">{}</button>"#,
+      html_escape::encode_safe(source),
+      include_str!("./templates/icons/copy.svg")
+    )?;
+    write!(output, "<code>")
+  }
 }
 
 impl SyntaxHighlighterAdapter for HighlightAdapter {
@@ -107,9 +122,11 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
         Ok(())
       },
     ) {
-      Ok(highlighted_code) => output.write_all(highlighted_code.as_bytes()),
-      Err(_) => output.write_all(code.as_bytes()),
+      Ok(highlighted_code) => output.write_all(highlighted_code.as_bytes())?,
+      Err(_) => output.write_all(code.as_bytes())?,
     }
+
+    self.write_button(output, code)
   }
 
   #[cfg(all(feature = "tree-sitter", not(feature = "syntect")))]
@@ -139,7 +156,8 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
                 })
                 .unwrap();
 
-              return output.write_all(html.as_bytes());
+              output.write_all(html.as_bytes())?;
+              return self.write_button(output, code);
             }
             Err(err) => {
               eprintln!("Error rendering code: {}", err);
@@ -151,7 +169,8 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
         }
       }
     }
-    comrak::html::escape(output, source)
+    comrak::html::escape(output, source)?;
+    self.write_button(output, code)
   }
 
   #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
@@ -169,7 +188,8 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       })
       .unwrap();
 
-    output.write_all(html.as_bytes())
+    output.write_all(html.as_bytes())?;
+    self.write_button(output, code)
   }
 
   fn write_pre_tag(
