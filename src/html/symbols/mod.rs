@@ -1,4 +1,3 @@
-use crate::html::namespace::partition_nodes_by_kind;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::SectionCtx;
@@ -281,7 +280,8 @@ impl SymbolInnerCtx {
             })
             .collect::<Vec<_>>();
 
-          let partitions = partition_nodes_by_kind(&namespace_nodes, false);
+          let partitions =
+            super::partition::partition_nodes_by_kind(&namespace_nodes, false);
 
           let ns_parts = name.split('.').collect::<Vec<&str>>();
 
