@@ -400,7 +400,7 @@ impl ModuleDocCtx {
         })
         .collect::<Vec<_>>();
 
-      let partitions_by_kind = super::namespace::partition_nodes_by_kind(
+      let partitions_by_kind = super::partition::partition_nodes_by_kind(
         &module_doc_nodes_with_context,
         true,
       );
