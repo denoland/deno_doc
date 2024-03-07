@@ -159,6 +159,7 @@ async fn html_doc_files() {
       "./~/index.html",
       "fuse.js",
       "page.css",
+      "script.js",
       "search.js",
       "search_index.js",
       "styles.css",
@@ -213,6 +214,7 @@ async fn html_doc_files_rewrite() {
       "foo/~/x.html",
       "fuse.js",
       "page.css",
+      "script.js",
       "search.js",
       "search_index.js",
       "styles.css"

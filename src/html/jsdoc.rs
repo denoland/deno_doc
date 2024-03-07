@@ -147,16 +147,35 @@ pub fn markdown_to_html(
     "markdown"
   };
 
-  let html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
+  let mut html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
 
   #[cfg(feature = "ammonia")]
-  let html = {
+  {
     let mut ammonia_builder = ammonia::Builder::default();
 
     ammonia_builder
-      .add_tags(["video"])
+      .add_tags(["video", "button", "svg", "path"])
       .add_generic_attributes(["id"])
+      .add_tag_attributes("button", ["data-copy"])
+      .add_tag_attributes(
+        "svg",
+        ["width", "height", "viewBox", "fill", "xmlns"],
+      )
+      .add_tag_attributes(
+        "path",
+        [
+          "d",
+          "fill",
+          "fill-rule",
+          "clip-rule",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
+      )
       .add_allowed_classes("pre", ["highlight"])
+      .add_allowed_classes("button", ["context_button"])
       .link_rel(Some("nofollow"))
       .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,
@@ -174,8 +193,8 @@ pub fn markdown_to_html(
     #[cfg(feature = "tree-sitter")]
     ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
 
-    ammonia_builder.clean(&html).to_string()
-  };
+    html = ammonia_builder.clean(&html).to_string();
+  }
 
   let toc = if render_toc {
     let toc = heading_adapter.into_toc();

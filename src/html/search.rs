@@ -34,7 +34,12 @@ fn doc_node_into_search_index_nodes(
       .collect::<Vec<_>>(),
   );
 
-  let name = if doc_nodes[0].ns_qualifiers.is_empty() {
+  let name = if doc_nodes
+    .first()
+    .expect("doc_nodes should not be empty")
+    .ns_qualifiers
+    .is_empty()
+  {
     name.to_string()
   } else {
     format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
