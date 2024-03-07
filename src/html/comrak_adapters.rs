@@ -71,7 +71,7 @@ impl HighlightAdapter {
     output: &mut dyn Write,
     source: &str,
   ) -> std::io::Result<()> {
-    write!(output, "</code></div>")?;
+    write!(output, "</code>")?;
     write!(
       output,
       r#"<button class="context_button" data-copy="{}">{}</button>"#,
@@ -209,8 +209,6 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     output: &mut dyn Write,
     mut attributes: HashMap<String, String>,
   ) -> std::io::Result<()> {
-    write!(output, "<div>")?;
-
     if self.show_line_numbers {
       attributes
         .entry("class".into())
