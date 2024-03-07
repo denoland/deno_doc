@@ -47,6 +47,9 @@ pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
+pub const SCRIPT_JS: &str = include_str!("./templates/script.js");
+pub const SCRIPT_FILENAME: &str = "script.js";
+
 const FUSE_JS: &str = include_str!("./templates/pages/fuse.js");
 const FUSE_FILENAME: &str = "fuse.js";
 
@@ -452,6 +455,7 @@ pub fn generate(
     SEARCH_INDEX_FILENAME.into(),
     search::get_search_index_file(&ctx, doc_nodes_by_url)?,
   );
+  files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
 
