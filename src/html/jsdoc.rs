@@ -155,7 +155,7 @@ pub fn markdown_to_html(
 
     ammonia_builder
       .add_tags(["video", "button", "svg", "path"])
-      .add_generic_attributes(["id"])
+      .add_generic_attributes(["id", "align"])
       .add_tag_attributes("button", ["data-copy"])
       .add_tag_attributes(
         "svg",
