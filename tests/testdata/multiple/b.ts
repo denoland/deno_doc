@@ -1,1 +1,1 @@
-export function x() {}
+export function x(n = 0) {}
