@@ -12,7 +12,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 # output.txt
 Defined in file:///mod.ts:1:1
 
-function foo(n: number, b: string: number): void
+function foo(n: number, b: string): void
 
 
 # output.json
@@ -35,14 +35,14 @@ function foo(n: number, b: string: number): void
             "kind": "identifier",
             "name": "n",
             "optional": false,
-            "tsType": null
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number"
+            }
           },
           "right": "0",
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          }
+          "tsType": null
         },
         {
           "kind": "assign",
@@ -57,11 +57,7 @@ function foo(n: number, b: string: number): void
             }
           },
           "right": "0",
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          }
+          "tsType": null
         }
       ],
       "returnType": {

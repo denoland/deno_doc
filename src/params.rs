@@ -250,19 +250,23 @@ pub fn assign_pat_to_param_def(
   parsed_source: &ParsedSource,
   assign_pat: &deno_ast::swc::ast::AssignPat,
 ) -> ParamDef {
-  let infer_ts_type = crate::ts_type::infer_ts_type_from_expr(
-    parsed_source,
-    &assign_pat.right,
-    false,
-  );
+  let mut left = pat_to_param_def(parsed_source, &assign_pat.left);
+
+  if left.ts_type.is_none() {
+    left.ts_type = crate::ts_type::infer_ts_type_from_expr(
+      parsed_source,
+      &assign_pat.right,
+      false,
+    );
+  }
 
   ParamDef {
     pattern: ParamPatternDef::Assign {
-      left: Box::new(pat_to_param_def(parsed_source, &assign_pat.left)),
+      left: Box::new(left),
       right: crate::interface::expr_to_name(&assign_pat.right),
     },
     decorators: Vec::new(),
-    ts_type: infer_ts_type,
+    ts_type: None,
   }
 }
 
