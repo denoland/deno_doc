@@ -451,7 +451,7 @@
                     "html_attrs": "checked",
                     "name": "x",
                     "deprecated": null,
-                    "summary": "(<span><span>n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
                     "summary_doc": null
                   }
                 ],
@@ -466,11 +466,11 @@
                           "kind": "doc_entry",
                           "content": [
                             {
-                              "id": "function_x_0_parameters_n",
-                              "name": "n",
+                              "id": "function_x_0_parameters__n",
+                              "name": "_n",
                               "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                               "anchor": {
-                                "id": "function_x_0_parameters_n"
+                                "id": "function_x_0_parameters__n"
                               },
                               "tags": [
                                 {
