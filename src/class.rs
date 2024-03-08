@@ -18,7 +18,6 @@ use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
-use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
@@ -298,8 +297,8 @@ pub fn class_to_class_def(
   let implements = class
     .implements
     .iter()
-    .map(|expr| expr.into())
-    .collect::<Vec<TsTypeDef>>();
+    .map(|expr| TsTypeDef::ts_expr_with_type_args(parsed_source, expr))
+    .collect::<Vec<_>>();
 
   for member in &class.body {
     use deno_ast::swc::ast::ClassMember::*;
@@ -309,8 +308,7 @@ pub fn class_to_class_def(
         if let Some(ctor_js_doc) =
           js_doc_for_range(parsed_source, &ctor.range())
         {
-          let constructor_name =
-            prop_name_to_string(Some(parsed_source), &ctor.key);
+          let constructor_name = prop_name_to_string(parsed_source, &ctor.key);
 
           let mut params = vec![];
 
@@ -329,10 +327,10 @@ pub fn class_to_class_def(
 
                 let param = match &ts_param_prop.param {
                   TsParamPropParam::Ident(ident) => {
-                    ident_to_param_def(Some(parsed_source), ident)
+                    ident_to_param_def(parsed_source, ident)
                   }
                   TsParamPropParam::Assign(assign_pat) => {
-                    assign_pat_to_param_def(Some(parsed_source), assign_pat)
+                    assign_pat_to_param_def(parsed_source, assign_pat)
                   }
                 };
 
@@ -364,7 +362,7 @@ pub fn class_to_class_def(
           js_doc_for_range(parsed_source, &class_method.range())
         {
           let method_name =
-            prop_name_to_string(Some(parsed_source), &class_method.key);
+            prop_name_to_string(parsed_source, &class_method.key);
           let fn_def = function_to_function_def(
             parsed_source,
             &class_method.function,
@@ -391,7 +389,7 @@ pub fn class_to_class_def(
         {
           let ts_type = if let Some(type_ann) = &class_prop.type_ann {
             // if the property has a type annotation, use it
-            Some(ts_type_ann_to_def(type_ann))
+            Some(TsTypeDef::new(parsed_source, &type_ann.type_ann))
           } else if let Some(value) = &class_prop.value {
             // else, if it has an initializer, try to infer the type
             infer_ts_type_from_expr(parsed_source, value, false)
@@ -400,8 +398,7 @@ pub fn class_to_class_def(
             None
           };
 
-          let prop_name =
-            prop_name_to_string(Some(parsed_source), &class_prop.key);
+          let prop_name = prop_name_to_string(parsed_source, &class_prop.key);
 
           let decorators =
             decorators_to_defs(parsed_source, &class_prop.decorators);
@@ -428,15 +425,14 @@ pub fn class_to_class_def(
         {
           let mut params = vec![];
           for param in &ts_index_sig.params {
-            // todo(kitsonk): investigate why `None` is provided here
-            let param_def = ts_fn_param_to_param_def(None, param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let ts_type = ts_index_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let index_sig_def = ClassIndexSignatureDef {
             location: get_location(parsed_source, ts_index_sig.start()),
@@ -455,10 +451,13 @@ pub fn class_to_class_def(
     }
   }
 
-  let type_params =
-    maybe_type_param_decl_to_type_param_defs(class.type_params.as_deref());
+  let type_params = maybe_type_param_decl_to_type_param_defs(
+    parsed_source,
+    class.type_params.as_deref(),
+  );
 
   let super_type_params = maybe_type_param_instantiation_to_type_defs(
+    parsed_source,
     class.super_type_params.as_deref(),
   );
 

@@ -178,7 +178,7 @@ fn render_single_function(
 
       let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern
       {
-        left.ts_type.as_ref()
+        left.ts_type.as_ref().or(param.ts_type.as_ref())
       } else {
         param.ts_type.as_ref()
       };
@@ -195,7 +195,8 @@ fn render_single_function(
           | ParamPatternDef::Identifier { optional, .. }
           | ParamPatternDef::Object { optional, .. }
         if optional
-      ) {
+      ) | matches!(param.pattern, ParamPatternDef::Assign { .. })
+      {
         HashSet::from([Tag::Optional])
       } else {
         HashSet::new()

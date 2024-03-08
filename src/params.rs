@@ -4,7 +4,6 @@ use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
 use crate::display::display_optional;
 use crate::display::SliceDisplayer;
-use crate::ts_type::ts_type_ann_to_def;
 use crate::ts_type::TsTypeDef;
 
 use deno_ast::swc::ast::ObjectPatProp;
@@ -144,10 +143,13 @@ impl Display for ObjectPatPropDef {
 }
 
 pub fn ident_to_param_def(
-  _parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   ident: &deno_ast::swc::ast::BindingIdent,
 ) -> ParamDef {
-  let ts_type = ident.type_ann.as_deref().map(ts_type_ann_to_def);
+  let ts_type = ident
+    .type_ann
+    .as_deref()
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Identifier {
@@ -160,10 +162,13 @@ pub fn ident_to_param_def(
 }
 
 fn rest_pat_to_param_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   rest_pat: &deno_ast::swc::ast::RestPat,
 ) -> ParamDef {
-  let ts_type = rest_pat.type_ann.as_deref().map(ts_type_ann_to_def);
+  let ts_type = rest_pat
+    .type_ann
+    .as_deref()
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Rest {
@@ -175,7 +180,7 @@ fn rest_pat_to_param_def(
 }
 
 fn object_pat_prop_to_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   object_pat_prop: &ObjectPatProp,
 ) -> ObjectPatPropDef {
   match object_pat_prop {
@@ -194,7 +199,7 @@ fn object_pat_prop_to_def(
 }
 
 fn object_pat_to_param_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   object_pat: &deno_ast::swc::ast::ObjectPat,
 ) -> ParamDef {
   let props = object_pat
@@ -202,7 +207,10 @@ fn object_pat_to_param_def(
     .iter()
     .map(|prop| object_pat_prop_to_def(parsed_source, prop))
     .collect::<Vec<_>>();
-  let ts_type = object_pat.type_ann.as_deref().map(ts_type_ann_to_def);
+  let ts_type = object_pat
+    .type_ann
+    .as_deref()
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Object {
@@ -215,7 +223,7 @@ fn object_pat_to_param_def(
 }
 
 fn array_pat_to_param_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   array_pat: &deno_ast::swc::ast::ArrayPat,
 ) -> ParamDef {
   let elements = array_pat
@@ -223,7 +231,10 @@ fn array_pat_to_param_def(
     .iter()
     .map(|elem| elem.as_ref().map(|e| pat_to_param_def(parsed_source, e)))
     .collect::<Vec<Option<_>>>();
-  let ts_type = array_pat.type_ann.as_deref().map(ts_type_ann_to_def);
+  let ts_type = array_pat
+    .type_ann
+    .as_deref()
+    .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
   ParamDef {
     pattern: ParamPatternDef::Array {
@@ -236,13 +247,23 @@ fn array_pat_to_param_def(
 }
 
 pub fn assign_pat_to_param_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   assign_pat: &deno_ast::swc::ast::AssignPat,
 ) -> ParamDef {
+  let mut left = pat_to_param_def(parsed_source, &assign_pat.left);
+
+  if left.ts_type.is_none() {
+    left.ts_type = crate::ts_type::infer_ts_type_from_expr(
+      parsed_source,
+      &assign_pat.right,
+      false,
+    );
+  }
+
   ParamDef {
     pattern: ParamPatternDef::Assign {
-      left: Box::new(pat_to_param_def(parsed_source, &assign_pat.left)),
-      right: "[UNSUPPORTED]".to_string(),
+      left: Box::new(left),
+      right: crate::interface::expr_to_name(&assign_pat.right),
     },
     decorators: Vec::new(),
     ts_type: None,
@@ -253,13 +274,13 @@ pub fn param_to_param_def(
   parsed_source: &ParsedSource,
   param: &deno_ast::swc::ast::Param,
 ) -> ParamDef {
-  let mut def = pat_to_param_def(Some(parsed_source), &param.pat);
+  let mut def = pat_to_param_def(parsed_source, &param.pat);
   def.decorators = decorators_to_defs(parsed_source, &param.decorators);
   def
 }
 
 pub fn pat_to_param_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   pat: &deno_ast::swc::ast::Pat,
 ) -> ParamDef {
   match pat {
@@ -277,7 +298,7 @@ pub fn pat_to_param_def(
 }
 
 pub fn ts_fn_param_to_param_def(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   ts_fn_param: &deno_ast::swc::ast::TsFnParam,
 ) -> ParamDef {
   match ts_fn_param {
@@ -293,7 +314,7 @@ pub fn ts_fn_param_to_param_def(
 }
 
 pub fn prop_name_to_string(
-  parsed_source: Option<&ParsedSource>,
+  parsed_source: &ParsedSource,
   prop_name: &deno_ast::swc::ast::PropName,
 ) -> String {
   use deno_ast::swc::ast::PropName;
@@ -302,8 +323,8 @@ pub fn prop_name_to_string(
     PropName::Str(str_) => str_.value.to_string(),
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
-    PropName::Computed(comp_prop_name) => parsed_source
-      .map(|s| comp_prop_name.text_fast(s.text_info()).to_string())
-      .unwrap_or_else(|| "<UNAVAILABLE>".to_string()),
+    PropName::Computed(comp_prop_name) => comp_prop_name
+      .text_fast(parsed_source.text_info())
+      .to_string(),
   }
 }

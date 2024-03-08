@@ -25,21 +25,21 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
-impl From<&TsLitType> for TsTypeDef {
-  fn from(other: &TsLitType) -> TsTypeDef {
+impl TsTypeDef {
+  fn ts_lit_type(parsed_source: &ParsedSource, other: &TsLitType) -> Self {
     match &other.lit {
       TsLit::Number(num) => TsTypeDef::number_literal(num),
       TsLit::Str(str_) => TsTypeDef::string_literal(str_),
-      TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(&tpl.types, &tpl.quasis),
+      TsLit::Tpl(tpl) => {
+        TsTypeDef::tpl_literal(parsed_source, &tpl.types, &tpl.quasis)
+      }
       TsLit::Bool(bool_) => TsTypeDef::bool_literal(bool_),
       TsLit::BigInt(bigint_) => TsTypeDef::bigint_literal(bigint_),
     }
   }
-}
 
-impl From<&TsArrayType> for TsTypeDef {
-  fn from(other: &TsArrayType) -> TsTypeDef {
-    let ts_type_def: TsTypeDef = (&*other.elem_type).into();
+  fn ts_array_type(parsed_source: &ParsedSource, other: &TsArrayType) -> Self {
+    let ts_type_def = TsTypeDef::new(parsed_source, &other.elem_type);
 
     TsTypeDef {
       array: Some(Box::new(ts_type_def)),
@@ -47,17 +47,13 @@ impl From<&TsArrayType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsTupleType> for TsTypeDef {
-  fn from(other: &TsTupleType) -> TsTypeDef {
-    let mut type_defs = vec![];
-
-    for type_box in &other.elem_types {
-      let ts_type: &TsType = &type_box.ty;
-      let def: TsTypeDef = ts_type.into();
-      type_defs.push(def)
-    }
+  fn ts_tuple_type(parsed_source: &ParsedSource, other: &TsTupleType) -> Self {
+    let type_defs = other
+      .elem_types
+      .iter()
+      .map(|type_box| TsTypeDef::new(parsed_source, &type_box.ty))
+      .collect::<Vec<_>>();
 
     TsTypeDef {
       tuple: Some(type_defs),
@@ -65,21 +61,20 @@ impl From<&TsTupleType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsUnionOrIntersectionType> for TsTypeDef {
-  fn from(other: &TsUnionOrIntersectionType) -> TsTypeDef {
+  fn ts_union_or_intersection_type(
+    parsed_source: &ParsedSource,
+    other: &TsUnionOrIntersectionType,
+  ) -> Self {
     use deno_ast::swc::ast::TsUnionOrIntersectionType::*;
 
     match other {
       TsUnionType(union_type) => {
-        let mut types_union = vec![];
-
-        for type_box in &union_type.types {
-          let ts_type: &TsType = type_box;
-          let def: TsTypeDef = ts_type.into();
-          types_union.push(def);
-        }
+        let types_union = union_type
+          .types
+          .iter()
+          .map(|ts_type| TsTypeDef::new(parsed_source, ts_type))
+          .collect::<Vec<_>>();
 
         TsTypeDef {
           union: Some(types_union),
@@ -88,13 +83,11 @@ impl From<&TsUnionOrIntersectionType> for TsTypeDef {
         }
       }
       TsIntersectionType(intersection_type) => {
-        let mut types_intersection = vec![];
-
-        for type_box in &intersection_type.types {
-          let ts_type: &TsType = type_box;
-          let def: TsTypeDef = ts_type.into();
-          types_intersection.push(def);
-        }
+        let types_intersection = intersection_type
+          .types
+          .iter()
+          .map(|ts_type| TsTypeDef::new(parsed_source, ts_type))
+          .collect::<Vec<_>>();
 
         TsTypeDef {
           intersection: Some(types_intersection),
@@ -104,10 +97,11 @@ impl From<&TsUnionOrIntersectionType> for TsTypeDef {
       }
     }
   }
-}
 
-impl From<&TsKeywordType> for TsTypeDef {
-  fn from(other: &TsKeywordType) -> TsTypeDef {
+  fn ts_keyword_type(
+    _parsed_source: &ParsedSource,
+    other: &TsKeywordType,
+  ) -> Self {
     use deno_ast::swc::ast::TsKeywordTypeKind::*;
 
     let keyword_str = match other.kind {
@@ -128,11 +122,12 @@ impl From<&TsKeywordType> for TsTypeDef {
 
     TsTypeDef::keyword(keyword_str)
   }
-}
 
-impl From<&TsTypeOperator> for TsTypeDef {
-  fn from(other: &TsTypeOperator) -> TsTypeDef {
-    let ts_type = (&*other.type_ann).into();
+  fn ts_type_operator(
+    parsed_source: &ParsedSource,
+    other: &TsTypeOperator,
+  ) -> Self {
+    let ts_type = TsTypeDef::new(parsed_source, &other.type_ann);
     let type_operator_def = TsTypeOperatorDef {
       operator: other.op.as_str().to_string(),
       ts_type,
@@ -144,11 +139,12 @@ impl From<&TsTypeOperator> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsParenthesizedType> for TsTypeDef {
-  fn from(other: &TsParenthesizedType) -> TsTypeDef {
-    let ts_type = (&*other.type_ann).into();
+  fn ts_parenthesized_type(
+    parsed_source: &ParsedSource,
+    other: &TsParenthesizedType,
+  ) -> Self {
+    let ts_type = TsTypeDef::new(parsed_source, &other.type_ann);
 
     TsTypeDef {
       parenthesized: Some(Box::new(ts_type)),
@@ -156,11 +152,9 @@ impl From<&TsParenthesizedType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsRestType> for TsTypeDef {
-  fn from(other: &TsRestType) -> TsTypeDef {
-    let ts_type = (&*other.type_ann).into();
+  fn ts_rest_type(parsed_source: &ParsedSource, other: &TsRestType) -> Self {
+    let ts_type = TsTypeDef::new(parsed_source, &other.type_ann);
 
     TsTypeDef {
       rest: Some(Box::new(ts_type)),
@@ -168,11 +162,12 @@ impl From<&TsRestType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsOptionalType> for TsTypeDef {
-  fn from(other: &TsOptionalType) -> TsTypeDef {
-    let ts_type = (&*other.type_ann).into();
+  fn ts_optional_type(
+    parsed_source: &ParsedSource,
+    other: &TsOptionalType,
+  ) -> Self {
+    let ts_type = TsTypeDef::new(parsed_source, &other.type_ann);
 
     TsTypeDef {
       optional: Some(Box::new(ts_type)),
@@ -180,10 +175,8 @@ impl From<&TsOptionalType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsThisType> for TsTypeDef {
-  fn from(_: &TsThisType) -> TsTypeDef {
+  fn ts_this_type(_parsed_source: &ParsedSource, _other: &TsThisType) -> Self {
     TsTypeDef {
       repr: "this".to_string(),
       this: Some(true),
@@ -191,17 +184,18 @@ impl From<&TsThisType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsTypePredicate> for TsTypeDef {
-  fn from(other: &TsTypePredicate) -> TsTypeDef {
+  fn ts_type_predicate(
+    parsed_source: &ParsedSource,
+    other: &TsTypePredicate,
+  ) -> Self {
     let pred = TsTypePredicateDef {
       asserts: other.asserts,
       param: (&other.param_name).into(),
       r#type: other
         .type_ann
         .as_ref()
-        .map(|t| Box::new(ts_type_ann_to_def(t))),
+        .map(|t| Box::new(TsTypeDef::new(parsed_source, &t.type_ann))),
     };
     TsTypeDef {
       repr: pred.to_string(),
@@ -210,25 +204,8 @@ impl From<&TsTypePredicate> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-pub fn ts_entity_name_to_name(
-  entity_name: &deno_ast::swc::ast::TsEntityName,
-) -> String {
-  use deno_ast::swc::ast::TsEntityName::*;
-
-  match entity_name {
-    Ident(ident) => ident.sym.to_string(),
-    TsQualifiedName(ts_qualified_name) => {
-      let left = ts_entity_name_to_name(&ts_qualified_name.left);
-      let right = ts_qualified_name.right.sym.to_string();
-      format!("{}.{}", left, right)
-    }
-  }
-}
-
-impl From<&TsTypeQuery> for TsTypeDef {
-  fn from(other: &TsTypeQuery) -> TsTypeDef {
+  fn ts_type_query(_parsed_source: &ParsedSource, other: &TsTypeQuery) -> Self {
     use deno_ast::swc::ast::TsTypeQueryExpr::*;
 
     let type_name = match &other.expr_name {
@@ -243,20 +220,16 @@ impl From<&TsTypeQuery> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsTypeRef> for TsTypeDef {
-  fn from(other: &TsTypeRef) -> TsTypeDef {
+  fn ts_type_ref(parsed_source: &ParsedSource, other: &TsTypeRef) -> Self {
     let type_name = ts_entity_name_to_name(&other.type_name);
 
     let type_params = if let Some(type_params_inst) = &other.type_params {
-      let mut ts_type_defs = vec![];
-
-      for type_box in &type_params_inst.params {
-        let ts_type: &TsType = type_box;
-        let def: TsTypeDef = ts_type.into();
-        ts_type_defs.push(def);
-      }
+      let ts_type_defs = type_params_inst
+        .params
+        .iter()
+        .map(|ts_type| TsTypeDef::new(parsed_source, ts_type))
+        .collect::<Vec<_>>();
 
       Some(ts_type_defs)
     } else {
@@ -273,20 +246,19 @@ impl From<&TsTypeRef> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsExprWithTypeArgs> for TsTypeDef {
-  fn from(other: &TsExprWithTypeArgs) -> TsTypeDef {
+  pub fn ts_expr_with_type_args(
+    parsed_source: &ParsedSource,
+    other: &TsExprWithTypeArgs,
+  ) -> Self {
     let type_name = expr_to_name(&other.expr);
 
     let type_params = if let Some(type_params_inst) = &other.type_args {
-      let mut ts_type_defs = vec![];
-
-      for type_box in &type_params_inst.params {
-        let ts_type: &TsType = type_box;
-        let def: TsTypeDef = ts_type.into();
-        ts_type_defs.push(def);
-      }
+      let ts_type_defs = type_params_inst
+        .params
+        .iter()
+        .map(|ts_type| TsTypeDef::new(parsed_source, ts_type))
+        .collect::<Vec<_>>();
 
       Some(ts_type_defs)
     } else {
@@ -303,14 +275,16 @@ impl From<&TsExprWithTypeArgs> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsIndexedAccessType> for TsTypeDef {
-  fn from(other: &TsIndexedAccessType) -> TsTypeDef {
+  fn ts_indexed_access_type(
+    parsed_source: &ParsedSource,
+    other: &TsIndexedAccessType,
+  ) -> Self {
+    TsTypeDef::new(parsed_source, &other.obj_type);
     let indexed_access_def = TsIndexedAccessDef {
       readonly: other.readonly,
-      obj_type: Box::new((&*other.obj_type).into()),
-      index_type: Box::new((&*other.index_type).into()),
+      obj_type: Box::new(TsTypeDef::new(parsed_source, &other.obj_type)),
+      index_type: Box::new(TsTypeDef::new(parsed_source, &other.index_type)),
     };
 
     TsTypeDef {
@@ -319,22 +293,26 @@ impl From<&TsIndexedAccessType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsMappedType> for TsTypeDef {
-  fn from(other: &TsMappedType) -> Self {
+  fn ts_mapped_type(
+    parsed_source: &ParsedSource,
+    other: &TsMappedType,
+  ) -> Self {
     let mapped_type_def = TsMappedTypeDef {
       readonly: other.readonly,
-      type_param: Box::new((&other.type_param).into()),
+      type_param: Box::new(TsTypeParamDef::new(
+        parsed_source,
+        &other.type_param,
+      )),
       name_type: other
         .name_type
         .as_ref()
-        .map(|nt| Box::new(TsTypeDef::from(&**nt))),
+        .map(|nt| Box::new(TsTypeDef::new(parsed_source, nt))),
       optional: other.optional,
       ts_type: other
         .type_ann
         .as_ref()
-        .map(|a| Box::new(TsTypeDef::from(&**a))),
+        .map(|a| Box::new(TsTypeDef::new(parsed_source, a))),
     };
 
     TsTypeDef {
@@ -343,10 +321,8 @@ impl From<&TsMappedType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsTypeLit> for TsTypeDef {
-  fn from(other: &TsTypeLit) -> TsTypeDef {
+  fn ts_type_lit(parsed_source: &ParsedSource, other: &TsTypeLit) -> Self {
     let mut methods = vec![];
     let mut properties = vec![];
     let mut call_signatures = vec![];
@@ -360,22 +336,23 @@ impl From<&TsTypeLit> for TsTypeDef {
           let mut params = vec![];
 
           for param in &ts_method_sig.params {
-            let param_def = ts_fn_param_to_param_def(None, param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let maybe_return_type = ts_method_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_method_sig.type_params.as_deref(),
           );
           let name = expr_to_name(&ts_method_sig.key);
           let method_def = LiteralMethodDef {
             name,
-            kind: deno_ast::swc::ast::MethodKind::Method,
+            kind: MethodKind::Method,
             params,
             computed: ts_method_sig.computed,
             optional: ts_method_sig.optional,
@@ -388,12 +365,12 @@ impl From<&TsTypeLit> for TsTypeDef {
           let maybe_return_type = ts_getter_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let name = expr_to_name(&ts_getter_sig.key);
           let method_def = LiteralMethodDef {
             name,
-            kind: deno_ast::swc::ast::MethodKind::Getter,
+            kind: MethodKind::Getter,
             params: vec![],
             computed: ts_getter_sig.computed,
             optional: ts_getter_sig.optional,
@@ -405,12 +382,14 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsSetterSignature(ts_setter_sig) => {
           let name = expr_to_name(&ts_setter_sig.key);
 
-          let params =
-            vec![ts_fn_param_to_param_def(None, &ts_setter_sig.param)];
+          let params = vec![ts_fn_param_to_param_def(
+            parsed_source,
+            &ts_setter_sig.param,
+          )];
 
           let method_def = LiteralMethodDef {
             name,
-            kind: deno_ast::swc::ast::MethodKind::Setter,
+            kind: MethodKind::Setter,
             params,
             computed: ts_setter_sig.computed,
             optional: ts_setter_sig.optional,
@@ -422,19 +401,19 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsPropertySignature(ts_prop_sig) => {
           let name = expr_to_name(&ts_prop_sig.key);
 
-          let mut params = vec![];
-
-          for param in &ts_prop_sig.params {
-            let param_def = ts_fn_param_to_param_def(None, param);
-            params.push(param_def);
-          }
+          let params = ts_prop_sig
+            .params
+            .iter()
+            .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+            .collect();
 
           let ts_type = ts_prop_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_prop_sig.type_params.as_deref(),
           );
           let prop_def = LiteralPropertyDef {
@@ -451,16 +430,17 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsCallSignatureDecl(ts_call_sig) => {
           let mut params = vec![];
           for param in &ts_call_sig.params {
-            let param_def = ts_fn_param_to_param_def(None, param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let ts_type = ts_call_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_call_sig.type_params.as_deref(),
           );
 
@@ -474,14 +454,14 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsIndexSignature(ts_index_sig) => {
           let mut params = vec![];
           for param in &ts_index_sig.params {
-            let param_def = ts_fn_param_to_param_def(None, param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let ts_type = ts_index_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let index_sig_def = LiteralIndexSignatureDef {
             readonly: ts_index_sig.readonly,
@@ -493,22 +473,23 @@ impl From<&TsTypeLit> for TsTypeDef {
         TsConstructSignatureDecl(ts_construct_sig) => {
           let mut params = vec![];
           for param in &ts_construct_sig.params {
-            let param_def = ts_fn_param_to_param_def(None, param);
+            let param_def = ts_fn_param_to_param_def(parsed_source, param);
             params.push(param_def);
           }
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             ts_construct_sig.type_params.as_deref(),
           );
 
           let maybe_return_type = ts_construct_sig
             .type_ann
             .as_ref()
-            .map(|rt| (&*rt.type_ann).into());
+            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
           let construct_sig_def = LiteralMethodDef {
             name: "new".to_string(),
-            kind: deno_ast::swc::ast::MethodKind::Method,
+            kind: MethodKind::Method,
             computed: false,
             optional: false,
             params,
@@ -534,15 +515,19 @@ impl From<&TsTypeLit> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsConditionalType> for TsTypeDef {
-  fn from(other: &TsConditionalType) -> TsTypeDef {
+  fn ts_conditional_type(
+    parsed_source: &ParsedSource,
+    other: &TsConditionalType,
+  ) -> Self {
     let conditional_type_def = TsConditionalDef {
-      check_type: Box::new((&*other.check_type).into()),
-      extends_type: Box::new((&*other.extends_type).into()),
-      true_type: Box::new((&*other.true_type).into()),
-      false_type: Box::new((&*other.false_type).into()),
+      check_type: Box::new(TsTypeDef::new(parsed_source, &other.check_type)),
+      extends_type: Box::new(TsTypeDef::new(
+        parsed_source,
+        &other.extends_type,
+      )),
+      true_type: Box::new(TsTypeDef::new(parsed_source, &other.true_type)),
+      false_type: Box::new(TsTypeDef::new(parsed_source, &other.false_type)),
     };
 
     TsTypeDef {
@@ -551,32 +536,32 @@ impl From<&TsConditionalType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsInferType> for TsTypeDef {
-  fn from(other: &TsInferType) -> Self {
+  fn ts_infer_type(parsed_source: &ParsedSource, other: &TsInferType) -> Self {
     let infer = TsInferDef {
-      type_param: Box::new((&other.type_param).into()),
+      type_param: Box::new(TsTypeParamDef::new(
+        parsed_source,
+        &other.type_param,
+      )),
     };
 
-    Self {
+    TsTypeDef {
       kind: Some(TsTypeDefKind::Infer),
       infer: Some(infer),
       ..Default::default()
     }
   }
-}
 
-impl From<&TsImportType> for TsTypeDef {
-  fn from(other: &TsImportType) -> Self {
+  fn ts_import_type(
+    parsed_source: &ParsedSource,
+    other: &TsImportType,
+  ) -> Self {
     let type_params = if let Some(type_params_inst) = &other.type_args {
-      let mut ts_type_defs = vec![];
-
-      for type_box in &type_params_inst.params {
-        let ts_type: &TsType = type_box;
-        let def: TsTypeDef = ts_type.into();
-        ts_type_defs.push(def);
-      }
+      let ts_type_defs = type_params_inst
+        .params
+        .iter()
+        .map(|param| TsTypeDef::new(parsed_source, param))
+        .collect::<Vec<_>>();
 
       Some(ts_type_defs)
     } else {
@@ -589,16 +574,17 @@ impl From<&TsImportType> for TsTypeDef {
       type_params,
     };
 
-    Self {
+    TsTypeDef {
       kind: Some(TsTypeDefKind::ImportType),
       import_type: Some(import_type_def),
       ..Default::default()
     }
   }
-}
 
-impl From<&TsFnOrConstructorType> for TsTypeDef {
-  fn from(other: &TsFnOrConstructorType) -> TsTypeDef {
+  fn ts_fn_or_constructor_type(
+    parsed_source: &ParsedSource,
+    other: &TsFnOrConstructorType,
+  ) -> Self {
     use deno_ast::swc::ast::TsFnOrConstructorType::*;
 
     let fn_def = match other {
@@ -606,17 +592,18 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
         let mut params = vec![];
 
         for param in &ts_fn_type.params {
-          let param_def = ts_fn_param_to_param_def(None, param);
+          let param_def = ts_fn_param_to_param_def(parsed_source, param);
           params.push(param_def);
         }
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
+          parsed_source,
           ts_fn_type.type_params.as_deref(),
         );
 
         TsFnOrConstructorDef {
           constructor: false,
-          ts_type: ts_type_ann_to_def(&ts_fn_type.type_ann),
+          ts_type: TsTypeDef::new(parsed_source, &ts_fn_type.type_ann.type_ann),
           params,
           type_params,
         }
@@ -625,16 +612,17 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
         let mut params = vec![];
 
         for param in &ctor_type.params {
-          let param_def = ts_fn_param_to_param_def(None, param);
+          let param_def = ts_fn_param_to_param_def(parsed_source, param);
           params.push(param_def);
         }
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
+          parsed_source,
           ctor_type.type_params.as_deref(),
         );
         TsFnOrConstructorDef {
           constructor: true,
-          ts_type: ts_type_ann_to_def(&ctor_type.type_ann),
+          ts_type: TsTypeDef::new(parsed_source, &ctor_type.type_ann.type_ann),
           params,
           type_params,
         }
@@ -647,33 +635,80 @@ impl From<&TsFnOrConstructorType> for TsTypeDef {
       ..Default::default()
     }
   }
-}
 
-impl From<&TsType> for TsTypeDef {
-  fn from(other: &TsType) -> TsTypeDef {
+  pub fn new(parsed_source: &ParsedSource, other: &TsType) -> Self {
     use deno_ast::swc::ast::TsType::*;
 
     match other {
-      TsKeywordType(keyword_type) => keyword_type.into(),
-      TsThisType(this_type) => this_type.into(),
-      TsFnOrConstructorType(fn_or_con_type) => fn_or_con_type.into(),
-      TsTypeRef(type_ref) => type_ref.into(),
-      TsTypeQuery(type_query) => type_query.into(),
-      TsTypeLit(type_literal) => type_literal.into(),
-      TsArrayType(array_type) => array_type.into(),
-      TsTupleType(tuple_type) => tuple_type.into(),
-      TsOptionalType(optional_type) => optional_type.into(),
-      TsRestType(rest_type) => rest_type.into(),
-      TsUnionOrIntersectionType(union_or_inter) => union_or_inter.into(),
-      TsConditionalType(conditional_type) => conditional_type.into(),
-      TsInferType(infer_type) => infer_type.into(),
-      TsParenthesizedType(paren_type) => paren_type.into(),
-      TsTypeOperator(type_op_type) => type_op_type.into(),
-      TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
-      TsMappedType(mapped_type) => mapped_type.into(),
-      TsLitType(lit_type) => lit_type.into(),
-      TsTypePredicate(type_predicate_type) => type_predicate_type.into(),
-      TsImportType(import_type) => import_type.into(),
+      TsKeywordType(keyword_type) => {
+        TsTypeDef::ts_keyword_type(parsed_source, keyword_type)
+      }
+      TsThisType(this_type) => {
+        TsTypeDef::ts_this_type(parsed_source, this_type)
+      }
+      TsFnOrConstructorType(fn_or_con_type) => {
+        TsTypeDef::ts_fn_or_constructor_type(parsed_source, fn_or_con_type)
+      }
+      TsTypeRef(type_ref) => TsTypeDef::ts_type_ref(parsed_source, type_ref),
+      TsTypeQuery(type_query) => {
+        TsTypeDef::ts_type_query(parsed_source, type_query)
+      }
+      TsTypeLit(type_literal) => {
+        TsTypeDef::ts_type_lit(parsed_source, type_literal)
+      }
+      TsArrayType(array_type) => {
+        TsTypeDef::ts_array_type(parsed_source, array_type)
+      }
+      TsTupleType(tuple_type) => {
+        TsTypeDef::ts_tuple_type(parsed_source, tuple_type)
+      }
+      TsOptionalType(optional_type) => {
+        TsTypeDef::ts_optional_type(parsed_source, optional_type)
+      }
+      TsRestType(rest_type) => {
+        TsTypeDef::ts_rest_type(parsed_source, rest_type)
+      }
+      TsUnionOrIntersectionType(union_or_inter) => {
+        TsTypeDef::ts_union_or_intersection_type(parsed_source, union_or_inter)
+      }
+      TsConditionalType(conditional_type) => {
+        TsTypeDef::ts_conditional_type(parsed_source, conditional_type)
+      }
+      TsInferType(infer_type) => {
+        TsTypeDef::ts_infer_type(parsed_source, infer_type)
+      }
+      TsParenthesizedType(paren_type) => {
+        TsTypeDef::ts_parenthesized_type(parsed_source, paren_type)
+      }
+      TsTypeOperator(type_op_type) => {
+        TsTypeDef::ts_type_operator(parsed_source, type_op_type)
+      }
+      TsIndexedAccessType(indexed_access_type) => {
+        TsTypeDef::ts_indexed_access_type(parsed_source, indexed_access_type)
+      }
+      TsMappedType(mapped_type) => {
+        TsTypeDef::ts_mapped_type(parsed_source, mapped_type)
+      }
+      TsLitType(lit_type) => TsTypeDef::ts_lit_type(parsed_source, lit_type),
+      TsTypePredicate(type_predicate_type) => {
+        TsTypeDef::ts_type_predicate(parsed_source, type_predicate_type)
+      }
+      TsImportType(import_type) => {
+        TsTypeDef::ts_import_type(parsed_source, import_type)
+      }
+    }
+  }
+}
+
+fn ts_entity_name_to_name(entity_name: &TsEntityName) -> String {
+  use deno_ast::swc::ast::TsEntityName::*;
+
+  match entity_name {
+    Ident(ident) => ident.sym.to_string(),
+    TsQualifiedName(ts_qualified_name) => {
+      let left = ts_entity_name_to_name(&ts_qualified_name.left);
+      let right = ts_qualified_name.right.sym.to_string();
+      format!("{}.{}", left, right)
     }
   }
 }
@@ -729,20 +764,22 @@ pub struct TsFnOrConstructorDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-impl From<&deno_ast::swc::ast::ArrowExpr> for TsFnOrConstructorDef {
-  fn from(expr: &deno_ast::swc::ast::ArrowExpr) -> Self {
+impl TsFnOrConstructorDef {
+  fn arrow_expr(parsed_source: &ParsedSource, expr: &ArrowExpr) -> Self {
     let params = expr
       .params
       .iter()
-      .map(|pat| pat_to_param_def(None, pat))
+      .map(|pat| pat_to_param_def(parsed_source, pat))
       .collect();
     let ts_type = expr
       .return_type
       .as_deref()
-      .map(ts_type_ann_to_def)
+      .map(|return_type| TsTypeDef::new(parsed_source, &return_type.type_ann))
       .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
-    let type_params =
-      maybe_type_param_decl_to_type_param_defs(expr.type_params.as_deref());
+    let type_params = maybe_type_param_decl_to_type_param_defs(
+      parsed_source,
+      expr.type_params.as_deref(),
+    );
 
     Self {
       constructor: false,
@@ -751,23 +788,22 @@ impl From<&deno_ast::swc::ast::ArrowExpr> for TsFnOrConstructorDef {
       type_params,
     }
   }
-}
 
-impl From<&deno_ast::swc::ast::FnExpr> for TsFnOrConstructorDef {
-  fn from(expr: &deno_ast::swc::ast::FnExpr) -> Self {
+  fn fn_expr(parsed_source: &ParsedSource, expr: &FnExpr) -> Self {
     let params = expr
       .function
       .params
       .iter()
-      .map(|param| pat_to_param_def(None, &param.pat))
+      .map(|param| pat_to_param_def(parsed_source, &param.pat))
       .collect();
     let ts_type = expr
       .function
       .return_type
       .as_deref()
-      .map(ts_type_ann_to_def)
+      .map(|return_type| TsTypeDef::new(parsed_source, &return_type.type_ann))
       .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
     let type_params = maybe_type_param_decl_to_type_param_defs(
+      parsed_source,
       expr.function.type_params.as_deref(),
     );
 
@@ -1168,10 +1204,14 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn tpl_literal(types: &[Box<TsType>], quasis: &[TplElement]) -> Self {
+  pub fn tpl_literal(
+    parsed_source: &ParsedSource,
+    types: &[Box<TsType>],
+    quasis: &[TplElement],
+  ) -> Self {
     let mut ts_types: Vec<(SourceRange, Self, String)> = Vec::new();
     for ts_type in types {
-      let t: Self = ts_type.as_ref().into();
+      let t = TsTypeDef::new(parsed_source, ts_type);
       let repr = format!("${{{}}}", t);
       ts_types.push((get_range_from_type(ts_type), t, repr))
     }
@@ -1298,33 +1338,6 @@ impl TsTypeDef {
   }
 }
 
-pub fn ts_type_ann_to_def(type_ann: &TsTypeAnn) -> TsTypeDef {
-  use deno_ast::swc::ast::TsType::*;
-
-  match &*type_ann.type_ann {
-    TsKeywordType(keyword_type) => keyword_type.into(),
-    TsThisType(this_type) => this_type.into(),
-    TsFnOrConstructorType(fn_or_con_type) => fn_or_con_type.into(),
-    TsTypeRef(type_ref) => type_ref.into(),
-    TsTypeQuery(type_query) => type_query.into(),
-    TsTypeLit(type_literal) => type_literal.into(),
-    TsArrayType(array_type) => array_type.into(),
-    TsTupleType(tuple_type) => tuple_type.into(),
-    TsOptionalType(optional_type) => optional_type.into(),
-    TsRestType(rest_type) => rest_type.into(),
-    TsUnionOrIntersectionType(union_or_inter) => union_or_inter.into(),
-    TsConditionalType(conditional_type) => conditional_type.into(),
-    TsInferType(infer_type) => infer_type.into(),
-    TsParenthesizedType(paren_type) => paren_type.into(),
-    TsTypeOperator(type_op_type) => type_op_type.into(),
-    TsIndexedAccessType(indexed_access_type) => indexed_access_type.into(),
-    TsMappedType(mapped_type) => mapped_type.into(),
-    TsLitType(lit_type) => lit_type.into(),
-    TsTypePredicate(type_predicate) => type_predicate.into(),
-    TsImportType(import_type) => import_type.into(),
-  }
-}
-
 pub fn infer_ts_type_from_expr(
   parsed_source: &ParsedSource,
   expr: &Expr,
@@ -1337,11 +1350,11 @@ pub fn infer_ts_type_from_expr(
     }
     Expr::Arrow(expr) => {
       // e.g.) const f = (a: string): void => {};
-      infer_ts_type_from_arrow_expr(expr)
+      infer_ts_type_from_arrow_expr(parsed_source, expr)
     }
     Expr::Fn(expr) => {
       // e.g.) const f = function a(a:string): void {};
-      infer_ts_type_from_fn_expr(expr)
+      infer_ts_type_from_fn_expr(parsed_source, expr)
     }
     Expr::Lit(lit) => {
       // e.g.) const n = 100;
@@ -1349,11 +1362,11 @@ pub fn infer_ts_type_from_expr(
     }
     Expr::New(expr) => {
       // e.g.) const d = new Date()
-      infer_ts_type_from_new_expr(expr)
+      infer_ts_type_from_new_expr(parsed_source, expr)
     }
     Expr::Tpl(tpl) => {
       // e.g.) const s = `hello`;
-      Some(infer_ts_type_from_tpl(tpl, is_const))
+      Some(infer_ts_type_from_tpl(parsed_source, tpl, is_const))
     }
     Expr::TsConstAssertion(assertion) => {
       // e.g.) const s = [] as const;
@@ -1439,18 +1452,30 @@ fn infer_ts_type_from_arr_lit(
   }
 }
 
-fn infer_ts_type_from_arrow_expr(expr: &ArrowExpr) -> Option<TsTypeDef> {
+fn infer_ts_type_from_arrow_expr(
+  parsed_source: &ParsedSource,
+  expr: &ArrowExpr,
+) -> Option<TsTypeDef> {
   Some(TsTypeDef {
     kind: Some(TsTypeDefKind::FnOrConstructor),
-    fn_or_constructor: Some(Box::new(expr.into())),
+    fn_or_constructor: Some(Box::new(TsFnOrConstructorDef::arrow_expr(
+      parsed_source,
+      expr,
+    ))),
     ..Default::default()
   })
 }
 
-fn infer_ts_type_from_fn_expr(expr: &FnExpr) -> Option<TsTypeDef> {
+fn infer_ts_type_from_fn_expr(
+  parsed_source: &ParsedSource,
+  expr: &FnExpr,
+) -> Option<TsTypeDef> {
   Some(TsTypeDef {
     kind: Some(TsTypeDefKind::FnOrConstructor),
-    fn_or_constructor: Some(Box::new(expr.into())),
+    fn_or_constructor: Some(Box::new(TsFnOrConstructorDef::fn_expr(
+      parsed_source,
+      expr,
+    ))),
     ..Default::default()
   })
 }
@@ -1503,16 +1528,18 @@ fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
   }
 }
 
-fn infer_ts_type_from_new_expr(new_expr: &NewExpr) -> Option<TsTypeDef> {
+fn infer_ts_type_from_new_expr(
+  parsed_source: &ParsedSource,
+  new_expr: &NewExpr,
+) -> Option<TsTypeDef> {
   match new_expr.callee.as_ref() {
     Expr::Ident(ident) => Some(TsTypeDef {
       repr: ident.sym.to_string(),
       kind: Some(TsTypeDefKind::TypeRef),
       type_ref: Some(TsTypeRefDef {
-        type_params: new_expr
-          .type_args
-          .as_ref()
-          .map(|init| maybe_type_param_instantiation_to_type_defs(Some(init))),
+        type_params: new_expr.type_args.as_ref().map(|init| {
+          maybe_type_param_instantiation_to_type_defs(parsed_source, Some(init))
+        }),
         type_name: ident.sym.to_string(),
       }),
       ..Default::default()
@@ -1581,7 +1608,7 @@ fn infer_ts_type_from_obj_inner(
         }
         Prop::KeyValue(kv) => {
           properties.push(LiteralPropertyDef {
-            name: prop_name_to_string(Some(parsed_source), &kv.key),
+            name: prop_name_to_string(parsed_source, &kv.key),
             params: vec![],
             readonly: false,
             computed: kv.key.is_computed(),
@@ -1592,12 +1619,12 @@ fn infer_ts_type_from_obj_inner(
         }
         Prop::Assign(_) => unreachable!("This is invalid for object literal!"),
         Prop::Getter(getter) => {
-          let name = prop_name_to_string(Some(parsed_source), &getter.key);
+          let name = prop_name_to_string(parsed_source, &getter.key);
           let computed = getter.key.is_computed();
           let return_type = getter
             .type_ann
             .as_ref()
-            .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
+            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
           methods.push(LiteralMethodDef {
             name,
             kind: MethodKind::Getter,
@@ -1609,10 +1636,9 @@ fn infer_ts_type_from_obj_inner(
           });
         }
         Prop::Setter(setter) => {
-          let name = prop_name_to_string(Some(parsed_source), &setter.key);
+          let name = prop_name_to_string(parsed_source, &setter.key);
           let computed = setter.key.is_computed();
-          let param =
-            pat_to_param_def(Some(parsed_source), setter.param.as_ref());
+          let param = pat_to_param_def(parsed_source, setter.param.as_ref());
           methods.push(LiteralMethodDef {
             name,
             kind: MethodKind::Setter,
@@ -1624,7 +1650,7 @@ fn infer_ts_type_from_obj_inner(
           });
         }
         Prop::Method(method) => {
-          let name = prop_name_to_string(Some(parsed_source), &method.key);
+          let name = prop_name_to_string(parsed_source, &method.key);
           let computed = method.key.is_computed();
           let params = method
             .function
@@ -1632,12 +1658,12 @@ fn infer_ts_type_from_obj_inner(
             .iter()
             .map(|param| param_to_param_def(parsed_source, param))
             .collect();
-          let return_type = method
-            .function
-            .return_type
-            .as_ref()
-            .map(|type_ann| ts_type_ann_to_def(type_ann.as_ref()));
+          let return_type =
+            method.function.return_type.as_ref().map(|type_ann| {
+              TsTypeDef::new(parsed_source, &type_ann.type_ann)
+            });
           let type_params = maybe_type_param_decl_to_type_param_defs(
+            parsed_source,
             method.function.type_params.as_deref(),
           );
           methods.push(LiteralMethodDef {
@@ -1664,12 +1690,16 @@ fn infer_ts_type_from_obj_inner(
   (methods, properties)
 }
 
-fn infer_ts_type_from_tpl(tpl: &Tpl, is_const: bool) -> TsTypeDef {
+fn infer_ts_type_from_tpl(
+  parsed_source: &ParsedSource,
+  tpl: &Tpl,
+  is_const: bool,
+) -> TsTypeDef {
   // TODO(@kitsonk) we should iterate over the expr and if each expr has a
   // ts_type or can be trivially inferred, it should be passed to the
   // tp_literal
   if tpl.quasis.len() == 1 && is_const {
-    TsTypeDef::tpl_literal(&[], &tpl.quasis)
+    TsTypeDef::tpl_literal(parsed_source, &[], &tpl.quasis)
   } else {
     TsTypeDef::string_with_repr("string")
   }
@@ -1891,13 +1921,14 @@ impl Display for TsTypeDef {
 }
 
 pub fn maybe_type_param_instantiation_to_type_defs(
+  parsed_source: &ParsedSource,
   maybe_type_param_instantiation: Option<&TsTypeParamInstantiation>,
 ) -> Vec<TsTypeDef> {
   if let Some(type_param_instantiation) = maybe_type_param_instantiation {
     type_param_instantiation
       .params
       .iter()
-      .map(|type_param| type_param.as_ref().into())
+      .map(|type_param| TsTypeDef::new(parsed_source, type_param))
       .collect::<Vec<TsTypeDef>>()
   } else {
     vec![]
