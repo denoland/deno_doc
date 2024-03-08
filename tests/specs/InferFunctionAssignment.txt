@@ -1,18 +1,18 @@
 # mod.ts
-export function foo(n = 0) {}
+export function foo(n = 0, b: string = 0) {}
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
  --> /mod.ts:1:1
   | 
-1 | export function foo(n = 0) {}
+1 | export function foo(n = 0, b: string = 0) {}
   | ^
 
 
 # output.txt
 Defined in file:///mod.ts:1:1
 
-function foo(n: number): void
+function foo(n: number, b: string: number): void
 
 
 # output.json
@@ -36,6 +36,25 @@ function foo(n: number): void
             "name": "n",
             "optional": false,
             "tsType": null
+          },
+          "right": "0",
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          }
+        },
+        {
+          "kind": "assign",
+          "left": {
+            "kind": "identifier",
+            "name": "b",
+            "optional": false,
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            }
           },
           "right": "0",
           "tsType": {
