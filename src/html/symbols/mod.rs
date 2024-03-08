@@ -1,4 +1,3 @@
-use crate::html::namespace::partition_nodes_by_kind;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::SectionCtx;
@@ -8,8 +7,8 @@ use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
+use indexmap::IndexMap;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::collections::HashSet;
 
 pub mod class;
@@ -39,7 +38,7 @@ pub struct SymbolGroupCtx {
 
 impl SymbolGroupCtx {
   pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Self {
-    let mut split_nodes = HashMap::<DocNodeKind, Vec<DocNode>>::default();
+    let mut split_nodes = IndexMap::<DocNodeKind, Vec<DocNode>>::default();
 
     for doc_node in doc_nodes {
       if doc_node.kind == DocNodeKind::Import {
@@ -51,6 +50,8 @@ impl SymbolGroupCtx {
         .or_insert(vec![])
         .push(doc_node.clone());
     }
+
+    split_nodes.sort_keys();
 
     // TODO: property drilldown
 
@@ -124,7 +125,7 @@ impl SymbolGroupCtx {
           deprecated,
         }
       })
-      .collect();
+      .collect::<Vec<_>>();
 
     SymbolGroupCtx {
       name: name.to_string(),
@@ -279,7 +280,8 @@ impl SymbolInnerCtx {
             })
             .collect::<Vec<_>>();
 
-          let partitions = partition_nodes_by_kind(&namespace_nodes, false);
+          let partitions =
+            super::partition::partition_nodes_by_kind(&namespace_nodes, false);
 
           let ns_parts = name.split('.').collect::<Vec<&str>>();
 

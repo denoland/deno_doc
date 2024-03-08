@@ -8,12 +8,12 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::DocNode;
-use crate::DocNodeKind;
 
 pub mod comrak_adapters;
 pub mod jsdoc;
 pub mod pages;
 mod parameters;
+pub mod partition;
 mod render_context;
 mod search;
 pub mod sidepanels;
@@ -46,6 +46,9 @@ pub const PAGE_STYLESHEET: &str =
 pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
+
+pub const SCRIPT_JS: &str = include_str!("./templates/script.js");
+pub const SCRIPT_FILENAME: &str = "script.js";
 
 const FUSE_JS: &str = include_str!("./templates/pages/fuse.js");
 const FUSE_FILENAME: &str = "fuse.js";
@@ -285,19 +288,19 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   // icons
   reg.register_template_string(
     "icons/copy",
-    include_str!("./templates/icons/copy.hbs"),
+    include_str!("./templates/icons/copy.svg"),
   )?;
   reg.register_template_string(
     "icons/link",
-    include_str!("./templates/icons/link.hbs"),
+    include_str!("./templates/icons/link.svg"),
   )?;
   reg.register_template_string(
     "icons/source",
-    include_str!("./templates/icons/source.hbs"),
+    include_str!("./templates/icons/source.svg"),
   )?;
   reg.register_template_string(
     "icons/menu",
-    include_str!("./templates/icons/menu.hbs"),
+    include_str!("./templates/icons/menu.svg"),
   )?;
 
   Ok(reg)
@@ -352,7 +355,7 @@ pub fn generate(
   // Index page
   {
     let partitions_for_entrypoint_nodes =
-      get_partitions_for_main_entrypoint(&ctx, doc_nodes_by_url);
+      partition::get_partitions_for_main_entrypoint(&ctx, doc_nodes_by_url);
 
     let index = pages::render_index(
       &ctx,
@@ -378,7 +381,7 @@ pub fn generate(
       .collect::<Vec<DocNodeWithContext>>();
 
     let partitions_by_kind =
-      namespace::partition_nodes_by_kind(&all_doc_nodes, true);
+      partition::partition_nodes_by_kind(&all_doc_nodes, true);
 
     let all_symbols_render =
       pages::render_all_symbols_page(&ctx, partitions_by_kind);
@@ -390,8 +393,11 @@ pub fn generate(
     for (specifier, doc_nodes) in doc_nodes_by_url {
       let short_path = ctx.url_to_short_path(specifier);
 
-      let partitions_for_nodes =
-        get_partitions_for_file(&ctx, doc_nodes, Cow::Borrowed(&short_path));
+      let partitions_for_nodes = partition::get_partitions_for_file(
+        &ctx,
+        doc_nodes,
+        Cow::Borrowed(&short_path),
+      );
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -452,92 +458,11 @@ pub fn generate(
     SEARCH_INDEX_FILENAME.into(),
     search::get_search_index_file(&ctx, doc_nodes_by_url)?,
   );
+  files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
 
   Ok(files)
-}
-
-pub fn get_partitions_for_file<'a>(
-  ctx: &GenerateCtx,
-  doc_nodes: &'a [DocNode],
-  short_path: Cow<'a, ShortPath>,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
-  let doc_nodes_with_context = doc_nodes
-    .iter()
-    .map(|node| DocNodeWithContext {
-      doc_node: node,
-      origin: Some(short_path.clone()),
-      ns_qualifiers: Rc::new(vec![]),
-    })
-    .collect::<Vec<_>>();
-
-  let categories = namespace::partition_nodes_by_category(
-    &doc_nodes_with_context,
-    ctx.sidebar_flatten_namespaces,
-  );
-
-  if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    namespace::partition_nodes_by_kind(
-      &doc_nodes_with_context,
-      ctx.sidebar_flatten_namespaces,
-    )
-    .into_iter()
-    .map(|(kind, nodes)| {
-      let doc_node_kind_ctx: DocNodeKindCtx = kind.into();
-      (doc_node_kind_ctx.title.to_string(), nodes)
-    })
-    .collect()
-  } else {
-    categories
-  }
-}
-
-pub fn get_partitions_for_main_entrypoint<'a>(
-  ctx: &GenerateCtx,
-  doc_nodes_by_url: &'a IndexMap<ModuleSpecifier, Vec<DocNode>>,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
-  let doc_nodes = ctx
-    .main_entrypoint
-    .as_ref()
-    .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
-
-  if let Some(doc_nodes) = doc_nodes {
-    get_partitions_for_file(
-      ctx,
-      doc_nodes,
-      Cow::Owned(ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap())),
-    )
-  } else {
-    Default::default()
-  }
-}
-
-pub fn partition_nodes_by_name(
-  doc_nodes: &[DocNode],
-) -> IndexMap<String, Vec<DocNode>> {
-  let mut partitions = IndexMap::default();
-
-  for node in doc_nodes {
-    if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-      || node.declaration_kind == crate::node::DeclarationKind::Private
-    {
-      continue;
-    }
-
-    partitions
-      .entry(node.get_name().to_string())
-      .or_insert(vec![])
-      .push(node.clone());
-  }
-
-  for val in partitions.values_mut() {
-    val.sort_by_key(|n| n.kind);
-  }
-
-  partitions.sort_by(|k1, _v1, k2, _v2| k1.cmp(k2));
-
-  partitions
 }
 
 pub fn find_common_ancestor<'a>(

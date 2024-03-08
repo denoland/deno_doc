@@ -1,4 +1,3 @@
-use super::partition_nodes_by_name;
 use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
@@ -12,6 +11,7 @@ use super::UrlResolveKind;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
+use super::SCRIPT_FILENAME;
 use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
@@ -29,6 +29,7 @@ pub struct HtmlHeadCtx {
   stylesheet_url: String,
   page_stylesheet_url: String,
   url_search_index: String,
+  script_js: String,
   fuse_js: String,
   url_search: String,
 }
@@ -55,6 +56,7 @@ impl HtmlHeadCtx {
       stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
       page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
+      script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
       url_search: format!("{root}{SEARCH_FILENAME}"),
     }
@@ -173,7 +175,7 @@ pub fn generate_symbol_pages_for_module(
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   doc_nodes: &[DocNode],
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
-  let name_partitions = partition_nodes_by_name(doc_nodes);
+  let name_partitions = super::partition::partition_nodes_by_name(doc_nodes);
 
   generate_symbol_pages_inner(
     ctx,
@@ -289,7 +291,7 @@ fn generate_symbol_pages_inner(
       let namespace = doc_node.namespace_def.as_ref().unwrap();
 
       let namespace_name_partitions =
-        partition_nodes_by_name(&namespace.elements);
+        super::partition::partition_nodes_by_name(&namespace.elements);
 
       let namespace_paths = {
         let mut ns_paths = namespace_paths.clone();
