@@ -267,8 +267,11 @@ async fn symbol_group() {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
       let short_path = ctx.url_to_short_path(specifier);
 
-      let partitions_for_nodes =
-        get_partitions_for_file(&ctx, doc_nodes, Cow::Borrowed(&short_path));
+      let partitions_for_nodes = partition::get_partitions_for_file(
+        &ctx,
+        doc_nodes,
+        Cow::Borrowed(&short_path),
+      );
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,

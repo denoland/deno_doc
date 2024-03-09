@@ -35,7 +35,7 @@ pub(crate) fn render_params(
 fn render_param(ctx: &RenderContext, param: &ParamDef, i: usize) -> String {
   let (name, _str_name) = param_name(param, i);
   let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern {
-    left.ts_type.as_ref()
+    left.ts_type.as_ref().or(param.ts_type.as_ref())
   } else {
     param.ts_type.as_ref()
   };

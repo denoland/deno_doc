@@ -155,18 +155,29 @@ fn render_single_function(
 
   // TODO: tags
 
-  let param_docs = doc_node
-    .js_doc
-    .tags
-    .iter()
-    .filter_map(|tag| {
-      if let JsDocTag::Param { doc, .. } = tag {
-        doc.as_deref()
-      } else {
-        None
-      }
-    })
-    .collect::<Vec<&str>>();
+  let param_docs =
+    doc_node
+      .js_doc
+      .tags
+      .iter()
+      .filter_map(|tag| {
+        if let JsDocTag::Param {
+          name,
+          doc,
+          optional,
+          default,
+          ..
+        } = tag
+        {
+          Some((name.as_str(), (doc, *optional, default)))
+        } else {
+          None
+        }
+      })
+      .collect::<std::collections::HashMap<
+        &str,
+        (&Option<String>, bool, &Option<String>),
+      >>();
 
   let params = function_def
     .params
@@ -176,18 +187,29 @@ fn render_single_function(
       let (name, str_name) = crate::html::parameters::param_name(param, i);
       let id = name_to_id(overload_id, &format!("parameters_{str_name}"));
 
-      let ts_type = if let ParamPatternDef::Assign { left, .. } = &param.pattern
+      let (mut default, optional) = if let Some((_doc, optional, default)) =
+        param_docs.get(name.as_str())
       {
-        left.ts_type.as_ref()
+        ((**default).to_owned(), *optional)
       } else {
-        param.ts_type.as_ref()
+        (None, false)
       };
 
-      let ts_type = ts_type
+      let ts_type =
+        if let ParamPatternDef::Assign { left, right } = &param.pattern {
+          default = default.or(Some(right.to_string()));
+          left.ts_type.as_ref()
+        } else {
+          param.ts_type.as_ref()
+        };
+
+      let mut ts_type = ts_type
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      // TODO: default_value
+      if let Some(default) = &default {
+        ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
+      }
 
       let tags = if matches!(
         param.pattern,
@@ -195,7 +217,9 @@ fn render_single_function(
           | ParamPatternDef::Identifier { optional, .. }
           | ParamPatternDef::Object { optional, .. }
         if optional
-      ) {
+      ) || default.is_some()
+        || optional
+      {
         HashSet::from([Tag::Optional])
       } else {
         HashSet::new()
@@ -207,7 +231,9 @@ fn render_single_function(
         &name,
         &ts_type,
         tags,
-        param_docs.get(i).copied(),
+        param_docs
+          .get(name.as_str())
+          .and_then(|(doc, _, _)| doc.as_deref()),
         &doc_node.location,
       )
     })

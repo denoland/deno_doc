@@ -155,7 +155,7 @@ pub fn markdown_to_html(
 
     ammonia_builder
       .add_tags(["video", "button", "svg", "path"])
-      .add_generic_attributes(["id"])
+      .add_generic_attributes(["id", "align"])
       .add_tag_attributes("button", ["data-copy"])
       .add_tag_attributes(
         "svg",
@@ -400,7 +400,7 @@ impl ModuleDocCtx {
         })
         .collect::<Vec<_>>();
 
-      let partitions_by_kind = super::namespace::partition_nodes_by_kind(
+      let partitions_by_kind = super::partition::partition_nodes_by_kind(
         &module_doc_nodes_with_context,
         true,
       );
