@@ -19,7 +19,6 @@ pub(crate) fn render_params(
 
     format!("<span>{items}</span>")
   } else {
-    // TODO(bartlomieju): refactor to use template
     let mut items = Vec::with_capacity(params.len());
 
     for (i, def) in params.iter().enumerate() {
