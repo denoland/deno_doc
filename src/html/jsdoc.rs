@@ -5,12 +5,16 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
-use comrak::nodes::{AstNode, NodeHtmlBlock, NodeValue};
+use comrak::nodes::Ast;
+use comrak::nodes::AstNode;
+use comrak::nodes::NodeHtmlBlock;
+use comrak::nodes::NodeValue;
 use comrak::Arena;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::cmp::Ordering;
 
 #[cfg(feature = "ammonia")]
@@ -99,6 +103,10 @@ impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
 
 enum Alert {
   Note,
+  Tip,
+  Important,
+  Warning,
+  Caution,
 }
 
 fn match_node_value<'a>(
@@ -107,8 +115,7 @@ fn match_node_value<'a>(
   options: &comrak::Options,
   plugins: &comrak::Plugins,
 ) {
-  let ast = node.data.borrow_mut();
-  match ast.value {
+  match &node.data.borrow().value {
     NodeValue::BlockQuote => {
       if let Some(paragraph_child) = node.first_child() {
         if paragraph_child.data.borrow().value == NodeValue::Paragraph {
@@ -116,6 +123,10 @@ fn match_node_value<'a>(
             if let NodeValue::Text(text) = &text_child.data.borrow().value {
               match text.as_str() {
                 "[!NOTE]" => Some(Alert::Note),
+                "[!TIP]" => Some(Alert::Tip),
+                "[!IMPORTANT]" => Some(Alert::Important),
+                "[!WARNING]" => Some(Alert::Warning),
+                "[!CAUTION]" => Some(Alert::Caution),
                 _ => None,
               }
             } else {
@@ -126,35 +137,65 @@ fn match_node_value<'a>(
           if let Some(alert) = alert {
             let start_col = paragraph_child.data.borrow().sourcepos.start;
 
-            let node_without_alert =
-              arena.alloc(AstNode::new(std::cell::RefCell::new(
-                comrak::nodes::Ast::new(NodeValue::Paragraph, start_col),
-              )));
+            let document = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+              NodeValue::Document,
+              start_col,
+            ))));
+
+            let node_without_alert = arena.alloc(AstNode::new(RefCell::new(
+              Ast::new(NodeValue::Paragraph, start_col),
+            )));
 
             for child_node in paragraph_child.children().skip(1) {
               node_without_alert.append(child_node);
             }
 
-            let html = render_node(node_without_alert, options, plugins);
+            document.append(node_without_alert);
 
-            let alert_html = match alert {
-              Alert::Note => {
-                format!(r#"<div class="alert alert-note">{html}</div>"#)
+            let html = render_node(document, options, plugins);
+
+            let alert_title = match alert {
+              Alert::Note => format!(
+                "{}Note",
+                include_str!("./templates/icons/info-circle.svg")
+              ),
+              Alert::Tip => {
+                format!("{}Tip", include_str!("./templates/icons/bulb.svg"))
               }
+              Alert::Important => format!(
+                "{}Important",
+                include_str!("./templates/icons/warning-message.svg")
+              ),
+              Alert::Warning => format!(
+                "{}Warning",
+                include_str!("./templates/icons/warning-triangle.svg")
+              ),
+              Alert::Caution => format!(
+                "{}Caution",
+                include_str!("./templates/icons/warning-octagon.svg")
+              ),
             };
 
-            let html_node = arena.alloc(AstNode::new(std::cell::RefCell::new(
-              comrak::nodes::Ast::new(
-                NodeValue::HtmlBlock(NodeHtmlBlock {
-                  block_type: 6,
-                  literal: alert_html,
-                }),
-                start_col,
-              ),
-            )));
+            let html = format!(
+              r#"<div class="alert alert-{}"><div>{alert_title}</div><div>{html}</div></div>"#,
+              match alert {
+                Alert::Note => "note",
+                Alert::Tip => "tip",
+                Alert::Important => "important",
+                Alert::Warning => "warning",
+                Alert::Caution => "caution",
+              }
+            );
 
-            paragraph_child.insert_before(html_node);
-            paragraph_child.detach();
+            let alert_node = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+              NodeValue::HtmlBlock(NodeHtmlBlock {
+                block_type: 6,
+                literal: html,
+              }),
+              start_col,
+            ))));
+            node.insert_before(alert_node);
+            node.detach();
           }
         }
       }
@@ -171,6 +212,7 @@ fn walk_node<'a>(
 ) {
   for child in node.children() {
     match_node_value(arena, child, options, plugins);
+    walk_node(arena, child, options, plugins);
   }
 }
 
@@ -258,7 +300,17 @@ pub fn markdown_to_html(
       .add_tag_attributes("button", ["data-copy"])
       .add_tag_attributes(
         "svg",
-        ["width", "height", "viewBox", "fill", "xmlns"],
+        [
+          "width",
+          "height",
+          "viewBox",
+          "fill",
+          "xmlns",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
       )
       .add_tag_attributes(
         "path",
@@ -275,6 +327,17 @@ pub fn markdown_to_html(
       )
       .add_allowed_classes("pre", ["highlight"])
       .add_allowed_classes("button", ["context_button"])
+      .add_allowed_classes(
+        "div",
+        [
+          "alert",
+          "alert-note",
+          "alert-tip",
+          "alert-important",
+          "alert-warning",
+          "alert-caution",
+        ],
+      )
       .link_rel(Some("nofollow"))
       .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,
