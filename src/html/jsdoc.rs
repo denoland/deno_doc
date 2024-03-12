@@ -5,6 +5,8 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
+use comrak::nodes::{AstNode, NodeHtmlBlock, NodeValue};
+use comrak::Arena;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
@@ -95,6 +97,93 @@ impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
   }
 }
 
+enum Alert {
+  Note,
+}
+
+fn match_node_value<'a>(
+  arena: &'a Arena<AstNode<'a>>,
+  node: &'a AstNode<'a>,
+  options: &comrak::Options,
+  plugins: &comrak::Plugins,
+) {
+  let ast = node.data.borrow_mut();
+  match ast.value {
+    NodeValue::BlockQuote => {
+      if let Some(paragraph_child) = node.first_child() {
+        if paragraph_child.data.borrow().value == NodeValue::Paragraph {
+          let alert = paragraph_child.first_child().and_then(|text_child| {
+            if let NodeValue::Text(text) = &text_child.data.borrow().value {
+              match text.as_str() {
+                "[!NOTE]" => Some(Alert::Note),
+                _ => None,
+              }
+            } else {
+              None
+            }
+          });
+
+          if let Some(alert) = alert {
+            let start_col = paragraph_child.data.borrow().sourcepos.start;
+
+            let node_without_alert =
+              arena.alloc(AstNode::new(std::cell::RefCell::new(
+                comrak::nodes::Ast::new(NodeValue::Paragraph, start_col),
+              )));
+
+            for child_node in paragraph_child.children().skip(1) {
+              node_without_alert.append(child_node);
+            }
+
+            let html = render_node(node_without_alert, options, plugins);
+
+            let alert_html = match alert {
+              Alert::Note => {
+                format!(r#"<div class="alert alert-note">{html}</div>"#)
+              }
+            };
+
+            let html_node = arena.alloc(AstNode::new(std::cell::RefCell::new(
+              comrak::nodes::Ast::new(
+                NodeValue::HtmlBlock(NodeHtmlBlock {
+                  block_type: 6,
+                  literal: alert_html,
+                }),
+                start_col,
+              ),
+            )));
+
+            paragraph_child.insert_before(html_node);
+            paragraph_child.detach();
+          }
+        }
+      }
+    }
+    _ => {}
+  }
+}
+
+fn walk_node<'a>(
+  arena: &'a Arena<AstNode<'a>>,
+  node: &'a AstNode<'a>,
+  options: &comrak::Options,
+  plugins: &comrak::Plugins,
+) {
+  for child in node.children() {
+    match_node_value(arena, child, options, plugins);
+  }
+}
+
+fn render_node<'a>(
+  node: &'a AstNode<'a>,
+  options: &comrak::Options,
+  plugins: &comrak::Plugins,
+) -> String {
+  let mut bw = std::io::BufWriter::new(Vec::new());
+  comrak::format_html_with_plugins(node, options, &mut bw, plugins).unwrap();
+  String::from_utf8(bw.into_inner().unwrap()).unwrap()
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct Markdown {
   pub html: String,
@@ -147,7 +236,17 @@ pub fn markdown_to_html(
     "markdown"
   };
 
-  let mut html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
+  let mut html = {
+    let arena = Arena::new();
+    let root = comrak::parse_document(&arena, md, &options);
+
+    walk_node(&arena, root, &options, &plugins);
+
+    let mut bw = std::io::BufWriter::new(Vec::new());
+    comrak::format_html_with_plugins(root, &options, &mut bw, &plugins)
+      .unwrap();
+    String::from_utf8(bw.into_inner().unwrap()).unwrap()
+  };
 
   #[cfg(feature = "ammonia")]
   {
