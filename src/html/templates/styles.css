@@ -155,7 +155,7 @@ summary::-webkit-details-marker {
   }
 
   p {
-    @apply my-1 mx-0 text-left;
+    @apply my-1 mx-0;
   }
 
   table {
