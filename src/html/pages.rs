@@ -1,7 +1,8 @@
 use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
-use super::util::{qualify_drilldown_name, BreadcrumbsCtx};
+use super::util::qualify_drilldown_name;
+use super::util::BreadcrumbsCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;

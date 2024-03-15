@@ -7,7 +7,7 @@ pub(crate) fn render_enum(
   render_ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
-  let mut members = doc_node.inner.enum_def.as_ref().unwrap().members.clone();
+  let mut members = doc_node.enum_def.as_ref().unwrap().members.clone();
 
   members.sort_by(|a, b| a.name.cmp(&b.name));
 
@@ -16,7 +16,7 @@ pub(crate) fn render_enum(
     .map(|member| {
       let id = name_to_id(
         "enum",
-        &format!("{}_{}", doc_node.inner.get_name(), &member.name),
+        &format!("{}_{}", doc_node.get_name(), &member.name),
       );
 
       let tags = Tag::from_js_doc(&member.js_doc);

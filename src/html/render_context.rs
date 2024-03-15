@@ -291,6 +291,7 @@ mod test {
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
+  use std::borrow::Cow;
 
   struct TestResolver();
 
@@ -343,29 +344,36 @@ mod test {
       sidebar_flatten_namespaces: false,
     };
 
-    let doc_nodes: Vec<DocNode> = vec![DocNode {
-      kind: DocNodeKind::Import,
-      name: "foo".to_string(),
-      location: Location {
-        filename: "a".to_string(),
-        line: 0,
-        col: 0,
-        byte_index: 0,
-      },
-      declaration_kind: DeclarationKind::Private,
-      js_doc: Default::default(),
-      function_def: None,
-      variable_def: None,
-      enum_def: None,
-      class_def: None,
-      type_alias_def: None,
-      namespace_def: None,
-      interface_def: None,
-      import_def: Some(ImportDef {
-        src: "b".to_string(),
-        imported: Some("foo".to_string()),
-      }),
-    }];
+    let doc_nodes =
+      vec![DocNodeWithContext {
+        origin: Rc::new(ctx.url_to_short_path(
+          &ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+        )),
+        ns_qualifiers: Rc::new(vec![]),
+        inner: Cow::Owned(DocNode {
+          kind: DocNodeKind::Import,
+          name: "foo".to_string(),
+          location: Location {
+            filename: "a".to_string(),
+            line: 0,
+            col: 0,
+            byte_index: 0,
+          },
+          declaration_kind: DeclarationKind::Private,
+          js_doc: Default::default(),
+          function_def: None,
+          variable_def: None,
+          enum_def: None,
+          class_def: None,
+          type_alias_def: None,
+          namespace_def: None,
+          interface_def: None,
+          import_def: Some(ImportDef {
+            src: "b".to_string(),
+            imported: Some("foo".to_string()),
+          }),
+        }),
+      }];
 
     // globals
     let render_ctx =

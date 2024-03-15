@@ -380,7 +380,6 @@ impl DocEntryCtx {
 pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {
   nodes.iter().all(|node| {
     node
-      .inner
       .js_doc
       .tags
       .iter()

@@ -11,7 +11,7 @@ pub(crate) fn render_interface(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
-  let interface_def = doc_node.inner.interface_def.as_ref().unwrap();
+  let interface_def = doc_node.interface_def.as_ref().unwrap();
 
   let current_type_params = interface_def
     .type_params
@@ -22,11 +22,9 @@ pub(crate) fn render_interface(
 
   let mut sections = vec![];
 
-  if let Some(type_params) = render_type_params(
-    ctx,
-    &interface_def.type_params,
-    &doc_node.inner.location,
-  ) {
+  if let Some(type_params) =
+    render_type_params(ctx, &interface_def.type_params, &doc_node.location)
+  {
     sections.push(type_params);
   }
 
@@ -42,16 +40,14 @@ pub(crate) fn render_interface(
     sections.push(call_signatures);
   }
 
-  if let Some(properties) = render_properties(
-    ctx,
-    &doc_node.inner.get_name(),
-    &interface_def.properties,
-  ) {
+  if let Some(properties) =
+    render_properties(ctx, &doc_node.get_name(), &interface_def.properties)
+  {
     sections.push(properties);
   }
 
   if let Some(methods) =
-    render_methods(ctx, &doc_node.inner.get_name(), &interface_def.methods)
+    render_methods(ctx, &doc_node.get_name(), &interface_def.methods)
   {
     sections.push(methods);
   }

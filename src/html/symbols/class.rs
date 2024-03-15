@@ -17,7 +17,7 @@ pub(crate) fn render_class(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
-  let class_def = doc_node.inner.class_def.as_ref().unwrap();
+  let class_def = doc_node.class_def.as_ref().unwrap();
 
   let current_type_params = class_def
     .type_params
@@ -43,7 +43,7 @@ pub(crate) fn render_class(
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
     &class_def.type_params,
-    &doc_node.inner.location,
+    &doc_node.location,
   ) {
     sections.push(type_params);
   }
@@ -59,7 +59,7 @@ pub(crate) fn render_class(
       title: "Properties",
       content: SectionContentCtx::DocEntry(render_class_properties(
         ctx,
-        doc_node.inner.get_name(),
+        doc_node.get_name(),
         class_items.properties,
       )),
     });
@@ -70,7 +70,7 @@ pub(crate) fn render_class(
       title: "Methods",
       content: SectionContentCtx::DocEntry(render_class_methods(
         ctx,
-        doc_node.inner.get_name(),
+        doc_node.get_name(),
         class_items.methods,
       )),
     });
@@ -81,7 +81,7 @@ pub(crate) fn render_class(
       title: "Static Properties",
       content: SectionContentCtx::DocEntry(render_class_properties(
         ctx,
-        doc_node.inner.get_name(),
+        doc_node.get_name(),
         class_items.static_properties,
       )),
     });
@@ -92,7 +92,7 @@ pub(crate) fn render_class(
       title: "Static Methods",
       content: SectionContentCtx::DocEntry(render_class_methods(
         ctx,
-        doc_node.inner.get_name(),
+        doc_node.get_name(),
         class_items.static_methods,
       )),
     })

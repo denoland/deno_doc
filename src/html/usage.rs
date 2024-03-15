@@ -32,7 +32,7 @@ pub fn usage_to_md(
   {
     let mut parts = symbol.split('.').collect::<Vec<&str>>();
 
-    let is_default = doc_nodes[0].inner.name == "default";
+    let is_default = doc_nodes[0].name == "default";
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
       file.to_name()
@@ -55,7 +55,7 @@ pub fn usage_to_md(
 
     let is_type = doc_nodes.iter().all(|doc_node| {
       matches!(
-        doc_node.inner.kind,
+        doc_node.kind,
         DocNodeKind::TypeAlias | DocNodeKind::Interface
       )
     });

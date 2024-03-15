@@ -14,10 +14,8 @@ pub fn partition_nodes_by_name<'a>(
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
-    if matches!(
-      node.inner.kind,
-      DocNodeKind::ModuleDoc | DocNodeKind::Import
-    ) || node.inner.declaration_kind == crate::node::DeclarationKind::Private
+    if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+      || node.declaration_kind == crate::node::DeclarationKind::Private
     {
       continue;
     }
@@ -29,7 +27,7 @@ pub fn partition_nodes_by_name<'a>(
   }
 
   for val in partitions.values_mut() {
-    val.sort_by_key(|n| n.inner.kind);
+    val.sort_by_key(|n| n.kind);
   }
 
   partitions.sort_by(|k1, _v1, k2, _v2| k1.cmp(k2));
@@ -47,19 +45,16 @@ pub fn partition_nodes_by_kind<'a>(
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
-      if matches!(
-        node.inner.kind,
-        DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) || node.inner.declaration_kind
-        == crate::node::DeclarationKind::Private
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
       {
         continue;
       }
 
-      if flatten_namespaces && node.inner.kind == DocNodeKind::Namespace {
-        let namespace_def = node.inner.namespace_def.as_ref().unwrap();
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
         let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.inner.get_name().to_string());
+        namespace.push(node.get_name().to_string());
 
         let ns_qualifiers = Rc::new(namespace);
 
@@ -81,21 +76,18 @@ pub fn partition_nodes_by_kind<'a>(
       if let Some((node_kind, nodes)) =
         partitions.iter_mut().find(|(kind, nodes)| {
           nodes.iter().any(|n| {
-            n.inner.get_name() == node.inner.get_name()
-              && n.inner.kind != node.inner.kind
-              && kind != &&node.inner.kind
+            n.get_name() == node.get_name()
+              && n.kind != node.kind
+              && kind != &&node.kind
           })
         })
       {
-        assert_ne!(node_kind, &node.inner.kind);
+        assert_ne!(node_kind, &node.kind);
 
         nodes.push(node.clone());
       } else {
-        let entry = partitions.entry(node.inner.kind).or_default();
-        if !entry
-          .iter()
-          .any(|n| n.inner.get_name() == node.inner.get_name())
-        {
+        let entry = partitions.entry(node.kind).or_default();
+        if !entry.iter().any(|n| n.get_name() == node.get_name()) {
           entry.push(node.clone());
         }
       }
@@ -110,13 +102,11 @@ pub fn partition_nodes_by_kind<'a>(
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(|node1, node2| {
       let node1_is_deprecated = node1
-        .inner
         .js_doc
         .tags
         .iter()
         .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
       let node2_is_deprecated = node2
-        .inner
         .js_doc
         .tags
         .iter()
@@ -126,10 +116,9 @@ pub fn partition_nodes_by_kind<'a>(
         .cmp(&!node1_is_deprecated)
         .then_with(|| {
           node1
-            .inner
             .get_name()
-            .cmp(node2.inner.get_name())
-            .then_with(|| node1.inner.kind.cmp(&node2.inner.kind))
+            .cmp(node2.get_name())
+            .then_with(|| node1.kind.cmp(&node2.kind))
         })
     });
   }
@@ -149,19 +138,16 @@ pub fn partition_nodes_by_category<'a>(
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
-      if matches!(
-        node.inner.kind,
-        DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) || node.inner.declaration_kind
-        == crate::node::DeclarationKind::Private
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
       {
         continue;
       }
 
-      if flatten_namespaces && node.inner.kind == DocNodeKind::Namespace {
-        let namespace_def = node.inner.namespace_def.as_ref().unwrap();
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
         let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.inner.get_name().to_string());
+        namespace.push(node.get_name().to_string());
 
         let ns_qualifiers = Rc::new(namespace);
 
@@ -181,7 +167,6 @@ pub fn partition_nodes_by_category<'a>(
       }
 
       let category = node
-        .inner
         .js_doc
         .tags
         .iter()
@@ -196,10 +181,10 @@ pub fn partition_nodes_by_category<'a>(
 
       let entry = partitions.entry(category).or_default();
 
-      if !entry.iter().any(|n| {
-        n.inner.get_name() == node.inner.get_name()
-          && n.inner.kind == node.inner.kind
-      }) {
+      if !entry
+        .iter()
+        .any(|n| n.get_name() == node.get_name() && n.kind == node.kind)
+      {
         entry.push(node.clone());
       }
     }
@@ -215,7 +200,7 @@ pub fn partition_nodes_by_category<'a>(
   );
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.inner.get_name().to_string());
+    nodes.sort_by_key(|n| n.get_name().to_string());
   }
 
   partitions

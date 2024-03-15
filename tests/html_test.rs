@@ -13,7 +13,6 @@ use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use futures::future;
 use indexmap::IndexMap;
-use std::borrow::Cow;
 use std::fs;
 use std::rc::Rc;
 
@@ -260,6 +259,7 @@ async fn symbol_group() {
     sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
 
   let mut files = vec![];
 
@@ -267,11 +267,8 @@ async fn symbol_group() {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
       let short_path = ctx.url_to_short_path(specifier);
 
-      let partitions_for_nodes = partition::get_partitions_for_file(
-        &ctx,
-        doc_nodes,
-        Cow::Borrowed(&short_path),
-      );
+      let partitions_for_nodes =
+        partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -373,6 +370,8 @@ async fn symbol_search() {
     sidebar_flatten_namespaces: false,
   };
 
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
+
   let search_index = generate_search_index(&ctx, &doc_nodes_by_url);
   let mut file_json = serde_json::to_string_pretty(&search_index).unwrap();
   file_json.push('\n');
@@ -430,6 +429,8 @@ async fn module_doc() {
     sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: false,
   };
+
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
 
   let mut module_docs = vec![];
 

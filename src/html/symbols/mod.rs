@@ -46,12 +46,12 @@ impl SymbolGroupCtx {
       IndexMap::<DocNodeKind, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.inner.kind == DocNodeKind::Import {
+      if doc_node.kind == DocNodeKind::Import {
         continue;
       }
 
       split_nodes
-        .entry(doc_node.inner.kind)
+        .entry(doc_node.kind)
         .or_insert(vec![])
         .push(doc_node.clone());
     }
@@ -97,10 +97,10 @@ impl SymbolGroupCtx {
         }
 
         let deprecated = if all_deprecated
-          && !(doc_nodes[0].inner.kind == DocNodeKind::Function
+          && !(doc_nodes[0].kind == DocNodeKind::Function
             && doc_nodes.len() == 1)
         {
-          doc_nodes[0].inner.js_doc.tags.iter().find_map(|tag| {
+          doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
             if let JsDocTag::Deprecated { doc } = tag {
               Some(
                 doc
@@ -120,13 +120,13 @@ impl SymbolGroupCtx {
 
         SymbolCtx {
           tags,
-          kind: doc_nodes[0].inner.kind.into(),
+          kind: doc_nodes[0].kind.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
           source_href: ctx
             .ctx
             .href_resolver
-            .resolve_source(&doc_nodes[0].inner.location),
+            .resolve_source(&doc_nodes[0].location),
           deprecated,
         }
       })
@@ -265,7 +265,7 @@ impl SymbolInnerCtx {
     let mut functions = vec![];
 
     for doc_node in doc_nodes {
-      let mut sections = match doc_node.inner.kind {
+      let mut sections = match doc_node.kind {
         DocNodeKind::Function => {
           functions.push(doc_node);
           continue;
@@ -278,14 +278,14 @@ impl SymbolInnerCtx {
         DocNodeKind::TypeAlias => type_alias::render_type_alias(ctx, doc_node),
 
         DocNodeKind::Namespace => {
-          let namespace_def = doc_node.inner.namespace_def.as_ref().unwrap();
+          let namespace_def = doc_node.namespace_def.as_ref().unwrap();
           let namespace_nodes = namespace_def
             .elements
             .iter()
             .map(|node| DocNodeWithContext {
-              inner: Cow::Borrowed(node),
+              origin: doc_node.origin.clone(),
               ns_qualifiers: std::rc::Rc::new(vec![]),
-              origin: None,
+              inner: Cow::Borrowed(node),
             })
             .collect::<Vec<_>>();
 
@@ -299,13 +299,9 @@ impl SymbolInnerCtx {
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };
 
-      let docs = crate::html::jsdoc::jsdoc_body_to_html(
-        ctx,
-        &doc_node.inner.js_doc,
-        false,
-      );
-      let examples =
-        crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.inner.js_doc);
+      let docs =
+        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
+      let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
 
       if let Some(examples) = examples {
         sections.insert(0, examples);

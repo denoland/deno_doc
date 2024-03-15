@@ -27,7 +27,7 @@ fn doc_node_into_search_index_nodes(
   name: &str,
   doc_nodes: &[&DocNodeWithContext],
 ) -> Vec<SearchIndexNode> {
-  let kinds = doc_nodes.iter().map(|node| node.inner.kind).collect();
+  let kinds = doc_nodes.iter().map(|node| node.kind).collect();
 
   let deprecated = super::util::all_deprecated(&doc_nodes);
 
@@ -42,8 +42,8 @@ fn doc_node_into_search_index_nodes(
     format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
   };
 
-  if !matches!(doc_nodes[0].inner.kind, DocNodeKind::Namespace) {
-    let mut location = doc_nodes[0].inner.location.clone();
+  if !matches!(doc_nodes[0].kind, DocNodeKind::Namespace) {
+    let mut location = doc_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
     location.filename = if ctx
       .main_entrypoint
@@ -59,22 +59,18 @@ fn doc_node_into_search_index_nodes(
     return vec![SearchIndexNode {
       kind: kinds,
       name,
-      file: doc_nodes[0]
-        .origin
-        .as_ref()
-        .map(|origin| origin.as_str().to_string())
-        .unwrap(),
+      file: doc_nodes[0].origin.as_str().to_string(),
       location,
-      declaration_kind: doc_nodes[0].inner.declaration_kind,
+      declaration_kind: doc_nodes[0].declaration_kind,
       deprecated,
     }];
   }
 
-  let ns_def = doc_nodes[0].inner.namespace_def.as_ref().unwrap();
+  let ns_def = doc_nodes[0].namespace_def.as_ref().unwrap();
   let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
-  let ns_name = doc_nodes[0].inner.get_name().to_string();
+  let ns_name = doc_nodes[0].get_name().to_string();
 
-  let mut location = doc_nodes[0].inner.location.clone();
+  let mut location = doc_nodes[0].location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
   location.filename = if ctx
     .main_entrypoint
@@ -90,13 +86,9 @@ fn doc_node_into_search_index_nodes(
   nodes.push(SearchIndexNode {
     kind: kinds,
     name,
-    file: doc_nodes[0]
-      .origin
-      .as_ref()
-      .map(|origin| origin.as_str().to_string())
-      .unwrap(),
+    file: doc_nodes[0].origin.as_str().to_string(),
     location,
-    declaration_kind: doc_nodes[0].inner.declaration_kind,
+    declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
   });
 
@@ -146,11 +138,7 @@ fn doc_node_into_search_index_nodes(
     nodes.push(SearchIndexNode {
       kind: kinds,
       name,
-      file: doc_nodes[0]
-        .origin
-        .as_ref()
-        .map(|origin| origin.as_str().to_string())
-        .unwrap(),
+      file: doc_nodes[0].origin.as_str().to_string(),
       location,
       declaration_kind: el_nodes[0].declaration_kind,
       deprecated,
@@ -176,15 +164,12 @@ pub fn generate_search_index(
     IndexMap::new();
 
   for node in doc_nodes_by_url.values().flatten() {
-    if matches!(
-      node.inner.kind,
-      DocNodeKind::Import | DocNodeKind::ModuleDoc
-    ) {
+    if matches!(node.kind, DocNodeKind::Import | DocNodeKind::ModuleDoc) {
       continue;
     }
 
-    let entry = grouped_nodes.entry(node.inner.get_name()).or_default();
-    if !entry.iter().any(|n| n.inner.kind == node.inner.kind) {
+    let entry = grouped_nodes.entry(node.get_name()).or_default();
+    if !entry.iter().any(|n| n.kind == node.kind) {
       entry.push(node);
     }
   }

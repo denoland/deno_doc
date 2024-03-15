@@ -130,6 +130,28 @@ impl<'ctx> GenerateCtx<'ctx> {
     }
     .into()
   }
+
+  pub fn doc_nodes_by_url_add_context<'a>(
+    &self,
+    doc_nodes_by_url: &'a IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ) -> IndexMap<ModuleSpecifier, Vec<DocNodeWithContext<'a>>> {
+    doc_nodes_by_url
+      .iter()
+      .map(|(specifier, nodes)| {
+        (
+          specifier.clone(),
+          nodes
+            .iter()
+            .map(|node| DocNodeWithContext {
+              origin: Rc::new(self.url_to_short_path(specifier)),
+              ns_qualifiers: Rc::new(vec![]),
+              inner: Cow::Borrowed(node),
+            })
+            .collect::<Vec<_>>(),
+        )
+      })
+      .collect::<IndexMap<_, _>>()
+  }
 }
 
 #[derive(Clone, Debug)]
@@ -163,7 +185,7 @@ impl From<String> for ShortPath {
 
 #[derive(Clone, Debug)]
 pub struct DocNodeWithContext<'a> {
-  pub origin: Option<Cow<'a, ShortPath>>,
+  pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<Vec<String>>,
   pub inner: Cow<'a, DocNode>,
 }
@@ -365,22 +387,7 @@ pub fn generate(
   };
   let mut files = HashMap::new();
 
-  let doc_nodes_by_url = doc_nodes_by_url
-    .iter()
-    .map(|(specifier, nodes)| {
-      (
-        specifier.clone(),
-        nodes
-          .iter()
-          .map(|node| DocNodeWithContext {
-            origin: None,
-            ns_qualifiers: Rc::new(vec![]),
-            inner: Cow::Borrowed(node),
-          })
-          .collect::<Vec<_>>(),
-      )
-    })
-    .collect::<IndexMap<_, _>>();
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   // Index page
   {
@@ -400,15 +407,10 @@ pub fn generate(
   // All symbols (list of all symbols in all files)
   {
     let all_doc_nodes = doc_nodes_by_url
-      .iter()
-      .flat_map(|(specifier, nodes)| {
-        nodes.iter().map(|node| DocNodeWithContext {
-          origin: Some(Cow::Owned(ctx.url_to_short_path(specifier))),
-          ns_qualifiers: Rc::new(vec![]),
-          inner: Cow::Borrowed(node),
-        })
-      })
-      .collect::<Vec<DocNodeWithContext>>();
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<_>>();
 
     let partitions_by_kind =
       partition::partition_nodes_by_kind(&all_doc_nodes, true);

@@ -24,7 +24,7 @@ impl SidepanelPartitionSymbolCtx {
     name: String,
   ) -> Self {
     Self {
-      kind: nodes.iter().map(|node| node.inner.kind.into()).collect(),
+      kind: nodes.iter().map(|node| node.kind.into()).collect(),
       name,
       href,
       active,
@@ -58,8 +58,7 @@ impl SidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
-          let entry =
-            grouped_nodes.entry(node.inner.get_name()).or_insert(vec![]);
+          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -72,7 +71,7 @@ impl SidepanelCtx {
               ctx.href_resolver.resolve_path(
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
-                  file: nodes[0].origin.as_ref().unwrap(),
+                  file: &nodes[0].origin,
                   symbol: node_name,
                 },
               ),
@@ -153,8 +152,7 @@ impl IndexSidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in &nodes {
-          let entry =
-            grouped_nodes.entry(node.inner.get_name()).or_insert(vec![]);
+          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -167,7 +165,7 @@ impl IndexSidepanelCtx {
               ctx.href_resolver.resolve_path(
                 current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
-                  file: nodes[0].origin.as_ref().unwrap(),
+                  file: &nodes[0].origin,
                   symbol: node_name,
                 },
               ),
