@@ -158,7 +158,6 @@ fn render_single_function(
 
   let param_docs =
     doc_node
-      
       .js_doc
       .tags
       .iter()
@@ -246,8 +245,7 @@ fn render_single_function(
 
   let docs =
     crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
-  let examples =
-    crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
+  let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
 
   if let Some(examples) = examples {
     sections.push(examples);
