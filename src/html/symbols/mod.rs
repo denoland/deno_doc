@@ -5,10 +5,10 @@ use crate::html::util::Tag;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
-use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::collections::HashSet;
 
 pub mod class;
@@ -37,16 +37,21 @@ pub struct SymbolGroupCtx {
 }
 
 impl SymbolGroupCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Self {
-    let mut split_nodes = IndexMap::<DocNodeKind, Vec<DocNode>>::default();
+  pub fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+    name: &str,
+  ) -> Self {
+    let mut split_nodes =
+      IndexMap::<DocNodeKind, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::Import {
+      if doc_node.inner.kind == DocNodeKind::Import {
         continue;
       }
 
       split_nodes
-        .entry(doc_node.kind)
+        .entry(doc_node.inner.kind)
         .or_insert(vec![])
         .push(doc_node.clone());
     }
@@ -92,10 +97,10 @@ impl SymbolGroupCtx {
         }
 
         let deprecated = if all_deprecated
-          && !(doc_nodes[0].kind == DocNodeKind::Function
+          && !(doc_nodes[0].inner.kind == DocNodeKind::Function
             && doc_nodes.len() == 1)
         {
-          doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
+          doc_nodes[0].inner.js_doc.tags.iter().find_map(|tag| {
             if let JsDocTag::Deprecated { doc } = tag {
               Some(
                 doc
@@ -115,13 +120,13 @@ impl SymbolGroupCtx {
 
         SymbolCtx {
           tags,
-          kind: doc_nodes[0].kind.into(),
+          kind: doc_nodes[0].inner.kind.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
           source_href: ctx
             .ctx
             .href_resolver
-            .resolve_source(&doc_nodes[0].location),
+            .resolve_source(&doc_nodes[0].inner.location),
           deprecated,
         }
       })
@@ -156,7 +161,7 @@ enum DocBlockSubtitleCtx {
 }
 
 impl DocBlockSubtitleCtx {
-  fn new(ctx: &RenderContext, doc_node: &DocNode) -> Option<Self> {
+  fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
     if matches!(
       doc_node.kind,
       DocNodeKind::Function
@@ -251,12 +256,16 @@ pub enum SymbolInnerCtx {
 }
 
 impl SymbolInnerCtx {
-  fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Vec<Self> {
+  fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+    name: &str,
+  ) -> Vec<Self> {
     let mut content_parts = Vec::with_capacity(doc_nodes.len());
     let mut functions = vec![];
 
     for doc_node in doc_nodes {
-      let mut sections = match doc_node.kind {
+      let mut sections = match doc_node.inner.kind {
         DocNodeKind::Function => {
           functions.push(doc_node);
           continue;
@@ -269,12 +278,12 @@ impl SymbolInnerCtx {
         DocNodeKind::TypeAlias => type_alias::render_type_alias(ctx, doc_node),
 
         DocNodeKind::Namespace => {
-          let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+          let namespace_def = doc_node.inner.namespace_def.as_ref().unwrap();
           let namespace_nodes = namespace_def
             .elements
             .iter()
             .map(|node| DocNodeWithContext {
-              doc_node: node,
+              inner: Cow::Borrowed(node),
               ns_qualifiers: std::rc::Rc::new(vec![]),
               origin: None,
             })
@@ -290,9 +299,13 @@ impl SymbolInnerCtx {
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };
 
-      let docs =
-        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
-      let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
+      let docs = crate::html::jsdoc::jsdoc_body_to_html(
+        ctx,
+        &doc_node.inner.js_doc,
+        false,
+      );
+      let examples =
+        crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.inner.js_doc);
 
       if let Some(examples) = examples {
         sections.insert(0, examples);

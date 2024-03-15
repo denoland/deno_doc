@@ -1,13 +1,14 @@
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use std::collections::HashSet;
 
 pub(crate) fn render_variable(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
-  let variable_def = doc_node.variable_def.as_ref().unwrap();
+  let variable_def = doc_node.inner.variable_def.as_ref().unwrap();
 
   if variable_def.ts_type.is_none() {
     return vec![];
@@ -21,6 +22,7 @@ pub(crate) fn render_variable(
       ctx,
       &id,
       "",
+      None,
       &render_type_def(ctx, variable_def.ts_type.as_ref().unwrap()),
       HashSet::new(),
       None,

@@ -1,9 +1,9 @@
 use crate::html::util::BreadcrumbCtx;
 use crate::html::util::BreadcrumbsCtx;
 use crate::html::util::NamespacedSymbols;
-use crate::html::GenerateCtx;
 use crate::html::ShortPath;
 use crate::html::UrlResolveKind;
+use crate::html::{DocNodeWithContext, GenerateCtx};
 use crate::DocNodeKind;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
@@ -25,7 +25,7 @@ pub struct RenderContext<'ctx> {
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
     ctx: &'ctx GenerateCtx<'ctx>,
-    doc_nodes: &[crate::DocNode],
+    doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
     current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
@@ -113,7 +113,7 @@ impl<'ctx> RenderContext<'ctx> {
               .get_file()
               .cloned()
               .unwrap_or_else(|| ShortPath::from(String::from("."))),
-            symbol: &target_symbol_parts.join("."),
+            symbol: target_symbol,
           },
         ),
       );
@@ -126,7 +126,7 @@ impl<'ctx> RenderContext<'ctx> {
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
               file: &self.ctx.url_to_short_path(&module_specifier),
-              symbol: &target_symbol_parts.join("."),
+              symbol: target_symbol,
             },
           ));
         }
@@ -264,7 +264,7 @@ impl<'ctx> RenderContext<'ctx> {
 }
 
 fn get_current_imports(
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNodeWithContext],
 ) -> HashMap<String, String> {
   let mut imports = HashMap::new();
 
@@ -334,7 +334,7 @@ mod test {
       hbs: setup_hbs().unwrap(),
       highlight_adapter: setup_highlighter(false),
       url_rewriter: None,
-      href_resolver: std::rc::Rc::new(TestResolver()),
+      href_resolver: Rc::new(TestResolver()),
       usage_composer: None,
       rewrite_map: None,
       hide_module_doc_title: false,

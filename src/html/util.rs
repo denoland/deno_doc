@@ -1,16 +1,18 @@
-use crate::html::{RenderContext, ShortPath};
+use crate::html::{DocNodeWithContext, RenderContext, ShortPath};
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::ModuleSpecifier;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
 
 lazy_static! {
-  static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
+  static ref TARGET_RE: regex::Regex =
+    regex::Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
 pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
@@ -23,11 +25,11 @@ pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
 /// ["Deno", "read"]
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
-  pub(crate) fn new(doc_nodes: &[crate::DocNode]) -> Self {
+  pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
     let symbols = compute_namespaced_symbols(doc_nodes, &[]);
     Self(Rc::new(symbols))
   }
@@ -38,7 +40,7 @@ impl NamespacedSymbols {
 }
 
 pub fn compute_namespaced_symbols(
-  doc_nodes: &[crate::DocNode],
+  doc_nodes: &[DocNodeWithContext],
   current_path: &[String],
 ) -> HashSet<Vec<String>> {
   let mut namespaced_symbols = HashSet::new();
@@ -54,12 +56,86 @@ pub fn compute_namespaced_symbols(
     let mut name_path = current_path.to_vec();
     name_path.push(doc_node.get_name().to_string());
 
+    match doc_node.kind {
+      DocNodeKind::Class => {
+        let class_def = doc_node.class_def.as_ref().unwrap();
+
+        namespaced_symbols.extend(class_def.methods.iter().map(|method| {
+          let mut method_path = current_path.to_vec();
+          method_path.extend(
+            qualify_drilldown_name(
+              doc_node.get_name(),
+              &method.name,
+              method.is_static,
+            )
+            .split('.')
+            .map(|part| part.to_string()),
+          );
+          method_path
+        }));
+
+        namespaced_symbols.extend(class_def.properties.iter().map(
+          |property| {
+            let mut method_path = current_path.to_vec();
+            method_path.extend(
+              qualify_drilldown_name(
+                doc_node.get_name(),
+                &property.name,
+                property.is_static,
+              )
+              .split('.')
+              .map(|part| part.to_string()),
+            );
+            method_path
+          },
+        ));
+      }
+      DocNodeKind::Interface => {
+        let interface_def = doc_node.interface_def.as_ref().unwrap();
+
+        namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
+          let mut method_path = current_path.to_vec();
+          method_path.extend(
+            qualify_drilldown_name(doc_node.get_name(), &method.name, false)
+              .split('.')
+              .map(|part| part.to_string()),
+          );
+          method_path
+        }));
+
+        namespaced_symbols.extend(interface_def.properties.iter().map(
+          |property| {
+            let mut method_path = current_path.to_vec();
+            method_path.extend(
+              qualify_drilldown_name(
+                doc_node.get_name(),
+                &property.name,
+                false,
+              )
+              .split('.')
+              .map(|part| part.to_string()),
+            );
+            method_path
+          },
+        ));
+      }
+      _ => {}
+    }
+
     namespaced_symbols.insert(name_path.clone());
 
     if doc_node.kind == DocNodeKind::Namespace {
       let namespace_def = doc_node.namespace_def.as_ref().unwrap();
       namespaced_symbols.extend(compute_namespaced_symbols(
-        &namespace_def.elements,
+        &namespace_def
+          .elements
+          .iter()
+          .map(|node| DocNodeWithContext {
+            origin: doc_node.origin.clone(),
+            ns_qualifiers: Rc::new(vec![]),
+            inner: Cow::Borrowed(node),
+          })
+          .collect::<Vec<_>>(),
         &name_path,
       ))
     }
@@ -265,6 +341,7 @@ impl Tag {
 pub struct DocEntryCtx {
   id: String,
   name: String,
+  name_href: Option<String>,
   content: String,
   anchor: AnchorCtx,
   tags: HashSet<Tag>,
@@ -277,6 +354,7 @@ impl DocEntryCtx {
     ctx: &RenderContext,
     id: &str,
     name: &str,
+    name_href: Option<String>,
     content: &str,
     tags: HashSet<Tag>,
     jsdoc: Option<&str>,
@@ -289,6 +367,7 @@ impl DocEntryCtx {
     DocEntryCtx {
       id: id.to_string(),
       name: name.to_string(),
+      name_href,
       content: content.to_string(),
       anchor: AnchorCtx { id: id.to_string() },
       tags,
@@ -298,12 +377,24 @@ impl DocEntryCtx {
   }
 }
 
-pub(crate) fn all_deprecated(nodes: &[&crate::DocNode]) -> bool {
+pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {
   nodes.iter().all(|node| {
     node
+      .inner
       .js_doc
       .tags
       .iter()
       .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
   })
+}
+
+pub(crate) fn qualify_drilldown_name(
+  parent_name: &str,
+  drilldown_name: &str,
+  is_static: bool,
+) -> String {
+  format!(
+    "{parent_name}{}.{drilldown_name}",
+    if is_static { "" } else { ".prototype" },
+  )
 }

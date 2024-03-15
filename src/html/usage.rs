@@ -1,6 +1,6 @@
+use super::DocNodeWithContext;
 use super::RenderContext;
 use super::UrlResolveKind;
-use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
 
@@ -24,7 +24,7 @@ fn render_css_for_usage(name: &str) -> String {
 
 pub fn usage_to_md(
   ctx: &RenderContext,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
   url: &str,
 ) -> String {
   let usage = if let UrlResolveKind::Symbol { symbol, file } =
@@ -32,7 +32,7 @@ pub fn usage_to_md(
   {
     let mut parts = symbol.split('.').collect::<Vec<&str>>();
 
-    let is_default = doc_nodes[0].name == "default";
+    let is_default = doc_nodes[0].inner.name == "default";
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
       file.to_name()
@@ -55,7 +55,7 @@ pub fn usage_to_md(
 
     let is_type = doc_nodes.iter().all(|doc_node| {
       matches!(
-        doc_node.kind,
+        doc_node.inner.kind,
         DocNodeKind::TypeAlias | DocNodeKind::Interface
       )
     });
@@ -73,8 +73,10 @@ pub fn usage_to_md(
     };
 
     if let Some((usage_symbol, local_var)) = usage_symbol {
-      usage_statement
-        .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
+      usage_statement.push_str(&format!(
+        "\n{} {{ {usage_symbol} }} = {local_var};",
+        if is_type { "type" } else { "const" }
+      ));
     }
 
     usage_statement
@@ -103,7 +105,10 @@ pub struct UsageCtx {
 }
 
 impl UsagesCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Self> {
+  pub fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+  ) -> Option<Self> {
     let url = ctx.ctx.href_resolver.resolve_usage(
       ctx.get_current_specifier()?,
       ctx.get_current_resolve().get_file(),

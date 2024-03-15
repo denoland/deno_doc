@@ -7,6 +7,7 @@ use crate::html::types::render_type_def_colon;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
@@ -60,20 +61,20 @@ pub struct FunctionCtx {
 
 pub(crate) fn render_function(
   ctx: &RenderContext,
-  doc_nodes: Vec<&crate::DocNode>,
+  doc_nodes: Vec<&DocNodeWithContext>,
 ) -> FunctionCtx {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
   let mut functions_content = Vec::with_capacity(doc_nodes.len());
 
   for (i, doc_node) in doc_nodes.into_iter().enumerate() {
-    let function_def = doc_node.function_def.as_ref().unwrap();
+    let function_def = doc_node.inner.function_def.as_ref().unwrap();
 
     if function_def.has_body && i != 0 {
       continue;
     }
 
-    let deprecated = doc_node.js_doc.tags.iter().find_map(|tag| {
+    let deprecated = doc_node.inner.js_doc.tags.iter().find_map(|tag| {
       if let JsDocTag::Deprecated { doc } = tag {
         Some(
           doc
@@ -92,7 +93,7 @@ pub(crate) fn render_function(
     let css = render_css_for_fn(&overload_id, deprecated.is_some());
 
     let summary_doc = if !(function_def.has_body && i == 0) {
-      crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, true)
+      crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.inner.js_doc, true)
     } else {
       None
     };
@@ -141,10 +142,10 @@ pub(crate) fn render_function_summary(
 
 fn render_single_function(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
-  let function_def = doc_node.function_def.as_ref().unwrap();
+  let function_def = doc_node.inner.function_def.as_ref().unwrap();
 
   let current_type_params = function_def
     .type_params
@@ -157,6 +158,7 @@ fn render_single_function(
 
   let param_docs =
     doc_node
+      .inner
       .js_doc
       .tags
       .iter()
@@ -229,12 +231,13 @@ fn render_single_function(
         ctx,
         &id,
         &name,
+        None,
         &ts_type,
         tags,
         param_docs
           .get(name.as_str())
           .and_then(|(doc, _, _)| doc.as_deref()),
-        &doc_node.location,
+        &doc_node.inner.location,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -242,15 +245,16 @@ fn render_single_function(
   let mut sections = vec![];
 
   let docs =
-    crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
-  let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
+    crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.inner.js_doc, false);
+  let examples =
+    crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.inner.js_doc);
 
   if let Some(examples) = examples {
     sections.push(examples);
   }
 
   if let Some(type_params) =
-    render_type_params(ctx, &function_def.type_params, &doc_node.location)
+    render_type_params(ctx, &function_def.type_params, &doc_node.inner.location)
   {
     sections.push(type_params);
   }
@@ -280,14 +284,14 @@ fn render_single_function(
 fn render_function_return_type(
   render_ctx: &RenderContext,
   def: &FunctionDef,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
   let id = name_to_id(overload_id, "return");
 
-  let return_type_doc = doc_node.js_doc.tags.iter().find_map(|tag| {
+  let return_type_doc = doc_node.inner.js_doc.tags.iter().find_map(|tag| {
     if let JsDocTag::Return { doc, .. } = tag {
       doc.as_deref()
     } else {
@@ -299,9 +303,10 @@ fn render_function_return_type(
     render_ctx,
     &id,
     "",
+    None,
     &render_type_def(render_ctx, return_type),
     HashSet::new(),
     return_type_doc,
-    &doc_node.location,
+    &doc_node.inner.location,
   ))
 }

@@ -24,7 +24,7 @@ mod types;
 mod usage;
 mod util;
 
-pub use pages::generate_symbol_page;
+//pub use pages::generate_symbol_page;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -56,8 +56,13 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-pub type UsageComposer =
-  Rc<dyn Fn(&RenderContext, &[DocNode], String) -> IndexMap<String, String>>;
+pub type UsageComposer = Rc<
+  dyn Fn(
+    &RenderContext,
+    &[DocNodeWithContext],
+    String,
+  ) -> IndexMap<String, String>,
+>;
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -160,7 +165,15 @@ impl From<String> for ShortPath {
 pub struct DocNodeWithContext<'a> {
   pub origin: Option<Cow<'a, ShortPath>>,
   pub ns_qualifiers: Rc<Vec<String>>,
-  pub doc_node: &'a DocNode,
+  pub inner: Cow<'a, DocNode>,
+}
+
+impl<'a> core::ops::Deref for DocNodeWithContext<'a> {
+  type Target = DocNode;
+
+  fn deref(&self) -> &Self::Target {
+    &*self.inner
+  }
 }
 
 pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
@@ -352,15 +365,32 @@ pub fn generate(
   };
   let mut files = HashMap::new();
 
+  let doc_nodes_by_url = doc_nodes_by_url
+    .iter()
+    .map(|(specifier, nodes)| {
+      (
+        specifier.clone(),
+        nodes
+          .iter()
+          .map(|node| DocNodeWithContext {
+            origin: None,
+            ns_qualifiers: Rc::new(vec![]),
+            inner: Cow::Borrowed(node),
+          })
+          .collect::<Vec<_>>(),
+      )
+    })
+    .collect::<IndexMap<_, _>>();
+
   // Index page
   {
     let partitions_for_entrypoint_nodes =
-      partition::get_partitions_for_main_entrypoint(&ctx, doc_nodes_by_url);
+      partition::get_partitions_for_main_entrypoint(&ctx, &doc_nodes_by_url);
 
     let index = pages::render_index(
       &ctx,
       ctx.main_entrypoint.as_ref(),
-      doc_nodes_by_url,
+      &doc_nodes_by_url,
       partitions_for_entrypoint_nodes,
       None,
     );
@@ -375,7 +405,7 @@ pub fn generate(
         nodes.iter().map(|node| DocNodeWithContext {
           origin: Some(Cow::Owned(ctx.url_to_short_path(specifier))),
           ns_qualifiers: Rc::new(vec![]),
-          doc_node: node,
+          inner: Cow::Borrowed(node),
         })
       })
       .collect::<Vec<DocNodeWithContext>>();
@@ -390,14 +420,11 @@ pub fn generate(
 
   // Pages for all discovered symbols
   {
-    for (specifier, doc_nodes) in doc_nodes_by_url {
+    for (specifier, doc_nodes) in &doc_nodes_by_url {
       let short_path = ctx.url_to_short_path(specifier);
 
-      let partitions_for_nodes = partition::get_partitions_for_file(
-        &ctx,
-        doc_nodes,
-        Cow::Borrowed(&short_path),
-      );
+      let partitions_for_nodes =
+        partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -443,7 +470,7 @@ pub fn generate(
       let index = pages::render_index(
         &ctx,
         Some(specifier),
-        doc_nodes_by_url,
+        &doc_nodes_by_url,
         partitions_for_nodes,
         Some(short_path.clone()),
       );
@@ -456,7 +483,7 @@ pub fn generate(
   files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
-    search::get_search_index_file(&ctx, doc_nodes_by_url)?,
+    search::get_search_index_file(&ctx, &doc_nodes_by_url)?,
   );
   files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());

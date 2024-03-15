@@ -1,13 +1,15 @@
 use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
-use super::util::BreadcrumbsCtx;
+use super::util::{qualify_drilldown_name, BreadcrumbsCtx};
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use std::borrow::Cow;
+use std::rc::Rc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
@@ -16,6 +18,8 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::function::FunctionDef;
+use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -74,7 +78,7 @@ struct IndexCtx {
 pub fn render_index(
   ctx: &GenerateCtx,
   specifier: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
   partitions: IndexMap<String, Vec<DocNodeWithContext>>,
   file: Option<ShortPath>,
 ) -> String {
@@ -173,9 +177,110 @@ pub fn generate_symbol_pages_for_module(
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
-  let name_partitions = super::partition::partition_nodes_by_name(doc_nodes);
+  let mut name_partitions =
+    super::partition::partition_nodes_by_name(doc_nodes);
+
+  let mut drilldown_partitions = IndexMap::new();
+  for (name, doc_nodes) in &name_partitions {
+    if doc_nodes[0].kind == DocNodeKind::Class {
+      let class = doc_nodes[0].class_def.as_ref().unwrap();
+      let method_nodes = class
+        .methods
+        .iter()
+        .map(|method| DocNodeWithContext {
+          origin: doc_nodes[0].origin.clone(),
+          ns_qualifiers: Rc::new(vec![]),
+          inner: Cow::Owned(DocNode::function(
+            qualify_drilldown_name(name, &method.name, method.is_static),
+            method.location.clone(),
+            doc_nodes[0].declaration_kind,
+            method.js_doc.clone(),
+            method.function_def.clone(),
+          )),
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+      let property_nodes = class
+        .properties
+        .iter()
+        .map(|property| DocNodeWithContext {
+          origin: doc_nodes[0].origin.clone(),
+          ns_qualifiers: Rc::new(vec![]),
+          inner: Cow::Owned(DocNode::variable(
+            qualify_drilldown_name(name, &property.name, property.is_static),
+            property.location.clone(),
+            doc_nodes[0].declaration_kind,
+            property.js_doc.clone(),
+            VariableDef {
+              ts_type: property.ts_type.clone(),
+              kind: deno_ast::swc::ast::VarDeclKind::Const,
+            },
+          )),
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&property_nodes));
+    } else if doc_nodes[0].kind == DocNodeKind::Interface {
+      let interface = doc_nodes[0].interface_def.as_ref().unwrap();
+      let method_nodes = interface
+        .methods
+        .iter()
+        .map(|method| DocNodeWithContext {
+          origin: doc_nodes[0].origin.clone(),
+          ns_qualifiers: Rc::new(vec![]),
+          inner: Cow::Owned(DocNode::function(
+            qualify_drilldown_name(name, &method.name, false),
+            method.location.clone(),
+            doc_nodes[0].declaration_kind,
+            method.js_doc.clone(),
+            FunctionDef {
+              def_name: None,
+              params: method.params.clone(),
+              return_type: method.return_type.clone(),
+              has_body: false,
+              is_async: false,
+              is_generator: false,
+              type_params: method.type_params.clone(),
+              decorators: vec![],
+            },
+          )),
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+      let property_nodes = interface
+        .properties
+        .iter()
+        .map(|property| DocNodeWithContext {
+          origin: doc_nodes[0].origin.clone(),
+          ns_qualifiers: Rc::new(vec![]),
+          inner: Cow::Owned(DocNode::variable(
+            qualify_drilldown_name(name, &property.name, false),
+            property.location.clone(),
+            doc_nodes[0].declaration_kind,
+            property.js_doc.clone(),
+            VariableDef {
+              ts_type: property.ts_type.clone(),
+              kind: deno_ast::swc::ast::VarDeclKind::Const,
+            },
+          )),
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&property_nodes));
+    }
+  }
+
+  name_partitions.extend(drilldown_partitions);
 
   generate_symbol_pages_inner(
     ctx,
@@ -188,12 +293,12 @@ pub fn generate_symbol_pages_for_module(
   )
 }
 
-pub fn generate_symbol_page(
+/*pub fn generate_symbol_page(
   ctx: &GenerateCtx,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  doc_nodes_for_module: &[DocNode],
+  doc_nodes_for_module: &[DocNodeWithContext],
   name: &str,
 ) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut name_parts = name.split('.').peekable();
@@ -205,8 +310,11 @@ pub fn generate_symbol_page(
   let doc_nodes = loop {
     let next_part = name_parts.next()?;
     let mut nodes = doc_nodes.iter().filter(|node| {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
+      if matches!(
+        node.inner.kind,
+        DocNodeKind::ModuleDoc | DocNodeKind::Import
+      ) || node.inner.declaration_kind
+        == crate::node::DeclarationKind::Private
       {
         return false;
       }
@@ -217,9 +325,9 @@ pub fn generate_symbol_page(
     }
     namespace_paths.push(next_part);
     if let Some(namespace) =
-      nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
+      nodes.find(|node| matches!(node.inner.kind, DocNodeKind::Namespace))
     {
-      let namespace = namespace.namespace_def.as_ref().unwrap();
+      let namespace = namespace.inner.namespace_def.as_ref().unwrap();
       doc_nodes = &namespace.elements;
     } else {
       return None;
@@ -244,13 +352,13 @@ pub fn generate_symbol_page(
   );
 
   Some((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx))
-}
+}*/
 
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
-  doc_nodes_for_module: &[DocNode],
+  doc_nodes_for_module: &[DocNodeWithContext],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  name_partitions: IndexMap<String, Vec<DocNode>>,
+  name_partitions: IndexMap<String, Vec<DocNodeWithContext>>,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,
@@ -289,9 +397,18 @@ fn generate_symbol_pages_inner(
       .find(|doc_node| doc_node.kind == DocNodeKind::Namespace)
     {
       let namespace = doc_node.namespace_def.as_ref().unwrap();
+      let namespace_elements = &namespace.elements;
 
-      let namespace_name_partitions =
-        super::partition::partition_nodes_by_name(&namespace.elements);
+      let namespace_name_partitions = super::partition::partition_nodes_by_name(
+        &namespace_elements
+          .iter()
+          .map(|node| DocNodeWithContext {
+            origin: doc_node.origin.clone(),
+            ns_qualifiers: Rc::new(vec![]), // TODO
+            inner: Cow::Borrowed(node),
+          })
+          .collect::<Vec<_>>(),
+      );
 
       let namespace_paths = {
         let mut ns_paths = namespace_paths.clone();
@@ -325,12 +442,12 @@ pub struct PageCtx {
 
 fn render_symbol_page(
   ctx: &GenerateCtx,
-  doc_nodes_for_module: &[DocNode],
+  doc_nodes_for_module: &[DocNodeWithContext],
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: &[&str],
   namespaced_name: &str,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
 ) -> (BreadcrumbsCtx, SymbolGroupCtx) {
   let mut render_ctx = RenderContext::new(
     ctx,

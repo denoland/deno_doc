@@ -12,7 +12,12 @@
       {{~/if~}}
 
       <code>
-        <span class="font-bold">{{{name}}}</span><span class="font-medium">{{{content}}}</span>
+        {{~#if name_href~}}
+          <a class="font-bold link" href="{{{name_href}}}">{{{name}}}</a>
+        {{~else~}}
+          <span class="font-bold">{{{name}}}</span>
+        {{~/if~}}
+        <span class="font-medium">{{{content}}}</span>
       </code>
     </span>
 

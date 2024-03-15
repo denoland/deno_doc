@@ -534,6 +534,7 @@ pub(crate) fn render_type_params(
       ctx,
       &id,
       &type_param.name,
+      None,
       &format!("{constraint}{default}"),
       HashSet::new(),
       None,

@@ -30,13 +30,9 @@ fn get_namespace_section_render_ctx(
   for node in doc_nodes {
     let entry = grouped_nodes
       .entry(if !node.ns_qualifiers.is_empty() {
-        format!(
-          "{}.{}",
-          node.ns_qualifiers.join("."),
-          node.doc_node.get_name()
-        )
+        format!("{}.{}", node.ns_qualifiers.join("."), node.inner.get_name())
       } else {
-        node.doc_node.get_name().to_string()
+        node.inner.get_name().to_string()
       })
       .or_insert(vec![]);
     entry.push(node);
@@ -79,19 +75,16 @@ impl NamespaceNodeCtx {
 
     let current_resolve = ctx.get_current_resolve();
 
-    let docs = crate::html::jsdoc::jsdoc_body_to_html(
-      ctx,
-      &nodes[0].doc_node.js_doc,
-      true,
-    );
+    let docs =
+      crate::html::jsdoc::jsdoc_body_to_html(ctx, &nodes[0].inner.js_doc, true);
 
-    let tags = Tag::from_js_doc(&nodes[0].doc_node.js_doc);
+    let tags = Tag::from_js_doc(&nodes[0].inner.js_doc);
 
     NamespaceNodeCtx {
       tags,
       doc_node_kind_ctx: nodes
         .iter()
-        .map(|node| node.doc_node.kind.into())
+        .map(|node| node.inner.kind.into())
         .collect(),
       origin_name: if ctx.ctx.single_file_mode {
         None
@@ -111,9 +104,7 @@ impl NamespaceNodeCtx {
       ),
       name,
       docs,
-      deprecated: all_deprecated(
-        &nodes.iter().map(|node| node.doc_node).collect::<Vec<_>>(),
-      ),
+      deprecated: all_deprecated(&nodes.iter().collect::<Vec<_>>()),
     }
   }
 }
