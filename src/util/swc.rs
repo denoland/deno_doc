@@ -15,7 +15,7 @@ use crate::js_doc::JsDocTag;
 use crate::node::Location;
 
 lazy_static! {
-  static ref JS_DOC_RE: Regex = Regex::new(r"\s*\* ?").unwrap();
+  static ref JS_DOC_RE: Regex = Regex::new(r"^\s*\* ?").unwrap();
 }
 
 pub(crate) fn is_false(b: &bool) -> bool {
