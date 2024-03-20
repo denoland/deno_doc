@@ -16,7 +16,6 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
-use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -74,7 +73,7 @@ struct IndexCtx {
 pub fn render_index(
   ctx: &GenerateCtx,
   specifier: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
   partitions: IndexMap<String, Vec<DocNodeWithContext>>,
   file: Option<ShortPath>,
 ) -> String {
@@ -173,7 +172,7 @@ pub fn generate_symbol_pages_for_module(
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
 ) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let name_partitions = super::partition::partition_nodes_by_name(doc_nodes);
 
@@ -193,12 +192,12 @@ pub fn generate_symbol_page(
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  doc_nodes_for_module: &[DocNode],
+  doc_nodes_for_module: &[DocNodeWithContext],
   name: &str,
 ) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut name_parts = name.split('.').peekable();
 
-  let mut doc_nodes = doc_nodes_for_module;
+  let mut doc_nodes = doc_nodes_for_module.to_vec();
 
   let mut namespace_paths = vec![];
 
@@ -216,11 +215,15 @@ pub fn generate_symbol_page(
       break nodes.cloned().collect::<Vec<_>>();
     }
     namespace_paths.push(next_part);
-    if let Some(namespace) =
+    if let Some(namespace_node) =
       nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
     {
-      let namespace = namespace.namespace_def.as_ref().unwrap();
-      doc_nodes = &namespace.elements;
+      let namespace = namespace_node.namespace_def.as_ref().unwrap();
+      doc_nodes = namespace
+        .elements
+        .iter()
+        .map(|element| namespace_node.create_child(element.clone()))
+        .collect();
     } else {
       return None;
     }
@@ -248,9 +251,9 @@ pub fn generate_symbol_page(
 
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
-  doc_nodes_for_module: &[DocNode],
+  doc_nodes_for_module: &[DocNodeWithContext],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  name_partitions: IndexMap<String, Vec<DocNode>>,
+  name_partitions: IndexMap<String, Vec<DocNodeWithContext>>,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,
@@ -290,8 +293,13 @@ fn generate_symbol_pages_inner(
     {
       let namespace = doc_node.namespace_def.as_ref().unwrap();
 
-      let namespace_name_partitions =
-        super::partition::partition_nodes_by_name(&namespace.elements);
+      let namespace_name_partitions = super::partition::partition_nodes_by_name(
+        &namespace
+          .elements
+          .iter()
+          .map(|element| doc_node.create_child(element.clone()))
+          .collect::<Vec<_>>(),
+      );
 
       let namespace_paths = {
         let mut ns_paths = namespace_paths.clone();
@@ -325,12 +333,12 @@ pub struct PageCtx {
 
 fn render_symbol_page(
   ctx: &GenerateCtx,
-  doc_nodes_for_module: &[DocNode],
+  doc_nodes_for_module: &[DocNodeWithContext],
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: &[&str],
   namespaced_name: &str,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
 ) -> (BreadcrumbsCtx, SymbolGroupCtx) {
   let mut render_ctx = RenderContext::new(
     ctx,
