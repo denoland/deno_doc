@@ -202,11 +202,11 @@ impl DocNodeWithContext {
   }
 }
 
-impl<'a> core::ops::Deref for DocNodeWithContext {
+impl core::ops::Deref for DocNodeWithContext {
   type Target = DocNode;
 
   fn deref(&self) -> &Self::Target {
-    &*self.inner
+    &self.inner
   }
 }
 

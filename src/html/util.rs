@@ -30,8 +30,7 @@ pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
   pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols =
-      compute_namespaced_symbols(doc_nodes.iter().cloned().collect(), &[]);
+    let symbols = compute_namespaced_symbols(doc_nodes.to_vec(), &[]);
     Self(Rc::new(symbols))
   }
 

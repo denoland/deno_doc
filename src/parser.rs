@@ -264,7 +264,7 @@ impl<'a> DocParser<'a> {
                   elements: doc_nodes
                     .into_iter()
                     .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
-                    .map(|node| Rc::new(node))
+                    .map(Rc::new)
                     .collect(),
                 };
                 let ns_doc_node = DocNode::namespace(
@@ -596,7 +596,7 @@ impl<'a> DocParser<'a> {
               child_symbol,
             )
             .into_iter()
-            .map(|node| Rc::new(node)),
+            .map(Rc::new),
         );
       }
     }

@@ -572,7 +572,7 @@ impl ModuleDocCtx {
       .is_some_and(|main_entrypoint| main_entrypoint == specifier)
     {
       let partitions_by_kind =
-        super::partition::partition_nodes_by_kind(&module_doc_nodes, true);
+        super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,

@@ -222,10 +222,10 @@ pub fn get_partitions_for_file(
   doc_nodes: &[DocNodeWithContext],
 ) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let categories =
-    partition_nodes_by_category(&doc_nodes, ctx.sidebar_flatten_namespaces);
+    partition_nodes_by_category(doc_nodes, ctx.sidebar_flatten_namespaces);
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(&doc_nodes, ctx.sidebar_flatten_namespaces)
+    partition_nodes_by_kind(doc_nodes, ctx.sidebar_flatten_namespaces)
       .into_iter()
       .map(|(kind, nodes)| {
         let doc_node_kind_ctx: super::DocNodeKindCtx = kind.into();

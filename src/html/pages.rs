@@ -197,7 +197,7 @@ pub fn generate_symbol_page(
 ) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut name_parts = name.split('.').peekable();
 
-  let mut doc_nodes = doc_nodes_for_module.iter().cloned().collect::<Vec<_>>();
+  let mut doc_nodes = doc_nodes_for_module.to_vec();
 
   let mut namespace_paths = vec![];
 

@@ -28,7 +28,7 @@ impl SidepanelPartitionSymbolCtx {
       name,
       href,
       active,
-      deprecated: super::util::all_deprecated(&nodes),
+      deprecated: super::util::all_deprecated(nodes),
     }
   }
 }
