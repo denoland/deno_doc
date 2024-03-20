@@ -1,8 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use std::rc::Rc;
 use serde::Deserialize;
 use serde::Serialize;
+use std::rc::Rc;
 
 use crate::js_doc::JsDoc;
 

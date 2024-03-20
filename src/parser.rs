@@ -589,10 +589,15 @@ impl<'a> DocParser<'a> {
         || self.visibility.has_non_exported_public(&unique_id)
       {
         let child_symbol = module_info.symbol(child_id).unwrap();
-        elements.extend(self.get_private_doc_node_for_symbol(
-          ModuleInfoRef::Esm(module_info),
-          child_symbol,
-        ).into_iter().map(|node| Rc::new(node)));
+        elements.extend(
+          self
+            .get_private_doc_node_for_symbol(
+              ModuleInfoRef::Esm(module_info),
+              child_symbol,
+            )
+            .into_iter()
+            .map(|node| Rc::new(node)),
+        );
       }
     }
 
