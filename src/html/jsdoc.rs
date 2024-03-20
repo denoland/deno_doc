@@ -115,89 +115,109 @@ fn match_node_value<'a>(
   options: &comrak::Options,
   plugins: &comrak::Plugins,
 ) {
-  if node.data.borrow().value == NodeValue::BlockQuote {
-    if let Some(paragraph_child) = node.first_child() {
-      if paragraph_child.data.borrow().value == NodeValue::Paragraph {
-        let alert = paragraph_child.first_child().and_then(|text_child| {
-          if let NodeValue::Text(text) = &text_child.data.borrow().value {
-            match text.as_str() {
-              "[!NOTE]" => Some(Alert::Note),
-              "[!TIP]" => Some(Alert::Tip),
-              "[!IMPORTANT]" => Some(Alert::Important),
-              "[!WARNING]" => Some(Alert::Warning),
-              "[!CAUTION]" => Some(Alert::Caution),
-              _ => None,
+  match &node.data.borrow().value {
+    NodeValue::BlockQuote => {
+      if let Some(paragraph_child) = node.first_child() {
+        if paragraph_child.data.borrow().value == NodeValue::Paragraph {
+          let alert = paragraph_child.first_child().and_then(|text_child| {
+            if let NodeValue::Text(text) = &text_child.data.borrow().value {
+              match text.as_str() {
+                "[!NOTE]" => Some(Alert::Note),
+                "[!TIP]" => Some(Alert::Tip),
+                "[!IMPORTANT]" => Some(Alert::Important),
+                "[!WARNING]" => Some(Alert::Warning),
+                "[!CAUTION]" => Some(Alert::Caution),
+                _ => None,
+              }
+            } else {
+              None
             }
-          } else {
-            None
+          });
+
+          if let Some(alert) = alert {
+            let start_col = node.data.borrow().sourcepos.start;
+
+            let document = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+              NodeValue::Document,
+              start_col,
+            ))));
+
+            let node_without_alert = arena.alloc(AstNode::new(RefCell::new(
+              Ast::new(NodeValue::Paragraph, start_col),
+            )));
+
+            for child_node in paragraph_child.children().skip(1) {
+              node_without_alert.append(child_node);
+            }
+
+            document.append(node_without_alert);
+
+            let html = render_node(document, options, plugins);
+
+            let alert_title = match alert {
+              Alert::Note => format!(
+                "{}Note",
+                include_str!("./templates/icons/info-circle.svg")
+              ),
+              Alert::Tip => {
+                format!("{}Tip", include_str!("./templates/icons/bulb.svg"))
+              }
+              Alert::Important => format!(
+                "{}Important",
+                include_str!("./templates/icons/warning-message.svg")
+              ),
+              Alert::Warning => format!(
+                "{}Warning",
+                include_str!("./templates/icons/warning-triangle.svg")
+              ),
+              Alert::Caution => format!(
+                "{}Caution",
+                include_str!("./templates/icons/warning-octagon.svg")
+              ),
+            };
+
+            let html = format!(
+              r#"<div class="alert alert-{}"><div>{alert_title}</div><div>{html}</div></div>"#,
+              match alert {
+                Alert::Note => "note",
+                Alert::Tip => "tip",
+                Alert::Important => "important",
+                Alert::Warning => "warning",
+                Alert::Caution => "caution",
+              }
+            );
+
+            let alert_node = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+              NodeValue::HtmlBlock(NodeHtmlBlock {
+                block_type: 6,
+                literal: html,
+              }),
+              start_col,
+            ))));
+            node.insert_before(alert_node);
+            node.detach();
           }
-        });
-
-        if let Some(alert) = alert {
-          let start_col = paragraph_child.data.borrow().sourcepos.start;
-
-          let document = arena.alloc(AstNode::new(RefCell::new(Ast::new(
-            NodeValue::Document,
-            start_col,
-          ))));
-
-          let node_without_alert = arena.alloc(AstNode::new(RefCell::new(
-            Ast::new(NodeValue::Paragraph, start_col),
-          )));
-
-          for child_node in paragraph_child.children().skip(1) {
-            node_without_alert.append(child_node);
-          }
-
-          document.append(node_without_alert);
-
-          let html = render_node(document, options, plugins);
-
-          let alert_title = match alert {
-            Alert::Note => format!(
-              "{}Note",
-              include_str!("./templates/icons/info-circle.svg")
-            ),
-            Alert::Tip => {
-              format!("{}Tip", include_str!("./templates/icons/bulb.svg"))
-            }
-            Alert::Important => format!(
-              "{}Important",
-              include_str!("./templates/icons/warning-message.svg")
-            ),
-            Alert::Warning => format!(
-              "{}Warning",
-              include_str!("./templates/icons/warning-triangle.svg")
-            ),
-            Alert::Caution => format!(
-              "{}Caution",
-              include_str!("./templates/icons/warning-octagon.svg")
-            ),
-          };
-
-          let html = format!(
-            r#"<div class="alert alert-{}"><div>{alert_title}</div><div>{html}</div></div>"#,
-            match alert {
-              Alert::Note => "note",
-              Alert::Tip => "tip",
-              Alert::Important => "important",
-              Alert::Warning => "warning",
-              Alert::Caution => "caution",
-            }
-          );
-
-          let alert_node = arena.alloc(AstNode::new(RefCell::new(Ast::new(
-            NodeValue::HtmlBlock(NodeHtmlBlock {
-              block_type: 6,
-              literal: html,
-            }),
-            start_col,
-          ))));
-          node.insert_before(alert_node);
-          node.detach();
         }
       }
     }
+    NodeValue::Link(link) => {
+      if link.url.ends_with(".mov") || link.url.ends_with(".mp4") {
+        let start_col = node.data.borrow().sourcepos.start;
+
+        let html = format!(r#"<video src="{}" controls></video>"#, link.url);
+
+        let alert_node = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+          NodeValue::HtmlBlock(NodeHtmlBlock {
+            block_type: 6,
+            literal: html,
+          }),
+          start_col,
+        ))));
+        node.insert_before(alert_node);
+        node.detach();
+      }
+    }
+    _ => {}
   }
 }
 
@@ -322,6 +342,7 @@ pub fn markdown_to_html(
           "stroke-linejoin",
         ],
       )
+      .add_tag_attributes("video", ["src", "controls"])
       .add_allowed_classes("pre", ["highlight"])
       .add_allowed_classes("button", ["context_button"])
       .add_allowed_classes(
@@ -551,7 +572,7 @@ impl ModuleDocCtx {
       .is_some_and(|main_entrypoint| main_entrypoint == specifier)
     {
       let partitions_by_kind =
-        super::partition::partition_nodes_by_kind(&module_doc_nodes, true);
+        super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,

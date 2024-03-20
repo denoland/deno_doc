@@ -2,7 +2,6 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -24,7 +23,7 @@ mod types;
 mod usage;
 mod util;
 
-//pub use pages::generate_symbol_page;
+pub use pages::generate_symbol_page;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -107,11 +106,9 @@ impl<'ctx> GenerateCtx<'ctx> {
       return rewrite.to_owned().into();
     }
 
-    if url.scheme() != "file" {
+    let Ok(url_file_path) = url.to_file_path() else {
       return url.to_string().into();
-    }
-
-    let url_file_path = url.to_file_path().unwrap();
+    };
 
     let Some(common_ancestor) = &self.common_ancestor else {
       return url_file_path.to_string_lossy().to_string().into();
@@ -131,10 +128,10 @@ impl<'ctx> GenerateCtx<'ctx> {
     .into()
   }
 
-  pub fn doc_nodes_by_url_add_context<'a>(
+  pub fn doc_nodes_by_url_add_context(
     &self,
-    doc_nodes_by_url: &'a IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  ) -> IndexMap<ModuleSpecifier, Vec<DocNodeWithContext<'a>>> {
+    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ) -> IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>> {
     doc_nodes_by_url
       .iter()
       .map(|(specifier, nodes)| {
@@ -145,7 +142,7 @@ impl<'ctx> GenerateCtx<'ctx> {
             .map(|node| DocNodeWithContext {
               origin: Rc::new(self.url_to_short_path(specifier)),
               ns_qualifiers: Rc::new(vec![]),
-              inner: Cow::Borrowed(node),
+              inner: Rc::new(node.clone()),
             })
             .collect::<Vec<_>>(),
         )
@@ -183,18 +180,31 @@ impl From<String> for ShortPath {
   }
 }
 
+/// A wrapper around [`DocNode`] with additional fields to track information
+/// about the inner [`DocNode`].
+/// This is cheap to clone since all fields are [`Rc`]s.
 #[derive(Clone, Debug)]
-pub struct DocNodeWithContext<'a> {
+pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<Vec<String>>,
-  pub inner: Cow<'a, DocNode>,
+  pub inner: Rc<DocNode>,
 }
 
-impl<'a> core::ops::Deref for DocNodeWithContext<'a> {
+impl DocNodeWithContext {
+  pub fn create_child(&self, doc_node: Rc<DocNode>) -> Self {
+    DocNodeWithContext {
+      origin: self.origin.clone(),
+      ns_qualifiers: self.ns_qualifiers.clone(),
+      inner: doc_node,
+    }
+  }
+}
+
+impl core::ops::Deref for DocNodeWithContext {
   type Target = DocNode;
 
   fn deref(&self) -> &Self::Target {
-    &*self.inner
+    &self.inner
   }
 }
 
@@ -410,7 +420,7 @@ pub fn generate(
       .values()
       .flatten()
       .cloned()
-      .collect::<Vec<_>>();
+      .collect::<Vec<DocNodeWithContext>>();
 
     let partitions_by_kind =
       partition::partition_nodes_by_kind(&all_doc_nodes, true);

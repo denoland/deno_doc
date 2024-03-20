@@ -6,7 +6,6 @@ use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
-use std::borrow::Cow;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, Serialize)]
@@ -29,7 +28,7 @@ fn doc_node_into_search_index_nodes(
 ) -> Vec<SearchIndexNode> {
   let kinds = doc_nodes.iter().map(|node| node.kind).collect();
 
-  let deprecated = super::util::all_deprecated(&doc_nodes);
+  let deprecated = super::util::all_deprecated(doc_nodes);
 
   let name = if doc_nodes
     .first()
@@ -105,7 +104,7 @@ fn doc_node_into_search_index_nodes(
       entry.push(DocNodeWithContext {
         origin: doc_nodes[0].origin.clone(),
         ns_qualifiers: Rc::new(vec![]),
-        inner: Cow::Borrowed(node),
+        inner: node.clone(),
       });
     }
   }
@@ -148,7 +147,11 @@ fn doc_node_into_search_index_nodes(
       nodes.extend_from_slice(&doc_node_into_search_index_nodes(
         ctx,
         el_nodes[0].get_name(),
-        &[&el_nodes[0]],
+        &[&DocNodeWithContext {
+          origin: doc_nodes[0].origin.clone(),
+          ns_qualifiers: Rc::new(ns_qualifiers_),
+          inner: el_nodes[0].clone(),
+        }],
       ));
     }
   }
@@ -160,10 +163,12 @@ pub fn generate_search_index(
   ctx: &GenerateCtx,
   doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
 ) -> serde_json::Value {
+  let doc_nodes = doc_nodes_by_url.values().flatten().collect::<Vec<_>>();
+
   let mut grouped_nodes: IndexMap<&str, Vec<&DocNodeWithContext>> =
     IndexMap::new();
 
-  for node in doc_nodes_by_url.values().flatten() {
+  for node in doc_nodes {
     if matches!(node.kind, DocNodeKind::Import | DocNodeKind::ModuleDoc) {
       continue;
     }

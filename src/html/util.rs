@@ -1,4 +1,6 @@
-use crate::html::{DocNodeWithContext, RenderContext, ShortPath};
+use crate::html::DocNodeWithContext;
+use crate::html::RenderContext;
+use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
@@ -30,7 +32,7 @@ pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
   pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols = compute_namespaced_symbols(doc_nodes, &[]);
+    let symbols = compute_namespaced_symbols(doc_nodes.to_vec(), &[]);
     Self(Rc::new(symbols))
   }
 
@@ -40,7 +42,7 @@ impl NamespacedSymbols {
 }
 
 pub fn compute_namespaced_symbols(
-  doc_nodes: &[DocNodeWithContext],
+  doc_nodes: Vec<DocNodeWithContext>,
   current_path: &[String],
 ) -> HashSet<Vec<String>> {
   let mut namespaced_symbols = HashSet::new();
@@ -127,15 +129,11 @@ pub fn compute_namespaced_symbols(
     if doc_node.kind == DocNodeKind::Namespace {
       let namespace_def = doc_node.namespace_def.as_ref().unwrap();
       namespaced_symbols.extend(compute_namespaced_symbols(
-        &namespace_def
+        namespace_def
           .elements
           .iter()
-          .map(|node| DocNodeWithContext {
-            origin: doc_node.origin.clone(),
-            ns_qualifiers: Rc::new(vec![]),
-            inner: Cow::Borrowed(node),
-          })
-          .collect::<Vec<_>>(),
+          .map(|element| doc_node.create_child(element.clone()))
+          .collect(),
         &name_path,
       ))
     }

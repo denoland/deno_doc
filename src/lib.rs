@@ -110,7 +110,11 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
   match node.kind {
     DocNodeKind::Namespace => {
       let namespace_def = node.namespace_def.unwrap();
-      namespace_def.elements
+      namespace_def
+        .elements
+        .into_iter()
+        .map(std::rc::Rc::unwrap_or_clone)
+        .collect()
     }
     DocNodeKind::Interface => {
       let interface_def = node.interface_def.unwrap();

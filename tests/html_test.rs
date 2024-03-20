@@ -262,6 +262,7 @@ async fn symbol_group() {
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
 
   let mut files = vec![];
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
 
   {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
@@ -433,6 +434,7 @@ async fn module_doc() {
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
 
   let mut module_docs = vec![];
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
 
   for specifier in &ctx.specifiers {
     let short_path = ctx.url_to_short_path(specifier);

@@ -282,11 +282,7 @@ impl SymbolInnerCtx {
           let namespace_nodes = namespace_def
             .elements
             .iter()
-            .map(|node| DocNodeWithContext {
-              origin: doc_node.origin.clone(),
-              ns_qualifiers: std::rc::Rc::new(vec![]),
-              inner: Cow::Borrowed(node),
-            })
+            .map(|element| doc_node.create_child(element.clone()))
             .collect::<Vec<_>>();
 
           let partitions =

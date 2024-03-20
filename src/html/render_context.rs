@@ -350,7 +350,7 @@ mod test {
           &ModuleSpecifier::parse("file:///mod.ts").unwrap(),
         )),
         ns_qualifiers: Rc::new(vec![]),
-        inner: Cow::Owned(DocNode {
+        inner: Rc::new(DocNode {
           kind: DocNodeKind::Import,
           name: "foo".to_string(),
           location: Location {

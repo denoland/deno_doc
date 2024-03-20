@@ -4,13 +4,12 @@ use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
-use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::rc::Rc;
 
-pub fn partition_nodes_by_name<'a>(
-  doc_nodes: &[DocNodeWithContext<'a>],
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
+pub fn partition_nodes_by_name(
+  doc_nodes: &[DocNodeWithContext],
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
@@ -35,13 +34,13 @@ pub fn partition_nodes_by_name<'a>(
   partitions
 }
 
-pub fn partition_nodes_by_kind<'a>(
-  doc_nodes: &[DocNodeWithContext<'a>],
+pub fn partition_nodes_by_kind(
+  doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext<'a>>> {
-  fn partition_nodes_by_kind_inner<'b>(
-    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext<'b>>>,
-    doc_nodes: &[DocNodeWithContext<'b>],
+) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext>> {
+  fn partition_nodes_by_kind_inner(
+    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+    doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
@@ -66,7 +65,7 @@ pub fn partition_nodes_by_kind<'a>(
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
               ns_qualifiers: ns_qualifiers.clone(),
-              inner: Cow::Borrowed(element),
+              inner: element.clone(),
             })
             .collect::<Vec<_>>(),
           true,
@@ -128,13 +127,13 @@ pub fn partition_nodes_by_kind<'a>(
     .collect()
 }
 
-pub fn partition_nodes_by_category<'a>(
-  doc_nodes: &[DocNodeWithContext<'a>],
+pub fn partition_nodes_by_category(
+  doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
-  fn partition_nodes_by_category_inner<'b>(
-    partitions: &mut IndexMap<String, Vec<DocNodeWithContext<'b>>>,
-    doc_nodes: &[DocNodeWithContext<'b>],
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  fn partition_nodes_by_category_inner(
+    partitions: &mut IndexMap<String, Vec<DocNodeWithContext>>,
+    doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
@@ -159,7 +158,7 @@ pub fn partition_nodes_by_category<'a>(
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
               ns_qualifiers: ns_qualifiers.clone(),
-              inner: Cow::Borrowed(element),
+              inner: element.clone(),
             })
             .collect::<Vec<_>>(),
           true,
@@ -218,15 +217,15 @@ pub fn partition_nodes_by_category<'a>(
     .collect()
 }
 
-pub fn get_partitions_for_file<'a>(
+pub fn get_partitions_for_file(
   ctx: &GenerateCtx,
-  doc_nodes: &[DocNodeWithContext<'a>],
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
+  doc_nodes: &[DocNodeWithContext],
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let categories =
-    partition_nodes_by_category(&doc_nodes, ctx.sidebar_flatten_namespaces);
+    partition_nodes_by_category(doc_nodes, ctx.sidebar_flatten_namespaces);
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(&doc_nodes, ctx.sidebar_flatten_namespaces)
+    partition_nodes_by_kind(doc_nodes, ctx.sidebar_flatten_namespaces)
       .into_iter()
       .map(|(kind, nodes)| {
         let doc_node_kind_ctx: super::DocNodeKindCtx = kind.into();
@@ -238,10 +237,10 @@ pub fn get_partitions_for_file<'a>(
   }
 }
 
-pub fn get_partitions_for_main_entrypoint<'a>(
+pub fn get_partitions_for_main_entrypoint(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext<'a>>>,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let doc_nodes = ctx
     .main_entrypoint
     .as_ref()

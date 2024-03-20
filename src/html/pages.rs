@@ -304,7 +304,7 @@ pub fn generate_symbol_pages_for_module(
 ) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
   let mut name_parts = name.split('.').peekable();
 
-  let mut doc_nodes = doc_nodes_for_module;
+  let mut doc_nodes = doc_nodes_for_module.to_vec();
 
   let mut namespace_paths = vec![];
 
@@ -325,11 +325,15 @@ pub fn generate_symbol_pages_for_module(
       break nodes.cloned().collect::<Vec<_>>();
     }
     namespace_paths.push(next_part);
-    if let Some(namespace) =
-      nodes.find(|node| matches!(node.inner.kind, DocNodeKind::Namespace))
+    if let Some(namespace_node) =
+      nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
     {
-      let namespace = namespace.inner.namespace_def.as_ref().unwrap();
-      doc_nodes = &namespace.elements;
+      let namespace = namespace_node.namespace_def.as_ref().unwrap();
+      doc_nodes = namespace
+        .elements
+        .iter()
+        .map(|element| namespace_node.create_child(element.clone()))
+        .collect();
     } else {
       return None;
     }
@@ -398,16 +402,12 @@ fn generate_symbol_pages_inner(
       .find(|doc_node| doc_node.kind == DocNodeKind::Namespace)
     {
       let namespace = doc_node.namespace_def.as_ref().unwrap();
-      let namespace_elements = &namespace.elements;
 
       let namespace_name_partitions = super::partition::partition_nodes_by_name(
-        &namespace_elements
+        &namespace
+          .elements
           .iter()
-          .map(|node| DocNodeWithContext {
-            origin: doc_node.origin.clone(),
-            ns_qualifiers: Rc::new(vec![]), // TODO
-            inner: Cow::Borrowed(node),
-          })
+          .map(|element| doc_node.create_child(element.clone()))
           .collect::<Vec<_>>(),
       );
 
