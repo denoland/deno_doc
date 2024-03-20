@@ -291,7 +291,6 @@ mod test {
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
-  use std::borrow::Cow;
 
   struct TestResolver();
 
