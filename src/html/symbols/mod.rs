@@ -37,8 +37,13 @@ pub struct SymbolGroupCtx {
 }
 
 impl SymbolGroupCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Self {
-    let mut split_nodes = IndexMap::<DocNodeKind, Vec<DocNode>>::default();
+  pub fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+    name: &str,
+  ) -> Self {
+    let mut split_nodes =
+      IndexMap::<DocNodeKind, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
       if doc_node.kind == DocNodeKind::Import {
@@ -251,7 +256,11 @@ pub enum SymbolInnerCtx {
 }
 
 impl SymbolInnerCtx {
-  fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Vec<Self> {
+  fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+    name: &str,
+  ) -> Vec<Self> {
     let mut content_parts = Vec::with_capacity(doc_nodes.len());
     let mut functions = vec![];
 
@@ -273,11 +282,7 @@ impl SymbolInnerCtx {
           let namespace_nodes = namespace_def
             .elements
             .iter()
-            .map(|node| DocNodeWithContext {
-              doc_node: node,
-              ns_qualifiers: std::rc::Rc::new(vec![]),
-              origin: None,
-            })
+            .map(|element| doc_node.create_child(element.clone()))
             .collect::<Vec<_>>();
 
           let partitions =

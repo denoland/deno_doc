@@ -4,6 +4,7 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde::Serialize;
@@ -14,7 +15,7 @@ use std::collections::HashSet;
 
 pub(crate) fn render_class(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
   let class_def = doc_node.class_def.as_ref().unwrap();
 

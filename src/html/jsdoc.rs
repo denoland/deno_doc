@@ -3,7 +3,6 @@ use super::util::*;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
-use crate::DocNode;
 use crate::DocNodeKind;
 use comrak::nodes::Ast;
 use comrak::nodes::AstNode;
@@ -19,6 +18,7 @@ use std::cmp::Ordering;
 
 #[cfg(feature = "ammonia")]
 use crate::html::comrak_adapters::URLRewriter;
+use crate::html::DocNodeWithContext;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -521,7 +521,7 @@ impl ModuleDocCtx {
   pub fn new(
     render_ctx: &RenderContext,
     specifier: &ModuleSpecifier,
-    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
   ) -> Self {
     let module_doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
 
@@ -571,19 +571,8 @@ impl ModuleDocCtx {
       .as_ref()
       .is_some_and(|main_entrypoint| main_entrypoint == specifier)
     {
-      let module_doc_nodes_with_context = module_doc_nodes
-        .iter()
-        .map(|node| crate::html::DocNodeWithContext {
-          origin: None,
-          ns_qualifiers: std::rc::Rc::new(vec![]),
-          doc_node: node,
-        })
-        .collect::<Vec<_>>();
-
-      let partitions_by_kind = super::partition::partition_nodes_by_kind(
-        &module_doc_nodes_with_context,
-        true,
-      );
+      let partitions_by_kind =
+        super::partition::partition_nodes_by_kind(&module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,

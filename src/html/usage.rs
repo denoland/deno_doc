@@ -1,6 +1,6 @@
+use super::DocNodeWithContext;
 use super::RenderContext;
 use super::UrlResolveKind;
-use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
 
@@ -24,7 +24,7 @@ fn render_css_for_usage(name: &str) -> String {
 
 pub fn usage_to_md(
   ctx: &RenderContext,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
   url: &str,
 ) -> String {
   let usage = if let UrlResolveKind::Symbol { symbol, file } =
@@ -103,7 +103,10 @@ pub struct UsageCtx {
 }
 
 impl UsagesCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Self> {
+  pub fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+  ) -> Option<Self> {
     let url = ctx.ctx.href_resolver.resolve_usage(
       ctx.get_current_specifier()?,
       ctx.get_current_resolve().get_file(),

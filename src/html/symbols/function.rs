@@ -7,6 +7,7 @@ use crate::html::types::render_type_def_colon;
 use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
@@ -60,7 +61,7 @@ pub struct FunctionCtx {
 
 pub(crate) fn render_function(
   ctx: &RenderContext,
-  doc_nodes: Vec<&crate::DocNode>,
+  doc_nodes: Vec<&DocNodeWithContext>,
 ) -> FunctionCtx {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());

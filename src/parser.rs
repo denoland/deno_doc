@@ -262,9 +262,9 @@ impl<'a> DocParser<'a> {
                 }
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
-                    .iter()
+                    .into_iter()
                     .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
-                    .cloned()
+                    .map(|node| Rc::new(node))
                     .collect(),
                 };
                 let ns_doc_node = DocNode::namespace(
@@ -573,7 +573,7 @@ impl<'a> DocParser<'a> {
           doc_node.name = export_name.to_string();
           doc_node.declaration_kind = DeclarationKind::Export;
 
-          elements.push(doc_node);
+          elements.push(Rc::new(doc_node));
         }
       }
     }
@@ -592,7 +592,7 @@ impl<'a> DocParser<'a> {
         elements.extend(self.get_private_doc_node_for_symbol(
           ModuleInfoRef::Esm(module_info),
           child_symbol,
-        ));
+        ).into_iter().map(|node| Rc::new(node)));
       }
     }
 

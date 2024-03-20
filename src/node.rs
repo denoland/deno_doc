@@ -1,5 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use std::rc::Rc;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -7,7 +8,7 @@ use crate::js_doc::JsDoc;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
-  pub elements: Vec<DocNode>,
+  pub elements: Vec<Rc<DocNode>>,
 }
 
 #[derive(
