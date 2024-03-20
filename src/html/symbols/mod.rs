@@ -8,7 +8,6 @@ use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
-use std::borrow::Cow;
 use std::collections::HashSet;
 
 pub mod class;

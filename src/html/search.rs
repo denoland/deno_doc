@@ -150,7 +150,7 @@ fn doc_node_into_search_index_nodes(
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(ns_qualifiers_),
-          inner: el_nodes[0].clone(),
+          inner: el_nodes[0].inner.clone(),
         }],
       ));
     }

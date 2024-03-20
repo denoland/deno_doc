@@ -9,7 +9,6 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
-use std::borrow::Cow;
 use std::rc::Rc;
 
 use super::FUSE_FILENAME;
@@ -193,7 +192,7 @@ pub fn generate_symbol_pages_for_module(
         .map(|method| DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(vec![]),
-          inner: Cow::Owned(DocNode::function(
+          inner: Rc::new(DocNode::function(
             qualify_drilldown_name(name, &method.name, method.is_static),
             method.location.clone(),
             doc_nodes[0].declaration_kind,
@@ -212,7 +211,7 @@ pub fn generate_symbol_pages_for_module(
         .map(|property| DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(vec![]),
-          inner: Cow::Owned(DocNode::variable(
+          inner: Rc::new(DocNode::variable(
             qualify_drilldown_name(name, &property.name, property.is_static),
             property.location.clone(),
             doc_nodes[0].declaration_kind,
@@ -235,7 +234,7 @@ pub fn generate_symbol_pages_for_module(
         .map(|method| DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(vec![]),
-          inner: Cow::Owned(DocNode::function(
+          inner: Rc::new(DocNode::function(
             qualify_drilldown_name(name, &method.name, false),
             method.location.clone(),
             doc_nodes[0].declaration_kind,
@@ -263,7 +262,7 @@ pub fn generate_symbol_pages_for_module(
         .map(|property| DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(vec![]),
-          inner: Cow::Owned(DocNode::variable(
+          inner: Rc::new(DocNode::variable(
             qualify_drilldown_name(name, &property.name, false),
             property.location.clone(),
             doc_nodes[0].declaration_kind,
@@ -294,7 +293,7 @@ pub fn generate_symbol_pages_for_module(
   )
 }
 
-/*pub fn generate_symbol_page(
+pub fn generate_symbol_page(
   ctx: &GenerateCtx,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
@@ -357,7 +356,7 @@ pub fn generate_symbol_pages_for_module(
   );
 
   Some((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx))
-}*/
+}
 
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,

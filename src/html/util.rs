@@ -7,7 +7,6 @@ use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::ModuleSpecifier;
 use serde::Serialize;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
