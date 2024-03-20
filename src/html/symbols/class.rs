@@ -382,7 +382,7 @@ fn render_class_accessor(
     name,
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
-      &name,
+      name,
       getter_or_setter.is_static,
     )),
     &ts_type,
