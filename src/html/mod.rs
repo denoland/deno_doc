@@ -106,11 +106,9 @@ impl<'ctx> GenerateCtx<'ctx> {
       return rewrite.to_owned().into();
     }
 
-    if url.scheme() != "file" {
+    let Ok(url_file_path) = url.to_file_path() else {
       return url.to_string().into();
-    }
-
-    let url_file_path = url.to_file_path().unwrap();
+    };
 
     let Some(common_ancestor) = &self.common_ancestor else {
       return url_file_path.to_string_lossy().to_string().into();
