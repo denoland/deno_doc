@@ -192,7 +192,7 @@ fn render_properties(
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,
           &property.name,
-          false,
+          true,
         )),
         &format!("{ts_type}{default_value}"),
         tags,
@@ -252,7 +252,7 @@ fn render_methods(
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,
           &method.name,
-          false,
+          true,
         )),
         &format!(
           "{}({}){return_type}",

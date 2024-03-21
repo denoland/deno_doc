@@ -172,13 +172,25 @@ pub(crate) fn render_all_symbols_page(
     .unwrap()
 }
 
+pub enum SymbolPage {
+  Symbol {
+    breadcrumbs: BreadcrumbsCtx,
+    sidepanel: SidepanelCtx,
+    symbol: SymbolGroupCtx,
+  },
+  Redirect {
+    current_symbol: String,
+    href: String,
+  },
+}
+
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   doc_nodes: &[DocNodeWithContext],
-) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
+) -> Vec<SymbolPage> {
   let mut name_partitions =
     super::partition::partition_nodes_by_name(doc_nodes);
 
@@ -279,14 +291,13 @@ pub fn generate_symbol_pages_for_module(
         .extend(super::partition::partition_nodes_by_name(&property_nodes));
     }
   }
-
   name_partitions.extend(drilldown_partitions);
 
   generate_symbol_pages_inner(
     ctx,
     doc_nodes,
     partitions_for_nodes,
-    name_partitions,
+    &name_partitions,
     current_specifier,
     short_path,
     vec![],
@@ -300,7 +311,7 @@ pub fn generate_symbol_page(
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   doc_nodes_for_module: &[DocNodeWithContext],
   name: &str,
-) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
+) -> Option<SymbolPage> {
   let mut name_parts = name.split('.').peekable();
 
   let mut doc_nodes = doc_nodes_for_module.to_vec();
@@ -342,10 +353,10 @@ pub fn generate_symbol_page(
     return None;
   }
 
-  let sidepanel_ctx =
+  let sidepanel =
     SidepanelCtx::new(ctx, partitions_for_nodes, short_path, name);
 
-  let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
+  let (breadcrumbs, symbol_group) = render_symbol_page(
     ctx,
     doc_nodes_for_module,
     current_specifier,
@@ -355,36 +366,40 @@ pub fn generate_symbol_page(
     &doc_nodes,
   );
 
-  Some((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx))
+  Some(SymbolPage::Symbol {
+    breadcrumbs,
+    sidepanel,
+    symbol: symbol_group,
+  })
 }
 
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  name_partitions: IndexMap<String, Vec<DocNodeWithContext>>,
+  name_partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,
-) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
+) -> Vec<SymbolPage> {
   let mut generated_pages =
     Vec::with_capacity(name_partitions.values().len() * 2);
 
-  for (name, doc_nodes) in name_partitions.iter() {
+  for (name, doc_nodes) in name_partitions {
     let namespaced_name = if namespace_paths.is_empty() {
       name.to_owned()
     } else {
       format!("{}.{name}", namespace_paths.join("."))
     };
 
-    let sidepanel_ctx = SidepanelCtx::new(
+    let sidepanel = SidepanelCtx::new(
       ctx,
       partitions_for_nodes,
       short_path,
       &namespaced_name,
     );
 
-    let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
+    let (breadcrumbs, symbol_group) = render_symbol_page(
       ctx,
       doc_nodes_for_module,
       current_specifier,
@@ -394,7 +409,31 @@ fn generate_symbol_pages_inner(
       doc_nodes,
     );
 
-    generated_pages.push((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx));
+    generated_pages.push(SymbolPage::Symbol {
+      breadcrumbs,
+      sidepanel,
+      symbol: symbol_group,
+    });
+
+    if let Some(_doc_node) = doc_nodes
+      .iter()
+      .find(|doc_node| doc_node.kind == DocNodeKind::Class)
+    {
+      let prototype_name = format!("{namespaced_name}.prototype");
+      generated_pages.push(SymbolPage::Redirect {
+        href: ctx.href_resolver.resolve_path(
+          UrlResolveKind::Symbol {
+            file: &short_path,
+            symbol: &prototype_name,
+          },
+          UrlResolveKind::Symbol {
+            file: &short_path,
+            symbol: &namespaced_name,
+          },
+        ),
+        current_symbol: prototype_name,
+      });
+    }
 
     if let Some(doc_node) = doc_nodes
       .iter()
@@ -420,12 +459,12 @@ fn generate_symbol_pages_inner(
         ctx,
         doc_nodes_for_module,
         partitions_for_nodes,
-        namespace_name_partitions,
+        &namespace_name_partitions,
         current_specifier,
         short_path,
         namespace_paths,
       );
-      generated_pages.extend_from_slice(&generated);
+      generated_pages.extend(generated);
     }
   }
 

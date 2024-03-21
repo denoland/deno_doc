@@ -149,7 +149,7 @@ async fn run() -> anyhow::Result<()> {
   let mut doc_nodes = Vec::with_capacity(1024);
   for source_file in source_files {
     let nodes = parser.parse_with_reexports(&source_file)?;
-    doc_nodes.extend_from_slice(&nodes);
+    doc_nodes.extend(nodes);
   }
 
   doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);

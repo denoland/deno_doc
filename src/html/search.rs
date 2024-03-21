@@ -144,7 +144,7 @@ fn doc_node_into_search_index_nodes(
     });
 
     if el_nodes[0].kind == DocNodeKind::Namespace {
-      nodes.extend_from_slice(&doc_node_into_search_index_nodes(
+      nodes.extend(doc_node_into_search_index_nodes(
         ctx,
         el_nodes[0].get_name(),
         &[&DocNodeWithContext {

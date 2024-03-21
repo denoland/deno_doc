@@ -3,8 +3,11 @@ use crate::ts_type::TsTypeDef;
 use deno_ast::swc::ast::TsTypeParam;
 use deno_ast::swc::ast::TsTypeParamDecl;
 use deno_ast::ParsedSource;
-use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result as FmtResult};
+use serde::Deserialize;
+use serde::Serialize;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
