@@ -2,6 +2,7 @@ use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
@@ -42,15 +43,15 @@ impl SymbolGroupCtx {
     name: &str,
   ) -> Self {
     let mut split_nodes =
-      IndexMap::<DocNodeKind, Vec<DocNodeWithContext>>::default();
+      IndexMap::<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::Import {
+      if doc_node.kind_with_drilldown == DocNodeKind::Import.into() {
         continue;
       }
 
       split_nodes
-        .entry(doc_node.kind)
+        .entry(doc_node.kind_with_drilldown)
         .or_insert(vec![])
         .push(doc_node.clone());
     }
@@ -119,7 +120,7 @@ impl SymbolGroupCtx {
 
         SymbolCtx {
           tags,
-          kind: doc_nodes[0].kind.into(),
+          kind: doc_nodes[0].kind_with_drilldown.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
           source_href: ctx

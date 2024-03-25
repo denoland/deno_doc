@@ -132,6 +132,7 @@
       ]
     }
   },
+  null,
   {
     "html_head_ctx": {
       "title": "Foo - documentation",
@@ -261,6 +262,7 @@
       ]
     }
   },
+  null,
   {
     "html_head_ctx": {
       "title": "Foobar - documentation",
@@ -390,6 +392,7 @@
       ]
     }
   },
+  null,
   {
     "html_head_ctx": {
       "title": "x - documentation",
@@ -468,6 +471,7 @@
                             {
                               "id": "function_x_0_parameters__n",
                               "name": "_n",
+                              "name_href": null,
                               "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                               "anchor": {
                                 "id": "function_x_0_parameters__n"
@@ -491,6 +495,7 @@
                             {
                               "id": "function_x_0_return",
                               "name": "",
+                              "name_href": null,
                               "content": "<span>void</span>",
                               "anchor": {
                                 "id": "function_x_0_return"

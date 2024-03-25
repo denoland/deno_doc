@@ -41,7 +41,7 @@ fn doc_node_into_search_index_nodes(
     format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
   };
 
-  if !matches!(doc_nodes[0].kind, DocNodeKind::Namespace) {
+  if doc_nodes[0].kind != DocNodeKind::Namespace {
     let mut location = doc_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
     location.filename = if ctx
@@ -101,11 +101,7 @@ fn doc_node_into_search_index_nodes(
 
     let entry = grouped_nodes.entry(node.get_name()).or_default();
     if !entry.iter().any(|n| n.kind == node.kind) {
-      entry.push(DocNodeWithContext {
-        origin: doc_nodes[0].origin.clone(),
-        ns_qualifiers: Rc::new(vec![]),
-        inner: node.clone(),
-      });
+      entry.push(doc_nodes[0].create_child(node.clone()));
     }
   }
 
@@ -150,6 +146,7 @@ fn doc_node_into_search_index_nodes(
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(ns_qualifiers_),
+          kind_with_drilldown: el_nodes[0].kind_with_drilldown.clone(),
           inner: el_nodes[0].inner.clone(),
         }],
       ));

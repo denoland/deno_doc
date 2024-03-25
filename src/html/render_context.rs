@@ -349,6 +349,7 @@ mod test {
           &ModuleSpecifier::parse("file:///mod.ts").unwrap(),
         )),
         ns_qualifiers: Rc::new(vec![]),
+        kind_with_drilldown: DocNodeKind::Import.into(),
         inner: Rc::new(DocNode {
           kind: DocNodeKind::Import,
           name: "foo".to_string(),

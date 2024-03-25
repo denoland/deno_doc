@@ -143,6 +143,7 @@ impl<'ctx> GenerateCtx<'ctx> {
             .map(|node| DocNodeWithContext {
               origin: Rc::new(self.url_to_short_path(specifier)),
               ns_qualifiers: Rc::new(vec![]),
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
               inner: Rc::new(node.clone()),
             })
             .collect::<Vec<_>>(),
@@ -181,6 +182,19 @@ impl From<String> for ShortPath {
   }
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+pub enum DocNodeKindWithDrilldown {
+  Property,
+  Method,
+  Other(crate::DocNodeKind),
+}
+
+impl Into<DocNodeKindWithDrilldown> for crate::DocNodeKind {
+  fn into(self) -> DocNodeKindWithDrilldown {
+    DocNodeKindWithDrilldown::Other(self)
+  }
+}
+
 /// A wrapper around [`DocNode`] with additional fields to track information
 /// about the inner [`DocNode`].
 /// This is cheap to clone since all fields are [`Rc`]s.
@@ -188,6 +202,7 @@ impl From<String> for ShortPath {
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<Vec<String>>,
+  pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Rc<DocNode>,
 }
 
@@ -196,6 +211,7 @@ impl DocNodeWithContext {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
+      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
       inner: doc_node,
     }
   }

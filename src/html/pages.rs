@@ -3,6 +3,7 @@ use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
 use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
+use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;
@@ -145,7 +146,7 @@ struct AllSymbolsCtx {
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+  partitions: IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>,
 ) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
@@ -201,16 +202,17 @@ pub fn generate_symbol_pages_for_module(
       let method_nodes = class
         .methods
         .iter()
-        .map(|method| DocNodeWithContext {
-          origin: doc_nodes[0].origin.clone(),
-          ns_qualifiers: Rc::new(vec![]),
-          inner: Rc::new(DocNode::function(
-            qualify_drilldown_name(name, &method.name, method.is_static),
-            method.location.clone(),
-            doc_nodes[0].declaration_kind,
-            method.js_doc.clone(),
-            method.function_def.clone(),
-          )),
+        .map(|method| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::function(
+              qualify_drilldown_name(name, &method.name, method.is_static),
+              method.location.clone(),
+              doc_nodes[0].declaration_kind,
+              method.js_doc.clone(),
+              method.function_def.clone(),
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
+          new_node
         })
         .collect::<Vec<_>>();
 
@@ -220,19 +222,20 @@ pub fn generate_symbol_pages_for_module(
       let property_nodes = class
         .properties
         .iter()
-        .map(|property| DocNodeWithContext {
-          origin: doc_nodes[0].origin.clone(),
-          ns_qualifiers: Rc::new(vec![]),
-          inner: Rc::new(DocNode::variable(
-            qualify_drilldown_name(name, &property.name, property.is_static),
-            property.location.clone(),
-            doc_nodes[0].declaration_kind,
-            property.js_doc.clone(),
-            VariableDef {
-              ts_type: property.ts_type.clone(),
-              kind: deno_ast::swc::ast::VarDeclKind::Const,
-            },
-          )),
+        .map(|property| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::variable(
+              qualify_drilldown_name(name, &property.name, property.is_static),
+              property.location.clone(),
+              doc_nodes[0].declaration_kind,
+              property.js_doc.clone(),
+              VariableDef {
+                ts_type: property.ts_type.clone(),
+                kind: deno_ast::swc::ast::VarDeclKind::Const,
+              },
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
+          new_node
         })
         .collect::<Vec<_>>();
 
@@ -243,25 +246,26 @@ pub fn generate_symbol_pages_for_module(
       let method_nodes = interface
         .methods
         .iter()
-        .map(|method| DocNodeWithContext {
-          origin: doc_nodes[0].origin.clone(),
-          ns_qualifiers: Rc::new(vec![]),
-          inner: Rc::new(DocNode::function(
-            qualify_drilldown_name(name, &method.name, false),
-            method.location.clone(),
-            doc_nodes[0].declaration_kind,
-            method.js_doc.clone(),
-            FunctionDef {
-              def_name: None,
-              params: method.params.clone(),
-              return_type: method.return_type.clone(),
-              has_body: false,
-              is_async: false,
-              is_generator: false,
-              type_params: method.type_params.clone(),
-              decorators: vec![],
-            },
-          )),
+        .map(|method| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::function(
+              qualify_drilldown_name(name, &method.name, false),
+              method.location.clone(),
+              doc_nodes[0].declaration_kind,
+              method.js_doc.clone(),
+              FunctionDef {
+                def_name: None,
+                params: method.params.clone(),
+                return_type: method.return_type.clone(),
+                has_body: false,
+                is_async: false,
+                is_generator: false,
+                type_params: method.type_params.clone(),
+                decorators: vec![],
+              },
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
+          new_node
         })
         .collect::<Vec<_>>();
 
@@ -271,19 +275,20 @@ pub fn generate_symbol_pages_for_module(
       let property_nodes = interface
         .properties
         .iter()
-        .map(|property| DocNodeWithContext {
-          origin: doc_nodes[0].origin.clone(),
-          ns_qualifiers: Rc::new(vec![]),
-          inner: Rc::new(DocNode::variable(
-            qualify_drilldown_name(name, &property.name, false),
-            property.location.clone(),
-            doc_nodes[0].declaration_kind,
-            property.js_doc.clone(),
-            VariableDef {
-              ts_type: property.ts_type.clone(),
-              kind: deno_ast::swc::ast::VarDeclKind::Const,
-            },
-          )),
+        .map(|property| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::variable(
+              qualify_drilldown_name(name, &property.name, false),
+              property.location.clone(),
+              doc_nodes[0].declaration_kind,
+              property.js_doc.clone(),
+              VariableDef {
+                ts_type: property.ts_type.clone(),
+                kind: deno_ast::swc::ast::VarDeclKind::Const,
+              },
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
+          new_node
         })
         .collect::<Vec<_>>();
 
@@ -321,11 +326,8 @@ pub fn generate_symbol_page(
   let doc_nodes = loop {
     let next_part = name_parts.next()?;
     let mut nodes = doc_nodes.iter().filter(|node| {
-      if matches!(
-        node.inner.kind,
-        DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) || node.inner.declaration_kind
-        == crate::node::DeclarationKind::Private
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
       {
         return false;
       }
@@ -336,7 +338,7 @@ pub fn generate_symbol_page(
     }
     namespace_paths.push(next_part);
     if let Some(namespace_node) =
-      nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
+      nodes.find(|node| node.kind == DocNodeKind::Namespace)
     {
       let namespace = namespace_node.namespace_def.as_ref().unwrap();
       doc_nodes = namespace

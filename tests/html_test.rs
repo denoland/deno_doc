@@ -1,4 +1,5 @@
 use deno_ast::ModuleSpecifier;
+use deno_doc::html::pages::SymbolPage;
 use deno_doc::html::*;
 use deno_doc::DocNode;
 use deno_doc::DocParser;
@@ -153,8 +154,11 @@ async fn html_doc_files() {
       "./all_symbols.html",
       "./index.html",
       "./~/Bar.html",
+      "./~/Bar.prototype.html",
       "./~/Foo.html",
+      "./~/Foo.prototype.html",
       "./~/Foobar.html",
+      "./~/Foobar.prototype.html",
       "./~/index.html",
       "fuse.js",
       "page.css",
@@ -206,8 +210,11 @@ async fn html_doc_files_rewrite() {
       "./all_symbols.html",
       "./index.html",
       "./~/Bar.html",
+      "./~/Bar.prototype.html",
       "./~/Foo.html",
+      "./~/Foo.prototype.html",
       "./~/Foobar.html",
+      "./~/Foobar.prototype.html",
       "./~/index.html",
       "foo/~/index.html",
       "foo/~/x.html",
@@ -279,28 +286,35 @@ async fn symbol_group() {
       );
 
       files.extend(symbol_pages.into_iter().map(
-        |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
-          let root = ctx.href_resolver.resolve_path(
-            UrlResolveKind::Symbol {
-              file: &short_path,
-              symbol: &symbol_group_ctx.name,
-            },
-            UrlResolveKind::Root,
-          );
+        |symbol_page| match symbol_page {
+          SymbolPage::Symbol {
+            breadcrumbs,
+            sidepanel,
+            symbol,
+          } => {
+            let root = ctx.href_resolver.resolve_path(
+              UrlResolveKind::Symbol {
+                file: &short_path,
+                symbol: &symbol.name,
+              },
+              UrlResolveKind::Root,
+            );
 
-          let html_head_ctx = pages::HtmlHeadCtx::new(
-            &root,
-            &symbol_group_ctx.name,
-            ctx.package_name.as_ref(),
-            Some(short_path.clone()),
-          );
+            let html_head_ctx = pages::HtmlHeadCtx::new(
+              &root,
+              &symbol.name,
+              ctx.package_name.as_ref(),
+              Some(short_path.clone()),
+            );
 
-          pages::PageCtx {
-            html_head_ctx,
-            sidepanel_ctx,
-            symbol_group_ctx,
-            breadcrumbs_ctx,
+            Some(pages::PageCtx {
+              html_head_ctx,
+              sidepanel_ctx: sidepanel,
+              symbol_group_ctx: symbol,
+              breadcrumbs_ctx: breadcrumbs,
+            })
           }
+          SymbolPage::Redirect { .. } => None,
         },
       ));
     }

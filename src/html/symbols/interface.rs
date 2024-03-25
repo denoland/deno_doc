@@ -238,9 +238,6 @@ fn render_methods(
         .unwrap_or_default();
 
       let mut tags = Tag::from_js_doc(&method.js_doc);
-      /* TODO: if method.kind {
-        tags.push(Tag::ReadOnly);
-      }*/
       if method.optional {
         tags.insert(Tag::Optional);
       }

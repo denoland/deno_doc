@@ -1,3 +1,4 @@
+use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use crate::js_doc::JsDocTag;
@@ -37,9 +38,12 @@ pub fn partition_nodes_by_name(
 pub fn partition_nodes_by_kind(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext>> {
+) -> IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>> {
   fn partition_nodes_by_kind_inner(
-    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+    partitions: &mut IndexMap<
+      DocNodeKindWithDrilldown,
+      Vec<DocNodeWithContext>,
+    >,
     doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
   ) {
@@ -65,6 +69,9 @@ pub fn partition_nodes_by_kind(
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
               ns_qualifiers: ns_qualifiers.clone(),
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(
+                element.kind,
+              ),
               inner: element.clone(),
             })
             .collect::<Vec<_>>(),
@@ -76,16 +83,16 @@ pub fn partition_nodes_by_kind(
         partitions.iter_mut().find(|(kind, nodes)| {
           nodes.iter().any(|n| {
             n.get_name() == node.get_name()
-              && n.kind != node.kind
-              && kind != &&node.kind
+              && n.kind_with_drilldown != node.kind_with_drilldown
+              && kind != &&node.kind_with_drilldown
           })
         })
       {
-        assert_ne!(node_kind, &node.kind);
+        assert_ne!(node_kind, &node.kind_with_drilldown);
 
         nodes.push(node.clone());
       } else {
-        let entry = partitions.entry(node.kind).or_default();
+        let entry = partitions.entry(node.kind_with_drilldown).or_default();
         if !entry.iter().any(|n| n.get_name() == node.get_name()) {
           entry.push(node.clone());
         }
@@ -93,8 +100,10 @@ pub fn partition_nodes_by_kind(
     }
   }
 
-  let mut partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>> =
-    IndexMap::default();
+  let mut partitions: IndexMap<
+    DocNodeKindWithDrilldown,
+    Vec<DocNodeWithContext>,
+  > = IndexMap::default();
 
   partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
@@ -158,6 +167,9 @@ pub fn partition_nodes_by_category(
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
               ns_qualifiers: ns_qualifiers.clone(),
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(
+                element.kind,
+              ),
               inner: element.clone(),
             })
             .collect::<Vec<_>>(),

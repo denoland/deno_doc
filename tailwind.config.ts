@@ -5,7 +5,9 @@ const TAG_CYAN = "#0CAFC6";
 
 const extraColors = {
   "Function": "#056CF0",
+  "Method": "#056CF0",
   "Variable": "#7E57C0",
+  "Property": "#7E57C0",
   "Class": "#20B44B",
   "Enum": "#22ABB0",
   "Interface": "#D2A064",

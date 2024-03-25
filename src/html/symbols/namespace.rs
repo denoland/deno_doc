@@ -1,14 +1,14 @@
 use crate::html::render_context::RenderContext;
 use crate::html::util::*;
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
-use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
 use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+  partitions: IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>,
 ) -> Vec<SectionCtx> {
   partitions
     .into_iter()
@@ -20,7 +20,7 @@ pub fn render_namespace(
 
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
-  kind: DocNodeKind,
+  kind: DocNodeKindWithDrilldown,
   doc_nodes: Vec<DocNodeWithContext>,
 ) -> SectionCtx {
   let kind_ctx = super::super::util::DocNodeKindCtx::from(kind);
@@ -82,7 +82,10 @@ impl NamespaceNodeCtx {
 
     NamespaceNodeCtx {
       tags,
-      doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
+      doc_node_kind_ctx: nodes
+        .iter()
+        .map(|node| node.kind_with_drilldown.into())
+        .collect(),
       origin_name: if ctx.ctx.single_file_mode {
         None
       } else {

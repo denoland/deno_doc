@@ -1,3 +1,4 @@
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
@@ -244,30 +245,51 @@ pub struct BreadcrumbsCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct DocNodeKindCtx {
-  pub kind: String,
+  pub kind: &'static str,
   pub char: char,
   pub title: &'static str,
   pub title_lowercase: &'static str,
   pub title_plural: &'static str,
 }
 
-impl From<DocNodeKind> for DocNodeKindCtx {
-  fn from(kind: DocNodeKind) -> Self {
-    let (char, title, title_lowercase, title_plural) = match kind {
-      DocNodeKind::Function => ('f', "Function", "function", "Functions"),
-      DocNodeKind::Variable => ('v', "Variable", "variable", "Variables"),
-      DocNodeKind::Class => ('c', "Class", "class", "Classes"),
-      DocNodeKind::Enum => ('E', "Enum", "enum", "Enums"),
-      DocNodeKind::Interface => ('I', "Interface", "interface", "Interfaces"),
-      DocNodeKind::TypeAlias => {
-        ('T', "Type Alias", "type alias", "Type Aliases")
+impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
+  fn from(kind: DocNodeKindWithDrilldown) -> Self {
+    let (char, kind, title, title_lowercase, title_plural) = match kind {
+      DocNodeKindWithDrilldown::Property => {
+        (' ', "Property", "Property", "property", "Properties")
       }
-      DocNodeKind::Namespace => ('N', "Namespace", "namespace", "Namespaces"),
-      DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
+      DocNodeKindWithDrilldown::Method => {
+        (' ', "Method", "Method", "method", "Methods")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Function) => {
+        ('f', "Function", "Function", "function", "Functions")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Variable) => {
+        ('v', "Variable", "Variable", "variable", "Variables")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Class) => {
+        ('c', "Class", "Class", "class", "Classes")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Enum) => {
+        ('E', "Enum", "Enum", "enum", "Enums")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Interface) => {
+        ('I', "Interface", "Interface", "interface", "Interfaces")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::TypeAlias) => {
+        ('T', "TypeAlias", "Type Alias", "type alias", "Type Aliases")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Namespace) => {
+        ('N', "Namespace", "Namespace", "namespace", "Namespaces")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::ModuleDoc)
+      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import) => {
+        unimplemented!()
+      }
     };
 
     Self {
-      kind: format!("{kind:?}"),
+      kind,
       char,
       title,
       title_lowercase,
