@@ -286,6 +286,7 @@ mod test {
   use super::*;
   use crate::html::setup_hbs;
   use crate::html::setup_highlighter;
+  use crate::html::DocNodeKindWithDrilldown;
   use crate::html::HrefResolver;
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
@@ -343,37 +344,38 @@ mod test {
       sidebar_flatten_namespaces: false,
     };
 
-    let doc_nodes =
-      vec![DocNodeWithContext {
-        origin: Rc::new(ctx.url_to_short_path(
+    let doc_nodes = vec![DocNodeWithContext {
+      origin: Rc::new(
+        ctx.url_to_short_path(
           &ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-        )),
-        ns_qualifiers: Rc::new(vec![]),
-        kind_with_drilldown: DocNodeKind::Import.into(),
-        inner: Rc::new(DocNode {
-          kind: DocNodeKind::Import,
-          name: "foo".to_string(),
-          location: Location {
-            filename: "a".to_string(),
-            line: 0,
-            col: 0,
-            byte_index: 0,
-          },
-          declaration_kind: DeclarationKind::Private,
-          js_doc: Default::default(),
-          function_def: None,
-          variable_def: None,
-          enum_def: None,
-          class_def: None,
-          type_alias_def: None,
-          namespace_def: None,
-          interface_def: None,
-          import_def: Some(ImportDef {
-            src: "b".to_string(),
-            imported: Some("foo".to_string()),
-          }),
+        ),
+      ),
+      ns_qualifiers: Rc::new(vec![]),
+      kind_with_drilldown: DocNodeKindWithDrilldown::Other(DocNodeKind::Import),
+      inner: Rc::new(DocNode {
+        kind: DocNodeKind::Import,
+        name: "foo".to_string(),
+        location: Location {
+          filename: "a".to_string(),
+          line: 0,
+          col: 0,
+          byte_index: 0,
+        },
+        declaration_kind: DeclarationKind::Private,
+        js_doc: Default::default(),
+        function_def: None,
+        variable_def: None,
+        enum_def: None,
+        class_def: None,
+        type_alias_def: None,
+        namespace_def: None,
+        interface_def: None,
+        import_def: Some(ImportDef {
+          src: "b".to_string(),
+          imported: Some("foo".to_string()),
         }),
-      }];
+      }),
+    }];
 
     // globals
     let render_ctx =

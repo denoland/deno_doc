@@ -189,12 +189,6 @@ pub enum DocNodeKindWithDrilldown {
   Other(crate::DocNodeKind),
 }
 
-impl Into<DocNodeKindWithDrilldown> for crate::DocNodeKind {
-  fn into(self) -> DocNodeKindWithDrilldown {
-    DocNodeKindWithDrilldown::Other(self)
-  }
-}
-
 /// A wrapper around [`DocNode`] with additional fields to track information
 /// about the inner [`DocNode`].
 /// This is cheap to clone since all fields are [`Rc`]s.

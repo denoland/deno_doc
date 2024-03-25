@@ -146,7 +146,7 @@ fn doc_node_into_search_index_nodes(
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(ns_qualifiers_),
-          kind_with_drilldown: el_nodes[0].kind_with_drilldown.clone(),
+          kind_with_drilldown: el_nodes[0].kind_with_drilldown,
           inner: el_nodes[0].inner.clone(),
         }],
       ));

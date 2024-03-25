@@ -425,11 +425,11 @@ fn generate_symbol_pages_inner(
       generated_pages.push(SymbolPage::Redirect {
         href: ctx.href_resolver.resolve_path(
           UrlResolveKind::Symbol {
-            file: &short_path,
+            file: short_path,
             symbol: &prototype_name,
           },
           UrlResolveKind::Symbol {
-            file: &short_path,
+            file: short_path,
             symbol: &namespaced_name,
           },
         ),

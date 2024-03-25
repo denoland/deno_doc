@@ -46,7 +46,7 @@ impl SymbolGroupCtx {
       IndexMap::<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.kind_with_drilldown == DocNodeKind::Import.into() {
+      if doc_node.kind == DocNodeKind::Import {
         continue;
       }
 
