@@ -126,7 +126,18 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::Optional => {
       render_type_def(ctx, def.optional.as_ref().unwrap())
     }
-    TsTypeDefKind::TypeQuery => def.type_query.clone().unwrap(),
+    TsTypeDefKind::TypeQuery => {
+      let query = def.type_query.as_ref().unwrap();
+
+      if let Some(href) = ctx.lookup_symbol_href(&query.to_owned()) {
+        format!(
+          r#"<a href="{}" class="link">{query}</a>"#,
+          html_escape::encode_safe(&href),
+        )
+      } else {
+        format!("<span>{query}</span>")
+      }
+    }
     TsTypeDefKind::This => "<span>this</span>".to_string(),
     TsTypeDefKind::FnOrConstructor => {
       let fn_or_constructor = def.fn_or_constructor.as_ref().unwrap();
