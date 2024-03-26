@@ -1380,7 +1380,38 @@ pub fn infer_ts_type_from_expr(
       // e.g.) const value = {foo: "bar"};
       infer_ts_type_from_obj(parsed_source, obj)
     }
-    _ => None,
+    Expr::TsSatisfies(satisfies) => {
+      // e.g.) const value = {foo: "bar"} satifies Record<string, string>;
+      infer_ts_type_from_expr(parsed_source, &satisfies.expr, is_const)
+    }
+    Expr::This(_)
+    | Expr::Unary(_)
+    | Expr::Update(_)
+    | Expr::Bin(_)
+    | Expr::Assign(_)
+    | Expr::Member(_)
+    | Expr::SuperProp(_)
+    | Expr::Cond(_)
+    | Expr::Seq(_)
+    | Expr::Ident(_)
+    | Expr::TaggedTpl(_)
+    | Expr::Class(_)
+    | Expr::Yield(_)
+    | Expr::MetaProp(_)
+    | Expr::Await(_)
+    | Expr::Paren(_)
+    | Expr::JSXMember(_)
+    | Expr::JSXNamespacedName(_)
+    | Expr::JSXEmpty(_)
+    | Expr::JSXElement(_)
+    | Expr::JSXFragment(_)
+    | Expr::TsTypeAssertion(_)
+    | Expr::TsNonNull(_)
+    | Expr::TsAs(_)
+    | Expr::TsInstantiation(_)
+    | Expr::PrivateName(_)
+    | Expr::OptChain(_)
+    | Expr::Invalid(_) => None,
   }
 }
 
