@@ -1384,30 +1384,122 @@ pub fn infer_ts_type_from_expr(
       // e.g.) const value = {foo: "bar"} satifies Record<string, string>;
       infer_ts_type_from_expr(parsed_source, &satisfies.expr, is_const)
     }
+    Expr::Update(_) => {
+      // e.g.) let foo = 0;
+      //       const bar = foo++;
+
+      // TODO: does not support bigints, needs type tracing
+      Some(TsTypeDef::number_with_repr("number"))
+    }
+    Expr::TsTypeAssertion(assertion) => {
+      // e.g.) export const foo = <string> 1;
+      Some(TsTypeDef::new(parsed_source, &assertion.type_ann))
+    }
+    Expr::TsAs(as_expr) => {
+      // e.g.) export const foo = 1 as string;
+      Some(TsTypeDef::new(parsed_source, &as_expr.type_ann))
+    }
+    Expr::Paren(paren) => {
+      // e.g.) export const foo = (1);
+      infer_ts_type_from_expr(parsed_source, &paren.expr, is_const)
+    }
+    Expr::Await(await_expr) => {
+      // e.g.) export const foo = await 1;
+      infer_ts_type_from_expr(parsed_source, &await_expr.arg, is_const)
+    }
+    Expr::Cond(cond) => {
+      // e.g.) export const foo = true ? "a" : 1;
+      let left = infer_ts_type_from_expr(parsed_source, &cond.cons, is_const)?;
+      let right = infer_ts_type_from_expr(parsed_source, &cond.alt, is_const)?;
+
+      Some(TsTypeDef {
+        union: Some(vec![left, right]),
+        kind: Some(TsTypeDefKind::Union),
+        ..Default::default()
+      })
+    }
+    Expr::TsNonNull(non_null) => {
+      // e.g.) export const foo = (true ? "a" : null)!;
+      // e.g.) export const foo = null!;
+
+      let with_null =
+        infer_ts_type_from_expr(parsed_source, &non_null.expr, is_const)?;
+
+      if let Some(union) = with_null.union {
+        let mut non_null_union = union
+          .into_iter()
+          .filter(|item| {
+            if let Some(keyword) = &item.keyword {
+              return keyword != "null";
+            }
+
+            true
+          })
+          .collect::<Vec<_>>();
+
+        Some(match non_null_union.len() {
+          0 => TsTypeDef::keyword("never"),
+          1 => non_null_union.remove(0),
+          _ => TsTypeDef {
+            union: Some(non_null_union),
+            kind: Some(TsTypeDefKind::Union),
+            ..Default::default()
+          },
+        })
+      } else if with_null.keyword.is_some_and(|keyword| keyword == "null") {
+        Some(TsTypeDef::keyword("never"))
+      } else {
+        None
+      }
+    }
+    Expr::Bin(bin) => {
+      // e.g.) export const foo = 1 == "bar";
+      // e.g.) export const foo = 1 >> 1;
+
+      match bin.op {
+        BinaryOp::EqEq
+        | BinaryOp::NotEq
+        | BinaryOp::EqEqEq
+        | BinaryOp::NotEqEq
+        | BinaryOp::Lt
+        | BinaryOp::LtEq
+        | BinaryOp::Gt
+        | BinaryOp::GtEq
+        | BinaryOp::In
+        | BinaryOp::InstanceOf => Some(TsTypeDef::bool_with_repr("boolean")),
+        BinaryOp::LShift
+        | BinaryOp::RShift
+        | BinaryOp::ZeroFillRShift
+        | BinaryOp::Sub
+        | BinaryOp::Mul
+        | BinaryOp::Div
+        | BinaryOp::Mod
+        | BinaryOp::BitOr
+        | BinaryOp::BitXor
+        | BinaryOp::BitAnd
+        | BinaryOp::Exp => Some(TsTypeDef::number_with_repr("number")),
+        BinaryOp::LogicalOr
+        | BinaryOp::LogicalAnd
+        | BinaryOp::NullishCoalescing
+        | BinaryOp::Add => None,
+      }
+    }
     Expr::This(_)
     | Expr::Unary(_)
-    | Expr::Update(_)
-    | Expr::Bin(_)
     | Expr::Assign(_)
     | Expr::Member(_)
     | Expr::SuperProp(_)
-    | Expr::Cond(_)
     | Expr::Seq(_)
     | Expr::Ident(_)
     | Expr::TaggedTpl(_)
     | Expr::Class(_)
     | Expr::Yield(_)
     | Expr::MetaProp(_)
-    | Expr::Await(_)
-    | Expr::Paren(_)
     | Expr::JSXMember(_)
     | Expr::JSXNamespacedName(_)
     | Expr::JSXEmpty(_)
     | Expr::JSXElement(_)
     | Expr::JSXFragment(_)
-    | Expr::TsTypeAssertion(_)
-    | Expr::TsNonNull(_)
-    | Expr::TsAs(_)
     | Expr::TsInstantiation(_)
     | Expr::PrivateName(_)
     | Expr::OptChain(_)
@@ -1555,7 +1647,8 @@ fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
       }
     }
     Lit::Regex(regex) => Some(TsTypeDef::regexp(regex.exp.to_string())),
-    _ => None,
+    Lit::Null(_null) => Some(TsTypeDef::keyword("null")),
+    Lit::JSXText(_) => None,
   }
 }
 
