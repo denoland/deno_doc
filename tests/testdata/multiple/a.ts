@@ -23,6 +23,8 @@
  * some Foo docs
  */
 export class Foo {
+  static bar: "string";
+  foo: "string";
 }
 
 export class Bar extends Foo {

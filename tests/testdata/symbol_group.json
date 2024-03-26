@@ -224,7 +224,48 @@
               "value": {
                 "id": "",
                 "docs": "<div class=\"markdown flex-1\"><p>some Foo docs</p>\n</div>",
-                "sections": []
+                "sections": [
+                  {
+                    "title": "Properties",
+                    "content": {
+                      "kind": "doc_entry",
+                      "content": [
+                        {
+                          "id": "property_foo",
+                          "name": "foo",
+                          "name_href": "../././~/Foo.prototype.foo.html",
+                          "content": "<span>: <span>\"string\"</span></span>",
+                          "anchor": {
+                            "id": "property_foo"
+                          },
+                          "tags": [],
+                          "js_doc": null,
+                          "source_href": null
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "title": "Static Properties",
+                    "content": {
+                      "kind": "doc_entry",
+                      "content": [
+                        {
+                          "id": "property_bar",
+                          "name": "bar",
+                          "name_href": "../././~/Foo.bar.html",
+                          "content": "<span>: <span>\"string\"</span></span>",
+                          "anchor": {
+                            "id": "property_bar"
+                          },
+                          "tags": [],
+                          "js_doc": null,
+                          "source_href": null
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
             }
           ],
@@ -393,6 +434,315 @@
     }
   },
   null,
+  {
+    "html_head_ctx": {
+      "title": "Foo.bar - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "url_search_index": "../search_index.js",
+      "script_js": "../script.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js"
+    },
+    "sidepanel_ctx": {
+      "package_name": null,
+      "partitions": [
+        {
+          "name": "Class",
+          "symbols": [
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Bar",
+              "href": "../././~/Bar.html",
+              "active": false,
+              "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foo",
+              "href": "../././~/Foo.html",
+              "active": false,
+              "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foobar",
+              "href": "../././~/Foobar.html",
+              "active": false,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_group_ctx": {
+      "name": "Foo.bar",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Property",
+            "char": " ",
+            "title": "Property",
+            "title_lowercase": "property",
+            "title_plural": "Properties"
+          },
+          "tags": [],
+          "subtitle": null,
+          "content": [
+            {
+              "kind": "other",
+              "value": {
+                "id": "",
+                "docs": null,
+                "sections": [
+                  {
+                    "title": "Type",
+                    "content": {
+                      "kind": "doc_entry",
+                      "content": [
+                        {
+                          "id": "variable_Foo_bar",
+                          "name": "",
+                          "name_href": null,
+                          "content": "<span>\"string\"</span>",
+                          "anchor": {
+                            "id": "variable_Foo_bar"
+                          },
+                          "tags": [],
+                          "js_doc": null,
+                          "source_href": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ],
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code>import { Foo } from \".\";\nconst { bar } = Foo;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\nconst { bar } = Foo;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "Foo",
+          "href": "../././~/Foo.html",
+          "is_symbol": true,
+          "is_first_symbol": true,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "bar",
+          "href": "../././~/Foo.bar.html",
+          "is_symbol": true,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        }
+      ]
+    }
+  },
+  {
+    "html_head_ctx": {
+      "title": "Foo.prototype.foo - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "url_search_index": "../search_index.js",
+      "script_js": "../script.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js"
+    },
+    "sidepanel_ctx": {
+      "package_name": null,
+      "partitions": [
+        {
+          "name": "Class",
+          "symbols": [
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Bar",
+              "href": "../././~/Bar.html",
+              "active": false,
+              "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foo",
+              "href": "../././~/Foo.html",
+              "active": false,
+              "deprecated": false
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
+                }
+              ],
+              "name": "Foobar",
+              "href": "../././~/Foobar.html",
+              "active": false,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    "symbol_group_ctx": {
+      "name": "Foo.prototype.foo",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Property",
+            "char": " ",
+            "title": "Property",
+            "title_lowercase": "property",
+            "title_plural": "Properties"
+          },
+          "tags": [],
+          "subtitle": null,
+          "content": [
+            {
+              "kind": "other",
+              "value": {
+                "id": "",
+                "docs": null,
+                "sections": [
+                  {
+                    "title": "Type",
+                    "content": {
+                      "kind": "doc_entry",
+                      "content": [
+                        {
+                          "id": "variable_Foo_prototype_foo",
+                          "name": "",
+                          "name_href": null,
+                          "content": "<span>\"string\"</span>",
+                          "anchor": {
+                            "id": "variable_Foo_prototype_foo"
+                          },
+                          "tags": [],
+                          "js_doc": null,
+                          "source_href": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ],
+      "usages": {
+        "show_tabs": false,
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code>import { Foo } from \".\";\nconst { foo } = Foo.prototype;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\nconst { foo } = Foo.prototype;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "additional_css": ""
+          }
+        ]
+      }
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "Foo",
+          "href": "../././~/Foo.html",
+          "is_symbol": true,
+          "is_first_symbol": true,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "prototype",
+          "href": "../././~/Foo.prototype.html",
+          "is_symbol": true,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        },
+        {
+          "name": "foo",
+          "href": "../././~/Foo.prototype.foo.html",
+          "is_symbol": true,
+          "is_first_symbol": false,
+          "is_all_symbols_part": false
+        }
+      ]
+    }
+  },
   {
     "html_head_ctx": {
       "title": "x - documentation",
