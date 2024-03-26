@@ -407,7 +407,7 @@ pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {
   })
 }
 
-pub(crate) fn qualify_drilldown_name(
+pub fn qualify_drilldown_name(
   parent_name: &str,
   drilldown_name: &str,
   is_static: bool,

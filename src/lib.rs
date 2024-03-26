@@ -14,23 +14,23 @@ extern crate lazy_static;
 #[macro_use]
 extern crate serde_json;
 
-mod class;
+pub mod class;
 mod colors;
 mod decorators;
 mod diagnostics;
 mod display;
-mod r#enum;
-mod function;
-mod interface;
+pub mod r#enum;
+pub mod function;
+pub mod interface;
 pub mod js_doc;
 pub mod node;
 mod params;
 mod parser;
 mod ts_type;
 mod ts_type_param;
-mod type_alias;
+pub mod type_alias;
 mod util;
-mod variable;
+pub mod variable;
 mod visibility;
 
 pub use node::DocNode;
@@ -113,7 +113,7 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
       namespace_def
         .elements
         .into_iter()
-        .map(std::rc::Rc::unwrap_or_clone)
+        .map(std::sync::Arc::unwrap_or_clone)
         .collect()
     }
     DocNodeKind::Interface => {
