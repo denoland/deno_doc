@@ -5,6 +5,7 @@ use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::DocNode;
 
@@ -32,6 +33,7 @@ pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use usage::usage_to_md;
 pub use util::compute_namespaced_symbols;
+pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
@@ -130,23 +132,22 @@ impl<'ctx> GenerateCtx<'ctx> {
 
   pub fn doc_nodes_by_url_add_context(
     &self,
-    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
   ) -> IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>> {
     doc_nodes_by_url
-      .iter()
+      .into_iter()
       .map(|(specifier, nodes)| {
-        (
-          specifier.clone(),
-          nodes
-            .iter()
-            .map(|node| DocNodeWithContext {
-              origin: Rc::new(self.url_to_short_path(specifier)),
-              ns_qualifiers: Rc::new(vec![]),
-              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
-              inner: Rc::new(node.clone()),
-            })
-            .collect::<Vec<_>>(),
-        )
+        let nodes = nodes
+          .into_iter()
+          .map(|node| DocNodeWithContext {
+            origin: Rc::new(self.url_to_short_path(&specifier)),
+            ns_qualifiers: Rc::new(vec![]),
+            kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
+            inner: Arc::new(node),
+          })
+          .collect::<Vec<_>>();
+
+        (specifier, nodes)
       })
       .collect::<IndexMap<_, _>>()
   }
@@ -196,11 +197,11 @@ pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<Vec<String>>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
-  pub inner: Rc<DocNode>,
+  pub inner: Arc<DocNode>,
 }
 
 impl DocNodeWithContext {
-  pub fn create_child(&self, doc_node: Rc<DocNode>) -> Self {
+  pub fn create_child(&self, doc_node: Arc<DocNode>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
@@ -384,7 +385,7 @@ pub fn setup_highlighter(
 
 pub fn generate(
   mut options: GenerateOptions,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
     options.main_entrypoint =

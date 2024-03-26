@@ -10,7 +10,7 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
@@ -204,7 +204,7 @@ pub fn generate_symbol_pages_for_module(
         .iter()
         .map(|method| {
           let mut new_node =
-            doc_nodes[0].create_child(Rc::new(DocNode::function(
+            doc_nodes[0].create_child(Arc::new(DocNode::function(
               qualify_drilldown_name(name, &method.name, method.is_static),
               method.location.clone(),
               doc_nodes[0].declaration_kind,
@@ -224,7 +224,7 @@ pub fn generate_symbol_pages_for_module(
         .iter()
         .map(|property| {
           let mut new_node =
-            doc_nodes[0].create_child(Rc::new(DocNode::variable(
+            doc_nodes[0].create_child(Arc::new(DocNode::variable(
               qualify_drilldown_name(name, &property.name, property.is_static),
               property.location.clone(),
               doc_nodes[0].declaration_kind,
@@ -248,7 +248,7 @@ pub fn generate_symbol_pages_for_module(
         .iter()
         .map(|method| {
           let mut new_node =
-            doc_nodes[0].create_child(Rc::new(DocNode::function(
+            doc_nodes[0].create_child(Arc::new(DocNode::function(
               qualify_drilldown_name(name, &method.name, false),
               method.location.clone(),
               doc_nodes[0].declaration_kind,
@@ -277,7 +277,7 @@ pub fn generate_symbol_pages_for_module(
         .iter()
         .map(|property| {
           let mut new_node =
-            doc_nodes[0].create_child(Rc::new(DocNode::variable(
+            doc_nodes[0].create_child(Arc::new(DocNode::variable(
               qualify_drilldown_name(name, &property.name, false),
               property.location.clone(),
               doc_nodes[0].declaration_kind,

@@ -67,6 +67,7 @@ use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -264,7 +265,7 @@ impl<'a> DocParser<'a> {
                   elements: doc_nodes
                     .into_iter()
                     .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
-                    .map(Rc::new)
+                    .map(Arc::new)
                     .collect(),
                 };
                 let ns_doc_node = DocNode::namespace(
@@ -573,7 +574,7 @@ impl<'a> DocParser<'a> {
           doc_node.name = export_name.to_string();
           doc_node.declaration_kind = DeclarationKind::Export;
 
-          elements.push(Rc::new(doc_node));
+          elements.push(Arc::new(doc_node));
         }
       }
     }
@@ -596,7 +597,7 @@ impl<'a> DocParser<'a> {
               child_symbol,
             )
             .into_iter()
-            .map(Rc::new),
+            .map(Arc::new),
         );
       }
     }

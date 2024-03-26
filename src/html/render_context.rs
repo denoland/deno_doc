@@ -292,6 +292,7 @@ mod test {
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
+  use std::sync::Arc;
 
   struct TestResolver();
 
@@ -352,7 +353,7 @@ mod test {
       ),
       ns_qualifiers: Rc::new(vec![]),
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(DocNodeKind::Import),
-      inner: Rc::new(DocNode {
+      inner: Arc::new(DocNode {
         kind: DocNodeKind::Import,
         name: "foo".to_string(),
         location: Location {
