@@ -142,7 +142,7 @@ pub(crate) fn render_function_summary(
 
 fn render_single_function(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
   let function_def = doc_node.function_def.as_ref().unwrap();
@@ -230,6 +230,7 @@ fn render_single_function(
         ctx,
         &id,
         &name,
+        None,
         &ts_type,
         tags,
         param_docs
@@ -281,7 +282,7 @@ fn render_single_function(
 fn render_function_return_type(
   render_ctx: &RenderContext,
   def: &FunctionDef,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
@@ -300,6 +301,7 @@ fn render_function_return_type(
     render_ctx,
     &id,
     "",
+    None,
     &render_type_def(render_ctx, return_type),
     HashSet::new(),
     return_type_doc,

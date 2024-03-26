@@ -1,3 +1,4 @@
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
@@ -12,7 +13,8 @@ use std::collections::HashSet;
 use std::rc::Rc;
 
 lazy_static! {
-  static ref TARGET_RE: regex::Regex = regex::Regex::new(r"\s*\* ?").unwrap();
+  static ref TARGET_RE: regex::Regex =
+    regex::Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
 pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
@@ -25,7 +27,7 @@ pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
 /// ["Deno", "read"]
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
@@ -55,6 +57,72 @@ pub fn compute_namespaced_symbols(
 
     let mut name_path = current_path.to_vec();
     name_path.push(doc_node.get_name().to_string());
+
+    match doc_node.kind {
+      DocNodeKind::Class => {
+        let class_def = doc_node.class_def.as_ref().unwrap();
+
+        namespaced_symbols.extend(class_def.methods.iter().map(|method| {
+          let mut method_path = current_path.to_vec();
+          method_path.extend(
+            qualify_drilldown_name(
+              doc_node.get_name(),
+              &method.name,
+              method.is_static,
+            )
+            .split('.')
+            .map(|part| part.to_string()),
+          );
+          method_path
+        }));
+
+        namespaced_symbols.extend(class_def.properties.iter().map(
+          |property| {
+            let mut method_path = current_path.to_vec();
+            method_path.extend(
+              qualify_drilldown_name(
+                doc_node.get_name(),
+                &property.name,
+                property.is_static,
+              )
+              .split('.')
+              .map(|part| part.to_string()),
+            );
+            method_path
+          },
+        ));
+      }
+      DocNodeKind::Interface => {
+        let interface_def = doc_node.interface_def.as_ref().unwrap();
+
+        namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
+          let mut method_path = current_path.to_vec();
+          method_path.extend(
+            qualify_drilldown_name(doc_node.get_name(), &method.name, false)
+              .split('.')
+              .map(|part| part.to_string()),
+          );
+          method_path
+        }));
+
+        namespaced_symbols.extend(interface_def.properties.iter().map(
+          |property| {
+            let mut method_path = current_path.to_vec();
+            method_path.extend(
+              qualify_drilldown_name(
+                doc_node.get_name(),
+                &property.name,
+                false,
+              )
+              .split('.')
+              .map(|part| part.to_string()),
+            );
+            method_path
+          },
+        ));
+      }
+      _ => {}
+    }
 
     namespaced_symbols.insert(name_path.clone());
 
@@ -177,30 +245,51 @@ pub struct BreadcrumbsCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct DocNodeKindCtx {
-  pub kind: String,
+  pub kind: &'static str,
   pub char: char,
   pub title: &'static str,
   pub title_lowercase: &'static str,
   pub title_plural: &'static str,
 }
 
-impl From<DocNodeKind> for DocNodeKindCtx {
-  fn from(kind: DocNodeKind) -> Self {
-    let (char, title, title_lowercase, title_plural) = match kind {
-      DocNodeKind::Function => ('f', "Function", "function", "Functions"),
-      DocNodeKind::Variable => ('v', "Variable", "variable", "Variables"),
-      DocNodeKind::Class => ('c', "Class", "class", "Classes"),
-      DocNodeKind::Enum => ('E', "Enum", "enum", "Enums"),
-      DocNodeKind::Interface => ('I', "Interface", "interface", "Interfaces"),
-      DocNodeKind::TypeAlias => {
-        ('T', "Type Alias", "type alias", "Type Aliases")
+impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
+  fn from(kind: DocNodeKindWithDrilldown) -> Self {
+    let (char, kind, title, title_lowercase, title_plural) = match kind {
+      DocNodeKindWithDrilldown::Property => {
+        (' ', "Property", "Property", "property", "Properties")
       }
-      DocNodeKind::Namespace => ('N', "Namespace", "namespace", "Namespaces"),
-      DocNodeKind::ModuleDoc | DocNodeKind::Import => unimplemented!(),
+      DocNodeKindWithDrilldown::Method => {
+        (' ', "Method", "Method", "method", "Methods")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Function) => {
+        ('f', "Function", "Function", "function", "Functions")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Variable) => {
+        ('v', "Variable", "Variable", "variable", "Variables")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Class) => {
+        ('c', "Class", "Class", "class", "Classes")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Enum) => {
+        ('E', "Enum", "Enum", "enum", "Enums")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Interface) => {
+        ('I', "Interface", "Interface", "interface", "Interfaces")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::TypeAlias) => {
+        ('T', "TypeAlias", "Type Alias", "type alias", "Type Aliases")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::Namespace) => {
+        ('N', "Namespace", "Namespace", "namespace", "Namespaces")
+      }
+      DocNodeKindWithDrilldown::Other(DocNodeKind::ModuleDoc)
+      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import) => {
+        unimplemented!()
+      }
     };
 
     Self {
-      kind: format!("{kind:?}"),
+      kind,
       char,
       title,
       title_lowercase,
@@ -271,6 +360,7 @@ impl Tag {
 pub struct DocEntryCtx {
   id: String,
   name: String,
+  name_href: Option<String>,
   content: String,
   anchor: AnchorCtx,
   tags: HashSet<Tag>,
@@ -279,10 +369,12 @@ pub struct DocEntryCtx {
 }
 
 impl DocEntryCtx {
+  #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,
     id: &str,
     name: &str,
+    name_href: Option<String>,
     content: &str,
     tags: HashSet<Tag>,
     jsdoc: Option<&str>,
@@ -295,6 +387,7 @@ impl DocEntryCtx {
     DocEntryCtx {
       id: id.to_string(),
       name: name.to_string(),
+      name_href,
       content: content.to_string(),
       anchor: AnchorCtx { id: id.to_string() },
       tags,
@@ -312,4 +405,15 @@ pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {
       .iter()
       .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }))
   })
+}
+
+pub(crate) fn qualify_drilldown_name(
+  parent_name: &str,
+  drilldown_name: &str,
+  is_static: bool,
+) -> String {
+  format!(
+    "{parent_name}{}.{drilldown_name}",
+    if is_static { "" } else { ".prototype" },
+  )
 }

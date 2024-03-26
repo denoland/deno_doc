@@ -24,7 +24,10 @@ impl SidepanelPartitionSymbolCtx {
     name: String,
   ) -> Self {
     Self {
-      kind: nodes.iter().map(|node| node.kind.into()).collect(),
+      kind: nodes
+        .iter()
+        .map(|node| node.kind_with_drilldown.into())
+        .collect(),
       name,
       href,
       active,

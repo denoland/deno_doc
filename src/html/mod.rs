@@ -23,7 +23,7 @@ mod types;
 mod usage;
 mod util;
 
-pub use pages::generate_symbol_page;
+use crate::html::pages::SymbolPage;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -142,6 +142,7 @@ impl<'ctx> GenerateCtx<'ctx> {
             .map(|node| DocNodeWithContext {
               origin: Rc::new(self.url_to_short_path(specifier)),
               ns_qualifiers: Rc::new(vec![]),
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
               inner: Rc::new(node.clone()),
             })
             .collect::<Vec<_>>(),
@@ -180,6 +181,13 @@ impl From<String> for ShortPath {
   }
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+pub enum DocNodeKindWithDrilldown {
+  Property,
+  Method,
+  Other(crate::DocNodeKind),
+}
+
 /// A wrapper around [`DocNode`] with additional fields to track information
 /// about the inner [`DocNode`].
 /// This is cheap to clone since all fields are [`Rc`]s.
@@ -187,6 +195,7 @@ impl From<String> for ShortPath {
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<Vec<String>>,
+  pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Rc<DocNode>,
 }
 
@@ -195,6 +204,7 @@ impl DocNodeWithContext {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
+      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
       inner: doc_node,
     }
   }
@@ -329,6 +339,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     "pages/search_results",
     include_str!("./templates/pages/search_results.hbs"),
   )?;
+  reg.register_template_string(
+    "pages/redirect",
+    include_str!("./templates/pages/redirect.hbs"),
+  )?;
 
   // icons
   reg.register_template_string(
@@ -447,35 +461,59 @@ pub fn generate(
       );
 
       files.extend(symbol_pages.into_iter().map(
-        |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
-          let root = ctx.href_resolver.resolve_path(
-            UrlResolveKind::Symbol {
-              file: &short_path,
-              symbol: &symbol_group_ctx.name,
-            },
-            UrlResolveKind::Root,
-          );
-
-          let html_head_ctx = pages::HtmlHeadCtx::new(
-            &root,
-            &symbol_group_ctx.name,
-            ctx.package_name.as_ref(),
-            Some(short_path.clone()),
-          );
-
-          let file_name =
-            format!("{}/~/{}.html", short_path.as_str(), symbol_group_ctx.name);
-
-          let page_ctx = pages::PageCtx {
-            html_head_ctx,
+        |symbol_page| match symbol_page {
+          SymbolPage::Symbol {
+            breadcrumbs_ctx,
             sidepanel_ctx,
             symbol_group_ctx,
-            breadcrumbs_ctx,
-          };
+          } => {
+            let root = ctx.href_resolver.resolve_path(
+              UrlResolveKind::Symbol {
+                file: &short_path,
+                symbol: &symbol_group_ctx.name,
+              },
+              UrlResolveKind::Root,
+            );
 
-          let symbol_page = ctx.hbs.render("pages/symbol", &page_ctx).unwrap();
+            let html_head_ctx = pages::HtmlHeadCtx::new(
+              &root,
+              &symbol_group_ctx.name,
+              ctx.package_name.as_ref(),
+              Some(short_path.clone()),
+            );
 
-          (file_name, symbol_page)
+            let file_name = format!(
+              "{}/~/{}.html",
+              short_path.as_str(),
+              symbol_group_ctx.name
+            );
+
+            let page_ctx = pages::PageCtx {
+              html_head_ctx,
+              sidepanel_ctx,
+              symbol_group_ctx,
+              breadcrumbs_ctx,
+            };
+
+            let symbol_page =
+              ctx.hbs.render("pages/symbol", &page_ctx).unwrap();
+
+            (file_name, symbol_page)
+          }
+          SymbolPage::Redirect {
+            current_symbol,
+            href,
+          } => {
+            let symbol_page = ctx
+              .hbs
+              .render("pages/redirect", &serde_json::json!({ "path": href }))
+              .unwrap();
+
+            let file_name =
+              format!("{}/~/{}.html", short_path.as_str(), current_symbol);
+
+            (file_name, symbol_page)
+          }
         },
       ));
 

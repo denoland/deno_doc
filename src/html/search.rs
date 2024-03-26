@@ -41,7 +41,7 @@ fn doc_node_into_search_index_nodes(
     format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
   };
 
-  if !matches!(doc_nodes[0].kind, DocNodeKind::Namespace) {
+  if doc_nodes[0].kind != DocNodeKind::Namespace {
     let mut location = doc_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
     location.filename = if ctx
@@ -91,7 +91,7 @@ fn doc_node_into_search_index_nodes(
     deprecated,
   });
 
-  let mut grouped_nodes: IndexMap<&str, Vec<Rc<crate::DocNode>>> =
+  let mut grouped_nodes: IndexMap<&str, Vec<DocNodeWithContext>> =
     IndexMap::new();
 
   for node in &ns_def.elements {
@@ -101,7 +101,7 @@ fn doc_node_into_search_index_nodes(
 
     let entry = grouped_nodes.entry(node.get_name()).or_default();
     if !entry.iter().any(|n| n.kind == node.kind) {
-      entry.push(node.clone());
+      entry.push(doc_nodes[0].create_child(node.clone()));
     }
   }
 
@@ -140,13 +140,14 @@ fn doc_node_into_search_index_nodes(
     });
 
     if el_nodes[0].kind == DocNodeKind::Namespace {
-      nodes.extend_from_slice(&doc_node_into_search_index_nodes(
+      nodes.extend(doc_node_into_search_index_nodes(
         ctx,
         el_nodes[0].get_name(),
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(ns_qualifiers_),
-          inner: el_nodes[0].clone(),
+          kind_with_drilldown: el_nodes[0].kind_with_drilldown,
+          inner: el_nodes[0].inner.clone(),
         }],
       ));
     }

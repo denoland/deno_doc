@@ -37,6 +37,7 @@ pub(crate) fn render_type_alias(
       ctx,
       &id,
       "",
+      None,
       &render_type_def(ctx, &type_alias_def.ts_type),
       HashSet::new(),
       None,

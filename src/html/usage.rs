@@ -73,8 +73,10 @@ pub fn usage_to_md(
     };
 
     if let Some((usage_symbol, local_var)) = usage_symbol {
-      usage_statement
-        .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
+      usage_statement.push_str(&format!(
+        "\n{} {{ {usage_symbol} }} = {local_var};",
+        if is_type { "type" } else { "const" }
+      ));
     }
 
     usage_statement

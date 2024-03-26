@@ -25,6 +25,7 @@ pub(crate) fn render_enum(
         render_ctx,
         &id,
         &member.name,
+        None,
         &member
           .init
           .as_ref()

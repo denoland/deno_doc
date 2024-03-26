@@ -1,13 +1,16 @@
 use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
+use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
+use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use std::rc::Rc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
@@ -16,6 +19,9 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::function::FunctionDef;
+use crate::variable::VariableDef;
+use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
@@ -140,7 +146,7 @@ struct AllSymbolsCtx {
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>>,
+  partitions: IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>,
 ) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
@@ -167,101 +173,155 @@ pub(crate) fn render_all_symbols_page(
     .unwrap()
 }
 
+pub enum SymbolPage {
+  Symbol {
+    breadcrumbs_ctx: BreadcrumbsCtx,
+    sidepanel_ctx: SidepanelCtx,
+    symbol_group_ctx: SymbolGroupCtx,
+  },
+  Redirect {
+    current_symbol: String,
+    href: String,
+  },
+}
+
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
   doc_nodes: &[DocNodeWithContext],
-) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
-  let name_partitions = super::partition::partition_nodes_by_name(doc_nodes);
+) -> Vec<SymbolPage> {
+  let mut name_partitions =
+    super::partition::partition_nodes_by_name(doc_nodes);
+
+  let mut drilldown_partitions = IndexMap::new();
+  for (name, doc_nodes) in &name_partitions {
+    if doc_nodes[0].kind == DocNodeKind::Class {
+      let class = doc_nodes[0].class_def.as_ref().unwrap();
+      let method_nodes = class
+        .methods
+        .iter()
+        .map(|method| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::function(
+              qualify_drilldown_name(name, &method.name, method.is_static),
+              method.location.clone(),
+              doc_nodes[0].declaration_kind,
+              method.js_doc.clone(),
+              method.function_def.clone(),
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
+          new_node
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+      let property_nodes = class
+        .properties
+        .iter()
+        .map(|property| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::variable(
+              qualify_drilldown_name(name, &property.name, property.is_static),
+              property.location.clone(),
+              doc_nodes[0].declaration_kind,
+              property.js_doc.clone(),
+              VariableDef {
+                ts_type: property.ts_type.clone(),
+                kind: deno_ast::swc::ast::VarDeclKind::Const,
+              },
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
+          new_node
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&property_nodes));
+    } else if doc_nodes[0].kind == DocNodeKind::Interface {
+      let interface = doc_nodes[0].interface_def.as_ref().unwrap();
+      let method_nodes = interface
+        .methods
+        .iter()
+        .map(|method| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::function(
+              qualify_drilldown_name(name, &method.name, false),
+              method.location.clone(),
+              doc_nodes[0].declaration_kind,
+              method.js_doc.clone(),
+              FunctionDef {
+                def_name: None,
+                params: method.params.clone(),
+                return_type: method.return_type.clone(),
+                has_body: false,
+                is_async: false,
+                is_generator: false,
+                type_params: method.type_params.clone(),
+                decorators: vec![],
+              },
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
+          new_node
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+      let property_nodes = interface
+        .properties
+        .iter()
+        .map(|property| {
+          let mut new_node =
+            doc_nodes[0].create_child(Rc::new(DocNode::variable(
+              qualify_drilldown_name(name, &property.name, false),
+              property.location.clone(),
+              doc_nodes[0].declaration_kind,
+              property.js_doc.clone(),
+              VariableDef {
+                ts_type: property.ts_type.clone(),
+                kind: deno_ast::swc::ast::VarDeclKind::Const,
+              },
+            )));
+          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
+          new_node
+        })
+        .collect::<Vec<_>>();
+
+      drilldown_partitions
+        .extend(super::partition::partition_nodes_by_name(&property_nodes));
+    }
+  }
+  name_partitions.extend(drilldown_partitions);
 
   generate_symbol_pages_inner(
     ctx,
     doc_nodes,
     partitions_for_nodes,
-    name_partitions,
+    &name_partitions,
     current_specifier,
     short_path,
     vec![],
   )
 }
 
-pub fn generate_symbol_page(
-  ctx: &GenerateCtx,
-  current_specifier: &ModuleSpecifier,
-  short_path: &ShortPath,
-  partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  doc_nodes_for_module: &[DocNodeWithContext],
-  name: &str,
-) -> Option<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
-  let mut name_parts = name.split('.').peekable();
-
-  let mut doc_nodes = doc_nodes_for_module.to_vec();
-
-  let mut namespace_paths = vec![];
-
-  let doc_nodes = loop {
-    let next_part = name_parts.next()?;
-    let mut nodes = doc_nodes.iter().filter(|node| {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
-      {
-        return false;
-      }
-      node.get_name() == next_part
-    });
-    if name_parts.peek().is_none() {
-      break nodes.cloned().collect::<Vec<_>>();
-    }
-    namespace_paths.push(next_part);
-    if let Some(namespace_node) =
-      nodes.find(|node| matches!(node.kind, DocNodeKind::Namespace))
-    {
-      let namespace = namespace_node.namespace_def.as_ref().unwrap();
-      doc_nodes = namespace
-        .elements
-        .iter()
-        .map(|element| namespace_node.create_child(element.clone()))
-        .collect();
-    } else {
-      return None;
-    }
-  };
-
-  if doc_nodes.is_empty() {
-    return None;
-  }
-
-  let sidepanel_ctx =
-    SidepanelCtx::new(ctx, partitions_for_nodes, short_path, name);
-
-  let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
-    ctx,
-    doc_nodes_for_module,
-    current_specifier,
-    short_path,
-    &namespace_paths,
-    name,
-    &doc_nodes,
-  );
-
-  Some((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx))
-}
-
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
   partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  name_partitions: IndexMap<String, Vec<DocNodeWithContext>>,
+  name_partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,
-) -> Vec<(BreadcrumbsCtx, SidepanelCtx, SymbolGroupCtx)> {
+) -> Vec<SymbolPage> {
   let mut generated_pages =
     Vec::with_capacity(name_partitions.values().len() * 2);
 
-  for (name, doc_nodes) in name_partitions.iter() {
+  for (name, doc_nodes) in name_partitions {
     let namespaced_name = if namespace_paths.is_empty() {
       name.to_owned()
     } else {
@@ -285,7 +345,31 @@ fn generate_symbol_pages_inner(
       doc_nodes,
     );
 
-    generated_pages.push((breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx));
+    generated_pages.push(SymbolPage::Symbol {
+      breadcrumbs_ctx,
+      sidepanel_ctx,
+      symbol_group_ctx,
+    });
+
+    if let Some(_doc_node) = doc_nodes
+      .iter()
+      .find(|doc_node| doc_node.kind == DocNodeKind::Class)
+    {
+      let prototype_name = format!("{namespaced_name}.prototype");
+      generated_pages.push(SymbolPage::Redirect {
+        href: ctx.href_resolver.resolve_path(
+          UrlResolveKind::Symbol {
+            file: short_path,
+            symbol: &prototype_name,
+          },
+          UrlResolveKind::Symbol {
+            file: short_path,
+            symbol: &namespaced_name,
+          },
+        ),
+        current_symbol: prototype_name,
+      });
+    }
 
     if let Some(doc_node) = doc_nodes
       .iter()
@@ -311,12 +395,12 @@ fn generate_symbol_pages_inner(
         ctx,
         doc_nodes_for_module,
         partitions_for_nodes,
-        namespace_name_partitions,
+        &namespace_name_partitions,
         current_specifier,
         short_path,
         namespace_paths,
       );
-      generated_pages.extend_from_slice(&generated);
+      generated_pages.extend(generated);
     }
   }
 
@@ -331,7 +415,7 @@ pub struct PageCtx {
   pub breadcrumbs_ctx: BreadcrumbsCtx,
 }
 
-fn render_symbol_page(
+pub fn render_symbol_page(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
   current_specifier: &ModuleSpecifier,
