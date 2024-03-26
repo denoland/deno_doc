@@ -7,7 +7,7 @@ use serde::Serialize;
 lazy_static! {
   static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(category|see|example|tags)(?:\s+(.+))").unwrap();
-  static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r"^\s*@(constructor|class|ignore|module|public|private|protected|readonly)").unwrap();
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
@@ -168,6 +168,8 @@ pub enum JsDocTag {
     tags: Vec<String>,
   },
   /// `@template T comment`
+  /// `@typeparam T comment`
+  /// `@typeParam T comment`
   Template {
     name: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -225,7 +227,7 @@ impl From<String> for JsDocTag {
       let doc = caps.get(3).map(|m| m.as_str().to_string());
       match kind {
         "callback" => Self::Callback { name, doc },
-        "template" => Self::Template { name, doc },
+        "template" | "typeparam" | "typeParam" => Self::Template { name, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_TYPED_RE.captures(&value) {

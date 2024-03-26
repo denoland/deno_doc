@@ -42,6 +42,7 @@ pub(crate) fn render_class(
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
+    &doc_node.js_doc,
     &class_def.type_params,
     &doc_node.location,
   ) {

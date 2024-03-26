@@ -2,7 +2,6 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
-use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
@@ -22,9 +21,12 @@ pub(crate) fn render_interface(
 
   let mut sections = vec![];
 
-  if let Some(type_params) =
-    render_type_params(ctx, &interface_def.type_params, &doc_node.location)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &doc_node.js_doc,
+    &interface_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 

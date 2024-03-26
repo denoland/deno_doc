@@ -3,6 +3,8 @@ use super::render_context::RenderContext;
 use super::util::*;
 use std::collections::HashSet;
 
+use crate::js_doc::JsDoc;
+use crate::js_doc::JsDocTag;
 use crate::ts_type::LiteralDefKind;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
@@ -496,6 +498,7 @@ pub(crate) fn type_arguments(
 
 pub(crate) fn render_type_params(
   ctx: &RenderContext,
+  js_doc: &JsDoc,
   type_params: &[TsTypeParamDef],
   location: &crate::Location,
 ) -> Option<SectionCtx> {
@@ -504,6 +507,18 @@ pub(crate) fn render_type_params(
   }
 
   let mut items = Vec::with_capacity(type_params.len());
+
+  let type_param_docs = js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Template { name, doc } = tag {
+        doc.as_ref().map(|doc| (name.as_str(), doc.as_str()))
+      } else {
+        None
+      }
+    })
+    .collect::<std::collections::HashMap<&str, &str>>();
 
   for type_param in type_params.iter() {
     let id = name_to_id("type_param", &type_param.name);
@@ -537,7 +552,7 @@ pub(crate) fn render_type_params(
       None,
       &format!("{constraint}{default}"),
       HashSet::new(),
-      None,
+      type_param_docs.get(type_param.name.as_str()).cloned(),
       location,
     );
 
