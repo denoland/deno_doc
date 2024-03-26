@@ -141,7 +141,7 @@ async fn html_doc_files() {
       hide_module_doc_title: false,
       sidebar_flatten_namespaces: false,
     },
-    &get_files("single").await,
+    get_files("single").await,
   )
   .unwrap();
 
@@ -197,7 +197,7 @@ async fn html_doc_files_rewrite() {
       hide_module_doc_title: false,
       sidebar_flatten_namespaces: false,
     },
-    &get_files("multiple").await,
+    get_files("multiple").await,
   )
   .unwrap();
 
@@ -270,7 +270,7 @@ async fn symbol_group() {
   };
 
   let mut files = vec![];
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
@@ -386,7 +386,7 @@ async fn symbol_search() {
     sidebar_flatten_namespaces: false,
   };
 
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   let search_index = generate_search_index(&ctx, &doc_nodes_by_url);
   let mut file_json = serde_json::to_string_pretty(&search_index).unwrap();
@@ -447,7 +447,7 @@ async fn module_doc() {
   };
 
   let mut module_docs = vec![];
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(&doc_nodes_by_url);
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   for specifier in &ctx.specifiers {
     let short_path = ctx.url_to_short_path(specifier);
