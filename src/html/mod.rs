@@ -24,7 +24,6 @@ mod usage;
 mod util;
 
 use crate::html::pages::SymbolPage;
-pub use pages::generate_symbol_page;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -464,33 +463,36 @@ pub fn generate(
       files.extend(symbol_pages.into_iter().map(
         |symbol_page| match symbol_page {
           SymbolPage::Symbol {
-            breadcrumbs,
-            sidepanel,
-            symbol,
+            breadcrumbs_ctx,
+            sidepanel_ctx,
+            symbol_group_ctx,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
                 file: &short_path,
-                symbol: &symbol.name,
+                symbol: &symbol_group_ctx.name,
               },
               UrlResolveKind::Root,
             );
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              &symbol.name,
+              &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
               Some(short_path.clone()),
             );
 
-            let file_name =
-              format!("{}/~/{}.html", short_path.as_str(), symbol.name);
+            let file_name = format!(
+              "{}/~/{}.html",
+              short_path.as_str(),
+              symbol_group_ctx.name
+            );
 
             let page_ctx = pages::PageCtx {
               html_head_ctx,
-              sidepanel_ctx: sidepanel,
-              symbol_group_ctx: symbol,
-              breadcrumbs_ctx: breadcrumbs,
+              sidepanel_ctx,
+              symbol_group_ctx,
+              breadcrumbs_ctx,
             };
 
             let symbol_page =

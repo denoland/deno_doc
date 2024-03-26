@@ -175,9 +175,9 @@ pub(crate) fn render_all_symbols_page(
 
 pub enum SymbolPage {
   Symbol {
-    breadcrumbs: BreadcrumbsCtx,
-    sidepanel: SidepanelCtx,
-    symbol: SymbolGroupCtx,
+    breadcrumbs_ctx: BreadcrumbsCtx,
+    sidepanel_ctx: SidepanelCtx,
+    symbol_group_ctx: SymbolGroupCtx,
   },
   Redirect {
     current_symbol: String,
@@ -309,72 +309,6 @@ pub fn generate_symbol_pages_for_module(
   )
 }
 
-pub fn generate_symbol_page(
-  ctx: &GenerateCtx,
-  current_specifier: &ModuleSpecifier,
-  short_path: &ShortPath,
-  partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  doc_nodes_for_module: &[DocNodeWithContext],
-  name: &str,
-) -> Option<SymbolPage> {
-  let mut name_parts = name.split('.').peekable();
-
-  let mut doc_nodes = doc_nodes_for_module.to_vec();
-
-  let mut namespace_paths = vec![];
-
-  let doc_nodes = loop {
-    let next_part = name_parts.next()?;
-    let mut nodes = doc_nodes.iter().filter(|node| {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
-      {
-        return false;
-      }
-      node.get_name() == next_part
-    });
-    if name_parts.peek().is_none() {
-      break nodes.cloned().collect::<Vec<_>>();
-    }
-    namespace_paths.push(next_part);
-    if let Some(namespace_node) =
-      nodes.find(|node| node.kind == DocNodeKind::Namespace)
-    {
-      let namespace = namespace_node.namespace_def.as_ref().unwrap();
-      doc_nodes = namespace
-        .elements
-        .iter()
-        .map(|element| namespace_node.create_child(element.clone()))
-        .collect();
-    } else {
-      return None;
-    }
-  };
-
-  if doc_nodes.is_empty() {
-    return None;
-  }
-
-  let sidepanel =
-    SidepanelCtx::new(ctx, partitions_for_nodes, short_path, name);
-
-  let (breadcrumbs, symbol_group) = render_symbol_page(
-    ctx,
-    doc_nodes_for_module,
-    current_specifier,
-    short_path,
-    &namespace_paths,
-    name,
-    &doc_nodes,
-  );
-
-  Some(SymbolPage::Symbol {
-    breadcrumbs,
-    sidepanel,
-    symbol: symbol_group,
-  })
-}
-
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
@@ -394,14 +328,14 @@ fn generate_symbol_pages_inner(
       format!("{}.{name}", namespace_paths.join("."))
     };
 
-    let sidepanel = SidepanelCtx::new(
+    let sidepanel_ctx = SidepanelCtx::new(
       ctx,
       partitions_for_nodes,
       short_path,
       &namespaced_name,
     );
 
-    let (breadcrumbs, symbol_group) = render_symbol_page(
+    let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
       ctx,
       doc_nodes_for_module,
       current_specifier,
@@ -412,9 +346,9 @@ fn generate_symbol_pages_inner(
     );
 
     generated_pages.push(SymbolPage::Symbol {
-      breadcrumbs,
-      sidepanel,
-      symbol: symbol_group,
+      breadcrumbs_ctx,
+      sidepanel_ctx,
+      symbol_group_ctx,
     });
 
     if let Some(_doc_node) = doc_nodes
@@ -481,7 +415,7 @@ pub struct PageCtx {
   pub breadcrumbs_ctx: BreadcrumbsCtx,
 }
 
-fn render_symbol_page(
+pub fn render_symbol_page(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
   current_specifier: &ModuleSpecifier,

@@ -288,30 +288,30 @@ async fn symbol_group() {
       files.extend(symbol_pages.into_iter().map(
         |symbol_page| match symbol_page {
           SymbolPage::Symbol {
-            breadcrumbs,
-            sidepanel,
-            symbol,
+            breadcrumbs_ctx,
+            sidepanel_ctx,
+            symbol_group_ctx,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
                 file: &short_path,
-                symbol: &symbol.name,
+                symbol: &symbol_group_ctx.name,
               },
               UrlResolveKind::Root,
             );
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              &symbol.name,
+              &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
               Some(short_path.clone()),
             );
 
             Some(pages::PageCtx {
               html_head_ctx,
-              sidepanel_ctx: sidepanel,
-              symbol_group_ctx: symbol,
-              breadcrumbs_ctx: breadcrumbs,
+              sidepanel_ctx,
+              symbol_group_ctx,
+              breadcrumbs_ctx,
             })
           }
           SymbolPage::Redirect { .. } => None,
