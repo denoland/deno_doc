@@ -1421,7 +1421,6 @@ pub fn infer_ts_type_from_expr(
     Expr::TsNonNull(non_null) => {
       // e.g.) export const foo = (true ? "a" : null)!;
       // e.g.) export const foo = null!;
-
       let with_null =
         infer_ts_type_from_expr(parsed_source, &non_null.expr, is_const)?;
 
@@ -1455,7 +1454,6 @@ pub fn infer_ts_type_from_expr(
     Expr::Bin(bin) => {
       // e.g.) export const foo = 1 == "bar";
       // e.g.) export const foo = 1 >> 1;
-
       match bin.op {
         BinaryOp::EqEq
         | BinaryOp::NotEq
