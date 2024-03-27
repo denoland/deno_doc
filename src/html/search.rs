@@ -36,9 +36,13 @@ fn doc_node_into_search_index_nodes(
     .ns_qualifiers
     .is_empty()
   {
-    name.to_string()
+    html_escape::encode_safe(name).into_owned()
   } else {
-    format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
+    format!(
+      "{}.{}",
+      doc_nodes[0].ns_qualifiers.join("."),
+      html_escape::encode_safe(name)
+    )
   };
 
   if doc_nodes[0].kind != DocNodeKind::Namespace {
@@ -50,7 +54,8 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      ctx.url_to_short_path(&location_url).to_name()
+      html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+        .into_owned()
     } else {
       String::new()
     };
@@ -58,7 +63,7 @@ fn doc_node_into_search_index_nodes(
     return vec![SearchIndexNode {
       kind: kinds,
       name,
-      file: doc_nodes[0].origin.as_str().to_string(),
+      file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
       location,
       declaration_kind: doc_nodes[0].declaration_kind,
       deprecated,
@@ -77,7 +82,8 @@ fn doc_node_into_search_index_nodes(
     .map(|main_entrypoint| main_entrypoint != &location_url)
     .unwrap_or(true)
   {
-    ctx.url_to_short_path(&location_url).to_name()
+    html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+      .into_owned()
   } else {
     String::new()
   };
@@ -85,7 +91,7 @@ fn doc_node_into_search_index_nodes(
   nodes.push(SearchIndexNode {
     kind: kinds,
     name,
-    file: doc_nodes[0].origin.as_str().to_string(),
+    file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
     location,
     declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
@@ -117,15 +123,20 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      ctx.url_to_short_path(&location_url).to_name()
+      html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+        .into_owned()
     } else {
       String::new()
     };
 
     let name = if ns_qualifiers_.is_empty() {
-      el_name.to_string()
+      html_escape::encode_safe(el_name).into_owned()
     } else {
-      format!("{}.{}", ns_qualifiers_.join("."), el_name)
+      format!(
+        "{}.{}",
+        ns_qualifiers_.join("."),
+        html_escape::encode_safe(el_name)
+      )
     };
 
     let kinds = el_nodes.iter().map(|node| node.kind).collect();
@@ -133,7 +144,7 @@ fn doc_node_into_search_index_nodes(
     nodes.push(SearchIndexNode {
       kind: kinds,
       name,
-      file: doc_nodes[0].origin.as_str().to_string(),
+      file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
       location,
       declaration_kind: el_nodes[0].declaration_kind,
       deprecated,

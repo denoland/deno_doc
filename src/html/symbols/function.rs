@@ -4,7 +4,6 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_def_colon;
-use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
@@ -154,8 +153,6 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  // TODO: tags
-
   let param_docs =
     doc_node
       .js_doc
@@ -251,9 +248,12 @@ fn render_single_function(
     sections.push(examples);
   }
 
-  if let Some(type_params) =
-    render_type_params(ctx, &function_def.type_params, &doc_node.location)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &doc_node.js_doc,
+    &function_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 

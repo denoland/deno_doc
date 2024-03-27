@@ -13,7 +13,7 @@
 
       <code>
         {{~#if name_href~}}
-          <a class="font-bold link" href="{{{name_href}}}">{{{name}}}</a>
+          <a class="font-bold link" href="{{name_href}}">{{{name}}}</a>
         {{~else~}}
           <span class="font-bold">{{{name}}}</span>
         {{~/if~}}
@@ -28,7 +28,7 @@
 
   {{~#if js_doc~}}
     <div class="markdown_border">
-      {{{~js_doc~}}}
+      {{{~js_doc~}}} {{! markdown rendering }}
     </div>
   {{~/if~}}
 </div>

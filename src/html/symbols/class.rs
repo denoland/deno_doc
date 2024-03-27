@@ -42,6 +42,7 @@ pub(crate) fn render_class(
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
+    &doc_node.js_doc,
     &class_def.type_params,
     &doc_node.location,
   ) {
@@ -127,7 +128,7 @@ fn render_constructors(
       DocEntryCtx::new(
         ctx,
         &id,
-        name,
+        &html_escape::encode_safe(&name),
         None,
         &format!("({params})"),
         HashSet::from([Tag::New]),
@@ -379,7 +380,7 @@ fn render_class_accessor(
   DocEntryCtx::new(
     ctx,
     &id,
-    name,
+    &html_escape::encode_safe(&name),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
       name,
@@ -418,7 +419,7 @@ fn render_class_method(
   Some(DocEntryCtx::new(
     ctx,
     &id,
-    &method.name,
+    &html_escape::encode_safe(&method.name),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
       &method.name,
@@ -461,7 +462,7 @@ fn render_class_property(
   DocEntryCtx::new(
     ctx,
     &id,
-    &property.name,
+    &html_escape::encode_safe(&property.name),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
       &property.name,

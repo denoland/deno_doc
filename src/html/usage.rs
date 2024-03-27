@@ -62,20 +62,23 @@ pub fn usage_to_md(
 
     let mut usage_statement = if is_default {
       format!(
-        r#"import {}{import_symbol} from "{url}";"#,
-        if is_type { "type " } else { "" }
+        r#"import {}{} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_safe(&import_symbol),
       )
     } else {
       format!(
-        r#"import {{ {}{import_symbol} }} from "{url}";"#,
-        if is_type { "type " } else { "" }
+        r#"import {{ {}{} }} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_safe(&import_symbol),
       )
     };
 
     if let Some((usage_symbol, local_var)) = usage_symbol {
       usage_statement.push_str(&format!(
-        "\n{} {{ {usage_symbol} }} = {local_var};",
-        if is_type { "type" } else { "const" }
+        "\n{} {{ {} }} = {local_var};",
+        if is_type { "type" } else { "const" },
+        html_escape::encode_safe(usage_symbol),
       ));
     }
 

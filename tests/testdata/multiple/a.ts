@@ -25,6 +25,7 @@
 export class Foo {
   static bar: "string";
   foo: "string";
+  '"><img src=x onerror=alert(1)>' = 0;
 }
 
 export class Bar extends Foo {

@@ -200,7 +200,7 @@ impl DocBlockSubtitleCtx {
       if let Some(extends) = class_def.extends.as_ref() {
         class_extends = Some(DocBlockClassSubtitleExtendsCtx {
           href: ctx.lookup_symbol_href(extends),
-          symbol: extends.to_owned(),
+          symbol: html_escape::encode_safe(extends).into_owned(),
           type_args: super::types::type_arguments(
             ctx,
             &class_def.super_type_params,

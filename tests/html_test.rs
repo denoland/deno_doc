@@ -213,6 +213,7 @@ async fn html_doc_files_rewrite() {
       "./~/Bar.prototype.html",
       "./~/Foo.bar.html",
       "./~/Foo.html",
+      "./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
       "./~/Foo.prototype.foo.html",
       "./~/Foo.prototype.html",
       "./~/Foobar.html",

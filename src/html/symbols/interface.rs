@@ -2,7 +2,6 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
-use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
@@ -22,9 +21,12 @@ pub(crate) fn render_interface(
 
   let mut sections = vec![];
 
-  if let Some(type_params) =
-    render_type_params(ctx, &interface_def.type_params, &doc_node.location)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &doc_node.js_doc,
+    &interface_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 
@@ -185,9 +187,9 @@ fn render_properties(
         ctx,
         &id,
         &if property.computed {
-          format!("[{}]", property.name)
+          format!("[{}]", html_escape::encode_safe(&property.name))
         } else {
-          property.name.clone()
+          html_escape::encode_safe(&property.name).into_owned()
         },
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,
@@ -226,9 +228,9 @@ fn render_methods(
       let name = if method.name == "new" {
         "<span>new</span>".to_string()
       } else if method.computed {
-        format!("[{}]", method.name)
+        format!("[{}]", html_escape::encode_safe(&method.name))
       } else {
-        method.name.clone()
+        html_escape::encode_safe(&method.name).into_owned()
       };
 
       let return_type = method
