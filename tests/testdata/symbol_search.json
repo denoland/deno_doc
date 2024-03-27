@@ -47,6 +47,21 @@
     },
     {
       "kind": [
+        "interface"
+      ],
+      "name": "Hello",
+      "file": ".",
+      "location": {
+        "filename": "",
+        "line": 37,
+        "col": 0,
+        "byteIndex": 658
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "function"
       ],
       "name": "x",
