@@ -24,7 +24,7 @@ pub(crate) fn render_enum(
       DocEntryCtx::new(
         render_ctx,
         &id,
-        &member.name,
+        &html_escape::encode_safe(&member.name),
         None,
         &member
           .init

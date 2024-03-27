@@ -221,7 +221,7 @@ impl core::ops::Deref for DocNodeWithContext {
 
 pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   let mut reg = Handlebars::new();
-  reg.register_escape_fn(|str| html_escape::encode_safe(str).to_string());
+  reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
   reg.set_strict_mode(true);
 
   #[cfg(debug_assertions)]

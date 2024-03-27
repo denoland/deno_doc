@@ -18,7 +18,10 @@ lazy_static! {
 }
 
 pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
-  format!("{kind}_{}", TARGET_RE.replace_all(name, "_"))
+  format!(
+    "{kind}_{}",
+    html_escape::encode_safe(&TARGET_RE.replace_all(name, "_"))
+  )
 }
 
 /// A container to hold a list of symbols with their namespaces:

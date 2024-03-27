@@ -1387,8 +1387,6 @@ pub fn infer_ts_type_from_expr(
     Expr::Update(_) => {
       // e.g.) let foo = 0;
       //       const bar = foo++;
-
-      // TODO: does not support bigints, needs type tracing
       Some(TsTypeDef::number_with_repr("number"))
     }
     Expr::TsTypeAssertion(assertion) => {

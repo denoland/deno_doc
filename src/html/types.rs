@@ -131,11 +131,12 @@ pub(crate) fn render_type_def(
 
       if let Some(href) = ctx.lookup_symbol_href(query) {
         format!(
-          r#"<a href="{}" class="link">{query}</a>"#,
+          r#"<a href="{}" class="link">{}</a>"#,
           html_escape::encode_safe(&href),
+          html_escape::encode_safe(query),
         )
       } else {
-        format!("<span>{query}</span>")
+        format!("<span>{}</span>", html_escape::encode_safe(query))
       }
     }
     TsTypeDefKind::This => "<span>this</span>".to_string(),
@@ -559,7 +560,7 @@ pub(crate) fn render_type_params(
     let content = DocEntryCtx::new(
       ctx,
       &id,
-      &type_param.name,
+      &html_escape::encode_safe(&type_param.name),
       None,
       &format!("{constraint}{default}"),
       HashSet::new(),
