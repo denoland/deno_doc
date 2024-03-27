@@ -129,7 +129,7 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypeQuery => {
       let query = def.type_query.as_ref().unwrap();
 
-      if let Some(href) = ctx.lookup_symbol_href(&query.to_owned()) {
+      if let Some(href) = ctx.lookup_symbol_href(query) {
         format!(
           r#"<a href="{}" class="link">{query}</a>"#,
           html_escape::encode_safe(&href),
