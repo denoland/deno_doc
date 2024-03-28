@@ -3,7 +3,8 @@ use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::ParsedSource;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]

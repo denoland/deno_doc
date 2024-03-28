@@ -23,9 +23,9 @@
       "file": ".",
       "location": {
         "filename": "",
-        "line": 28,
+        "line": 31,
         "col": 0,
-        "byteIndex": 510
+        "byteIndex": 591
       },
       "declarationKind": "export",
       "deprecated": false
@@ -38,9 +38,9 @@
       "file": ".",
       "location": {
         "filename": "",
-        "line": 31,
+        "line": 34,
         "col": 0,
-        "byteIndex": 544
+        "byteIndex": 625
       },
       "declarationKind": "export",
       "deprecated": false

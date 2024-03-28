@@ -19,7 +19,6 @@ pub(crate) fn render_params(
 
     format!("<span>{items}</span>")
   } else {
-    // TODO(bartlomieju): refactor to use template
     let mut items = Vec::with_capacity(params.len());
 
     for (i, def) in params.iter().enumerate() {
@@ -63,7 +62,7 @@ pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
     ),
     ParamPatternDef::Assign { left, .. } => param_name(left, i),
     ParamPatternDef::Identifier { name, .. } => {
-      (html_escape::encode_safe(name).to_string(), name.clone())
+      (html_escape::encode_safe(name).into_owned(), name.clone())
     }
     ParamPatternDef::Rest { arg } => (
       format!("<span>...{}</span>", param_name(arg, i).0),
@@ -71,5 +70,3 @@ pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
     ),
   }
 }
-
-// TODO: classes: italic

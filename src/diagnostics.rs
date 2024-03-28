@@ -254,7 +254,8 @@ impl<'a> DiagnosticsCollector<'a> {
   }
 
   pub fn analyze_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
-    DiagnosticDocNodeVisitor { diagnostics: self }.visit_doc_nodes(doc_nodes)
+    DiagnosticDocNodeVisitor { diagnostics: self }
+      .visit_doc_nodes(doc_nodes.iter())
   }
 
   fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {
@@ -346,7 +347,10 @@ struct DiagnosticDocNodeVisitor<'a, 'b> {
 }
 
 impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
-  pub fn visit_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
+  pub fn visit_doc_nodes<'c, I>(&'c mut self, doc_nodes: I)
+  where
+    I: Iterator<Item = &'c DocNode>,
+  {
     let mut last_node: Option<&DocNode> = None;
     for doc_node in doc_nodes {
       if !doc_node.location.filename.starts_with("file:") {
@@ -545,7 +549,7 @@ impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
   }
 
   fn visit_namespace_def(&mut self, def: &NamespaceDef) {
-    self.visit_doc_nodes(&def.elements);
+    self.visit_doc_nodes(def.elements.iter().map(|element| element.as_ref()));
   }
 
   fn visit_variable_def(&mut self, parent: &DocNode, def: &VariableDef) {

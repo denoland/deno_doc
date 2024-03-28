@@ -1,18 +1,16 @@
+use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::ShortPath;
 use crate::js_doc::JsDocTag;
-use crate::DocNode;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
-use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::rc::Rc;
 
 pub fn partition_nodes_by_name(
-  doc_nodes: &[DocNode],
-) -> IndexMap<String, Vec<DocNode>> {
+  doc_nodes: &[DocNodeWithContext],
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
@@ -37,31 +35,31 @@ pub fn partition_nodes_by_name(
   partitions
 }
 
-pub fn partition_nodes_by_kind<'a>(
-  doc_nodes: &[DocNodeWithContext<'a>],
+pub fn partition_nodes_by_kind(
+  doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<DocNodeKind, Vec<DocNodeWithContext<'a>>> {
-  fn partition_nodes_by_kind_inner<'b>(
-    partitions: &mut IndexMap<DocNodeKind, Vec<DocNodeWithContext<'b>>>,
-    doc_nodes: &[DocNodeWithContext<'b>],
+) -> IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>> {
+  fn partition_nodes_by_kind_inner(
+    partitions: &mut IndexMap<
+      DocNodeKindWithDrilldown,
+      Vec<DocNodeWithContext>,
+    >,
+    doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
-      if matches!(
-        node.doc_node.kind,
-        DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) || node.doc_node.declaration_kind
-        == crate::node::DeclarationKind::Private
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
       {
         continue;
       }
 
-      if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
-        let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
         let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.doc_node.get_name().to_string());
+        namespace.push(node.get_name().to_string());
 
-        let ns_qualifiers = std::rc::Rc::new(namespace);
+        let ns_qualifiers = Rc::new(namespace);
 
         partition_nodes_by_kind_inner(
           partitions,
@@ -71,7 +69,10 @@ pub fn partition_nodes_by_kind<'a>(
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
               ns_qualifiers: ns_qualifiers.clone(),
-              doc_node: element,
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(
+                element.kind,
+              ),
+              inner: element.clone(),
             })
             .collect::<Vec<_>>(),
           true,
@@ -81,42 +82,39 @@ pub fn partition_nodes_by_kind<'a>(
       if let Some((node_kind, nodes)) =
         partitions.iter_mut().find(|(kind, nodes)| {
           nodes.iter().any(|n| {
-            n.doc_node.get_name() == node.doc_node.get_name()
-              && n.doc_node.kind != node.doc_node.kind
-              && kind != &&node.doc_node.kind
+            n.get_name() == node.get_name()
+              && n.kind_with_drilldown != node.kind_with_drilldown
+              && kind != &&node.kind_with_drilldown
           })
         })
       {
-        assert_ne!(node_kind, &node.doc_node.kind,);
+        assert_ne!(node_kind, &node.kind_with_drilldown);
 
         nodes.push(node.clone());
       } else {
-        let entry = partitions.entry(node.doc_node.kind).or_default();
-        if !entry
-          .iter()
-          .any(|n| n.doc_node.get_name() == node.doc_node.get_name())
-        {
+        let entry = partitions.entry(node.kind_with_drilldown).or_default();
+        if !entry.iter().any(|n| n.get_name() == node.get_name()) {
           entry.push(node.clone());
         }
       }
     }
   }
 
-  let mut partitions: IndexMap<DocNodeKind, Vec<DocNodeWithContext>> =
-    IndexMap::default();
+  let mut partitions: IndexMap<
+    DocNodeKindWithDrilldown,
+    Vec<DocNodeWithContext>,
+  > = IndexMap::default();
 
   partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(|node1, node2| {
       let node1_is_deprecated = node1
-        .doc_node
         .js_doc
         .tags
         .iter()
         .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
       let node2_is_deprecated = node2
-        .doc_node
         .js_doc
         .tags
         .iter()
@@ -126,10 +124,9 @@ pub fn partition_nodes_by_kind<'a>(
         .cmp(&!node1_is_deprecated)
         .then_with(|| {
           node1
-            .doc_node
             .get_name()
-            .cmp(node2.doc_node.get_name())
-            .then_with(|| node1.doc_node.kind.cmp(&node2.doc_node.kind))
+            .cmp(node2.get_name())
+            .then_with(|| node1.kind.cmp(&node2.kind))
         })
     });
   }
@@ -139,31 +136,28 @@ pub fn partition_nodes_by_kind<'a>(
     .collect()
 }
 
-pub fn partition_nodes_by_category<'a>(
-  doc_nodes: &[DocNodeWithContext<'a>],
+pub fn partition_nodes_by_category(
+  doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
-  fn partition_nodes_by_category_inner<'b>(
-    partitions: &mut IndexMap<String, Vec<DocNodeWithContext<'b>>>,
-    doc_nodes: &[DocNodeWithContext<'b>],
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  fn partition_nodes_by_category_inner(
+    partitions: &mut IndexMap<String, Vec<DocNodeWithContext>>,
+    doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
   ) {
     for node in doc_nodes {
-      if matches!(
-        node.doc_node.kind,
-        DocNodeKind::ModuleDoc | DocNodeKind::Import
-      ) || node.doc_node.declaration_kind
-        == crate::node::DeclarationKind::Private
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
       {
         continue;
       }
 
-      if flatten_namespaces && node.doc_node.kind == DocNodeKind::Namespace {
-        let namespace_def = node.doc_node.namespace_def.as_ref().unwrap();
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
         let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.doc_node.get_name().to_string());
+        namespace.push(node.get_name().to_string());
 
-        let ns_qualifiers = std::rc::Rc::new(namespace);
+        let ns_qualifiers = Rc::new(namespace);
 
         partition_nodes_by_category_inner(
           partitions,
@@ -173,7 +167,10 @@ pub fn partition_nodes_by_category<'a>(
             .map(|element| DocNodeWithContext {
               origin: node.origin.clone(),
               ns_qualifiers: ns_qualifiers.clone(),
-              doc_node: element,
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(
+                element.kind,
+              ),
+              inner: element.clone(),
             })
             .collect::<Vec<_>>(),
           true,
@@ -181,7 +178,6 @@ pub fn partition_nodes_by_category<'a>(
       }
 
       let category = node
-        .doc_node
         .js_doc
         .tags
         .iter()
@@ -196,10 +192,10 @@ pub fn partition_nodes_by_category<'a>(
 
       let entry = partitions.entry(category).or_default();
 
-      if !entry.iter().any(|n| {
-        n.doc_node.get_name() == node.doc_node.get_name()
-          && n.doc_node.kind == node.doc_node.kind
-      }) {
+      if !entry
+        .iter()
+        .any(|n| n.get_name() == node.get_name() && n.kind == node.kind)
+      {
         entry.push(node.clone());
       }
     }
@@ -215,7 +211,7 @@ pub fn partition_nodes_by_category<'a>(
   );
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.doc_node.get_name());
+    nodes.sort_by_key(|n| n.get_name().to_string());
   }
 
   partitions
@@ -233,56 +229,37 @@ pub fn partition_nodes_by_category<'a>(
     .collect()
 }
 
-pub fn get_partitions_for_file<'a>(
+pub fn get_partitions_for_file(
   ctx: &GenerateCtx,
-  doc_nodes: &'a [DocNode],
-  short_path: Cow<'a, ShortPath>,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
-  let doc_nodes_with_context = doc_nodes
-    .iter()
-    .map(|node| DocNodeWithContext {
-      doc_node: node,
-      origin: Some(short_path.clone()),
-      ns_qualifiers: Rc::new(vec![]),
-    })
-    .collect::<Vec<_>>();
-
-  let categories = partition_nodes_by_category(
-    &doc_nodes_with_context,
-    ctx.sidebar_flatten_namespaces,
-  );
+  doc_nodes: &[DocNodeWithContext],
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  let categories =
+    partition_nodes_by_category(doc_nodes, ctx.sidebar_flatten_namespaces);
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(
-      &doc_nodes_with_context,
-      ctx.sidebar_flatten_namespaces,
-    )
-    .into_iter()
-    .map(|(kind, nodes)| {
-      let doc_node_kind_ctx: super::DocNodeKindCtx = kind.into();
-      (doc_node_kind_ctx.title.to_string(), nodes)
-    })
-    .collect()
+    partition_nodes_by_kind(doc_nodes, ctx.sidebar_flatten_namespaces)
+      .into_iter()
+      .map(|(kind, nodes)| {
+        let doc_node_kind_ctx: super::DocNodeKindCtx = kind.into();
+        (doc_node_kind_ctx.title.to_string(), nodes)
+      })
+      .collect()
   } else {
     categories
   }
 }
 
-pub fn get_partitions_for_main_entrypoint<'a>(
+pub fn get_partitions_for_main_entrypoint(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &'a IndexMap<ModuleSpecifier, Vec<DocNode>>,
-) -> IndexMap<String, Vec<DocNodeWithContext<'a>>> {
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
   let doc_nodes = ctx
     .main_entrypoint
     .as_ref()
     .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
 
   if let Some(doc_nodes) = doc_nodes {
-    get_partitions_for_file(
-      ctx,
-      doc_nodes,
-      Cow::Owned(ctx.url_to_short_path(ctx.main_entrypoint.as_ref().unwrap())),
-    )
+    get_partitions_for_file(ctx, doc_nodes)
   } else {
     Default::default()
   }

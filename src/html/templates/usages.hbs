@@ -1,7 +1,7 @@
 <div class="p-4 mb-4 border-2 rounded-lg bg-stone-50 border-stone-200 usage">
   {{~#each usages~}}
     <style scoped>
-      {{{~additional_css~}}}
+      {{{~additional_css~}}} {{! css }}
     </style>
 
     <input type="radio" name="usage" id="{{name}}" class="hidden" {{~#if @first~}}checked{{~/if~}} />
@@ -18,7 +18,7 @@
   <div>
     {{~#each usages~}}
       <div id="{{name}}_content">
-        {{{~content~}}}
+        {{{~content~}}} {{! markdown rendering }}
       </div>
     {{~/each~}}
   </div>

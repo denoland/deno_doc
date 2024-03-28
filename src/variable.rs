@@ -82,7 +82,7 @@ pub fn get_docs_for_var_declarator(
     });
 
   match &var_declarator.name {
-    deno_ast::swc::ast::Pat::Ident(ident) => {
+    Pat::Ident(ident) => {
       let var_name = ident.id.sym.to_string();
       let variable_def = VariableDef {
         ts_type: maybe_ts_type,
@@ -90,15 +90,13 @@ pub fn get_docs_for_var_declarator(
       };
       items.push((var_name, variable_def, Some(var_declarator.range())));
     }
-    deno_ast::swc::ast::Pat::Object(pat) => {
+    Pat::Object(pat) => {
       for prop in &pat.props {
         let (name, reassign_name, maybe_range) = match prop {
           deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
             crate::params::prop_name_to_string(module_info.source(), &kv.key),
             match &*kv.value {
-              deno_ast::swc::ast::Pat::Ident(ident) => {
-                Some(ident.sym.to_string())
-              }
+              Pat::Ident(ident) => Some(ident.sym.to_string()),
               _ => None, // TODO: properly implement
             },
             None,

@@ -6,6 +6,7 @@ use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 use serde_json::json;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,14 +26,9 @@ fn doc_node_into_search_index_nodes(
   name: &str,
   doc_nodes: &[&DocNodeWithContext],
 ) -> Vec<SearchIndexNode> {
-  let kinds = doc_nodes.iter().map(|node| node.doc_node.kind).collect();
+  let kinds = doc_nodes.iter().map(|node| node.kind).collect();
 
-  let deprecated = super::util::all_deprecated(
-    &doc_nodes
-      .iter()
-      .map(|node| node.doc_node)
-      .collect::<Vec<_>>(),
-  );
+  let deprecated = super::util::all_deprecated(doc_nodes);
 
   let name = if doc_nodes
     .first()
@@ -40,13 +36,17 @@ fn doc_node_into_search_index_nodes(
     .ns_qualifiers
     .is_empty()
   {
-    name.to_string()
+    html_escape::encode_safe(name).into_owned()
   } else {
-    format!("{}.{}", doc_nodes[0].ns_qualifiers.join("."), name)
+    format!(
+      "{}.{}",
+      doc_nodes[0].ns_qualifiers.join("."),
+      html_escape::encode_safe(name)
+    )
   };
 
-  if !matches!(doc_nodes[0].doc_node.kind, DocNodeKind::Namespace) {
-    let mut location = doc_nodes[0].doc_node.location.clone();
+  if doc_nodes[0].kind != DocNodeKind::Namespace {
+    let mut location = doc_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
     location.filename = if ctx
       .main_entrypoint
@@ -54,7 +54,8 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      ctx.url_to_short_path(&location_url).to_name()
+      html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+        .into_owned()
     } else {
       String::new()
     };
@@ -62,22 +63,18 @@ fn doc_node_into_search_index_nodes(
     return vec![SearchIndexNode {
       kind: kinds,
       name,
-      file: doc_nodes[0]
-        .origin
-        .as_ref()
-        .map(|origin| origin.as_str().to_string())
-        .unwrap(),
+      file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
       location,
-      declaration_kind: doc_nodes[0].doc_node.declaration_kind,
+      declaration_kind: doc_nodes[0].declaration_kind,
       deprecated,
     }];
   }
 
-  let ns_def = doc_nodes[0].doc_node.namespace_def.as_ref().unwrap();
+  let ns_def = doc_nodes[0].namespace_def.as_ref().unwrap();
   let mut nodes = Vec::with_capacity(1 + ns_def.elements.len());
-  let ns_name = doc_nodes[0].doc_node.get_name().to_string();
+  let ns_name = doc_nodes[0].get_name().to_string();
 
-  let mut location = doc_nodes[0].doc_node.location.clone();
+  let mut location = doc_nodes[0].location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
   location.filename = if ctx
     .main_entrypoint
@@ -85,7 +82,8 @@ fn doc_node_into_search_index_nodes(
     .map(|main_entrypoint| main_entrypoint != &location_url)
     .unwrap_or(true)
   {
-    ctx.url_to_short_path(&location_url).to_name()
+    html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+      .into_owned()
   } else {
     String::new()
   };
@@ -93,17 +91,14 @@ fn doc_node_into_search_index_nodes(
   nodes.push(SearchIndexNode {
     kind: kinds,
     name,
-    file: doc_nodes[0]
-      .origin
-      .as_ref()
-      .map(|origin| origin.as_str().to_string())
-      .unwrap(),
+    file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
     location,
-    declaration_kind: doc_nodes[0].doc_node.declaration_kind,
+    declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
   });
 
-  let mut grouped_nodes: IndexMap<&str, Vec<&crate::DocNode>> = IndexMap::new();
+  let mut grouped_nodes: IndexMap<&str, Vec<DocNodeWithContext>> =
+    IndexMap::new();
 
   for node in &ns_def.elements {
     if matches!(node.kind, DocNodeKind::Import | DocNodeKind::ModuleDoc) {
@@ -112,7 +107,7 @@ fn doc_node_into_search_index_nodes(
 
     let entry = grouped_nodes.entry(node.get_name()).or_default();
     if !entry.iter().any(|n| n.kind == node.kind) {
-      entry.push(node);
+      entry.push(doc_nodes[0].create_child(node.clone()));
     }
   }
 
@@ -128,15 +123,20 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      ctx.url_to_short_path(&location_url).to_name()
+      html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+        .into_owned()
     } else {
       String::new()
     };
 
     let name = if ns_qualifiers_.is_empty() {
-      el_name.to_string()
+      html_escape::encode_safe(el_name).into_owned()
     } else {
-      format!("{}.{}", ns_qualifiers_.join("."), el_name)
+      format!(
+        "{}.{}",
+        ns_qualifiers_.join("."),
+        html_escape::encode_safe(el_name)
+      )
     };
 
     let kinds = el_nodes.iter().map(|node| node.kind).collect();
@@ -144,24 +144,21 @@ fn doc_node_into_search_index_nodes(
     nodes.push(SearchIndexNode {
       kind: kinds,
       name,
-      file: doc_nodes[0]
-        .origin
-        .as_ref()
-        .map(|origin| origin.as_str().to_string())
-        .unwrap(),
+      file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
       location,
       declaration_kind: el_nodes[0].declaration_kind,
       deprecated,
     });
 
     if el_nodes[0].kind == DocNodeKind::Namespace {
-      nodes.extend_from_slice(&doc_node_into_search_index_nodes(
+      nodes.extend(doc_node_into_search_index_nodes(
         ctx,
         el_nodes[0].get_name(),
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
-          ns_qualifiers: std::rc::Rc::new(ns_qualifiers_),
-          doc_node: el_nodes[0],
+          ns_qualifiers: Rc::new(ns_qualifiers_),
+          kind_with_drilldown: el_nodes[0].kind_with_drilldown,
+          inner: el_nodes[0].inner.clone(),
         }],
       ));
     }
@@ -172,32 +169,20 @@ fn doc_node_into_search_index_nodes(
 
 pub fn generate_search_index(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<crate::DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
 ) -> serde_json::Value {
-  let doc_nodes = doc_nodes_by_url
-    .iter()
-    .flat_map(|(specifier, nodes)| {
-      nodes.iter().map(|node| DocNodeWithContext {
-        origin: Some(std::borrow::Cow::Owned(ctx.url_to_short_path(specifier))),
-        ns_qualifiers: std::rc::Rc::new(vec![]),
-        doc_node: node,
-      })
-    })
-    .collect::<Vec<_>>();
+  let doc_nodes = doc_nodes_by_url.values().flatten().collect::<Vec<_>>();
 
   let mut grouped_nodes: IndexMap<&str, Vec<&DocNodeWithContext>> =
     IndexMap::new();
 
-  for node in &doc_nodes {
-    if matches!(
-      node.doc_node.kind,
-      DocNodeKind::Import | DocNodeKind::ModuleDoc
-    ) {
+  for node in doc_nodes {
+    if matches!(node.kind, DocNodeKind::Import | DocNodeKind::ModuleDoc) {
       continue;
     }
 
-    let entry = grouped_nodes.entry(node.doc_node.get_name()).or_default();
-    if !entry.iter().any(|n| n.doc_node.kind == node.doc_node.kind) {
+    let entry = grouped_nodes.entry(node.get_name()).or_default();
+    if !entry.iter().any(|n| n.kind == node.kind) {
       entry.push(node);
     }
   }
@@ -225,7 +210,7 @@ pub fn generate_search_index(
 
 pub(crate) fn get_search_index_file(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<crate::DocNode>>,
+  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
 ) -> Result<String, anyhow::Error> {
   let search_index = generate_search_index(ctx, doc_nodes_by_url);
   let search_index_str = serde_json::to_string(&search_index)?;

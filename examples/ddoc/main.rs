@@ -21,7 +21,6 @@ use futures::executor::block_on;
 use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
-use std::fs;
 use std::rc::Rc;
 
 struct SourceFileLoader {}
@@ -34,7 +33,7 @@ impl Loader for SourceFileLoader {
   ) -> LoadFuture {
     let result = if specifier.scheme() == "file" {
       let path = specifier.to_file_path().unwrap();
-      fs::read(path)
+      std::fs::read(path)
         .map(|content| {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
@@ -141,7 +140,7 @@ async fn run() -> anyhow::Result<()> {
       name,
       output_dir,
       main_entrypoint,
-      &doc_nodes_by_url,
+      doc_nodes_by_url,
     )?;
     return Ok(());
   }
@@ -149,7 +148,7 @@ async fn run() -> anyhow::Result<()> {
   let mut doc_nodes = Vec::with_capacity(1024);
   for source_file in source_files {
     let nodes = parser.parse_with_reexports(&source_file)?;
-    doc_nodes.extend_from_slice(&nodes);
+    doc_nodes.extend(nodes);
   }
 
   doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
@@ -205,7 +204,7 @@ fn generate_docs_directory(
   name: String,
   output_dir: String,
   main_entrypoint: Option<ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
+  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
 ) -> Result<(), anyhow::Error> {
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);

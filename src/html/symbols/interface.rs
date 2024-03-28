@@ -2,13 +2,13 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
-use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
@@ -21,9 +21,12 @@ pub(crate) fn render_interface(
 
   let mut sections = vec![];
 
-  if let Some(type_params) =
-    render_type_params(ctx, &interface_def.type_params, &doc_node.location)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &doc_node.js_doc,
+    &interface_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 
@@ -39,11 +42,15 @@ pub(crate) fn render_interface(
     sections.push(call_signatures);
   }
 
-  if let Some(properties) = render_properties(ctx, &interface_def.properties) {
+  if let Some(properties) =
+    render_properties(ctx, doc_node.get_name(), &interface_def.properties)
+  {
     sections.push(properties);
   }
 
-  if let Some(methods) = render_methods(ctx, &interface_def.methods) {
+  if let Some(methods) =
+    render_methods(ctx, doc_node.get_name(), &interface_def.methods)
+  {
     sections.push(methods);
   }
 
@@ -114,6 +121,7 @@ fn render_call_signatures(
         ctx,
         &id,
         "",
+        None,
         &format!(
           "{}({}){ts_type}",
           type_params_summary(ctx, &call_signature.type_params,),
@@ -134,6 +142,7 @@ fn render_call_signatures(
 
 fn render_properties(
   ctx: &RenderContext,
+  interface_name: &str,
   properties: &[crate::interface::InterfacePropertyDef],
 ) -> Option<SectionCtx> {
   if properties.is_empty() {
@@ -178,10 +187,15 @@ fn render_properties(
         ctx,
         &id,
         &if property.computed {
-          format!("[{}]", property.name)
+          format!("[{}]", html_escape::encode_safe(&property.name))
         } else {
-          property.name.clone()
+          html_escape::encode_safe(&property.name).into_owned()
         },
+        ctx.lookup_symbol_href(&qualify_drilldown_name(
+          interface_name,
+          &property.name,
+          true,
+        )),
         &format!("{ts_type}{default_value}"),
         tags,
         property.js_doc.doc.as_deref(),
@@ -198,6 +212,7 @@ fn render_properties(
 
 fn render_methods(
   ctx: &RenderContext,
+  interface_name: &str,
   methods: &[crate::interface::InterfaceMethodDef],
 ) -> Option<SectionCtx> {
   if methods.is_empty() {
@@ -213,9 +228,9 @@ fn render_methods(
       let name = if method.name == "new" {
         "<span>new</span>".to_string()
       } else if method.computed {
-        format!("[{}]", method.name)
+        format!("[{}]", html_escape::encode_safe(&method.name))
       } else {
-        method.name.clone()
+        html_escape::encode_safe(&method.name).into_owned()
       };
 
       let return_type = method
@@ -225,9 +240,6 @@ fn render_methods(
         .unwrap_or_default();
 
       let mut tags = Tag::from_js_doc(&method.js_doc);
-      /* TODO: if method.kind {
-        tags.push(Tag::ReadOnly);
-      }*/
       if method.optional {
         tags.insert(Tag::Optional);
       }
@@ -236,6 +248,11 @@ fn render_methods(
         ctx,
         &id,
         &name,
+        ctx.lookup_symbol_href(&qualify_drilldown_name(
+          interface_name,
+          &method.name,
+          true,
+        )),
         &format!(
           "{}({}){return_type}",
           type_params_summary(ctx, &method.type_params),

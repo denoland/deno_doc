@@ -50,6 +50,8 @@ pub fn tree_sitter_language_cb(
       "toml" => tree_sitter_language_toml(),
       "regex" => tree_sitter_language_regex(),
       "rs" | "rust" => tree_sitter_language_rust(),
+      "html" => tree_sitter_language_html(),
+      "sh" | "bash" => tree_sitter_language_bash(),
       _ => continue,
     };
     return Some(cfg);
@@ -228,6 +230,36 @@ fn tree_sitter_language_rust() -> &'static HighlightConfiguration {
       "",
     )
     .expect("failed to initialize tree_sitter_rust highlighter");
+    config.configure(CAPTURE_NAMES);
+    config
+  })
+}
+
+fn tree_sitter_language_html() -> &'static HighlightConfiguration {
+  static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
+  CONFIG.get_or_init(|| {
+    let mut config = HighlightConfiguration::new(
+      tree_sitter_html::language(),
+      tree_sitter_html::HIGHLIGHTS_QUERY,
+      tree_sitter_html::INJECTIONS_QUERY,
+      "",
+    )
+    .expect("failed to initialize tree_sitter_html highlighter");
+    config.configure(CAPTURE_NAMES);
+    config
+  })
+}
+
+fn tree_sitter_language_bash() -> &'static HighlightConfiguration {
+  static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
+  CONFIG.get_or_init(|| {
+    let mut config = HighlightConfiguration::new(
+      tree_sitter_bash::language(),
+      tree_sitter_bash::HIGHLIGHT_QUERY,
+      "",
+      "",
+    )
+    .expect("failed to initialize tree_sitter_bash highlighter");
     config.configure(CAPTURE_NAMES);
     config
   })

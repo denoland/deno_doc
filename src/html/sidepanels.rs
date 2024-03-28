@@ -3,7 +3,6 @@ use super::DocNodeWithContext;
 use super::GenerateCtx;
 use super::ShortPath;
 use super::UrlResolveKind;
-use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
@@ -25,13 +24,14 @@ impl SidepanelPartitionSymbolCtx {
     name: String,
   ) -> Self {
     Self {
-      kind: nodes.iter().map(|node| node.doc_node.kind.into()).collect(),
+      kind: nodes
+        .iter()
+        .map(|node| node.kind_with_drilldown.into())
+        .collect(),
       name,
       href,
       active,
-      deprecated: super::util::all_deprecated(
-        &nodes.iter().map(|node| node.doc_node).collect::<Vec<_>>(),
-      ),
+      deprecated: super::util::all_deprecated(nodes),
     }
   }
 }
@@ -61,9 +61,7 @@ impl SidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
-          let entry = grouped_nodes
-            .entry(node.doc_node.get_name())
-            .or_insert(vec![]);
+          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -76,7 +74,7 @@ impl SidepanelCtx {
               ctx.href_resolver.resolve_path(
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
-                  file: nodes[0].origin.as_ref().unwrap(),
+                  file: &nodes[0].origin,
                   symbol: node_name,
                 },
               ),
@@ -118,7 +116,7 @@ impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
     current_entrypoint: Option<&ModuleSpecifier>,
-    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
     partitions: IndexMap<String, Vec<DocNodeWithContext>>,
     current_file: Option<&ShortPath>,
   ) -> Self {
@@ -157,9 +155,7 @@ impl IndexSidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in &nodes {
-          let entry = grouped_nodes
-            .entry(node.doc_node.get_name())
-            .or_insert(vec![]);
+          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -172,7 +168,7 @@ impl IndexSidepanelCtx {
               ctx.href_resolver.resolve_path(
                 current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
-                  file: nodes[0].origin.as_ref().unwrap(),
+                  file: &nodes[0].origin,
                   symbol: node_name,
                 },
               ),

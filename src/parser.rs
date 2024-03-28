@@ -67,6 +67,7 @@ use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -262,9 +263,9 @@ impl<'a> DocParser<'a> {
                 }
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
-                    .iter()
+                    .into_iter()
                     .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
-                    .cloned()
+                    .map(Arc::new)
                     .collect(),
                 };
                 let ns_doc_node = DocNode::namespace(
@@ -573,7 +574,7 @@ impl<'a> DocParser<'a> {
           doc_node.name = export_name.to_string();
           doc_node.declaration_kind = DeclarationKind::Export;
 
-          elements.push(doc_node);
+          elements.push(Arc::new(doc_node));
         }
       }
     }
@@ -589,10 +590,15 @@ impl<'a> DocParser<'a> {
         || self.visibility.has_non_exported_public(&unique_id)
       {
         let child_symbol = module_info.symbol(child_id).unwrap();
-        elements.extend(self.get_private_doc_node_for_symbol(
-          ModuleInfoRef::Esm(module_info),
-          child_symbol,
-        ));
+        elements.extend(
+          self
+            .get_private_doc_node_for_symbol(
+              ModuleInfoRef::Esm(module_info),
+              child_symbol,
+            )
+            .into_iter()
+            .map(Arc::new),
+        );
       }
     }
 
