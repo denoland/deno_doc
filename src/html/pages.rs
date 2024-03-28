@@ -249,7 +249,7 @@ pub fn generate_symbol_pages_for_module(
         .map(|method| {
           let mut new_node =
             doc_nodes[0].create_child(Arc::new(DocNode::function(
-              qualify_drilldown_name(name, &method.name, false),
+              qualify_drilldown_name(name, &method.name, true),
               method.location.clone(),
               doc_nodes[0].declaration_kind,
               method.js_doc.clone(),
@@ -278,7 +278,7 @@ pub fn generate_symbol_pages_for_module(
         .map(|property| {
           let mut new_node =
             doc_nodes[0].create_child(Arc::new(DocNode::variable(
-              qualify_drilldown_name(name, &property.name, false),
+              qualify_drilldown_name(name, &property.name, true),
               property.location.clone(),
               doc_nodes[0].declaration_kind,
               property.js_doc.clone(),

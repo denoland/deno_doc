@@ -33,3 +33,7 @@ export class Bar extends Foo {
 
 export default class Foobar {
 }
+
+export interface Hello {
+  world: "string";
+}

@@ -101,7 +101,7 @@ pub fn compute_namespaced_symbols(
         namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
           let mut method_path = current_path.to_vec();
           method_path.extend(
-            qualify_drilldown_name(doc_node.get_name(), &method.name, false)
+            qualify_drilldown_name(doc_node.get_name(), &method.name, true)
               .split('.')
               .map(|part| part.to_string()),
           );
@@ -112,13 +112,9 @@ pub fn compute_namespaced_symbols(
           |property| {
             let mut method_path = current_path.to_vec();
             method_path.extend(
-              qualify_drilldown_name(
-                doc_node.get_name(),
-                &property.name,
-                false,
-              )
-              .split('.')
-              .map(|part| part.to_string()),
+              qualify_drilldown_name(doc_node.get_name(), &property.name, true)
+                .split('.')
+                .map(|part| part.to_string()),
             );
             method_path
           },
