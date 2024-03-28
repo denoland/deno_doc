@@ -15,7 +15,7 @@ use crate::js_doc::JsDocTag;
 use crate::node::Location;
 
 lazy_static! {
-  static ref JS_DOC_RE: Regex = Regex::new(r"\s*\* ?").unwrap();
+  static ref JS_DOC_RE: Regex = Regex::new(r"^\s*\* ?").unwrap();
 }
 
 pub(crate) fn is_false(b: &bool) -> bool {
@@ -23,15 +23,17 @@ pub(crate) fn is_false(b: &bool) -> bool {
 }
 
 fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
-  let txt = js_doc_comment
-    .text
+  remove_stars_from_js_doc(&js_doc_comment.text).into()
+}
+
+fn remove_stars_from_js_doc(text: &str) -> String {
+  text
     .split('\n')
     .map(|line| JS_DOC_RE.replace(line, "").to_string())
     .collect::<Vec<String>>()
     .join("\n")
     .trim()
-    .to_string();
-  txt.into()
+    .to_string()
 }
 
 pub(crate) fn js_doc_for_range_include_ignore(
@@ -123,4 +125,65 @@ pub fn module_export_name_value(
 /// If the jsdoc has an `@internal` or `@ignore` tag.
 pub fn has_ignorable_js_doc_tag(js_doc: &JsDoc) -> bool {
   js_doc.tags.iter().any(|t| matches!(t, JsDocTag::Ignore) || matches!(t, JsDocTag::Unsupported { value } if value == "@internal" || value.starts_with("@internal ")))
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  #[test]
+  fn remove_stars_from_js_doc_works() {
+    assert_eq!(
+      remove_stars_from_js_doc(
+        "/**
+ * This module provides the `Result` class
+ */"
+      ),
+      "/**
+This module provides the `Result` class
+/"
+    );
+    assert_eq!(
+      remove_stars_from_js_doc(
+        r#"/**
+ * # Program
+ *
+ * description
+ *
+ * ## Usage
+ *
+ * @example
+ * ```ts
+ * import * as mod from "program";
+ */"#
+      ),
+      r#"/**
+# Program
+
+description
+
+## Usage
+
+@example
+```ts
+import * as mod from "program";
+/"#
+    );
+    assert_eq!(
+      remove_stars_from_js_doc(
+        r#"/**
+ * # Program
+ * **Example:**
+ *
+ * example1
+ */
+"#
+      ),
+      r#"/**
+# Program
+**Example:**
+
+example1
+/"#
+    )
+  }
 }
