@@ -38,7 +38,7 @@ pub fn partition_nodes_by_name(
 pub fn partition_nodes_by_kind(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>> {
+) -> IndexMap<String, Vec<DocNodeWithContext>> {
   fn partition_nodes_by_kind_inner(
     partitions: &mut IndexMap<
       DocNodeKindWithDrilldown,
@@ -66,13 +66,10 @@ pub fn partition_nodes_by_kind(
           &namespace_def
             .elements
             .iter()
-            .map(|element| DocNodeWithContext {
-              origin: node.origin.clone(),
-              ns_qualifiers: ns_qualifiers.clone(),
-              kind_with_drilldown: DocNodeKindWithDrilldown::Other(
-                element.kind,
-              ),
-              inner: element.clone(),
+            .map(|element| {
+              let mut child = node.create_child(element.clone());
+              child.ns_qualifiers = ns_qualifiers.clone();
+              child
             })
             .collect::<Vec<_>>(),
           true,
@@ -133,6 +130,12 @@ pub fn partition_nodes_by_kind(
 
   partitions
     .sorted_by(|kind1, _nodes1, kind2, _nodes2| kind1.cmp(kind2))
+    .map(|(kind, nodes)| {
+      (
+        super::DocNodeKindCtx::from(kind).title_plural.to_string(),
+        nodes,
+      )
+    })
     .collect()
 }
 
@@ -164,13 +167,10 @@ pub fn partition_nodes_by_category(
           &namespace_def
             .elements
             .iter()
-            .map(|element| DocNodeWithContext {
-              origin: node.origin.clone(),
-              ns_qualifiers: ns_qualifiers.clone(),
-              kind_with_drilldown: DocNodeKindWithDrilldown::Other(
-                element.kind,
-              ),
-              inner: element.clone(),
+            .map(|element| {
+              let mut child = node.create_child(element.clone());
+              child.ns_qualifiers = ns_qualifiers.clone();
+              child
             })
             .collect::<Vec<_>>(),
           true,
@@ -238,12 +238,6 @@ pub fn get_partitions_for_file(
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
     partition_nodes_by_kind(doc_nodes, ctx.sidebar_flatten_namespaces)
-      .into_iter()
-      .map(|(kind, nodes)| {
-        let doc_node_kind_ctx: super::DocNodeKindCtx = kind.into();
-        (doc_node_kind_ctx.title.to_string(), nodes)
-      })
-      .collect()
   } else {
     categories
   }

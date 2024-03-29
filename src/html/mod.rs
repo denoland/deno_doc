@@ -142,6 +142,7 @@ impl<'ctx> GenerateCtx<'ctx> {
           .map(|node| DocNodeWithContext {
             origin: Rc::new(self.url_to_short_path(&specifier)),
             ns_qualifiers: Rc::new(vec![]),
+            drilldown_parent_kind: None,
             kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
             inner: Arc::new(node),
           })
@@ -196,6 +197,7 @@ pub enum DocNodeKindWithDrilldown {
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<Vec<String>>,
+  pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Arc<DocNode>,
 }
@@ -205,6 +207,7 @@ impl DocNodeWithContext {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
+      drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
       inner: doc_node,
     }

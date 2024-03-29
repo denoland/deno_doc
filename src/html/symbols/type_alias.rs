@@ -33,7 +33,7 @@ pub(crate) fn render_type_alias(
   }
 
   sections.push(SectionCtx {
-    title: "Definition",
+    title: "Definition".to_string(),
     content: SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
       ctx,
       &id,

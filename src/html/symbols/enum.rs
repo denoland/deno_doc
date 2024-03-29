@@ -39,7 +39,7 @@ pub(crate) fn render_enum(
     .collect::<Vec<DocEntryCtx>>();
 
   vec![SectionCtx {
-    title: "Members",
+    title: "Members".to_string(),
     content: SectionContentCtx::DocEntry(items),
   }]
 }

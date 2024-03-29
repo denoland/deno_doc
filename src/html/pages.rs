@@ -146,7 +146,7 @@ struct AllSymbolsCtx {
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>,
+  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
 ) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
@@ -211,6 +211,7 @@ pub fn generate_symbol_pages_for_module(
               method.js_doc.clone(),
               method.function_def.clone(),
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
           new_node
         })
@@ -234,6 +235,7 @@ pub fn generate_symbol_pages_for_module(
                 kind: deno_ast::swc::ast::VarDeclKind::Const,
               },
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
           new_node
         })
@@ -264,6 +266,7 @@ pub fn generate_symbol_pages_for_module(
                 decorators: vec![],
               },
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
           new_node
         })
@@ -287,6 +290,7 @@ pub fn generate_symbol_pages_for_module(
                 kind: deno_ast::swc::ast::VarDeclKind::Const,
               },
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
           new_node
         })

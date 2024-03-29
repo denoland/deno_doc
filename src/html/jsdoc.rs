@@ -469,7 +469,7 @@ pub(crate) fn jsdoc_examples(
 
   if !examples.is_empty() {
     Some(SectionCtx {
-      title: "Examples",
+      title: "Examples".to_string(),
       content: SectionContentCtx::Example(examples),
     })
   } else {

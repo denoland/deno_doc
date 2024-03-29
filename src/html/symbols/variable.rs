@@ -17,7 +17,7 @@ pub(crate) fn render_variable(
   let id = name_to_id("variable", doc_node.get_name());
 
   vec![SectionCtx {
-    title: "Type",
+    title: "Type".to_string(),
     content: SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
       ctx,
       &id,
