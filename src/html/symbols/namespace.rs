@@ -7,7 +7,7 @@ use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
+  partitions: super::super::partition::Partition,
 ) -> Vec<SectionCtx> {
   partitions
     .into_iter()

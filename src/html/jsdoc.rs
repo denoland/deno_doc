@@ -10,7 +10,6 @@ use comrak::nodes::NodeHtmlBlock;
 use comrak::nodes::NodeValue;
 use comrak::Arena;
 use deno_ast::ModuleSpecifier;
-use indexmap::IndexMap;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -18,7 +17,6 @@ use std::cmp::Ordering;
 
 #[cfg(feature = "ammonia")]
 use crate::html::comrak_adapters::URLRewriter;
-use crate::html::DocNodeWithContext;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -521,7 +519,7 @@ impl ModuleDocCtx {
   pub fn new(
     render_ctx: &RenderContext,
     specifier: &ModuleSpecifier,
-    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
+    doc_nodes_by_url: &super::ContextDocNodesByUrl,
   ) -> Self {
     let module_doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
 

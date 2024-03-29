@@ -3,14 +3,13 @@ use super::DocNodeWithContext;
 use super::GenerateCtx;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
-use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use std::cmp::Ordering;
 use std::rc::Rc;
 
-pub fn partition_nodes_by_name(
-  doc_nodes: &[DocNodeWithContext],
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+pub type Partition = IndexMap<String, Vec<DocNodeWithContext>>;
+
+pub fn partition_nodes_by_name(doc_nodes: &[DocNodeWithContext]) -> Partition {
   let mut partitions = IndexMap::default();
 
   for node in doc_nodes {
@@ -38,7 +37,7 @@ pub fn partition_nodes_by_name(
 pub fn partition_nodes_by_kind(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+) -> Partition {
   fn partition_nodes_by_kind_inner(
     partitions: &mut IndexMap<
       DocNodeKindWithDrilldown,
@@ -97,10 +96,7 @@ pub fn partition_nodes_by_kind(
     }
   }
 
-  let mut partitions: IndexMap<
-    DocNodeKindWithDrilldown,
-    Vec<DocNodeWithContext>,
-  > = IndexMap::default();
+  let mut partitions = IndexMap::default();
 
   partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
@@ -142,9 +138,9 @@ pub fn partition_nodes_by_kind(
 pub fn partition_nodes_by_category(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+) -> Partition {
   fn partition_nodes_by_category_inner(
-    partitions: &mut IndexMap<String, Vec<DocNodeWithContext>>,
+    partitions: &mut Partition,
     doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
   ) {
@@ -201,8 +197,7 @@ pub fn partition_nodes_by_category(
     }
   }
 
-  let mut partitions: IndexMap<String, Vec<DocNodeWithContext>> =
-    IndexMap::default();
+  let mut partitions = IndexMap::default();
 
   partition_nodes_by_category_inner(
     &mut partitions,
@@ -232,7 +227,7 @@ pub fn partition_nodes_by_category(
 pub fn get_partitions_for_file(
   ctx: &GenerateCtx,
   doc_nodes: &[DocNodeWithContext],
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+) -> Partition {
   let categories =
     partition_nodes_by_category(doc_nodes, ctx.sidebar_flatten_namespaces);
 
@@ -245,8 +240,8 @@ pub fn get_partitions_for_file(
 
 pub fn get_partitions_for_main_entrypoint(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
-) -> IndexMap<String, Vec<DocNodeWithContext>> {
+  doc_nodes_by_url: &super::ContextDocNodesByUrl,
+) -> Partition {
   let doc_nodes = ctx
     .main_entrypoint
     .as_ref()

@@ -1,3 +1,4 @@
+use super::partition::Partition;
 use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
@@ -51,7 +52,7 @@ pub struct SidepanelCtx {
 impl SidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
-    partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
+    partitions: &Partition,
     file: &ShortPath,
     symbol: &str,
   ) -> Self {
@@ -116,8 +117,8 @@ impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
     current_entrypoint: Option<&ModuleSpecifier>,
-    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
-    partitions: IndexMap<String, Vec<DocNodeWithContext>>,
+    doc_nodes_by_url: &super::ContextDocNodesByUrl,
+    partitions: Partition,
     current_file: Option<&ShortPath>,
   ) -> Self {
     let files = doc_nodes_by_url

@@ -133,7 +133,7 @@ impl<'ctx> GenerateCtx<'ctx> {
   pub fn doc_nodes_by_url_add_context(
     &self,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  ) -> IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>> {
+  ) -> ContextDocNodesByUrl {
     doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
@@ -153,6 +153,9 @@ impl<'ctx> GenerateCtx<'ctx> {
       .collect::<IndexMap<_, _>>()
   }
 }
+
+pub type ContextDocNodesByUrl =
+  IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>;
 
 #[derive(Clone, Debug)]
 pub struct ShortPath(String);
