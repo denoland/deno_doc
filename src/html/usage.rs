@@ -40,7 +40,12 @@ pub fn usage_to_md(
       parts[0].to_string()
     };
 
-    let usage_symbol = if parts.len() > 1 {
+    let usage_symbol = if doc_nodes
+      .iter()
+      .all(|node| node.drilldown_parent_kind.is_some())
+    {
+      None
+    } else if parts.len() > 1 {
       parts.pop().map(|usage_symbol| {
         (
           usage_symbol,
@@ -55,7 +60,7 @@ pub fn usage_to_md(
 
     let is_type = doc_nodes.iter().all(|doc_node| {
       matches!(
-        doc_node.kind,
+        doc_node.drilldown_parent_kind.unwrap_or(doc_node.kind),
         DocNodeKind::TypeAlias | DocNodeKind::Interface
       )
     });

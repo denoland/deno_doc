@@ -352,6 +352,7 @@ mod test {
         ),
       ),
       ns_qualifiers: Rc::new(vec![]),
+      drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(DocNodeKind::Import),
       inner: Arc::new(DocNode {
         kind: DocNodeKind::Import,

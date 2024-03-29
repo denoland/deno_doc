@@ -259,13 +259,13 @@ fn render_single_function(
 
   if !params.is_empty() {
     sections.push(SectionCtx {
-      title: "Parameters",
+      title: "Parameters".to_string(),
       content: SectionContentCtx::DocEntry(params),
     });
   }
 
   sections.push(SectionCtx {
-    title: "Return Type",
+    title: "Return Type".to_string(),
     content: SectionContentCtx::DocEntry(
       render_function_return_type(ctx, function_def, doc_node, overload_id)
         .map_or_else(Default::default, |doc_entry| vec![doc_entry]),

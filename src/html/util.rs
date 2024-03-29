@@ -313,7 +313,7 @@ pub enum SectionContentCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SectionCtx {
-  pub title: &'static str,
+  pub title: String,
   pub content: SectionContentCtx,
 }
 

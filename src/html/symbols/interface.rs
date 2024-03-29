@@ -90,7 +90,7 @@ fn render_index_signatures(
   }
 
   Some(SectionCtx {
-    title: "Index Signatures",
+    title: "Index Signatures".to_string(),
     content: SectionContentCtx::IndexSignature(items),
   })
 }
@@ -135,7 +135,7 @@ fn render_call_signatures(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx {
-    title: "Call Signatures",
+    title: "Call Signatures".to_string(),
     content: SectionContentCtx::DocEntry(items),
   })
 }
@@ -205,7 +205,7 @@ fn render_properties(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx {
-    title: "Properties",
+    title: "Properties".to_string(),
     content: SectionContentCtx::DocEntry(items),
   })
 }
@@ -266,7 +266,7 @@ fn render_methods(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx {
-    title: "Methods",
+    title: "Methods".to_string(),
     content: SectionContentCtx::DocEntry(items),
   })
 }

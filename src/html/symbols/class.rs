@@ -57,7 +57,7 @@ pub(crate) fn render_class(
 
   if !class_items.properties.is_empty() {
     sections.push(SectionCtx {
-      title: "Properties",
+      title: "Properties".to_string(),
       content: SectionContentCtx::DocEntry(render_class_properties(
         ctx,
         doc_node.get_name(),
@@ -68,7 +68,7 @@ pub(crate) fn render_class(
 
   if !class_items.methods.is_empty() {
     sections.push(SectionCtx {
-      title: "Methods",
+      title: "Methods".to_string(),
       content: SectionContentCtx::DocEntry(render_class_methods(
         ctx,
         doc_node.get_name(),
@@ -79,7 +79,7 @@ pub(crate) fn render_class(
 
   if !class_items.static_properties.is_empty() {
     sections.push(SectionCtx {
-      title: "Static Properties",
+      title: "Static Properties".to_string(),
       content: SectionContentCtx::DocEntry(render_class_properties(
         ctx,
         doc_node.get_name(),
@@ -90,7 +90,7 @@ pub(crate) fn render_class(
 
   if !class_items.static_methods.is_empty() {
     sections.push(SectionCtx {
-      title: "Static Methods",
+      title: "Static Methods".to_string(),
       content: SectionContentCtx::DocEntry(render_class_methods(
         ctx,
         doc_node.get_name(),
@@ -139,7 +139,7 @@ fn render_constructors(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx {
-    title: "Constructors",
+    title: "Constructors".to_string(),
     content: SectionContentCtx::DocEntry(items),
   })
 }
@@ -187,7 +187,7 @@ fn render_index_signatures(
   }
 
   Some(SectionCtx {
-    title: "Index Signatures",
+    title: "Index Signatures".to_string(),
     content: SectionContentCtx::IndexSignature(items),
   })
 }

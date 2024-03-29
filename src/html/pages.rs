@@ -20,6 +20,7 @@ use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
 use crate::function::FunctionDef;
+use crate::html::partition::Partition;
 use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::DocNodeKind;
@@ -79,8 +80,8 @@ struct IndexCtx {
 pub fn render_index(
   ctx: &GenerateCtx,
   specifier: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>,
-  partitions: IndexMap<String, Vec<DocNodeWithContext>>,
+  doc_nodes_by_url: &super::ContextDocNodesByUrl,
+  partitions: Partition,
   file: Option<ShortPath>,
 ) -> String {
   let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
@@ -146,7 +147,7 @@ struct AllSymbolsCtx {
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>,
+  partitions: Partition,
 ) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
   let render_ctx =
@@ -189,7 +190,7 @@ pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
-  partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
+  partitions_for_nodes: &Partition,
   doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions =
@@ -211,6 +212,7 @@ pub fn generate_symbol_pages_for_module(
               method.js_doc.clone(),
               method.function_def.clone(),
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
           new_node
         })
@@ -234,6 +236,7 @@ pub fn generate_symbol_pages_for_module(
                 kind: deno_ast::swc::ast::VarDeclKind::Const,
               },
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
           new_node
         })
@@ -264,6 +267,7 @@ pub fn generate_symbol_pages_for_module(
                 decorators: vec![],
               },
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
           new_node
         })
@@ -287,6 +291,7 @@ pub fn generate_symbol_pages_for_module(
                 kind: deno_ast::swc::ast::VarDeclKind::Const,
               },
             )));
+          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
           new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
           new_node
         })
@@ -312,8 +317,8 @@ pub fn generate_symbol_pages_for_module(
 fn generate_symbol_pages_inner(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
-  partitions_for_nodes: &IndexMap<String, Vec<DocNodeWithContext>>,
-  name_partitions: &IndexMap<String, Vec<DocNodeWithContext>>,
+  partitions_for_nodes: &Partition,
+  name_partitions: &Partition,
   current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,

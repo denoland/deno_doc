@@ -572,7 +572,7 @@ pub(crate) fn render_type_params(
   }
 
   Some(SectionCtx {
-    title: "Type Parameters",
+    title: "Type Parameters".to_string(),
     content: SectionContentCtx::DocEntry(items),
   })
 }

@@ -1,6 +1,5 @@
 use crate::html::render_context::RenderContext;
 use crate::html::util::*;
-use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use indexmap::IndexMap;
 use serde::Serialize;
@@ -8,23 +7,21 @@ use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: IndexMap<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>,
+  partitions: super::super::partition::Partition,
 ) -> Vec<SectionCtx> {
   partitions
     .into_iter()
-    .map(|(kind, doc_nodes)| {
-      get_namespace_section_render_ctx(ctx, kind, doc_nodes)
+    .map(|(title, doc_nodes)| {
+      get_namespace_section_render_ctx(ctx, title, doc_nodes)
     })
     .collect()
 }
 
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
-  kind: DocNodeKindWithDrilldown,
+  title: String,
   doc_nodes: Vec<DocNodeWithContext>,
 ) -> SectionCtx {
-  let kind_ctx = super::super::util::DocNodeKindCtx::from(kind);
-
   let mut grouped_nodes = IndexMap::new();
 
   for node in doc_nodes {
@@ -44,7 +41,7 @@ fn get_namespace_section_render_ctx(
     .collect::<Vec<_>>();
 
   SectionCtx {
-    title: kind_ctx.title_plural,
+    title,
     content: SectionContentCtx::NamespaceSection(nodes),
   }
 }
