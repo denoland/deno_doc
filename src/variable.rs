@@ -1,6 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::swc::ast::Pat;
+use deno_ast::swc::ast::VarDeclKind;
+use deno_ast::ParsedSource;
 use deno_graph::symbols::EsModuleInfo;
 use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
@@ -14,7 +16,7 @@ use crate::ts_type::TsTypeDefKind;
 #[serde(rename_all = "camelCase")]
 pub struct VariableDef {
   pub ts_type: Option<TsTypeDef>,
-  pub kind: deno_ast::swc::ast::VarDeclKind,
+  pub kind: VarDeclKind,
 }
 
 pub fn get_docs_for_var_declarator(
@@ -61,7 +63,7 @@ pub fn get_docs_for_var_declarator(
             let maybe_type_ann = infer_simple_ts_type_from_var_decl(
               module_info.source(),
               var_declarator,
-              var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
+              var_decl.kind == VarDeclKind::Const,
             );
             if let Some(type_ann) = maybe_type_ann {
               return Some(type_ann);
@@ -77,7 +79,7 @@ pub fn get_docs_for_var_declarator(
       infer_simple_ts_type_from_var_decl(
         module_info.source(),
         var_declarator,
-        var_decl.kind == deno_ast::swc::ast::VarDeclKind::Const,
+        var_decl.kind == VarDeclKind::Const,
       )
     });
 
@@ -90,122 +92,145 @@ pub fn get_docs_for_var_declarator(
       };
       items.push((var_name, variable_def));
     }
-    Pat::Object(obj) => {
-      let mut reached_rest = false;
-      for prop in &obj.props {
-        assert!(!reached_rest, "object rest is always last");
-        let (name, reassign_name, rest_type_ann) = match prop {
-          deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
-            crate::params::prop_name_to_string(module_info.source(), &kv.key),
-            match &*kv.value {
-              Pat::Ident(ident) => Some(ident.sym.to_string()),
-              _ => None, // TODO(@crowlKats): cover other cases?
-            },
-            None,
-          ),
-          deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
-            (assign.key.sym.to_string(), None, None)
-          }
-          deno_ast::swc::ast::ObjectPatProp::Rest(rest) => {
-            reached_rest = true;
-
-            (
-              match &*rest.arg {
-                Pat::Ident(ident) => ident.sym.to_string(),
-                _ => continue, // TODO(@crowlKats): cover other cases?
-              },
-              None,
-              rest.type_ann.as_ref(),
-            )
-          }
-        };
-
-        let ts_type = if !reached_rest {
-          maybe_ts_type.as_ref().and_then(|ts_type| {
-            ts_type.type_literal.as_ref().and_then(|type_literal| {
-              type_literal.properties.iter().find_map(|property| {
-                if property.name == name {
-                  property.ts_type.clone()
-                } else {
-                  None
-                }
-              })
-            })
-          })
-        } else {
-          rest_type_ann.map(|type_ann| {
-            TsTypeDef::new(module_info.source(), &type_ann.type_ann)
-          })
-        };
-
-        let variable_def = VariableDef {
-          ts_type,
-          kind: var_decl.kind,
-        };
-        items.push((reassign_name.unwrap_or(name), variable_def));
-      }
-    }
-    Pat::Array(arr) => {
-      let mut reached_rest = false;
-      for (i, elem) in arr.elems.iter().enumerate() {
-        assert!(!reached_rest, "object rest is always last");
-        let Some(elem) = elem else {
-          continue;
-        };
-
-        let (name, rest_type_ann) = match elem {
-          Pat::Ident(ident) => (ident.sym.to_string(), None),
-          Pat::Rest(rest) => {
-            reached_rest = true;
-            (
-              match &*rest.arg {
-                Pat::Ident(ident) => ident.sym.to_string(),
-                _ => continue, // TODO(@crowlKats): cover other cases?
-              },
-              rest.type_ann.as_ref(),
-            )
-          }
-          // TODO(@crowlKats): maybe handle assign pat?
-          _ => continue,
-        };
-
-        let ts_type = if !reached_rest {
-          maybe_ts_type.as_ref().and_then(|ts_type| {
-            match ts_type.kind.as_ref()? {
-              TsTypeDefKind::Array => Some(*ts_type.array.clone().unwrap()),
-              TsTypeDefKind::Tuple => ts_type
-                .tuple
-                .as_ref()
-                .unwrap()
-                .get(i)
-                .map(|def| def.clone()),
-              _ => None,
-            }
-          })
-        } else {
-          rest_type_ann
-            .map(|type_ann| {
-              TsTypeDef::new(module_info.source(), &type_ann.type_ann)
-            })
-            .or_else(|| {
-              maybe_ts_type.as_ref().and_then(|ts_type| {
-                if ts_type.kind == Some(TsTypeDefKind::Array) {
-                  Some(ts_type.clone())
-                } else {
-                  None
-                }
-              })
-            })
-        };
-
-        let variable_def = VariableDef {
-          ts_type,
-          kind: var_decl.kind,
-        };
-        items.push((name, variable_def));
-      }
-    }
+    Pat::Object(obj) => get_vars_from_obj_destructuring(
+      obj,
+      var_decl.kind,
+      maybe_ts_type.as_ref(),
+      &mut items,
+      module_info.source(),
+    ),
+    Pat::Array(arr) => get_vars_from_array_destructuring(
+      arr,
+      var_decl.kind,
+      maybe_ts_type.as_ref(),
+      &mut items,
+      module_info.source(),
+    ),
     _ => (),
   }
   items
+}
+
+fn get_vars_from_obj_destructuring(
+  obj: &deno_ast::swc::ast::ObjectPat,
+  kind: VarDeclKind,
+  maybe_ts_type: Option<&TsTypeDef>,
+  items: &mut Vec<(String, VariableDef)>,
+  source: &ParsedSource,
+) {
+  {
+    let mut reached_rest = false;
+    for prop in &obj.props {
+      assert!(!reached_rest, "object rest is always last");
+      let (name, reassign_name, rest_type_ann) = match prop {
+        deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
+          crate::params::prop_name_to_string(source, &kv.key),
+          match &*kv.value {
+            Pat::Ident(ident) => Some(ident.sym.to_string()),
+            Pat::Array(_)
+            | Pat::Rest(_)
+            | Pat::Object(_)
+            | Pat::Assign(_)
+            | Pat::Invalid(_)
+            | Pat::Expr(_) => None, // TODO(@crowlKats): cover other cases?
+          },
+          None,
+        ),
+        deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
+          (assign.key.sym.to_string(), None, None)
+        }
+        deno_ast::swc::ast::ObjectPatProp::Rest(rest) => {
+          reached_rest = true;
+
+          (
+            match &*rest.arg {
+              Pat::Ident(ident) => ident.sym.to_string(),
+              _ => continue, // TODO(@crowlKats): cover other cases?
+            },
+            None,
+            rest.type_ann.as_ref(),
+          )
+        }
+      };
+
+      let ts_type = if !reached_rest {
+        maybe_ts_type.as_ref().and_then(|ts_type| {
+          ts_type.type_literal.as_ref().and_then(|type_literal| {
+            type_literal.properties.iter().find_map(|property| {
+              if property.name == name {
+                property.ts_type.clone()
+              } else {
+                None
+              }
+            })
+          })
+        })
+      } else {
+        rest_type_ann.map(|type_ann| TsTypeDef::new(source, &type_ann.type_ann))
+      };
+
+      let variable_def = VariableDef { ts_type, kind };
+      items.push((reassign_name.unwrap_or(name), variable_def));
+    }
+  }
+}
+
+fn get_vars_from_array_destructuring(
+  arr: &deno_ast::swc::ast::ArrayPat,
+  kind: VarDeclKind,
+  maybe_ts_type: Option<&TsTypeDef>,
+  items: &mut Vec<(String, VariableDef)>,
+  source: &ParsedSource,
+) {
+  let mut reached_rest = false;
+  for (i, elem) in arr.elems.iter().enumerate() {
+    assert!(!reached_rest, "object rest is always last");
+    let Some(elem) = elem else {
+      continue;
+    };
+
+    let (name, rest_type_ann) = match elem {
+      Pat::Ident(ident) => (ident.sym.to_string(), None),
+      Pat::Rest(rest) => {
+        reached_rest = true;
+        (
+          match &*rest.arg {
+            Pat::Ident(ident) => ident.sym.to_string(),
+            _ => continue, // TODO(@crowlKats): cover other cases?
+          },
+          rest.type_ann.as_ref(),
+        )
+      }
+      // TODO(@crowlKats): maybe handle assign pat?
+      _ => continue,
+    };
+
+    let ts_type = if !reached_rest {
+      maybe_ts_type.and_then(|ts_type| match ts_type.kind.as_ref()? {
+        TsTypeDefKind::Array => Some(*ts_type.array.clone().unwrap()),
+        TsTypeDefKind::Tuple => ts_type
+          .tuple
+          .as_ref()
+          .unwrap()
+          .get(i)
+          .map(|def| def.clone()),
+        _ => None,
+      })
+    } else {
+      rest_type_ann
+        .map(|type_ann| TsTypeDef::new(source, &type_ann.type_ann))
+        .or_else(|| {
+          maybe_ts_type.and_then(|ts_type| {
+            if ts_type.kind == Some(TsTypeDefKind::Array) {
+              Some(ts_type.clone())
+            } else {
+              None
+            }
+          })
+        })
+    };
+
+    let variable_def = VariableDef { ts_type, kind };
+    items.push((name, variable_def));
+  }
 }

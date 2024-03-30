@@ -379,9 +379,9 @@ impl<'a> DocParser<'a> {
     full_range: &SourceRange,
   ) -> Option<DocNode> {
     let full_range = if ident.start() != var_declarator.start() {
-      Cow::Owned(ident.range())
+      &ident.range()
     } else {
-      Cow::Borrowed(full_range)
+      full_range
     };
     let js_doc = js_doc_for_range(module_info.source(), &full_range)?;
     // todo(dsherret): it's not ideal to call this function over
@@ -400,7 +400,7 @@ impl<'a> DocParser<'a> {
         name,
         location,
         DeclarationKind::Declare,
-        js_doc.clone(),
+        js_doc,
         var_def,
       )
     })
