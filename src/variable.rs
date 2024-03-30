@@ -244,12 +244,7 @@ fn get_vars_from_array_destructuring(
     let ts_type = if !reached_rest {
       maybe_ts_type.and_then(|ts_type| match ts_type.kind.as_ref()? {
         TsTypeDefKind::Array => Some(*ts_type.array.clone().unwrap()),
-        TsTypeDefKind::Tuple => ts_type
-          .tuple
-          .as_ref()
-          .unwrap()
-          .get(i)
-          .map(|def| def.clone()),
+        TsTypeDefKind::Tuple => ts_type.tuple.as_ref().unwrap().get(i).cloned(),
         _ => None,
       })
     } else {
