@@ -62,7 +62,6 @@ pub(crate) fn render_function(
   ctx: &RenderContext,
   doc_nodes: Vec<&DocNodeWithContext>,
 ) -> FunctionCtx {
-  // TODO: this needs to be handled more gracefully on the frontend
   let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
   let mut functions_content = Vec::with_capacity(doc_nodes.len());
 

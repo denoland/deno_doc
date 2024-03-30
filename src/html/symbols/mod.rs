@@ -58,8 +58,6 @@ impl SymbolGroupCtx {
 
     split_nodes.sort_keys();
 
-    // TODO: property drilldown
-
     let symbols = split_nodes
       .values()
       .map(|doc_nodes| {
