@@ -1,11 +1,12 @@
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use std::collections::HashSet;
 
 pub(crate) fn render_type_alias(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
   let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
 
@@ -18,12 +19,13 @@ pub(crate) fn render_type_alias(
 
   let id = name_to_id("typeAlias", doc_node.get_name());
 
-  // TODO: tags, TypeParamsDoc
+  // TODO: tags
 
   let mut sections = vec![];
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
+    &doc_node.js_doc,
     &type_alias_def.type_params,
     &doc_node.location,
   ) {
@@ -31,11 +33,12 @@ pub(crate) fn render_type_alias(
   }
 
   sections.push(SectionCtx {
-    title: "Definition",
+    title: "Definition".to_string(),
     content: SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
       ctx,
       &id,
       "",
+      None,
       &render_type_def(ctx, &type_alias_def.ts_type),
       HashSet::new(),
       None,

@@ -4,6 +4,7 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde::Serialize;
@@ -14,7 +15,7 @@ use std::collections::HashSet;
 
 pub(crate) fn render_class(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
@@ -41,6 +42,7 @@ pub(crate) fn render_class(
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
+    &doc_node.js_doc,
     &class_def.type_params,
     &doc_node.location,
   ) {
@@ -55,9 +57,10 @@ pub(crate) fn render_class(
 
   if !class_items.properties.is_empty() {
     sections.push(SectionCtx {
-      title: "Properties",
+      title: "Properties".to_string(),
       content: SectionContentCtx::DocEntry(render_class_properties(
         ctx,
+        doc_node.get_name(),
         class_items.properties,
       )),
     });
@@ -65,9 +68,10 @@ pub(crate) fn render_class(
 
   if !class_items.methods.is_empty() {
     sections.push(SectionCtx {
-      title: "Methods",
+      title: "Methods".to_string(),
       content: SectionContentCtx::DocEntry(render_class_methods(
         ctx,
+        doc_node.get_name(),
         class_items.methods,
       )),
     });
@@ -75,9 +79,10 @@ pub(crate) fn render_class(
 
   if !class_items.static_properties.is_empty() {
     sections.push(SectionCtx {
-      title: "Static Properties",
+      title: "Static Properties".to_string(),
       content: SectionContentCtx::DocEntry(render_class_properties(
         ctx,
+        doc_node.get_name(),
         class_items.static_properties,
       )),
     });
@@ -85,9 +90,10 @@ pub(crate) fn render_class(
 
   if !class_items.static_methods.is_empty() {
     sections.push(SectionCtx {
-      title: "Static Methods",
+      title: "Static Methods".to_string(),
       content: SectionContentCtx::DocEntry(render_class_methods(
         ctx,
+        doc_node.get_name(),
         class_items.static_methods,
       )),
     })
@@ -122,7 +128,8 @@ fn render_constructors(
       DocEntryCtx::new(
         ctx,
         &id,
-        name,
+        &html_escape::encode_safe(&name),
+        None,
         &format!("({params})"),
         HashSet::from([Tag::New]),
         constructor.js_doc.doc.as_deref(),
@@ -132,7 +139,7 @@ fn render_constructors(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx {
-    title: "Constructors",
+    title: "Constructors".to_string(),
     content: SectionContentCtx::DocEntry(items),
   })
 }
@@ -180,7 +187,7 @@ fn render_index_signatures(
   }
 
   Some(SectionCtx {
-    title: "Index Signatures",
+    title: "Index Signatures".to_string(),
     content: SectionContentCtx::IndexSignature(items),
   })
 }
@@ -335,6 +342,7 @@ fn partition_properties_and_classes(
 
 fn render_class_accessor(
   ctx: &RenderContext,
+  class_name: &str,
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
 ) -> DocEntryCtx {
@@ -372,7 +380,12 @@ fn render_class_accessor(
   DocEntryCtx::new(
     ctx,
     &id,
-    name,
+    &html_escape::encode_safe(&name),
+    ctx.lookup_symbol_href(&qualify_drilldown_name(
+      class_name,
+      name,
+      getter_or_setter.is_static,
+    )),
     &ts_type,
     tags,
     js_doc,
@@ -382,6 +395,7 @@ fn render_class_accessor(
 
 fn render_class_method(
   ctx: &RenderContext,
+  class_name: &str,
   method: &ClassMethodDef,
   i: usize,
 ) -> Option<DocEntryCtx> {
@@ -405,7 +419,12 @@ fn render_class_method(
   Some(DocEntryCtx::new(
     ctx,
     &id,
-    &method.name,
+    &html_escape::encode_safe(&method.name),
+    ctx.lookup_symbol_href(&qualify_drilldown_name(
+      class_name,
+      &method.name,
+      method.is_static,
+    )),
     &super::function::render_function_summary(&method.function_def, ctx),
     tags,
     method.js_doc.doc.as_deref(),
@@ -415,6 +434,7 @@ fn render_class_method(
 
 fn render_class_property(
   ctx: &RenderContext,
+  class_name: &str,
   property: &ClassPropertyDef,
 ) -> DocEntryCtx {
   let id = name_to_id("property", &property.name);
@@ -442,7 +462,12 @@ fn render_class_property(
   DocEntryCtx::new(
     ctx,
     &id,
-    &property.name,
+    &html_escape::encode_safe(&property.name),
+    ctx.lookup_symbol_href(&qualify_drilldown_name(
+      class_name,
+      &property.name,
+      property.is_static,
+    )),
     &ts_type,
     tags,
     property.js_doc.doc.as_deref(),
@@ -452,6 +477,7 @@ fn render_class_property(
 
 fn render_class_properties(
   ctx: &RenderContext,
+  class_name: &str,
   properties: Vec<PropertyOrMethod>,
 ) -> Vec<DocEntryCtx> {
   let mut properties = properties.into_iter().peekable();
@@ -460,7 +486,7 @@ fn render_class_properties(
   while let Some(property) = properties.next() {
     let content = match property {
       PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, &property)
+        render_class_property(ctx, class_name, &property)
       }
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
@@ -486,7 +512,7 @@ fn render_class_properties(
           (None, Some(method))
         };
 
-        render_class_accessor(ctx, getter, setter.as_ref())
+        render_class_accessor(ctx, class_name, getter, setter.as_ref())
       }
     };
 
@@ -498,15 +524,15 @@ fn render_class_properties(
 
 fn render_class_methods(
   ctx: &RenderContext,
+  class_name: &str,
   methods: BTreeMap<String, Vec<ClassMethodDef>>,
 ) -> Vec<DocEntryCtx> {
   methods
     .values()
     .flat_map(|methods| {
-      methods
-        .iter()
-        .enumerate()
-        .filter_map(|(i, method)| render_class_method(ctx, method, i))
+      methods.iter().enumerate().filter_map(|(i, method)| {
+        render_class_method(ctx, class_name, method, i)
+      })
     })
     .collect()
 }

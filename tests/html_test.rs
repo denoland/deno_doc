@@ -1,4 +1,5 @@
 use deno_ast::ModuleSpecifier;
+use deno_doc::html::pages::SymbolPage;
 use deno_doc::html::*;
 use deno_doc::DocNode;
 use deno_doc::DocParser;
@@ -13,7 +14,6 @@ use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use futures::future;
 use indexmap::IndexMap;
-use std::borrow::Cow;
 use std::fs;
 use std::rc::Rc;
 
@@ -141,7 +141,7 @@ async fn html_doc_files() {
       hide_module_doc_title: false,
       sidebar_flatten_namespaces: false,
     },
-    &get_files("single").await,
+    get_files("single").await,
   )
   .unwrap();
 
@@ -154,8 +154,11 @@ async fn html_doc_files() {
       "./all_symbols.html",
       "./index.html",
       "./~/Bar.html",
+      "./~/Bar.prototype.html",
       "./~/Foo.html",
+      "./~/Foo.prototype.html",
       "./~/Foobar.html",
+      "./~/Foobar.prototype.html",
       "./~/index.html",
       "fuse.js",
       "page.css",
@@ -194,7 +197,7 @@ async fn html_doc_files_rewrite() {
       hide_module_doc_title: false,
       sidebar_flatten_namespaces: false,
     },
-    &get_files("multiple").await,
+    get_files("multiple").await,
   )
   .unwrap();
 
@@ -207,8 +210,16 @@ async fn html_doc_files_rewrite() {
       "./all_symbols.html",
       "./index.html",
       "./~/Bar.html",
+      "./~/Bar.prototype.html",
+      "./~/Foo.bar.html",
       "./~/Foo.html",
+      "./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
+      "./~/Foo.prototype.foo.html",
+      "./~/Foo.prototype.html",
       "./~/Foobar.html",
+      "./~/Foobar.prototype.html",
+      "./~/Hello.html",
+      "./~/Hello.world.html",
       "./~/index.html",
       "foo/~/index.html",
       "foo/~/x.html",
@@ -262,16 +273,14 @@ async fn symbol_group() {
   };
 
   let mut files = vec![];
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
       let short_path = ctx.url_to_short_path(specifier);
 
-      let partitions_for_nodes = partition::get_partitions_for_file(
-        &ctx,
-        doc_nodes,
-        Cow::Borrowed(&short_path),
-      );
+      let partitions_for_nodes =
+        partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -282,28 +291,35 @@ async fn symbol_group() {
       );
 
       files.extend(symbol_pages.into_iter().map(
-        |(breadcrumbs_ctx, sidepanel_ctx, symbol_group_ctx)| {
-          let root = ctx.href_resolver.resolve_path(
-            UrlResolveKind::Symbol {
-              file: &short_path,
-              symbol: &symbol_group_ctx.name,
-            },
-            UrlResolveKind::Root,
-          );
-
-          let html_head_ctx = pages::HtmlHeadCtx::new(
-            &root,
-            &symbol_group_ctx.name,
-            ctx.package_name.as_ref(),
-            Some(short_path.clone()),
-          );
-
-          pages::PageCtx {
-            html_head_ctx,
+        |symbol_page| match symbol_page {
+          SymbolPage::Symbol {
+            breadcrumbs_ctx,
             sidepanel_ctx,
             symbol_group_ctx,
-            breadcrumbs_ctx,
+          } => {
+            let root = ctx.href_resolver.resolve_path(
+              UrlResolveKind::Symbol {
+                file: &short_path,
+                symbol: &symbol_group_ctx.name,
+              },
+              UrlResolveKind::Root,
+            );
+
+            let html_head_ctx = pages::HtmlHeadCtx::new(
+              &root,
+              &symbol_group_ctx.name,
+              ctx.package_name.as_ref(),
+              Some(short_path.clone()),
+            );
+
+            Some(pages::PageCtx {
+              html_head_ctx,
+              sidepanel_ctx,
+              symbol_group_ctx,
+              breadcrumbs_ctx,
+            })
           }
+          SymbolPage::Redirect { .. } => None,
         },
       ));
     }
@@ -373,6 +389,8 @@ async fn symbol_search() {
     sidebar_flatten_namespaces: false,
   };
 
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
+
   let search_index = generate_search_index(&ctx, &doc_nodes_by_url);
   let mut file_json = serde_json::to_string_pretty(&search_index).unwrap();
   file_json.push('\n');
@@ -432,6 +450,7 @@ async fn module_doc() {
   };
 
   let mut module_docs = vec![];
+  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   for specifier in &ctx.specifiers {
     let short_path = ctx.url_to_short_path(specifier);

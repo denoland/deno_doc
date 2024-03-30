@@ -4,9 +4,9 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_def_colon;
-use crate::html::types::render_type_params;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
@@ -60,7 +60,7 @@ pub struct FunctionCtx {
 
 pub(crate) fn render_function(
   ctx: &RenderContext,
-  doc_nodes: Vec<&crate::DocNode>,
+  doc_nodes: Vec<&DocNodeWithContext>,
 ) -> FunctionCtx {
   // TODO: this needs to be handled more gracefully on the frontend
   let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
@@ -141,7 +141,7 @@ pub(crate) fn render_function_summary(
 
 fn render_single_function(
   ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
   let function_def = doc_node.function_def.as_ref().unwrap();
@@ -152,8 +152,6 @@ fn render_single_function(
     .map(|def| def.name.as_str())
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
-
-  // TODO: tags
 
   let param_docs =
     doc_node
@@ -229,6 +227,7 @@ fn render_single_function(
         ctx,
         &id,
         &name,
+        None,
         &ts_type,
         tags,
         param_docs
@@ -249,21 +248,24 @@ fn render_single_function(
     sections.push(examples);
   }
 
-  if let Some(type_params) =
-    render_type_params(ctx, &function_def.type_params, &doc_node.location)
-  {
+  if let Some(type_params) = crate::html::types::render_type_params(
+    ctx,
+    &doc_node.js_doc,
+    &function_def.type_params,
+    &doc_node.location,
+  ) {
     sections.push(type_params);
   }
 
   if !params.is_empty() {
     sections.push(SectionCtx {
-      title: "Parameters",
+      title: "Parameters".to_string(),
       content: SectionContentCtx::DocEntry(params),
     });
   }
 
   sections.push(SectionCtx {
-    title: "Return Type",
+    title: "Return Type".to_string(),
     content: SectionContentCtx::DocEntry(
       render_function_return_type(ctx, function_def, doc_node, overload_id)
         .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
@@ -280,7 +282,7 @@ fn render_single_function(
 fn render_function_return_type(
   render_ctx: &RenderContext,
   def: &FunctionDef,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
@@ -299,6 +301,7 @@ fn render_function_return_type(
     render_ctx,
     &id,
     "",
+    None,
     &render_type_def(render_ctx, return_type),
     HashSet::new(),
     return_type_doc,

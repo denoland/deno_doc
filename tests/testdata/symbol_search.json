@@ -8,9 +8,9 @@
       "file": ".",
       "location": {
         "filename": "",
-        "line": 9,
+        "line": 25,
         "col": 0,
-        "byteIndex": 58
+        "byteIndex": 488
       },
       "declarationKind": "export",
       "deprecated": false
@@ -23,9 +23,9 @@
       "file": ".",
       "location": {
         "filename": "",
-        "line": 11,
+        "line": 31,
         "col": 0,
-        "byteIndex": 79
+        "byteIndex": 591
       },
       "declarationKind": "export",
       "deprecated": false
@@ -38,9 +38,24 @@
       "file": ".",
       "location": {
         "filename": "",
-        "line": 13,
+        "line": 34,
         "col": 0,
-        "byteIndex": 112
+        "byteIndex": 625
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        "interface"
+      ],
+      "name": "Hello",
+      "file": ".",
+      "location": {
+        "filename": "",
+        "line": 37,
+        "col": 0,
+        "byteIndex": 658
       },
       "declarationKind": "export",
       "deprecated": false

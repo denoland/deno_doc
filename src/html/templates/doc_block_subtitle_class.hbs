@@ -2,7 +2,7 @@
   <div>
     <span class="text-stone-400 italic"> implements </span>
     {{~#each implements~}}
-      {{{~this~}}}
+      {{{~this~}}} {{! typedef rendering }}
       {{~#unless @last~}}
         <span>, </span>
       {{~/unless~}}
@@ -15,12 +15,12 @@
     <span class="text-stone-400 italic"> extends </span>
     {{~#if href ~}}
       <a class="link" href="{{href}}">
-        {{{~symbol~}}}
+        {{~symbol~}}
       </a>
     {{~else~}}
-      <span>{{{symbol}}}</span>
+      <span>{{symbol}}</span>
     {{~/if~}}
-    <span>{{{type_args}}}</span>
+    <span>{{{type_args}}} {{! typedef rendering }}</span>
   </div>
 {{~else~}}
 {{~/with~}}

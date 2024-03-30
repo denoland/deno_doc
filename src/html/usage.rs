@@ -1,6 +1,6 @@
+use super::DocNodeWithContext;
 use super::RenderContext;
 use super::UrlResolveKind;
-use crate::DocNode;
 use crate::DocNodeKind;
 use serde::Serialize;
 
@@ -24,7 +24,7 @@ fn render_css_for_usage(name: &str) -> String {
 
 pub fn usage_to_md(
   ctx: &RenderContext,
-  doc_nodes: &[DocNode],
+  doc_nodes: &[DocNodeWithContext],
   url: &str,
 ) -> String {
   let usage = if let UrlResolveKind::Symbol { symbol, file } =
@@ -40,7 +40,12 @@ pub fn usage_to_md(
       parts[0].to_string()
     };
 
-    let usage_symbol = if parts.len() > 1 {
+    let usage_symbol = if doc_nodes
+      .iter()
+      .all(|node| node.drilldown_parent_kind.is_some())
+    {
+      None
+    } else if parts.len() > 1 {
       parts.pop().map(|usage_symbol| {
         (
           usage_symbol,
@@ -55,26 +60,31 @@ pub fn usage_to_md(
 
     let is_type = doc_nodes.iter().all(|doc_node| {
       matches!(
-        doc_node.kind,
+        doc_node.drilldown_parent_kind.unwrap_or(doc_node.kind),
         DocNodeKind::TypeAlias | DocNodeKind::Interface
       )
     });
 
     let mut usage_statement = if is_default {
       format!(
-        r#"import {}{import_symbol} from "{url}";"#,
-        if is_type { "type " } else { "" }
+        r#"import {}{} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_safe(&import_symbol),
       )
     } else {
       format!(
-        r#"import {{ {}{import_symbol} }} from "{url}";"#,
-        if is_type { "type " } else { "" }
+        r#"import {{ {}{} }} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_safe(&import_symbol),
       )
     };
 
     if let Some((usage_symbol, local_var)) = usage_symbol {
-      usage_statement
-        .push_str(&format!("\nconst {{ {usage_symbol} }} = {local_var};"));
+      usage_statement.push_str(&format!(
+        "\n{} {{ {} }} = {local_var};",
+        if is_type { "type" } else { "const" },
+        html_escape::encode_safe(usage_symbol),
+      ));
     }
 
     usage_statement
@@ -103,7 +113,10 @@ pub struct UsageCtx {
 }
 
 impl UsagesCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode]) -> Option<Self> {
+  pub fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+  ) -> Option<Self> {
     let url = ctx.ctx.href_resolver.resolve_usage(
       ctx.get_current_specifier()?,
       ctx.get_current_resolve().get_file(),

@@ -2,10 +2,10 @@ use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
-use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
@@ -37,8 +37,13 @@ pub struct SymbolGroupCtx {
 }
 
 impl SymbolGroupCtx {
-  pub fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Self {
-    let mut split_nodes = IndexMap::<DocNodeKind, Vec<DocNode>>::default();
+  pub fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+    name: &str,
+  ) -> Self {
+    let mut split_nodes =
+      IndexMap::<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
       if doc_node.kind == DocNodeKind::Import {
@@ -46,7 +51,7 @@ impl SymbolGroupCtx {
       }
 
       split_nodes
-        .entry(doc_node.kind)
+        .entry(doc_node.kind_with_drilldown)
         .or_insert(vec![])
         .push(doc_node.clone());
     }
@@ -115,7 +120,7 @@ impl SymbolGroupCtx {
 
         SymbolCtx {
           tags,
-          kind: doc_nodes[0].kind.into(),
+          kind: doc_nodes[0].kind_with_drilldown.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
           source_href: ctx
@@ -156,7 +161,7 @@ enum DocBlockSubtitleCtx {
 }
 
 impl DocBlockSubtitleCtx {
-  fn new(ctx: &RenderContext, doc_node: &DocNode) -> Option<Self> {
+  fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
     if matches!(
       doc_node.kind,
       DocNodeKind::Function
@@ -195,7 +200,7 @@ impl DocBlockSubtitleCtx {
       if let Some(extends) = class_def.extends.as_ref() {
         class_extends = Some(DocBlockClassSubtitleExtendsCtx {
           href: ctx.lookup_symbol_href(extends),
-          symbol: extends.to_owned(),
+          symbol: html_escape::encode_safe(extends).into_owned(),
           type_args: super::types::type_arguments(
             ctx,
             &class_def.super_type_params,
@@ -251,7 +256,11 @@ pub enum SymbolInnerCtx {
 }
 
 impl SymbolInnerCtx {
-  fn new(ctx: &RenderContext, doc_nodes: &[DocNode], name: &str) -> Vec<Self> {
+  fn new(
+    ctx: &RenderContext,
+    doc_nodes: &[DocNodeWithContext],
+    name: &str,
+  ) -> Vec<Self> {
     let mut content_parts = Vec::with_capacity(doc_nodes.len());
     let mut functions = vec![];
 
@@ -273,11 +282,7 @@ impl SymbolInnerCtx {
           let namespace_nodes = namespace_def
             .elements
             .iter()
-            .map(|node| DocNodeWithContext {
-              doc_node: node,
-              ns_qualifiers: std::rc::Rc::new(vec![]),
-              origin: None,
-            })
+            .map(|element| doc_node.create_child(element.clone()))
             .collect::<Vec<_>>();
 
           let partitions =

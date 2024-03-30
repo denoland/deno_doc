@@ -3,12 +3,16 @@ use super::util::*;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
-use crate::DocNode;
 use crate::DocNodeKind;
+use comrak::nodes::Ast;
+use comrak::nodes::AstNode;
+use comrak::nodes::NodeHtmlBlock;
+use comrak::nodes::NodeValue;
+use comrak::Arena;
 use deno_ast::ModuleSpecifier;
-use indexmap::IndexMap;
 use serde::Serialize;
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::cmp::Ordering;
 
 #[cfg(feature = "ammonia")]
@@ -95,6 +99,148 @@ impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
   }
 }
 
+enum Alert {
+  Note,
+  Tip,
+  Important,
+  Warning,
+  Caution,
+}
+
+fn match_node_value<'a>(
+  arena: &'a Arena<AstNode<'a>>,
+  node: &'a AstNode<'a>,
+  options: &comrak::Options,
+  plugins: &comrak::Plugins,
+) {
+  match &node.data.borrow().value {
+    NodeValue::BlockQuote => {
+      if let Some(paragraph_child) = node.first_child() {
+        if paragraph_child.data.borrow().value == NodeValue::Paragraph {
+          let alert = paragraph_child.first_child().and_then(|text_child| {
+            if let NodeValue::Text(text) = &text_child.data.borrow().value {
+              match text.as_str() {
+                "[!NOTE]" => Some(Alert::Note),
+                "[!TIP]" => Some(Alert::Tip),
+                "[!IMPORTANT]" => Some(Alert::Important),
+                "[!WARNING]" => Some(Alert::Warning),
+                "[!CAUTION]" => Some(Alert::Caution),
+                _ => None,
+              }
+            } else {
+              None
+            }
+          });
+
+          if let Some(alert) = alert {
+            let start_col = node.data.borrow().sourcepos.start;
+
+            let document = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+              NodeValue::Document,
+              start_col,
+            ))));
+
+            let node_without_alert = arena.alloc(AstNode::new(RefCell::new(
+              Ast::new(NodeValue::Paragraph, start_col),
+            )));
+
+            for child_node in paragraph_child.children().skip(1) {
+              node_without_alert.append(child_node);
+            }
+
+            document.append(node_without_alert);
+
+            let html = render_node(document, options, plugins);
+
+            let alert_title = match alert {
+              Alert::Note => format!(
+                "{}Note",
+                include_str!("./templates/icons/info-circle.svg")
+              ),
+              Alert::Tip => {
+                format!("{}Tip", include_str!("./templates/icons/bulb.svg"))
+              }
+              Alert::Important => format!(
+                "{}Important",
+                include_str!("./templates/icons/warning-message.svg")
+              ),
+              Alert::Warning => format!(
+                "{}Warning",
+                include_str!("./templates/icons/warning-triangle.svg")
+              ),
+              Alert::Caution => format!(
+                "{}Caution",
+                include_str!("./templates/icons/warning-octagon.svg")
+              ),
+            };
+
+            let html = format!(
+              r#"<div class="alert alert-{}"><div>{alert_title}</div><div>{html}</div></div>"#,
+              match alert {
+                Alert::Note => "note",
+                Alert::Tip => "tip",
+                Alert::Important => "important",
+                Alert::Warning => "warning",
+                Alert::Caution => "caution",
+              }
+            );
+
+            let alert_node = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+              NodeValue::HtmlBlock(NodeHtmlBlock {
+                block_type: 6,
+                literal: html,
+              }),
+              start_col,
+            ))));
+            node.insert_before(alert_node);
+            node.detach();
+          }
+        }
+      }
+    }
+    NodeValue::Link(link) => {
+      if link.url.ends_with(".mov") || link.url.ends_with(".mp4") {
+        let start_col = node.data.borrow().sourcepos.start;
+
+        let html = format!(r#"<video src="{}" controls></video>"#, link.url);
+
+        let alert_node = arena.alloc(AstNode::new(RefCell::new(Ast::new(
+          NodeValue::HtmlBlock(NodeHtmlBlock {
+            block_type: 6,
+            literal: html,
+          }),
+          start_col,
+        ))));
+        node.insert_before(alert_node);
+        node.detach();
+      }
+    }
+    _ => {}
+  }
+}
+
+fn walk_node<'a>(
+  arena: &'a Arena<AstNode<'a>>,
+  node: &'a AstNode<'a>,
+  options: &comrak::Options,
+  plugins: &comrak::Plugins,
+) {
+  for child in node.children() {
+    match_node_value(arena, child, options, plugins);
+    walk_node(arena, child, options, plugins);
+  }
+}
+
+fn render_node<'a>(
+  node: &'a AstNode<'a>,
+  options: &comrak::Options,
+  plugins: &comrak::Plugins,
+) -> String {
+  let mut bw = std::io::BufWriter::new(Vec::new());
+  comrak::format_html_with_plugins(node, options, &mut bw, plugins).unwrap();
+  String::from_utf8(bw.into_inner().unwrap()).unwrap()
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct Markdown {
   pub html: String,
@@ -147,7 +293,17 @@ pub fn markdown_to_html(
     "markdown"
   };
 
-  let mut html = comrak::markdown_to_html_with_plugins(md, &options, &plugins);
+  let mut html = {
+    let arena = Arena::new();
+    let root = comrak::parse_document(&arena, md, &options);
+
+    walk_node(&arena, root, &options, &plugins);
+
+    let mut bw = std::io::BufWriter::new(Vec::new());
+    comrak::format_html_with_plugins(root, &options, &mut bw, &plugins)
+      .unwrap();
+    String::from_utf8(bw.into_inner().unwrap()).unwrap()
+  };
 
   #[cfg(feature = "ammonia")]
   {
@@ -159,7 +315,17 @@ pub fn markdown_to_html(
       .add_tag_attributes("button", ["data-copy"])
       .add_tag_attributes(
         "svg",
-        ["width", "height", "viewBox", "fill", "xmlns"],
+        [
+          "width",
+          "height",
+          "viewBox",
+          "fill",
+          "xmlns",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
       )
       .add_tag_attributes(
         "path",
@@ -174,8 +340,20 @@ pub fn markdown_to_html(
           "stroke-linejoin",
         ],
       )
+      .add_tag_attributes("video", ["src", "controls"])
       .add_allowed_classes("pre", ["highlight"])
       .add_allowed_classes("button", ["context_button"])
+      .add_allowed_classes(
+        "div",
+        [
+          "alert",
+          "alert-note",
+          "alert-tip",
+          "alert-important",
+          "alert-warning",
+          "alert-caution",
+        ],
+      )
       .link_rel(Some("nofollow"))
       .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
         ammonia::UrlRelative::PassThrough,
@@ -289,7 +467,7 @@ pub(crate) fn jsdoc_examples(
 
   if !examples.is_empty() {
     Some(SectionCtx {
-      title: "Examples",
+      title: "Examples".to_string(),
       content: SectionContentCtx::Example(examples),
     })
   } else {
@@ -341,7 +519,7 @@ impl ModuleDocCtx {
   pub fn new(
     render_ctx: &RenderContext,
     specifier: &ModuleSpecifier,
-    doc_nodes_by_url: &IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: &super::ContextDocNodesByUrl,
   ) -> Self {
     let module_doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
 
@@ -391,19 +569,8 @@ impl ModuleDocCtx {
       .as_ref()
       .is_some_and(|main_entrypoint| main_entrypoint == specifier)
     {
-      let module_doc_nodes_with_context = module_doc_nodes
-        .iter()
-        .map(|node| crate::html::DocNodeWithContext {
-          origin: None,
-          ns_qualifiers: std::rc::Rc::new(vec![]),
-          doc_node: node,
-        })
-        .collect::<Vec<_>>();
-
-      let partitions_by_kind = super::partition::partition_nodes_by_kind(
-        &module_doc_nodes_with_context,
-        true,
-      );
+      let partitions_by_kind =
+        super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,

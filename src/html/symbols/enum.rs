@@ -1,10 +1,11 @@
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use crate::html::DocNodeWithContext;
 
 pub(crate) fn render_enum(
   render_ctx: &RenderContext,
-  doc_node: &crate::DocNode,
+  doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
   let mut members = doc_node.enum_def.as_ref().unwrap().members.clone();
 
@@ -23,7 +24,8 @@ pub(crate) fn render_enum(
       DocEntryCtx::new(
         render_ctx,
         &id,
-        &member.name,
+        &html_escape::encode_safe(&member.name),
+        None,
         &member
           .init
           .as_ref()
@@ -37,7 +39,7 @@ pub(crate) fn render_enum(
     .collect::<Vec<DocEntryCtx>>();
 
   vec![SectionCtx {
-    title: "Members",
+    title: "Members".to_string(),
     content: SectionContentCtx::DocEntry(items),
   }]
 }
