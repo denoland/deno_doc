@@ -82,6 +82,8 @@ Deno.test({
 
 Deno.test({
   name: "doc() - missing specifier",
+  // TODO(@kitsonk) - remove when new deno_graph crate published
+  sanitizeResources: false,
   fn() {
     return assertThrowsAsync(
       async () => {
