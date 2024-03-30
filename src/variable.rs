@@ -106,7 +106,8 @@ pub fn get_docs_for_var_declarator(
       &mut items,
       module_info.source(),
     ),
-    _ => (),
+    Pat::Expr(_) | Pat::Invalid(_) => {}
+    Pat::Assign(_) | Pat::Rest(_) => unreachable!(),
   }
   items
 }
@@ -118,60 +119,76 @@ fn get_vars_from_obj_destructuring(
   items: &mut Vec<(String, VariableDef)>,
   source: &ParsedSource,
 ) {
-  {
-    let mut reached_rest = false;
-    for prop in &obj.props {
-      assert!(!reached_rest, "object rest is always last");
-      let (name, reassign_name, rest_type_ann) = match prop {
-        deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
-          crate::params::prop_name_to_string(source, &kv.key),
-          match &*kv.value {
-            Pat::Ident(ident) => Some(ident.sym.to_string()),
-            Pat::Array(_)
-            | Pat::Rest(_)
-            | Pat::Object(_)
-            | Pat::Assign(_)
-            | Pat::Invalid(_)
-            | Pat::Expr(_) => None, // TODO(@crowlKats): cover other cases?
+  let mut reached_rest = false;
+  for prop in &obj.props {
+    assert!(!reached_rest, "object rest is always last");
+    let (name, reassign_name, rest_type_ann) = match prop {
+      deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
+        crate::params::prop_name_to_string(source, &kv.key),
+        match &*kv.value {
+          Pat::Ident(ident) => Some(ident.sym.to_string()),
+          Pat::Assign(assign) => {
+            let name = match &*assign.left {
+              Pat::Ident(ident) => ident.sym.to_string(),
+              Pat::Rest(_) => unreachable!("assign cannot have rest"),
+              Pat::Assign(_) => unreachable!("rest cannot have assign"),
+              Pat::Array(_) | Pat::Object(_) => {
+                continue; // TODO(@crowlKats): implement recursive destructuring
+              }
+              Pat::Invalid(_) | Pat::Expr(_) => continue,
+            };
+
+            Some(name)
+          }
+          Pat::Array(_) | Pat::Object(_) => {
+            continue; // TODO(@crowlKats): implement recursive destructuring
+          }
+          Pat::Rest(_) | Pat::Invalid(_) | Pat::Expr(_) => {
+            continue;
+          }
+        },
+        None,
+      ),
+      deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
+        (assign.key.sym.to_string(), None, None)
+      }
+      deno_ast::swc::ast::ObjectPatProp::Rest(rest) => {
+        reached_rest = true;
+
+        (
+          match &*rest.arg {
+            Pat::Ident(ident) => ident.sym.to_string(),
+            Pat::Rest(_) => unreachable!("rest cannot have rest"),
+            Pat::Assign(_) => unreachable!("rest cannot have assign"),
+            Pat::Array(_) | Pat::Object(_) => {
+              continue; // TODO(@crowlKats): implement recursive destructuring
+            }
+            Pat::Invalid(_) | Pat::Expr(_) => continue,
           },
           None,
-        ),
-        deno_ast::swc::ast::ObjectPatProp::Assign(assign) => {
-          (assign.key.sym.to_string(), None, None)
-        }
-        deno_ast::swc::ast::ObjectPatProp::Rest(rest) => {
-          reached_rest = true;
+          rest.type_ann.as_ref(),
+        )
+      }
+    };
 
-          (
-            match &*rest.arg {
-              Pat::Ident(ident) => ident.sym.to_string(),
-              _ => continue, // TODO(@crowlKats): cover other cases?
-            },
-            None,
-            rest.type_ann.as_ref(),
-          )
-        }
-      };
-
-      let ts_type = if !reached_rest {
-        maybe_ts_type.as_ref().and_then(|ts_type| {
-          ts_type.type_literal.as_ref().and_then(|type_literal| {
-            type_literal.properties.iter().find_map(|property| {
-              if property.name == name {
-                property.ts_type.clone()
-              } else {
-                None
-              }
-            })
+    let ts_type = if !reached_rest {
+      maybe_ts_type.as_ref().and_then(|ts_type| {
+        ts_type.type_literal.as_ref().and_then(|type_literal| {
+          type_literal.properties.iter().find_map(|property| {
+            if property.name == name {
+              property.ts_type.clone()
+            } else {
+              None
+            }
           })
         })
-      } else {
-        rest_type_ann.map(|type_ann| TsTypeDef::new(source, &type_ann.type_ann))
-      };
+      })
+    } else {
+      rest_type_ann.map(|type_ann| TsTypeDef::new(source, &type_ann.type_ann))
+    };
 
-      let variable_def = VariableDef { ts_type, kind };
-      items.push((reassign_name.unwrap_or(name), variable_def));
-    }
+    let variable_def = VariableDef { ts_type, kind };
+    items.push((reassign_name.unwrap_or(name), variable_def));
   }
 }
 
@@ -196,13 +213,33 @@ fn get_vars_from_array_destructuring(
         (
           match &*rest.arg {
             Pat::Ident(ident) => ident.sym.to_string(),
-            _ => continue, // TODO(@crowlKats): cover other cases?
+            Pat::Rest(_) => unreachable!("rest cannot have rest"),
+            Pat::Assign(_) => unreachable!("rest cannot have assign"),
+            Pat::Array(_) | Pat::Object(_) => {
+              continue; // TODO(@crowlKats): implement recursive destructuring
+            }
+            Pat::Invalid(_) | Pat::Expr(_) => continue,
           },
           rest.type_ann.as_ref(),
         )
       }
-      // TODO(@crowlKats): maybe handle assign pat?
-      _ => continue,
+      Pat::Assign(assign) => {
+        let name = match &*assign.left {
+          Pat::Ident(ident) => ident.sym.to_string(),
+          Pat::Rest(_) => unreachable!("assign cannot have rest"),
+          Pat::Assign(_) => unreachable!("rest cannot have assign"),
+          Pat::Array(_) | Pat::Object(_) => {
+            continue; // TODO(@crowlKats): implement recursive destructuring
+          }
+          Pat::Invalid(_) | Pat::Expr(_) => continue,
+        };
+
+        (name, None)
+      }
+      Pat::Array(_) | Pat::Object(_) => {
+        continue; // TODO(@crowlKats): implement recursive destructuring
+      }
+      Pat::Invalid(_) | Pat::Expr(_) => continue,
     };
 
     let ts_type = if !reached_rest {
