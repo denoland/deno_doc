@@ -5,6 +5,7 @@ export let b = false;
 export let bi = 100n;
 export let re = /hello/;
 export let tpl = `foobar`;
+export let complexTpl = `f${true ? "a" : 1}${true ? "b" : null}o${"c"}${1}o`;
 
 export function test() {
   console.log("hello");
@@ -98,163 +99,170 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:8:1
+ --> /mod.ts:7:12
   | 
-8 | export function test() {
+7 | export let complexTpl = `f${true ? "a" : 1}${true ? "b" : null}o${"c"}${1}o`;
+  |            ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:9:1
+  | 
+9 | export function test() {
   | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:12:1
+  --> /mod.ts:13:1
    | 
-12 | export async function testAsync() {
+13 | export async function testAsync() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:16:1
+  --> /mod.ts:17:1
    | 
-16 | export function cannotInfer() {
-   | ^
-
-
-error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:16:1
-   | 
-16 | export function cannotInfer() {
-   | ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:22:1
-   | 
-22 | export async function cannotInferAsync() {
+17 | export function cannotInfer() {
    | ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:22:1
+  --> /mod.ts:17:1
    | 
-22 | export async function cannotInferAsync() {
+17 | export function cannotInfer() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:28:1
+  --> /mod.ts:23:1
    | 
-28 | export function* cannotInferGenerator() {
+23 | export async function cannotInferAsync() {
    | ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:28:1
+  --> /mod.ts:23:1
    | 
-28 | export function* cannotInferGenerator() {
+23 | export async function cannotInferAsync() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:31:1
+  --> /mod.ts:29:1
    | 
-31 | export class MyClass {
+29 | export function* cannotInferGenerator() {
+   | ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:29:1
+   | 
+29 | export function* cannotInferGenerator() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:32:3
+  --> /mod.ts:32:1
    | 
-32 |   infer() {
-   |   ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:34:3
-   | 
-34 |   async inferAync() {
-   |   ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:37:3
-   | 
-37 |   cannotInfer() {
-   |   ^
-
-
-error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:37:3
-   | 
-37 |   cannotInfer() {
-   |   ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:43:3
-   | 
-43 |   async cannotInferAsync() {
-   |   ^
-
-
-error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:43:3
-   | 
-43 |   async cannotInferAsync() {
-   |   ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:47:3
-   | 
-47 |   *cannotInferGenerator() {
-   |   ^
-
-
-error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:47:3
-   | 
-47 |   *cannotInferGenerator() {
-   |   ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:51:1
-   | 
-51 | export namespace MyNamespace {
+32 | export class MyClass {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:53:3
+  --> /mod.ts:33:3
    | 
-53 |   declare function cannotInfer();
+33 |   infer() {
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:35:3
+   | 
+35 |   async inferAync() {
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:38:3
+   | 
+38 |   cannotInfer() {
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
-  --> /mod.ts:53:3
+  --> /mod.ts:38:3
    | 
-53 |   declare function cannotInfer();
+38 |   cannotInfer() {
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:44:3
+   | 
+44 |   async cannotInferAsync() {
+   |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:44:3
+   | 
+44 |   async cannotInferAsync() {
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:48:3
+   | 
+48 |   *cannotInferGenerator() {
+   |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:48:3
+   | 
+48 |   *cannotInferGenerator() {
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:52:1
+   | 
+52 | export namespace MyNamespace {
+   | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:54:3
+   | 
+54 |   declare function cannotInfer();
+   |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:54:3
+   | 
+54 |   declare function cannotInfer();
    |   ^
 
 
 # output.txt
-Defined in file:///mod.ts:16:1
+Defined in file:///mod.ts:17:1
 
 function cannotInfer()
 
-Defined in file:///mod.ts:22:1
+Defined in file:///mod.ts:23:1
 
 async function cannotInferAsync()
 
-Defined in file:///mod.ts:28:1
+Defined in file:///mod.ts:29:1
 
 function* cannotInferGenerator()
 
-Defined in file:///mod.ts:8:1
+Defined in file:///mod.ts:9:1
 
 function test(): void
 
-Defined in file:///mod.ts:12:1
+Defined in file:///mod.ts:13:1
 
 async function testAsync(): Promise<void>
 
@@ -265,6 +273,10 @@ let b: boolean
 Defined in file:///mod.ts:4:12
 
 let bi: bigint
+
+Defined in file:///mod.ts:7:12
+
+let complexTpl: `f${string | number}${string | null}o${string}${number}o`
 
 Defined in file:///mod.ts:2:12
 
@@ -280,9 +292,9 @@ let s: string
 
 Defined in file:///mod.ts:6:12
 
-let tpl: string
+let tpl: `foobar`
 
-Defined in file:///mod.ts:31:1
+Defined in file:///mod.ts:32:1
 
 class MyClass
 
@@ -292,7 +304,7 @@ class MyClass
   async cannotInferAsync()
   *cannotInferGenerator()
 
-Defined in file:///mod.ts:51:1
+Defined in file:///mod.ts:52:1
 
 namespace MyNamespace
 
@@ -411,9 +423,126 @@ namespace MyNamespace
     "declarationKind": "export",
     "variableDef": {
       "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
+        "repr": "foobar",
+        "kind": "literal",
+        "literal": {
+          "kind": "template",
+          "tsTypes": [
+            {
+              "repr": "foobar",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "foobar"
+              }
+            }
+          ]
+        }
+      },
+      "kind": "let"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "complexTpl",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 7,
+      "col": 11,
+      "byteIndex": 151
+    },
+    "declarationKind": "export",
+    "variableDef": {
+      "tsType": {
+        "repr": "f${string | number}${string | null}o${string}${number}o",
+        "kind": "literal",
+        "literal": {
+          "kind": "template",
+          "tsTypes": [
+            {
+              "repr": "f",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "f"
+              }
+            },
+            {
+              "repr": "",
+              "kind": "union",
+              "union": [
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                },
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              ]
+            },
+            {
+              "repr": "",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": ""
+              }
+            },
+            {
+              "repr": "",
+              "kind": "union",
+              "union": [
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                },
+                {
+                  "repr": "null",
+                  "kind": "keyword",
+                  "keyword": "null"
+                }
+              ]
+            },
+            {
+              "repr": "o",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "o"
+              }
+            },
+            {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            },
+            {
+              "repr": "",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": ""
+              }
+            },
+            {
+              "repr": "number",
+              "kind": "keyword",
+              "keyword": "number"
+            },
+            {
+              "repr": "o",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "o"
+              }
+            }
+          ]
+        }
       },
       "kind": "let"
     }
@@ -423,9 +552,9 @@ namespace MyNamespace
     "name": "test",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 8,
+      "line": 9,
       "col": 0,
-      "byteIndex": 141
+      "byteIndex": 219
     },
     "declarationKind": "export",
     "functionDef": {
@@ -446,9 +575,9 @@ namespace MyNamespace
     "name": "testAsync",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 12,
+      "line": 13,
       "col": 0,
-      "byteIndex": 193
+      "byteIndex": 271
     },
     "declarationKind": "export",
     "functionDef": {
@@ -478,9 +607,9 @@ namespace MyNamespace
     "name": "cannotInfer",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 16,
+      "line": 17,
       "col": 0,
-      "byteIndex": 260
+      "byteIndex": 338
     },
     "declarationKind": "export",
     "functionDef": {
@@ -497,9 +626,9 @@ namespace MyNamespace
     "name": "cannotInferAsync",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 22,
+      "line": 23,
       "col": 0,
-      "byteIndex": 337
+      "byteIndex": 415
     },
     "declarationKind": "export",
     "functionDef": {
@@ -516,9 +645,9 @@ namespace MyNamespace
     "name": "cannotInferGenerator",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 28,
+      "line": 29,
       "col": 0,
-      "byteIndex": 447
+      "byteIndex": 525
     },
     "declarationKind": "export",
     "functionDef": {
@@ -535,9 +664,9 @@ namespace MyNamespace
     "name": "MyClass",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 31,
+      "line": 32,
       "col": 0,
-      "byteIndex": 492
+      "byteIndex": 570
     },
     "declarationKind": "export",
     "classDef": {
@@ -567,9 +696,9 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 32,
+            "line": 33,
             "col": 2,
-            "byteIndex": 517
+            "byteIndex": 595
           }
         },
         {
@@ -602,9 +731,9 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 34,
+            "line": 35,
             "col": 2,
-            "byteIndex": 533
+            "byteIndex": 611
           }
         },
         {
@@ -624,9 +753,9 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 37,
+            "line": 38,
             "col": 2,
-            "byteIndex": 560
+            "byteIndex": 638
           }
         },
         {
@@ -646,9 +775,9 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 43,
+            "line": 44,
             "col": 2,
-            "byteIndex": 650
+            "byteIndex": 728
           }
         },
         {
@@ -668,9 +797,9 @@ namespace MyNamespace
           },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 47,
+            "line": 48,
             "col": 2,
-            "byteIndex": 714
+            "byteIndex": 792
           }
         }
       ],
@@ -685,9 +814,9 @@ namespace MyNamespace
     "name": "MyNamespace",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 51,
+      "line": 52,
       "col": 0,
-      "byteIndex": 747
+      "byteIndex": 825
     },
     "declarationKind": "export",
     "namespaceDef": {
@@ -697,9 +826,9 @@ namespace MyNamespace
           "name": "cannotInfer",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 53,
+            "line": 54,
             "col": 2,
-            "byteIndex": 831
+            "byteIndex": 909
           },
           "declarationKind": "declare",
           "functionDef": {

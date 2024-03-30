@@ -17,8 +17,6 @@ use crate::ParamDef;
 
 use deno_ast::swc::ast::*;
 use deno_ast::ParsedSource;
-use deno_ast::SourceRange;
-use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -30,9 +28,15 @@ impl TsTypeDef {
     match &other.lit {
       TsLit::Number(num) => TsTypeDef::number_literal(num),
       TsLit::Str(str_) => TsTypeDef::string_literal(str_),
-      TsLit::Tpl(tpl) => {
-        TsTypeDef::tpl_literal(parsed_source, &tpl.types, &tpl.quasis)
-      }
+      TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(
+        parsed_source,
+        tpl
+          .types
+          .iter()
+          .map(|types| TsTypeDef::new(parsed_source, types))
+          .collect::<Vec<_>>(),
+        &tpl.quasis,
+      ),
       TsLit::Bool(bool_) => TsTypeDef::bool_literal(bool_),
       TsLit::BigInt(bigint_) => TsTypeDef::bigint_literal(bigint_),
     }
@@ -1128,49 +1132,6 @@ impl Display for TsTypePredicateDef {
   }
 }
 
-fn get_range_from_type(ts_type: &TsType) -> SourceRange {
-  use deno_ast::swc::ast::TsType::*;
-
-  match ts_type {
-    TsArrayType(ref t) => get_range_from_type(t.elem_type.as_ref()),
-    TsConditionalType(ref t) => get_range_from_type(t.check_type.as_ref()),
-    TsFnOrConstructorType(ref t) => {
-      if let Some(t) = t.clone().ts_constructor_type() {
-        t.range()
-      } else if let Some(t) = t.clone().ts_fn_type() {
-        t.range()
-      } else {
-        unreachable!("no type found")
-      }
-    }
-    TsImportType(ref t) => t.range(),
-    TsIndexedAccessType(ref t) => get_range_from_type(&t.index_type),
-    TsInferType(t) => t.range(),
-    TsKeywordType(t) => t.range(),
-    TsLitType(t) => t.range(),
-    TsMappedType(t) => t.range(),
-    TsOptionalType(t) => t.range(),
-    TsParenthesizedType(t) => t.range(),
-    TsRestType(t) => t.range(),
-    TsThisType(t) => t.range(),
-    TsTupleType(t) => t.range(),
-    TsTypeLit(t) => t.range(),
-    TsTypeOperator(t) => t.range(),
-    TsTypePredicate(t) => t.range(),
-    TsTypeQuery(t) => t.range(),
-    TsTypeRef(t) => t.range(),
-    TsUnionOrIntersectionType(t) => {
-      if let Some(t) = t.clone().ts_intersection_type() {
-        t.range()
-      } else if let Some(t) = t.clone().ts_union_type() {
-        t.range()
-      } else {
-        unreachable!("no type found")
-      }
-    }
-  }
-}
-
 impl TsTypeDef {
   pub fn number_literal(num: &Number) -> Self {
     Self::number_value(num.value)
@@ -1205,16 +1166,16 @@ impl TsTypeDef {
   }
 
   pub fn tpl_literal(
-    parsed_source: &ParsedSource,
-    types: &[Box<TsType>],
+    _parsed_source: &ParsedSource,
+    types: Vec<TsTypeDef>,
     quasis: &[TplElement],
   ) -> Self {
-    let mut ts_types: Vec<(SourceRange, Self, String)> = Vec::new();
+    let mut types_out: Vec<(Self, String)> = Vec::new();
     for ts_type in types {
-      let t = TsTypeDef::new(parsed_source, ts_type);
-      let repr = format!("${{{}}}", t);
-      ts_types.push((get_range_from_type(ts_type), t, repr))
+      let repr = format!("${{{}}}", ts_type);
+      types_out.push((ts_type, repr))
     }
+    let mut qasis_out: Vec<(Self, String)> = Vec::new();
     for quasi in quasis {
       let repr = quasi.raw.to_string();
       let lit = LiteralDef {
@@ -1224,15 +1185,22 @@ impl TsTypeDef {
         ts_types: None,
         boolean: None,
       };
-      ts_types.push((quasi.range(), Self::literal(repr.clone(), lit), repr));
+      qasis_out.push((Self::literal(repr.clone(), lit), repr));
     }
-    ts_types.sort_by(|(a, _, _), (b, _, _)| a.cmp(b));
-    let repr = ts_types
-      .iter()
-      .map(|(_, _, s)| s.as_str())
-      .collect::<Vec<&str>>()
-      .join("");
-    let ts_types = Some(ts_types.into_iter().map(|(_, t, _)| t).collect());
+
+    let mut out = vec![];
+
+    let mut types_iter = types_out.into_iter();
+
+    for quasi in qasis_out {
+      out.push(quasi);
+      if let Some(ts_type) = types_iter.next() {
+        out.push(ts_type);
+      }
+    }
+
+    let repr = out.iter().map(|(_, s)| s.as_str()).collect::<String>();
+    let ts_types = Some(out.into_iter().map(|(t, _)| t).collect());
     let lit = LiteralDef {
       kind: LiteralDefKind::Template,
       number: None,
@@ -1815,11 +1783,14 @@ fn infer_ts_type_from_tpl(
   tpl: &Tpl,
   is_const: bool,
 ) -> TsTypeDef {
-  // TODO(@kitsonk) we should iterate over the expr and if each expr has a
-  // ts_type or can be trivially inferred, it should be passed to the
-  // tp_literal
-  if tpl.quasis.len() == 1 && is_const {
-    TsTypeDef::tpl_literal(parsed_source, &[], &tpl.quasis)
+  let exprs = tpl
+    .exprs
+    .iter()
+    .map(|expr| infer_ts_type_from_expr(parsed_source, expr, is_const))
+    .collect::<Option<Vec<_>>>();
+
+  if let Some(exprs) = exprs {
+    TsTypeDef::tpl_literal(parsed_source, exprs, &tpl.quasis)
   } else {
     TsTypeDef::string_with_repr("string")
   }

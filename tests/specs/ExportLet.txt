@@ -84,7 +84,7 @@ let sym: symbol
 
 Defined in file:///mod.ts:7:12
 
-let tpl: string
+let tpl: `foobarbaz`
 
 
 # output.json
@@ -218,9 +218,21 @@ let tpl: string
     "declarationKind": "export",
     "variableDef": {
       "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
+        "repr": "foobarbaz",
+        "kind": "literal",
+        "literal": {
+          "kind": "template",
+          "tsTypes": [
+            {
+              "repr": "foobarbaz",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "foobarbaz"
+              }
+            }
+          ]
+        }
       },
       "kind": "let"
     }
