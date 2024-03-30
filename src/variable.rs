@@ -38,7 +38,7 @@ pub fn get_docs_for_var_declarator(
     Pat::Ident(ident) => ident.type_ann.as_ref(),
     Pat::Object(pat) => pat.type_ann.as_ref(),
     Pat::Array(pat) => pat.type_ann.as_ref(),
-    _ => None,
+    Pat::Invalid(_) | Pat::Expr(_) | Pat::Rest(_) | Pat::Assign(_) => None,
   };
   let maybe_ts_type = maybe_ts_type_ann
     .map(|def| TsTypeDef::new(module_info.source(), &def.type_ann))
@@ -106,8 +106,7 @@ pub fn get_docs_for_var_declarator(
       &mut items,
       module_info.source(),
     ),
-    Pat::Expr(_) | Pat::Invalid(_) => {}
-    Pat::Assign(_) | Pat::Rest(_) => unreachable!(),
+    Pat::Expr(_) | Pat::Invalid(_) | Pat::Assign(_) | Pat::Rest(_) => {}
   }
   items
 }
