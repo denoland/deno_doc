@@ -37,7 +37,7 @@ pub(crate) fn render_type_def(
       {
         format!(
           r#"<a href="{}" class="link">{keyword}</a>"#,
-          html_escape::encode_quoted_attribute(&href),
+          html_escape::encode_double_quoted_attribute(&href),
         )
       } else {
         format!("<span>{keyword}</span>")
@@ -93,7 +93,7 @@ pub(crate) fn render_type_def(
       let name = if let Some(href) = href {
         format!(
           r#"<a href="{}" class="link">{}</a>"#,
-          html_escape::encode_quoted_attribute(&href),
+          html_escape::encode_double_quoted_attribute(&href),
           html_escape::encode_text(&type_ref.type_name)
         )
       } else {
@@ -149,7 +149,7 @@ pub(crate) fn render_type_def(
       if let Some(href) = ctx.lookup_symbol_href(query) {
         format!(
           r#"<a href="{}" class="link">{}</a>"#,
-          html_escape::encode_quoted_attribute(&href),
+          html_escape::encode_double_quoted_attribute(&href),
           html_escape::encode_text(query),
         )
       } else {

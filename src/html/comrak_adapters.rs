@@ -75,7 +75,7 @@ impl HighlightAdapter {
     write!(
       output,
       r#"<button class="context_button" data-copy="{}">{}</button>"#,
-      html_escape::encode_quoted_attribute(source),
+      html_escape::encode_double_quoted_attribute(source),
       include_str!("./templates/icons/copy.svg")
     )?;
     write!(output, "<code>")

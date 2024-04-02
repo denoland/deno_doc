@@ -64,8 +64,10 @@ fn doc_node_into_search_index_nodes(
     return vec![SearchIndexNode {
       kind: kinds,
       name,
-      file: html_escape::encode_quoted_attribute(doc_nodes[0].origin.as_str())
-        .into_owned(),
+      file: html_escape::encode_double_quoted_attribute(
+        doc_nodes[0].origin.as_str(),
+      )
+      .into_owned(),
       location,
       declaration_kind: doc_nodes[0].declaration_kind,
       deprecated,
@@ -93,8 +95,10 @@ fn doc_node_into_search_index_nodes(
   nodes.push(SearchIndexNode {
     kind: kinds,
     name,
-    file: html_escape::encode_quoted_attribute(doc_nodes[0].origin.as_str())
-      .into_owned(),
+    file: html_escape::encode_double_quoted_attribute(
+      doc_nodes[0].origin.as_str(),
+    )
+    .into_owned(),
     location,
     declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
@@ -147,8 +151,10 @@ fn doc_node_into_search_index_nodes(
     nodes.push(SearchIndexNode {
       kind: kinds,
       name,
-      file: html_escape::encode_quoted_attribute(doc_nodes[0].origin.as_str())
-        .into_owned(),
+      file: html_escape::encode_double_quoted_attribute(
+        doc_nodes[0].origin.as_str(),
+      )
+      .into_owned(),
       location,
       declaration_kind: el_nodes[0].declaration_kind,
       deprecated,

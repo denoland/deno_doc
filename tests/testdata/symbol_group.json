@@ -272,7 +272,7 @@
                       "content": [
                         {
                           "id": "property_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;",
-                          "name": "&quot;&gt;&lt;img src=x onerror=alert(1)&gt;",
+                          "name": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
                           "name_href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
                           "content": "<span>: <span>number</span></span>",
                           "anchor": {
