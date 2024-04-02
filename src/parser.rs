@@ -393,14 +393,14 @@ impl<'a> DocParser<'a> {
       var_declarator,
     )
     .into_iter()
-    .find(|(name, _, _)| name.as_str() == &*ident.sym)
-    .map(|(name, var_def, _)| {
+    .find(|(name, _)| name.as_str() == &*ident.sym)
+    .map(|(name, var_def)| {
       let location = get_location(module_info.source(), ident.start());
       DocNode::variable(
         name,
         location,
         DeclarationKind::Declare,
-        js_doc.clone(),
+        js_doc,
         var_def,
       )
     })

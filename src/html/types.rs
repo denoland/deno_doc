@@ -56,8 +56,25 @@ pub(crate) fn render_type_def(
           format!("<span>{:?}</span>", html_escape::encode_safe(&def.repr))
         }
         LiteralDefKind::Template => {
-          // TODO(@kitsonk) do this properly and escape properly
-          format!("<span>`{}`</span>", html_escape::encode_safe(&def.repr))
+          if let Some(types) = &lit.ts_types {
+            let mut out = String::new();
+
+            for ts_type in types {
+              out.push_str(&if ts_type
+                .literal
+                .as_ref()
+                .is_some_and(|literal| literal.string.is_some())
+              {
+                html_escape::encode_safe(&ts_type.repr).into_owned()
+              } else {
+                format!("${{{}}}", render_type_def(ctx, ts_type))
+              });
+            }
+
+            format!("<span>`{out}`</span>")
+          } else {
+            format!("<span>`{}`</span>", html_escape::encode_safe(&def.repr))
+          }
         }
       }
     }

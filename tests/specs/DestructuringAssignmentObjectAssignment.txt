@@ -1,0 +1,100 @@
+# mod.ts
+const obj = { a: "foo", b: "bar" };
+const { a: a1 = "a", b = "b" } = obj;
+
+# output.txt
+Defined in file:///mod.ts:2:12
+
+private const a1
+
+Defined in file:///mod.ts:2:22
+
+private const b
+
+Defined in file:///mod.ts:1:7
+
+private const obj: { a: string; b: string; }
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "obj",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 6,
+      "byteIndex": 6
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [],
+          "properties": [
+            {
+              "name": "a",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "b",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": []
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "a1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 11,
+      "byteIndex": 47
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "b",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 21,
+      "byteIndex": 57
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  }
+]

@@ -1,15 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-// TODO(ry) This module builds up output by appending to a string. Instead it
-// should either use a formatting trait
-// https://doc.rust-lang.org/std/fmt/index.html#formatting-traits
-// Or perhaps implement a Serializer for serde
-// https://docs.serde.rs/serde/ser/trait.Serializer.html
-
-// TODO(ry) The methods in this module take ownership of the DocNodes, this is
-// unnecessary and can result in unnecessary copying. Instead they should take
-// references.
-
 use crate::colors;
 use crate::display::display_abstract;
 use crate::display::display_async;

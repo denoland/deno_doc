@@ -1,0 +1,178 @@
+# mod.ts
+const obj = { a: "foo", b: "bar" };
+const { a, b, ...rest } = obj;
+const { a: a1, b: b1 } = obj;
+const { ["a"]: a2 } = obj;
+
+# output.txt
+Defined in file:///mod.ts:2:9
+
+private const a
+
+Defined in file:///mod.ts:3:12
+
+private const a1
+
+Defined in file:///mod.ts:4:16
+
+private const a2
+
+Defined in file:///mod.ts:2:12
+
+private const b
+
+Defined in file:///mod.ts:3:19
+
+private const b1
+
+Defined in file:///mod.ts:1:7
+
+private const obj: { a: string; b: string; }
+
+Defined in file:///mod.ts:2:18
+
+private const rest
+
+
+# output.json
+[
+  {
+    "kind": "variable",
+    "name": "obj",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 6,
+      "byteIndex": 6
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "methods": [],
+          "properties": [
+            {
+              "name": "a",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "b",
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": []
+        }
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "a",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 8,
+      "byteIndex": 44
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "b",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 11,
+      "byteIndex": 47
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "rest",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 17,
+      "byteIndex": 53
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "a1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 11,
+      "byteIndex": 78
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "b1",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 3,
+      "col": 18,
+      "byteIndex": 85
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "a2",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 4,
+      "col": 15,
+      "byteIndex": 112
+    },
+    "declarationKind": "private",
+    "variableDef": {
+      "tsType": null,
+      "kind": "const"
+    }
+  }
+]
