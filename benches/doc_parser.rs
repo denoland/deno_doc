@@ -36,8 +36,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       vec![root.clone()],
       &mut memory_loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         ..Default::default()
       },
     )

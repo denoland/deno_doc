@@ -54,8 +54,7 @@ impl TestBuilder {
         roots.clone(),
         &mut self.loader,
         BuildOptions {
-          module_analyzer: Some(&analyzer),
-          module_parser: Some(&analyzer),
+          module_analyzer: &analyzer,
           ..Default::default()
         },
       )
