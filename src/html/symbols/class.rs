@@ -128,7 +128,7 @@ fn render_constructors(
       DocEntryCtx::new(
         ctx,
         &id,
-        &html_escape::encode_safe(&name),
+        &html_escape::encode_text(&name),
         None,
         &format!("({params})"),
         HashSet::from([Tag::New]),
@@ -380,7 +380,7 @@ fn render_class_accessor(
   DocEntryCtx::new(
     ctx,
     &id,
-    &html_escape::encode_safe(&name),
+    &html_escape::encode_text(&name),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
       name,
@@ -419,7 +419,7 @@ fn render_class_method(
   Some(DocEntryCtx::new(
     ctx,
     &id,
-    &html_escape::encode_safe(&method.name),
+    &html_escape::encode_text(&method.name),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
       &method.name,
@@ -462,7 +462,7 @@ fn render_class_property(
   DocEntryCtx::new(
     ctx,
     &id,
-    &html_escape::encode_safe(&property.name),
+    &html_escape::encode_text(&property.name),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
       &property.name,

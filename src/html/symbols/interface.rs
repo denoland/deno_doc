@@ -161,7 +161,7 @@ fn render_properties(
           if let crate::js_doc::JsDocTag::Default { value, .. } = tag {
             Some(format!(
               r#"<span><span class="font-normal"> = </span>{}</span>"#,
-              html_escape::encode_safe(value)
+              html_escape::encode_text(value)
             ))
           } else {
             None
@@ -187,9 +187,9 @@ fn render_properties(
         ctx,
         &id,
         &if property.computed {
-          format!("[{}]", html_escape::encode_safe(&property.name))
+          format!("[{}]", html_escape::encode_text(&property.name))
         } else {
-          html_escape::encode_safe(&property.name).into_owned()
+          html_escape::encode_text(&property.name).into_owned()
         },
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,
@@ -228,9 +228,9 @@ fn render_methods(
       let name = if method.name == "new" {
         "<span>new</span>".to_string()
       } else if method.computed {
-        format!("[{}]", html_escape::encode_safe(&method.name))
+        format!("[{}]", html_escape::encode_text(&method.name))
       } else {
-        html_escape::encode_safe(&method.name).into_owned()
+        html_escape::encode_text(&method.name).into_owned()
       };
 
       let return_type = method

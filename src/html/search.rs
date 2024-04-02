@@ -37,12 +37,12 @@ fn doc_node_into_search_index_nodes(
     .ns_qualifiers
     .is_empty()
   {
-    html_escape::encode_safe(name).into_owned()
+    html_escape::encode_text(name).into_owned()
   } else {
     format!(
       "{}.{}",
       doc_nodes[0].ns_qualifiers.join("."),
-      html_escape::encode_safe(name)
+      html_escape::encode_text(name)
     )
   };
 
@@ -55,7 +55,7 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+      html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
         .into_owned()
     } else {
       String::new()
@@ -64,7 +64,8 @@ fn doc_node_into_search_index_nodes(
     return vec![SearchIndexNode {
       kind: kinds,
       name,
-      file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
+      file: html_escape::encode_quoted_attribute(doc_nodes[0].origin.as_str())
+        .into_owned(),
       location,
       declaration_kind: doc_nodes[0].declaration_kind,
       deprecated,
@@ -83,7 +84,7 @@ fn doc_node_into_search_index_nodes(
     .map(|main_entrypoint| main_entrypoint != &location_url)
     .unwrap_or(true)
   {
-    html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+    html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
       .into_owned()
   } else {
     String::new()
@@ -92,7 +93,8 @@ fn doc_node_into_search_index_nodes(
   nodes.push(SearchIndexNode {
     kind: kinds,
     name,
-    file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
+    file: html_escape::encode_quoted_attribute(doc_nodes[0].origin.as_str())
+      .into_owned(),
     location,
     declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
@@ -124,19 +126,19 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      html_escape::encode_safe(&ctx.url_to_short_path(&location_url).to_name())
+      html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
         .into_owned()
     } else {
       String::new()
     };
 
     let name = if ns_qualifiers_.is_empty() {
-      html_escape::encode_safe(el_name).into_owned()
+      html_escape::encode_text(el_name).into_owned()
     } else {
       format!(
         "{}.{}",
         ns_qualifiers_.join("."),
-        html_escape::encode_safe(el_name)
+        html_escape::encode_text(el_name)
       )
     };
 
@@ -145,7 +147,8 @@ fn doc_node_into_search_index_nodes(
     nodes.push(SearchIndexNode {
       kind: kinds,
       name,
-      file: html_escape::encode_safe(doc_nodes[0].origin.as_str()).into_owned(),
+      file: html_escape::encode_quoted_attribute(doc_nodes[0].origin.as_str())
+        .into_owned(),
       location,
       declaration_kind: el_nodes[0].declaration_kind,
       deprecated,

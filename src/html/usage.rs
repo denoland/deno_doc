@@ -35,7 +35,10 @@ pub fn usage_to_md(
     let is_default = doc_nodes[0].name == "default";
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
-      file.to_name()
+      file
+        .to_name()
+        .replace("-", "_")
+        .replace(|c: char| c.is_ascii_alphanumeric(), "")
     } else {
       parts[0].to_string()
     };
@@ -69,13 +72,13 @@ pub fn usage_to_md(
       format!(
         r#"import {}{} from "{url}";"#,
         if is_type { "type " } else { "" },
-        html_escape::encode_safe(&import_symbol),
+        html_escape::encode_text(&import_symbol),
       )
     } else {
       format!(
         r#"import {{ {}{} }} from "{url}";"#,
         if is_type { "type " } else { "" },
-        html_escape::encode_safe(&import_symbol),
+        html_escape::encode_text(&import_symbol),
       )
     };
 
@@ -83,7 +86,7 @@ pub fn usage_to_md(
       usage_statement.push_str(&format!(
         "\n{} {{ {} }} = {local_var};",
         if is_type { "type" } else { "const" },
-        html_escape::encode_safe(usage_symbol),
+        html_escape::encode_text(usage_symbol),
       ));
     }
 

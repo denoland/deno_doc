@@ -23,7 +23,7 @@ pub(crate) fn render_type_def(
   def: &crate::ts_type::TsTypeDef,
 ) -> String {
   let Some(kind) = &def.kind else {
-    return html_escape::encode_safe(&def.repr).to_string();
+    return html_escape::encode_text(&def.repr).to_string();
   };
 
   match kind {
@@ -37,7 +37,7 @@ pub(crate) fn render_type_def(
       {
         format!(
           r#"<a href="{}" class="link">{keyword}</a>"#,
-          html_escape::encode_safe(&href),
+          html_escape::encode_quoted_attribute(&href),
         )
       } else {
         format!("<span>{keyword}</span>")
@@ -50,10 +50,10 @@ pub(crate) fn render_type_def(
         LiteralDefKind::Number
         | LiteralDefKind::BigInt
         | LiteralDefKind::Boolean => {
-          format!("<span>{}</span>", html_escape::encode_safe(&def.repr))
+          format!("<span>{}</span>", html_escape::encode_text(&def.repr))
         }
         LiteralDefKind::String => {
-          format!("<span>{:?}</span>", html_escape::encode_safe(&def.repr))
+          format!("<span>{:?}</span>", html_escape::encode_text(&def.repr))
         }
         LiteralDefKind::Template => {
           if let Some(types) = &lit.ts_types {
@@ -65,7 +65,7 @@ pub(crate) fn render_type_def(
                 .as_ref()
                 .is_some_and(|literal| literal.string.is_some())
               {
-                html_escape::encode_safe(&ts_type.repr).into_owned()
+                html_escape::encode_text(&ts_type.repr).into_owned()
               } else {
                 format!("${{{}}}", render_type_def(ctx, ts_type))
               });
@@ -73,7 +73,7 @@ pub(crate) fn render_type_def(
 
             format!("<span>`{out}`</span>")
           } else {
-            format!("<span>`{}`</span>", html_escape::encode_safe(&def.repr))
+            format!("<span>`{}`</span>", html_escape::encode_text(&def.repr))
           }
         }
       }
@@ -93,13 +93,13 @@ pub(crate) fn render_type_def(
       let name = if let Some(href) = href {
         format!(
           r#"<a href="{}" class="link">{}</a>"#,
-          html_escape::encode_safe(&href),
-          html_escape::encode_safe(&type_ref.type_name)
+          html_escape::encode_quoted_attribute(&href),
+          html_escape::encode_text(&type_ref.type_name)
         )
       } else {
         format!(
           r#"<span>{}</span>"#,
-          html_escape::encode_safe(&type_ref.type_name)
+          html_escape::encode_text(&type_ref.type_name)
         )
       };
 
@@ -149,11 +149,11 @@ pub(crate) fn render_type_def(
       if let Some(href) = ctx.lookup_symbol_href(query) {
         format!(
           r#"<a href="{}" class="link">{}</a>"#,
-          html_escape::encode_safe(&href),
-          html_escape::encode_safe(query),
+          html_escape::encode_quoted_attribute(&href),
+          html_escape::encode_text(query),
         )
       } else {
-        format!("<span>{}</span>", html_escape::encode_safe(query))
+        format!("<span>{}</span>", html_escape::encode_text(query))
       }
     }
     TsTypeDefKind::This => "<span>this</span>".to_string(),
@@ -299,9 +299,9 @@ pub(crate) fn render_type_def(
           .unwrap_or_default();
 
         let name = if property.computed {
-          format!("[{}]", html_escape::encode_safe(&property.name))
+          format!("[{}]", html_escape::encode_text(&property.name))
         } else {
-          html_escape::encode_safe(&property.name).to_string()
+          html_escape::encode_text(&property.name).to_string()
         };
 
         let optional = property.optional.then_some("?").unwrap_or_default();
@@ -364,7 +364,7 @@ pub(crate) fn render_type_def(
       let param_type = if let crate::ts_type::ThisOrIdent::Identifier { name } =
         &type_predicate.param
       {
-        html_escape::encode_safe(name).to_string()
+        html_escape::encode_text(name).to_string()
       } else {
         "<span>this</span>".to_string()
       };
@@ -384,7 +384,7 @@ pub(crate) fn render_type_def(
         .qualifier
         .as_ref()
         .map(|qualifier| {
-          format!("<span>.{}</span>", html_escape::encode_safe(qualifier))
+          format!("<span>.{}</span>", html_escape::encode_text(qualifier))
         })
         .unwrap_or_default();
 
@@ -396,7 +396,7 @@ pub(crate) fn render_type_def(
 
       format!(
         r#"<span>import</span>("{}"){qualifier}{type_arguments}"#,
-        html_escape::encode_safe(&import_type.specifier),
+        html_escape::encode_text(&import_type.specifier),
       )
     }
   }
@@ -577,7 +577,7 @@ pub(crate) fn render_type_params(
     let content = DocEntryCtx::new(
       ctx,
       &id,
-      &html_escape::encode_safe(&type_param.name),
+      &html_escape::encode_text(&type_param.name),
       None,
       &format!("{constraint}{default}"),
       HashSet::new(),
