@@ -37,7 +37,7 @@ pub fn usage_to_md(
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
       file
         .to_name()
-        .replace("-", "_")
+        .replace('-', "_")
         .replace(|c: char| c.is_ascii_alphanumeric(), "")
     } else {
       parts[0].to_string()
