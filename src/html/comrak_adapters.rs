@@ -83,7 +83,10 @@ impl HighlightAdapter {
 }
 
 impl SyntaxHighlighterAdapter for HighlightAdapter {
-  #[cfg(all(feature = "syntect", not(feature = "tree-sitter")))]
+  #[cfg(any(
+    all(feature = "syntect", not(feature = "tree-sitter")),
+    all(feature = "syntect", feature = "tree-sitter")
+  ))]
   fn write_highlighted(
     &self,
     output: &mut dyn Write,

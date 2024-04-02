@@ -41,8 +41,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
       vec![root.clone()],
       &mut memory_loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         ..Default::default()
       },
     )
@@ -74,8 +73,7 @@ async fn content_type_handling() {
       vec![root.clone()],
       &mut memory_loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         ..Default::default()
       },
     )
@@ -122,8 +120,7 @@ async fn types_header_handling() {
       vec![root.clone()],
       &mut memory_loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         ..Default::default()
       },
     )
