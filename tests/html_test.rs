@@ -101,8 +101,7 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
       source_files.clone(),
       &mut loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         ..Default::default()
       },
     )

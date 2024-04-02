@@ -112,8 +112,7 @@ async fn run() -> anyhow::Result<()> {
       source_files.clone(),
       &mut loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         ..Default::default()
       },
     )

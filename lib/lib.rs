@@ -225,8 +225,7 @@ async fn inner_doc(
       vec![root_specifier.clone()],
       &mut loader,
       BuildOptions {
-        module_analyzer: Some(&analyzer),
-        module_parser: Some(&analyzer),
+        module_analyzer: &analyzer,
         resolver: maybe_resolver.as_ref().map(|r| r.as_ref()),
         ..Default::default()
       },
