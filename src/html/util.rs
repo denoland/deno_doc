@@ -242,6 +242,10 @@ pub struct BreadcrumbsCtx {
   pub parts: Vec<BreadcrumbCtx>,
 }
 
+impl BreadcrumbsCtx {
+  pub const TEMPLATE: &'static str = "breadcrumbs";
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct DocNodeKindCtx {
   pub kind: &'static str,

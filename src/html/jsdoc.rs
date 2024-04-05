@@ -516,6 +516,8 @@ pub struct ModuleDocCtx {
 }
 
 impl ModuleDocCtx {
+  pub const TEMPLATE: &'static str = "module_doc";
+
   pub fn new(
     render_ctx: &RenderContext,
     specifier: &ModuleSpecifier,

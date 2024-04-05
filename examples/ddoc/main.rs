@@ -219,8 +219,9 @@ fn generate_docs_directory(
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
+    composable_output: true,
   };
-  let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
+  let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 
   let path = &output_dir_resolved;
   let _ = std::fs::remove_dir_all(path);

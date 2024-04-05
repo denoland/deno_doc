@@ -50,6 +50,8 @@ pub struct SidepanelCtx {
 }
 
 impl SidepanelCtx {
+  pub const TEMPLATE: &'static str = "sidepanel";
+
   pub fn new(
     ctx: &GenerateCtx,
     partitions: &Partition,
@@ -120,6 +122,8 @@ pub struct IndexSidepanelCtx {
 }
 
 impl IndexSidepanelCtx {
+  pub const TEMPLATE: &'static str = "index_sidepanel";
+
   pub fn new(
     ctx: &GenerateCtx,
     current_entrypoint: Option<&ModuleSpecifier>,

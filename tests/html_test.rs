@@ -310,7 +310,7 @@ async fn symbol_group() {
               Some(short_path.clone()),
             );
 
-            Some(pages::PageCtx {
+            Some(pages::SymbolPageCtx {
               html_head_ctx,
               sidepanel_ctx,
               symbol_group_ctx,

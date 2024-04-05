@@ -37,6 +37,8 @@ pub struct SymbolGroupCtx {
 }
 
 impl SymbolGroupCtx {
+  pub const TEMPLATE: &'static str = "symbol_group";
+
   pub fn new(
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
@@ -244,6 +246,10 @@ pub struct SymbolContentCtx {
   pub id: String,
   pub docs: Option<String>,
   pub sections: Vec<SectionCtx>,
+}
+
+impl SymbolContentCtx {
+  pub const TEMPLATE: &'static str = "symbol_content";
 }
 
 #[derive(Debug, Serialize, Clone)]

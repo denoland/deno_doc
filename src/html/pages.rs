@@ -1,15 +1,16 @@
+use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
 use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
 use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
+use super::FileMode;
 use super::GenerateCtx;
 use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
-use super::{sidepanels, FileMode};
 use std::sync::Arc;
 
 use super::FUSE_FILENAME;
@@ -41,6 +42,8 @@ pub struct HtmlHeadCtx {
 }
 
 impl HtmlHeadCtx {
+  pub const TEMPLATE: &'static str = "pages/html_head";
+
   pub fn new(
     root: &str,
     page: &str,
@@ -70,123 +73,118 @@ impl HtmlHeadCtx {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct IndexCtx {
-  html_head_ctx: HtmlHeadCtx,
-  sidepanel_ctx: sidepanels::IndexSidepanelCtx,
-  module_doc: Option<super::jsdoc::ModuleDocCtx>,
-  all_symbols: Option<SymbolContentCtx>,
-  breadcrumbs_ctx: BreadcrumbsCtx,
+pub struct IndexCtx {
+  pub html_head_ctx: HtmlHeadCtx,
+  pub sidepanel_ctx: sidepanels::IndexSidepanelCtx,
+  pub module_doc: Option<super::jsdoc::ModuleDocCtx>,
+  pub all_symbols: Option<SymbolContentCtx>,
+  pub breadcrumbs_ctx: BreadcrumbsCtx,
 }
 
-pub fn render_index(
-  ctx: &GenerateCtx,
-  specifier: Option<&ModuleSpecifier>,
-  doc_nodes_by_url: &super::ContextDocNodesByUrl,
-  partitions: Partition,
-  file: Option<ShortPath>,
-) -> String {
-  let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
+impl IndexCtx {
+  pub const TEMPLATE: &'static str = "pages/index";
 
-  // will be default on index page with no main entrypoint
-  let default = vec![];
-  let doc_nodes = specifier
-    .or(ctx.main_entrypoint.as_ref())
-    .and_then(|specifier| doc_nodes_by_url.get(specifier))
-    .unwrap_or(&default);
+  pub fn new(
+    ctx: &GenerateCtx,
+    specifier: Option<&ModuleSpecifier>,
+    doc_nodes_by_url: &super::ContextDocNodesByUrl,
+    partitions: Partition,
+    file: Option<ShortPath>,
+  ) -> Self {
+    let short_path =
+      specifier.map(|specifier| ctx.url_to_short_path(specifier));
 
-  let render_ctx = RenderContext::new(
-    ctx,
-    doc_nodes,
-    short_path
-      .as_ref()
-      .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-    specifier,
-  );
+    // will be default on index page with no main entrypoint
+    let default = vec![];
+    let doc_nodes = specifier
+      .or(ctx.main_entrypoint.as_ref())
+      .and_then(|specifier| doc_nodes_by_url.get(specifier))
+      .unwrap_or(&default);
 
-  let module_doc = specifier.map(|specifier| {
-    super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url)
-  });
+    let render_ctx = RenderContext::new(
+      ctx,
+      doc_nodes,
+      short_path
+        .as_ref()
+        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+      specifier,
+    );
 
-  let root = ctx.href_resolver.resolve_path(
-    file
-      .as_ref()
-      .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-    UrlResolveKind::Root,
-  );
+    let module_doc = specifier.map(|specifier| {
+      super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url)
+    });
 
-  let html_head_ctx =
-    HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
+    let root = ctx.href_resolver.resolve_path(
+      file
+        .as_ref()
+        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+      UrlResolveKind::Root,
+    );
 
-  let all_symbols = if ctx.file_mode == FileMode::SingleDts {
-    let sections =
-      super::namespace::render_namespace(&render_ctx, partitions.clone());
+    let html_head_ctx =
+      HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
 
-    Some(SymbolContentCtx {
-      id: String::new(),
-      sections,
-      docs: None,
-    })
-  } else {
-    None
-  };
+    let all_symbols = if ctx.file_mode == FileMode::SingleDts {
+      let sections =
+        super::namespace::render_namespace(&render_ctx, partitions.clone());
 
-  let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
-    ctx,
-    specifier,
-    doc_nodes_by_url,
-    partitions,
-    file.as_ref(),
-  );
+      Some(SymbolContentCtx {
+        id: String::new(),
+        sections,
+        docs: None,
+      })
+    } else {
+      None
+    };
 
-  let index_ctx = IndexCtx {
-    html_head_ctx,
-    sidepanel_ctx,
-    module_doc,
-    all_symbols,
-    breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-  };
+    let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
+      ctx,
+      specifier,
+      doc_nodes_by_url,
+      partitions,
+      file.as_ref(),
+    );
 
-  render_ctx
-    .ctx
-    .hbs
-    .render("pages/index", &index_ctx)
-    .unwrap()
+    IndexCtx {
+      html_head_ctx,
+      sidepanel_ctx,
+      module_doc,
+      all_symbols,
+      breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
+    }
+  }
 }
 
 #[derive(Serialize)]
-struct AllSymbolsCtx {
-  html_head_ctx: HtmlHeadCtx,
-  content: SymbolContentCtx,
-  breadcrumbs_ctx: BreadcrumbsCtx,
+pub struct AllSymbolsCtx {
+  pub html_head_ctx: HtmlHeadCtx,
+  pub content: SymbolContentCtx,
+  pub breadcrumbs_ctx: BreadcrumbsCtx,
 }
 
-pub(crate) fn render_all_symbols_page(
-  ctx: &GenerateCtx,
-  partitions: Partition,
-) -> String {
-  // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
-  let render_ctx =
-    RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
+impl AllSymbolsCtx {
+  pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  let sections = super::namespace::render_namespace(&render_ctx, partitions);
+  pub fn new(ctx: &GenerateCtx, partitions: Partition) -> Self {
+    // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
+    let render_ctx =
+      RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
 
-  let html_head_ctx =
-    HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
-  let all_symbols_ctx = AllSymbolsCtx {
-    html_head_ctx,
-    content: SymbolContentCtx {
-      id: String::new(),
-      sections,
-      docs: None,
-    },
-    breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
-  };
+    let sections = super::namespace::render_namespace(&render_ctx, partitions);
 
-  render_ctx
-    .ctx
-    .hbs
-    .render("pages/all_symbols", &all_symbols_ctx)
-    .unwrap()
+    let html_head_ctx =
+      HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
+
+    AllSymbolsCtx {
+      html_head_ctx,
+      content: SymbolContentCtx {
+        id: String::new(),
+        sections,
+        docs: None,
+      },
+      breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
+    }
+  }
 }
 
 pub enum SymbolPage {
@@ -428,11 +426,15 @@ fn generate_symbol_pages_inner(
 }
 
 #[derive(Debug, Serialize)]
-pub struct PageCtx {
+pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub sidepanel_ctx: SidepanelCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
+}
+
+impl SymbolPageCtx {
+  pub const TEMPLATE: &'static str = "pages/symbol";
 }
 
 pub fn render_symbol_page(
