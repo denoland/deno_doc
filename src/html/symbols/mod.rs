@@ -12,12 +12,12 @@ use serde::Serialize;
 use std::collections::HashSet;
 
 pub mod class;
-mod r#enum;
-mod function;
-mod interface;
+pub mod r#enum;
+pub mod function;
+pub mod interface;
 pub mod namespace;
-mod type_alias;
-mod variable;
+pub mod type_alias;
+pub mod variable;
 
 #[derive(Debug, Serialize, Clone)]
 struct SymbolCtx {
@@ -141,7 +141,7 @@ impl SymbolGroupCtx {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct DocBlockClassSubtitleExtendsCtx {
+pub struct DocBlockClassSubtitleExtendsCtx {
   href: Option<String>,
   symbol: String,
   type_args: String,
@@ -150,7 +150,7 @@ struct DocBlockClassSubtitleExtendsCtx {
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "kind", content = "value")]
-enum DocBlockSubtitleCtx {
+pub enum DocBlockSubtitleCtx {
   Class {
     implements: Option<Vec<String>>,
     extends: Option<DocBlockClassSubtitleExtendsCtx>,
@@ -161,6 +161,9 @@ enum DocBlockSubtitleCtx {
 }
 
 impl DocBlockSubtitleCtx {
+  pub const TEMPLATE_CLASS: &'static str = "doc_block_subtitle_class";
+  pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
+
   fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
     if matches!(
       doc_node.kind,
@@ -315,7 +318,7 @@ impl SymbolInnerCtx {
     }
 
     if !functions.is_empty() {
-      content_parts.push(SymbolInnerCtx::Function(function::render_function(
+      content_parts.push(SymbolInnerCtx::Function(function::FunctionCtx::new(
         ctx, functions,
       )));
     }

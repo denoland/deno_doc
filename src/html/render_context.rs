@@ -341,6 +341,7 @@ mod test {
       rewrite_map: None,
       hide_module_doc_title: false,
       file_mode: Default::default(),
+      sidebar_hide_all_symbols: false,
     };
 
     let doc_nodes = vec![DocNodeWithContext {

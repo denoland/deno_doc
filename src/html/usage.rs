@@ -116,6 +116,8 @@ pub struct UsageCtx {
 }
 
 impl UsagesCtx {
+  pub const TEMPLATE: &'static str = "usages";
+
   pub fn new(
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],

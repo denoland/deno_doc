@@ -306,6 +306,10 @@ pub struct AnchorCtx {
   pub id: String,
 }
 
+impl AnchorCtx {
+  pub const TEMPLATE: &'static str = "anchor";
+}
+
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
@@ -319,6 +323,10 @@ pub enum SectionContentCtx {
 pub struct SectionCtx {
   pub title: String,
   pub content: SectionContentCtx,
+}
+
+impl SectionCtx {
+  pub const TEMPLATE: &'static str = "section";
 }
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
@@ -337,6 +345,8 @@ pub enum Tag {
 }
 
 impl Tag {
+  pub const TEMPLATE: &'static str = "tag";
+
   pub fn from_accessibility(
     accessibility: Option<Accessibility>,
   ) -> Option<Self> {
@@ -372,6 +382,8 @@ pub struct DocEntryCtx {
 }
 
 impl DocEntryCtx {
+  pub const TEMPLATE: &'static str = "doc_entry";
+
   #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,

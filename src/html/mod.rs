@@ -254,11 +254,11 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/sidepanel.hbs"),
   )?;
   reg.register_template_string(
-    "doc_entry",
+    util::DocEntryCtx::TEMPLATE,
     include_str!("./templates/doc_entry.hbs"),
   )?;
   reg.register_template_string(
-    "section",
+    util::SectionCtx::TEMPLATE,
     include_str!("./templates/section.hbs"),
   )?;
   reg.register_template_string(
@@ -274,15 +274,15 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/namespace_section.hbs"),
   )?;
   reg.register_template_string(
-    "doc_block_subtitle_class",
+    symbols::DocBlockSubtitleCtx::TEMPLATE_CLASS,
     include_str!("./templates/doc_block_subtitle_class.hbs"),
   )?;
   reg.register_template_string(
-    "doc_block_subtitle_interface",
+    symbols::DocBlockSubtitleCtx::TEMPLATE_INTERFACE,
     include_str!("./templates/doc_block_subtitle_interface.hbs"),
   )?;
   reg.register_template_string(
-    "anchor",
+    util::AnchorCtx::TEMPLATE,
     include_str!("./templates/anchor.hbs"),
   )?;
   reg.register_template_string(
@@ -294,11 +294,11 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/symbol_content.hbs"),
   )?;
   reg.register_template_string(
-    "example",
+    jsdoc::ExampleCtx::TEMPLATE,
     include_str!("./templates/example.hbs"),
   )?;
   reg.register_template_string(
-    "function",
+    symbols::function::FunctionCtx::TEMPLATE,
     include_str!("./templates/function.hbs"),
   )?;
   reg.register_template_string(
@@ -310,10 +310,13 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/breadcrumbs.hbs"),
   )?;
   reg.register_template_string(
-    "usages",
+    usage::UsagesCtx::TEMPLATE,
     include_str!("./templates/usages.hbs"),
   )?;
-  reg.register_template_string("tag", include_str!("./templates/tag.hbs"))?;
+  reg.register_template_string(
+    util::Tag::TEMPLATE,
+    include_str!("./templates/tag.hbs"),
+  )?;
   reg.register_template_string(
     "source_button",
     include_str!("./templates/source_button.hbs"),

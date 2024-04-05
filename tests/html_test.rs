@@ -137,8 +137,7 @@ async fn html_doc_files() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: None,
-      hide_module_doc_title: false,
-      sidebar_flatten_namespaces: false,
+      composable_output: false,
     },
     get_files("single").await,
   )
@@ -193,8 +192,7 @@ async fn html_doc_files_rewrite() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      hide_module_doc_title: false,
-      sidebar_flatten_namespaces: false,
+      composable_output: false,
     },
     get_files("multiple").await,
   )
