@@ -7,9 +7,13 @@
   {{~> pages/search_bar ~}}
 
   <main>
-    {{~#if module_doc ~}}
-      {{~> module_doc module_doc ~}}
-    {{~/if~}}
+	  {{~#if module_doc ~}}
+		  {{~> module_doc module_doc ~}}
+	  {{~/if~}}
+
+	  {{~#if all_symbols ~}}
+		  {{~> symbol_content all_symbols ~}}
+	  {{~/if~}}
   </main>
 
   {{~> pages/search_results ~}}

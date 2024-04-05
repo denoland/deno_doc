@@ -266,9 +266,8 @@ async fn symbol_group() {
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
-    single_file_mode: false,
+    file_mode: Default::default(),
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let mut files = vec![];
@@ -383,9 +382,8 @@ async fn symbol_search() {
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
-    single_file_mode: false,
+    file_mode: Default::default(),
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
@@ -443,9 +441,8 @@ async fn module_doc() {
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
-    single_file_mode: true,
+    file_mode: FileMode::Single,
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let mut module_docs = vec![];

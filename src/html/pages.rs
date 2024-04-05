@@ -1,4 +1,3 @@
-use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
 use super::util::qualify_drilldown_name;
@@ -10,6 +9,7 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use super::{sidepanels, FileMode};
 use std::sync::Arc;
 
 use super::FUSE_FILENAME;
@@ -74,6 +74,7 @@ struct IndexCtx {
   html_head_ctx: HtmlHeadCtx,
   sidepanel_ctx: sidepanels::IndexSidepanelCtx,
   module_doc: Option<super::jsdoc::ModuleDocCtx>,
+  all_symbols: Option<SymbolContentCtx>,
   breadcrumbs_ctx: BreadcrumbsCtx,
 }
 
@@ -84,14 +85,6 @@ pub fn render_index(
   partitions: Partition,
   file: Option<ShortPath>,
 ) -> String {
-  let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
-    ctx,
-    specifier,
-    doc_nodes_by_url,
-    partitions,
-    file.as_ref(),
-  );
-
   let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
 
   // will be default on index page with no main entrypoint
@@ -124,10 +117,32 @@ pub fn render_index(
   let html_head_ctx =
     HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
 
+  let all_symbols = if ctx.file_mode == FileMode::SingleDts {
+    let sections =
+      super::namespace::render_namespace(&render_ctx, partitions.clone());
+
+    Some(SymbolContentCtx {
+      id: String::new(),
+      sections,
+      docs: None,
+    })
+  } else {
+    None
+  };
+
+  let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
+    ctx,
+    specifier,
+    doc_nodes_by_url,
+    partitions,
+    file.as_ref(),
+  );
+
   let index_ctx = IndexCtx {
     html_head_ctx,
     sidepanel_ctx,
     module_doc,
+    all_symbols,
     breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
   };
 

@@ -340,9 +340,7 @@ mod test {
       usage_composer: None,
       rewrite_map: None,
       hide_module_doc_title: false,
-      single_file_mode: false,
-      sidebar_hide_all_symbols: false,
-      sidebar_flatten_namespaces: false,
+      file_mode: Default::default(),
     };
 
     let doc_nodes = vec![DocNodeWithContext {

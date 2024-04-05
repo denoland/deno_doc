@@ -76,8 +76,7 @@ pub struct GenerateOptions {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub hide_module_doc_title: bool,
-  pub sidebar_flatten_namespaces: bool,
+  pub composable_output: bool,
 }
 
 pub struct GenerateCtx<'ctx> {
@@ -93,9 +92,9 @@ pub struct GenerateCtx<'ctx> {
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
-  pub single_file_mode: bool,
+  pub file_mode: FileMode,
   pub sidebar_hide_all_symbols: bool,
-  pub sidebar_flatten_namespaces: bool,
+  pub composable_output: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -389,6 +388,29 @@ pub fn setup_highlighter(
   }
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum FileMode {
+  Normal,
+  Single,
+  SingleDts,
+}
+
+impl FileMode {
+  fn is_single(&self) -> bool {
+    match self {
+      FileMode::Normal => false,
+      FileMode::Single => true,
+      FileMode::SingleDts => true,
+    }
+  }
+}
+
+impl Default for FileMode {
+  fn default() -> Self {
+    FileMode::Normal
+  }
+}
+
 pub fn generate(
   mut options: GenerateOptions,
   doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -397,6 +419,17 @@ pub fn generate(
     options.main_entrypoint =
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
+
+  let file_mode = if doc_nodes_by_url.len() == 1 {
+    let (specifier, _) = doc_nodes_by_url.first().unwrap();
+    if specifier.as_str().ends_with(".d.ts") {
+      FileMode::SingleDts
+    } else {
+      FileMode::Single
+    }
+  } else {
+    FileMode::Normal
+  };
 
   let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
   let ctx = GenerateCtx {
@@ -411,10 +444,10 @@ pub fn generate(
     href_resolver: options.href_resolver,
     usage_composer: options.usage_composer,
     rewrite_map: options.rewrite_map,
-    hide_module_doc_title: options.hide_module_doc_title,
-    single_file_mode: doc_nodes_by_url.len() == 1,
-    sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: options.sidebar_flatten_namespaces,
+    hide_module_doc_title: file_mode == FileMode::SingleDts,
+    sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
+    file_mode,
+    composable_output: options.composable_output,
   };
   let mut files = HashMap::new();
 
@@ -436,7 +469,7 @@ pub fn generate(
   }
 
   // All symbols (list of all symbols in all files)
-  {
+  if ctx.file_mode != FileMode::SingleDts {
     let all_doc_nodes = doc_nodes_by_url
       .values()
       .flatten()

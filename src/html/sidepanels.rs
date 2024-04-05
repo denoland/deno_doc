@@ -62,7 +62,13 @@ impl SidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
-          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
+          let name = if !node.ns_qualifiers.is_empty() {
+            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
+          } else {
+            node.get_name().to_string()
+          };
+
+          let entry = grouped_nodes.entry(name).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -76,10 +82,10 @@ impl SidepanelCtx {
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
                   file: &nodes[0].origin,
-                  symbol: node_name,
+                  symbol: &node_name,
                 },
               ),
-              node_name.to_string(),
+              node_name,
             )
           })
           .collect::<Vec<_>>();
@@ -156,7 +162,13 @@ impl IndexSidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in &nodes {
-          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
+          let name = if !node.ns_qualifiers.is_empty() {
+            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
+          } else {
+            node.get_name().to_string()
+          };
+
+          let entry = grouped_nodes.entry(name).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -170,10 +182,10 @@ impl IndexSidepanelCtx {
                 current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
                   file: &nodes[0].origin,
-                  symbol: node_name,
+                  symbol: &node_name,
                 },
               ),
-              node_name.to_string(),
+              node_name,
             )
           })
           .collect::<Vec<_>>();

@@ -54,7 +54,7 @@ async fn run() -> anyhow::Result<()> {
     .arg(
       Arg::with_name("html")
         .long("html")
-        .requires_all(&["name", "output"]),
+        .requires_all(&["output"]),
     )
     .arg(Arg::with_name("name").long("name").takes_value(true))
     .arg(
@@ -74,9 +74,9 @@ async fn run() -> anyhow::Result<()> {
   let source_files = matches.values_of("source_files").unwrap();
   let html = matches.is_present("html");
   let name = if html {
-    matches.value_of("name").unwrap().to_string()
+    matches.value_of("name").map(|name| name.to_string())
   } else {
-    "".to_string()
+    None
   };
   let main_entrypoint = if html {
     matches.value_of("main_entrypoint").map(|main_entrypoint| {
@@ -200,7 +200,7 @@ impl HrefResolver for EmptyResolver {
 }
 
 fn generate_docs_directory(
-  name: String,
+  package_name: Option<String>,
   output_dir: String,
   main_entrypoint: Option<ModuleSpecifier>,
   doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
@@ -214,13 +214,11 @@ fn generate_docs_directory(
   }
 
   let options = deno_doc::html::GenerateOptions {
-    package_name: Some(name),
+    package_name,
     main_entrypoint,
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    hide_module_doc_title: false,
-    sidebar_flatten_namespaces: false,
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
 
