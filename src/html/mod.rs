@@ -339,8 +339,8 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/pages/index.hbs"),
   )?;
   reg.register_template_string(
-    "pages/search_bar",
-    include_str!("./templates/pages/search_bar.hbs"),
+    "pages/top_nav",
+    include_str!("./templates/pages/top_nav.hbs"),
   )?;
   reg.register_template_string(
     "pages/search_results",
@@ -352,6 +352,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   )?;
 
   // icons
+  reg.register_template_string(
+    "icons/arrow",
+    include_str!("./templates/icons/arrow.svg"),
+  )?;
   reg.register_template_string(
     "icons/copy",
     include_str!("./templates/icons/copy.svg"),

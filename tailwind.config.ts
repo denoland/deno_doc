@@ -1,4 +1,4 @@
-import { type Config } from "npm:tailwindcss@3.4.0";
+import { type Config } from "npm:tailwindcss@3.4.3";
 
 const TAG_PURPLE = "#7B61FF";
 const TAG_CYAN = "#0CAFC6";
