@@ -33,6 +33,7 @@ pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use usage::usage_to_md;
 pub use util::compute_namespaced_symbols;
+pub use util::href_path_resolve;
 pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;

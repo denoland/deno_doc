@@ -5,6 +5,7 @@ use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::html::HrefResolver;
 use deno_doc::html::ShortPath;
+use deno_doc::html::UrlResolveKind;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -174,6 +175,14 @@ fn main() {
 struct EmptyResolver();
 
 impl HrefResolver for EmptyResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    deno_doc::html::href_path_resolve(current, target)
+  }
+
   fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
     None
   }

@@ -177,38 +177,43 @@ impl UrlResolveKind<'_> {
   }
 }
 
+pub fn href_path_resolve(
+  current: UrlResolveKind,
+  target: UrlResolveKind,
+) -> String {
+  let backs = match current {
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+      .repeat(if file.as_str() == "." {
+        1
+      } else {
+        file.as_str().split('/').count() + 1
+      }),
+    UrlResolveKind::Root => String::new(),
+    UrlResolveKind::AllSymbols => String::from("./"),
+  };
+
+  match target {
+    UrlResolveKind::Root => backs,
+    UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
+    UrlResolveKind::Symbol {
+      file: target_file,
+      symbol: target_symbol,
+    } => {
+      format!("{backs}./{}/~/{target_symbol}.html", target_file.as_str())
+    }
+    UrlResolveKind::File(target_file) => {
+      format!("{backs}./{}/~/index.html", target_file.as_str())
+    }
+  }
+}
+
 /// A trait used to define various functions used to resolve urls.
 pub trait HrefResolver {
   fn resolve_path(
     &self,
     current: UrlResolveKind,
     target: UrlResolveKind,
-  ) -> String {
-    let backs = match current {
-      UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-        .repeat(if file.as_str() == "." {
-          1
-        } else {
-          file.as_str().split('/').count() + 1
-        }),
-      UrlResolveKind::Root => String::new(),
-      UrlResolveKind::AllSymbols => String::from("./"),
-    };
-
-    match target {
-      UrlResolveKind::Root => backs,
-      UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
-      UrlResolveKind::Symbol {
-        file: target_file,
-        symbol: target_symbol,
-      } => {
-        format!("{backs}./{}/~/{target_symbol}.html", target_file.as_str())
-      }
-      UrlResolveKind::File(target_file) => {
-        format!("{backs}./{}/~/index.html", target_file.as_str())
-      }
-    }
-  }
+  ) -> String;
 
   /// Resolver for global symbols, like the Deno namespace or other built-ins
   fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String>;
