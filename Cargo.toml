@@ -67,6 +67,7 @@ anyhow = { version = "1.0.58" }
 clap = "2.33.3"
 console_static_text = "0.8.2"
 criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
+file_test_runner = "0.2.0"
 tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
 
@@ -87,6 +88,11 @@ tree-sitter = [
   "tree-sitter-html",
   "tree-sitter-bash",
 ]
+
+[[test]]
+name = "specs"
+path = "tests/specs_test.rs"
+harness = false
 
 [profile.release]
 codegen-units = 1
