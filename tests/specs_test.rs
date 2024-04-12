@@ -3,19 +3,18 @@
 use std::panic::AssertUnwindSafe;
 use std::sync::Arc;
 
-
 use deno_ast::diagnostics::Diagnostic;
 use deno_doc::DocNode;
 use deno_graph::source::Source;
+use deno_graph::ModuleSpecifier;
 use file_test_runner::collect_and_run_tests;
 use file_test_runner::CollectOptions;
 use file_test_runner::CollectedTest;
 use file_test_runner::FileCollectionStrategy;
 use file_test_runner::RunOptions;
 use file_test_runner::TestResult;
-use pretty_assertions::assert_eq;
-use deno_graph::ModuleSpecifier;
 use indexmap::IndexMap;
+use pretty_assertions::assert_eq;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -34,9 +33,9 @@ fn main() {
     },
     RunOptions { parallel: true },
     Arc::new(|test| {
-        TestResult::from_maybe_panic(AssertUnwindSafe(|| {
-          run_test(test);
-        }))
+      TestResult::from_maybe_panic(AssertUnwindSafe(|| {
+        run_test(test);
+      }))
     }),
   )
 }
@@ -46,71 +45,70 @@ fn run_test(test: &CollectedTest) {
   let spec = parse_spec(file_text);
 
   let mut builder = TestBuilder::new();
-    builder
-      .with_loader(|loader| {
-        for file in &spec.files {
-          let source = Source::Module {
-            specifier: file.url().to_string(),
-            maybe_headers: Some(file.headers.clone().into_iter().collect()),
-            content: file.text.clone(),
-          };
-          loader.add_source(file.url(), source);
-        }
-      })
-      .set_private(spec.private);
+  builder
+    .with_loader(|loader| {
+      for file in &spec.files {
+        let source = Source::Module {
+          specifier: file.url().to_string(),
+          maybe_headers: Some(file.headers.clone().into_iter().collect()),
+          content: file.text.clone(),
+        };
+        loader.add_source(file.url(), source);
+      }
+    })
+    .set_private(spec.private);
 
-      let rt = tokio::runtime::Builder::new_current_thread()
+  let rt = tokio::runtime::Builder::new_current_thread()
     .enable_all()
     .build()
     .unwrap();
-    let result = rt.block_on(async { builder.build().await });
-    let update_var = std::env::var("UPDATE");
-    let mut json_output =
-      serde_json::to_string_pretty(&result.json_output).unwrap();
-    json_output.push('\n');
-    let diagnostics = result
-      .diagnostics
-      .iter()
-      .map(|d| {
-        console_static_text::ansi::strip_ansi_codes(&d.display().to_string())
-          .to_string()
-      })
-      .collect::<Vec<_>>()
-      .join("\n");
-    let spec = if update_var.as_ref().map(|v| v.as_str()) == Ok("1") {
-      let mut spec = spec;
-      spec.output_json_file.text = json_output.clone();
-      spec.output_doc_file.text = result.text_output.clone();
-      spec.diagnostics = diagnostics.clone();
-      std::fs::write(&test.path, spec.emit()).unwrap();
-      spec
-    } else {
-      spec
-    };
-    assert_eq!(
-      result.text_output,
-      spec.output_doc_file.text,
-      "Should be same for doc output {}",
-      test.path.display()
-    );
-    assert_eq!(
-      json_output,
-      spec.output_json_file.text,
-      "Should be same for json output {}",
-      test.path.display()
-    );
-    assert_eq!(
-      diagnostics,
-      spec.diagnostics,
-      "Should be same for {}",
-      test.path.display()
-    );
+  let result = rt.block_on(async { builder.build().await });
+  let update_var = std::env::var("UPDATE");
+  let mut json_output =
+    serde_json::to_string_pretty(&result.json_output).unwrap();
+  json_output.push('\n');
+  let diagnostics = result
+    .diagnostics
+    .iter()
+    .map(|d| {
+      console_static_text::ansi::strip_ansi_codes(&d.display().to_string())
+        .to_string()
+    })
+    .collect::<Vec<_>>()
+    .join("\n");
+  let spec = if update_var.as_ref().map(|v| v.as_str()) == Ok("1") {
+    let mut spec = spec;
+    spec.output_json_file.text = json_output.clone();
+    spec.output_doc_file.text = result.text_output.clone();
+    spec.diagnostics = diagnostics.clone();
+    std::fs::write(&test.path, spec.emit()).unwrap();
+    spec
+  } else {
+    spec
+  };
+  assert_eq!(
+    result.text_output,
+    spec.output_doc_file.text,
+    "Should be same for doc output {}",
+    test.path.display()
+  );
+  assert_eq!(
+    json_output,
+    spec.output_json_file.text,
+    "Should be same for json output {}",
+    test.path.display()
+  );
+  assert_eq!(
+    diagnostics,
+    spec.diagnostics,
+    "Should be same for {}",
+    test.path.display()
+  );
 
-    // Check that the JSON output is round-trippable.
-    let _parsed_json_output: Vec<DocNode> =
-      serde_json::from_str(&json_output).unwrap();
+  // Check that the JSON output is round-trippable.
+  let _parsed_json_output: Vec<DocNode> =
+    serde_json::from_str(&json_output).unwrap();
 }
-
 
 pub struct Spec {
   pub private: bool,
