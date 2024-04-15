@@ -62,8 +62,14 @@ pub type UsageComposer = Rc<
     &RenderContext,
     &[DocNodeWithContext],
     String,
-  ) -> IndexMap<String, String>,
+  ) -> IndexMap<UsageComposerEntry, String>,
 >;
+
+#[derive(Eq, PartialEq, Hash)]
+pub struct UsageComposerEntry {
+  pub name: String,
+  pub icon: Option<std::borrow::Cow<'static, str>>,
+}
 
 #[derive(Clone)]
 pub struct GenerateOptions {

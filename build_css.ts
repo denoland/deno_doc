@@ -1,5 +1,5 @@
 import $ from "https://deno.land/x/dax@0.36.0/mod.ts";
-import browserslist from "npm:browserslist@4.22.2";
+import browserslist from "npm:browserslist@4.23.0";
 import { browserslistToTargets, transform } from "npm:lightningcss";
 
 const browsers = browserslist(">= 0.5%, not dead");

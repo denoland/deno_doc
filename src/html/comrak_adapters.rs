@@ -50,7 +50,7 @@ impl HighlightAdapter {
         ));
       }
 
-      highlighter(&mut lines, line)?;
+      highlighter(&mut lines, &html_escape::encode_text(line))?;
 
       if self.show_line_numbers {
         lines.push_str("</span>");
