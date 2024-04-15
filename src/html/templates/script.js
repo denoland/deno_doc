@@ -7,7 +7,10 @@ function findParent(el, find) {
 }
 
 document.addEventListener("click", (e) => {
-  const target = findParent(e.target, (el) => el instanceof HTMLButtonElement && el.dataset["copy"]);
+  const target = findParent(
+    e.target,
+    (el) => el instanceof HTMLButtonElement && el.dataset["copy"],
+  );
   if (target) {
     navigator?.clipboard?.writeText(target.dataset["copy"]);
   }
@@ -16,8 +19,12 @@ document.addEventListener("click", (e) => {
 window.addEventListener("load", () => {
   const checkbox = document.getElementById("usageDropdownInput");
   document.addEventListener("mouseup", (e) => {
-    const label = findParent(e.target, (el) => el instanceof HTMLLabelElement && el.htmlFor === "usageDropdownInput");
-    if(!label) {
+    const label = findParent(
+      e.target,
+      (el) =>
+        el instanceof HTMLLabelElement && el.htmlFor === "usageDropdownInput",
+    );
+    if (!label) {
       checkbox.checked = false;
     }
   });
