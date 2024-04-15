@@ -50,7 +50,7 @@ impl HighlightAdapter {
         ));
       }
 
-      highlighter(&mut lines, &html_escape::encode_text(line))?;
+      highlighter(&mut lines, line)?;
 
       if self.show_line_numbers {
         lines.push_str("</span>");
@@ -112,8 +112,10 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     let theme = &self.theme_set.themes["InspiredGitHub"];
     let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
 
+    let code = html_escape::encode_text(code);
+
     match self.highlight_html(
-      syntect::util::LinesWithEndings::from(code),
+      syntect::util::LinesWithEndings::from(&code),
       |lines, line| {
         let regions = highlighter.highlight_line(line, &self.syntax_set)?;
         syntect::html::append_highlighted_html_for_styled_line(
@@ -129,7 +131,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       Err(_) => output.write_all(code.as_bytes())?,
     }
 
-    self.write_button(output, code)
+    self.write_button(output, &code)
   }
 
   #[cfg(all(feature = "tree-sitter", not(feature = "syntect")))]
@@ -141,6 +143,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
   ) -> std::io::Result<()> {
     let lang = lang.unwrap_or_default();
     let config = (self.language_cb)(lang);
+    let code = html_escape::encode_text(code);
     let source = code.as_bytes();
     if let Some(config) = config {
       let mut highlighter = tree_sitter_highlight::Highlighter::new();
@@ -160,7 +163,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
                 .unwrap();
 
               output.write_all(html.as_bytes())?;
-              return self.write_button(output, code);
+              return self.write_button(output, &code);
             }
             Err(err) => {
               eprintln!("Error rendering code: {}", err);
@@ -173,7 +176,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       }
     }
     comrak::html::escape(output, source)?;
-    self.write_button(output, code)
+    self.write_button(output, &code)
   }
 
   #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
@@ -183,6 +186,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     _lang: Option<&str>,
     code: &str,
   ) -> std::io::Result<()> {
+    let code = html_escape::encode_text(code);
     let html = self
       .highlight_html(code.lines(), |lines, line| {
         lines.push_str(&format!("{line}\n"));
@@ -192,7 +196,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       .unwrap();
 
     output.write_all(html.as_bytes())?;
-    self.write_button(output, code)
+    self.write_button(output, &code)
   }
 
   fn write_pre_tag(

@@ -295,7 +295,7 @@ pub fn markdown_to_html(
 
   let mut html = {
     let arena = Arena::new();
-    let root = comrak::parse_document(&arena, &md, &options);
+    let root = comrak::parse_document(&arena, md, &options);
 
     walk_node(&arena, root, &options, &plugins);
 
