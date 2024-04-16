@@ -469,9 +469,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.36.0"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76c06f7b0771250e5531bb9f86975b3ec15130d9fa77222674c5be290317221f"
+checksum = "67f9b18b22c707b59cf1ee9cb6f0afbfcf0d03a59b9244ddadacf6a4dc7cfeba"
 dependencies = [
  "anyhow",
  "base64",
@@ -496,6 +496,7 @@ dependencies = [
  "swc_visit",
  "swc_visit_macros",
  "text_lines",
+ "thiserror",
  "unicode-width",
  "url",
 ]
@@ -559,9 +560,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.71.0"
+version = "0.72.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04768521e4c03e9c2084b9566b73370ae59e3905c0f96cb951183f55b795261a"
+checksum = "508791f6140a8b5b1ac40bac1842db04281b61db4b64c5fd5bf9f1f7259f328a"
 dependencies = [
  "anyhow",
  "async-trait",
