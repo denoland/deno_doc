@@ -1,10 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-import {
-  assert,
-  assertEquals,
-  assertRejects,
-} from "jsr:@std/assert@0.223";
+import { assert, assertEquals, assertRejects } from "jsr:@std/assert@0.223";
 import { doc } from "./mod.ts";
 
 Deno.test({

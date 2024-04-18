@@ -3,15 +3,9 @@
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode } from "./types.d.ts";
 import { createCache } from "jsr:@deno/cache-dir@0.8";
-import type {
-  CacheSetting,
-  LoadResponse,
-} from "jsr:@deno/graph@0.73";
+import type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.73";
 
-export type {
-  CacheSetting,
-  LoadResponse,
-} from "jsr:@deno/graph@0.73";
+export type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.73";
 
 const encoder = new TextEncoder();
 
