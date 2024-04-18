@@ -52,7 +52,7 @@ impl TestBuilder {
     graph
       .build(
         roots.clone(),
-        &mut self.loader,
+        &self.loader,
         BuildOptions {
           module_analyzer: &analyzer,
           ..Default::default()
