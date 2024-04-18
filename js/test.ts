@@ -3,8 +3,8 @@
 import {
   assert,
   assertEquals,
-  assertThrowsAsync,
-} from "https://deno.land/std@0.104.0/testing/asserts.ts";
+  assertRejects,
+} from "jsr:@std/assert@0.223";
 import { doc } from "./mod.ts";
 
 Deno.test({
@@ -84,8 +84,8 @@ Deno.test({
   name: "doc() - missing specifier",
   // TODO(@kitsonk) - remove when new deno_graph crate published
   sanitizeResources: false,
-  fn() {
-    return assertThrowsAsync(
+  async fn() {
+    await assertRejects(
       async () => {
         await doc("https://deno.land/x/bad.ts");
       },
@@ -97,8 +97,8 @@ Deno.test({
 
 Deno.test({
   name: "doc() - bad specifier",
-  fn() {
-    return assertThrowsAsync(
+  async fn() {
+    await assertRejects(
       async () => {
         await doc("./bad.ts");
       },

@@ -1,4 +1,4 @@
-import $ from "https://deno.land/x/dax@0.36.0/mod.ts";
+import $ from "jsr:@david/dax@0.40";
 import browserslist from "npm:browserslist@4.22.2";
 import { browserslistToTargets, transform } from "npm:lightningcss";
 

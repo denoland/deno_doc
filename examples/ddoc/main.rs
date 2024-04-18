@@ -27,7 +27,7 @@ struct SourceFileLoader {}
 
 impl Loader for SourceFileLoader {
   fn load(
-    &mut self,
+    &self,
     specifier: &ModuleSpecifier,
     _options: deno_graph::source::LoadOptions,
   ) -> LoadFuture {
@@ -104,13 +104,13 @@ async fn run() -> anyhow::Result<()> {
         .unwrap()
     })
     .collect();
-  let mut loader = SourceFileLoader {};
+  let loader = SourceFileLoader {};
   let analyzer = CapturingModuleAnalyzer::default();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
       source_files.clone(),
-      &mut loader,
+      &loader,
       BuildOptions {
         module_analyzer: &analyzer,
         ..Default::default()

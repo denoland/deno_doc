@@ -2,16 +2,16 @@
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode } from "./types.d.ts";
-import { createCache } from "https://deno.land/x/deno_cache@0.7.1/mod.ts";
+import { createCache } from "jsr:@deno/cache-dir@0.8";
 import type {
   CacheSetting,
   LoadResponse,
-} from "https://deno.land/x/deno_graph@0.66.0/mod.ts";
+} from "jsr:@deno/graph@0.73";
 
 export type {
   CacheSetting,
   LoadResponse,
-} from "https://deno.land/x/deno_graph@0.66.0/mod.ts";
+} from "jsr:@deno/graph@0.73";
 
 const encoder = new TextEncoder();
 
@@ -53,6 +53,7 @@ export interface DocOptions {
     specifier: string,
     isDynamic?: boolean,
     cacheSetting?: CacheSetting,
+    checksum?: string,
   ): Promise<LoadResponse | undefined>;
   /** An optional callback that allows the default resolution logic of the
    * module graph to be "overridden". This is intended to allow items like an
