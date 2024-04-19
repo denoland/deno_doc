@@ -1,4 +1,4 @@
-import $ from "jsr:@david/dax@0.40";
+import $ from "jsr:@david/dax@0.40.1";
 import browserslist from "npm:browserslist@4.23.0";
 import { browserslistToTargets, transform } from "npm:lightningcss";
 
