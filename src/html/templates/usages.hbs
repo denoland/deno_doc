@@ -11,10 +11,8 @@
 	  <nav class="flex items-center flex-row gap-2 mb-3 font-semibold">
 		  <span>Usage instructions for</span>
 
-		  <div>
-			  <input type="checkbox" id="usageDropdownInput" class="hidden peer" />
-
-			  <label for="usageDropdownInput" class="flex gap-1 select-none cursor-pointer rounded border border-gray-300 py-2 px-3">
+		  <details id="usageSelector">
+			  <summary class="flex gap-1 select-none cursor-pointer rounded border border-gray-300 py-2 px-3">
 				  {{~#each usages~}}
 					  <div id="{{name}}_active_dropdown" class="hidden items-center gap-1">
 						  <div class="h-4 *:h-4 *:w-auto">{{{icon}}} {{! icon }}</div>
@@ -25,9 +23,9 @@
 				  <div class="rotate-90">
 					  {{~> icons/arrow }}
 				  </div>
-			  </label>
+			  </summary>
 
-			  <div class="md:relative hidden peer-checked:block" id="usageDropdown">
+			  <div class="md:relative">
 				  <div class="absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-72 bg-white md:rounded border max-md:border-x-0 border-gray-300">
 					  {{~#each usages~}}
 						  <label for="{{name}}" class="flex items-center justify-between cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50">
@@ -38,7 +36,7 @@
 					  {{~/each~}}
 				  </div>
 			  </div>
-		  </div>
+		  </details>
 	  </nav>
 	{{~/if}}
 

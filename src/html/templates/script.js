@@ -17,15 +17,17 @@ document.addEventListener("click", (e) => {
 });
 
 window.addEventListener("load", () => {
-  const checkbox = document.getElementById("usageDropdownInput");
+  const usageSelector = document.getElementById("usageSelector");
+
   document.addEventListener("mouseup", (e) => {
-    const label = findParent(
-      e.target,
-      (el) =>
-        el instanceof HTMLLabelElement && el.htmlFor === "usageDropdownInput",
-    );
-    if (!label) {
-      checkbox.checked = false;
+    if (
+      findParent(
+        e.target,
+        (el) =>
+          el.parentElement === usageSelector && el instanceof HTMLDivElement,
+      )
+    ) {
+      usageSelector.open = false;
     }
   });
 });
