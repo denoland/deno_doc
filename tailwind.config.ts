@@ -41,7 +41,10 @@ export default {
   ],
   theme: {
     extend: {
-      colors: extraColors,
+      colors: {
+        ...extraColors,
+        "breadcrumb": "#0E6590",
+      },
     },
   },
   darkMode: "class",
