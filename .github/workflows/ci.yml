@@ -51,10 +51,10 @@ jobs:
           cargo clippy --all-targets --locked -- -D clippy::all
           deno lint --ignore=src/html,benches/fixtures,target/
 
-      # - name: Tailwind Check
-      #   run: |
-      #     deno task tailwind
-      #     git diff --exit-code
+      - name: Tailwind Check
+        run: |
+          deno task tailwind
+          git diff --exit-code
 
       - name: Build
         run: deno task build && cargo build --locked --all-targets
