@@ -15,10 +15,10 @@ summary::-webkit-details-marker {
 
 .link {
   @apply text-blue-600 transition duration-75;
-  
-  &:hover {
-    @apply text-blue-400;
-  }
+}
+
+.link:hover {
+  @apply text-blue-400;
 }
 
 #sidepanel {
@@ -315,8 +315,7 @@ summary::-webkit-details-marker {
     @apply m-2 border-stone-500;
   }
 
-  ol,
-  ul {
+  ol, ul {
     @apply list-outside ml-4;
   }
 
@@ -333,14 +332,11 @@ summary::-webkit-details-marker {
   :not(pre) > code {
     @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
   }
-
-  h1 > code,
-  h2 > code,
-  h3 > code,
-  h4 > code,
-  h5 > code,
-  h6 > code {
-    font-size: inherit !important;
+  
+  h1, h2, h3, h4, h5, h6 {
+    & > code {
+      font-size: inherit !important;
+    }
   }
 
   pre {
