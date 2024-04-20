@@ -1,4 +1,4 @@
-<ul class="whitespace-nowrap inline-flex gap-1 items-center *:py-1 *:px-2">
+<ul class="breadcrumbs">
   {{~#each parts~}}
     {{~#if this.is_first_symbol~}}
       <ul>
@@ -8,7 +8,7 @@
 	    {{~#if @last~}}
 	      {{~this.name~}}
       {{~else~}}
-	      <a class="text-breadcrumb underline decoration-[1.5px] decoration-breadcrumb/50 underline-offset-4 hover:decoration-breadcrumb" href="{{this.href}}">
+	      <a href="{{this.href}}">
 		      {{~this.name~}}
 	      </a>
 			{{~/if~}}
@@ -18,7 +18,7 @@
 		  {{~#if this.is_symbol~}}
 			  <span>.</span>
 			  {{~else~}}
-			  <span class="!p-0 text-[#0F172A]">{{~> icons/arrow ~}}</span>
+			  <span class="text-[#0F172A]">{{~> icons/arrow ~}}</span>
 		  {{~/if~}}
 	  {{/unless}}
 

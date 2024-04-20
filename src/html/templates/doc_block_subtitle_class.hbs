@@ -1,6 +1,6 @@
 {{~#if implements~}}
   <div>
-    <span class="text-stone-400 italic"> implements </span>
+    <span class="type"> implements </span>
     {{~#each implements~}}
       {{{~this~}}} {{! typedef rendering }}
       {{~#unless @last~}}
@@ -12,7 +12,7 @@
 
 {{~#with extends~}}
   <div>
-    <span class="text-stone-400 italic"> extends </span>
+    <span class="type"> extends </span>
     {{~#if href ~}}
       <a class="link" href="{{href}}">
         {{~symbol~}}

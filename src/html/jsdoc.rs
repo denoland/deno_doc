@@ -377,9 +377,7 @@ pub fn markdown_to_html(
     if toc.is_empty() {
       None
     } else {
-      let mut toc_content = vec![String::from(
-        r#"<ul class="space-y-2 block overflow-y-auto h-full">"#,
-      )];
+      let mut toc_content = vec![String::from(r#"<nav class="toc"><ul>"#)];
 
       let mut current_level = 1;
 
@@ -387,7 +385,7 @@ pub fn markdown_to_html(
         match current_level.cmp(&level) {
           Ordering::Equal => {}
           Ordering::Less => {
-            toc_content.push(r#"<li><ul class="ml-4 space-y-2">"#.to_string());
+            toc_content.push(r#"<li><ul>"#.to_string());
             current_level = level;
           }
           Ordering::Greater => {
@@ -397,11 +395,11 @@ pub fn markdown_to_html(
         }
 
         toc_content.push(format!(
-          r##"<li><a class="hover:underline block overflow-x-hidden whitespace-nowrap text-ellipsis" href="#{anchor}" title="{heading}">{heading}</a></li>"##
+          r##"<li><a href="#{anchor}" title="{heading}">{heading}</a></li>"##
         ));
       }
 
-      toc_content.push(String::from("</ul>"));
+      toc_content.push(String::from("</ul></nav>"));
 
       Some(toc_content.join(""))
     }
