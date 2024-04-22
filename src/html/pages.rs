@@ -20,7 +20,8 @@ use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
 use crate::function::FunctionDef;
-use crate::html::jsdoc::{markdown_to_html, MarkdownToHTMLOptions};
+use crate::html::jsdoc::markdown_to_html;
+use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::partition::Partition;
 use crate::variable::VariableDef;
 use crate::DocNode;
