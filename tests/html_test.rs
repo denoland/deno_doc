@@ -46,6 +46,14 @@ impl Loader for SourceFileLoader {
 struct EmptyResolver {}
 
 impl HrefResolver for EmptyResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    href_path_resolve(current, target)
+  }
+
   fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
     None
   }

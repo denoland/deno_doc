@@ -291,6 +291,14 @@ mod test {
   struct TestResolver();
 
   impl HrefResolver for TestResolver {
+    fn resolve_path(
+      &self,
+      current: UrlResolveKind,
+      target: UrlResolveKind,
+    ) -> String {
+      crate::html::href_path_resolve(current, target)
+    }
+
     fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
       if symbol == ["bar"] {
         Some("global$bar".to_string())
