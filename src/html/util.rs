@@ -234,7 +234,6 @@ pub struct BreadcrumbCtx {
   pub href: String,
   pub is_symbol: bool,
   pub is_first_symbol: bool,
-  pub is_all_symbols_part: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]

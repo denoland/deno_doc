@@ -299,10 +299,7 @@ pub fn markdown_to_html(
 
     walk_node(&arena, root, &options, &plugins);
 
-    let mut bw = std::io::BufWriter::new(Vec::new());
-    comrak::format_html_with_plugins(root, &options, &mut bw, &plugins)
-      .unwrap();
-    String::from_utf8(bw.into_inner().unwrap()).unwrap()
+    render_node(root, &options, &plugins)
   };
 
   #[cfg(feature = "ammonia")]

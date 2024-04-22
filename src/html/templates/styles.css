@@ -79,7 +79,7 @@ summary::-webkit-details-marker {
 }
 
 .usage pre.highlight {
-  @apply border border-gray-300;
+  @apply border border-gray-300 max-md:border-x-0;
 }
 
 /* markdown */
