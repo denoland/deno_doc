@@ -542,7 +542,6 @@ impl ExampleCtx {
 
 #[derive(Debug, Serialize, Clone, Default)]
 pub struct ModuleDocCtx {
-  pub title: Option<String>,
   pub deprecated: Option<String>,
   pub usages: Option<UsagesCtx>,
   pub toc: Option<String>,
@@ -556,12 +555,6 @@ impl ModuleDocCtx {
     doc_nodes_by_url: &super::ContextDocNodesByUrl,
   ) -> Self {
     let module_doc_nodes = doc_nodes_by_url.get(&short_path.specifier).unwrap();
-
-    let title = if !render_ctx.ctx.hide_module_doc_title {
-      Some(short_path.display_name())
-    } else {
-      None
-    };
 
     let mut sections = Vec::with_capacity(7);
 
@@ -626,7 +619,6 @@ impl ModuleDocCtx {
     }
 
     Self {
-      title,
       deprecated,
       usages: UsagesCtx::new(render_ctx, &[]),
       toc,

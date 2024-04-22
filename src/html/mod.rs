@@ -82,7 +82,6 @@ pub struct GenerateOptions {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub hide_module_doc_title: bool,
   pub sidebar_flatten_namespaces: bool,
 }
 
@@ -98,7 +97,6 @@ pub struct GenerateCtx<'ctx> {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub hide_module_doc_title: bool,
   pub single_file_mode: bool,
   pub sidebar_hide_all_symbols: bool,
   pub sidebar_flatten_namespaces: bool,
@@ -445,7 +443,6 @@ pub fn generate(
     href_resolver: options.href_resolver,
     usage_composer: options.usage_composer,
     rewrite_map: options.rewrite_map,
-    hide_module_doc_title: options.hide_module_doc_title,
     single_file_mode: doc_nodes_by_url.len() == 1,
     sidebar_hide_all_symbols: false,
     sidebar_flatten_namespaces: options.sidebar_flatten_namespaces,

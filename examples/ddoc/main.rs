@@ -215,7 +215,6 @@ fn generate_docs_directory(
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    hide_module_doc_title: false,
     sidebar_flatten_namespaces: false,
   };
   let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;

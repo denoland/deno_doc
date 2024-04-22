@@ -1,6 +1,5 @@
 [
   {
-    "title": "default",
     "deprecated": null,
     "usages": {
       "show_tabs": false,
@@ -114,7 +113,6 @@
     }
   },
   {
-    "title": "foo",
     "deprecated": null,
     "usages": {
       "show_tabs": false,
