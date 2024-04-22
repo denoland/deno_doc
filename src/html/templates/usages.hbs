@@ -1,4 +1,4 @@
-<div class="px-6 py-5 mb-4 border max-md:border-x-0 md:rounded-lg bg-stone-50 border-stone-200 usage">
+<div class="usage">
   {{~#each usages~}}
     <style scoped>
       {{{~additional_css~}}} {{! css }}
@@ -8,11 +8,11 @@
   {{~/each~}}
 
 	{{~#if ../show_tabs~}}
-	  <nav class="flex items-center flex-row gap-2 mb-3 font-semibold">
+	  <nav>
 		  <span>Usage instructions for</span>
 
 		  <details id="usageSelector">
-			  <summary class="flex gap-1 select-none cursor-pointer rounded border border-gray-300 py-2 px-3">
+			  <summary>
 				  {{~#each usages~}}
 					  <div id="{{name}}_active_dropdown" class="hidden items-center gap-1">
 						  <div class="h-4 *:h-4 *:w-auto">{{{icon}}} {{! icon }}</div>
@@ -25,10 +25,10 @@
 				  </div>
 			  </summary>
 
-			  <div class="md:relative">
-				  <div class="absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-72 bg-white md:rounded border max-md:border-x-0 border-gray-300">
+			  <div>
+				  <div>
 					  {{~#each usages~}}
-						  <label for="{{name}}" class="flex items-center justify-between cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50">
+						  <label for="{{name}}">
 							  <div>{{name}}</div>
 
 							  <div class="h-5 *:h-5 *:w-auto">{{{icon}}} {{! icon }}</div>

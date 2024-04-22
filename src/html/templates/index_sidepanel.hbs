@@ -7,7 +7,7 @@
     {{~/if~}}
 
     {{~#if files~}}
-      <h3 class="title">Modules</h3>
+      <h2>Modules</h2>
       <ul>
         {{#each files}}
           <li>
@@ -20,11 +20,11 @@
     {{~/if~}}
 
     {{~#if kind_partitions~}}
-      <h3 class="title">APIs</h3>
+      <h2>APIs</h2>
       <ul class="space-y-2">
         {{~#each kind_partitions~}}
           <li>
-            <h4 class="subtitle">{{this.name}}</h4>
+            <h3>{{this.name}}</h3>
             <ul>
               {{~#each this.symbols~}}
                 <li>

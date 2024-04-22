@@ -7,7 +7,7 @@
 
 <div class="space-y-2">
   {{~#each overloads_ctx~}}
-    <label for="{{this.overload_id}}" class="space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:bg-stone-100">
+    <label for="{{this.overload_id}}" class="functionOverload">
       {{~> deprecated this.deprecated ~}}
       <code class="text-sm">
         <span class="font-bold">{{this.name}}</span><span class="font-medium">{{{this.summary}}} {{! typedef rendering }}</span>
