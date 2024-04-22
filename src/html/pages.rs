@@ -20,7 +20,7 @@ use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
 use crate::function::FunctionDef;
-use crate::html::jsdoc::markdown_to_html;
+use crate::html::jsdoc::{markdown_to_html, MarkdownToHTMLOptions};
 use crate::html::partition::Partition;
 use crate::variable::VariableDef;
 use crate::DocNode;
@@ -166,7 +166,17 @@ pub(crate) fn render_all_symbols_page(
           .iter()
           .find(|n| n.kind == DocNodeKind::ModuleDoc)
           .and_then(|node| node.js_doc.doc.as_ref())
-          .and_then(|doc| markdown_to_html(&render_ctx, doc, true, false))
+          .and_then(|doc| {
+            markdown_to_html(
+              &render_ctx,
+              doc,
+              MarkdownToHTMLOptions {
+                summary: true,
+                summary_prefer_title: true,
+                render_toc: false,
+              },
+            )
+          })
           .map(|markdown| markdown.html);
 
         let header = crate::html::util::SectionHeaderCtx {
