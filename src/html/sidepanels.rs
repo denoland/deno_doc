@@ -45,7 +45,6 @@ struct SidepanelPartitionCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SidepanelCtx {
-  package_name: Option<String>,
   partitions: Vec<SidepanelPartitionCtx>,
 }
 
@@ -98,10 +97,7 @@ impl SidepanelCtx {
       })
       .collect();
 
-    Self {
-      package_name: ctx.package_name.clone(),
-      partitions,
-    }
+    Self { partitions }
   }
 }
 
@@ -114,7 +110,6 @@ struct IndexSidepanelFileCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct IndexSidepanelCtx {
-  package_name: Option<String>,
   root_url: String,
   all_symbols_url: Option<String>,
   kind_partitions: Vec<SidepanelPartitionCtx>,
@@ -198,7 +193,6 @@ impl IndexSidepanelCtx {
       .collect::<Vec<_>>();
 
     Self {
-      package_name: ctx.package_name.clone(),
       root_url: ctx.href_resolver.resolve_path(
         current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
         UrlResolveKind::Root,

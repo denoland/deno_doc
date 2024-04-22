@@ -1,6 +1,4 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-// https://github.com/rustwasm/wasm-bindgen/issues/2774
-#![allow(clippy::unused_unit)]
 
 use anyhow::anyhow;
 use anyhow::Context;
@@ -46,7 +44,7 @@ impl JsLoader {
 
 impl Loader for JsLoader {
   fn load(
-    &mut self,
+    &self,
     specifier: &ModuleSpecifier,
     options: LoadOptions,
   ) -> LoadFuture {

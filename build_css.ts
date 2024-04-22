@@ -1,11 +1,11 @@
-import $ from "https://deno.land/x/dax@0.36.0/mod.ts";
-import browserslist from "npm:browserslist@4.22.2";
+import $ from "jsr:@david/dax@0.40.1";
+import browserslist from "npm:browserslist@4.23.0";
 import { browserslistToTargets, transform } from "npm:lightningcss";
 
 const browsers = browserslist(">= 0.5%, not dead");
 
 const styles =
-  await $`deno run -A npm:tailwindcss@3.4.1 --input src/html/templates/styles.css`
+  await $`deno run -A npm:tailwindcss@3.4.3 --input src/html/templates/styles.css`
     .text();
 const stylesWrapped = ".ddoc {" + styles + "}";
 const stylesFinal = transform({
@@ -18,7 +18,7 @@ const stylesFinal = transform({
 await Deno.writeFile("src/html/templates/styles.gen.css", stylesFinal.code);
 
 const page =
-  await $`deno run -A npm:tailwindcss@3.4.1 --input src/html/templates/pages/page.css`
+  await $`deno run -A npm:tailwindcss@3.4.3 --config=./src/html/templates/pages/tailwind.config.ts --input src/html/templates/pages/page.css`
     .bytes();
 const pageFinal = transform({
   filename: "./page.css",

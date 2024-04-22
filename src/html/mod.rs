@@ -63,8 +63,14 @@ pub type UsageComposer = Rc<
     &RenderContext,
     &[DocNodeWithContext],
     String,
-  ) -> IndexMap<String, String>,
+  ) -> IndexMap<UsageComposerEntry, String>,
 >;
+
+#[derive(Eq, PartialEq, Hash)]
+pub struct UsageComposerEntry {
+  pub name: String,
+  pub icon: Option<std::borrow::Cow<'static, str>>,
+}
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -349,8 +355,8 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/pages/index.hbs"),
   )?;
   reg.register_template_string(
-    "pages/search_bar",
-    include_str!("./templates/pages/search_bar.hbs"),
+    "pages/top_nav",
+    include_str!("./templates/pages/top_nav.hbs"),
   )?;
   reg.register_template_string(
     "pages/search_results",
@@ -362,6 +368,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   )?;
 
   // icons
+  reg.register_template_string(
+    "icons/arrow",
+    include_str!("./templates/icons/arrow.svg"),
+  )?;
   reg.register_template_string(
     "icons/copy",
     include_str!("./templates/icons/copy.svg"),
