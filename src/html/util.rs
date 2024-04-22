@@ -176,38 +176,43 @@ impl UrlResolveKind<'_> {
   }
 }
 
+pub fn href_path_resolve(
+  current: UrlResolveKind,
+  target: UrlResolveKind,
+) -> String {
+  let backs = match current {
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+      .repeat(if file.path == "." {
+        1
+      } else {
+        file.path.split('/').count() + 1
+      }),
+    UrlResolveKind::Root => String::new(),
+    UrlResolveKind::AllSymbols => String::from("./"),
+  };
+
+  match target {
+    UrlResolveKind::Root => backs,
+    UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
+    UrlResolveKind::Symbol {
+      file: target_file,
+      symbol: target_symbol,
+    } => {
+      format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
+    }
+    UrlResolveKind::File(target_file) => {
+      format!("{backs}./{}/~/index.html", target_file.path)
+    }
+  }
+}
+
 /// A trait used to define various functions used to resolve urls.
 pub trait HrefResolver {
   fn resolve_path(
     &self,
     current: UrlResolveKind,
     target: UrlResolveKind,
-  ) -> String {
-    let backs = match current {
-      UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-        .repeat(if file.path == "." {
-          1
-        } else {
-          file.path.split('/').count() + 1
-        }),
-      UrlResolveKind::Root => String::new(),
-      UrlResolveKind::AllSymbols => String::from("./"),
-    };
-
-    match target {
-      UrlResolveKind::Root => backs,
-      UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
-      UrlResolveKind::Symbol {
-        file: target_file,
-        symbol: target_symbol,
-      } => {
-        format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
-      }
-      UrlResolveKind::File(target_file) => {
-        format!("{backs}./{}/~/index.html", target_file.path)
-      }
-    }
-  }
+  ) -> String;
 
   /// Resolver for global symbols, like the Deno namespace or other built-ins
   fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String>;
@@ -234,6 +239,10 @@ pub struct BreadcrumbCtx {
 #[derive(Debug, Serialize, Clone)]
 pub struct BreadcrumbsCtx {
   pub parts: Vec<BreadcrumbCtx>,
+}
+
+impl BreadcrumbsCtx {
+  pub const TEMPLATE: &'static str = "breadcrumbs";
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -296,6 +305,10 @@ pub struct AnchorCtx {
   pub id: String,
 }
 
+impl AnchorCtx {
+  pub const TEMPLATE: &'static str = "anchor";
+}
+
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
@@ -319,6 +332,8 @@ pub struct SectionCtx {
 }
 
 impl SectionCtx {
+  pub const TEMPLATE: &'static str = "section";
+
   pub fn new(title: &'static str, content: SectionContentCtx) -> Self {
     Self {
       header: SectionHeaderCtx {
@@ -347,6 +362,8 @@ pub enum Tag {
 }
 
 impl Tag {
+  pub const TEMPLATE: &'static str = "tag";
+
   pub fn from_accessibility(
     accessibility: Option<Accessibility>,
   ) -> Option<Self> {
@@ -382,6 +399,8 @@ pub struct DocEntryCtx {
 }
 
 impl DocEntryCtx {
+  pub const TEMPLATE: &'static str = "doc_entry";
+
   #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,

@@ -289,6 +289,14 @@ mod test {
   struct TestResolver();
 
   impl HrefResolver for TestResolver {
+    fn resolve_path(
+      &self,
+      current: UrlResolveKind,
+      target: UrlResolveKind,
+    ) -> String {
+      crate::html::href_path_resolve(current, target)
+    }
+
     fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
       if symbol == ["bar"] {
         Some("global$bar".to_string())
@@ -327,9 +335,8 @@ mod test {
       href_resolver: Rc::new(TestResolver()),
       usage_composer: None,
       rewrite_map: None,
-      single_file_mode: false,
+      file_mode: Default::default(),
       sidebar_hide_all_symbols: false,
-      sidebar_flatten_namespaces: false,
     };
 
     let doc_nodes = vec![DocNodeWithContext {

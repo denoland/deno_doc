@@ -518,6 +518,8 @@ pub struct ExampleCtx {
 }
 
 impl ExampleCtx {
+  pub const TEMPLATE: &'static str = "example";
+
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
     let id = name_to_id("example", &i.to_string());
 
@@ -549,6 +551,8 @@ pub struct ModuleDocCtx {
 }
 
 impl ModuleDocCtx {
+  pub const TEMPLATE: &'static str = "module_doc";
+
   pub fn new(
     render_ctx: &RenderContext,
     short_path: &ShortPath,

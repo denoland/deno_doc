@@ -46,6 +46,14 @@ impl Loader for SourceFileLoader {
 struct EmptyResolver {}
 
 impl HrefResolver for EmptyResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    href_path_resolve(current, target)
+  }
+
   fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
     None
   }
@@ -129,7 +137,7 @@ async fn html_doc_files() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: None,
-      sidebar_flatten_namespaces: false,
+      composable_output: false,
     },
     get_files("single").await,
   )
@@ -184,7 +192,7 @@ async fn html_doc_files_rewrite() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      sidebar_flatten_namespaces: false,
+      composable_output: false,
     },
     get_files("multiple").await,
   )
@@ -255,9 +263,8 @@ async fn symbol_group() {
     href_resolver: Rc::new(EmptyResolver {}),
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
-    single_file_mode: false,
+    file_mode: Default::default(),
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let mut files = vec![];
@@ -299,7 +306,7 @@ async fn symbol_group() {
               Some(short_path.clone()),
             );
 
-            Some(pages::PageCtx {
+            Some(pages::SymbolPageCtx {
               html_head_ctx,
               sidepanel_ctx,
               symbol_group_ctx,
@@ -370,9 +377,8 @@ async fn symbol_search() {
     href_resolver: Rc::new(EmptyResolver {}),
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
-    single_file_mode: false,
+    file_mode: Default::default(),
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
@@ -429,9 +435,8 @@ async fn module_doc() {
     href_resolver: Rc::new(EmptyResolver {}),
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
-    single_file_mode: true,
+    file_mode: FileMode::Single,
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let mut module_docs = vec![];
