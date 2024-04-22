@@ -483,7 +483,6 @@ pub fn generate(
     href_resolver: options.href_resolver,
     usage_composer: options.usage_composer,
     rewrite_map: options.rewrite_map,
-    hide_module_doc_title: file_mode == FileMode::SingleDts,
     sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
     file_mode,
   };
@@ -550,7 +549,8 @@ pub fn generate(
     let partitions_by_kind =
       partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind, &doc_nodes_by_url);
+    let all_symbols =
+      pages::AllSymbolsCtx::new(&ctx, partitions_by_kind, &doc_nodes_by_url);
 
     if options.composable_output {
       files.insert(
@@ -627,7 +627,8 @@ pub fn generate(
                   ctx.render(SymbolGroupCtx::TEMPLATE, &symbol_group_ctx),
                 ),
               ]
-            } else {let file_name =
+            } else {
+              let file_name =
                 format!("{}/~/{}.html", short_path.path, symbol_group_ctx.name);
 
               let page_ctx = pages::SymbolPageCtx {
@@ -652,8 +653,7 @@ pub fn generate(
             if options.composable_output {
               let file_name = format!(
                 "{}/~/{}/redirect.json",
-                short_path.path,
-                current_symbol
+                short_path.path, current_symbol
               );
 
               vec![(file_name, serde_json::to_string(&redirect).unwrap())]

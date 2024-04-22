@@ -3,6 +3,7 @@ use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
 use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
+use super::util::SectionHeaderCtx;
 use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::FileMode;
@@ -93,10 +94,9 @@ impl IndexCtx {
     partitions: Partition,
     file: Option<ShortPath>,
   ) -> Self {
-    let short_path =
-      specifier
-    .cloned()
-    .map(|specifier| ShortPath::new(ctx, specifier));
+    let short_path = specifier
+      .cloned()
+      .map(|specifier| ShortPath::new(ctx, specifier));
 
     // will be default on index page with no main entrypoint
     let default = vec![];
@@ -105,13 +105,13 @@ impl IndexCtx {
       .and_then(|specifier| doc_nodes_by_url.get(specifier))
       .unwrap_or(&default);
 
-  let render_ctx = RenderContext::new(
-    ctx,
-    doc_nodes,
-    short_path
-      .as_ref()
-      .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-  );
+    let render_ctx = RenderContext::new(
+      ctx,
+      doc_nodes,
+      short_path
+        .as_ref()
+        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+    );
 
     let module_doc = short_path.as_ref().map(|short_path| {
       super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path, doc_nodes_by_url)
@@ -128,8 +128,23 @@ impl IndexCtx {
       HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
 
     let all_symbols = if ctx.file_mode == FileMode::SingleDts {
-      let sections =
-        super::namespace::render_namespace(&render_ctx, partitions.clone());
+      let sections = super::namespace::render_namespace(
+        &render_ctx,
+        partitions
+          .clone()
+          .into_iter()
+          .map(|(title, nodes)| {
+            (
+              SectionHeaderCtx {
+                title,
+                href: None,
+                doc: None,
+              },
+              nodes,
+            )
+          })
+          .collect(),
+      );
 
       Some(SymbolContentCtx {
         id: String::new(),
@@ -183,36 +198,36 @@ impl AllSymbolsCtx {
         .map(|(path, nodes)| {
           let module_doc_nodes = doc_nodes_by_url.get(&path.specifier).unwrap();
 
-        let doc = module_doc_nodes
-          .iter()
-          .find(|n| n.kind == DocNodeKind::ModuleDoc)
-          .and_then(|node| node.js_doc.doc.as_ref())
-          .and_then(|doc| {
-            markdown_to_html(
-              &render_ctx,
-              doc,
-              MarkdownToHTMLOptions {
-                summary: true,
-                summary_prefer_title: true,
-                render_toc: false,
-              },
-            )
-          })
-          .map(|markdown| markdown.html);
+          let doc = module_doc_nodes
+            .iter()
+            .find(|n| n.kind == DocNodeKind::ModuleDoc)
+            .and_then(|node| node.js_doc.doc.as_ref())
+            .and_then(|doc| {
+              markdown_to_html(
+                &render_ctx,
+                doc,
+                MarkdownToHTMLOptions {
+                  summary: true,
+                  summary_prefer_title: true,
+                  render_toc: false,
+                },
+              )
+            })
+            .map(|markdown| markdown.html);
 
-        let header = crate::html::util::SectionHeaderCtx {
-          title: path.display_name(),
-          href: Some(render_ctx.ctx.href_resolver.resolve_path(
-            render_ctx.get_current_resolve(),
-            path.as_resolve_kind(),
-          )),
-          doc,
-        };
+          let header = crate::html::util::SectionHeaderCtx {
+            title: path.display_name(),
+            href: Some(render_ctx.ctx.href_resolver.resolve_path(
+              render_ctx.get_current_resolve(),
+              path.as_resolve_kind(),
+            )),
+            doc,
+          };
 
-        (header, nodes)
-      })
-      .collect(),
-  );
+          (header, nodes)
+        })
+        .collect(),
+    );
 
     let html_head_ctx =
       HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
