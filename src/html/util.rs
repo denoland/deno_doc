@@ -6,7 +6,6 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
-use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -186,10 +185,10 @@ pub trait HrefResolver {
   ) -> String {
     let backs = match current {
       UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-        .repeat(if file.as_str() == "." {
+        .repeat(if file.path == "." {
           1
         } else {
-          file.as_str().split('/').count() + 1
+          file.path.split('/').count() + 1
         }),
       UrlResolveKind::Root => String::new(),
       UrlResolveKind::AllSymbols => String::from("./"),
@@ -202,10 +201,10 @@ pub trait HrefResolver {
         file: target_file,
         symbol: target_symbol,
       } => {
-        format!("{backs}./{}/~/{target_symbol}.html", target_file.as_str())
+        format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
       }
       UrlResolveKind::File(target_file) => {
-        format!("{backs}./{}/~/index.html", target_file.as_str())
+        format!("{backs}./{}/~/index.html", target_file.path)
       }
     }
   }
@@ -218,11 +217,7 @@ pub trait HrefResolver {
     -> Option<String>;
 
   /// Resolve the URL used in "usage" blocks.
-  fn resolve_usage(
-    &self,
-    current_specifier: &ModuleSpecifier,
-    current_file: Option<&ShortPath>,
-  ) -> Option<String>;
+  fn resolve_usage(&self, current_file: &ShortPath) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
@@ -310,10 +305,30 @@ pub enum SectionContentCtx {
   NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
 }
 
+#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct SectionHeaderCtx {
+  pub title: String,
+  pub href: Option<String>,
+  pub doc: Option<String>,
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct SectionCtx {
-  pub title: String,
+  pub header: SectionHeaderCtx,
   pub content: SectionContentCtx,
+}
+
+impl SectionCtx {
+  pub fn new(title: &'static str, content: SectionContentCtx) -> Self {
+    Self {
+      header: SectionHeaderCtx {
+        title: title.to_string(),
+        href: None,
+        doc: None,
+      },
+      content,
+    }
+  }
 }
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]

@@ -58,16 +58,8 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(
-    &self,
-    _current_specifier: &ModuleSpecifier,
-    current_file: Option<&ShortPath>,
-  ) -> Option<String> {
-    Some(
-      current_file
-        .map(|current_file| current_file.as_str().to_string())
-        .unwrap_or_default(),
-    )
+  fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
+    Some(current_file.path.clone())
   }
 
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
@@ -276,14 +268,13 @@ async fn symbol_group() {
 
   {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
-      let short_path = ctx.url_to_short_path(specifier);
+      let short_path = ShortPath::new(&ctx, specifier.clone());
 
       let partitions_for_nodes =
         partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
-        specifier,
         &short_path,
         &partitions_for_nodes,
         doc_nodes,
@@ -452,16 +443,12 @@ async fn module_doc() {
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   for specifier in &ctx.specifiers {
-    let short_path = ctx.url_to_short_path(specifier);
+    let short_path = ShortPath::new(&ctx, specifier.clone());
     let doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
-    let render_ctx = RenderContext::new(
-      &ctx,
-      doc_nodes,
-      UrlResolveKind::File(&short_path),
-      Some(specifier),
-    );
+    let render_ctx =
+      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(&short_path));
     let module_doc =
-      jsdoc::ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
+      jsdoc::ModuleDocCtx::new(&render_ctx, &short_path, &doc_nodes_by_url);
 
     module_docs.push(module_doc);
   }

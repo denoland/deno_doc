@@ -288,7 +288,22 @@ impl SymbolInnerCtx {
 
           let ns_parts = name.split('.').collect::<Vec<&str>>();
 
-          namespace::render_namespace(&ctx.with_namespace(ns_parts), partitions)
+          namespace::render_namespace(
+            &ctx.with_namespace(ns_parts),
+            partitions
+              .into_iter()
+              .map(|(title, nodes)| {
+                (
+                  crate::html::util::SectionHeaderCtx {
+                    title,
+                    href: None,
+                    doc: None,
+                  },
+                  nodes,
+                )
+              })
+              .collect(),
+          )
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };

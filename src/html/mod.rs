@@ -105,37 +105,6 @@ pub struct GenerateCtx<'ctx> {
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
-  pub fn url_to_short_path(&self, url: &ModuleSpecifier) -> ShortPath {
-    if let Some(rewrite) = self
-      .rewrite_map
-      .as_ref()
-      .and_then(|rewrite_map| rewrite_map.get(url))
-    {
-      return rewrite.to_owned().into();
-    }
-
-    let Ok(url_file_path) = url.to_file_path() else {
-      return url.to_string().into();
-    };
-
-    let Some(common_ancestor) = &self.common_ancestor else {
-      return url_file_path.to_string_lossy().to_string().into();
-    };
-
-    let stripped_path = url_file_path
-      .strip_prefix(common_ancestor)
-      .unwrap_or(&url_file_path);
-
-    let path = stripped_path.to_string_lossy().to_string();
-
-    if path.is_empty() {
-      ".".to_string()
-    } else {
-      path
-    }
-    .into()
-  }
-
   pub fn doc_nodes_by_url_add_context(
     &self,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -143,10 +112,12 @@ impl<'ctx> GenerateCtx<'ctx> {
     doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
+        let short_path = Rc::new(ShortPath::new(self, specifier.clone()));
+
         let nodes = nodes
           .into_iter()
           .map(|node| DocNodeWithContext {
-            origin: Rc::new(self.url_to_short_path(&specifier)),
+            origin: short_path.clone(),
             ns_qualifiers: Rc::new(vec![]),
             drilldown_parent_kind: None,
             kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
@@ -163,32 +134,85 @@ impl<'ctx> GenerateCtx<'ctx> {
 pub type ContextDocNodesByUrl =
   IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>;
 
-#[derive(Clone, Debug)]
-pub struct ShortPath(String);
+#[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct ShortPath {
+  pub path: String,
+  pub specifier: ModuleSpecifier,
+  pub is_main: bool,
+}
 
 impl ShortPath {
-  pub fn to_name(&self) -> String {
-    if self.0.is_empty() || self.0 == "." {
-      "main".to_string()
+  pub fn new(ctx: &GenerateCtx, specifier: ModuleSpecifier) -> Self {
+    let is_main = ctx
+      .main_entrypoint
+      .as_ref()
+      .is_some_and(|main_entrypoint| main_entrypoint == &specifier);
+
+    if let Some(rewrite) = ctx
+      .rewrite_map
+      .as_ref()
+      .and_then(|rewrite_map| rewrite_map.get(&specifier))
+    {
+      return ShortPath {
+        path: rewrite.to_owned(),
+        specifier,
+        is_main,
+      };
+    }
+
+    let Ok(url_file_path) = specifier.to_file_path() else {
+      return ShortPath {
+        path: specifier.to_string(),
+        specifier,
+        is_main,
+      };
+    };
+
+    let Some(common_ancestor) = &ctx.common_ancestor else {
+      return ShortPath {
+        path: url_file_path.to_string_lossy().to_string(),
+        specifier,
+        is_main,
+      };
+    };
+
+    let stripped_path = url_file_path
+      .strip_prefix(common_ancestor)
+      .unwrap_or(&url_file_path);
+
+    let path = stripped_path.to_string_lossy().to_string();
+
+    ShortPath {
+      path: if path.is_empty() {
+        ".".to_string()
+      } else {
+        path
+      },
+      specifier,
+      is_main,
+    }
+  }
+
+  pub fn display_name(&self) -> String {
+    if self.is_main {
+      "default".to_string()
     } else {
       self
-        .0
+        .path
         .strip_prefix('.')
-        .unwrap_or(&self.0)
+        .unwrap_or(&self.path)
         .strip_prefix('/')
-        .unwrap_or(&self.0)
+        .unwrap_or(&self.path)
         .to_string()
     }
   }
 
-  pub fn as_str(&self) -> &str {
-    &self.0
-  }
-}
-
-impl From<String> for ShortPath {
-  fn from(value: String) -> Self {
-    ShortPath(value)
+  pub fn as_resolve_kind(&self) -> UrlResolveKind {
+    if self.is_main {
+      UrlResolveKind::Root
+    } else {
+      UrlResolveKind::File(self)
+    }
   }
 }
 
@@ -454,24 +478,26 @@ pub fn generate(
       .collect::<Vec<DocNodeWithContext>>();
 
     let partitions_by_kind =
-      partition::partition_nodes_by_kind(&all_doc_nodes, true);
+      partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 
-    let all_symbols_render =
-      pages::render_all_symbols_page(&ctx, partitions_by_kind);
+    let all_symbols_render = pages::render_all_symbols_page(
+      &ctx,
+      partitions_by_kind,
+      &doc_nodes_by_url,
+    );
     files.insert("./all_symbols.html".to_string(), all_symbols_render);
   }
 
   // Pages for all discovered symbols
   {
     for (specifier, doc_nodes) in &doc_nodes_by_url {
-      let short_path = ctx.url_to_short_path(specifier);
+      let short_path = ShortPath::new(&ctx, specifier.clone());
 
       let partitions_for_nodes =
         partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
-        specifier,
         &short_path,
         &partitions_for_nodes,
         doc_nodes,
@@ -499,11 +525,8 @@ pub fn generate(
               Some(short_path.clone()),
             );
 
-            let file_name = format!(
-              "{}/~/{}.html",
-              short_path.as_str(),
-              symbol_group_ctx.name
-            );
+            let file_name =
+              format!("{}/~/{}.html", short_path.path, symbol_group_ctx.name);
 
             let page_ctx = pages::PageCtx {
               html_head_ctx,
@@ -527,7 +550,7 @@ pub fn generate(
               .unwrap();
 
             let file_name =
-              format!("{}/~/{}.html", short_path.as_str(), current_symbol);
+              format!("{}/~/{}.html", short_path.path, current_symbol);
 
             (file_name, symbol_page)
           }
@@ -542,7 +565,7 @@ pub fn generate(
         Some(short_path.clone()),
       );
 
-      files.insert(format!("{}/~/index.html", short_path.as_str()), index);
+      files.insert(format!("{}/~/index.html", short_path.path), index);
     }
   }
 

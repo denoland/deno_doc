@@ -1,6 +1,6 @@
-use super::ContextDocNodesByUrl;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use super::{ContextDocNodesByUrl, ShortPath};
 use crate::node::Location;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -55,8 +55,10 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
-        .into_owned()
+      html_escape::encode_text(
+        &ShortPath::new(ctx, location_url).display_name(),
+      )
+      .into_owned()
     } else {
       String::new()
     };
@@ -65,7 +67,7 @@ fn doc_node_into_search_index_nodes(
       kind: kinds,
       name,
       file: html_escape::encode_double_quoted_attribute(
-        doc_nodes[0].origin.as_str(),
+        &doc_nodes[0].origin.path,
       )
       .into_owned(),
       location,
@@ -86,7 +88,7 @@ fn doc_node_into_search_index_nodes(
     .map(|main_entrypoint| main_entrypoint != &location_url)
     .unwrap_or(true)
   {
-    html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
+    html_escape::encode_text(&ShortPath::new(ctx, location_url).display_name())
       .into_owned()
   } else {
     String::new()
@@ -96,7 +98,7 @@ fn doc_node_into_search_index_nodes(
     kind: kinds,
     name,
     file: html_escape::encode_double_quoted_attribute(
-      doc_nodes[0].origin.as_str(),
+      &doc_nodes[0].origin.path,
     )
     .into_owned(),
     location,
@@ -130,8 +132,10 @@ fn doc_node_into_search_index_nodes(
       .map(|main_entrypoint| main_entrypoint != &location_url)
       .unwrap_or(true)
     {
-      html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
-        .into_owned()
+      html_escape::encode_text(
+        &ShortPath::new(ctx, location_url).display_name(),
+      )
+      .into_owned()
     } else {
       String::new()
     };
@@ -152,7 +156,7 @@ fn doc_node_into_search_index_nodes(
       kind: kinds,
       name,
       file: html_escape::encode_double_quoted_attribute(
-        doc_nodes[0].origin.as_str(),
+        &doc_nodes[0].origin.path,
       )
       .into_owned(),
       location,

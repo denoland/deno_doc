@@ -17,7 +17,6 @@ pub struct RenderContext<'ctx> {
   current_imports: Rc<HashMap<String, String>>,
   current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
-  current_specifier: Option<&'ctx ModuleSpecifier>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Rc<Vec<&'ctx str>>,
 }
@@ -27,7 +26,6 @@ impl<'ctx> RenderContext<'ctx> {
     ctx: &'ctx GenerateCtx<'ctx>,
     doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
-    current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
     Self {
       ctx,
@@ -35,7 +33,6 @@ impl<'ctx> RenderContext<'ctx> {
       current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,
-      current_specifier,
       namespace_parts: Rc::new(vec![]),
     }
   }
@@ -67,10 +64,6 @@ impl<'ctx> RenderContext<'ctx> {
 
   pub fn get_current_resolve(&self) -> UrlResolveKind {
     self.current_resolve
-  }
-
-  pub fn get_current_specifier(&self) -> Option<&ModuleSpecifier> {
-    self.current_specifier
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
@@ -112,7 +105,12 @@ impl<'ctx> RenderContext<'ctx> {
               .get_current_resolve()
               .get_file()
               .cloned()
-              .unwrap_or_else(|| ShortPath::from(String::from("."))),
+              .unwrap_or_else(|| {
+                ShortPath::new(
+                  self.ctx,
+                  self.ctx.main_entrypoint.clone().unwrap(),
+                )
+              }),
             symbol: target_symbol,
           },
         ),
@@ -125,7 +123,7 @@ impl<'ctx> RenderContext<'ctx> {
           return Some(self.ctx.href_resolver.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
-              file: &self.ctx.url_to_short_path(&module_specifier),
+              file: &ShortPath::new(self.ctx, module_specifier),
               symbol: target_symbol,
             },
           ));
@@ -175,7 +173,7 @@ impl<'ctx> RenderContext<'ctx> {
         ]
       }
       UrlResolveKind::File(file) => {
-        if self.current_specifier == self.ctx.main_entrypoint.as_ref() {
+        if file.is_main {
           vec![BreadcrumbCtx {
             name: index_name,
             href: "".to_string(),
@@ -194,7 +192,7 @@ impl<'ctx> RenderContext<'ctx> {
               is_first_symbol: false,
             },
             BreadcrumbCtx {
-              name: file.to_name(),
+              name: file.display_name(),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
@@ -213,9 +211,9 @@ impl<'ctx> RenderContext<'ctx> {
           is_first_symbol: false,
         }];
 
-        if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
+        if file.is_main {
           parts.push(BreadcrumbCtx {
-            name: file.to_name(),
+            name: file.display_name(),
             href: self
               .ctx
               .href_resolver
@@ -307,12 +305,8 @@ mod test {
       Some(format!("{src}/{}", symbol.join(".")))
     }
 
-    fn resolve_usage(
-      &self,
-      current_specifier: &deno_ast::ModuleSpecifier,
-      _current_file: Option<&ShortPath>,
-    ) -> Option<String> {
-      Some(current_specifier.to_string())
+    fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
+      Some(current_file.specifier.to_string())
     }
 
     fn resolve_source(&self, location: &Location) -> Option<String> {
@@ -340,11 +334,10 @@ mod test {
     };
 
     let doc_nodes = vec![DocNodeWithContext {
-      origin: Rc::new(
-        ctx.url_to_short_path(
-          &ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-        ),
-      ),
+      origin: Rc::new(ShortPath::new(
+        &ctx,
+        ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+      )),
       ns_qualifiers: Rc::new(vec![]),
       drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(DocNodeKind::Import),
@@ -374,22 +367,17 @@ mod test {
     }];
 
     // globals
-    let render_ctx =
-      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root, None);
+    let render_ctx = RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("bar").unwrap(), "global$bar");
 
     // imports
-    let render_ctx =
-      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root, None);
+    let render_ctx = RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
 
-    let short_path = ShortPath::from("a".to_string());
-    let render_ctx = RenderContext::new(
-      &ctx,
-      &doc_nodes,
-      UrlResolveKind::File(&short_path),
-      None,
-    );
+    let short_path =
+      ShortPath::new(&ctx, ModuleSpecifier::parse("file:///a").unwrap());
+    let render_ctx =
+      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::File(&short_path));
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
   }
 }

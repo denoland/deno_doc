@@ -109,44 +109,49 @@ summary::-webkit-details-marker {
 }
 
 .section {
-  > h2 {
-    @apply text-xl leading-6 font-semibold py-1 mb-4;
+  @apply space-y-6;
+  
+  > div {
+    @apply space-y-1;
+    
+    > h2 {
+      @apply text-xl leading-6 font-semibold py-1;
+    }
   }
 }
 
 .namespaceSection {
-  @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+  @apply grid grid-cols-1 gap-y-3 lg:grid-cols-4 lg:gap-x-3 lg:gap-y-8;
   
   .namespaceItem {
-    @apply space-y-2;
+    @apply flex gap-x-2.5;
+    
+    .docNodeKindIcon {
+      @apply w-auto flex-col justify-start;
+      
+      > * + * {
+        @apply ml-0 -mt-0.5;
+      }
+    }
     
     &[aria-label="deprecated"] {
       @apply opacity-60;
       
-      .namespaceItemTitle a {
+      .namespaceItemContent > a {
         @apply line-through decoration-2 decoration-stone-500/70 text-stone-500;
       }
     }
     
-    .namespaceItemTitle {
-      @apply flex gap-2 items-center;
-      
-      > div:last-child {
-        @apply flex justify-between gap-4 flex-1 min-w-0 items-end overflow-hidden;
-        
-        > a {
-          @apply leading-tight truncate;
-        }
-        
-        > div {
-          @apply text-xs italic lg:mr-4 text-stone-400 truncate;
-        }
-      }
-    }
-    
     .namespaceItemContent {
-      @apply py-1 text-sm leading-5 text-stone-600 markdown_border;
-      @apply ml-2 !important;
+      @apply space-y-1.5;
+      
+      > a {
+        @apply inline-block leading-tight truncate font-medium;
+      }
+      
+      > div {
+        @apply text-sm leading-5 text-stone-600;
+      }
     }
   }
 }
@@ -168,7 +173,7 @@ summary::-webkit-details-marker {
 }
 
 .docNodeKindIcon {
-  @apply flex justify-end w-[2.125rem] shrink-0;
+  @apply inline-flex justify-end shrink-0;
   
   div {
     @apply rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono;
@@ -243,15 +248,15 @@ summary::-webkit-details-marker {
   }
 }
 
+.contextLink {
+  @apply text-contextLink underline decoration-[1.5px] decoration-contextLink/50 underline-offset-4 hover:decoration-contextLink;
+}
+
 .breadcrumbs {
   @apply whitespace-nowrap inline-flex gap-1 items-center;
   
   > li, > ul {
     @apply py-1 px-2;
-  }
-  
-  a {
-    @apply text-breadcrumb underline decoration-[1.5px] decoration-breadcrumb/50 underline-offset-4 hover:decoration-breadcrumb;
   }
 }
 

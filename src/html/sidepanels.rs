@@ -126,19 +126,13 @@ impl IndexSidepanelCtx {
           .unwrap_or(true)
       })
       .map(|url| {
-        let short_path = ctx.url_to_short_path(url);
+        let short_path = ShortPath::new(&ctx, url.clone());
         IndexSidepanelFileCtx {
           href: ctx.href_resolver.resolve_path(
             current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
-            if ctx.main_entrypoint.is_some()
-              && ctx.main_entrypoint.as_ref() == Some(url)
-            {
-              UrlResolveKind::Root
-            } else {
-              UrlResolveKind::File(&short_path)
-            },
+            short_path.as_resolve_kind(),
           ),
-          name: short_path.to_name(),
+          name: short_path.display_name(),
           active: current_entrypoint
             .is_some_and(|current_entrypoint| current_entrypoint == url),
         }

@@ -4,11 +4,11 @@
       <ul>
     {{~/if~}}
 
-    <li class="inline {{#if @first}}text-xl lg:text-2xl leading-none font-bold{{else}}lg:text-xl leading-[0.9em]{{/if}} {{#unless this.is_symbol}}rounded-lg hover:bg-[#EBF6FF]{{/unless}}">
+    <li class="inline {{#if @first}}text-xl lg:text-2xl leading-none font-bold{{else}}lg:text-xl leading-[0.9em]{{/if}} {{#unless (or @last this.is_symbol)}}rounded-lg hover:bg-[#EBF6FF]{{/unless}}">
 	    {{~#if @last~}}
 	      {{~this.name~}}
       {{~else~}}
-	      <a href="{{this.href}}">
+	      <a href="{{this.href}}" class="contextLink">
 		      {{~this.name~}}
 	      </a>
 			{{~/if~}}

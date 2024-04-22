@@ -20,6 +20,7 @@ use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
 use crate::function::FunctionDef;
+use crate::html::jsdoc::markdown_to_html;
 use crate::html::partition::Partition;
 use crate::variable::VariableDef;
 use crate::DocNode;
@@ -56,7 +57,7 @@ impl HtmlHeadCtx {
       ),
       current_file: current_file
         .as_ref()
-        .map(|current_file| current_file.as_str())
+        .map(|current_file| &*current_file.path)
         .unwrap_or_default()
         .to_string(),
       stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
@@ -92,7 +93,9 @@ pub fn render_index(
     file.as_ref(),
   );
 
-  let short_path = specifier.map(|specifier| ctx.url_to_short_path(specifier));
+  let short_path = specifier
+    .cloned()
+    .map(|specifier| ShortPath::new(ctx, specifier));
 
   // will be default on index page with no main entrypoint
   let default = vec![];
@@ -107,11 +110,10 @@ pub fn render_index(
     short_path
       .as_ref()
       .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-    specifier,
   );
 
-  let module_doc = specifier.map(|specifier| {
-    super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url)
+  let module_doc = short_path.as_ref().map(|short_path| {
+    super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path, doc_nodes_by_url)
   });
 
   let root = ctx.href_resolver.resolve_path(
@@ -147,13 +149,39 @@ struct AllSymbolsCtx {
 
 pub(crate) fn render_all_symbols_page(
   ctx: &GenerateCtx,
-  partitions: Partition,
+  partitions: crate::html::partition::EntrypointPartition,
+  doc_nodes_by_url: &super::ContextDocNodesByUrl,
 ) -> String {
   // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
-  let render_ctx =
-    RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
+  let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
 
-  let sections = super::namespace::render_namespace(&render_ctx, partitions);
+  let sections = super::namespace::render_namespace(
+    &render_ctx,
+    partitions
+      .into_iter()
+      .map(|(path, nodes)| {
+        let module_doc_nodes = doc_nodes_by_url.get(&path.specifier).unwrap();
+
+        let doc = module_doc_nodes
+          .iter()
+          .find(|n| n.kind == DocNodeKind::ModuleDoc)
+          .and_then(|node| node.js_doc.doc.as_ref())
+          .and_then(|doc| markdown_to_html(&render_ctx, doc, true, false))
+          .map(|markdown| markdown.html);
+
+        let header = crate::html::util::SectionHeaderCtx {
+          title: path.display_name(),
+          href: Some(render_ctx.ctx.href_resolver.resolve_path(
+            render_ctx.get_current_resolve(),
+            path.as_resolve_kind(),
+          )),
+          doc,
+        };
+
+        (header, nodes)
+      })
+      .collect(),
+  );
 
   let html_head_ctx =
     HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
@@ -188,7 +216,6 @@ pub enum SymbolPage {
 
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
-  current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &Partition,
   doc_nodes: &[DocNodeWithContext],
@@ -308,7 +335,6 @@ pub fn generate_symbol_pages_for_module(
     doc_nodes,
     partitions_for_nodes,
     &name_partitions,
-    current_specifier,
     short_path,
     vec![],
   )
@@ -319,7 +345,6 @@ fn generate_symbol_pages_inner(
   doc_nodes_for_module: &[DocNodeWithContext],
   partitions_for_nodes: &Partition,
   name_partitions: &Partition,
-  current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,
 ) -> Vec<SymbolPage> {
@@ -343,7 +368,6 @@ fn generate_symbol_pages_inner(
     let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
       ctx,
       doc_nodes_for_module,
-      current_specifier,
       short_path,
       &namespace_paths,
       &namespaced_name,
@@ -401,7 +425,6 @@ fn generate_symbol_pages_inner(
         doc_nodes_for_module,
         partitions_for_nodes,
         &namespace_name_partitions,
-        current_specifier,
         short_path,
         namespace_paths,
       );
@@ -423,7 +446,6 @@ pub struct PageCtx {
 pub fn render_symbol_page(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
-  current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: &[&str],
   namespaced_name: &str,
@@ -436,7 +458,6 @@ pub fn render_symbol_page(
       file: short_path,
       symbol: namespaced_name,
     },
-    Some(current_specifier),
   );
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())

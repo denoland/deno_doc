@@ -1,6 +1,7 @@
 use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use super::ShortPath;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -220,6 +221,79 @@ pub fn partition_nodes_by_category(
           Ordering::Equal => unreachable!(),
         },
       }
+    })
+    .collect()
+}
+
+pub type EntrypointPartition = IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>;
+
+pub fn partition_nodes_by_entrypoint(
+  doc_nodes: &[DocNodeWithContext],
+  flatten_namespaces: bool,
+) -> EntrypointPartition {
+  fn partition_nodes_by_entrypoint_inner(
+    partitions: &mut EntrypointPartition,
+    doc_nodes: &[DocNodeWithContext],
+    flatten_namespaces: bool,
+  ) {
+    for node in doc_nodes {
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
+      {
+        continue;
+      }
+
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
+        let mut namespace = (*node.ns_qualifiers).clone();
+        namespace.push(node.get_name().to_string());
+
+        let ns_qualifiers = Rc::new(namespace);
+
+        partition_nodes_by_entrypoint_inner(
+          partitions,
+          &namespace_def
+            .elements
+            .iter()
+            .map(|element| {
+              let mut child = node.create_child(element.clone());
+              child.ns_qualifiers = ns_qualifiers.clone();
+              child
+            })
+            .collect::<Vec<_>>(),
+          true,
+        )
+      }
+
+      let entry = partitions.entry(node.origin.clone()).or_default();
+
+      if !entry
+        .iter()
+        .any(|n| n.get_name() == node.get_name() && n.kind == node.kind)
+      {
+        entry.push(node.clone());
+      }
+    }
+  }
+
+  let mut partitions = IndexMap::default();
+
+  partition_nodes_by_entrypoint_inner(
+    &mut partitions,
+    doc_nodes,
+    flatten_namespaces,
+  );
+
+  for (_kind, nodes) in partitions.iter_mut() {
+    nodes.sort_by_key(|n| n.get_name().to_string());
+  }
+
+  partitions
+    .sorted_by(|key1, _value1, key2, _value2| {
+      key1
+        .is_main
+        .cmp(&key2.is_main)
+        .then_with(|| key1.display_name().cmp(&key2.display_name()))
     })
     .collect()
 }

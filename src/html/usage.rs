@@ -35,7 +35,7 @@ pub fn usage_to_md(
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
       file
-        .to_name()
+        .display_name()
         .replace('-', "_")
         .replace(|c: char| c.is_ascii_alphanumeric(), "")
     } else {
@@ -120,10 +120,10 @@ impl UsagesCtx {
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
   ) -> Option<Self> {
-    let url = ctx.ctx.href_resolver.resolve_usage(
-      ctx.get_current_specifier()?,
-      ctx.get_current_resolve().get_file(),
-    )?;
+    let url = ctx
+      .ctx
+      .href_resolver
+      .resolve_usage(ctx.get_current_resolve().get_file()?)?;
 
     if let Some(usage_composer) = &ctx.ctx.usage_composer {
       let usages = usage_composer(ctx, doc_nodes, url);
