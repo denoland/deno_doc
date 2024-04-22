@@ -112,8 +112,6 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     let theme = &self.theme_set.themes["InspiredGitHub"];
     let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
 
-    let code = html_escape::encode_text(code);
-
     match self.highlight_html(
       syntect::util::LinesWithEndings::from(&code),
       |lines, line| {
@@ -143,7 +141,6 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
   ) -> std::io::Result<()> {
     let lang = lang.unwrap_or_default();
     let config = (self.language_cb)(lang);
-    let code = html_escape::encode_text(code);
     let source = code.as_bytes();
     if let Some(config) = config {
       let mut highlighter = tree_sitter_highlight::Highlighter::new();
