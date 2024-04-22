@@ -1,6 +1,6 @@
-use super::DocNodeWithContext;
 use super::RenderContext;
 use super::UrlResolveKind;
+use super::{DocNodeWithContext, FileMode};
 use crate::DocNodeKind;
 use serde::Serialize;
 
@@ -116,10 +116,18 @@ pub struct UsageCtx {
 }
 
 impl UsagesCtx {
+  pub const TEMPLATE: &'static str = "usages";
+
   pub fn new(
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
   ) -> Option<Self> {
+    if ctx.ctx.usage_composer.is_none()
+      && ctx.ctx.file_mode == FileMode::SingleDts
+    {
+      return None;
+    }
+
     let url = ctx.ctx.href_resolver.resolve_usage(
       ctx.get_current_specifier()?,
       ctx.get_current_resolve().get_file(),

@@ -83,7 +83,7 @@ impl NamespaceNodeCtx {
         .iter()
         .map(|node| node.kind_with_drilldown.into())
         .collect(),
-      origin_name: if ctx.ctx.single_file_mode {
+      origin_name: if ctx.ctx.file_mode.is_single() {
         None
       } else {
         Some(nodes[0].origin.to_name())

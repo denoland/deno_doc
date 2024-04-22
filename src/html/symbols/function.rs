@@ -58,66 +58,74 @@ pub struct FunctionCtx {
   functions: Vec<SymbolContentCtx>,
 }
 
-pub(crate) fn render_function(
-  ctx: &RenderContext,
-  doc_nodes: Vec<&DocNodeWithContext>,
-) -> FunctionCtx {
-  let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
-  let mut functions_content = Vec::with_capacity(doc_nodes.len());
+impl FunctionCtx {
+  pub const TEMPLATE: &'static str = "function";
 
-  for (i, doc_node) in doc_nodes.into_iter().enumerate() {
-    let function_def = doc_node.function_def.as_ref().unwrap();
+  pub(crate) fn new(
+    ctx: &RenderContext,
+    doc_nodes: Vec<&DocNodeWithContext>,
+  ) -> Self {
+    let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
+    let mut functions_content = Vec::with_capacity(doc_nodes.len());
 
-    if function_def.has_body && i != 0 {
-      continue;
-    }
+    for (i, doc_node) in doc_nodes.into_iter().enumerate() {
+      let function_def = doc_node.function_def.as_ref().unwrap();
 
-    let deprecated = doc_node.js_doc.tags.iter().find_map(|tag| {
-      if let JsDocTag::Deprecated { doc } = tag {
-        Some(
-          doc
-            .as_ref()
-            .map(|doc| crate::html::jsdoc::render_markdown_summary(ctx, doc))
-            .unwrap_or_default(),
-        )
+      if function_def.has_body && i != 0 {
+        continue;
+      }
+
+      let deprecated = doc_node.js_doc.tags.iter().find_map(|tag| {
+        if let JsDocTag::Deprecated { doc } = tag {
+          Some(
+            doc
+              .as_ref()
+              .map(|doc| crate::html::jsdoc::render_markdown_summary(ctx, doc))
+              .unwrap_or_default(),
+          )
+        } else {
+          None
+        }
+      });
+
+      let overload_id =
+        name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
+      let id = name_to_id("function", doc_node.get_name());
+      let css = render_css_for_fn(&overload_id, deprecated.is_some());
+
+      let summary_doc = if !(function_def.has_body && i == 0) {
+        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, true)
       } else {
         None
-      }
-    });
+      };
 
-    let overload_id =
-      name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
-    let id = name_to_id("function", doc_node.get_name());
-    let css = render_css_for_fn(&overload_id, deprecated.is_some());
+      let html_attrs = (i == 0)
+        .then_some("checked")
+        .unwrap_or_default()
+        .to_string();
 
-    let summary_doc = if !(function_def.has_body && i == 0) {
-      crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, true)
-    } else {
-      None
-    };
+      overloads_ctx.push(OverloadRenderCtx {
+        function_id: id.to_string(),
+        overload_id: overload_id.to_string(),
+        additional_css: css,
+        html_attrs,
+        name: doc_node.get_name().to_string(),
+        deprecated,
+        summary: render_function_summary(function_def, ctx),
+        summary_doc,
+      });
 
-    let html_attrs = (i == 0)
-      .then_some("checked")
-      .unwrap_or_default()
-      .to_string();
+      functions_content.push(render_single_function(
+        ctx,
+        doc_node,
+        &overload_id,
+      ));
+    }
 
-    overloads_ctx.push(OverloadRenderCtx {
-      function_id: id.to_string(),
-      overload_id: overload_id.to_string(),
-      additional_css: css,
-      html_attrs,
-      name: doc_node.get_name().to_string(),
-      deprecated,
-      summary: render_function_summary(function_def, ctx),
-      summary_doc,
-    });
-
-    functions_content.push(render_single_function(ctx, doc_node, &overload_id));
-  }
-
-  FunctionCtx {
-    overloads_ctx,
-    functions: functions_content,
+    FunctionCtx {
+      overloads_ctx,
+      functions: functions_content,
+    }
   }
 }
 
