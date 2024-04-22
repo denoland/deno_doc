@@ -126,7 +126,7 @@ impl IndexSidepanelCtx {
           .unwrap_or(true)
       })
       .map(|url| {
-        let short_path = ShortPath::new(&ctx, url.clone());
+        let short_path = ShortPath::new(ctx, url.clone());
         IndexSidepanelFileCtx {
           href: ctx.href_resolver.resolve_path(
             current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
