@@ -1,7 +1,4 @@
 {
-  "name": "@deno/doc",
-  "version": "0.125.0",
-  "exports": "./js/mod.ts",
   "tasks": {
     "build": "cp LICENSE js/LICENSE && deno run -A jsr:@deno/wasmbuild@0.17.1 --project deno_doc_wasm --out js",
     "test": "deno test --allow-read --allow-net",
