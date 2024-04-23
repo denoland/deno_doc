@@ -387,7 +387,7 @@ mod test {
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
 
     let render_ctx =
-      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(&short_path));
+      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(short_path));
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
   }
 }
