@@ -33,6 +33,7 @@ pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use usage::usage_to_md;
 pub use util::compute_namespaced_symbols;
+pub use util::href_path_resolve;
 pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
@@ -62,8 +63,14 @@ pub type UsageComposer = Rc<
     &RenderContext,
     &[DocNodeWithContext],
     String,
-  ) -> IndexMap<String, String>,
+  ) -> IndexMap<UsageComposerEntry, String>,
 >;
+
+#[derive(Eq, PartialEq, Hash)]
+pub struct UsageComposerEntry {
+  pub name: String,
+  pub icon: Option<std::borrow::Cow<'static, str>>,
+}
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -76,8 +83,7 @@ pub struct GenerateOptions {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub hide_module_doc_title: bool,
-  pub sidebar_flatten_namespaces: bool,
+  pub composable_output: bool,
 }
 
 pub struct GenerateCtx<'ctx> {
@@ -93,9 +99,8 @@ pub struct GenerateCtx<'ctx> {
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub hide_module_doc_title: bool,
-  pub single_file_mode: bool,
+  pub file_mode: FileMode,
   pub sidebar_hide_all_symbols: bool,
-  pub sidebar_flatten_namespaces: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -151,6 +156,14 @@ impl<'ctx> GenerateCtx<'ctx> {
         (specifier, nodes)
       })
       .collect::<IndexMap<_, _>>()
+  }
+
+  pub fn render<T: serde::Serialize>(
+    &self,
+    template: &str,
+    data: &T,
+  ) -> String {
+    self.hbs.render(template, data).unwrap()
   }
 }
 
@@ -244,19 +257,19 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/sidepanel_common.hbs"),
   )?;
   reg.register_template_string(
-    "sidepanel",
+    sidepanels::SidepanelCtx::TEMPLATE,
     include_str!("./templates/sidepanel.hbs"),
   )?;
   reg.register_template_string(
-    "doc_entry",
+    util::DocEntryCtx::TEMPLATE,
     include_str!("./templates/doc_entry.hbs"),
   )?;
   reg.register_template_string(
-    "section",
+    util::SectionCtx::TEMPLATE,
     include_str!("./templates/section.hbs"),
   )?;
   reg.register_template_string(
-    "index_sidepanel",
+    sidepanels::IndexSidepanelCtx::TEMPLATE,
     include_str!("./templates/index_sidepanel.hbs"),
   )?;
   reg.register_template_string(
@@ -268,46 +281,49 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/namespace_section.hbs"),
   )?;
   reg.register_template_string(
-    "doc_block_subtitle_class",
+    symbols::DocBlockSubtitleCtx::TEMPLATE_CLASS,
     include_str!("./templates/doc_block_subtitle_class.hbs"),
   )?;
   reg.register_template_string(
-    "doc_block_subtitle_interface",
+    symbols::DocBlockSubtitleCtx::TEMPLATE_INTERFACE,
     include_str!("./templates/doc_block_subtitle_interface.hbs"),
   )?;
   reg.register_template_string(
-    "anchor",
+    util::AnchorCtx::TEMPLATE,
     include_str!("./templates/anchor.hbs"),
   )?;
   reg.register_template_string(
-    "symbol_group",
+    SymbolGroupCtx::TEMPLATE,
     include_str!("./templates/symbol_group.hbs"),
   )?;
   reg.register_template_string(
-    "symbol_content",
+    SymbolContentCtx::TEMPLATE,
     include_str!("./templates/symbol_content.hbs"),
   )?;
   reg.register_template_string(
-    "example",
+    jsdoc::ExampleCtx::TEMPLATE,
     include_str!("./templates/example.hbs"),
   )?;
   reg.register_template_string(
-    "function",
+    symbols::function::FunctionCtx::TEMPLATE,
     include_str!("./templates/function.hbs"),
   )?;
   reg.register_template_string(
-    "module_doc",
+    jsdoc::ModuleDocCtx::TEMPLATE,
     include_str!("./templates/module_doc.hbs"),
   )?;
   reg.register_template_string(
-    "breadcrumbs",
+    util::BreadcrumbsCtx::TEMPLATE,
     include_str!("./templates/breadcrumbs.hbs"),
   )?;
   reg.register_template_string(
-    "usages",
+    usage::UsagesCtx::TEMPLATE,
     include_str!("./templates/usages.hbs"),
   )?;
-  reg.register_template_string("tag", include_str!("./templates/tag.hbs"))?;
+  reg.register_template_string(
+    util::Tag::TEMPLATE,
+    include_str!("./templates/tag.hbs"),
+  )?;
   reg.register_template_string(
     "source_button",
     include_str!("./templates/source_button.hbs"),
@@ -323,24 +339,24 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
 
   // pages
   reg.register_template_string(
-    "pages/html_head",
+    pages::HtmlHeadCtx::TEMPLATE,
     include_str!("./templates/pages/html_head.hbs"),
   )?;
   reg.register_template_string(
-    "pages/all_symbols",
+    pages::AllSymbolsCtx::TEMPLATE,
     include_str!("./templates/pages/all_symbols.hbs"),
   )?;
   reg.register_template_string(
-    "pages/symbol",
+    pages::SymbolPageCtx::TEMPLATE,
     include_str!("./templates/pages/symbol.hbs"),
   )?;
   reg.register_template_string(
-    "pages/index",
+    pages::IndexCtx::TEMPLATE,
     include_str!("./templates/pages/index.hbs"),
   )?;
   reg.register_template_string(
-    "pages/search_bar",
-    include_str!("./templates/pages/search_bar.hbs"),
+    "pages/top_nav",
+    include_str!("./templates/pages/top_nav.hbs"),
   )?;
   reg.register_template_string(
     "pages/search_results",
@@ -352,6 +368,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   )?;
 
   // icons
+  reg.register_template_string(
+    "icons/arrow",
+    include_str!("./templates/icons/arrow.svg"),
+  )?;
   reg.register_template_string(
     "icons/copy",
     include_str!("./templates/icons/copy.svg"),
@@ -389,6 +409,24 @@ pub fn setup_highlighter(
   }
 }
 
+#[derive(Default, Debug, Eq, PartialEq)]
+pub enum FileMode {
+  #[default]
+  Normal,
+  Single,
+  SingleDts,
+}
+
+impl FileMode {
+  fn is_single(&self) -> bool {
+    match self {
+      FileMode::Normal => false,
+      FileMode::Single => true,
+      FileMode::SingleDts => true,
+    }
+  }
+}
+
 pub fn generate(
   mut options: GenerateOptions,
   doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
@@ -397,6 +435,17 @@ pub fn generate(
     options.main_entrypoint =
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
+
+  let file_mode = if doc_nodes_by_url.len() == 1 {
+    let (specifier, _) = doc_nodes_by_url.first().unwrap();
+    if specifier.as_str().ends_with(".d.ts") {
+      FileMode::SingleDts
+    } else {
+      FileMode::Single
+    }
+  } else {
+    FileMode::Normal
+  };
 
   let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
   let ctx = GenerateCtx {
@@ -411,10 +460,9 @@ pub fn generate(
     href_resolver: options.href_resolver,
     usage_composer: options.usage_composer,
     rewrite_map: options.rewrite_map,
-    hide_module_doc_title: options.hide_module_doc_title,
-    single_file_mode: doc_nodes_by_url.len() == 1,
-    sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: options.sidebar_flatten_namespaces,
+    hide_module_doc_title: file_mode == FileMode::SingleDts,
+    sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
+    file_mode,
   };
   let mut files = HashMap::new();
 
@@ -425,18 +473,51 @@ pub fn generate(
     let partitions_for_entrypoint_nodes =
       partition::get_partitions_for_main_entrypoint(&ctx, &doc_nodes_by_url);
 
-    let index = pages::render_index(
+    let index = pages::IndexCtx::new(
       &ctx,
       ctx.main_entrypoint.as_ref(),
       &doc_nodes_by_url,
       partitions_for_entrypoint_nodes,
       None,
     );
-    files.insert("./index.html".to_string(), index);
+
+    if options.composable_output {
+      files.insert(
+        "./sidepanel.html".to_string(),
+        ctx.render(
+          sidepanels::IndexSidepanelCtx::TEMPLATE,
+          &index.sidepanel_ctx,
+        ),
+      );
+
+      files.insert(
+        "./breadcrumbs.html".to_string(),
+        ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
+      );
+
+      if index.module_doc.is_some() || index.all_symbols.is_some() {
+        let mut out = String::new();
+
+        if let Some(module_doc) = index.module_doc {
+          out.push_str(&ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc));
+        }
+
+        if let Some(all_symbols) = index.all_symbols {
+          out.push_str(&ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols));
+        }
+
+        files.insert("./content.html".to_string(), out);
+      }
+    } else {
+      files.insert(
+        "./index.html".to_string(),
+        ctx.render(pages::IndexCtx::TEMPLATE, &index),
+      );
+    }
   }
 
   // All symbols (list of all symbols in all files)
-  {
+  if ctx.file_mode != FileMode::SingleDts {
     let all_doc_nodes = doc_nodes_by_url
       .values()
       .flatten()
@@ -446,9 +527,25 @@ pub fn generate(
     let partitions_by_kind =
       partition::partition_nodes_by_kind(&all_doc_nodes, true);
 
-    let all_symbols_render =
-      pages::render_all_symbols_page(&ctx, partitions_by_kind);
-    files.insert("./all_symbols.html".to_string(), all_symbols_render);
+    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+
+    if options.composable_output {
+      files.insert(
+        "./all_symbols/content.html".to_string(),
+        ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols.content),
+      );
+
+      files.insert(
+        "./all_symbols/breadcrumbs.html".to_string(),
+        ctx
+          .render(util::BreadcrumbsCtx::TEMPLATE, &all_symbols.breadcrumbs_ctx),
+      );
+    } else {
+      files.insert(
+        "./all_symbols.html".to_string(),
+        ctx.render(pages::AllSymbolsCtx::TEMPLATE, &all_symbols),
+      );
+    }
   }
 
   // Pages for all discovered symbols
@@ -467,8 +564,8 @@ pub fn generate(
         doc_nodes,
       );
 
-      files.extend(symbol_pages.into_iter().map(
-        |symbol_page| match symbol_page {
+      files.extend(symbol_pages.into_iter().flat_map(|symbol_page| {
+        match symbol_page {
           SymbolPage::Symbol {
             breadcrumbs_ctx,
             sidepanel_ctx,
@@ -489,42 +586,70 @@ pub fn generate(
               Some(short_path.clone()),
             );
 
-            let file_name = format!(
-              "{}/~/{}.html",
-              short_path.as_str(),
-              symbol_group_ctx.name
-            );
+            if options.composable_output {
+              let dir_name =
+                format!("{}/~/{}", short_path.as_str(), symbol_group_ctx.name);
 
-            let page_ctx = pages::PageCtx {
-              html_head_ctx,
-              sidepanel_ctx,
-              symbol_group_ctx,
-              breadcrumbs_ctx,
-            };
+              vec![
+                (
+                  format!("{dir_name}/sidepanel.html"),
+                  ctx
+                    .render(sidepanels::SidepanelCtx::TEMPLATE, &sidepanel_ctx),
+                ),
+                (
+                  format!("{dir_name}/breadcrumbs.html"),
+                  ctx.render(util::BreadcrumbsCtx::TEMPLATE, &breadcrumbs_ctx),
+                ),
+                (
+                  format!("{dir_name}/content.html"),
+                  ctx.render(SymbolGroupCtx::TEMPLATE, &symbol_group_ctx),
+                ),
+              ]
+            } else {
+              let file_name = format!(
+                "{}/~/{}.html",
+                short_path.as_str(),
+                symbol_group_ctx.name
+              );
 
-            let symbol_page =
-              ctx.hbs.render("pages/symbol", &page_ctx).unwrap();
+              let page_ctx = pages::SymbolPageCtx {
+                html_head_ctx,
+                sidepanel_ctx,
+                symbol_group_ctx,
+                breadcrumbs_ctx,
+              };
 
-            (file_name, symbol_page)
+              let symbol_page =
+                ctx.render(pages::SymbolPageCtx::TEMPLATE, &page_ctx);
+
+              vec![(file_name, symbol_page)]
+            }
           }
           SymbolPage::Redirect {
             current_symbol,
             href,
           } => {
-            let symbol_page = ctx
-              .hbs
-              .render("pages/redirect", &serde_json::json!({ "path": href }))
-              .unwrap();
+            let redirect = serde_json::json!({ "path": href });
 
-            let file_name =
-              format!("{}/~/{}.html", short_path.as_str(), current_symbol);
+            if options.composable_output {
+              let file_name = format!(
+                "{}/~/{}/redirect.json",
+                short_path.as_str(),
+                current_symbol
+              );
 
-            (file_name, symbol_page)
+              vec![(file_name, serde_json::to_string(&redirect).unwrap())]
+            } else {
+              let file_name =
+                format!("{}/~/{}.html", short_path.as_str(), current_symbol);
+
+              vec![(file_name, ctx.render("pages/redirect", &redirect))]
+            }
           }
-        },
-      ));
+        }
+      }));
 
-      let index = pages::render_index(
+      let index = pages::IndexCtx::new(
         &ctx,
         Some(specifier),
         &doc_nodes_by_url,
@@ -532,19 +657,57 @@ pub fn generate(
         Some(short_path.clone()),
       );
 
-      files.insert(format!("{}/~/index.html", short_path.as_str()), index);
+      if options.composable_output {
+        let dir = format!("{}/~", short_path.as_str());
+        files.insert(
+          format!("{dir}/sidepanel.html"),
+          ctx.render(
+            sidepanels::IndexSidepanelCtx::TEMPLATE,
+            &index.sidepanel_ctx,
+          ),
+        );
+
+        files.insert(
+          format!("{dir}/breadcrumbs.html"),
+          ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
+        );
+
+        if index.module_doc.is_some() || index.all_symbols.is_some() {
+          let mut out = String::new();
+
+          if let Some(module_doc) = index.module_doc {
+            out.push_str(
+              &ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc),
+            );
+          }
+
+          if let Some(all_symbols) = index.all_symbols {
+            out.push_str(&ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols));
+          }
+
+          files.insert(format!("{dir}/content.html"), out);
+        }
+      } else {
+        files.insert(
+          format!("{}/~/index.html", short_path.as_str()),
+          ctx.render(pages::IndexCtx::TEMPLATE, &index),
+        );
+      }
     }
   }
 
   files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
-  files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
     search::get_search_index_file(&ctx, &doc_nodes_by_url)?,
   );
   files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
-  files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
-  files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+
+  if !options.composable_output {
+    files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
+    files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
+    files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+  }
 
   Ok(files)
 }

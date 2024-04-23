@@ -1,37 +1,29 @@
-<div class="mb-6 break-all leading-none">
+<ul class="breadcrumbs">
   {{~#each parts~}}
     {{~#if this.is_first_symbol~}}
-      <span class="inline-flex">
+      <ul>
     {{~/if~}}
 
-    {{~#unless @last~}}
-      <a class="link {{#if @first}}italic{{/if}}" href="{{this.href}}">
-        {{~this.name~}}
-      </a>
-
-      {{~#if this.is_symbol~}}
-        <span>.</span>
+    <li class="inline {{#if @first}}text-xl lg:text-2xl leading-none font-bold{{else}}lg:text-xl leading-[0.9em]{{/if}} {{#unless this.is_symbol}}rounded-lg hover:bg-[#EBF6FF]{{/unless}}">
+	    {{~#if @last~}}
+	      {{~this.name~}}
       {{~else~}}
-        <span class="px-1.5 text-xs text-stone-600">&#x25B6;</span>
-      {{~/if~}}
-    {{~/unless~}}
+	      <a href="{{this.href}}">
+		      {{~this.name~}}
+	      </a>
+			{{~/if~}}
+    </li>
 
-    {{~#if @last~}}
-      <span class="{{#if @first~}}
-        italic
-        {{~else~}}
-          {{~#if this.is_all_symbols_part}}
-            italic
-          {{~/if~}}
-        {{~/if}}">
-        {{~this.name~}}
-      </span>
-    {{~/if~}}
+	  {{~#unless @last~}}
+		  {{~#if this.is_symbol~}}
+			  <span>.</span>
+			  {{~else~}}
+			  <span class="text-[#0F172A]">{{~> icons/arrow ~}}</span>
+		  {{~/if~}}
+	  {{/unless}}
 
-    {{~#if @last~}}
-      {{~#if this.is_symbol~}}
-        </span>
-      {{~/if~}}
+    {{~#if (and @last this.is_symbol)~}}
+      </ul>
     {{~/if~}}
   {{~/each~}}
-</div>
+</ul>

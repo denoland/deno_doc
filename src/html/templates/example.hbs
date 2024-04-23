@@ -1,9 +1,9 @@
-<div class="anchorable">
+<div class="anchorable example">
   {{~> anchor anchor ~}}
 
-  <details id="{{id}}" class="group" open>
-    <summary class="list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6 cursor-pointer">
-      <div class="text-stone-600 group-open:rotate-90 select-none">&#x25B6;</div>
+  <details id="{{id}}" open>
+    <summary>
+      <div>&#x25B6;</div>
       {{{~markdown_title~}}} {{! markdown rendering }}
     </summary>
     <div class="!ml-2 markdown_border">

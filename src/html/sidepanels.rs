@@ -45,11 +45,12 @@ struct SidepanelPartitionCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SidepanelCtx {
-  package_name: Option<String>,
   partitions: Vec<SidepanelPartitionCtx>,
 }
 
 impl SidepanelCtx {
+  pub const TEMPLATE: &'static str = "sidepanel";
+
   pub fn new(
     ctx: &GenerateCtx,
     partitions: &Partition,
@@ -62,7 +63,13 @@ impl SidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
-          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
+          let name = if !node.ns_qualifiers.is_empty() {
+            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
+          } else {
+            node.get_name().to_string()
+          };
+
+          let entry = grouped_nodes.entry(name).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -76,10 +83,10 @@ impl SidepanelCtx {
                 UrlResolveKind::Symbol { file, symbol },
                 UrlResolveKind::Symbol {
                   file: &nodes[0].origin,
-                  symbol: node_name,
+                  symbol: &node_name,
                 },
               ),
-              node_name.to_string(),
+              node_name,
             )
           })
           .collect::<Vec<_>>();
@@ -90,10 +97,7 @@ impl SidepanelCtx {
       })
       .collect();
 
-    Self {
-      package_name: ctx.package_name.clone(),
-      partitions,
-    }
+    Self { partitions }
   }
 }
 
@@ -106,7 +110,6 @@ struct IndexSidepanelFileCtx {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct IndexSidepanelCtx {
-  package_name: Option<String>,
   root_url: String,
   all_symbols_url: Option<String>,
   kind_partitions: Vec<SidepanelPartitionCtx>,
@@ -114,6 +117,8 @@ pub struct IndexSidepanelCtx {
 }
 
 impl IndexSidepanelCtx {
+  pub const TEMPLATE: &'static str = "index_sidepanel";
+
   pub fn new(
     ctx: &GenerateCtx,
     current_entrypoint: Option<&ModuleSpecifier>,
@@ -156,7 +161,13 @@ impl IndexSidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in &nodes {
-          let entry = grouped_nodes.entry(node.get_name()).or_insert(vec![]);
+          let name = if !node.ns_qualifiers.is_empty() {
+            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
+          } else {
+            node.get_name().to_string()
+          };
+
+          let entry = grouped_nodes.entry(name).or_insert(vec![]);
           entry.push(node);
         }
 
@@ -170,10 +181,10 @@ impl IndexSidepanelCtx {
                 current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
                 UrlResolveKind::Symbol {
                   file: &nodes[0].origin,
-                  symbol: node_name,
+                  symbol: &node_name,
                 },
               ),
-              node_name.to_string(),
+              node_name,
             )
           })
           .collect::<Vec<_>>();
@@ -182,7 +193,6 @@ impl IndexSidepanelCtx {
       .collect::<Vec<_>>();
 
     Self {
-      package_name: ctx.package_name.clone(),
       root_url: ctx.href_resolver.resolve_path(
         current_file.map_or(UrlResolveKind::Root, UrlResolveKind::File),
         UrlResolveKind::Root,

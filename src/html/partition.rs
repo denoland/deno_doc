@@ -1,6 +1,6 @@
-use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use super::{DocNodeKindWithDrilldown, FileMode};
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -101,27 +101,7 @@ pub fn partition_nodes_by_kind(
   partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(|node1, node2| {
-      let node1_is_deprecated = node1
-        .js_doc
-        .tags
-        .iter()
-        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-      let node2_is_deprecated = node2
-        .js_doc
-        .tags
-        .iter()
-        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-
-      (!node2_is_deprecated)
-        .cmp(&!node1_is_deprecated)
-        .then_with(|| {
-          node1
-            .get_name()
-            .cmp(node2.get_name())
-            .then_with(|| node1.kind.cmp(&node2.kind))
-        })
-    });
+    nodes.sort_by(compare_node);
   }
 
   partitions
@@ -206,7 +186,7 @@ pub fn partition_nodes_by_category(
   );
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.get_name().to_string());
+    nodes.sort_by(compare_node);
   }
 
   partitions
@@ -224,15 +204,42 @@ pub fn partition_nodes_by_category(
     .collect()
 }
 
+fn compare_node(
+  node1: &DocNodeWithContext,
+  node2: &DocNodeWithContext,
+) -> Ordering {
+  let node1_is_deprecated = node1
+    .js_doc
+    .tags
+    .iter()
+    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+  let node2_is_deprecated = node2
+    .js_doc
+    .tags
+    .iter()
+    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+
+  (!node2_is_deprecated)
+    .cmp(&!node1_is_deprecated)
+    .then_with(|| {
+      node1
+        .get_name()
+        .cmp(node2.get_name())
+        .then_with(|| node1.kind.cmp(&node2.kind))
+    })
+}
+
 pub fn get_partitions_for_file(
   ctx: &GenerateCtx,
   doc_nodes: &[DocNodeWithContext],
 ) -> Partition {
-  let categories =
-    partition_nodes_by_category(doc_nodes, ctx.sidebar_flatten_namespaces);
+  let categories = partition_nodes_by_category(
+    doc_nodes,
+    ctx.file_mode == FileMode::SingleDts,
+  );
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(doc_nodes, ctx.sidebar_flatten_namespaces)
+    partition_nodes_by_kind(doc_nodes, ctx.file_mode == FileMode::SingleDts)
   } else {
     categories
   }

@@ -21,7 +21,7 @@ struct SourceFileLoader {}
 
 impl Loader for SourceFileLoader {
   fn load(
-    &mut self,
+    &self,
     specifier: &ModuleSpecifier,
     _options: LoadOptions,
   ) -> LoadFuture {
@@ -46,6 +46,14 @@ impl Loader for SourceFileLoader {
 struct EmptyResolver {}
 
 impl HrefResolver for EmptyResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    href_path_resolve(current, target)
+  }
+
   fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
     None
   }
@@ -93,13 +101,13 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
     })
     .collect();
 
-  let mut loader = SourceFileLoader {};
+  let loader = SourceFileLoader {};
   let analyzer = CapturingModuleAnalyzer::default();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
       source_files.clone(),
-      &mut loader,
+      &loader,
       BuildOptions {
         module_analyzer: &analyzer,
         ..Default::default()
@@ -137,8 +145,7 @@ async fn html_doc_files() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: None,
-      hide_module_doc_title: false,
-      sidebar_flatten_namespaces: false,
+      composable_output: false,
     },
     get_files("single").await,
   )
@@ -193,8 +200,7 @@ async fn html_doc_files_rewrite() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      hide_module_doc_title: false,
-      sidebar_flatten_namespaces: false,
+      composable_output: false,
     },
     get_files("multiple").await,
   )
@@ -266,9 +272,8 @@ async fn symbol_group() {
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
-    single_file_mode: false,
+    file_mode: Default::default(),
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let mut files = vec![];
@@ -311,7 +316,7 @@ async fn symbol_group() {
               Some(short_path.clone()),
             );
 
-            Some(pages::PageCtx {
+            Some(pages::SymbolPageCtx {
               html_head_ctx,
               sidepanel_ctx,
               symbol_group_ctx,
@@ -383,9 +388,8 @@ async fn symbol_search() {
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
-    single_file_mode: false,
+    file_mode: Default::default(),
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
@@ -443,9 +447,8 @@ async fn module_doc() {
     usage_composer: None,
     rewrite_map: Some(rewrite_map),
     hide_module_doc_title: false,
-    single_file_mode: true,
+    file_mode: FileMode::Single,
     sidebar_hide_all_symbols: false,
-    sidebar_flatten_namespaces: false,
   };
 
   let mut module_docs = vec![];

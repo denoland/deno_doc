@@ -32,14 +32,14 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
       )
     })
     .collect();
-  let mut memory_loader = MemoryLoader::new(sources, vec![]);
+  let memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
   let analyzer = create_analyzer();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
       vec![root.clone()],
-      &mut memory_loader,
+      &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
         ..Default::default()
@@ -64,14 +64,14 @@ async fn content_type_handling() {
     }"#,
     },
   )];
-  let mut memory_loader = MemoryLoader::new(sources, vec![]);
+  let memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
   let analyzer = create_analyzer();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
       vec![root.clone()],
-      &mut memory_loader,
+      &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
         ..Default::default()
@@ -111,14 +111,14 @@ async fn types_header_handling() {
       },
     ),
   ];
-  let mut memory_loader = MemoryLoader::new(sources, vec![]);
+  let memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
   let analyzer = create_analyzer();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
       vec![root.clone()],
-      &mut memory_loader,
+      &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
         ..Default::default()

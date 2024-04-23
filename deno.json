@@ -1,7 +1,6 @@
 {
-  "lock": false,
   "tasks": {
-    "build": "cp LICENSE js/LICENSE && deno run -A https://deno.land/x/wasmbuild@0.15.4/main.ts --project deno_doc_wasm --out js",
+    "build": "cp LICENSE js/LICENSE && deno run -A jsr:@deno/wasmbuild@0.17.1 --project deno_doc_wasm --out js",
     "test": "deno test --allow-read --allow-net",
     "tailwind": "deno run -A build_css.ts",
     "gen_html": "deno task tailwind && cargo run --example ddoc --features=html -- --name \"std HTTP and Assert\" --html ../deno_std/http/mod.ts ../deno_std/assert/mod.ts ../deno_std/collections/mod.ts --output generated_docs/ --main_entrypoint ../deno_std/assert/mod.ts",

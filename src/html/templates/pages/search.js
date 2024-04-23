@@ -122,15 +122,13 @@ function renderResults(results) {
   for (const result of results) {
     const kind = result.kind.map((kind) => {
       const [rustKind, title, symbol] = docNodeKindToStringVariants(kind);
-      return `<div class="text-${rustKind} bg-${rustKind}/15 rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono" title="${title}">
-        ${symbol}
-      </div>`;
+      return `<div class="text-${rustKind} bg-${rustKind}/15" title="${title}">${symbol}</div>`;
     }).join("");
 
     html += `<li class="block">
 <a href="${pathToRoot}${result.file}/~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100">
     <div class="flex items-center gap-2.5">
-      <div class="flex justify-end compound_types w-[2.125rem] shrink-0">
+      <div class="docNodeKindIcon">
         ${kind}
       </div>
       <span class="text-sm leading-none">${result.name}</span>

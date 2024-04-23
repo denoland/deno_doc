@@ -145,76 +145,72 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
+    let index_name =
+      self.ctx.package_name.clone().unwrap_or("index".to_string());
+
     let parts = match self.current_resolve {
       UrlResolveKind::Root => vec![BreadcrumbCtx {
-        name: "index".to_string(),
+        name: index_name,
         href: "".to_string(),
         is_symbol: false,
         is_first_symbol: false,
-        is_all_symbols_part: false,
       }],
       UrlResolveKind::AllSymbols => {
         vec![
           BreadcrumbCtx {
-            name: "index".to_string(),
+            name: index_name,
             href: self
               .ctx
               .href_resolver
               .resolve_path(self.current_resolve, UrlResolveKind::Root),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: false,
           },
           BreadcrumbCtx {
             name: "all symbols".to_string(),
             href: "".to_string(),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: true,
           },
         ]
       }
       UrlResolveKind::File(file) => {
         if self.current_specifier == self.ctx.main_entrypoint.as_ref() {
           vec![BreadcrumbCtx {
-            name: "index".to_string(),
+            name: index_name,
             href: "".to_string(),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: false,
           }]
         } else {
           vec![
             BreadcrumbCtx {
-              name: "index".to_string(),
+              name: index_name,
               href: self
                 .ctx
                 .href_resolver
                 .resolve_path(self.current_resolve, UrlResolveKind::Root),
               is_symbol: false,
               is_first_symbol: false,
-              is_all_symbols_part: false,
             },
             BreadcrumbCtx {
               name: file.to_name(),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
-              is_all_symbols_part: false,
             },
           ]
         }
       }
       UrlResolveKind::Symbol { file, symbol } => {
         let mut parts = vec![BreadcrumbCtx {
-          name: "index".to_string(),
+          name: index_name,
           href: self
             .ctx
             .href_resolver
             .resolve_path(self.current_resolve, UrlResolveKind::Root),
           is_symbol: false,
           is_first_symbol: false,
-          is_all_symbols_part: false,
         }];
 
         if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
@@ -226,7 +222,6 @@ impl<'ctx> RenderContext<'ctx> {
               .resolve_path(self.current_resolve, UrlResolveKind::File(file)),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: false,
           });
         }
 
@@ -245,7 +240,6 @@ impl<'ctx> RenderContext<'ctx> {
               ),
               is_symbol: true,
               is_first_symbol: i == 0,
-              is_all_symbols_part: false,
             };
             breadcrumbs.push(breadcrumb);
 
@@ -297,6 +291,14 @@ mod test {
   struct TestResolver();
 
   impl HrefResolver for TestResolver {
+    fn resolve_path(
+      &self,
+      current: UrlResolveKind,
+      target: UrlResolveKind,
+    ) -> String {
+      crate::html::href_path_resolve(current, target)
+    }
+
     fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
       if symbol == ["bar"] {
         Some("global$bar".to_string())
@@ -340,9 +342,8 @@ mod test {
       usage_composer: None,
       rewrite_map: None,
       hide_module_doc_title: false,
-      single_file_mode: false,
+      file_mode: Default::default(),
       sidebar_hide_all_symbols: false,
-      sidebar_flatten_namespaces: false,
     };
 
     let doc_nodes = vec![DocNodeWithContext {

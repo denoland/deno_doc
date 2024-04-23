@@ -26,7 +26,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       content: source.as_str(),
     },
   )];
-  let mut memory_loader = MemoryLoader::new(sources, vec![]);
+  let memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("file:///test/fixtures/deno.d.ts").unwrap();
 
   let analyzer = CapturingModuleAnalyzer::default();
@@ -34,7 +34,7 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   graph
     .build(
       vec![root.clone()],
-      &mut memory_loader,
+      &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
         ..Default::default()

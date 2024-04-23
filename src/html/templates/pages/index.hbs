@@ -3,16 +3,19 @@
 {{~> index_sidepanel sidepanel_ctx ~}}
 
 <div id="content">
-  {{~> breadcrumbs breadcrumbs_ctx ~}}
-  {{~> pages/search_bar ~}}
+	{{~> pages/top_nav ~}}
 
   <main>
-    {{~#if module_doc ~}}
-      {{~> module_doc module_doc ~}}
-    {{~/if~}}
+	  {{~#if module_doc ~}}
+		  {{~> module_doc module_doc ~}}
+	  {{~/if~}}
+
+	  {{~#if all_symbols ~}}
+		  {{~> symbol_content all_symbols ~}}
+	  {{~/if~}}
   </main>
 
   {{~> pages/search_results ~}}
-<div>
+</div>
 </body>
 </html>
