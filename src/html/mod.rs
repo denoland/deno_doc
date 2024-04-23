@@ -247,9 +247,9 @@ impl ShortPath {
 
 impl Ord for ShortPath {
   fn cmp(&self, other: &Self) -> Ordering {
-    self
+    other
       .is_main
-      .cmp(&other.is_main)
+      .cmp(&self.is_main)
       .then_with(|| self.display_name().cmp(&other.display_name()))
   }
 }
