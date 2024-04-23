@@ -83,7 +83,7 @@ pub struct IndexCtx {
 impl IndexCtx {
   pub const TEMPLATE: &'static str = "pages/index";
 
-  /// short_path is None in case there this is a root index page but there is no main entrypoint
+  /// short_path is None in the case this is a root index page but there is no main entrypoint
   pub fn new(
     ctx: &GenerateCtx,
     short_path: Option<std::rc::Rc<ShortPath>>,
