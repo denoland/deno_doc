@@ -7,7 +7,7 @@
       "name": "Foo",
       "file": ".",
       "location": {
-        "filename": "",
+        "filename": "default",
         "line": 25,
         "col": 0,
         "byteIndex": 488
@@ -22,7 +22,7 @@
       "name": "Bar",
       "file": ".",
       "location": {
-        "filename": "",
+        "filename": "default",
         "line": 31,
         "col": 0,
         "byteIndex": 591
@@ -37,7 +37,7 @@
       "name": "Foobar",
       "file": ".",
       "location": {
-        "filename": "",
+        "filename": "default",
         "line": 34,
         "col": 0,
         "byteIndex": 625
@@ -52,7 +52,7 @@
       "name": "Hello",
       "file": ".",
       "location": {
-        "filename": "",
+        "filename": "default",
         "line": 37,
         "col": 0,
         "byteIndex": 658

@@ -1,9 +1,9 @@
 use crate::html::util::BreadcrumbCtx;
 use crate::html::util::BreadcrumbsCtx;
 use crate::html::util::NamespacedSymbols;
-use crate::html::ShortPath;
+use crate::html::DocNodeWithContext;
+use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
-use crate::html::{DocNodeWithContext, GenerateCtx};
 use crate::DocNodeKind;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
@@ -106,9 +106,14 @@ impl<'ctx> RenderContext<'ctx> {
               .get_file()
               .cloned()
               .unwrap_or_else(|| {
-                ShortPath::new(
-                  self.ctx,
-                  self.ctx.main_entrypoint.clone().unwrap(),
+                Rc::unwrap_or_clone(
+                  self
+                    .ctx
+                    .doc_nodes
+                    .keys()
+                    .find(|short_path| short_path.is_main)
+                    .unwrap()
+                    .clone(),
                 )
               }),
             symbol: target_symbol,
@@ -119,11 +124,16 @@ impl<'ctx> RenderContext<'ctx> {
 
     if let Some(src) = self.current_imports.get(target_symbol) {
       if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if self.ctx.specifiers.contains(&module_specifier) {
+        if let Some(short_path) = self
+          .ctx
+          .doc_nodes
+          .keys()
+          .find(|short_path| short_path.specifier == module_specifier)
+        {
           return Some(self.ctx.href_resolver.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
-              file: &ShortPath::new(self.ctx, module_specifier),
+              file: short_path,
               symbol: target_symbol,
             },
           ));
@@ -276,15 +286,12 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::html::setup_hbs;
-  use crate::html::setup_highlighter;
-  use crate::html::DocNodeKindWithDrilldown;
+  use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
-  use std::sync::Arc;
 
   struct TestResolver();
 
@@ -313,7 +320,10 @@ mod test {
       Some(format!("{src}/{}", symbol.join(".")))
     }
 
-    fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
+    fn resolve_usage(
+      &self,
+      current_file: &crate::html::ShortPath,
+    ) -> Option<String> {
       Some(current_file.specifier.to_string())
     }
 
@@ -324,30 +334,9 @@ mod test {
 
   #[test]
   fn lookup_symbol_href() {
-    let ctx = GenerateCtx {
-      package_name: None,
-      common_ancestor: None,
-      main_entrypoint: None,
-      specifiers: vec![],
-      hbs: setup_hbs().unwrap(),
-      highlight_adapter: setup_highlighter(false),
-      url_rewriter: None,
-      href_resolver: Rc::new(TestResolver()),
-      usage_composer: None,
-      rewrite_map: None,
-      file_mode: Default::default(),
-      sidebar_hide_all_symbols: false,
-    };
-
-    let doc_nodes = vec![DocNodeWithContext {
-      origin: Rc::new(ShortPath::new(
-        &ctx,
-        ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-      )),
-      ns_qualifiers: Rc::new(vec![]),
-      drilldown_parent_kind: None,
-      kind_with_drilldown: DocNodeKindWithDrilldown::Other(DocNodeKind::Import),
-      inner: Arc::new(DocNode {
+    let doc_nodes_by_url = indexmap::IndexMap::from([(
+      ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+      vec![DocNode {
         kind: DocNodeKind::Import,
         name: "foo".to_string(),
         location: Location {
@@ -369,21 +358,36 @@ mod test {
           src: "b".to_string(),
           imported: Some("foo".to_string()),
         }),
-      }),
-    }];
+      }],
+    )]);
+
+    let ctx = GenerateCtx::new(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: Rc::new(TestResolver()),
+        usage_composer: None,
+        rewrite_map: None,
+        composable_output: false,
+      },
+      None,
+      Default::default(),
+      doc_nodes_by_url,
+    )
+    .unwrap();
+
+    let (short_path, doc_nodes) = ctx.doc_nodes.first().unwrap();
 
     // globals
-    let render_ctx = RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root);
+    let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("bar").unwrap(), "global$bar");
 
     // imports
-    let render_ctx = RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root);
+    let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
 
-    let short_path =
-      ShortPath::new(&ctx, ModuleSpecifier::parse("file:///a").unwrap());
     let render_ctx =
-      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::File(&short_path));
+      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(&short_path));
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
   }
 }

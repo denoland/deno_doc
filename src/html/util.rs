@@ -1,3 +1,5 @@
+use crate::html::jsdoc::markdown_to_html;
+use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -193,6 +195,7 @@ pub fn href_path_resolve(
 
   match target {
     UrlResolveKind::Root => backs,
+    UrlResolveKind::File(target_file) if target_file.is_main => backs,
     UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
     UrlResolveKind::Symbol {
       file: target_file,
@@ -323,6 +326,41 @@ pub struct SectionHeaderCtx {
   pub title: String,
   pub href: Option<String>,
   pub doc: Option<String>,
+}
+
+impl SectionHeaderCtx {
+  pub fn new_for_namespace(
+    render_ctx: &RenderContext,
+    path: &ShortPath,
+  ) -> Self {
+    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
+
+    let doc = module_doc_nodes
+      .iter()
+      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+      .and_then(|node| node.js_doc.doc.as_ref())
+      .and_then(|doc| {
+        markdown_to_html(
+          render_ctx,
+          doc,
+          MarkdownToHTMLOptions {
+            summary: true,
+            summary_prefer_title: true,
+            render_toc: false,
+          },
+        )
+      })
+      .map(|markdown| markdown.html);
+
+    SectionHeaderCtx {
+      title: path.display_name(),
+      href: Some(render_ctx.ctx.href_resolver.resolve_path(
+        render_ctx.get_current_resolve(),
+        path.as_resolve_kind(),
+      )),
+      doc,
+    }
+  }
 }
 
 #[derive(Debug, Serialize, Clone)]

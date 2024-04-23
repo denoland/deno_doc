@@ -3,6 +3,7 @@ use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
 use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
+use super::util::SectionHeaderCtx;
 use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::FileMode;
@@ -21,8 +22,6 @@ use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
 use crate::function::FunctionDef;
-use crate::html::jsdoc::markdown_to_html;
-use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::partition::Partition;
 use crate::variable::VariableDef;
 use crate::DocNode;
@@ -88,14 +87,13 @@ impl IndexCtx {
   pub fn new(
     ctx: &GenerateCtx,
     short_path: Option<std::rc::Rc<ShortPath>>,
-    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
     partitions: Partition,
   ) -> Self {
     // will be default on index page with no main entrypoint
     let default = vec![];
     let doc_nodes = short_path
       .as_ref()
-      .and_then(|short_path| doc_nodes_by_url.get(short_path))
+      .and_then(|short_path| ctx.doc_nodes.get(short_path))
       .unwrap_or(&default);
 
     let render_ctx = RenderContext::new(
@@ -107,7 +105,7 @@ impl IndexCtx {
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path, doc_nodes_by_url)
+      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
     });
 
     let root = ctx.href_resolver.resolve_path(
@@ -148,12 +146,8 @@ impl IndexCtx {
       None
     };
 
-    let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
-      ctx,
-      short_path.clone(),
-      doc_nodes_by_url,
-      partitions,
-    );
+    let sidepanel_ctx =
+      sidepanels::IndexSidepanelCtx::new(ctx, short_path.clone(), partitions);
 
     IndexCtx {
       html_head_ctx,
@@ -178,7 +172,6 @@ impl AllSymbolsCtx {
   pub fn new(
     ctx: &GenerateCtx,
     partitions: crate::html::partition::EntrypointPartition,
-    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
   ) -> Self {
     // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
@@ -188,35 +181,10 @@ impl AllSymbolsCtx {
       partitions
         .into_iter()
         .map(|(path, nodes)| {
-          let module_doc_nodes = doc_nodes_by_url.get(&path).unwrap();
-
-          let doc = module_doc_nodes
-            .iter()
-            .find(|n| n.kind == DocNodeKind::ModuleDoc)
-            .and_then(|node| node.js_doc.doc.as_ref())
-            .and_then(|doc| {
-              markdown_to_html(
-                &render_ctx,
-                doc,
-                MarkdownToHTMLOptions {
-                  summary: true,
-                  summary_prefer_title: true,
-                  render_toc: false,
-                },
-              )
-            })
-            .map(|markdown| markdown.html);
-
-          let header = crate::html::util::SectionHeaderCtx {
-            title: path.display_name(),
-            href: Some(render_ctx.ctx.href_resolver.resolve_path(
-              render_ctx.get_current_resolve(),
-              path.as_resolve_kind(),
-            )),
-            doc,
-          };
-
-          (header, nodes)
+          (
+            SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
+            nodes,
+          )
         })
         .collect(),
     );

@@ -39,6 +39,7 @@ pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
+pub use util::SectionHeaderCtx;
 pub use util::UrlResolveKind;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
@@ -87,11 +88,11 @@ pub struct GenerateOptions {
   pub composable_output: bool,
 }
 
+#[non_exhaustive]
 pub struct GenerateCtx<'ctx> {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
-  pub main_entrypoint: Option<ModuleSpecifier>,
-  pub specifiers: Vec<ModuleSpecifier>,
+  pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
   pub hbs: Handlebars<'ctx>,
   pub highlight_adapter: comrak_adapters::HighlightAdapter,
   #[cfg(feature = "ammonia")]
@@ -104,14 +105,21 @@ pub struct GenerateCtx<'ctx> {
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
-  pub fn doc_nodes_by_url_add_context(
-    &self,
+  pub fn new(
+    options: GenerateOptions,
+    common_ancestor: Option<PathBuf>,
+    file_mode: FileMode,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  ) -> ContextDocNodesByShortPath {
-    doc_nodes_by_url
+  ) -> Result<Self, anyhow::Error> {
+    let doc_nodes = doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
-        let short_path = Rc::new(ShortPath::new(self, specifier));
+        let short_path = Rc::new(ShortPath::new(
+          specifier,
+          options.main_entrypoint.as_ref(),
+          options.rewrite_map.as_ref(),
+          common_ancestor.as_ref(),
+        ));
 
         let nodes = nodes
           .into_iter()
@@ -126,7 +134,22 @@ impl<'ctx> GenerateCtx<'ctx> {
 
         (short_path, nodes)
       })
-      .collect::<IndexMap<_, _>>()
+      .collect::<IndexMap<_, _>>();
+
+    Ok(Self {
+      package_name: options.package_name,
+      common_ancestor,
+      doc_nodes,
+      hbs: setup_hbs()?,
+      highlight_adapter: setup_highlighter(false),
+      #[cfg(feature = "ammonia")]
+      url_rewriter: None,
+      href_resolver: options.href_resolver,
+      usage_composer: options.usage_composer,
+      rewrite_map: options.rewrite_map,
+      sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
+      file_mode,
+    })
   }
 
   pub fn render<T: serde::Serialize>(
@@ -138,9 +161,6 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
-pub type ContextDocNodesByShortPath =
-  IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>;
-
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct ShortPath {
   pub path: String,
@@ -149,16 +169,17 @@ pub struct ShortPath {
 }
 
 impl ShortPath {
-  pub fn new(ctx: &GenerateCtx, specifier: ModuleSpecifier) -> Self {
-    let is_main = ctx
-      .main_entrypoint
-      .as_ref()
+  pub fn new(
+    specifier: ModuleSpecifier,
+    main_entrypoint: Option<&ModuleSpecifier>,
+    rewrite_map: Option<&IndexMap<ModuleSpecifier, String>>,
+    common_ancestor: Option<&PathBuf>,
+  ) -> Self {
+    let is_main = main_entrypoint
       .is_some_and(|main_entrypoint| main_entrypoint == &specifier);
 
-    if let Some(rewrite) = ctx
-      .rewrite_map
-      .as_ref()
-      .and_then(|rewrite_map| rewrite_map.get(&specifier))
+    if let Some(rewrite) =
+      rewrite_map.and_then(|rewrite_map| rewrite_map.get(&specifier))
     {
       return ShortPath {
         path: rewrite.to_owned(),
@@ -175,7 +196,7 @@ impl ShortPath {
       };
     };
 
-    let Some(common_ancestor) = &ctx.common_ancestor else {
+    let Some(common_ancestor) = common_ancestor else {
       return ShortPath {
         path: url_file_path.to_string_lossy().to_string(),
         specifier,
@@ -471,30 +492,17 @@ pub fn generate(
     FileMode::Normal
   };
 
-  let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
-  let ctx = GenerateCtx {
-    package_name: options.package_name,
-    common_ancestor,
-    main_entrypoint: options.main_entrypoint,
-    specifiers: doc_nodes_by_url.keys().cloned().collect(),
-    hbs: setup_hbs()?,
-    highlight_adapter: setup_highlighter(false),
-    #[cfg(feature = "ammonia")]
-    url_rewriter: None,
-    href_resolver: options.href_resolver,
-    usage_composer: options.usage_composer,
-    rewrite_map: options.rewrite_map,
-    sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
-    file_mode,
-  };
-  let mut files = HashMap::new();
+  let composable_output = options.composable_output;
 
-  let doc_nodes_by_short_path =
-    ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
+  let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
+  let ctx =
+    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)?;
+  let mut files = HashMap::new();
 
   // Index page
   {
-    let main_entrypoint = doc_nodes_by_short_path
+    let main_entrypoint = ctx
+      .doc_nodes
       .iter()
       .find(|(short_path, _)| short_path.is_main);
 
@@ -508,11 +516,10 @@ pub fn generate(
     let index = pages::IndexCtx::new(
       &ctx,
       main_entrypoint.map(|(short_path, _)| short_path.clone()),
-      &doc_nodes_by_short_path,
       partitions_for_entrypoint_nodes,
     );
 
-    if options.composable_output {
+    if composable_output {
       files.insert(
         "./sidepanel.html".to_string(),
         ctx.render(
@@ -549,7 +556,8 @@ pub fn generate(
 
   // All symbols (list of all symbols in all files)
   if ctx.file_mode != FileMode::SingleDts {
-    let all_doc_nodes = doc_nodes_by_short_path
+    let all_doc_nodes = ctx
+      .doc_nodes
       .values()
       .flatten()
       .cloned()
@@ -558,13 +566,9 @@ pub fn generate(
     let partitions_by_kind =
       partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 
-    let all_symbols = pages::AllSymbolsCtx::new(
-      &ctx,
-      partitions_by_kind,
-      &doc_nodes_by_short_path,
-    );
+    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
 
-    if options.composable_output {
+    if composable_output {
       files.insert(
         "./all_symbols/content.html".to_string(),
         ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols.content),
@@ -585,9 +589,8 @@ pub fn generate(
 
   // Pages for all discovered symbols
   {
-    for (short_path, doc_nodes) in &doc_nodes_by_short_path {
-      let partitions_for_nodes =
-        partition::get_partitions_for_file(&ctx, doc_nodes);
+    for (short_path, doc_nodes) in &ctx.doc_nodes {
+      let partitions_for_nodes = get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
@@ -605,7 +608,7 @@ pub fn generate(
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
-                file: &short_path,
+                file: short_path,
                 symbol: &symbol_group_ctx.name,
               },
               UrlResolveKind::Root,
@@ -618,7 +621,7 @@ pub fn generate(
               Some(short_path),
             );
 
-            if options.composable_output {
+            if composable_output {
               let dir_name =
                 format!("{}/~/{}", short_path.path, symbol_group_ctx.name);
 
@@ -660,7 +663,7 @@ pub fn generate(
           } => {
             let redirect = serde_json::json!({ "path": href });
 
-            if options.composable_output {
+            if composable_output {
               let file_name = format!(
                 "{}/~/{}/redirect.json",
                 short_path.path, current_symbol
@@ -677,48 +680,51 @@ pub fn generate(
         }
       }));
 
-      let index = pages::IndexCtx::new(
-        &ctx,
-        Some(short_path.clone()),
-        &doc_nodes_by_short_path,
-        partitions_for_nodes,
-      );
-
-      if options.composable_output {
-        let dir = format!("{}/~", short_path.path);
-        files.insert(
-          format!("{dir}/sidepanel.html"),
-          ctx.render(
-            sidepanels::IndexSidepanelCtx::TEMPLATE,
-            &index.sidepanel_ctx,
-          ),
+      if !short_path.is_main {
+        let index = pages::IndexCtx::new(
+          &ctx,
+          Some(short_path.clone()),
+          partitions_for_nodes,
         );
 
-        files.insert(
-          format!("{dir}/breadcrumbs.html"),
-          ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
-        );
+        if composable_output {
+          let dir = format!("{}/~", short_path.path);
+          files.insert(
+            format!("{dir}/sidepanel.html"),
+            ctx.render(
+              sidepanels::IndexSidepanelCtx::TEMPLATE,
+              &index.sidepanel_ctx,
+            ),
+          );
 
-        if index.module_doc.is_some() || index.all_symbols.is_some() {
-          let mut out = String::new();
+          files.insert(
+            format!("{dir}/breadcrumbs.html"),
+            ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
+          );
 
-          if let Some(module_doc) = index.module_doc {
-            out.push_str(
-              &ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc),
-            );
+          if index.module_doc.is_some() || index.all_symbols.is_some() {
+            let mut out = String::new();
+
+            if let Some(module_doc) = index.module_doc {
+              out.push_str(
+                &ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc),
+              );
+            }
+
+            if let Some(all_symbols) = index.all_symbols {
+              out.push_str(
+                &ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols),
+              );
+            }
+
+            files.insert(format!("{dir}/content.html"), out);
           }
-
-          if let Some(all_symbols) = index.all_symbols {
-            out.push_str(&ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols));
-          }
-
-          files.insert(format!("{dir}/content.html"), out);
+        } else {
+          files.insert(
+            format!("{}/~/index.html", short_path.path),
+            ctx.render(pages::IndexCtx::TEMPLATE, &index),
+          );
         }
-      } else {
-        files.insert(
-          format!("{}/~/index.html", short_path.path),
-          ctx.render(pages::IndexCtx::TEMPLATE, &index),
-        );
       }
     }
   }
@@ -726,11 +732,11 @@ pub fn generate(
   files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
-    search::get_search_index_file(&ctx, &doc_nodes_by_short_path)?,
+    search::get_search_index_file(&ctx)?,
   );
   files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
 
-  if !options.composable_output {
+  if !composable_output {
     files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
     files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
     files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());

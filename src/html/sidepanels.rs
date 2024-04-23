@@ -122,18 +122,17 @@ impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
     current_file: Option<Rc<ShortPath>>,
-    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
     partitions: Partition,
   ) -> Self {
     let current_resolve_kind = current_file
       .as_deref()
       .map_or(UrlResolveKind::Root, ShortPath::as_resolve_kind);
 
-    let main_short_path = doc_nodes_by_url
-      .keys()
-      .find(|short_path| short_path.is_main);
+    let main_short_path =
+      ctx.doc_nodes.keys().find(|short_path| short_path.is_main);
 
-    let files = doc_nodes_by_url
+    let files = ctx
+      .doc_nodes
       .keys()
       .filter(|short_path| {
         main_short_path

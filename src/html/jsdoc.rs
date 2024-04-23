@@ -1,6 +1,7 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::usage::UsagesCtx;
+use crate::html::FileMode;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -553,12 +554,8 @@ pub struct ModuleDocCtx {
 impl ModuleDocCtx {
   pub const TEMPLATE: &'static str = "module_doc";
 
-  pub fn new(
-    render_ctx: &RenderContext,
-    short_path: &ShortPath,
-    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
-  ) -> Self {
-    let module_doc_nodes = doc_nodes_by_url.get(short_path).unwrap();
+  pub fn new(render_ctx: &RenderContext, short_path: &ShortPath) -> Self {
+    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(short_path).unwrap();
 
     let mut sections = Vec::with_capacity(7);
 
@@ -600,7 +597,7 @@ impl ModuleDocCtx {
       (None, None, None)
     };
 
-    if short_path.is_main {
+    if short_path.is_main && render_ctx.ctx.file_mode == FileMode::SingleDts {
       let partitions_by_kind =
         super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 
