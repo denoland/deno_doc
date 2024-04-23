@@ -318,19 +318,3 @@ pub fn get_partitions_for_file(
     categories
   }
 }
-
-pub fn get_partitions_for_main_entrypoint(
-  ctx: &GenerateCtx,
-  doc_nodes_by_url: &super::ContextDocNodesByUrl,
-) -> Partition {
-  let doc_nodes = ctx
-    .main_entrypoint
-    .as_ref()
-    .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
-
-  if let Some(doc_nodes) = doc_nodes {
-    get_partitions_for_file(ctx, doc_nodes)
-  } else {
-    Default::default()
-  }
-}

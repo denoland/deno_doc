@@ -3,7 +3,6 @@ use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
 use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
-use super::util::SectionHeaderCtx;
 use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::FileMode;
@@ -28,7 +27,6 @@ use crate::html::partition::Partition;
 use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::DocNodeKind;
-use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 
@@ -51,7 +49,7 @@ impl HtmlHeadCtx {
     root: &str,
     page: &str,
     package_name: Option<&String>,
-    current_file: Option<ShortPath>,
+    current_file: Option<&ShortPath>,
   ) -> Self {
     Self {
       title: format!(
@@ -61,7 +59,6 @@ impl HtmlHeadCtx {
           .unwrap_or_default()
       ),
       current_file: current_file
-        .as_ref()
         .map(|current_file| &*current_file.path)
         .unwrap_or_default()
         .to_string(),
@@ -87,30 +84,26 @@ pub struct IndexCtx {
 impl IndexCtx {
   pub const TEMPLATE: &'static str = "pages/index";
 
+  /// short_path is None in case there this is a root index page but there is no main entrypoint
   pub fn new(
     ctx: &GenerateCtx,
-    specifier: Option<&ModuleSpecifier>,
-    doc_nodes_by_url: &super::ContextDocNodesByUrl,
+    short_path: Option<std::rc::Rc<ShortPath>>,
+    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
     partitions: Partition,
-    file: Option<ShortPath>,
   ) -> Self {
-    let short_path = specifier
-      .cloned()
-      .map(|specifier| ShortPath::new(ctx, specifier));
-
     // will be default on index page with no main entrypoint
     let default = vec![];
-    let doc_nodes = specifier
-      .or(ctx.main_entrypoint.as_ref())
-      .and_then(|specifier| doc_nodes_by_url.get(specifier))
+    let doc_nodes = short_path
+      .as_ref()
+      .and_then(|short_path| doc_nodes_by_url.get(short_path))
       .unwrap_or(&default);
 
     let render_ctx = RenderContext::new(
       ctx,
       doc_nodes,
       short_path
-        .as_ref()
-        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+        .as_deref()
+        .map_or(UrlResolveKind::Root, ShortPath::as_resolve_kind),
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
@@ -118,9 +111,9 @@ impl IndexCtx {
     });
 
     let root = ctx.href_resolver.resolve_path(
-      file
-        .as_ref()
-        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+      short_path
+        .as_deref()
+        .map_or(UrlResolveKind::Root, ShortPath::as_resolve_kind),
       UrlResolveKind::Root,
     );
 
@@ -135,7 +128,7 @@ impl IndexCtx {
           .into_iter()
           .map(|(title, nodes)| {
             (
-              SectionHeaderCtx {
+              crate::html::util::SectionHeaderCtx {
                 title,
                 href: None,
                 doc: None,
@@ -157,10 +150,9 @@ impl IndexCtx {
 
     let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
       ctx,
-      specifier,
+      short_path.clone(),
       doc_nodes_by_url,
       partitions,
-      file.as_ref(),
     );
 
     IndexCtx {
@@ -186,7 +178,7 @@ impl AllSymbolsCtx {
   pub fn new(
     ctx: &GenerateCtx,
     partitions: crate::html::partition::EntrypointPartition,
-    doc_nodes_by_url: &super::ContextDocNodesByUrl,
+    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
   ) -> Self {
     // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
@@ -196,7 +188,7 @@ impl AllSymbolsCtx {
       partitions
         .into_iter()
         .map(|(path, nodes)| {
-          let module_doc_nodes = doc_nodes_by_url.get(&path.specifier).unwrap();
+          let module_doc_nodes = doc_nodes_by_url.get(&path).unwrap();
 
           let doc = module_doc_nodes
             .iter()

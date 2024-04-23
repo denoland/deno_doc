@@ -556,9 +556,9 @@ impl ModuleDocCtx {
   pub fn new(
     render_ctx: &RenderContext,
     short_path: &ShortPath,
-    doc_nodes_by_url: &super::ContextDocNodesByUrl,
+    doc_nodes_by_url: &super::ContextDocNodesByShortPath,
   ) -> Self {
-    let module_doc_nodes = doc_nodes_by_url.get(&short_path.specifier).unwrap();
+    let module_doc_nodes = doc_nodes_by_url.get(short_path).unwrap();
 
     let mut sections = Vec::with_capacity(7);
 

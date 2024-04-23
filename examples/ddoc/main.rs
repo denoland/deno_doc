@@ -224,7 +224,7 @@ fn generate_docs_directory(
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    composable_output: true,
+    composable_output: false,
   };
   let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 

@@ -1,6 +1,7 @@
+use super::ContextDocNodesByShortPath;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::{ContextDocNodesByUrl, ShortPath};
+use super::ShortPath;
 use crate::node::Location;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -184,7 +185,7 @@ fn doc_node_into_search_index_nodes(
 
 pub fn generate_search_index(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &ContextDocNodesByUrl,
+  doc_nodes_by_url: &ContextDocNodesByShortPath,
 ) -> serde_json::Value {
   let doc_nodes = doc_nodes_by_url.values().flatten().collect::<Vec<_>>();
 
@@ -225,7 +226,7 @@ pub fn generate_search_index(
 
 pub(crate) fn get_search_index_file(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &ContextDocNodesByUrl,
+  doc_nodes_by_url: &ContextDocNodesByShortPath,
 ) -> Result<String, anyhow::Error> {
   let search_index = generate_search_index(ctx, doc_nodes_by_url);
   let search_index_str = serde_json::to_string(&search_index)?;

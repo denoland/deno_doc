@@ -271,15 +271,13 @@ async fn symbol_group() {
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   {
-    for (specifier, doc_nodes) in &doc_nodes_by_url {
-      let short_path = ShortPath::new(&ctx, specifier.clone());
-
+    for (short_path, doc_nodes) in &doc_nodes_by_url {
       let partitions_for_nodes =
         partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
-        &short_path,
+        short_path,
         &partitions_for_nodes,
         doc_nodes,
       );
@@ -303,7 +301,7 @@ async fn symbol_group() {
               &root,
               &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
-              Some(short_path.clone()),
+              Some(short_path),
             );
 
             Some(pages::SymbolPageCtx {
@@ -442,13 +440,11 @@ async fn module_doc() {
   let mut module_docs = vec![];
   let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
-  for specifier in &ctx.specifiers {
-    let short_path = ShortPath::new(&ctx, specifier.clone());
-    let doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
+  for (short_path, doc_nodes) in &doc_nodes_by_url {
     let render_ctx =
-      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(&short_path));
+      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(short_path));
     let module_doc =
-      jsdoc::ModuleDocCtx::new(&render_ctx, &short_path, &doc_nodes_by_url);
+      jsdoc::ModuleDocCtx::new(&render_ctx, short_path, &doc_nodes_by_url);
 
     module_docs.push(module_doc);
   }

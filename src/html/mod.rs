@@ -25,6 +25,7 @@ mod usage;
 mod util;
 
 use crate::html::pages::SymbolPage;
+use crate::html::partition::get_partitions_for_file;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -106,11 +107,11 @@ impl<'ctx> GenerateCtx<'ctx> {
   pub fn doc_nodes_by_url_add_context(
     &self,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  ) -> ContextDocNodesByUrl {
+  ) -> ContextDocNodesByShortPath {
     doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
-        let short_path = Rc::new(ShortPath::new(self, specifier.clone()));
+        let short_path = Rc::new(ShortPath::new(self, specifier));
 
         let nodes = nodes
           .into_iter()
@@ -123,7 +124,7 @@ impl<'ctx> GenerateCtx<'ctx> {
           })
           .collect::<Vec<_>>();
 
-        (specifier, nodes)
+        (short_path, nodes)
       })
       .collect::<IndexMap<_, _>>()
   }
@@ -137,8 +138,8 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
-pub type ContextDocNodesByUrl =
-  IndexMap<ModuleSpecifier, Vec<DocNodeWithContext>>;
+pub type ContextDocNodesByShortPath =
+  IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>;
 
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct ShortPath {
@@ -488,19 +489,27 @@ pub fn generate(
   };
   let mut files = HashMap::new();
 
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
+  let doc_nodes_by_short_path =
+    ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   // Index page
   {
+    let main_entrypoint = doc_nodes_by_short_path
+      .iter()
+      .find(|(short_path, _)| short_path.is_main);
+
     let partitions_for_entrypoint_nodes =
-      partition::get_partitions_for_main_entrypoint(&ctx, &doc_nodes_by_url);
+      if let Some((_, doc_nodes)) = main_entrypoint {
+        get_partitions_for_file(&ctx, doc_nodes)
+      } else {
+        Default::default()
+      };
 
     let index = pages::IndexCtx::new(
       &ctx,
-      ctx.main_entrypoint.as_ref(),
-      &doc_nodes_by_url,
+      main_entrypoint.map(|(short_path, _)| short_path.clone()),
+      &doc_nodes_by_short_path,
       partitions_for_entrypoint_nodes,
-      None,
     );
 
     if options.composable_output {
@@ -540,7 +549,7 @@ pub fn generate(
 
   // All symbols (list of all symbols in all files)
   if ctx.file_mode != FileMode::SingleDts {
-    let all_doc_nodes = doc_nodes_by_url
+    let all_doc_nodes = doc_nodes_by_short_path
       .values()
       .flatten()
       .cloned()
@@ -549,8 +558,11 @@ pub fn generate(
     let partitions_by_kind =
       partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 
-    let all_symbols =
-      pages::AllSymbolsCtx::new(&ctx, partitions_by_kind, &doc_nodes_by_url);
+    let all_symbols = pages::AllSymbolsCtx::new(
+      &ctx,
+      partitions_by_kind,
+      &doc_nodes_by_short_path,
+    );
 
     if options.composable_output {
       files.insert(
@@ -573,15 +585,13 @@ pub fn generate(
 
   // Pages for all discovered symbols
   {
-    for (specifier, doc_nodes) in &doc_nodes_by_url {
-      let short_path = ShortPath::new(&ctx, specifier.clone());
-
+    for (short_path, doc_nodes) in &doc_nodes_by_short_path {
       let partitions_for_nodes =
         partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
-        &short_path,
+        short_path,
         &partitions_for_nodes,
         doc_nodes,
       );
@@ -605,7 +615,7 @@ pub fn generate(
               &root,
               &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
-              Some(short_path.clone()),
+              Some(short_path),
             );
 
             if options.composable_output {
@@ -669,10 +679,9 @@ pub fn generate(
 
       let index = pages::IndexCtx::new(
         &ctx,
-        Some(specifier),
-        &doc_nodes_by_url,
-        partitions_for_nodes,
         Some(short_path.clone()),
+        &doc_nodes_by_short_path,
+        partitions_for_nodes,
       );
 
       if options.composable_output {
@@ -717,7 +726,7 @@ pub fn generate(
   files.insert(STYLESHEET_FILENAME.into(), STYLESHEET.into());
   files.insert(
     SEARCH_INDEX_FILENAME.into(),
-    search::get_search_index_file(&ctx, &doc_nodes_by_url)?,
+    search::get_search_index_file(&ctx, &doc_nodes_by_short_path)?,
   );
   files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
 
