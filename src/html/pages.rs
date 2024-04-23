@@ -126,7 +126,7 @@ impl IndexCtx {
           .into_iter()
           .map(|(title, nodes)| {
             (
-              crate::html::util::SectionHeaderCtx {
+              SectionHeaderCtx {
                 title,
                 href: None,
                 doc: None,
