@@ -2,6 +2,7 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -161,7 +162,7 @@ impl<'ctx> GenerateCtx<'ctx> {
   }
 }
 
-#[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ShortPath {
   pub path: String,
   pub specifier: ModuleSpecifier,
@@ -241,6 +242,21 @@ impl ShortPath {
     } else {
       UrlResolveKind::File(self)
     }
+  }
+}
+
+impl Ord for ShortPath {
+  fn cmp(&self, other: &Self) -> Ordering {
+    self
+      .is_main
+      .cmp(&other.is_main)
+      .then_with(|| self.display_name().cmp(&other.display_name()))
+  }
+}
+
+impl PartialOrd for ShortPath {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
   }
 }
 

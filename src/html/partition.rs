@@ -264,18 +264,13 @@ pub fn partition_nodes_by_entrypoint(
     flatten_namespaces,
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.get_name().to_string());
+  for (_file, nodes) in partitions.iter_mut() {
+    nodes.sort_by(compare_node);
   }
 
+  partitions.sort_keys();
+
   partitions
-    .sorted_by(|key1, _value1, key2, _value2| {
-      key1
-        .is_main
-        .cmp(&key2.is_main)
-        .then_with(|| key1.display_name().cmp(&key2.display_name()))
-    })
-    .collect()
 }
 
 fn compare_node(
@@ -298,9 +293,11 @@ fn compare_node(
     .then_with(|| {
       node1
         .get_name()
-        .cmp(node2.get_name())
-        .then_with(|| node1.kind.cmp(&node2.kind))
+        .to_ascii_lowercase()
+        .cmp(&node2.get_name().to_ascii_lowercase())
     })
+    .then_with(|| node1.get_name().cmp(node2.get_name()))
+    .then_with(|| node1.kind.cmp(&node2.kind))
 }
 
 pub fn get_partitions_for_file(
