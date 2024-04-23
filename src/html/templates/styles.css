@@ -233,10 +233,10 @@ summary::-webkit-details-marker {
         @apply md:relative;
 
         > div {
-          @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-72 bg-white md:rounded border max-md:border-x-0 border-gray-300;
+          @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-48 bg-white md:rounded border max-md:border-x-0 border-gray-300;
 
           label {
-            @apply flex items-center justify-between cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50;
+            @apply flex items-center gap-2 cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50;
           }
         }
       }
