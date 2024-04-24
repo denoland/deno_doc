@@ -1,7 +1,6 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::usage::UsagesCtx;
-use crate::html::FileMode;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -602,7 +601,7 @@ impl ModuleDocCtx {
       (None, None, None)
     };
 
-    if short_path.is_main && render_ctx.ctx.file_mode == FileMode::SingleDts {
+    if !short_path.is_main {
       let partitions_by_kind =
         super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 

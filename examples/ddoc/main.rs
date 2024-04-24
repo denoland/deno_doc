@@ -4,7 +4,6 @@ use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::html::HrefResolver;
-use deno_doc::html::ShortPath;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
@@ -195,8 +194,10 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
-    Some(current_file.specifier.to_string())
+  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
+    current_resolve
+      .get_file()
+      .map(|current_file| current_file.specifier.to_string())
   }
 
   fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {

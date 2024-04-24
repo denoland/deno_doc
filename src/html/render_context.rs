@@ -221,7 +221,7 @@ impl<'ctx> RenderContext<'ctx> {
           is_first_symbol: false,
         }];
 
-        if file.is_main {
+        if !file.is_main {
           parts.push(BreadcrumbCtx {
             name: file.display_name(),
             href: self
@@ -320,11 +320,10 @@ mod test {
       Some(format!("{src}/{}", symbol.join(".")))
     }
 
-    fn resolve_usage(
-      &self,
-      current_file: &crate::html::ShortPath,
-    ) -> Option<String> {
-      Some(current_file.specifier.to_string())
+    fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
+      current_resolve
+        .get_file()
+        .map(|current_file| current_file.specifier.to_string())
     }
 
     fn resolve_source(&self, location: &Location) -> Option<String> {
