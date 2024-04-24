@@ -49,6 +49,8 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
 
       (title, href)
     } else {
+      let title = if title.is_empty() { link } else { title };
+
       (title, link.to_string())
     };
 
@@ -565,7 +567,10 @@ impl ModuleDocCtx {
     {
       let deprecated = node.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {
-          Some(doc.to_owned().unwrap_or_default())
+          Some(render_markdown(
+            render_ctx,
+            doc.as_deref().unwrap_or_default(),
+          ))
         } else {
           None
         }

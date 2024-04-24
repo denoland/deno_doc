@@ -80,7 +80,7 @@ impl FunctionCtx {
           Some(
             doc
               .as_ref()
-              .map(|doc| crate::html::jsdoc::render_markdown_summary(ctx, doc))
+              .map(|doc| crate::html::jsdoc::render_markdown(ctx, doc))
               .unwrap_or_default(),
           )
         } else {
