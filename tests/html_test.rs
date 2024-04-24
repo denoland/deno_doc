@@ -66,8 +66,10 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
-    Some(current_file.path.clone())
+  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
+    current_resolve
+      .get_file()
+      .map(|current_file| current_file.path.to_string())
   }
 
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {

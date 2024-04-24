@@ -130,7 +130,7 @@ impl UsagesCtx {
     let url = ctx
       .ctx
       .href_resolver
-      .resolve_usage(ctx.get_current_resolve().get_file()?)?;
+      .resolve_usage(ctx.get_current_resolve())?;
 
     if let Some(usage_composer) = &ctx.ctx.usage_composer {
       let usages = usage_composer(ctx, doc_nodes, url);

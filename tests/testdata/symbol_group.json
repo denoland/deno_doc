@@ -141,12 +141,6 @@
           "is_first_symbol": false
         },
         {
-          "name": "default",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
           "name": "Bar",
           "href": "../././~/Bar.html",
           "is_symbol": true,
@@ -355,12 +349,6 @@
           "is_first_symbol": false
         },
         {
-          "name": "default",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
           "name": "Foo",
           "href": "../././~/Foo.html",
           "is_symbol": true,
@@ -503,12 +491,6 @@
       "parts": [
         {
           "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
-          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -680,12 +662,6 @@
           "is_first_symbol": false
         },
         {
-          "name": "default",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
           "name": "Hello",
           "href": "../././~/Hello.html",
           "is_symbol": true,
@@ -846,12 +822,6 @@
       "parts": [
         {
           "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
-          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -1023,12 +993,6 @@
       "parts": [
         {
           "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
-          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -1211,12 +1175,6 @@
           "is_first_symbol": false
         },
         {
-          "name": "default",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
           "name": "Foo",
           "href": "../././~/Foo.html",
           "is_symbol": true,
@@ -1394,12 +1352,6 @@
           "is_first_symbol": false
         },
         {
-          "name": "default",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
           "name": "Hello",
           "href": "../././~/Hello.html",
           "is_symbol": true,
@@ -1561,6 +1513,12 @@
         {
           "name": "index",
           "href": "../../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "foo",
+          "href": "../.././foo/~/index.html",
           "is_symbol": false,
           "is_first_symbol": false
         },
