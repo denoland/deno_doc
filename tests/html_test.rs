@@ -66,16 +66,8 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(
-    &self,
-    _current_specifier: &ModuleSpecifier,
-    current_file: Option<&ShortPath>,
-  ) -> Option<String> {
-    Some(
-      current_file
-        .map(|current_file| current_file.as_str().to_string())
-        .unwrap_or_default(),
-    )
+  fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
+    Some(current_file.path.clone())
   }
 
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
@@ -165,7 +157,6 @@ async fn html_doc_files() {
       "./~/Foo.prototype.html",
       "./~/Foobar.html",
       "./~/Foobar.prototype.html",
-      "./~/index.html",
       "fuse.js",
       "page.css",
       "script.js",
@@ -258,38 +249,33 @@ async fn symbol_group() {
     "foo".to_string(),
   );
 
-  let ctx = GenerateCtx {
-    package_name: None,
-    common_ancestor: None,
-    main_entrypoint: Some(
-      ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
-    ),
-    specifiers: rewrite_map.keys().cloned().collect(),
-    hbs: setup_hbs().unwrap(),
-    highlight_adapter: setup_highlighter(false),
-    url_rewriter: None,
-    href_resolver: Rc::new(EmptyResolver {}),
-    usage_composer: None,
-    rewrite_map: Some(rewrite_map),
-    hide_module_doc_title: false,
-    file_mode: Default::default(),
-    sidebar_hide_all_symbols: false,
-  };
+  let ctx = GenerateCtx::new(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(
+        ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+      ),
+      href_resolver: Rc::new(EmptyResolver {}),
+      usage_composer: None,
+      rewrite_map: Some(rewrite_map),
+      composable_output: false,
+    },
+    None,
+    Default::default(),
+    doc_nodes_by_url,
+  )
+  .unwrap();
 
   let mut files = vec![];
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
   {
-    for (specifier, doc_nodes) in &doc_nodes_by_url {
-      let short_path = ctx.url_to_short_path(specifier);
-
+    for (short_path, doc_nodes) in &ctx.doc_nodes {
       let partitions_for_nodes =
         partition::get_partitions_for_file(&ctx, doc_nodes);
 
       let symbol_pages = generate_symbol_pages_for_module(
         &ctx,
-        specifier,
-        &short_path,
+        short_path,
         &partitions_for_nodes,
         doc_nodes,
       );
@@ -303,7 +289,7 @@ async fn symbol_group() {
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
-                file: &short_path,
+                file: short_path,
                 symbol: &symbol_group_ctx.name,
               },
               UrlResolveKind::Root,
@@ -313,7 +299,7 @@ async fn symbol_group() {
               &root,
               &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
-              Some(short_path.clone()),
+              Some(short_path),
             );
 
             Some(pages::SymbolPageCtx {
@@ -374,27 +360,24 @@ async fn symbol_search() {
     "foo".to_string(),
   );
 
-  let ctx = GenerateCtx {
-    package_name: None,
-    common_ancestor: None,
-    main_entrypoint: Some(
-      ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
-    ),
-    specifiers: rewrite_map.keys().cloned().collect(),
-    hbs: setup_hbs().unwrap(),
-    highlight_adapter: setup_highlighter(false),
-    url_rewriter: None,
-    href_resolver: Rc::new(EmptyResolver {}),
-    usage_composer: None,
-    rewrite_map: Some(rewrite_map),
-    hide_module_doc_title: false,
-    file_mode: Default::default(),
-    sidebar_hide_all_symbols: false,
-  };
+  let ctx = GenerateCtx::new(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(
+        ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+      ),
+      href_resolver: Rc::new(EmptyResolver {}),
+      usage_composer: None,
+      rewrite_map: Some(rewrite_map),
+      composable_output: false,
+    },
+    None,
+    Default::default(),
+    doc_nodes_by_url,
+  )
+  .unwrap();
 
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
-
-  let search_index = generate_search_index(&ctx, &doc_nodes_by_url);
+  let search_index = generate_search_index(&ctx);
   let mut file_json = serde_json::to_string_pretty(&search_index).unwrap();
   file_json.push('\n');
 
@@ -433,38 +416,29 @@ async fn module_doc() {
     "foo".to_string(),
   );
 
-  let ctx = GenerateCtx {
-    package_name: None,
-    common_ancestor: None,
-    main_entrypoint: Some(
-      ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
-    ),
-    specifiers: rewrite_map.keys().cloned().collect(),
-    hbs: setup_hbs().unwrap(),
-    highlight_adapter: setup_highlighter(false),
-    url_rewriter: None,
-    href_resolver: Rc::new(EmptyResolver {}),
-    usage_composer: None,
-    rewrite_map: Some(rewrite_map),
-    hide_module_doc_title: false,
-    file_mode: FileMode::Single,
-    sidebar_hide_all_symbols: false,
-  };
+  let ctx = GenerateCtx::new(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(
+        ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+      ),
+      href_resolver: Rc::new(EmptyResolver {}),
+      usage_composer: None,
+      rewrite_map: Some(rewrite_map),
+      composable_output: false,
+    },
+    None,
+    FileMode::Single,
+    doc_nodes_by_url,
+  )
+  .unwrap();
 
   let mut module_docs = vec![];
-  let doc_nodes_by_url = ctx.doc_nodes_by_url_add_context(doc_nodes_by_url);
 
-  for specifier in &ctx.specifiers {
-    let short_path = ctx.url_to_short_path(specifier);
-    let doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
-    let render_ctx = RenderContext::new(
-      &ctx,
-      doc_nodes,
-      UrlResolveKind::File(&short_path),
-      Some(specifier),
-    );
-    let module_doc =
-      jsdoc::ModuleDocCtx::new(&render_ctx, specifier, &doc_nodes_by_url);
+  for (short_path, doc_nodes) in &ctx.doc_nodes {
+    let render_ctx =
+      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(short_path));
+    let module_doc = jsdoc::ModuleDocCtx::new(&render_ctx, short_path);
 
     module_docs.push(module_doc);
   }

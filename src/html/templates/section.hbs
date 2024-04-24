@@ -1,5 +1,17 @@
 <section class="section">
-  <h2>{{title}}</h2>
+  <div>
+	  <h2>
+		  {{~#if header.href~}}
+			  <a href="{{header.href}}" class="contextLink">{{header.title}}</a>
+		  {{~else~}}
+			  {{header.title}}
+		  {{~/if~}}
+	  </h2>
+
+		{{~#if header.doc~}}
+			{{{header.doc}}} {{! markdown }}
+		{{~/if~}}
+  </div>
 
   {{~#if (eq content.kind "namespace_section")~}}
     {{~> namespace_section content.content ~}}

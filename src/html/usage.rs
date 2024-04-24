@@ -35,7 +35,7 @@ pub fn usage_to_md(
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
       file
-        .to_name()
+        .display_name()
         .replace('-', "_")
         .replace(|c: char| c.is_ascii_alphanumeric(), "")
     } else {
@@ -103,7 +103,6 @@ pub fn usage_to_md(
 
 #[derive(Clone, Debug, Serialize)]
 pub struct UsagesCtx {
-  show_tabs: bool,
   usages: Vec<UsageCtx>,
 }
 
@@ -128,10 +127,10 @@ impl UsagesCtx {
       return None;
     }
 
-    let url = ctx.ctx.href_resolver.resolve_usage(
-      ctx.get_current_specifier()?,
-      ctx.get_current_resolve().get_file(),
-    )?;
+    let url = ctx
+      .ctx
+      .href_resolver
+      .resolve_usage(ctx.get_current_resolve().get_file()?)?;
 
     if let Some(usage_composer) = &ctx.ctx.usage_composer {
       let usages = usage_composer(ctx, doc_nodes, url);
@@ -149,10 +148,7 @@ impl UsagesCtx {
       if usages.is_empty() {
         None
       } else {
-        Some(UsagesCtx {
-          show_tabs: true,
-          usages,
-        })
+        Some(UsagesCtx { usages })
       }
     } else {
       let import_statement = usage_to_md(ctx, doc_nodes, &url);
@@ -160,7 +156,6 @@ impl UsagesCtx {
         crate::html::jsdoc::render_markdown(ctx, &import_statement);
 
       Some(UsagesCtx {
-        show_tabs: false,
         usages: vec![UsageCtx {
           name: "".to_string(),
           content: rendered_import_statement,

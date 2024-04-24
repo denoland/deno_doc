@@ -195,12 +195,8 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(
-    &self,
-    current_specifier: &deno_ast::ModuleSpecifier,
-    _current_file: Option<&ShortPath>,
-  ) -> Option<String> {
-    Some(current_specifier.to_string())
+  fn resolve_usage(&self, current_file: &ShortPath) -> Option<String> {
+    Some(current_file.specifier.to_string())
   }
 
   fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
@@ -228,7 +224,7 @@ fn generate_docs_directory(
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    composable_output: true,
+    composable_output: false,
   };
   let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 

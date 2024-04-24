@@ -32,9 +32,9 @@ pub(crate) fn render_type_alias(
     sections.push(type_params);
   }
 
-  sections.push(SectionCtx {
-    title: "Definition".to_string(),
-    content: SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
+  sections.push(SectionCtx::new(
+    "Definition",
+    SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
       ctx,
       &id,
       "",
@@ -44,7 +44,7 @@ pub(crate) fn render_type_alias(
       None,
       &doc_node.location,
     )]),
-  });
+  ));
 
   sections
 }

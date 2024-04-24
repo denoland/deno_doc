@@ -105,9 +105,7 @@ impl SymbolGroupCtx {
               Some(
                 doc
                   .as_ref()
-                  .map(|doc| {
-                    crate::html::jsdoc::render_markdown_summary(ctx, doc)
-                  })
+                  .map(|doc| crate::html::jsdoc::render_markdown(ctx, doc))
                   .unwrap_or_default(),
               )
             } else {
@@ -297,7 +295,22 @@ impl SymbolInnerCtx {
 
           let ns_parts = name.split('.').collect::<Vec<&str>>();
 
-          namespace::render_namespace(&ctx.with_namespace(ns_parts), partitions)
+          namespace::render_namespace(
+            &ctx.with_namespace(ns_parts),
+            partitions
+              .into_iter()
+              .map(|(title, nodes)| {
+                (
+                  crate::html::util::SectionHeaderCtx {
+                    title,
+                    href: None,
+                    doc: None,
+                  },
+                  nodes,
+                )
+              })
+              .collect(),
+          )
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };

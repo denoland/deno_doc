@@ -1,4 +1,3 @@
-use super::ContextDocNodesByUrl;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use crate::node::Location;
@@ -49,14 +48,12 @@ fn doc_node_into_search_index_nodes(
   if doc_nodes[0].kind != DocNodeKind::Namespace {
     let mut location = doc_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    location.filename = if ctx
-      .main_entrypoint
-      .as_ref()
-      .map(|main_entrypoint| main_entrypoint != &location_url)
-      .unwrap_or(true)
+    location.filename = if let Some(short_path) = ctx
+      .doc_nodes
+      .keys()
+      .find(|short_path| short_path.specifier == location_url)
     {
-      html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
-        .into_owned()
+      html_escape::encode_text(&short_path.display_name()).into_owned()
     } else {
       String::new()
     };
@@ -65,7 +62,7 @@ fn doc_node_into_search_index_nodes(
       kind: kinds,
       name,
       file: html_escape::encode_double_quoted_attribute(
-        doc_nodes[0].origin.as_str(),
+        &doc_nodes[0].origin.path,
       )
       .into_owned(),
       location,
@@ -80,14 +77,12 @@ fn doc_node_into_search_index_nodes(
 
   let mut location = doc_nodes[0].location.clone();
   let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-  location.filename = if ctx
-    .main_entrypoint
-    .as_ref()
-    .map(|main_entrypoint| main_entrypoint != &location_url)
-    .unwrap_or(true)
+  location.filename = if let Some(short_path) = ctx
+    .doc_nodes
+    .keys()
+    .find(|short_path| short_path.specifier == location_url)
   {
-    html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
-      .into_owned()
+    html_escape::encode_text(&short_path.display_name()).into_owned()
   } else {
     String::new()
   };
@@ -96,7 +91,7 @@ fn doc_node_into_search_index_nodes(
     kind: kinds,
     name,
     file: html_escape::encode_double_quoted_attribute(
-      doc_nodes[0].origin.as_str(),
+      &doc_nodes[0].origin.path,
     )
     .into_owned(),
     location,
@@ -124,14 +119,12 @@ fn doc_node_into_search_index_nodes(
 
     let mut location = el_nodes[0].location.clone();
     let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-    location.filename = if ctx
-      .main_entrypoint
-      .as_ref()
-      .map(|main_entrypoint| main_entrypoint != &location_url)
-      .unwrap_or(true)
+    location.filename = if let Some(short_path) = ctx
+      .doc_nodes
+      .keys()
+      .find(|short_path| short_path.specifier == location_url)
     {
-      html_escape::encode_text(&ctx.url_to_short_path(&location_url).to_name())
-        .into_owned()
+      html_escape::encode_text(&short_path.display_name()).into_owned()
     } else {
       String::new()
     };
@@ -152,7 +145,7 @@ fn doc_node_into_search_index_nodes(
       kind: kinds,
       name,
       file: html_escape::encode_double_quoted_attribute(
-        doc_nodes[0].origin.as_str(),
+        &doc_nodes[0].origin.path,
       )
       .into_owned(),
       location,
@@ -178,11 +171,8 @@ fn doc_node_into_search_index_nodes(
   nodes
 }
 
-pub fn generate_search_index(
-  ctx: &GenerateCtx,
-  doc_nodes_by_url: &ContextDocNodesByUrl,
-) -> serde_json::Value {
-  let doc_nodes = doc_nodes_by_url.values().flatten().collect::<Vec<_>>();
+pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
+  let doc_nodes = ctx.doc_nodes.values().flatten().collect::<Vec<_>>();
 
   let mut grouped_nodes: IndexMap<&str, Vec<&DocNodeWithContext>> =
     IndexMap::new();
@@ -221,9 +211,8 @@ pub fn generate_search_index(
 
 pub(crate) fn get_search_index_file(
   ctx: &GenerateCtx,
-  doc_nodes_by_url: &ContextDocNodesByUrl,
 ) -> Result<String, anyhow::Error> {
-  let search_index = generate_search_index(ctx, doc_nodes_by_url);
+  let search_index = generate_search_index(ctx);
   let search_index_str = serde_json::to_string(&search_index)?;
 
   let index = format!(
