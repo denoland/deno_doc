@@ -122,7 +122,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -137,6 +136,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -263,7 +268,11 @@
                 "docs": "<div class=\"markdown flex-1\"><p>some Foo docs</p>\n</div>",
                 "sections": [
                   {
-                    "title": "Properties",
+                    "header": {
+                      "title": "Properties",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -295,7 +304,11 @@
                     }
                   },
                   {
-                    "title": "Static Properties",
+                    "header": {
+                      "title": "Static Properties",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -323,7 +336,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -338,6 +350,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -471,7 +489,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -486,6 +503,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -606,7 +629,11 @@
                 "docs": null,
                 "sections": [
                   {
-                    "title": "Properties",
+                    "header": {
+                      "title": "Properties",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -634,7 +661,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -649,6 +675,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -768,7 +800,11 @@
                 "docs": null,
                 "sections": [
                   {
-                    "title": "Type",
+                    "header": {
+                      "title": "Type",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -796,7 +832,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -811,6 +846,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -936,7 +977,11 @@
                 "docs": null,
                 "sections": [
                   {
-                    "title": "Type",
+                    "header": {
+                      "title": "Type",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -964,7 +1009,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -979,6 +1023,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -1110,7 +1160,11 @@
                 "docs": null,
                 "sections": [
                   {
-                    "title": "Type",
+                    "header": {
+                      "title": "Type",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -1138,7 +1192,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -1153,6 +1206,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -1284,7 +1343,11 @@
                 "docs": null,
                 "sections": [
                   {
-                    "title": "Type",
+                    "header": {
+                      "title": "Type",
+                      "href": null,
+                      "doc": null
+                    },
                     "content": {
                       "kind": "doc_entry",
                       "content": [
@@ -1312,7 +1375,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -1327,6 +1389,12 @@
       "parts": [
         {
           "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "default",
           "href": "../",
           "is_symbol": false,
           "is_first_symbol": false
@@ -1416,7 +1484,11 @@
                     "docs": null,
                     "sections": [
                       {
-                        "title": "Parameters",
+                        "header": {
+                          "title": "Parameters",
+                          "href": null,
+                          "doc": null
+                        },
                         "content": {
                           "kind": "doc_entry",
                           "content": [
@@ -1440,7 +1512,11 @@
                         }
                       },
                       {
-                        "title": "Return Type",
+                        "header": {
+                          "title": "Return Type",
+                          "href": null,
+                          "doc": null
+                        },
                         "content": {
                           "kind": "doc_entry",
                           "content": [
@@ -1470,7 +1546,6 @@
         }
       ],
       "usages": {
-        "show_tabs": false,
         "usages": [
           {
             "name": "",
@@ -1486,12 +1561,6 @@
         {
           "name": "index",
           "href": "../../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
-          "name": "foo",
-          "href": "../.././foo/~/index.html",
           "is_symbol": false,
           "is_first_symbol": false
         },

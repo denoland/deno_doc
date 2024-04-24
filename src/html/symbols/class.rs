@@ -56,47 +56,47 @@ pub(crate) fn render_class(
   }
 
   if !class_items.properties.is_empty() {
-    sections.push(SectionCtx {
-      title: "Properties".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_properties(
+    sections.push(SectionCtx::new(
+      "Properties",
+      SectionContentCtx::DocEntry(render_class_properties(
         ctx,
         doc_node.get_name(),
         class_items.properties,
       )),
-    });
+    ));
   }
 
   if !class_items.methods.is_empty() {
-    sections.push(SectionCtx {
-      title: "Methods".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_methods(
+    sections.push(SectionCtx::new(
+      "Methods",
+      SectionContentCtx::DocEntry(render_class_methods(
         ctx,
         doc_node.get_name(),
         class_items.methods,
       )),
-    });
+    ));
   }
 
   if !class_items.static_properties.is_empty() {
-    sections.push(SectionCtx {
-      title: "Static Properties".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_properties(
+    sections.push(SectionCtx::new(
+      "Static Properties",
+      SectionContentCtx::DocEntry(render_class_properties(
         ctx,
         doc_node.get_name(),
         class_items.static_properties,
       )),
-    });
+    ));
   }
 
   if !class_items.static_methods.is_empty() {
-    sections.push(SectionCtx {
-      title: "Static Methods".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_methods(
+    sections.push(SectionCtx::new(
+      "Static Methods",
+      SectionContentCtx::DocEntry(render_class_methods(
         ctx,
         doc_node.get_name(),
         class_items.static_methods,
       )),
-    })
+    ));
   }
 
   sections
@@ -138,10 +138,10 @@ fn render_constructors(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  Some(SectionCtx {
-    title: "Constructors".to_string(),
-    content: SectionContentCtx::DocEntry(items),
-  })
+  Some(SectionCtx::new(
+    "Constructors",
+    SectionContentCtx::DocEntry(items),
+  ))
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -186,10 +186,10 @@ fn render_index_signatures(
     });
   }
 
-  Some(SectionCtx {
-    title: "Index Signatures".to_string(),
-    content: SectionContentCtx::IndexSignature(items),
-  })
+  Some(SectionCtx::new(
+    "Index Signatures",
+    SectionContentCtx::IndexSignature(items),
+  ))
 }
 
 enum PropertyOrMethod {

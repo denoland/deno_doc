@@ -43,7 +43,7 @@ export default {
     extend: {
       colors: {
         ...extraColors,
-        "breadcrumb": "#0E6590",
+        "contextLink": "#0E6590",
       },
     },
   },

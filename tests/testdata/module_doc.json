@@ -1,9 +1,7 @@
 [
   {
-    "title": "main",
     "deprecated": null,
     "usages": {
-      "show_tabs": false,
       "usages": [
         {
           "name": "",
@@ -21,10 +19,8 @@
     }
   },
   {
-    "title": "foo",
     "deprecated": null,
     "usages": {
-      "show_tabs": false,
       "usages": [
         {
           "name": "",
@@ -38,33 +34,7 @@
     "sections": {
       "id": "module_doc",
       "docs": null,
-      "sections": [
-        {
-          "title": "Functions",
-          "content": {
-            "kind": "namespace_section",
-            "content": [
-              {
-                "tags": [],
-                "doc_node_kind_ctx": [
-                  {
-                    "kind": "Function",
-                    "char": "f",
-                    "title": "Function",
-                    "title_lowercase": "function",
-                    "title_plural": "Functions"
-                  }
-                ],
-                "origin_name": null,
-                "href": "../.././foo/~/x.html",
-                "name": "x",
-                "docs": null,
-                "deprecated": false
-              }
-            ]
-          }
-        }
-      ]
+      "sections": []
     }
   }
 ]

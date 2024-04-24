@@ -24,35 +24,35 @@ summary::-webkit-details-marker {
 #sidepanel {
   @apply shrink-0 box-border lg:h-screen lg:sticky lg:top-0 lg:left-0 lg:overflow-y-auto lg:overscroll-y-contain;
   scrollbar-width: thin;
-  
+
   label, a, h2, h3 {
     @apply py-1.5 pr-4 pl-2;
   }
-  
+
   h2 {
     @apply flex items-center gap-2.5 mt-2 text-xl font-bold;
   }
-  
+
   h3 {
     @apply font-bold;
   }
-  
+
   ul {
     @apply list-none;
   }
-  
+
   li {
     @apply block;
   }
-  
+
   a {
     @apply flex items-center gap-2 leading-none relative rounded-lg;
   }
-  
+
   li > a > span {
     @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis text-sm;
   }
-  
+
   li > a:has(span) {
     @apply py-1;
   }
@@ -68,7 +68,7 @@ summary::-webkit-details-marker {
 
 .anchorable {
   @apply relative;
-  
+
   &:hover .anchor {
     @apply block;
   }
@@ -77,12 +77,12 @@ summary::-webkit-details-marker {
 .deprecated {
   > div:first-child {
     @apply py-1 text-red-500 flex gap-1 items-center;
-    
+
     > span {
       @apply font-semibold leading-6;
     }
   }
-  
+
   > div:nth-child(2) {
     @apply ml-1 pl-2 border-l-4 border-red-300;
   }
@@ -90,7 +90,7 @@ summary::-webkit-details-marker {
 
 .symbolSubtitle {
   @apply space-y-0.5 text-sm leading-4;
-  
+
   .type {
     @apply text-stone-400 italic;
   }
@@ -98,10 +98,10 @@ summary::-webkit-details-marker {
 
 .docEntry {
   @apply text-sm;
-  
+
   .docEntryHeader {
     @apply flex justify-between items-start;
-    
+
     > span {
       @apply flex items-center break-words gap-2;
     }
@@ -109,57 +109,60 @@ summary::-webkit-details-marker {
 }
 
 .section {
-  > h2 {
-    @apply text-xl leading-6 font-semibold py-1 mb-4;
+  @apply space-y-6;
+
+  > div {
+    @apply space-y-1;
+
+    > h2 {
+      @apply text-xl leading-6 font-semibold py-1;
+    }
   }
 }
 
 .namespaceSection {
-  @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
-  
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 md:gap-x-3 md:gap-y-8;
   .namespaceItem {
-    @apply space-y-2;
-    
+    @apply flex gap-x-2.5;
+
+    .docNodeKindIcon {
+      @apply w-auto flex-col justify-start;
+
+      > * + * {
+        @apply ml-0 -mt-0.5;
+      }
+    }
     &[aria-label="deprecated"] {
       @apply opacity-60;
-      
-      .namespaceItemTitle a {
+
+      .namespaceItemContent > a {
         @apply line-through decoration-2 decoration-stone-500/70 text-stone-500;
       }
     }
-    
-    .namespaceItemTitle {
-      @apply flex gap-2 items-center;
-      
-      > div:last-child {
-        @apply flex justify-between gap-4 flex-1 min-w-0 items-end overflow-hidden;
-        
-        > a {
-          @apply leading-tight truncate;
-        }
-        
-        > div {
-          @apply text-xs italic lg:mr-4 text-stone-400 truncate;
-        }
-      }
-    }
-    
+
     .namespaceItemContent {
-      @apply py-1 text-sm leading-5 text-stone-600 markdown_border;
-      @apply ml-2 !important;
+      @apply space-y-1.5;
+
+      > a {
+        @apply block leading-tight break-all font-medium;
+      }
+
+      > div {
+        @apply text-sm leading-5 text-stone-600;
+      }
     }
   }
 }
 
 .symbolGroup {
   @apply space-y-12;
-  
+
   article {
     @apply space-y-5;
-    
+
     > div:first-child {
       @apply flex justify-between items-start;
-      
+
       > div:first-child {
         @apply font-medium space-y-1;
       }
@@ -168,12 +171,12 @@ summary::-webkit-details-marker {
 }
 
 .docNodeKindIcon {
-  @apply flex justify-end w-[2.125rem] shrink-0;
-  
+  @apply inline-flex justify-end shrink-0;
+
   div {
     @apply rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono;
   }
-  
+
   > * + * {
     @apply -ml-1.5;
   }
@@ -182,12 +185,12 @@ summary::-webkit-details-marker {
 .example details {
   summary {
     @apply list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6 cursor-pointer;
-    
+
     > div:first-child {
       @apply text-stone-600 select-none;
     }
   }
-  
+
   &[open] summary > div:first-child {
     @apply rotate-90;
   }
@@ -195,18 +198,18 @@ summary::-webkit-details-marker {
 
 .tocable {
   @apply flex max-lg:flex-col-reverse gap-6;
-  
+
   .toc {
     @apply flex-none max-w-52 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border;
-    
+
     > ul {
       @apply space-y-2 block overflow-y-auto h-full;
-      
+
       ul {
         @apply ml-4 space-y-2;
       }
     }
-    
+
     a {
       @apply hover:underline block overflow-x-hidden whitespace-nowrap text-ellipsis;
     }
@@ -215,43 +218,47 @@ summary::-webkit-details-marker {
 
 .usage {
   @apply px-6 py-5 mb-4 border max-md:border-x-0 md:rounded-lg bg-stone-50 border-stone-200;
-  
+
   nav {
     @apply flex items-center flex-row gap-2 mb-3 font-semibold;
-    
+
     details {
       > summary {
         @apply flex gap-1 select-none cursor-pointer rounded border border-gray-300 py-2 px-3;
       }
-      
+
       > div {
         @apply md:relative;
-        
+
         > div {
-          @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-72 bg-white md:rounded border max-md:border-x-0 border-gray-300;
-         
+          @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-48 bg-white md:rounded border max-md:border-x-0 border-gray-300;
+
           label {
-            @apply flex items-center justify-between cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50;
+            @apply flex items-center gap-2 cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50;
           }
         }
       }
     }
   }
-  
-  pre.highlight {
-    @apply border border-gray-300 max-md:border-x-0;
-  }
+}
+
+.usageContent pre.highlight {
+  @apply border border-gray-300 max-md:border-x-0;
+}
+
+.contextLink {
+  @apply text-contextLink/80 underline decoration-[1.5px] decoration-contextLink/50 underline-offset-4 hover:text-contextLink hover:decoration-contextLink;
 }
 
 .breadcrumbs {
-  @apply whitespace-nowrap inline-flex gap-1 items-center;
-  
-  > li, > ul {
-    @apply py-1 px-2;
+  @apply break-all inline-flex gap-1 items-center;
+
+  > li:first-child {
+    @apply text-xl lg:text-2xl leading-none font-bold;
   }
-  
-  a {
-    @apply text-breadcrumb underline decoration-[1.5px] decoration-breadcrumb/50 underline-offset-4 hover:decoration-breadcrumb;
+
+  li {
+    @apply inline lg:text-xl leading-[0.9em];
   }
 }
 
@@ -270,11 +277,11 @@ summary::-webkit-details-marker {
 
 .markdown_summary {
   @apply inline text-stone-600;
-  
+
   p {
     @apply inline-block;
   }
-  
+
   :not(pre) > code {
     @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
   }
@@ -332,7 +339,7 @@ summary::-webkit-details-marker {
   :not(pre) > code {
     @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     & > code {
       font-size: inherit !important;
@@ -422,7 +429,7 @@ summary::-webkit-details-marker {
 
 .markdown .highlight {
   @apply relative;
-  
+
   .lineNumbers {
     @apply border-r-2 border-stone-300 pr-1 text-right flex-none;
   }

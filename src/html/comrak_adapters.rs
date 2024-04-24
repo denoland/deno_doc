@@ -2,6 +2,7 @@
 
 //! Adapter for the Syntect syntax highlighter plugin.
 
+use crate::html::ShortPath;
 use comrak::adapters::HeadingAdapter;
 use comrak::adapters::HeadingMeta;
 use comrak::adapters::SyntaxHighlighterAdapter;
@@ -264,6 +265,5 @@ impl HeadingAdapter for HeadingToCAdapter {
 }
 
 #[cfg(feature = "ammonia")]
-pub type URLRewriter = Arc<
-  dyn (Fn(Option<&deno_ast::ModuleSpecifier>, &str) -> String) + Send + Sync,
->;
+pub type URLRewriter =
+  Arc<dyn (Fn(Option<&ShortPath>, &str) -> String) + Send + Sync>;

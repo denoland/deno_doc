@@ -1,25 +1,20 @@
 <div class="namespaceSection">
   {{~#each this~}}
     <div class="namespaceItem" {{#if this.deprecated}}aria-label="deprecated"{{/if}}>
-      <div class="namespaceItemTitle">
-        {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
+	    {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
 
-        <div>
-          <a href="{{this.href}}" title="{{this.name}}">
-            {{~this.name~}}
-          </a>
+	    <div class="namespaceItemContent">
+		    <a href="{{this.href}}" title="{{this.name}}">
+			    {{~this.name~}}
+		    </a>
 
-          {{~#if this.origin_name~}}
-            <div title="{{this.origin_name}}">from {{this.origin_name}}</div>
-          {{~/if~}}
-        </div>
-      </div>
-      <div class="namespaceItemContent">
-        {{~#if this.docs~}}
-          {{{~this.docs~}}} {{! markdown rendering }}
-        {{~else~}}
-          <span class="italic">No documentation available</span>
-        {{~/if~}}
+	      <div>
+		      {{~#if this.docs~}}
+			      {{{~this.docs~}}} {{! markdown rendering }}
+		      {{~else~}}
+			      <span class="italic">No documentation available</span>
+		      {{~/if~}}
+	      </div>
       </div>
     </div>
   {{~/each~}}
