@@ -2,7 +2,6 @@
   {
     "deprecated": null,
     "usages": {
-      "show_tabs": false,
       "usages": [
         {
           "name": "",
@@ -22,7 +21,6 @@
   {
     "deprecated": null,
     "usages": {
-      "show_tabs": false,
       "usages": [
         {
           "name": "",
