@@ -5,9 +5,15 @@
 body {
   @apply flex flex-col lg:flex-row w-full overflow-x-hidden;
 }
+
 #content {
-  @apply p-7 max-w-screen-xl w-full overflow-x-hidden
+  @apply p-7 max-w-screen-xl w-full overflow-x-hidden;
+
+  &:not(:has(#sidepanel)) {
+    @apply mx-auto;
+  }
 }
+
 #sidepanel {
   @apply py-3 pl-3 lg:w-72;
 }

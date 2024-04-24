@@ -121,7 +121,7 @@ summary::-webkit-details-marker {
 }
 
 .namespaceSection {
-  @apply grid grid-cols-1 gap-y-3 lg:grid-cols-4 lg:gap-x-3 lg:gap-y-8;
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 md:gap-x-3 md:gap-y-8;
 
   .namespaceItem {
     @apply flex gap-x-2.5;
@@ -242,21 +242,25 @@ summary::-webkit-details-marker {
       }
     }
   }
+}
 
-  pre.highlight {
-    @apply border border-gray-300 max-md:border-x-0;
-  }
+.usageContent pre.highlight {
+  @apply border border-gray-300 max-md:border-x-0;
 }
 
 .contextLink {
-  @apply text-contextLink underline decoration-[1.5px] decoration-contextLink/50 underline-offset-4 hover:decoration-contextLink;
+  @apply text-contextLink/80 underline decoration-[1.5px] decoration-contextLink/50 underline-offset-4 hover:text-contextLink hover:decoration-contextLink;
 }
 
 .breadcrumbs {
   @apply whitespace-nowrap inline-flex gap-1 items-center;
 
-  > li, > ul {
-    @apply py-1 px-2;
+  > li:first-child {
+    @apply text-xl lg:text-2xl leading-none font-bold;
+  }
+
+  li {
+    @apply inline lg:text-xl leading-[0.9em];
   }
 }
 

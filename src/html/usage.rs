@@ -103,7 +103,6 @@ pub fn usage_to_md(
 
 #[derive(Clone, Debug, Serialize)]
 pub struct UsagesCtx {
-  show_tabs: bool,
   usages: Vec<UsageCtx>,
 }
 
@@ -149,10 +148,7 @@ impl UsagesCtx {
       if usages.is_empty() {
         None
       } else {
-        Some(UsagesCtx {
-          show_tabs: true,
-          usages,
-        })
+        Some(UsagesCtx { usages })
       }
     } else {
       let import_statement = usage_to_md(ctx, doc_nodes, &url);
@@ -160,7 +156,6 @@ impl UsagesCtx {
         crate::html::jsdoc::render_markdown(ctx, &import_statement);
 
       Some(UsagesCtx {
-        show_tabs: false,
         usages: vec![UsageCtx {
           name: "".to_string(),
           content: rendered_import_statement,
