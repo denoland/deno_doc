@@ -4,5 +4,8 @@
   "exports": {
     ".": "./mod.ts",
     "./types": "./types.d.ts"
-  }
+  },
+  "exclude": [
+    "!**"
+  ]
 }
