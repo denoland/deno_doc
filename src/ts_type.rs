@@ -457,11 +457,11 @@ impl TsTypeDef {
           if let Some(call_sig_js_doc) =
             js_doc_for_range(parsed_source, &ts_call_sig.range())
           {
-            let mut params = vec![];
-            for param in &ts_call_sig.params {
-              let param_def = ts_fn_param_to_param_def(parsed_source, param);
-              params.push(param_def);
-            }
+            let params = ts_call_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
 
             let ts_type = ts_call_sig
               .type_ann
@@ -486,11 +486,11 @@ impl TsTypeDef {
           if let Some(js_doc) =
             js_doc_for_range(parsed_source, &ts_index_sig.range())
           {
-            let mut params = vec![];
-            for param in &ts_index_sig.params {
-              let param_def = ts_fn_param_to_param_def(parsed_source, param);
-              params.push(param_def);
-            }
+            let params = ts_index_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
 
             let ts_type = ts_index_sig
               .type_ann
@@ -510,11 +510,11 @@ impl TsTypeDef {
           if let Some(prop_js_doc) =
             js_doc_for_range(parsed_source, &ts_construct_sig.range())
           {
-            let mut params = vec![];
-            for param in &ts_construct_sig.params {
-              let param_def = ts_fn_param_to_param_def(parsed_source, param);
-              params.push(param_def);
-            }
+            let params = ts_construct_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
 
             let type_params = maybe_type_param_decl_to_type_param_defs(
               parsed_source,
@@ -630,12 +630,11 @@ impl TsTypeDef {
 
     let fn_def = match other {
       TsFnType(ts_fn_type) => {
-        let mut params = vec![];
-
-        for param in &ts_fn_type.params {
-          let param_def = ts_fn_param_to_param_def(parsed_source, param);
-          params.push(param_def);
-        }
+        let params = ts_fn_type
+          .params
+          .iter()
+          .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+          .collect();
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
           parsed_source,
@@ -650,12 +649,11 @@ impl TsTypeDef {
         }
       }
       TsConstructorType(ctor_type) => {
-        let mut params = vec![];
-
-        for param in &ctor_type.params {
-          let param_def = ts_fn_param_to_param_def(parsed_source, param);
-          params.push(param_def);
-        }
+        let params = ctor_type
+          .params
+          .iter()
+          .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+          .collect();
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
           parsed_source,
