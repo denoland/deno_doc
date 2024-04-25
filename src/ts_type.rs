@@ -13,10 +13,13 @@ use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::util::swc::is_false;
+use crate::util::swc::js_doc_for_range;
 use crate::ParamDef;
 
+use crate::js_doc::JsDoc;
 use deno_ast::swc::ast::*;
 use deno_ast::ParsedSource;
+use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -337,171 +340,205 @@ impl TsTypeDef {
 
       match &type_element {
         TsMethodSignature(ts_method_sig) => {
-          let mut params = vec![];
+          if let Some(prop_js_doc) =
+            js_doc_for_range(parsed_source, &ts_method_sig.range())
+          {
+            let params = ts_method_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect::<Vec<_>>();
 
-          for param in &ts_method_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
-            params.push(param_def);
+            let maybe_return_type = ts_method_sig
+              .type_ann
+              .as_ref()
+              .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+
+            let type_params = maybe_type_param_decl_to_type_param_defs(
+              parsed_source,
+              ts_method_sig.type_params.as_deref(),
+            );
+            let name = expr_to_name(&ts_method_sig.key);
+            let method_def = LiteralMethodDef {
+              name,
+              js_doc: prop_js_doc,
+              kind: MethodKind::Method,
+              params,
+              computed: ts_method_sig.computed,
+              optional: ts_method_sig.optional,
+              return_type: maybe_return_type,
+              type_params,
+            };
+            methods.push(method_def);
           }
-
-          let maybe_return_type = ts_method_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
-
-          let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
-            ts_method_sig.type_params.as_deref(),
-          );
-          let name = expr_to_name(&ts_method_sig.key);
-          let method_def = LiteralMethodDef {
-            name,
-            kind: MethodKind::Method,
-            params,
-            computed: ts_method_sig.computed,
-            optional: ts_method_sig.optional,
-            return_type: maybe_return_type,
-            type_params,
-          };
-          methods.push(method_def);
         }
         TsGetterSignature(ts_getter_sig) => {
-          let maybe_return_type = ts_getter_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+          if let Some(prop_js_doc) =
+            js_doc_for_range(parsed_source, &ts_getter_sig.range())
+          {
+            let maybe_return_type = ts_getter_sig
+              .type_ann
+              .as_ref()
+              .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-          let name = expr_to_name(&ts_getter_sig.key);
-          let method_def = LiteralMethodDef {
-            name,
-            kind: MethodKind::Getter,
-            params: vec![],
-            computed: ts_getter_sig.computed,
-            optional: ts_getter_sig.optional,
-            return_type: maybe_return_type,
-            type_params: vec![],
-          };
-          methods.push(method_def);
+            let name = expr_to_name(&ts_getter_sig.key);
+            let method_def = LiteralMethodDef {
+              name,
+              js_doc: prop_js_doc,
+              kind: MethodKind::Getter,
+              params: vec![],
+              computed: ts_getter_sig.computed,
+              optional: ts_getter_sig.optional,
+              return_type: maybe_return_type,
+              type_params: vec![],
+            };
+            methods.push(method_def);
+          }
         }
         TsSetterSignature(ts_setter_sig) => {
-          let name = expr_to_name(&ts_setter_sig.key);
+          if let Some(prop_js_doc) =
+            js_doc_for_range(parsed_source, &ts_setter_sig.range())
+          {
+            let name = expr_to_name(&ts_setter_sig.key);
 
-          let params = vec![ts_fn_param_to_param_def(
-            parsed_source,
-            &ts_setter_sig.param,
-          )];
+            let params = vec![ts_fn_param_to_param_def(
+              parsed_source,
+              &ts_setter_sig.param,
+            )];
 
-          let method_def = LiteralMethodDef {
-            name,
-            kind: MethodKind::Setter,
-            params,
-            computed: ts_setter_sig.computed,
-            optional: ts_setter_sig.optional,
-            return_type: None,
-            type_params: vec![],
-          };
-          methods.push(method_def);
+            let method_def = LiteralMethodDef {
+              name,
+              js_doc: prop_js_doc,
+              kind: MethodKind::Setter,
+              params,
+              computed: ts_setter_sig.computed,
+              optional: ts_setter_sig.optional,
+              return_type: None,
+              type_params: vec![],
+            };
+            methods.push(method_def);
+          }
         }
         TsPropertySignature(ts_prop_sig) => {
-          let name = expr_to_name(&ts_prop_sig.key);
+          if let Some(prop_js_doc) =
+            js_doc_for_range(parsed_source, &ts_prop_sig.range())
+          {
+            let name = expr_to_name(&ts_prop_sig.key);
 
-          let params = ts_prop_sig
-            .params
-            .iter()
-            .map(|param| ts_fn_param_to_param_def(parsed_source, param))
-            .collect();
+            let params = ts_prop_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
 
-          let ts_type = ts_prop_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+            let ts_type = ts_prop_sig
+              .type_ann
+              .as_ref()
+              .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-          let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
-            ts_prop_sig.type_params.as_deref(),
-          );
-          let prop_def = LiteralPropertyDef {
-            name,
-            params,
-            ts_type,
-            readonly: ts_prop_sig.readonly,
-            computed: ts_prop_sig.computed,
-            optional: ts_prop_sig.optional,
-            type_params,
-          };
-          properties.push(prop_def);
+            let type_params = maybe_type_param_decl_to_type_param_defs(
+              parsed_source,
+              ts_prop_sig.type_params.as_deref(),
+            );
+            let prop_def = LiteralPropertyDef {
+              name,
+              js_doc: prop_js_doc,
+              params,
+              ts_type,
+              readonly: ts_prop_sig.readonly,
+              computed: ts_prop_sig.computed,
+              optional: ts_prop_sig.optional,
+              type_params,
+            };
+            properties.push(prop_def);
+          }
         }
         TsCallSignatureDecl(ts_call_sig) => {
-          let mut params = vec![];
-          for param in &ts_call_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
-            params.push(param_def);
+          if let Some(call_sig_js_doc) =
+            js_doc_for_range(parsed_source, &ts_call_sig.range())
+          {
+            let params = ts_call_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
+
+            let ts_type = ts_call_sig
+              .type_ann
+              .as_ref()
+              .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+
+            let type_params = maybe_type_param_decl_to_type_param_defs(
+              parsed_source,
+              ts_call_sig.type_params.as_deref(),
+            );
+
+            let call_sig_def = LiteralCallSignatureDef {
+              js_doc: call_sig_js_doc,
+              params,
+              ts_type,
+              type_params,
+            };
+            call_signatures.push(call_sig_def);
           }
-
-          let ts_type = ts_call_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
-
-          let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
-            ts_call_sig.type_params.as_deref(),
-          );
-
-          let call_sig_def = LiteralCallSignatureDef {
-            params,
-            ts_type,
-            type_params,
-          };
-          call_signatures.push(call_sig_def);
         }
         TsIndexSignature(ts_index_sig) => {
-          let mut params = vec![];
-          for param in &ts_index_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
-            params.push(param_def);
+          if let Some(js_doc) =
+            js_doc_for_range(parsed_source, &ts_index_sig.range())
+          {
+            let params = ts_index_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
+
+            let ts_type = ts_index_sig
+              .type_ann
+              .as_ref()
+              .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+
+            let index_sig_def = LiteralIndexSignatureDef {
+              js_doc,
+              readonly: ts_index_sig.readonly,
+              params,
+              ts_type,
+            };
+            index_signatures.push(index_sig_def);
           }
-
-          let ts_type = ts_index_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
-
-          let index_sig_def = LiteralIndexSignatureDef {
-            readonly: ts_index_sig.readonly,
-            params,
-            ts_type,
-          };
-          index_signatures.push(index_sig_def);
         }
         TsConstructSignatureDecl(ts_construct_sig) => {
-          let mut params = vec![];
-          for param in &ts_construct_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
-            params.push(param_def);
+          if let Some(prop_js_doc) =
+            js_doc_for_range(parsed_source, &ts_construct_sig.range())
+          {
+            let params = ts_construct_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect();
+
+            let type_params = maybe_type_param_decl_to_type_param_defs(
+              parsed_source,
+              ts_construct_sig.type_params.as_deref(),
+            );
+
+            let maybe_return_type = ts_construct_sig
+              .type_ann
+              .as_ref()
+              .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+
+            let construct_sig_def = LiteralMethodDef {
+              name: "new".to_string(),
+              js_doc: prop_js_doc,
+              kind: MethodKind::Method,
+              computed: false,
+              optional: false,
+              params,
+              return_type: maybe_return_type,
+              type_params,
+            };
+
+            methods.push(construct_sig_def);
           }
-
-          let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
-            ts_construct_sig.type_params.as_deref(),
-          );
-
-          let maybe_return_type = ts_construct_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
-
-          let construct_sig_def = LiteralMethodDef {
-            name: "new".to_string(),
-            kind: MethodKind::Method,
-            computed: false,
-            optional: false,
-            params,
-            return_type: maybe_return_type,
-            type_params,
-          };
-
-          methods.push(construct_sig_def);
         }
       }
     }
@@ -593,12 +630,11 @@ impl TsTypeDef {
 
     let fn_def = match other {
       TsFnType(ts_fn_type) => {
-        let mut params = vec![];
-
-        for param in &ts_fn_type.params {
-          let param_def = ts_fn_param_to_param_def(parsed_source, param);
-          params.push(param_def);
-        }
+        let params = ts_fn_type
+          .params
+          .iter()
+          .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+          .collect();
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
           parsed_source,
@@ -613,12 +649,11 @@ impl TsTypeDef {
         }
       }
       TsConstructorType(ctor_type) => {
-        let mut params = vec![];
-
-        for param in &ctor_type.params {
-          let param_def = ts_fn_param_to_param_def(parsed_source, param);
-          params.push(param_def);
-        }
+        let params = ctor_type
+          .params
+          .iter()
+          .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+          .collect();
 
         let type_params = maybe_type_param_decl_to_type_param_defs(
           parsed_source,
@@ -883,7 +918,9 @@ pub struct TsMappedTypeDef {
 #[serde(rename_all = "camelCase")]
 pub struct LiteralMethodDef {
   pub name: String,
-  pub kind: deno_ast::swc::ast::MethodKind,
+  #[serde(default)]
+  pub js_doc: JsDoc,
+  pub kind: MethodKind,
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub computed: bool,
@@ -912,6 +949,8 @@ impl Display for LiteralMethodDef {
 #[serde(rename_all = "camelCase")]
 pub struct LiteralPropertyDef {
   pub name: String,
+  #[serde(default)]
+  pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
@@ -933,6 +972,8 @@ impl Display for LiteralPropertyDef {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralCallSignatureDef {
+  #[serde(default)]
+  pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
@@ -951,6 +992,8 @@ impl Display for LiteralCallSignatureDef {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LiteralIndexSignatureDef {
+  #[serde(default)]
+  pub js_doc: JsDoc,
   pub readonly: bool,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
@@ -1686,6 +1729,7 @@ fn infer_ts_type_from_obj_inner(
           // from the previous symbol.
           properties.push(LiteralPropertyDef {
             name: shorthand.sym.to_string(),
+            js_doc: Default::default(),
             params: vec![],
             readonly: false,
             computed: false,
@@ -1697,6 +1741,7 @@ fn infer_ts_type_from_obj_inner(
         Prop::KeyValue(kv) => {
           properties.push(LiteralPropertyDef {
             name: prop_name_to_string(parsed_source, &kv.key),
+            js_doc: Default::default(),
             params: vec![],
             readonly: false,
             computed: kv.key.is_computed(),
@@ -1715,6 +1760,7 @@ fn infer_ts_type_from_obj_inner(
             .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
           methods.push(LiteralMethodDef {
             name,
+            js_doc: Default::default(),
             kind: MethodKind::Getter,
             params: vec![],
             computed,
@@ -1729,6 +1775,7 @@ fn infer_ts_type_from_obj_inner(
           let param = pat_to_param_def(parsed_source, setter.param.as_ref());
           methods.push(LiteralMethodDef {
             name,
+            js_doc: Default::default(),
             kind: MethodKind::Setter,
             params: vec![param],
             computed,
@@ -1756,6 +1803,7 @@ fn infer_ts_type_from_obj_inner(
           );
           methods.push(LiteralMethodDef {
             name,
+            js_doc: Default::default(),
             kind: MethodKind::Method,
             params,
             computed,

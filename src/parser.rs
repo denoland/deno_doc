@@ -1291,6 +1291,7 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
           .iter()
           .map(|(key, value)| LiteralPropertyDef {
             name: key.to_string(),
+            js_doc: Default::default(),
             ts_type: Some(parse_json_module_type(value)),
             params: Vec::new(),
             readonly: false,

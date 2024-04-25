@@ -113,6 +113,7 @@ type Colors = "red" | "green" | "blue"
           "properties": [
             {
               "name": "red",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -125,6 +126,7 @@ type Colors = "red" | "green" | "blue"
             },
             {
               "name": "green",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -137,6 +139,7 @@ type Colors = "red" | "green" | "blue"
             },
             {
               "name": "blue",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -149,6 +152,7 @@ type Colors = "red" | "green" | "blue"
             },
             {
               "name": "platypus",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,

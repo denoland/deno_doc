@@ -52,6 +52,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
           "methods": [
             {
               "name": "d",
+              "jsDoc": {},
               "kind": "method",
               "params": [
                 {
@@ -75,6 +76,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "h",
+              "jsDoc": {},
               "kind": "getter",
               "params": [],
               "optional": false,
@@ -87,6 +89,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "h",
+              "jsDoc": {},
               "kind": "setter",
               "params": [
                 {
@@ -106,6 +109,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "[t]",
+              "jsDoc": {},
               "kind": "method",
               "params": [
                 {
@@ -132,6 +136,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
           "properties": [
             {
               "name": "a",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -144,6 +149,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "b",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -170,6 +176,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "c",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -181,6 +188,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "properties": [
                     {
                       "name": "d",
+                      "jsDoc": {},
                       "params": [],
                       "computed": false,
                       "optional": false,
@@ -200,6 +208,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "f",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -232,6 +241,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "[s]",
+              "jsDoc": {},
               "params": [],
               "computed": true,
               "optional": false,
