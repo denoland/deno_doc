@@ -940,7 +940,12 @@ async fn json_module() {
             "methods": [],
             "properties": [{
               "name": "a",
-              "jsDoc": {},
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -955,7 +960,12 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "b",
-              "jsDoc": {},
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -970,7 +980,12 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "c",
-              "jsDoc": {},
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -982,7 +997,12 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "d",
-              "jsDoc": {},
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -998,8 +1018,13 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "e",
-              "jsDoc": {},
               "params": [],
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "computed": false,
               "optional": false,
               "tsType": {
@@ -1009,7 +1034,12 @@ async fn json_module() {
                   "methods": [],
                   "properties": [{
                     "name": "a",
-                    "jsDoc": {},
+                    "location": {
+                      "filename": "",
+                      "line": 0,
+                      "col": 0,
+                      "byteIndex": 0,
+                    },
                     "params": [],
                     "computed": false,
                     "optional": false,

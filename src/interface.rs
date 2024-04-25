@@ -5,173 +5,16 @@ use deno_ast::SourceRangedForSpanned;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::function::FunctionDef;
-use crate::js_doc::JsDoc;
-use crate::node::DeclarationKind;
 use crate::params::ts_fn_param_to_param_def;
+use crate::ts_type::CallSignatureDef;
+use crate::ts_type::IndexSignatureDef;
+use crate::ts_type::MethodDef;
+use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::util::swc::get_location;
-use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
-use crate::variable::VariableDef;
-use crate::DocNode;
-use crate::Location;
-use crate::ParamDef;
-
-cfg_if! {
-  if #[cfg(feature = "rust")] {
-    use crate::display::display_computed;
-    use crate::display::display_optional;
-    use crate::display::display_readonly;
-    use crate::display::SliceDisplayer;
-
-    use std::fmt::Display;
-    use std::fmt::Formatter;
-    use std::fmt::Result as FmtResult;
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct InterfaceMethodDef {
-  pub name: String,
-  pub kind: deno_ast::swc::ast::MethodKind,
-  pub location: Location,
-  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
-  pub js_doc: JsDoc,
-  #[serde(skip_serializing_if = "is_false", default)]
-  pub computed: bool,
-  pub optional: bool,
-  pub params: Vec<ParamDef>,
-  pub return_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
-}
-
-impl From<InterfaceMethodDef> for DocNode {
-  fn from(def: InterfaceMethodDef) -> DocNode {
-    DocNode::function(
-      def.name,
-      def.location,
-      DeclarationKind::Private,
-      def.js_doc,
-      FunctionDef {
-        def_name: None,
-        params: def.params,
-        return_type: def.return_type,
-        has_body: false,
-        is_async: false,
-        is_generator: false,
-        type_params: def.type_params,
-        decorators: vec![],
-      },
-    )
-  }
-}
-
-#[cfg(feature = "rust")]
-impl Display for InterfaceMethodDef {
-  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    write!(
-      f,
-      "{}{}({})",
-      display_computed(self.computed, &self.name),
-      display_optional(self.optional),
-      SliceDisplayer::new(&self.params, ", ", false),
-    )?;
-    if let Some(return_type) = &self.return_type {
-      write!(f, ": {}", return_type)?;
-    }
-    Ok(())
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct InterfacePropertyDef {
-  pub name: String,
-  pub location: Location,
-  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
-  pub js_doc: JsDoc,
-  pub params: Vec<ParamDef>,
-  #[serde(skip_serializing_if = "is_false", default)]
-  pub readonly: bool,
-  pub computed: bool,
-  pub optional: bool,
-  pub ts_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
-}
-
-impl From<InterfacePropertyDef> for DocNode {
-  fn from(def: InterfacePropertyDef) -> DocNode {
-    DocNode::variable(
-      def.name,
-      def.location,
-      DeclarationKind::Private,
-      def.js_doc,
-      VariableDef {
-        ts_type: def.ts_type,
-        kind: deno_ast::swc::ast::VarDeclKind::Const,
-      },
-    )
-  }
-}
-
-#[cfg(feature = "rust")]
-impl Display for InterfacePropertyDef {
-  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    write!(
-      f,
-      "{}{}{}",
-      display_readonly(self.readonly),
-      display_computed(self.computed, &self.name),
-      display_optional(self.optional),
-    )?;
-    if let Some(ts_type) = &self.ts_type {
-      write!(f, ": {}", ts_type)?;
-    }
-    Ok(())
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct InterfaceIndexSignatureDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
-  pub js_doc: JsDoc,
-  pub readonly: bool,
-  pub params: Vec<ParamDef>,
-  pub ts_type: Option<TsTypeDef>,
-  pub location: Location,
-}
-
-#[cfg(feature = "rust")]
-impl Display for InterfaceIndexSignatureDef {
-  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    write!(
-      f,
-      "{}[{}]",
-      display_readonly(self.readonly),
-      SliceDisplayer::new(&self.params, ", ", false)
-    )?;
-    if let Some(ts_type) = &self.ts_type {
-      write!(f, ": {}", ts_type)?;
-    }
-    Ok(())
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct InterfaceCallSignatureDef {
-  pub location: Location,
-  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
-  pub js_doc: JsDoc,
-  pub params: Vec<ParamDef>,
-  pub ts_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -180,10 +23,10 @@ pub struct InterfaceDef {
   /// set when the interface is a default export
   pub def_name: Option<String>,
   pub extends: Vec<TsTypeDef>,
-  pub methods: Vec<InterfaceMethodDef>,
-  pub properties: Vec<InterfacePropertyDef>,
-  pub call_signatures: Vec<InterfaceCallSignatureDef>,
-  pub index_signatures: Vec<InterfaceIndexSignatureDef>,
+  pub methods: Vec<MethodDef>,
+  pub properties: Vec<PropertyDef>,
+  pub call_signatures: Vec<CallSignatureDef>,
+  pub index_signatures: Vec<IndexSignatureDef>,
   pub type_params: Vec<TsTypeParamDef>,
 }
 
@@ -267,7 +110,7 @@ pub fn get_doc_for_ts_interface_decl(
             ts_method_sig.type_params.as_deref(),
           );
 
-          let method_def = InterfaceMethodDef {
+          let method_def = MethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Method,
             js_doc: method_js_doc,
@@ -292,7 +135,7 @@ pub fn get_doc_for_ts_interface_decl(
             .as_deref()
             .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
-          let method_def = InterfaceMethodDef {
+          let method_def = MethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Getter,
             js_doc: method_js_doc,
@@ -316,7 +159,7 @@ pub fn get_doc_for_ts_interface_decl(
             ts_fn_param_to_param_def(parsed_source, &ts_setter_sig.param);
           let params = vec![param_def];
 
-          let method_def = InterfaceMethodDef {
+          let method_def = MethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Setter,
             js_doc: method_js_doc,
@@ -353,7 +196,7 @@ pub fn get_doc_for_ts_interface_decl(
             ts_prop_sig.type_params.as_deref(),
           );
 
-          let prop_def = InterfacePropertyDef {
+          let prop_def = PropertyDef {
             name,
             js_doc: prop_js_doc,
             location: get_location(parsed_source, ts_prop_sig.start()),
@@ -387,7 +230,7 @@ pub fn get_doc_for_ts_interface_decl(
             ts_call_sig.type_params.as_deref(),
           );
 
-          let call_sig_def = InterfaceCallSignatureDef {
+          let call_sig_def = CallSignatureDef {
             js_doc: call_sig_js_doc,
             location: get_location(parsed_source, ts_call_sig.start()),
             params,
@@ -412,7 +255,7 @@ pub fn get_doc_for_ts_interface_decl(
             .as_ref()
             .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-          let index_sig_def = InterfaceIndexSignatureDef {
+          let index_sig_def = IndexSignatureDef {
             location: get_location(parsed_source, ts_index_sig.start()),
             js_doc,
             readonly: ts_index_sig.readonly,
@@ -443,7 +286,7 @@ pub fn get_doc_for_ts_interface_decl(
             .as_ref()
             .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-          let construct_sig_def = InterfaceMethodDef {
+          let construct_sig_def = MethodDef {
             name: "new".to_string(),
             kind: deno_ast::swc::ast::MethodKind::Method,
             js_doc: construct_js_doc,

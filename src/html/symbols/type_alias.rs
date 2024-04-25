@@ -1,4 +1,8 @@
 use crate::html::render_context::RenderContext;
+use crate::html::symbols::interface::render_call_signatures;
+use crate::html::symbols::interface::render_index_signatures;
+use crate::html::symbols::interface::render_methods;
+use crate::html::symbols::interface::render_properties;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
@@ -32,19 +36,45 @@ pub(crate) fn render_type_alias(
     sections.push(type_params);
   }
 
-  sections.push(SectionCtx::new(
-    "Definition",
-    SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
-      ctx,
-      &id,
-      "",
-      None,
-      &render_type_def(ctx, &type_alias_def.ts_type),
-      HashSet::new(),
-      None,
-      &doc_node.location,
-    )]),
-  ));
+  if let Some(ts_type_literal) = type_alias_def.ts_type.type_literal.as_ref() {
+    if let Some(index_signatures) =
+      render_index_signatures(ctx, &ts_type_literal.index_signatures)
+    {
+      sections.push(index_signatures);
+    }
+
+    if let Some(call_signatures) =
+      render_call_signatures(ctx, &ts_type_literal.call_signatures)
+    {
+      sections.push(call_signatures);
+    }
+
+    if let Some(properties) =
+      render_properties(ctx, doc_node.get_name(), &ts_type_literal.properties)
+    {
+      sections.push(properties);
+    }
+
+    if let Some(methods) =
+      render_methods(ctx, doc_node.get_name(), &ts_type_literal.methods)
+    {
+      sections.push(methods);
+    }
+  } else {
+    sections.push(SectionCtx::new(
+      "Definition",
+      SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
+        ctx,
+        &id,
+        "",
+        None,
+        &render_type_def(ctx, &type_alias_def.ts_type),
+        HashSet::new(),
+        None,
+        &doc_node.location,
+      )]),
+    ));
+  }
 
   sections
 }

@@ -289,6 +289,38 @@ impl DocNodeWithContext {
       inner: doc_node,
     }
   }
+
+  pub fn create_child_method(
+    &self,
+    mut method_doc_node: DocNode,
+    parent_name: &str,
+    is_static: bool,
+  ) -> Self {
+    method_doc_node.name =
+      qualify_drilldown_name(parent_name, &method_doc_node.name, is_static);
+    method_doc_node.declaration_kind = self.declaration_kind;
+
+    let mut new_node = self.create_child(Arc::new(method_doc_node));
+    new_node.drilldown_parent_kind = Some(self.kind);
+    new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
+    new_node
+  }
+
+  pub fn create_child_property(
+    &self,
+    mut property_doc_node: DocNode,
+    parent_name: &str,
+    is_static: bool,
+  ) -> Self {
+    property_doc_node.name =
+      qualify_drilldown_name(parent_name, &property_doc_node.name, is_static);
+    property_doc_node.declaration_kind = self.declaration_kind;
+
+    let mut new_node = self.create_child(Arc::new(property_doc_node));
+    new_node.drilldown_parent_kind = Some(self.kind);
+    new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
+    new_node
+  }
 }
 
 impl core::ops::Deref for DocNodeWithContext {

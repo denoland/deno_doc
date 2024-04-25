@@ -38,7 +38,9 @@ pub enum DocNodeKind {
   Variable,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash, Default,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
   pub filename: String,
@@ -153,12 +155,7 @@ impl Default for DocNode {
       kind: DocNodeKind::ModuleDoc,
       name: "".to_string(),
       declaration_kind: DeclarationKind::Private,
-      location: Location {
-        filename: "".to_string(),
-        line: 0,
-        col: 0,
-        byte_index: 0,
-      },
+      location: Location::default(),
       js_doc: JsDoc::default(),
       function_def: None,
       variable_def: None,

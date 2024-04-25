@@ -79,14 +79,14 @@ namespace Tabs
             "properties": [
               {
                 "name": "property",
+                "jsDoc": {
+                  "doc": "Line 1\n\nLine 2\n\n\tIndented"
+                },
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 24,
                   "col": 8,
                   "byteIndex": 212
-                },
-                "jsDoc": {
-                  "doc": "Line 1\n\nLine 2\n\n\tIndented"
                 },
                 "params": [],
                 "computed": false,

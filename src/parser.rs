@@ -8,7 +8,7 @@ use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::node::NamespaceDef;
-use crate::ts_type::LiteralPropertyDef;
+use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
@@ -1289,7 +1289,7 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
       type_literal: Some(TsTypeLiteralDef {
         properties: obj
           .iter()
-          .map(|(key, value)| LiteralPropertyDef {
+          .map(|(key, value)| PropertyDef {
             name: key.to_string(),
             js_doc: Default::default(),
             ts_type: Some(parse_json_module_type(value)),
@@ -1298,6 +1298,7 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
             computed: false,
             optional: false,
             type_params: Vec::new(),
+            location: Default::default(),
           })
           .collect(),
         ..Default::default()

@@ -121,6 +121,40 @@ pub fn compute_namespaced_symbols(
           },
         ));
       }
+      DocNodeKind::TypeAlias => {
+        let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
+
+        if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
+        {
+          namespaced_symbols.extend(type_literal.methods.iter().map(
+            |method| {
+              let mut method_path = current_path.to_vec();
+              method_path.extend(
+                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
+                  .split('.')
+                  .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+
+          namespaced_symbols.extend(type_literal.properties.iter().map(
+            |property| {
+              let mut method_path = current_path.to_vec();
+              method_path.extend(
+                qualify_drilldown_name(
+                  doc_node.get_name(),
+                  &property.name,
+                  true,
+                )
+                .split('.')
+                .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+        }
+      }
       _ => {}
     }
 

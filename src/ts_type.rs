@@ -12,11 +12,17 @@ use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::util::swc::get_location;
 use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
+use crate::DocNode;
+use crate::Location;
 use crate::ParamDef;
 
+use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
+use crate::node::DeclarationKind;
+use crate::variable::VariableDef;
 use deno_ast::swc::ast::*;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
@@ -340,7 +346,7 @@ impl TsTypeDef {
 
       match &type_element {
         TsMethodSignature(ts_method_sig) => {
-          if let Some(prop_js_doc) =
+          if let Some(js_doc) =
             js_doc_for_range(parsed_source, &ts_method_sig.range())
           {
             let params = ts_method_sig
@@ -359,10 +365,11 @@ impl TsTypeDef {
               ts_method_sig.type_params.as_deref(),
             );
             let name = expr_to_name(&ts_method_sig.key);
-            let method_def = LiteralMethodDef {
+            let method_def = MethodDef {
               name,
-              js_doc: prop_js_doc,
+              js_doc,
               kind: MethodKind::Method,
+              location: get_location(parsed_source, ts_method_sig.start()),
               params,
               computed: ts_method_sig.computed,
               optional: ts_method_sig.optional,
@@ -373,7 +380,7 @@ impl TsTypeDef {
           }
         }
         TsGetterSignature(ts_getter_sig) => {
-          if let Some(prop_js_doc) =
+          if let Some(js_doc) =
             js_doc_for_range(parsed_source, &ts_getter_sig.range())
           {
             let maybe_return_type = ts_getter_sig
@@ -382,10 +389,11 @@ impl TsTypeDef {
               .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
             let name = expr_to_name(&ts_getter_sig.key);
-            let method_def = LiteralMethodDef {
+            let method_def = MethodDef {
               name,
-              js_doc: prop_js_doc,
+              js_doc,
               kind: MethodKind::Getter,
+              location: get_location(parsed_source, ts_getter_sig.start()),
               params: vec![],
               computed: ts_getter_sig.computed,
               optional: ts_getter_sig.optional,
@@ -396,7 +404,7 @@ impl TsTypeDef {
           }
         }
         TsSetterSignature(ts_setter_sig) => {
-          if let Some(prop_js_doc) =
+          if let Some(js_doc) =
             js_doc_for_range(parsed_source, &ts_setter_sig.range())
           {
             let name = expr_to_name(&ts_setter_sig.key);
@@ -406,10 +414,11 @@ impl TsTypeDef {
               &ts_setter_sig.param,
             )];
 
-            let method_def = LiteralMethodDef {
+            let method_def = MethodDef {
               name,
-              js_doc: prop_js_doc,
+              js_doc,
               kind: MethodKind::Setter,
+              location: get_location(parsed_source, ts_setter_sig.start()),
               params,
               computed: ts_setter_sig.computed,
               optional: ts_setter_sig.optional,
@@ -420,7 +429,7 @@ impl TsTypeDef {
           }
         }
         TsPropertySignature(ts_prop_sig) => {
-          if let Some(prop_js_doc) =
+          if let Some(js_doc) =
             js_doc_for_range(parsed_source, &ts_prop_sig.range())
           {
             let name = expr_to_name(&ts_prop_sig.key);
@@ -440,9 +449,10 @@ impl TsTypeDef {
               parsed_source,
               ts_prop_sig.type_params.as_deref(),
             );
-            let prop_def = LiteralPropertyDef {
+            let prop_def = PropertyDef {
               name,
-              js_doc: prop_js_doc,
+              js_doc,
+              location: get_location(parsed_source, ts_prop_sig.start()),
               params,
               ts_type,
               readonly: ts_prop_sig.readonly,
@@ -454,7 +464,7 @@ impl TsTypeDef {
           }
         }
         TsCallSignatureDecl(ts_call_sig) => {
-          if let Some(call_sig_js_doc) =
+          if let Some(js_doc) =
             js_doc_for_range(parsed_source, &ts_call_sig.range())
           {
             let params = ts_call_sig
@@ -473,8 +483,9 @@ impl TsTypeDef {
               ts_call_sig.type_params.as_deref(),
             );
 
-            let call_sig_def = LiteralCallSignatureDef {
-              js_doc: call_sig_js_doc,
+            let call_sig_def = CallSignatureDef {
+              js_doc,
+              location: get_location(parsed_source, ts_call_sig.start()),
               params,
               ts_type,
               type_params,
@@ -497,8 +508,9 @@ impl TsTypeDef {
               .as_ref()
               .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-            let index_sig_def = LiteralIndexSignatureDef {
+            let index_sig_def = IndexSignatureDef {
               js_doc,
+              location: get_location(parsed_source, ts_index_sig.start()),
               readonly: ts_index_sig.readonly,
               params,
               ts_type,
@@ -526,10 +538,11 @@ impl TsTypeDef {
               .as_ref()
               .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-            let construct_sig_def = LiteralMethodDef {
+            let construct_sig_def = MethodDef {
               name: "new".to_string(),
               js_doc: prop_js_doc,
               kind: MethodKind::Method,
+              location: get_location(parsed_source, ts_construct_sig.start()),
               computed: false,
               optional: false,
               params,
@@ -916,11 +929,13 @@ pub struct TsMappedTypeDef {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct LiteralMethodDef {
+pub struct MethodDef {
   pub name: String,
-  #[serde(default)]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub kind: MethodKind,
+  #[serde(default)]
+  pub location: Location,
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub computed: bool,
@@ -929,14 +944,35 @@ pub struct LiteralMethodDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-impl Display for LiteralMethodDef {
+impl From<MethodDef> for DocNode {
+  fn from(def: MethodDef) -> DocNode {
+    DocNode::function(
+      def.name,
+      def.location,
+      DeclarationKind::Private,
+      def.js_doc,
+      FunctionDef {
+        def_name: None,
+        params: def.params,
+        return_type: def.return_type,
+        has_body: false,
+        is_async: false,
+        is_generator: false,
+        type_params: def.type_params,
+        decorators: vec![],
+      },
+    )
+  }
+}
+
+impl Display for MethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
       "{}{}({})",
       display_computed(self.computed, &self.name),
       display_optional(self.optional),
-      SliceDisplayer::new(&self.params, ", ", false)
+      SliceDisplayer::new(&self.params, ", ", false),
     )?;
     if let Some(return_type) = &self.return_type {
       write!(f, ": {}", return_type)?;
@@ -947,10 +983,12 @@ impl Display for LiteralMethodDef {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct LiteralPropertyDef {
+pub struct PropertyDef {
   pub name: String,
-  #[serde(default)]
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(default)]
+  pub location: Location,
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
@@ -960,26 +998,50 @@ pub struct LiteralPropertyDef {
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-impl Display for LiteralPropertyDef {
+impl From<PropertyDef> for DocNode {
+  fn from(def: PropertyDef) -> DocNode {
+    DocNode::variable(
+      def.name,
+      def.location,
+      DeclarationKind::Private,
+      def.js_doc,
+      VariableDef {
+        ts_type: def.ts_type,
+        kind: VarDeclKind::Const,
+      },
+    )
+  }
+}
+
+impl Display for PropertyDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    write!(f, "{}", self.name)?;
+    write!(
+      f,
+      "{}{}{}",
+      display_readonly(self.readonly),
+      display_computed(self.computed, &self.name),
+      display_optional(self.optional),
+    )?;
     if let Some(ts_type) = &self.ts_type {
       write!(f, ": {}", ts_type)?;
     }
     Ok(())
   }
 }
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct LiteralCallSignatureDef {
-  #[serde(default)]
+pub struct CallSignatureDef {
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(default)]
+  pub location: Location,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
   pub type_params: Vec<TsTypeParamDef>,
 }
 
-impl Display for LiteralCallSignatureDef {
+impl Display for CallSignatureDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(f, "({})", SliceDisplayer::new(&self.params, ", ", false))?;
     if let Some(ts_type) = &self.ts_type {
@@ -991,15 +1053,17 @@ impl Display for LiteralCallSignatureDef {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct LiteralIndexSignatureDef {
-  #[serde(default)]
+pub struct IndexSignatureDef {
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub readonly: bool,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
+  #[serde(default)]
+  pub location: Location,
 }
 
-impl Display for LiteralIndexSignatureDef {
+impl Display for IndexSignatureDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
@@ -1017,10 +1081,10 @@ impl Display for LiteralIndexSignatureDef {
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
-  pub methods: Vec<LiteralMethodDef>,
-  pub properties: Vec<LiteralPropertyDef>,
-  pub call_signatures: Vec<LiteralCallSignatureDef>,
-  pub index_signatures: Vec<LiteralIndexSignatureDef>,
+  pub methods: Vec<MethodDef>,
+  pub properties: Vec<PropertyDef>,
+  pub call_signatures: Vec<CallSignatureDef>,
+  pub index_signatures: Vec<IndexSignatureDef>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
@@ -1294,10 +1358,7 @@ impl TsTypeDef {
     }
   }
 
-  pub fn object(
-    methods: Vec<LiteralMethodDef>,
-    properties: Vec<LiteralPropertyDef>,
-  ) -> Self {
+  pub fn object(methods: Vec<MethodDef>, properties: Vec<PropertyDef>) -> Self {
     Self {
       repr: "".to_string(),
       kind: Some(TsTypeDefKind::TypeLiteral),
@@ -1718,18 +1779,19 @@ fn infer_ts_type_from_obj(
 fn infer_ts_type_from_obj_inner(
   parsed_source: &ParsedSource,
   obj: &ObjectLit,
-) -> (Vec<LiteralMethodDef>, Vec<LiteralPropertyDef>) {
-  let mut methods = Vec::<LiteralMethodDef>::new();
-  let mut properties = Vec::<LiteralPropertyDef>::new();
+) -> (Vec<MethodDef>, Vec<PropertyDef>) {
+  let mut methods = Vec::<MethodDef>::new();
+  let mut properties = Vec::<PropertyDef>::new();
   for obj_prop in &obj.props {
     match obj_prop {
       PropOrSpread::Prop(prop) => match &**prop {
         Prop::Shorthand(shorthand) => {
           // TODO(@crowlKats) we should pass previous nodes and take the type
           // from the previous symbol.
-          properties.push(LiteralPropertyDef {
+          properties.push(PropertyDef {
             name: shorthand.sym.to_string(),
             js_doc: Default::default(),
+            location: get_location(parsed_source, shorthand.start()),
             params: vec![],
             readonly: false,
             computed: false,
@@ -1739,9 +1801,10 @@ fn infer_ts_type_from_obj_inner(
           });
         }
         Prop::KeyValue(kv) => {
-          properties.push(LiteralPropertyDef {
+          properties.push(PropertyDef {
             name: prop_name_to_string(parsed_source, &kv.key),
             js_doc: Default::default(),
+            location: get_location(parsed_source, kv.start()),
             params: vec![],
             readonly: false,
             computed: kv.key.is_computed(),
@@ -1758,10 +1821,11 @@ fn infer_ts_type_from_obj_inner(
             .type_ann
             .as_ref()
             .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
-          methods.push(LiteralMethodDef {
+          methods.push(MethodDef {
             name,
             js_doc: Default::default(),
             kind: MethodKind::Getter,
+            location: get_location(parsed_source, getter.start()),
             params: vec![],
             computed,
             optional: false,
@@ -1773,10 +1837,11 @@ fn infer_ts_type_from_obj_inner(
           let name = prop_name_to_string(parsed_source, &setter.key);
           let computed = setter.key.is_computed();
           let param = pat_to_param_def(parsed_source, setter.param.as_ref());
-          methods.push(LiteralMethodDef {
+          methods.push(MethodDef {
             name,
             js_doc: Default::default(),
             kind: MethodKind::Setter,
+            location: get_location(parsed_source, setter.start()),
             params: vec![param],
             computed,
             optional: false,
@@ -1801,10 +1866,11 @@ fn infer_ts_type_from_obj_inner(
             parsed_source,
             method.function.type_params.as_deref(),
           );
-          methods.push(LiteralMethodDef {
+          methods.push(MethodDef {
             name,
             js_doc: Default::default(),
             kind: MethodKind::Method,
+            location: get_location(parsed_source, method.start()),
             params,
             computed,
             optional: false,

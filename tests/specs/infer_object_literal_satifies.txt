@@ -113,7 +113,12 @@ type Colors = "red" | "green" | "blue"
           "properties": [
             {
               "name": "red",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 4,
+                "byteIndex": 139
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -126,7 +131,12 @@ type Colors = "red" | "green" | "blue"
             },
             {
               "name": "green",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 6,
+                "col": 4,
+                "byteIndex": 157
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -139,7 +149,12 @@ type Colors = "red" | "green" | "blue"
             },
             {
               "name": "blue",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 7,
+                "col": 4,
+                "byteIndex": 177
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -152,7 +167,12 @@ type Colors = "red" | "green" | "blue"
             },
             {
               "name": "platypus",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 8,
+                "col": 4,
+                "byteIndex": 198
+              },
               "params": [],
               "computed": false,
               "optional": false,

@@ -62,6 +62,21 @@
     },
     {
       "kind": [
+        "typeAlias"
+      ],
+      "name": "Baz",
+      "file": ".",
+      "location": {
+        "filename": "default",
+        "line": 41,
+        "col": 0,
+        "byteIndex": 705
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "function"
       ],
       "name": "x",
