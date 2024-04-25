@@ -161,6 +161,9 @@ const tpl2: string
           "methods": [
             {
               "name": "get",
+              "jsDoc": {
+                "doc": "get doc"
+              },
               "kind": "method",
               "params": [
                 {
@@ -195,6 +198,9 @@ const tpl2: string
             },
             {
               "name": "set",
+              "jsDoc": {
+                "doc": "set doc"
+              },
               "kind": "method",
               "params": [
                 {

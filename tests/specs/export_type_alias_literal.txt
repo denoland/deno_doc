@@ -41,6 +41,7 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
           "methods": [
             {
               "name": "new",
+              "jsDoc": {},
               "kind": "method",
               "params": [
                 {
@@ -67,6 +68,7 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "a",
+              "jsDoc": {},
               "kind": "method",
               "params": [],
               "optional": false,
@@ -79,6 +81,7 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "b",
+              "jsDoc": {},
               "kind": "method",
               "params": [],
               "optional": true,
@@ -91,6 +94,7 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "c",
+              "jsDoc": {},
               "kind": "getter",
               "params": [],
               "optional": false,
@@ -103,6 +107,7 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "c",
+              "jsDoc": {},
               "kind": "setter",
               "params": [
                 {

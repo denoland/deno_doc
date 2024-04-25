@@ -37,6 +37,7 @@ private const obj: { a: string; b: string; }
           "properties": [
             {
               "name": "a",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -49,6 +50,7 @@ private const obj: { a: string; b: string; }
             },
             {
               "name": "b",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,

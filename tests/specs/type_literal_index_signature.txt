@@ -37,6 +37,7 @@ type T = { [key: string]: number; }
           "callSignatures": [],
           "indexSignatures": [
             {
+              "jsDoc": {},
               "readonly": false,
               "params": [
                 {

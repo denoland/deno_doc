@@ -79,6 +79,7 @@ class Bar extends obj.Foo
           "properties": [
             {
               "name": "Foo",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,

@@ -37,6 +37,7 @@ type T = { readonly [key: string]: number; }
           "callSignatures": [],
           "indexSignatures": [
             {
+              "jsDoc": {},
               "readonly": true,
               "params": [
                 {

@@ -940,6 +940,7 @@ async fn json_module() {
             "methods": [],
             "properties": [{
               "name": "a",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -954,6 +955,7 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "b",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -968,6 +970,7 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "c",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -979,6 +982,7 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "d",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -994,6 +998,7 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "e",
+              "jsDoc": {},
               "params": [],
               "computed": false,
               "optional": false,
@@ -1004,6 +1009,7 @@ async fn json_module() {
                   "methods": [],
                   "properties": [{
                     "name": "a",
+                    "jsDoc": {},
                     "params": [],
                     "computed": false,
                     "optional": false,
