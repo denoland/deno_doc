@@ -343,12 +343,11 @@ impl TsTypeDef {
           if let Some(prop_js_doc) =
             js_doc_for_range(parsed_source, &ts_method_sig.range())
           {
-            let mut params = vec![];
-
-            for param in &ts_method_sig.params {
-              let param_def = ts_fn_param_to_param_def(parsed_source, param);
-              params.push(param_def);
-            }
+            let params = ts_method_sig
+              .params
+              .iter()
+              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
+              .collect::<Vec<_>>();
 
             let maybe_return_type = ts_method_sig
               .type_ann
