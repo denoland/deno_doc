@@ -222,107 +222,162 @@ pub fn generate_symbol_pages_for_module(
 
   let mut drilldown_partitions = IndexMap::new();
   for (name, doc_nodes) in &name_partitions {
-    if doc_nodes[0].kind == DocNodeKind::Class {
-      let class = doc_nodes[0].class_def.as_ref().unwrap();
-      let method_nodes = class
-        .methods
-        .iter()
-        .map(|method| {
-          doc_nodes[0].create_child_method(
-            DocNode::function(
-              method.name.clone(),
-              method.location.clone(),
-              doc_nodes[0].declaration_kind,
-              method.js_doc.clone(),
-              method.function_def.clone(),
-            ),
-            name,
-            method.is_static,
-          )
-        })
-        .collect::<Vec<_>>();
+    for doc_node in doc_nodes {
+      match doc_node.kind {
+        DocNodeKind::Class => {
+          let class = doc_node.class_def.as_ref().unwrap();
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+          let method_nodes = class
+            .methods
+            .iter()
+            .map(|method| {
+              doc_node.create_child_method(
+                DocNode::function(
+                  method.name.clone(),
+                  method.location.clone(),
+                  doc_node.declaration_kind,
+                  method.js_doc.clone(),
+                  method.function_def.clone(),
+                ),
+                name,
+                method.is_static,
+              )
+            })
+            .collect::<Vec<_>>();
 
-      let property_nodes = class
-        .properties
-        .iter()
-        .map(|property| {
-          doc_nodes[0].create_child_property(
-            DocNode::from(property.clone()),
-            name,
-            property.is_static,
-          )
-        })
-        .collect::<Vec<_>>();
+          drilldown_partitions
+            .extend(super::partition::partition_nodes_by_name(&method_nodes));
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&property_nodes));
-    } else if doc_nodes[0].kind == DocNodeKind::Interface {
-      let interface = doc_nodes[0].interface_def.as_ref().unwrap();
-      let method_nodes = interface
-        .methods
-        .iter()
-        .map(|method| {
-          doc_nodes[0].create_child_method(
-            DocNode::from(method.clone()),
-            name,
-            true,
-          )
-        })
-        .collect::<Vec<_>>();
+          let property_nodes = class
+            .properties
+            .iter()
+            .map(|property| {
+              doc_node.create_child_property(
+                DocNode::from(property.clone()),
+                name,
+                property.is_static,
+              )
+            })
+            .collect::<Vec<_>>();
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+          drilldown_partitions
+            .extend(super::partition::partition_nodes_by_name(&property_nodes));
+        }
+        DocNodeKind::Interface => {
+          let interface = doc_node.interface_def.as_ref().unwrap();
+          let method_nodes = interface
+            .methods
+            .iter()
+            .map(|method| {
+              doc_node.create_child_method(
+                DocNode::from(method.clone()),
+                name,
+                true,
+              )
+            })
+            .collect::<Vec<_>>();
 
-      let property_nodes = interface
-        .properties
-        .iter()
-        .map(|property| {
-          doc_nodes[0].create_child_property(
-            DocNode::from(property.clone()),
-            name,
-            true,
-          )
-        })
-        .collect::<Vec<_>>();
+          drilldown_partitions
+            .extend(super::partition::partition_nodes_by_name(&method_nodes));
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&property_nodes));
-    } else if doc_nodes[0].kind == DocNodeKind::TypeAlias {
-      let type_alias = doc_nodes[0].type_alias_def.as_ref().unwrap();
+          let property_nodes = interface
+            .properties
+            .iter()
+            .map(|property| {
+              doc_node.create_child_property(
+                DocNode::from(property.clone()),
+                name,
+                true,
+              )
+            })
+            .collect::<Vec<_>>();
 
-      if let Some(ts_type_literal) = type_alias.ts_type.type_literal.as_ref() {
-        let method_nodes = ts_type_literal
-          .methods
-          .iter()
-          .map(|method| {
-            doc_nodes[0].create_child_method(
-              DocNode::from(method.clone()),
-              name,
-              true,
-            )
-          })
-          .collect::<Vec<_>>();
+          drilldown_partitions
+            .extend(super::partition::partition_nodes_by_name(&property_nodes));
+        }
+        DocNodeKind::TypeAlias => {
+          let type_alias = doc_node.type_alias_def.as_ref().unwrap();
 
-        drilldown_partitions
-          .extend(super::partition::partition_nodes_by_name(&method_nodes));
+          if let Some(ts_type_literal) =
+            type_alias.ts_type.type_literal.as_ref()
+          {
+            let method_nodes = ts_type_literal
+              .methods
+              .iter()
+              .map(|method| {
+                doc_node.create_child_method(
+                  DocNode::from(method.clone()),
+                  name,
+                  true,
+                )
+              })
+              .collect::<Vec<_>>();
 
-        let property_nodes = ts_type_literal
-          .properties
-          .iter()
-          .map(|property| {
-            doc_nodes[0].create_child_property(
-              DocNode::from(property.clone()),
-              name,
-              true,
-            )
-          })
-          .collect::<Vec<_>>();
+            drilldown_partitions
+              .extend(super::partition::partition_nodes_by_name(&method_nodes));
 
-        drilldown_partitions
-          .extend(super::partition::partition_nodes_by_name(&property_nodes));
+            let property_nodes = ts_type_literal
+              .properties
+              .iter()
+              .map(|property| {
+                doc_node.create_child_property(
+                  DocNode::from(property.clone()),
+                  name,
+                  true,
+                )
+              })
+              .collect::<Vec<_>>();
+
+            drilldown_partitions.extend(
+              super::partition::partition_nodes_by_name(&property_nodes),
+            );
+          }
+        }
+        DocNodeKind::Variable => {
+          let variable = doc_node.variable_def.as_ref().unwrap();
+
+          if let Some(ts_type_literal) = variable
+            .ts_type
+            .as_ref()
+            .and_then(|ts_type| ts_type.type_literal.as_ref())
+          {
+            let method_nodes = ts_type_literal
+              .methods
+              .iter()
+              .map(|method| {
+                doc_node.create_child_method(
+                  DocNode::from(method.clone()),
+                  name,
+                  true,
+                )
+              })
+              .collect::<Vec<_>>();
+
+            drilldown_partitions
+              .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+            let property_nodes = ts_type_literal
+              .properties
+              .iter()
+              .map(|property| {
+                doc_node.create_child_property(
+                  DocNode::from(property.clone()),
+                  name,
+                  true,
+                )
+              })
+              .collect::<Vec<_>>();
+
+            drilldown_partitions.extend(
+              super::partition::partition_nodes_by_name(&property_nodes),
+            );
+          }
+        }
+        DocNodeKind::Enum => {}
+        DocNodeKind::Function => {}
+        DocNodeKind::Import => {}
+        DocNodeKind::ModuleDoc => {}
+        DocNodeKind::Namespace => {}
       }
     }
   }
