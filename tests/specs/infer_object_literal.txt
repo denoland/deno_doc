@@ -29,7 +29,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 # output.txt
 Defined in file:///mod.ts:4:14
 
-const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): void; a: string; b: Map<string, number>; c: { d: string; }; f: (g: string) => void; [s]: (number | string)[]; }
+const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): void; a: string; b: Map<string, number>; c: { d: string; }; f: (g: string) => void; [[s]]: (number | string)[]; }
 
 
 # output.json
@@ -52,8 +52,13 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
           "methods": [
             {
               "name": "d",
-              "jsDoc": {},
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 8,
+                "col": 2,
+                "byteIndex": 151
+              },
               "params": [
                 {
                   "kind": "identifier",
@@ -76,8 +81,13 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "h",
-              "jsDoc": {},
               "kind": "getter",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 10,
+                "col": 2,
+                "byteIndex": 206
+              },
               "params": [],
               "optional": false,
               "returnType": {
@@ -89,8 +99,13 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "h",
-              "jsDoc": {},
               "kind": "setter",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 13,
+                "col": 2,
+                "byteIndex": 247
+              },
               "params": [
                 {
                   "kind": "identifier",
@@ -109,8 +124,13 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "[t]",
-              "jsDoc": {},
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 17,
+                "col": 2,
+                "byteIndex": 301
+              },
               "params": [
                 {
                   "kind": "identifier",
@@ -136,7 +156,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
           "properties": [
             {
               "name": "a",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 2,
+                "byteIndex": 92
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -149,7 +174,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "b",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 6,
+                "col": 2,
+                "byteIndex": 102
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -176,7 +206,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "c",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 7,
+                "col": 2,
+                "byteIndex": 134
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -188,7 +223,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "properties": [
                     {
                       "name": "d",
-                      "jsDoc": {},
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 7,
+                        "col": 7,
+                        "byteIndex": 139
+                      },
                       "params": [],
                       "computed": false,
                       "optional": false,
@@ -208,7 +248,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "f",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 9,
+                "col": 2,
+                "byteIndex": 176
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -241,7 +286,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
             },
             {
               "name": "[s]",
-              "jsDoc": {},
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 16,
+                "col": 2,
+                "byteIndex": 278
+              },
               "params": [],
               "computed": true,
               "optional": false,

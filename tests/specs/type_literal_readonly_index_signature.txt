@@ -37,7 +37,6 @@ type T = { readonly [key: string]: number; }
           "callSignatures": [],
           "indexSignatures": [
             {
-              "jsDoc": {},
               "readonly": true,
               "params": [
                 {
@@ -55,6 +54,12 @@ type T = { readonly [key: string]: number; }
                 "repr": "number",
                 "kind": "keyword",
                 "keyword": "number"
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 18,
+                "byteIndex": 18
               }
             }
           ]

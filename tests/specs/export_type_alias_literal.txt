@@ -41,8 +41,13 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
           "methods": [
             {
               "name": "new",
-              "jsDoc": {},
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 20
+              },
               "params": [
                 {
                   "kind": "identifier",
@@ -68,8 +73,13 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "a",
-              "jsDoc": {},
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 42
+              },
               "params": [],
               "optional": false,
               "returnType": {
@@ -81,8 +91,13 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "b",
-              "jsDoc": {},
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 55
+              },
               "params": [],
               "optional": true,
               "returnType": {
@@ -94,8 +109,13 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "c",
-              "jsDoc": {},
               "kind": "getter",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 2,
+                "byteIndex": 69
+              },
               "params": [],
               "optional": false,
               "returnType": {
@@ -107,8 +127,13 @@ type A = { new(d: string): A; a(): void; b?(): void; c(): string; c(v: number); 
             },
             {
               "name": "c",
-              "jsDoc": {},
               "kind": "setter",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 6,
+                "col": 2,
+                "byteIndex": 88
+              },
               "params": [
                 {
                   "kind": "identifier",

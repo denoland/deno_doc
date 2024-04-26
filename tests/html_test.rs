@@ -209,6 +209,8 @@ async fn html_doc_files_rewrite() {
       "./index.html",
       "./~/Bar.html",
       "./~/Bar.prototype.html",
+      "./~/Baz.foo.html",
+      "./~/Baz.html",
       "./~/Foo.bar.html",
       "./~/Foo.html",
       "./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",

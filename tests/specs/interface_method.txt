@@ -89,7 +89,6 @@ interface I
             "col": 2,
             "byteIndex": 23
           },
-          "optional": false,
           "params": [
             {
               "kind": "identifier",
@@ -104,6 +103,7 @@ interface I
               "tsType": null
             }
           ],
+          "optional": false,
           "returnType": null,
           "typeParams": []
         },
@@ -116,7 +116,6 @@ interface I
             "col": 2,
             "byteIndex": 34
           },
-          "optional": true,
           "params": [
             {
               "kind": "identifier",
@@ -125,6 +124,7 @@ interface I
               "tsType": null
             }
           ],
+          "optional": true,
           "returnType": null,
           "typeParams": []
         },
@@ -137,8 +137,6 @@ interface I
             "col": 2,
             "byteIndex": 44
           },
-          "computed": true,
-          "optional": false,
           "params": [
             {
               "kind": "identifier",
@@ -147,6 +145,8 @@ interface I
               "tsType": null
             }
           ],
+          "computed": true,
+          "optional": false,
           "returnType": null,
           "typeParams": []
         }

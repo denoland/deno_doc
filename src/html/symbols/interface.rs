@@ -57,9 +57,9 @@ pub(crate) fn render_interface(
   sections
 }
 
-fn render_index_signatures(
+pub fn render_index_signatures(
   ctx: &RenderContext,
-  index_signatures: &[crate::interface::InterfaceIndexSignatureDef],
+  index_signatures: &[crate::ts_type::IndexSignatureDef],
 ) -> Option<SectionCtx> {
   if index_signatures.is_empty() {
     return None;
@@ -95,9 +95,9 @@ fn render_index_signatures(
   ))
 }
 
-fn render_call_signatures(
+pub fn render_call_signatures(
   ctx: &RenderContext,
-  call_signatures: &[crate::interface::InterfaceCallSignatureDef],
+  call_signatures: &[crate::ts_type::CallSignatureDef],
 ) -> Option<SectionCtx> {
   if call_signatures.is_empty() {
     return None;
@@ -140,10 +140,10 @@ fn render_call_signatures(
   ))
 }
 
-fn render_properties(
+pub fn render_properties(
   ctx: &RenderContext,
   interface_name: &str,
-  properties: &[crate::interface::InterfacePropertyDef],
+  properties: &[crate::ts_type::PropertyDef],
 ) -> Option<SectionCtx> {
   if properties.is_empty() {
     return None;
@@ -210,10 +210,10 @@ fn render_properties(
   ))
 }
 
-fn render_methods(
+pub fn render_methods(
   ctx: &RenderContext,
   interface_name: &str,
-  methods: &[crate::interface::InterfaceMethodDef],
+  methods: &[crate::ts_type::MethodDef],
 ) -> Option<SectionCtx> {
   if methods.is_empty() {
     return None;

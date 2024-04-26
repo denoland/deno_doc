@@ -50,7 +50,7 @@ pub(crate) fn render_class(
   }
 
   if let Some(index_signatures) =
-    render_index_signatures(ctx, &class_def.index_signatures)
+    super::interface::render_index_signatures(ctx, &class_def.index_signatures)
   {
     sections.push(index_signatures);
   }
@@ -152,44 +152,6 @@ pub struct IndexSignatureCtx {
   pub params: String,
   pub ts_type: String,
   pub source_href: Option<String>,
-}
-
-fn render_index_signatures(
-  ctx: &RenderContext,
-  index_signatures: &[crate::class::ClassIndexSignatureDef],
-) -> Option<SectionCtx> {
-  if index_signatures.is_empty() {
-    return None;
-  }
-
-  let mut items = Vec::with_capacity(index_signatures.len());
-
-  for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = name_to_id("index_signature", &i.to_string());
-
-    let ts_type = index_signature
-      .ts_type
-      .as_ref()
-      .map(|ts_type| render_type_def_colon(ctx, ts_type))
-      .unwrap_or_default();
-
-    items.push(IndexSignatureCtx {
-      id: id.clone(),
-      anchor: AnchorCtx { id },
-      readonly: index_signature.readonly,
-      params: render_params(ctx, &index_signature.params),
-      ts_type,
-      source_href: ctx
-        .ctx
-        .href_resolver
-        .resolve_source(&index_signature.location),
-    });
-  }
-
-  Some(SectionCtx::new(
-    "Index Signatures",
-    SectionContentCtx::IndexSignature(items),
-  ))
 }
 
 enum PropertyOrMethod {

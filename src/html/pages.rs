@@ -1,10 +1,8 @@
 use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
-use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
 use super::util::SectionHeaderCtx;
-use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::FileMode;
 use super::GenerateCtx;
@@ -12,7 +10,6 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
-use std::sync::Arc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
@@ -21,9 +18,7 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
-use crate::function::FunctionDef;
 use crate::html::partition::Partition;
-use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -233,17 +228,17 @@ pub fn generate_symbol_pages_for_module(
         .methods
         .iter()
         .map(|method| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::function(
-              qualify_drilldown_name(name, &method.name, method.is_static),
+          doc_nodes[0].create_child_method(
+            DocNode::function(
+              method.name.clone(),
               method.location.clone(),
               doc_nodes[0].declaration_kind,
               method.js_doc.clone(),
               method.function_def.clone(),
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
-          new_node
+            ),
+            name,
+            method.is_static,
+          )
         })
         .collect::<Vec<_>>();
 
@@ -254,20 +249,11 @@ pub fn generate_symbol_pages_for_module(
         .properties
         .iter()
         .map(|property| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::variable(
-              qualify_drilldown_name(name, &property.name, property.is_static),
-              property.location.clone(),
-              doc_nodes[0].declaration_kind,
-              property.js_doc.clone(),
-              VariableDef {
-                ts_type: property.ts_type.clone(),
-                kind: deno_ast::swc::ast::VarDeclKind::Const,
-              },
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
-          new_node
+          doc_nodes[0].create_child_property(
+            DocNode::from(property.clone()),
+            name,
+            property.is_static,
+          )
         })
         .collect::<Vec<_>>();
 
@@ -279,26 +265,11 @@ pub fn generate_symbol_pages_for_module(
         .methods
         .iter()
         .map(|method| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::function(
-              qualify_drilldown_name(name, &method.name, true),
-              method.location.clone(),
-              doc_nodes[0].declaration_kind,
-              method.js_doc.clone(),
-              FunctionDef {
-                def_name: None,
-                params: method.params.clone(),
-                return_type: method.return_type.clone(),
-                has_body: false,
-                is_async: false,
-                is_generator: false,
-                type_params: method.type_params.clone(),
-                decorators: vec![],
-              },
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
-          new_node
+          doc_nodes[0].create_child_method(
+            DocNode::from(method.clone()),
+            name,
+            true,
+          )
         })
         .collect::<Vec<_>>();
 
@@ -309,25 +280,50 @@ pub fn generate_symbol_pages_for_module(
         .properties
         .iter()
         .map(|property| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::variable(
-              qualify_drilldown_name(name, &property.name, true),
-              property.location.clone(),
-              doc_nodes[0].declaration_kind,
-              property.js_doc.clone(),
-              VariableDef {
-                ts_type: property.ts_type.clone(),
-                kind: deno_ast::swc::ast::VarDeclKind::Const,
-              },
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
-          new_node
+          doc_nodes[0].create_child_property(
+            DocNode::from(property.clone()),
+            name,
+            true,
+          )
         })
         .collect::<Vec<_>>();
 
       drilldown_partitions
         .extend(super::partition::partition_nodes_by_name(&property_nodes));
+    } else if doc_nodes[0].kind == DocNodeKind::TypeAlias {
+      let type_alias = doc_nodes[0].type_alias_def.as_ref().unwrap();
+
+      if let Some(ts_type_literal) = type_alias.ts_type.type_literal.as_ref() {
+        let method_nodes = ts_type_literal
+          .methods
+          .iter()
+          .map(|method| {
+            doc_nodes[0].create_child_method(
+              DocNode::from(method.clone()),
+              name,
+              true,
+            )
+          })
+          .collect::<Vec<_>>();
+
+        drilldown_partitions
+          .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+        let property_nodes = ts_type_literal
+          .properties
+          .iter()
+          .map(|property| {
+            doc_nodes[0].create_child_property(
+              DocNode::from(property.clone()),
+              name,
+              true,
+            )
+          })
+          .collect::<Vec<_>>();
+
+        drilldown_partitions
+          .extend(super::partition::partition_nodes_by_name(&property_nodes));
+      }
     }
   }
   name_partitions.extend(drilldown_partitions);
