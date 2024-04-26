@@ -6,7 +6,7 @@ use serde::Serialize;
 
 lazy_static! {
   static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated)(?:\s+(.+))?").unwrap();
-  static ref JS_DOC_TAG_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(category|see|example|tags)(?:\s+(.+))").unwrap();
+  static ref JS_DOC_TAG_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(category|see|example|tags|since)(?:\s+(.+))").unwrap();
   static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r"^\s*@(constructor|class|ignore|module|public|private|protected|readonly)").unwrap();
@@ -209,6 +209,10 @@ pub enum JsDocTag {
   See {
     doc: String,
   },
+  /// `@since version`
+  Since {
+    doc: String,
+  },
   Unsupported {
     value: String,
   },
@@ -287,6 +291,7 @@ impl From<String> for JsDocTag {
           tags: doc.split(',').map(|i| i.trim().to_string()).collect(),
         },
         "see" => Self::See { doc },
+        "since" => Self::Since { doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
@@ -643,6 +648,15 @@ if (true) {
         }]
       })
     );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@since 1.0.0".to_string())).unwrap(),
+      json!({
+        "tags": [{
+          "kind": "since",
+          "doc": "1.0.0"
+        }]
+      })
+    );
 
     assert_eq!(
       serde_json::to_value(JsDoc::from(
@@ -651,6 +665,7 @@ if (true) {
 const a = "a";
 @category foo
 @see bar
+@since 1.0.0
 "#
         .to_string()
       ))
@@ -668,6 +683,9 @@ const a = "a";
         }, {
           "kind": "see",
           "doc": "bar"
+        }, {
+          "kind": "since",
+          "doc": "1.0.0"
         }]
 
       })
@@ -834,7 +852,8 @@ const a = "a";
       .unwrap(),
       json!({
         "tags": [{
-          "kind": "return",
+          "kind": "throws",
+          "type": null,
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
