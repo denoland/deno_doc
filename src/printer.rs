@@ -395,6 +395,15 @@ impl<'a> DocPrinter<'a> {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("see"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
       }
+      JsDocTag::Throws { type_ref, doc } => {
+        write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
+        if let Some(type_ref) = type_ref {
+          writeln!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+        } else {
+          writeln!(w)?;
+        }
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
     }
   }
 

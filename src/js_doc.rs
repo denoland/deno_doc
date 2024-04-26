@@ -15,7 +15,7 @@ lazy_static! {
   )
   .unwrap();
   static ref JS_DOC_TAG_RE: Regex = Regex::new(r"(?s)^\s*@(\S+)").unwrap();
-  static ref JS_DOC_TAG_RETURN_RE: Regex = Regex::new(r"(?s)^\s*@returns?(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_OPTIONAL_TYPE_AND_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
   static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
 }
 
@@ -182,6 +182,13 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<String>,
   },
+  /// `@throws {type} comment` or `@exception {type} comment`
+  Throws {
+    #[serde(rename = "type")]
+    type_ref: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<String>,
+  },
   /// `@typedef {type} name comment`
   TypeDef {
     name: String,
@@ -300,10 +307,17 @@ impl From<String> for JsDocTag {
         default,
         doc,
       }
-    } else if let Some(caps) = JS_DOC_TAG_RETURN_RE.captures(&value) {
-      let type_ref = caps.get(1).map(|m| m.as_str().to_string());
-      let doc = caps.get(2).map(|m| m.as_str().to_string());
-      Self::Return { type_ref, doc }
+    } else if let Some(caps) =
+      JS_DOC_TAG_OPTIONAL_TYPE_AND_DOC_RE.captures(&value)
+    {
+      let kind = caps.get(1).unwrap().as_str();
+      let type_ref = caps.get(2).map(|m| m.as_str().to_string());
+      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      match kind {
+        "return" | "returns" => Self::Return { type_ref, doc },
+        "throws" | "exception" => Self::Throws { type_ref, doc },
+        _ => unreachable!("kind unexpected: {}", kind),
+      }
     } else {
       Self::Unsupported { value }
     }
@@ -791,6 +805,48 @@ const a = "a";
       json!({
         "tags": [{
           "kind": "return",
+          "type": "string",
+          "doc": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_tag_throws() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@throws {string} maybe doc\n\nnew paragraph".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "throws",
+          "type": "string",
+          "doc": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@throws maybe doc\n\nnew paragraph".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "return",
+          "doc": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@throws {string} maybe doc\n\nnew paragraph".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "throws",
           "type": "string",
           "doc": "maybe doc\n\nnew paragraph",
         }]
