@@ -26,11 +26,7 @@ fn get_namespace_section_render_ctx(
 
   for node in doc_nodes {
     let entry = grouped_nodes
-      .entry(if !node.ns_qualifiers.is_empty() {
-        format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
-      } else {
-        node.get_name().to_string()
-      })
+      .entry(node.get_qualified_name())
       .or_insert(vec![]);
     entry.push(node);
   }
@@ -60,18 +56,9 @@ pub struct NamespaceNodeCtx {
 impl NamespaceNodeCtx {
   fn new(
     ctx: &RenderContext,
-    mut name: String,
+    name: String,
     nodes: Vec<DocNodeWithContext>,
   ) -> Self {
-    // TODO: linking
-
-    let ns_parts = ctx.get_namespace_parts();
-    if !ns_parts.is_empty() {
-      name = format!("{}.{}", ns_parts.join("."), name);
-    }
-
-    let current_resolve = ctx.get_current_resolve();
-
     let docs =
       crate::html::jsdoc::jsdoc_body_to_html(ctx, &nodes[0].js_doc, true);
 
@@ -89,7 +76,7 @@ impl NamespaceNodeCtx {
         Some(nodes[0].origin.display_name())
       },
       href: ctx.ctx.href_resolver.resolve_path(
-        current_resolve,
+        ctx.get_current_resolve(),
         UrlResolveKind::Symbol {
           file: &nodes[0].origin,
           symbol: &name,

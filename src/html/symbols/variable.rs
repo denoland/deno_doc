@@ -11,6 +11,7 @@ use std::collections::HashSet;
 pub(crate) fn render_variable(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
+  name: &str,
 ) -> Vec<SectionCtx> {
   let variable_def = doc_node.variable_def.as_ref().unwrap();
 
@@ -18,7 +19,7 @@ pub(crate) fn render_variable(
     return vec![];
   };
 
-  let id = name_to_id("variable", doc_node.get_name());
+  let id = name_to_id("variable", &doc_node.get_qualified_name());
 
   let mut sections = vec![];
 
@@ -36,14 +37,12 @@ pub(crate) fn render_variable(
     }
 
     if let Some(properties) =
-      render_properties(ctx, doc_node.get_name(), &ts_type_literal.properties)
+      render_properties(ctx, name, &ts_type_literal.properties)
     {
       sections.push(properties);
     }
 
-    if let Some(methods) =
-      render_methods(ctx, doc_node.get_name(), &ts_type_literal.methods)
-    {
+    if let Some(methods) = render_methods(ctx, name, &ts_type_literal.methods) {
       sections.push(methods);
     }
   } else {

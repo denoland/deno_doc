@@ -9,6 +9,7 @@ use crate::html::DocNodeWithContext;
 pub(crate) fn render_interface(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
+  name: &str,
 ) -> Vec<SectionCtx> {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
@@ -43,14 +44,12 @@ pub(crate) fn render_interface(
   }
 
   if let Some(properties) =
-    render_properties(ctx, doc_node.get_name(), &interface_def.properties)
+    render_properties(ctx, name, &interface_def.properties)
   {
     sections.push(properties);
   }
 
-  if let Some(methods) =
-    render_methods(ctx, doc_node.get_name(), &interface_def.methods)
-  {
+  if let Some(methods) = render_methods(ctx, name, &interface_def.methods) {
     sections.push(methods);
   }
 

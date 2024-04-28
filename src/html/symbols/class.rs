@@ -16,6 +16,7 @@ use std::collections::HashSet;
 pub(crate) fn render_class(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
+  name: &str,
 ) -> Vec<SectionCtx> {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
@@ -60,7 +61,7 @@ pub(crate) fn render_class(
       "Properties",
       SectionContentCtx::DocEntry(render_class_properties(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.properties,
       )),
     ));
@@ -71,7 +72,7 @@ pub(crate) fn render_class(
       "Methods",
       SectionContentCtx::DocEntry(render_class_methods(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.methods,
       )),
     ));
@@ -82,7 +83,7 @@ pub(crate) fn render_class(
       "Static Properties",
       SectionContentCtx::DocEntry(render_class_properties(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.static_properties,
       )),
     ));
@@ -93,7 +94,7 @@ pub(crate) fn render_class(
       "Static Methods",
       SectionContentCtx::DocEntry(render_class_methods(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.static_methods,
       )),
     ));

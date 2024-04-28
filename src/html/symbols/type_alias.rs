@@ -11,6 +11,7 @@ use std::collections::HashSet;
 pub(crate) fn render_type_alias(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
+  name: &str,
 ) -> Vec<SectionCtx> {
   let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
 
@@ -21,7 +22,7 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let id = name_to_id("typeAlias", doc_node.get_name());
+  let id = name_to_id("typeAlias", name);
 
   // TODO: tags
 
@@ -50,14 +51,12 @@ pub(crate) fn render_type_alias(
     }
 
     if let Some(properties) =
-      render_properties(ctx, doc_node.get_name(), &ts_type_literal.properties)
+      render_properties(ctx, name, &ts_type_literal.properties)
     {
       sections.push(properties);
     }
 
-    if let Some(methods) =
-      render_methods(ctx, doc_node.get_name(), &ts_type_literal.methods)
-    {
+    if let Some(methods) = render_methods(ctx, name, &ts_type_literal.methods) {
       sections.push(methods);
     }
   } else {

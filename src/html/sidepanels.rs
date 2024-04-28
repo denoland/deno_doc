@@ -63,13 +63,9 @@ impl SidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
-          let name = if !node.ns_qualifiers.is_empty() {
-            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
-          } else {
-            node.get_name().to_string()
-          };
-
-          let entry = grouped_nodes.entry(name).or_insert(vec![]);
+          let entry = grouped_nodes
+            .entry(node.get_qualified_name())
+            .or_insert(vec![]);
           entry.push(node);
         }
 
@@ -156,13 +152,9 @@ impl IndexSidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in &nodes {
-          let name = if !node.ns_qualifiers.is_empty() {
-            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
-          } else {
-            node.get_name().to_string()
-          };
-
-          let entry = grouped_nodes.entry(name).or_insert(vec![]);
+          let entry = grouped_nodes
+            .entry(node.get_qualified_name())
+            .or_insert(vec![]);
           entry.push(node);
         }
 
