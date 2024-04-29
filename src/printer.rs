@@ -463,6 +463,10 @@ impl<'a> DocPrinter<'a> {
   ) -> FmtResult {
     let interface_def = node.interface_def.as_ref().unwrap();
 
+    for constructor in &interface_def.constructors {
+      writeln!(w, "{}{}", Indent(1), constructor)?;
+      self.format_jsdoc(w, &constructor.js_doc, 2)?;
+    }
     for property_def in &interface_def.properties {
       writeln!(w, "{}{}", Indent(1), property_def)?;
       self.format_jsdoc(w, &property_def.js_doc, 2)?;

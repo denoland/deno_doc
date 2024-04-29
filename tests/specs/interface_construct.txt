@@ -11,11 +11,26 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:2:3
+  | 
+2 |   new(name: string);
+  |   ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> /mod.ts:2:3
+  | 
+2 |   new(name: string);
+  |   ^
+
+
 # output.txt
 Defined in file:///mod.ts:1:1
 
 interface I
 
+  constructor(name: string)
 
 
 # output.json

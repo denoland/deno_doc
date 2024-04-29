@@ -24,6 +24,7 @@ pub struct InterfaceDef {
   /// set when the interface is a default export
   pub def_name: Option<String>,
   pub extends: Vec<TsTypeDef>,
+  #[serde(default)]
   pub constructors: Vec<ConstructorDef>,
   pub methods: Vec<MethodDef>,
   pub properties: Vec<PropertyDef>,

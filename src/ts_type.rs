@@ -1101,6 +1101,7 @@ impl Display for IndexSignatureDef {
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
+  #[serde(default)]
   pub constructors: Vec<ConstructorDef>,
   pub methods: Vec<MethodDef>,
   pub properties: Vec<PropertyDef>,
