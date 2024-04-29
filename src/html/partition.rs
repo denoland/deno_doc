@@ -1,24 +1,31 @@
 use super::DocNodeWithContext;
+use super::FileMode;
 use super::GenerateCtx;
 use super::ShortPath;
-use super::{DocNodeKindWithDrilldown, FileMode};
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use std::cmp::Ordering;
 use std::rc::Rc;
 
-pub type Partition = IndexMap<String, Vec<DocNodeWithContext>>;
+pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
-pub fn partition_nodes_by_name(
+fn create_partitioner<T, F>(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> Partition {
-  fn partition_nodes_by_name_inner(
-    partitions: &mut Partition,
+  process: &F,
+) -> Partitions<T>
+where
+  F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
+{
+  fn partitioner_inner<T, F>(
+    partitions: &mut Partitions<T>,
     doc_nodes: &[DocNodeWithContext],
     flatten_namespaces: bool,
-  ) {
+    process: &F,
+  ) where
+    F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
+  {
     for node in doc_nodes {
       if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
         || node.declaration_kind == crate::node::DeclarationKind::Private
@@ -30,7 +37,7 @@ pub fn partition_nodes_by_name(
         let namespace_def = node.namespace_def.as_ref().unwrap();
         let ns_qualifiers = Rc::new(node.sub_qualifier());
 
-        partition_nodes_by_name_inner(
+        partitioner_inner(
           partitions,
           &namespace_def
             .elements
@@ -41,19 +48,32 @@ pub fn partition_nodes_by_name(
             })
             .collect::<Vec<_>>(),
           true,
+          process,
         );
       }
 
-      partitions
-        .entry(node.get_qualified_name())
-        .or_default()
-        .push(node.clone());
+      process(partitions, node);
     }
   }
 
   let mut partitions = IndexMap::default();
 
-  partition_nodes_by_name_inner(&mut partitions, doc_nodes, flatten_namespaces);
+  partitioner_inner(&mut partitions, doc_nodes, flatten_namespaces, process);
+
+  partitions
+}
+
+pub fn partition_nodes_by_name(
+  doc_nodes: &[DocNodeWithContext],
+  flatten_namespaces: bool,
+) -> Partitions<String> {
+  let mut partitions =
+    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
+      partitions
+        .entry(node.get_qualified_name())
+        .or_default()
+        .push(node.clone());
+    });
 
   for val in partitions.values_mut() {
     val.sort_by_key(|n| n.kind);
@@ -67,40 +87,9 @@ pub fn partition_nodes_by_name(
 pub fn partition_nodes_by_kind(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> Partition {
-  fn partition_nodes_by_kind_inner(
-    partitions: &mut IndexMap<
-      DocNodeKindWithDrilldown,
-      Vec<DocNodeWithContext>,
-    >,
-    doc_nodes: &[DocNodeWithContext],
-    flatten_namespaces: bool,
-  ) {
-    for node in doc_nodes {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
-      {
-        continue;
-      }
-
-      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
-        let namespace_def = node.namespace_def.as_ref().unwrap();
-        let ns_qualifiers = Rc::new(node.sub_qualifier());
-
-        partition_nodes_by_kind_inner(
-          partitions,
-          &namespace_def
-            .elements
-            .iter()
-            .map(|element| {
-              node
-                .create_namespace_child(element.clone(), ns_qualifiers.clone())
-            })
-            .collect::<Vec<_>>(),
-          true,
-        );
-      }
-
+) -> Partitions<String> {
+  let mut partitions =
+    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
       if let Some((node_kind, nodes)) =
         partitions.iter_mut().find(|(kind, nodes)| {
           nodes.iter().any(|n| {
@@ -122,12 +111,7 @@ pub fn partition_nodes_by_kind(
           entry.push(node.clone());
         }
       }
-    }
-  }
-
-  let mut partitions = IndexMap::default();
-
-  partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
+    });
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(compare_node);
@@ -147,37 +131,9 @@ pub fn partition_nodes_by_kind(
 pub fn partition_nodes_by_category(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> Partition {
-  fn partition_nodes_by_category_inner(
-    partitions: &mut Partition,
-    doc_nodes: &[DocNodeWithContext],
-    flatten_namespaces: bool,
-  ) {
-    for node in doc_nodes {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
-      {
-        continue;
-      }
-
-      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
-        let namespace_def = node.namespace_def.as_ref().unwrap();
-        let ns_qualifiers = Rc::new(node.sub_qualifier());
-
-        partition_nodes_by_category_inner(
-          partitions,
-          &namespace_def
-            .elements
-            .iter()
-            .map(|element| {
-              node
-                .create_namespace_child(element.clone(), ns_qualifiers.clone())
-            })
-            .collect::<Vec<_>>(),
-          true,
-        )
-      }
-
+) -> Partitions<String> {
+  let mut partitions =
+    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
       let category = node
         .js_doc
         .tags
@@ -199,16 +155,7 @@ pub fn partition_nodes_by_category(
       }) {
         entry.push(node.clone());
       }
-    }
-  }
-
-  let mut partitions = IndexMap::default();
-
-  partition_nodes_by_category_inner(
-    &mut partitions,
-    doc_nodes,
-    flatten_namespaces,
-  );
+    });
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(compare_node);
@@ -229,42 +176,12 @@ pub fn partition_nodes_by_category(
     .collect()
 }
 
-pub type EntrypointPartition = IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>;
-
 pub fn partition_nodes_by_entrypoint(
   doc_nodes: &[DocNodeWithContext],
   flatten_namespaces: bool,
-) -> EntrypointPartition {
-  fn partition_nodes_by_entrypoint_inner(
-    partitions: &mut EntrypointPartition,
-    doc_nodes: &[DocNodeWithContext],
-    flatten_namespaces: bool,
-  ) {
-    for node in doc_nodes {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
-      {
-        continue;
-      }
-
-      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
-        let namespace_def = node.namespace_def.as_ref().unwrap();
-        let ns_qualifiers = Rc::new(node.sub_qualifier());
-
-        partition_nodes_by_entrypoint_inner(
-          partitions,
-          &namespace_def
-            .elements
-            .iter()
-            .map(|element| {
-              node
-                .create_namespace_child(element.clone(), ns_qualifiers.clone())
-            })
-            .collect::<Vec<_>>(),
-          true,
-        )
-      }
-
+) -> Partitions<Rc<ShortPath>> {
+  let mut partitions =
+    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
       let entry = partitions.entry(node.origin.clone()).or_default();
 
       if !entry.iter().any(|n| {
@@ -273,16 +190,7 @@ pub fn partition_nodes_by_entrypoint(
       }) {
         entry.push(node.clone());
       }
-    }
-  }
-
-  let mut partitions = IndexMap::default();
-
-  partition_nodes_by_entrypoint_inner(
-    &mut partitions,
-    doc_nodes,
-    flatten_namespaces,
-  );
+    });
 
   for (_file, nodes) in partitions.iter_mut() {
     nodes.sort_by(compare_node);
@@ -323,7 +231,7 @@ fn compare_node(
 pub fn get_partitions_for_file(
   ctx: &GenerateCtx,
   doc_nodes: &[DocNodeWithContext],
-) -> Partition {
+) -> Partitions<String> {
   let categories = partition_nodes_by_category(
     doc_nodes,
     ctx.file_mode == FileMode::SingleDts,

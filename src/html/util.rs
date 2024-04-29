@@ -36,7 +36,7 @@ pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
   pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols = compute_namespaced_symbols(doc_nodes.to_vec());
+    let symbols = compute_namespaced_symbols(doc_nodes);
     Self(Rc::new(symbols))
   }
 
@@ -46,7 +46,7 @@ impl NamespacedSymbols {
 }
 
 pub fn compute_namespaced_symbols(
-  doc_nodes: Vec<DocNodeWithContext>,
+  doc_nodes: &[DocNodeWithContext],
 ) -> HashSet<Vec<String>> {
   let mut namespaced_symbols = HashSet::new();
 
@@ -198,13 +198,13 @@ pub fn compute_namespaced_symbols(
     if doc_node.kind == DocNodeKind::Namespace {
       let namespace_def = doc_node.namespace_def.as_ref().unwrap();
       namespaced_symbols.extend(compute_namespaced_symbols(
-        namespace_def
+        &namespace_def
           .elements
           .iter()
           .map(|element| {
             doc_node.create_namespace_child(element.clone(), name_path.clone())
           })
-          .collect(),
+          .collect::<Vec<_>>(),
       ))
     }
   }
