@@ -48,6 +48,7 @@ interface Interface<V> extends Iterable<V>
           }
         }
       ],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

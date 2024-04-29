@@ -187,6 +187,7 @@ namespace SameName
     "declarationKind": "private",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],
@@ -206,6 +207,7 @@ namespace SameName
     "declarationKind": "private",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

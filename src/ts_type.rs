@@ -336,6 +336,7 @@ impl TsTypeDef {
   }
 
   fn ts_type_lit(parsed_source: &ParsedSource, other: &TsTypeLit) -> Self {
+    let mut constructors = vec![];
     let mut methods = vec![];
     let mut properties = vec![];
     let mut call_signatures = vec![];
@@ -538,25 +539,22 @@ impl TsTypeDef {
               .as_ref()
               .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-            let construct_sig_def = MethodDef {
-              name: "new".to_string(),
+            let construct_sig_def = ConstructorDef {
               js_doc: prop_js_doc,
-              kind: MethodKind::Method,
               location: get_location(parsed_source, ts_construct_sig.start()),
-              computed: false,
-              optional: false,
               params,
               return_type: maybe_return_type,
               type_params,
             };
 
-            methods.push(construct_sig_def);
+            constructors.push(construct_sig_def);
           }
         }
       }
     }
 
     let type_literal = TsTypeLiteralDef {
+      constructors,
       methods,
       properties,
       call_signatures,
@@ -929,6 +927,28 @@ pub struct TsMappedTypeDef {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
+pub struct ConstructorDef {
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
+  pub js_doc: JsDoc,
+  pub params: Vec<ParamDef>,
+  pub return_type: Option<TsTypeDef>,
+  pub type_params: Vec<TsTypeParamDef>,
+  pub location: Location,
+}
+
+impl Display for ConstructorDef {
+  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+    write!(
+      f,
+      "{}({})",
+      colors::magenta("constructor"),
+      SliceDisplayer::new(&self.params, ", ", false),
+    )
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct MethodDef {
   pub name: String,
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
@@ -1081,6 +1101,7 @@ impl Display for IndexSignatureDef {
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
+  pub constructors: Vec<ConstructorDef>,
   pub methods: Vec<MethodDef>,
   pub properties: Vec<PropertyDef>,
   pub call_signatures: Vec<CallSignatureDef>,

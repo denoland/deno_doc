@@ -40,6 +40,7 @@ interface TypedIface<T>
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [
         {
           "name": "something",

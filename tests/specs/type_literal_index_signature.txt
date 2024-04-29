@@ -32,6 +32,7 @@ type T = { [key: string]: number; }
         "repr": "",
         "kind": "typeLiteral",
         "typeLiteral": {
+          "constructors": [],
           "methods": [],
           "properties": [],
           "callSignatures": [],
