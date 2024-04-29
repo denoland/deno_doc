@@ -1,4 +1,3 @@
-use super::partition::Partition;
 use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
@@ -53,7 +52,7 @@ impl SidepanelCtx {
 
   pub fn new(
     ctx: &GenerateCtx,
-    partitions: &Partition,
+    partitions: &super::partition::Partitions<String>,
     file: &ShortPath,
     symbol: &str,
   ) -> Self {
@@ -118,7 +117,7 @@ impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
     current_file: Option<Rc<ShortPath>>,
-    partitions: Partition,
+    partitions: super::partition::Partitions<String>,
   ) -> Self {
     let current_resolve_kind = current_file
       .as_deref()
