@@ -1,3 +1,5 @@
+use crate::html::jsdoc::markdown_to_html;
+use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -6,7 +8,6 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
-use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -120,6 +121,40 @@ pub fn compute_namespaced_symbols(
           },
         ));
       }
+      DocNodeKind::TypeAlias => {
+        let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
+
+        if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
+        {
+          namespaced_symbols.extend(type_literal.methods.iter().map(
+            |method| {
+              let mut method_path = current_path.to_vec();
+              method_path.extend(
+                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
+                  .split('.')
+                  .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+
+          namespaced_symbols.extend(type_literal.properties.iter().map(
+            |property| {
+              let mut method_path = current_path.to_vec();
+              method_path.extend(
+                qualify_drilldown_name(
+                  doc_node.get_name(),
+                  &property.name,
+                  true,
+                )
+                .split('.')
+                .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+        }
+      }
       _ => {}
     }
 
@@ -177,38 +212,44 @@ impl UrlResolveKind<'_> {
   }
 }
 
+pub fn href_path_resolve(
+  current: UrlResolveKind,
+  target: UrlResolveKind,
+) -> String {
+  let backs = match current {
+    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
+      .repeat(if file.path == "." {
+        1
+      } else {
+        file.path.split('/').count() + 1
+      }),
+    UrlResolveKind::Root => String::new(),
+    UrlResolveKind::AllSymbols => String::from("./"),
+  };
+
+  match target {
+    UrlResolveKind::Root => backs,
+    UrlResolveKind::File(target_file) if target_file.is_main => backs,
+    UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
+    UrlResolveKind::Symbol {
+      file: target_file,
+      symbol: target_symbol,
+    } => {
+      format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
+    }
+    UrlResolveKind::File(target_file) => {
+      format!("{backs}./{}/~/index.html", target_file.path)
+    }
+  }
+}
+
 /// A trait used to define various functions used to resolve urls.
 pub trait HrefResolver {
   fn resolve_path(
     &self,
     current: UrlResolveKind,
     target: UrlResolveKind,
-  ) -> String {
-    let backs = match current {
-      UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-        .repeat(if file.as_str() == "." {
-          1
-        } else {
-          file.as_str().split('/').count() + 1
-        }),
-      UrlResolveKind::Root => String::new(),
-      UrlResolveKind::AllSymbols => String::from("./"),
-    };
-
-    match target {
-      UrlResolveKind::Root => backs,
-      UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
-      UrlResolveKind::Symbol {
-        file: target_file,
-        symbol: target_symbol,
-      } => {
-        format!("{backs}./{}/~/{target_symbol}.html", target_file.as_str())
-      }
-      UrlResolveKind::File(target_file) => {
-        format!("{backs}./{}/~/index.html", target_file.as_str())
-      }
-    }
-  }
+  ) -> String;
 
   /// Resolver for global symbols, like the Deno namespace or other built-ins
   fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String>;
@@ -218,11 +259,7 @@ pub trait HrefResolver {
     -> Option<String>;
 
   /// Resolve the URL used in "usage" blocks.
-  fn resolve_usage(
-    &self,
-    current_specifier: &ModuleSpecifier,
-    current_file: Option<&ShortPath>,
-  ) -> Option<String>;
+  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
@@ -234,12 +271,15 @@ pub struct BreadcrumbCtx {
   pub href: String,
   pub is_symbol: bool,
   pub is_first_symbol: bool,
-  pub is_all_symbols_part: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct BreadcrumbsCtx {
   pub parts: Vec<BreadcrumbCtx>,
+}
+
+impl BreadcrumbsCtx {
+  pub const TEMPLATE: &'static str = "breadcrumbs";
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -302,6 +342,10 @@ pub struct AnchorCtx {
   pub id: String,
 }
 
+impl AnchorCtx {
+  pub const TEMPLATE: &'static str = "anchor";
+}
+
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
@@ -311,10 +355,67 @@ pub enum SectionContentCtx {
   NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
 }
 
+#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct SectionHeaderCtx {
+  pub title: String,
+  pub href: Option<String>,
+  pub doc: Option<String>,
+}
+
+impl SectionHeaderCtx {
+  pub fn new_for_namespace(
+    render_ctx: &RenderContext,
+    path: &ShortPath,
+  ) -> Self {
+    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
+
+    let doc = module_doc_nodes
+      .iter()
+      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+      .and_then(|node| node.js_doc.doc.as_ref())
+      .and_then(|doc| {
+        markdown_to_html(
+          render_ctx,
+          doc,
+          MarkdownToHTMLOptions {
+            summary: true,
+            summary_prefer_title: true,
+            render_toc: false,
+          },
+        )
+      })
+      .map(|markdown| markdown.html);
+
+    SectionHeaderCtx {
+      title: path.display_name(),
+      href: Some(render_ctx.ctx.href_resolver.resolve_path(
+        render_ctx.get_current_resolve(),
+        path.as_resolve_kind(),
+      )),
+      doc,
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Clone)]
 pub struct SectionCtx {
-  pub title: String,
+  pub header: SectionHeaderCtx,
   pub content: SectionContentCtx,
+}
+
+impl SectionCtx {
+  pub const TEMPLATE: &'static str = "section";
+
+  pub fn new(title: &'static str, content: SectionContentCtx) -> Self {
+    Self {
+      header: SectionHeaderCtx {
+        title: title.to_string(),
+        href: None,
+        doc: None,
+      },
+      content,
+    }
+  }
 }
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
@@ -333,6 +434,8 @@ pub enum Tag {
 }
 
 impl Tag {
+  pub const TEMPLATE: &'static str = "tag";
+
   pub fn from_accessibility(
     accessibility: Option<Accessibility>,
   ) -> Option<Self> {
@@ -368,6 +471,8 @@ pub struct DocEntryCtx {
 }
 
 impl DocEntryCtx {
+  pub const TEMPLATE: &'static str = "doc_entry";
+
   #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,

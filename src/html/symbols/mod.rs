@@ -12,12 +12,12 @@ use serde::Serialize;
 use std::collections::HashSet;
 
 pub mod class;
-mod r#enum;
-mod function;
-mod interface;
+pub mod r#enum;
+pub mod function;
+pub mod interface;
 pub mod namespace;
-mod type_alias;
-mod variable;
+pub mod type_alias;
+pub mod variable;
 
 #[derive(Debug, Serialize, Clone)]
 struct SymbolCtx {
@@ -37,6 +37,8 @@ pub struct SymbolGroupCtx {
 }
 
 impl SymbolGroupCtx {
+  pub const TEMPLATE: &'static str = "symbol_group";
+
   pub fn new(
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
@@ -103,9 +105,7 @@ impl SymbolGroupCtx {
               Some(
                 doc
                   .as_ref()
-                  .map(|doc| {
-                    crate::html::jsdoc::render_markdown_summary(ctx, doc)
-                  })
+                  .map(|doc| crate::html::jsdoc::render_markdown(ctx, doc))
                   .unwrap_or_default(),
               )
             } else {
@@ -139,7 +139,7 @@ impl SymbolGroupCtx {
 }
 
 #[derive(Debug, Serialize, Clone)]
-struct DocBlockClassSubtitleExtendsCtx {
+pub struct DocBlockClassSubtitleExtendsCtx {
   href: Option<String>,
   symbol: String,
   type_args: String,
@@ -148,7 +148,7 @@ struct DocBlockClassSubtitleExtendsCtx {
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "kind", content = "value")]
-enum DocBlockSubtitleCtx {
+pub enum DocBlockSubtitleCtx {
   Class {
     implements: Option<Vec<String>>,
     extends: Option<DocBlockClassSubtitleExtendsCtx>,
@@ -159,6 +159,9 @@ enum DocBlockSubtitleCtx {
 }
 
 impl DocBlockSubtitleCtx {
+  pub const TEMPLATE_CLASS: &'static str = "doc_block_subtitle_class";
+  pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
+
   fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
     if matches!(
       doc_node.kind,
@@ -246,6 +249,10 @@ pub struct SymbolContentCtx {
   pub sections: Vec<SectionCtx>,
 }
 
+impl SymbolContentCtx {
+  pub const TEMPLATE: &'static str = "symbol_content";
+}
+
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum SymbolInnerCtx {
@@ -288,7 +295,22 @@ impl SymbolInnerCtx {
 
           let ns_parts = name.split('.').collect::<Vec<&str>>();
 
-          namespace::render_namespace(&ctx.with_namespace(ns_parts), partitions)
+          namespace::render_namespace(
+            &ctx.with_namespace(ns_parts),
+            partitions
+              .into_iter()
+              .map(|(title, nodes)| {
+                (
+                  crate::html::util::SectionHeaderCtx {
+                    title,
+                    href: None,
+                    doc: None,
+                  },
+                  nodes,
+                )
+              })
+              .collect(),
+          )
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       };
@@ -309,7 +331,7 @@ impl SymbolInnerCtx {
     }
 
     if !functions.is_empty() {
-      content_parts.push(SymbolInnerCtx::Function(function::render_function(
+      content_parts.push(SymbolInnerCtx::Function(function::FunctionCtx::new(
         ctx, functions,
       )));
     }

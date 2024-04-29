@@ -1,15 +1,9 @@
 {{~#if (ne this null)~}}
-  <div>
-    <div class="py-1 text-red-500 flex gap-1 items-center">
-          <span class="font-semibold leading-6">
-            Deprecated
-          </span>
-    </div>
+  <div class="deprecated">
+    <div><span>Deprecated</span></div>
 
     {{~#if (ne this "")~}}
-      <div class="ml-1 pl-2 border-l-4 border-red-300">
-        {{{this}}} {{! markdown rendering }}
-      </div>
+      <div>{{{this}}} {{! markdown rendering }}</div>
     {{~/if~}}
   </div>
 {{~/if~}}

@@ -1,10 +1,5 @@
-<section {{#if toc}}class="flex max-lg:flex-col-reverse gap-6"{{/if}}>
+<section {{#if toc}}class="tocable"{{/if}}>
   <div class="space-y-2 flex-1 {{#if toc}}min-w-0{{/if}}">
-    {{~#if title~}}
-      <h2 class="text-lg font-semibold font-mono">{{title}}</h2>
-      <hr class="mt-2 mb-4" />
-    {{~/if~}}
-
     {{~> deprecated deprecated ~}}
 
     {{~#if usages~}}
@@ -15,8 +10,6 @@
   </div>
 
   {{~#if toc~}}
-    <nav class="flex-none max-w-52 text-sm max-lg:hidden sticky top-0 py-4 max-h-screen box-border">
-      {{{~toc~}}} {{! markdown rendering ToC }}
-    </nav>
+    {{{~toc~}}} {{! markdown rendering ToC }}
   {{~/if~}}
 </section>

@@ -940,6 +940,12 @@ async fn json_module() {
             "methods": [],
             "properties": [{
               "name": "a",
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -954,6 +960,12 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "b",
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -968,6 +980,12 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "c",
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -979,6 +997,12 @@ async fn json_module() {
               "typeParams": []
             }, {
               "name": "d",
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -995,6 +1019,12 @@ async fn json_module() {
             }, {
               "name": "e",
               "params": [],
+              "location": {
+                "filename": "",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0,
+              },
               "computed": false,
               "optional": false,
               "tsType": {
@@ -1004,6 +1034,12 @@ async fn json_module() {
                   "methods": [],
                   "properties": [{
                     "name": "a",
+                    "location": {
+                      "filename": "",
+                      "line": 0,
+                      "col": 0,
+                      "byteIndex": 0,
+                    },
                     "params": [],
                     "computed": false,
                     "optional": false,

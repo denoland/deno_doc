@@ -1,6 +1,6 @@
-use super::DocNodeWithContext;
 use super::RenderContext;
 use super::UrlResolveKind;
+use super::{DocNodeWithContext, FileMode};
 use crate::DocNodeKind;
 use serde::Serialize;
 
@@ -10,13 +10,12 @@ fn render_css_for_usage(name: &str) -> String {
 #{name}:checked ~ *:last-child > :not(#{name}_content) {{
   display: none;
 }}
-#{name}:checked ~ nav:first-of-type > label[for='{name}'] {{
-  border-bottom-width: 2px;
-  cursor: unset;
-  border-color: rgb(17 24 39);
+#{name}:checked ~ nav #{name}_active_dropdown {{
+  display: flex;
 }}
-#{name}:not:checked ~ nav:first-of-type > label[for='{name}'] {{
-  border-color: rgb(209 213 219);
+#{name}:checked ~ nav label[for='{name}'] {{
+  cursor: unset;
+  background-color: #EBF6FF;
 }}
 "#
   )
@@ -36,7 +35,7 @@ pub fn usage_to_md(
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
       file
-        .to_name()
+        .display_name()
         .replace('-', "_")
         .replace(|c: char| c.is_ascii_alphanumeric(), "")
     } else {
@@ -104,7 +103,6 @@ pub fn usage_to_md(
 
 #[derive(Clone, Debug, Serialize)]
 pub struct UsagesCtx {
-  show_tabs: bool,
   usages: Vec<UsageCtx>,
 }
 
@@ -112,27 +110,37 @@ pub struct UsagesCtx {
 pub struct UsageCtx {
   name: String,
   content: String,
+  icon: Option<std::borrow::Cow<'static, str>>,
   additional_css: String,
 }
 
 impl UsagesCtx {
+  pub const TEMPLATE: &'static str = "usages";
+
   pub fn new(
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
   ) -> Option<Self> {
-    let url = ctx.ctx.href_resolver.resolve_usage(
-      ctx.get_current_specifier()?,
-      ctx.get_current_resolve().get_file(),
-    )?;
+    if ctx.ctx.usage_composer.is_none()
+      && ctx.ctx.file_mode == FileMode::SingleDts
+    {
+      return None;
+    }
+
+    let url = ctx
+      .ctx
+      .href_resolver
+      .resolve_usage(ctx.get_current_resolve())?;
 
     if let Some(usage_composer) = &ctx.ctx.usage_composer {
       let usages = usage_composer(ctx, doc_nodes, url);
 
       let usages = usages
         .into_iter()
-        .map(|(name, content)| UsageCtx {
-          additional_css: render_css_for_usage(&name),
-          name,
+        .map(|(entry, content)| UsageCtx {
+          additional_css: render_css_for_usage(&entry.name),
+          name: entry.name,
+          icon: entry.icon,
           content: crate::html::jsdoc::render_markdown(ctx, &content),
         })
         .collect::<Vec<_>>();
@@ -140,10 +148,7 @@ impl UsagesCtx {
       if usages.is_empty() {
         None
       } else {
-        Some(UsagesCtx {
-          show_tabs: true,
-          usages,
-        })
+        Some(UsagesCtx { usages })
       }
     } else {
       let import_statement = usage_to_md(ctx, doc_nodes, &url);
@@ -151,10 +156,10 @@ impl UsagesCtx {
         crate::html::jsdoc::render_markdown(ctx, &import_statement);
 
       Some(UsagesCtx {
-        show_tabs: false,
         usages: vec![UsageCtx {
           name: "".to_string(),
           content: rendered_import_statement,
+          icon: None,
           additional_css: "".to_string(),
         }],
       })

@@ -1,13 +1,13 @@
-<main class="space-y-12" id="symbol_{{name}}">
+<main class="symbolGroup" id="symbol_{{name}}">
   {{~#each symbols~}}
-    <article class="space-y-5">
-      <div class="flex justify-between items-start">
-        <div class="font-medium space-y-1">
-          <div class="text-xl leading-none">
+    <article>
+      <div>
+        <div>
+          <div class="text-xl leading-none break-all">
             <span class="text-{{this.kind.kind}}">{{this.kind.title_lowercase}}</span>&nbsp;<span class="font-bold">{{../name}}</span>
           </div>
           {{~#if this.subtitle ~}}
-            <div class="space-y-0.5 text-sm leading-4">
+            <div class="symbolSubtitle">
               {{~> (concat "doc_block_subtitle_" this.subtitle.kind) this.subtitle.value ~}}
             </div>
           {{~/if~}}

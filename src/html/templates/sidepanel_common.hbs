@@ -1,13 +1,7 @@
 <input type="checkbox" id="sidepanelToggle" class="hidden peer" autocomplete="off">
 
 <div class="max-lg:flex max-lg:justify-between">
-  {{~#if package_name~}}
-    <h2 class="text-lg font-semibold flex gap-2 items-center">
-      <a href="index.html" class="flex-grow"><span>{{package_name}}</span></a>
-    </h2>
-  {{~/if~}}
-
-  <label for="sidepanelToggle" class="lg:hidden">
+	<label for="sidepanelToggle" class="lg:hidden">
     {{~> icons/menu ~}}
   </label>
 </div>

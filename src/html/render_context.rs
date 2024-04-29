@@ -1,9 +1,9 @@
 use crate::html::util::BreadcrumbCtx;
 use crate::html::util::BreadcrumbsCtx;
 use crate::html::util::NamespacedSymbols;
-use crate::html::ShortPath;
+use crate::html::DocNodeWithContext;
+use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
-use crate::html::{DocNodeWithContext, GenerateCtx};
 use crate::DocNodeKind;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
@@ -17,7 +17,6 @@ pub struct RenderContext<'ctx> {
   current_imports: Rc<HashMap<String, String>>,
   current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
-  current_specifier: Option<&'ctx ModuleSpecifier>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Rc<Vec<&'ctx str>>,
 }
@@ -27,7 +26,6 @@ impl<'ctx> RenderContext<'ctx> {
     ctx: &'ctx GenerateCtx<'ctx>,
     doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
-    current_specifier: Option<&'ctx ModuleSpecifier>,
   ) -> Self {
     Self {
       ctx,
@@ -35,7 +33,6 @@ impl<'ctx> RenderContext<'ctx> {
       current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,
-      current_specifier,
       namespace_parts: Rc::new(vec![]),
     }
   }
@@ -67,10 +64,6 @@ impl<'ctx> RenderContext<'ctx> {
 
   pub fn get_current_resolve(&self) -> UrlResolveKind {
     self.current_resolve
-  }
-
-  pub fn get_current_specifier(&self) -> Option<&ModuleSpecifier> {
-    self.current_specifier
   }
 
   pub fn lookup_symbol_href(&self, target_symbol: &str) -> Option<String> {
@@ -112,7 +105,17 @@ impl<'ctx> RenderContext<'ctx> {
               .get_current_resolve()
               .get_file()
               .cloned()
-              .unwrap_or_else(|| ShortPath::from(String::from("."))),
+              .unwrap_or_else(|| {
+                Rc::unwrap_or_clone(
+                  self
+                    .ctx
+                    .doc_nodes
+                    .keys()
+                    .find(|short_path| short_path.is_main)
+                    .unwrap()
+                    .clone(),
+                )
+              }),
             symbol: target_symbol,
           },
         ),
@@ -121,11 +124,16 @@ impl<'ctx> RenderContext<'ctx> {
 
     if let Some(src) = self.current_imports.get(target_symbol) {
       if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if self.ctx.specifiers.contains(&module_specifier) {
+        if let Some(short_path) = self
+          .ctx
+          .doc_nodes
+          .keys()
+          .find(|short_path| short_path.specifier == module_specifier)
+        {
           return Some(self.ctx.href_resolver.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
-              file: &self.ctx.url_to_short_path(&module_specifier),
+              file: short_path,
               symbol: target_symbol,
             },
           ));
@@ -145,88 +153,83 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
+    let index_name =
+      self.ctx.package_name.clone().unwrap_or("index".to_string());
+
     let parts = match self.current_resolve {
       UrlResolveKind::Root => vec![BreadcrumbCtx {
-        name: "index".to_string(),
+        name: index_name,
         href: "".to_string(),
         is_symbol: false,
         is_first_symbol: false,
-        is_all_symbols_part: false,
       }],
       UrlResolveKind::AllSymbols => {
         vec![
           BreadcrumbCtx {
-            name: "index".to_string(),
+            name: index_name,
             href: self
               .ctx
               .href_resolver
               .resolve_path(self.current_resolve, UrlResolveKind::Root),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: false,
           },
           BreadcrumbCtx {
             name: "all symbols".to_string(),
             href: "".to_string(),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: true,
           },
         ]
       }
       UrlResolveKind::File(file) => {
-        if self.current_specifier == self.ctx.main_entrypoint.as_ref() {
+        if file.is_main {
           vec![BreadcrumbCtx {
-            name: "index".to_string(),
+            name: index_name,
             href: "".to_string(),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: false,
           }]
         } else {
           vec![
             BreadcrumbCtx {
-              name: "index".to_string(),
+              name: index_name,
               href: self
                 .ctx
                 .href_resolver
                 .resolve_path(self.current_resolve, UrlResolveKind::Root),
               is_symbol: false,
               is_first_symbol: false,
-              is_all_symbols_part: false,
             },
             BreadcrumbCtx {
-              name: file.to_name(),
+              name: file.display_name(),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
-              is_all_symbols_part: false,
             },
           ]
         }
       }
       UrlResolveKind::Symbol { file, symbol } => {
         let mut parts = vec![BreadcrumbCtx {
-          name: "index".to_string(),
+          name: index_name,
           href: self
             .ctx
             .href_resolver
             .resolve_path(self.current_resolve, UrlResolveKind::Root),
           is_symbol: false,
           is_first_symbol: false,
-          is_all_symbols_part: false,
         }];
 
-        if self.current_specifier != self.ctx.main_entrypoint.as_ref() {
+        if !file.is_main {
           parts.push(BreadcrumbCtx {
-            name: file.to_name(),
+            name: file.display_name(),
             href: self
               .ctx
               .href_resolver
               .resolve_path(self.current_resolve, UrlResolveKind::File(file)),
             is_symbol: false,
             is_first_symbol: false,
-            is_all_symbols_part: false,
           });
         }
 
@@ -245,7 +248,6 @@ impl<'ctx> RenderContext<'ctx> {
               ),
               is_symbol: true,
               is_first_symbol: i == 0,
-              is_all_symbols_part: false,
             };
             breadcrumbs.push(breadcrumb);
 
@@ -284,19 +286,24 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::html::setup_hbs;
-  use crate::html::setup_highlighter;
-  use crate::html::DocNodeKindWithDrilldown;
+  use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
-  use std::sync::Arc;
 
   struct TestResolver();
 
   impl HrefResolver for TestResolver {
+    fn resolve_path(
+      &self,
+      current: UrlResolveKind,
+      target: UrlResolveKind,
+    ) -> String {
+      crate::html::href_path_resolve(current, target)
+    }
+
     fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
       if symbol == ["bar"] {
         Some("global$bar".to_string())
@@ -313,12 +320,10 @@ mod test {
       Some(format!("{src}/{}", symbol.join(".")))
     }
 
-    fn resolve_usage(
-      &self,
-      current_specifier: &deno_ast::ModuleSpecifier,
-      _current_file: Option<&ShortPath>,
-    ) -> Option<String> {
-      Some(current_specifier.to_string())
+    fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
+      current_resolve
+        .get_file()
+        .map(|current_file| current_file.specifier.to_string())
     }
 
     fn resolve_source(&self, location: &Location) -> Option<String> {
@@ -328,33 +333,9 @@ mod test {
 
   #[test]
   fn lookup_symbol_href() {
-    let ctx = GenerateCtx {
-      package_name: None,
-      common_ancestor: None,
-      main_entrypoint: None,
-      specifiers: vec![],
-      hbs: setup_hbs().unwrap(),
-      highlight_adapter: setup_highlighter(false),
-      url_rewriter: None,
-      href_resolver: Rc::new(TestResolver()),
-      usage_composer: None,
-      rewrite_map: None,
-      hide_module_doc_title: false,
-      single_file_mode: false,
-      sidebar_hide_all_symbols: false,
-      sidebar_flatten_namespaces: false,
-    };
-
-    let doc_nodes = vec![DocNodeWithContext {
-      origin: Rc::new(
-        ctx.url_to_short_path(
-          &ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-        ),
-      ),
-      ns_qualifiers: Rc::new(vec![]),
-      drilldown_parent_kind: None,
-      kind_with_drilldown: DocNodeKindWithDrilldown::Other(DocNodeKind::Import),
-      inner: Arc::new(DocNode {
+    let doc_nodes_by_url = indexmap::IndexMap::from([(
+      ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+      vec![DocNode {
         kind: DocNodeKind::Import,
         name: "foo".to_string(),
         location: Location {
@@ -376,26 +357,36 @@ mod test {
           src: "b".to_string(),
           imported: Some("foo".to_string()),
         }),
-      }),
-    }];
+      }],
+    )]);
+
+    let ctx = GenerateCtx::new(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: Rc::new(TestResolver()),
+        usage_composer: None,
+        rewrite_map: None,
+        composable_output: false,
+      },
+      None,
+      Default::default(),
+      doc_nodes_by_url,
+    )
+    .unwrap();
+
+    let (short_path, doc_nodes) = ctx.doc_nodes.first().unwrap();
 
     // globals
-    let render_ctx =
-      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root, None);
+    let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("bar").unwrap(), "global$bar");
 
     // imports
-    let render_ctx =
-      RenderContext::new(&ctx, &doc_nodes, UrlResolveKind::Root, None);
+    let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
 
-    let short_path = ShortPath::from("a".to_string());
-    let render_ctx = RenderContext::new(
-      &ctx,
-      &doc_nodes,
-      UrlResolveKind::File(&short_path),
-      None,
-    );
+    let render_ctx =
+      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(short_path));
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
   }
 }

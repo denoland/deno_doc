@@ -2,6 +2,7 @@
 
 //! Adapter for the Syntect syntax highlighter plugin.
 
+use crate::html::ShortPath;
 use comrak::adapters::HeadingAdapter;
 use comrak::adapters::HeadingMeta;
 use comrak::adapters::SyntaxHighlighterAdapter;
@@ -59,7 +60,7 @@ impl HighlightAdapter {
 
     if self.show_line_numbers {
       Ok(format!(
-        r##"<div class="border-r-2 border-stone-300 pr-1 text-right flex-none">{line_numbers}</div><div class="grow overflow-x-auto">{lines}</div>"##
+        r##"<div class="lineNumbers">{line_numbers}</div><div class="grow overflow-x-auto">{lines}</div>"##
       ))
     } else {
       Ok(lines)
@@ -113,7 +114,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
 
     match self.highlight_html(
-      syntect::util::LinesWithEndings::from(code),
+      syntect::util::LinesWithEndings::from(&code),
       |lines, line| {
         let regions = highlighter.highlight_line(line, &self.syntax_set)?;
         syntect::html::append_highlighted_html_for_styled_line(
@@ -129,7 +130,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       Err(_) => output.write_all(code.as_bytes())?,
     }
 
-    self.write_button(output, code)
+    self.write_button(output, &code)
   }
 
   #[cfg(all(feature = "tree-sitter", not(feature = "syntect")))]
@@ -160,7 +161,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
                 .unwrap();
 
               output.write_all(html.as_bytes())?;
-              return self.write_button(output, code);
+              return self.write_button(output, &code);
             }
             Err(err) => {
               eprintln!("Error rendering code: {}", err);
@@ -173,7 +174,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       }
     }
     comrak::html::escape(output, source)?;
-    self.write_button(output, code)
+    self.write_button(output, &code)
   }
 
   #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
@@ -183,6 +184,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     _lang: Option<&str>,
     code: &str,
   ) -> std::io::Result<()> {
+    let code = html_escape::encode_text(code);
     let html = self
       .highlight_html(code.lines(), |lines, line| {
         lines.push_str(&format!("{line}\n"));
@@ -192,7 +194,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       .unwrap();
 
     output.write_all(html.as_bytes())?;
-    self.write_button(output, code)
+    self.write_button(output, &code)
   }
 
   fn write_pre_tag(
@@ -263,6 +265,5 @@ impl HeadingAdapter for HeadingToCAdapter {
 }
 
 #[cfg(feature = "ammonia")]
-pub type URLRewriter = Arc<
-  dyn (Fn(Option<&deno_ast::ModuleSpecifier>, &str) -> String) + Send + Sync,
->;
+pub type URLRewriter =
+  Arc<dyn (Fn(Option<&ShortPath>, &str) -> String) + Send + Sync>;

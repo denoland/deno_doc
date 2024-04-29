@@ -7,19 +7,19 @@ use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: super::super::partition::Partition,
+  partitions: IndexMap<SectionHeaderCtx, Vec<DocNodeWithContext>>,
 ) -> Vec<SectionCtx> {
   partitions
     .into_iter()
-    .map(|(title, doc_nodes)| {
-      get_namespace_section_render_ctx(ctx, title, doc_nodes)
+    .map(|(header, doc_nodes)| {
+      get_namespace_section_render_ctx(ctx, header, doc_nodes)
     })
     .collect()
 }
 
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
-  title: String,
+  header: SectionHeaderCtx,
   doc_nodes: Vec<DocNodeWithContext>,
 ) -> SectionCtx {
   let mut grouped_nodes = IndexMap::new();
@@ -41,7 +41,7 @@ fn get_namespace_section_render_ctx(
     .collect::<Vec<_>>();
 
   SectionCtx {
-    title,
+    header,
     content: SectionContentCtx::NamespaceSection(nodes),
   }
 }
@@ -83,10 +83,10 @@ impl NamespaceNodeCtx {
         .iter()
         .map(|node| node.kind_with_drilldown.into())
         .collect(),
-      origin_name: if ctx.ctx.single_file_mode {
+      origin_name: if ctx.ctx.file_mode.is_single() {
         None
       } else {
-        Some(nodes[0].origin.to_name())
+        Some(nodes[0].origin.display_name())
       },
       href: ctx.ctx.href_resolver.resolve_path(
         current_resolve,

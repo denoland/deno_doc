@@ -161,7 +161,16 @@ const tpl2: string
           "methods": [
             {
               "name": "get",
+              "jsDoc": {
+                "doc": "get doc"
+              },
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 6,
+                "col": 2,
+                "byteIndex": 108
+              },
               "params": [
                 {
                   "kind": "identifier",
@@ -195,7 +204,16 @@ const tpl2: string
             },
             {
               "name": "set",
+              "jsDoc": {
+                "doc": "set doc"
+              },
               "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 9,
+                "col": 2,
+                "byteIndex": 166
+              },
               "params": [
                 {
                   "kind": "identifier",

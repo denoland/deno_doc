@@ -19,7 +19,7 @@ lazy_static! {
   static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
 }
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq)]
 pub struct JsDoc {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   pub doc: Option<String>,

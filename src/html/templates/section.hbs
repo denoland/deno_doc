@@ -1,5 +1,18 @@
-<div>
-  <h2 class="text-xl leading-6 font-semibold py-1 mb-4">{{title}}</h2>
+<section class="section">
+  <div>
+	  <h2>
+		  {{~#if header.href~}}
+			  <a href="{{header.href}}" class="contextLink">{{header.title}}</a>
+		  {{~else~}}
+			  {{header.title}}
+		  {{~/if~}}
+	  </h2>
+
+		{{~#if header.doc~}}
+			{{{header.doc}}} {{! markdown }}
+		{{~/if~}}
+  </div>
+
   {{~#if (eq content.kind "namespace_section")~}}
     {{~> namespace_section content.content ~}}
   {{~else~}}
@@ -9,4 +22,4 @@
       {{~/each~}}
     </div>
   {{~/if~}}
-</div>
+</section>

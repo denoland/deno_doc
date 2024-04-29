@@ -4,7 +4,7 @@ use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::html::HrefResolver;
-use deno_doc::html::ShortPath;
+use deno_doc::html::UrlResolveKind;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -54,7 +54,7 @@ async fn run() -> anyhow::Result<()> {
     .arg(
       Arg::with_name("html")
         .long("html")
-        .requires_all(&["name", "output"]),
+        .requires_all(&["output"]),
     )
     .arg(Arg::with_name("name").long("name").takes_value(true))
     .arg(
@@ -74,9 +74,9 @@ async fn run() -> anyhow::Result<()> {
   let source_files = matches.values_of("source_files").unwrap();
   let html = matches.is_present("html");
   let name = if html {
-    matches.value_of("name").unwrap().to_string()
+    matches.value_of("name").map(|name| name.to_string())
   } else {
-    "".to_string()
+    None
   };
   let main_entrypoint = if html {
     matches.value_of("main_entrypoint").map(|main_entrypoint| {
@@ -174,6 +174,14 @@ fn main() {
 struct EmptyResolver();
 
 impl HrefResolver for EmptyResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    deno_doc::html::href_path_resolve(current, target)
+  }
+
   fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
     None
   }
@@ -186,12 +194,10 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(
-    &self,
-    current_specifier: &deno_ast::ModuleSpecifier,
-    _current_file: Option<&ShortPath>,
-  ) -> Option<String> {
-    Some(current_specifier.to_string())
+  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
+    current_resolve
+      .get_file()
+      .map(|current_file| current_file.specifier.to_string())
   }
 
   fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
@@ -200,7 +206,7 @@ impl HrefResolver for EmptyResolver {
 }
 
 fn generate_docs_directory(
-  name: String,
+  package_name: Option<String>,
   output_dir: String,
   main_entrypoint: Option<ModuleSpecifier>,
   doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
@@ -214,15 +220,14 @@ fn generate_docs_directory(
   }
 
   let options = deno_doc::html::GenerateOptions {
-    package_name: Some(name),
+    package_name,
     main_entrypoint,
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    hide_module_doc_title: false,
-    sidebar_flatten_namespaces: false,
+    composable_output: false,
   };
-  let html = deno_doc::html::generate(options.clone(), doc_nodes_by_url)?;
+  let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 
   let path = &output_dir_resolved;
   let _ = std::fs::remove_dir_all(path);

@@ -55,6 +55,12 @@ private const rest
           "properties": [
             {
               "name": "a",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 14,
+                "byteIndex": 14
+              },
               "params": [],
               "computed": false,
               "optional": false,
@@ -67,6 +73,12 @@ private const rest
             },
             {
               "name": "b",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 24,
+                "byteIndex": 24
+              },
               "params": [],
               "computed": false,
               "optional": false,

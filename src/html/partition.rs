@@ -1,6 +1,7 @@
-use super::DocNodeKindWithDrilldown;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use super::ShortPath;
+use super::{DocNodeKindWithDrilldown, FileMode};
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -101,27 +102,7 @@ pub fn partition_nodes_by_kind(
   partition_nodes_by_kind_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(|node1, node2| {
-      let node1_is_deprecated = node1
-        .js_doc
-        .tags
-        .iter()
-        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-      let node2_is_deprecated = node2
-        .js_doc
-        .tags
-        .iter()
-        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-
-      (!node2_is_deprecated)
-        .cmp(&!node1_is_deprecated)
-        .then_with(|| {
-          node1
-            .get_name()
-            .cmp(node2.get_name())
-            .then_with(|| node1.kind.cmp(&node2.kind))
-        })
-    });
+    nodes.sort_by(compare_node);
   }
 
   partitions
@@ -206,7 +187,7 @@ pub fn partition_nodes_by_category(
   );
 
   for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by_key(|n| n.get_name().to_string());
+    nodes.sort_by(compare_node);
   }
 
   partitions
@@ -224,32 +205,113 @@ pub fn partition_nodes_by_category(
     .collect()
 }
 
+pub type EntrypointPartition = IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>;
+
+pub fn partition_nodes_by_entrypoint(
+  doc_nodes: &[DocNodeWithContext],
+  flatten_namespaces: bool,
+) -> EntrypointPartition {
+  fn partition_nodes_by_entrypoint_inner(
+    partitions: &mut EntrypointPartition,
+    doc_nodes: &[DocNodeWithContext],
+    flatten_namespaces: bool,
+  ) {
+    for node in doc_nodes {
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
+      {
+        continue;
+      }
+
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
+        let mut namespace = (*node.ns_qualifiers).clone();
+        namespace.push(node.get_name().to_string());
+
+        let ns_qualifiers = Rc::new(namespace);
+
+        partition_nodes_by_entrypoint_inner(
+          partitions,
+          &namespace_def
+            .elements
+            .iter()
+            .map(|element| {
+              let mut child = node.create_child(element.clone());
+              child.ns_qualifiers = ns_qualifiers.clone();
+              child
+            })
+            .collect::<Vec<_>>(),
+          true,
+        )
+      }
+
+      let entry = partitions.entry(node.origin.clone()).or_default();
+
+      if !entry
+        .iter()
+        .any(|n| n.get_name() == node.get_name() && n.kind == node.kind)
+      {
+        entry.push(node.clone());
+      }
+    }
+  }
+
+  let mut partitions = IndexMap::default();
+
+  partition_nodes_by_entrypoint_inner(
+    &mut partitions,
+    doc_nodes,
+    flatten_namespaces,
+  );
+
+  for (_file, nodes) in partitions.iter_mut() {
+    nodes.sort_by(compare_node);
+  }
+
+  partitions.sort_keys();
+
+  partitions
+}
+
+fn compare_node(
+  node1: &DocNodeWithContext,
+  node2: &DocNodeWithContext,
+) -> Ordering {
+  let node1_is_deprecated = node1
+    .js_doc
+    .tags
+    .iter()
+    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+  let node2_is_deprecated = node2
+    .js_doc
+    .tags
+    .iter()
+    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+
+  (!node2_is_deprecated)
+    .cmp(&!node1_is_deprecated)
+    .then_with(|| {
+      node1
+        .get_name()
+        .to_ascii_lowercase()
+        .cmp(&node2.get_name().to_ascii_lowercase())
+    })
+    .then_with(|| node1.get_name().cmp(node2.get_name()))
+    .then_with(|| node1.kind.cmp(&node2.kind))
+}
+
 pub fn get_partitions_for_file(
   ctx: &GenerateCtx,
   doc_nodes: &[DocNodeWithContext],
 ) -> Partition {
-  let categories =
-    partition_nodes_by_category(doc_nodes, ctx.sidebar_flatten_namespaces);
+  let categories = partition_nodes_by_category(
+    doc_nodes,
+    ctx.file_mode == FileMode::SingleDts,
+  );
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(doc_nodes, ctx.sidebar_flatten_namespaces)
+    partition_nodes_by_kind(doc_nodes, ctx.file_mode == FileMode::SingleDts)
   } else {
     categories
-  }
-}
-
-pub fn get_partitions_for_main_entrypoint(
-  ctx: &GenerateCtx,
-  doc_nodes_by_url: &super::ContextDocNodesByUrl,
-) -> Partition {
-  let doc_nodes = ctx
-    .main_entrypoint
-    .as_ref()
-    .and_then(|main_entrypoint| doc_nodes_by_url.get(main_entrypoint));
-
-  if let Some(doc_nodes) = doc_nodes {
-    get_partitions_for_file(ctx, doc_nodes)
-  } else {
-    Default::default()
   }
 }

@@ -50,53 +50,53 @@ pub(crate) fn render_class(
   }
 
   if let Some(index_signatures) =
-    render_index_signatures(ctx, &class_def.index_signatures)
+    super::interface::render_index_signatures(ctx, &class_def.index_signatures)
   {
     sections.push(index_signatures);
   }
 
   if !class_items.properties.is_empty() {
-    sections.push(SectionCtx {
-      title: "Properties".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_properties(
+    sections.push(SectionCtx::new(
+      "Properties",
+      SectionContentCtx::DocEntry(render_class_properties(
         ctx,
         doc_node.get_name(),
         class_items.properties,
       )),
-    });
+    ));
   }
 
   if !class_items.methods.is_empty() {
-    sections.push(SectionCtx {
-      title: "Methods".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_methods(
+    sections.push(SectionCtx::new(
+      "Methods",
+      SectionContentCtx::DocEntry(render_class_methods(
         ctx,
         doc_node.get_name(),
         class_items.methods,
       )),
-    });
+    ));
   }
 
   if !class_items.static_properties.is_empty() {
-    sections.push(SectionCtx {
-      title: "Static Properties".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_properties(
+    sections.push(SectionCtx::new(
+      "Static Properties",
+      SectionContentCtx::DocEntry(render_class_properties(
         ctx,
         doc_node.get_name(),
         class_items.static_properties,
       )),
-    });
+    ));
   }
 
   if !class_items.static_methods.is_empty() {
-    sections.push(SectionCtx {
-      title: "Static Methods".to_string(),
-      content: SectionContentCtx::DocEntry(render_class_methods(
+    sections.push(SectionCtx::new(
+      "Static Methods",
+      SectionContentCtx::DocEntry(render_class_methods(
         ctx,
         doc_node.get_name(),
         class_items.static_methods,
       )),
-    })
+    ));
   }
 
   sections
@@ -138,10 +138,10 @@ fn render_constructors(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  Some(SectionCtx {
-    title: "Constructors".to_string(),
-    content: SectionContentCtx::DocEntry(items),
-  })
+  Some(SectionCtx::new(
+    "Constructors",
+    SectionContentCtx::DocEntry(items),
+  ))
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -152,44 +152,6 @@ pub struct IndexSignatureCtx {
   pub params: String,
   pub ts_type: String,
   pub source_href: Option<String>,
-}
-
-fn render_index_signatures(
-  ctx: &RenderContext,
-  index_signatures: &[crate::class::ClassIndexSignatureDef],
-) -> Option<SectionCtx> {
-  if index_signatures.is_empty() {
-    return None;
-  }
-
-  let mut items = Vec::with_capacity(index_signatures.len());
-
-  for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = name_to_id("index_signature", &i.to_string());
-
-    let ts_type = index_signature
-      .ts_type
-      .as_ref()
-      .map(|ts_type| render_type_def_colon(ctx, ts_type))
-      .unwrap_or_default();
-
-    items.push(IndexSignatureCtx {
-      id: id.clone(),
-      anchor: AnchorCtx { id },
-      readonly: index_signature.readonly,
-      params: render_params(ctx, &index_signature.params),
-      ts_type,
-      source_href: ctx
-        .ctx
-        .href_resolver
-        .resolve_source(&index_signature.location),
-    });
-  }
-
-  Some(SectionCtx {
-    title: "Index Signatures".to_string(),
-    content: SectionContentCtx::IndexSignature(items),
-  })
 }
 
 enum PropertyOrMethod {
