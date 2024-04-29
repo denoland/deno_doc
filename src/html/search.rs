@@ -23,27 +23,14 @@ struct SearchIndexNode {
 /// node is flattened into a list of its elements.
 fn doc_node_into_search_index_nodes(
   ctx: &GenerateCtx,
-  name: &str,
   doc_nodes: &[&DocNodeWithContext],
 ) -> Vec<SearchIndexNode> {
   let kinds = doc_nodes.iter().map(|node| node.kind).collect();
 
   let deprecated = super::util::all_deprecated(doc_nodes);
 
-  let name = if doc_nodes
-    .first()
-    .expect("doc_nodes should not be empty")
-    .ns_qualifiers
-    .is_empty()
-  {
-    html_escape::encode_text(name).into_owned()
-  } else {
-    format!(
-      "{}.{}",
-      doc_nodes[0].ns_qualifiers.join("."),
-      html_escape::encode_text(name)
-    )
-  };
+  let name =
+    html_escape::encode_text(&doc_nodes[0].get_qualified_name()).to_string();
 
   if doc_nodes[0].kind != DocNodeKind::Namespace {
     let mut location = doc_nodes[0].location.clone();
@@ -156,7 +143,6 @@ fn doc_node_into_search_index_nodes(
     if el_nodes[0].kind == DocNodeKind::Namespace {
       nodes.extend(doc_node_into_search_index_nodes(
         ctx,
-        el_nodes[0].get_name(),
         &[&DocNodeWithContext {
           origin: doc_nodes[0].origin.clone(),
           ns_qualifiers: Rc::new(ns_qualifiers_),
@@ -189,8 +175,8 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
   }
 
   let mut doc_nodes = grouped_nodes
-    .iter()
-    .flat_map(|(name, node)| doc_node_into_search_index_nodes(ctx, name, node))
+    .values()
+    .flat_map(|node| doc_node_into_search_index_nodes(ctx, node))
     .collect::<Vec<_>>();
 
   doc_nodes.sort_by(|a, b| a.file.cmp(&b.file));

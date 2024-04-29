@@ -10,27 +10,56 @@ use std::rc::Rc;
 
 pub type Partition = IndexMap<String, Vec<DocNodeWithContext>>;
 
-pub fn partition_nodes_by_name(doc_nodes: &[DocNodeWithContext]) -> Partition {
+pub fn partition_nodes_by_name(
+  doc_nodes: &[DocNodeWithContext],
+  flatten_namespaces: bool,
+) -> Partition {
+  fn partition_nodes_by_name_inner(
+    partitions: &mut Partition,
+    doc_nodes: &[DocNodeWithContext],
+    flatten_namespaces: bool,
+  ) {
+    for node in doc_nodes {
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
+        || node.declaration_kind == crate::node::DeclarationKind::Private
+      {
+        continue;
+      }
+
+      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def.as_ref().unwrap();
+        let ns_qualifiers = Rc::new(node.sub_qualifier());
+
+        partition_nodes_by_name_inner(
+          partitions,
+          &namespace_def
+            .elements
+            .iter()
+            .map(|element| {
+              node
+                .create_namespace_child(element.clone(), ns_qualifiers.clone())
+            })
+            .collect::<Vec<_>>(),
+          true,
+        );
+      }
+
+      partitions
+        .entry(node.get_qualified_name())
+        .or_default()
+        .push(node.clone());
+    }
+  }
+
   let mut partitions = IndexMap::default();
 
-  for node in doc_nodes {
-    if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-      || node.declaration_kind == crate::node::DeclarationKind::Private
-    {
-      continue;
-    }
-
-    partitions
-      .entry(node.get_name().to_string())
-      .or_insert(vec![])
-      .push(node.clone());
-  }
+  partition_nodes_by_name_inner(&mut partitions, doc_nodes, flatten_namespaces);
 
   for val in partitions.values_mut() {
     val.sort_by_key(|n| n.kind);
   }
 
-  partitions.sort_by(|k1, _v1, k2, _v2| k1.cmp(k2));
+  partitions.sort_keys();
 
   partitions
 }
@@ -56,10 +85,7 @@ pub fn partition_nodes_by_kind(
 
       if flatten_namespaces && node.kind == DocNodeKind::Namespace {
         let namespace_def = node.namespace_def.as_ref().unwrap();
-        let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.get_name().to_string());
-
-        let ns_qualifiers = Rc::new(namespace);
+        let ns_qualifiers = Rc::new(node.sub_qualifier());
 
         partition_nodes_by_kind_inner(
           partitions,
@@ -67,9 +93,8 @@ pub fn partition_nodes_by_kind(
             .elements
             .iter()
             .map(|element| {
-              let mut child = node.create_child(element.clone());
-              child.ns_qualifiers = ns_qualifiers.clone();
-              child
+              node
+                .create_namespace_child(element.clone(), ns_qualifiers.clone())
             })
             .collect::<Vec<_>>(),
           true,
@@ -79,7 +104,7 @@ pub fn partition_nodes_by_kind(
       if let Some((node_kind, nodes)) =
         partitions.iter_mut().find(|(kind, nodes)| {
           nodes.iter().any(|n| {
-            n.get_name() == node.get_name()
+            n.get_qualified_name() == node.get_qualified_name()
               && n.kind_with_drilldown != node.kind_with_drilldown
               && kind != &&node.kind_with_drilldown
           })
@@ -90,7 +115,10 @@ pub fn partition_nodes_by_kind(
         nodes.push(node.clone());
       } else {
         let entry = partitions.entry(node.kind_with_drilldown).or_default();
-        if !entry.iter().any(|n| n.get_name() == node.get_name()) {
+        if !entry
+          .iter()
+          .any(|n| n.get_qualified_name() == node.get_qualified_name())
+        {
           entry.push(node.clone());
         }
       }
@@ -134,10 +162,7 @@ pub fn partition_nodes_by_category(
 
       if flatten_namespaces && node.kind == DocNodeKind::Namespace {
         let namespace_def = node.namespace_def.as_ref().unwrap();
-        let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.get_name().to_string());
-
-        let ns_qualifiers = Rc::new(namespace);
+        let ns_qualifiers = Rc::new(node.sub_qualifier());
 
         partition_nodes_by_category_inner(
           partitions,
@@ -145,9 +170,8 @@ pub fn partition_nodes_by_category(
             .elements
             .iter()
             .map(|element| {
-              let mut child = node.create_child(element.clone());
-              child.ns_qualifiers = ns_qualifiers.clone();
-              child
+              node
+                .create_namespace_child(element.clone(), ns_qualifiers.clone())
             })
             .collect::<Vec<_>>(),
           true,
@@ -169,10 +193,10 @@ pub fn partition_nodes_by_category(
 
       let entry = partitions.entry(category).or_default();
 
-      if !entry
-        .iter()
-        .any(|n| n.get_name() == node.get_name() && n.kind == node.kind)
-      {
+      if !entry.iter().any(|n| {
+        n.get_qualified_name() == node.get_qualified_name()
+          && n.kind == node.kind
+      }) {
         entry.push(node.clone());
       }
     }
@@ -225,10 +249,7 @@ pub fn partition_nodes_by_entrypoint(
 
       if flatten_namespaces && node.kind == DocNodeKind::Namespace {
         let namespace_def = node.namespace_def.as_ref().unwrap();
-        let mut namespace = (*node.ns_qualifiers).clone();
-        namespace.push(node.get_name().to_string());
-
-        let ns_qualifiers = Rc::new(namespace);
+        let ns_qualifiers = Rc::new(node.sub_qualifier());
 
         partition_nodes_by_entrypoint_inner(
           partitions,
@@ -236,9 +257,8 @@ pub fn partition_nodes_by_entrypoint(
             .elements
             .iter()
             .map(|element| {
-              let mut child = node.create_child(element.clone());
-              child.ns_qualifiers = ns_qualifiers.clone();
-              child
+              node
+                .create_namespace_child(element.clone(), ns_qualifiers.clone())
             })
             .collect::<Vec<_>>(),
           true,
@@ -247,10 +267,10 @@ pub fn partition_nodes_by_entrypoint(
 
       let entry = partitions.entry(node.origin.clone()).or_default();
 
-      if !entry
-        .iter()
-        .any(|n| n.get_name() == node.get_name() && n.kind == node.kind)
-      {
+      if !entry.iter().any(|n| {
+        n.get_qualified_name() == node.get_qualified_name()
+          && n.kind == node.kind
+      }) {
         entry.push(node.clone());
       }
     }
@@ -292,11 +312,11 @@ fn compare_node(
     .cmp(&!node1_is_deprecated)
     .then_with(|| {
       node1
-        .get_name()
+        .get_qualified_name()
         .to_ascii_lowercase()
-        .cmp(&node2.get_name().to_ascii_lowercase())
+        .cmp(&node2.get_qualified_name().to_ascii_lowercase())
     })
-    .then_with(|| node1.get_name().cmp(node2.get_name()))
+    .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
     .then_with(|| node1.kind.cmp(&node2.kind))
 }
 

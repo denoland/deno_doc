@@ -36,7 +36,7 @@ pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
   pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols = compute_namespaced_symbols(doc_nodes.to_vec(), &[]);
+    let symbols = compute_namespaced_symbols(doc_nodes.to_vec());
     Self(Rc::new(symbols))
   }
 
@@ -47,7 +47,6 @@ impl NamespacedSymbols {
 
 pub fn compute_namespaced_symbols(
   doc_nodes: Vec<DocNodeWithContext>,
-  current_path: &[String],
 ) -> HashSet<Vec<String>> {
   let mut namespaced_symbols = HashSet::new();
 
@@ -59,15 +58,14 @@ pub fn compute_namespaced_symbols(
     }
     // TODO: handle export aliasing
 
-    let mut name_path = current_path.to_vec();
-    name_path.push(doc_node.get_name().to_string());
+    let name_path = Rc::new(doc_node.sub_qualifier());
 
     match doc_node.kind {
       DocNodeKind::Class => {
         let class_def = doc_node.class_def.as_ref().unwrap();
 
         namespaced_symbols.extend(class_def.methods.iter().map(|method| {
-          let mut method_path = current_path.to_vec();
+          let mut method_path = (*doc_node.ns_qualifiers).clone();
           method_path.extend(
             qualify_drilldown_name(
               doc_node.get_name(),
@@ -82,7 +80,7 @@ pub fn compute_namespaced_symbols(
 
         namespaced_symbols.extend(class_def.properties.iter().map(
           |property| {
-            let mut method_path = current_path.to_vec();
+            let mut method_path = (*doc_node.ns_qualifiers).clone();
             method_path.extend(
               qualify_drilldown_name(
                 doc_node.get_name(),
@@ -100,7 +98,7 @@ pub fn compute_namespaced_symbols(
         let interface_def = doc_node.interface_def.as_ref().unwrap();
 
         namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
-          let mut method_path = current_path.to_vec();
+          let mut method_path = (*doc_node.ns_qualifiers).clone();
           method_path.extend(
             qualify_drilldown_name(doc_node.get_name(), &method.name, true)
               .split('.')
@@ -111,7 +109,7 @@ pub fn compute_namespaced_symbols(
 
         namespaced_symbols.extend(interface_def.properties.iter().map(
           |property| {
-            let mut method_path = current_path.to_vec();
+            let mut method_path = (*doc_node.ns_qualifiers).clone();
             method_path.extend(
               qualify_drilldown_name(doc_node.get_name(), &property.name, true)
                 .split('.')
@@ -128,7 +126,7 @@ pub fn compute_namespaced_symbols(
         {
           namespaced_symbols.extend(type_literal.methods.iter().map(
             |method| {
-              let mut method_path = current_path.to_vec();
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
               method_path.extend(
                 qualify_drilldown_name(doc_node.get_name(), &method.name, true)
                   .split('.')
@@ -140,7 +138,44 @@ pub fn compute_namespaced_symbols(
 
           namespaced_symbols.extend(type_literal.properties.iter().map(
             |property| {
-              let mut method_path = current_path.to_vec();
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              method_path.extend(
+                qualify_drilldown_name(
+                  doc_node.get_name(),
+                  &property.name,
+                  true,
+                )
+                .split('.')
+                .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+        }
+      }
+      DocNodeKind::Variable => {
+        let variable = doc_node.variable_def.as_ref().unwrap();
+
+        if let Some(type_literal) = variable
+          .ts_type
+          .as_ref()
+          .and_then(|ts_type| ts_type.type_literal.as_ref())
+        {
+          namespaced_symbols.extend(type_literal.methods.iter().map(
+            |method| {
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              method_path.extend(
+                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
+                  .split('.')
+                  .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+
+          namespaced_symbols.extend(type_literal.properties.iter().map(
+            |property| {
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
               method_path.extend(
                 qualify_drilldown_name(
                   doc_node.get_name(),
@@ -158,7 +193,7 @@ pub fn compute_namespaced_symbols(
       _ => {}
     }
 
-    namespaced_symbols.insert(name_path.clone());
+    namespaced_symbols.insert((*name_path).clone());
 
     if doc_node.kind == DocNodeKind::Namespace {
       let namespace_def = doc_node.namespace_def.as_ref().unwrap();
@@ -166,9 +201,10 @@ pub fn compute_namespaced_symbols(
         namespace_def
           .elements
           .iter()
-          .map(|element| doc_node.create_child(element.clone()))
+          .map(|element| {
+            doc_node.create_namespace_child(element.clone(), name_path.clone())
+          })
           .collect(),
-        &name_path,
       ))
     }
   }

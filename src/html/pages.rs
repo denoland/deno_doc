@@ -10,6 +10,7 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use std::rc::Rc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
@@ -81,7 +82,7 @@ impl IndexCtx {
   /// short_path is None in the case this is a root index page but there is no main entrypoint
   pub fn new(
     ctx: &GenerateCtx,
-    short_path: Option<std::rc::Rc<ShortPath>>,
+    short_path: Option<Rc<ShortPath>>,
     partitions: Partition,
   ) -> Self {
     // will be default on index page with no main entrypoint
@@ -214,163 +215,192 @@ pub enum SymbolPage {
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   short_path: &ShortPath,
-  partitions_for_nodes: &Partition,
-  doc_nodes: &[DocNodeWithContext],
+  sidepanel_partitions: &Partition,
+  module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions =
-    super::partition::partition_nodes_by_name(doc_nodes);
+    super::partition::partition_nodes_by_name(module_doc_nodes, true);
 
   let mut drilldown_partitions = IndexMap::new();
-  for (name, doc_nodes) in &name_partitions {
-    if doc_nodes[0].kind == DocNodeKind::Class {
-      let class = doc_nodes[0].class_def.as_ref().unwrap();
-      let method_nodes = class
-        .methods
-        .iter()
-        .map(|method| {
-          doc_nodes[0].create_child_method(
-            DocNode::function(
-              method.name.clone(),
-              method.location.clone(),
-              doc_nodes[0].declaration_kind,
-              method.js_doc.clone(),
-              method.function_def.clone(),
-            ),
-            name,
-            method.is_static,
-          )
-        })
-        .collect::<Vec<_>>();
+  for doc_nodes in name_partitions.values() {
+    let has_class =
+      doc_nodes.iter().any(|node| node.kind == DocNodeKind::Class);
+    for doc_node in doc_nodes {
+      match doc_node.kind {
+        DocNodeKind::Class => {
+          let class = doc_node.class_def.as_ref().unwrap();
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+          let method_nodes = class
+            .methods
+            .iter()
+            .map(|method| {
+              doc_node.create_child_method(
+                DocNode::function(
+                  method.name.clone(),
+                  method.location.clone(),
+                  doc_node.declaration_kind,
+                  method.js_doc.clone(),
+                  method.function_def.clone(),
+                ),
+                method.is_static,
+              )
+            })
+            .collect::<Vec<_>>();
 
-      let property_nodes = class
-        .properties
-        .iter()
-        .map(|property| {
-          doc_nodes[0].create_child_property(
-            DocNode::from(property.clone()),
-            name,
-            property.is_static,
-          )
-        })
-        .collect::<Vec<_>>();
+          drilldown_partitions.extend(
+            super::partition::partition_nodes_by_name(&method_nodes, false),
+          );
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&property_nodes));
-    } else if doc_nodes[0].kind == DocNodeKind::Interface {
-      let interface = doc_nodes[0].interface_def.as_ref().unwrap();
-      let method_nodes = interface
-        .methods
-        .iter()
-        .map(|method| {
-          doc_nodes[0].create_child_method(
-            DocNode::from(method.clone()),
-            name,
-            true,
-          )
-        })
-        .collect::<Vec<_>>();
+          let property_nodes = class
+            .properties
+            .iter()
+            .map(|property| {
+              doc_node.create_child_property(
+                DocNode::from(property.clone()),
+                property.is_static,
+              )
+            })
+            .collect::<Vec<_>>();
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&method_nodes));
+          drilldown_partitions.extend(
+            super::partition::partition_nodes_by_name(&property_nodes, false),
+          );
+        }
+        DocNodeKind::Interface => {
+          let interface = doc_node.interface_def.as_ref().unwrap();
+          let method_nodes = interface
+            .methods
+            .iter()
+            .filter_map(|method| {
+              if has_class && method.name == "prototype" {
+                None
+              } else {
+                Some(
+                  doc_node
+                    .create_child_method(DocNode::from(method.clone()), true),
+                )
+              }
+            })
+            .collect::<Vec<_>>();
 
-      let property_nodes = interface
-        .properties
-        .iter()
-        .map(|property| {
-          doc_nodes[0].create_child_property(
-            DocNode::from(property.clone()),
-            name,
-            true,
-          )
-        })
-        .collect::<Vec<_>>();
+          drilldown_partitions.extend(
+            super::partition::partition_nodes_by_name(&method_nodes, false),
+          );
 
-      drilldown_partitions
-        .extend(super::partition::partition_nodes_by_name(&property_nodes));
-    } else if doc_nodes[0].kind == DocNodeKind::TypeAlias {
-      let type_alias = doc_nodes[0].type_alias_def.as_ref().unwrap();
+          let property_nodes =
+            interface
+              .properties
+              .iter()
+              .filter_map(|property| {
+                if has_class && property.name == "prototype" {
+                  None
+                } else {
+                  Some(doc_node.create_child_property(
+                    DocNode::from(property.clone()),
+                    true,
+                  ))
+                }
+              })
+              .collect::<Vec<_>>();
 
-      if let Some(ts_type_literal) = type_alias.ts_type.type_literal.as_ref() {
-        let method_nodes = ts_type_literal
-          .methods
-          .iter()
-          .map(|method| {
-            doc_nodes[0].create_child_method(
-              DocNode::from(method.clone()),
-              name,
-              true,
-            )
-          })
-          .collect::<Vec<_>>();
+          drilldown_partitions.extend(
+            super::partition::partition_nodes_by_name(&property_nodes, false),
+          );
+        }
+        DocNodeKind::TypeAlias => {
+          let type_alias = doc_node.type_alias_def.as_ref().unwrap();
 
-        drilldown_partitions
-          .extend(super::partition::partition_nodes_by_name(&method_nodes));
+          if let Some(ts_type_literal) =
+            type_alias.ts_type.type_literal.as_ref()
+          {
+            let method_nodes = ts_type_literal
+              .methods
+              .iter()
+              .filter_map(|method| {
+                if has_class && method.name == "prototype" {
+                  None
+                } else {
+                  Some(
+                    doc_node
+                      .create_child_method(DocNode::from(method.clone()), true),
+                  )
+                }
+              })
+              .collect::<Vec<_>>();
 
-        let property_nodes = ts_type_literal
-          .properties
-          .iter()
-          .map(|property| {
-            doc_nodes[0].create_child_property(
-              DocNode::from(property.clone()),
-              name,
-              true,
-            )
-          })
-          .collect::<Vec<_>>();
+            drilldown_partitions.extend(
+              super::partition::partition_nodes_by_name(&method_nodes, false),
+            );
 
-        drilldown_partitions
-          .extend(super::partition::partition_nodes_by_name(&property_nodes));
+            let property_nodes = ts_type_literal
+              .properties
+              .iter()
+              .filter_map(|property| {
+                if has_class && property.name == "prototype" {
+                  None
+                } else {
+                  Some(doc_node.create_child_property(
+                    DocNode::from(property.clone()),
+                    true,
+                  ))
+                }
+              })
+              .collect::<Vec<_>>();
+
+            drilldown_partitions.extend(
+              super::partition::partition_nodes_by_name(&property_nodes, false),
+            );
+          }
+        }
+        DocNodeKind::Variable => {
+          let variable = doc_node.variable_def.as_ref().unwrap();
+
+          if let Some(ts_type_literal) = variable
+            .ts_type
+            .as_ref()
+            .and_then(|ts_type| ts_type.type_literal.as_ref())
+          {
+            let method_nodes = ts_type_literal
+              .methods
+              .iter()
+              .map(|method| {
+                doc_node
+                  .create_child_method(DocNode::from(method.clone()), true)
+              })
+              .collect::<Vec<_>>();
+
+            drilldown_partitions.extend(
+              super::partition::partition_nodes_by_name(&method_nodes, false),
+            );
+
+            let property_nodes = ts_type_literal
+              .properties
+              .iter()
+              .map(|property| {
+                doc_node
+                  .create_child_property(DocNode::from(property.clone()), true)
+              })
+              .collect::<Vec<_>>();
+
+            drilldown_partitions.extend(
+              super::partition::partition_nodes_by_name(&property_nodes, false),
+            );
+          }
+        }
+        _ => {}
       }
     }
   }
   name_partitions.extend(drilldown_partitions);
 
-  generate_symbol_pages_inner(
-    ctx,
-    doc_nodes,
-    partitions_for_nodes,
-    &name_partitions,
-    short_path,
-    vec![],
-  )
-}
-
-fn generate_symbol_pages_inner(
-  ctx: &GenerateCtx,
-  doc_nodes_for_module: &[DocNodeWithContext],
-  partitions_for_nodes: &Partition,
-  name_partitions: &Partition,
-  short_path: &ShortPath,
-  namespace_paths: Vec<&str>,
-) -> Vec<SymbolPage> {
-  let mut generated_pages =
-    Vec::with_capacity(name_partitions.values().len() * 2);
+  let mut generated_pages = Vec::with_capacity(name_partitions.values().len());
 
   for (name, doc_nodes) in name_partitions {
-    let namespaced_name = if namespace_paths.is_empty() {
-      name.to_owned()
-    } else {
-      format!("{}.{name}", namespace_paths.join("."))
-    };
+    let sidepanel_ctx =
+      SidepanelCtx::new(ctx, sidepanel_partitions, short_path, &name);
 
-    let sidepanel_ctx = SidepanelCtx::new(
-      ctx,
-      partitions_for_nodes,
-      short_path,
-      &namespaced_name,
-    );
-
-    let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
-      ctx,
-      doc_nodes_for_module,
-      short_path,
-      &namespace_paths,
-      &namespaced_name,
-      doc_nodes,
-    );
+    let (breadcrumbs_ctx, symbol_group_ctx) =
+      render_symbol_page(ctx, module_doc_nodes, short_path, &name, &doc_nodes);
 
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
@@ -378,11 +408,11 @@ fn generate_symbol_pages_inner(
       symbol_group_ctx,
     });
 
-    if let Some(_doc_node) = doc_nodes
+    if doc_nodes
       .iter()
-      .find(|doc_node| doc_node.kind == DocNodeKind::Class)
+      .any(|doc_node| doc_node.kind == DocNodeKind::Class)
     {
-      let prototype_name = format!("{namespaced_name}.prototype");
+      let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {
         href: ctx.href_resolver.resolve_path(
           UrlResolveKind::Symbol {
@@ -391,42 +421,11 @@ fn generate_symbol_pages_inner(
           },
           UrlResolveKind::Symbol {
             file: short_path,
-            symbol: &namespaced_name,
+            symbol: &name,
           },
         ),
         current_symbol: prototype_name,
       });
-    }
-
-    if let Some(doc_node) = doc_nodes
-      .iter()
-      .find(|doc_node| doc_node.kind == DocNodeKind::Namespace)
-    {
-      let namespace = doc_node.namespace_def.as_ref().unwrap();
-
-      let namespace_name_partitions = super::partition::partition_nodes_by_name(
-        &namespace
-          .elements
-          .iter()
-          .map(|element| doc_node.create_child(element.clone()))
-          .collect::<Vec<_>>(),
-      );
-
-      let namespace_paths = {
-        let mut ns_paths = namespace_paths.clone();
-        ns_paths.push(name);
-        ns_paths
-      };
-
-      let generated = generate_symbol_pages_inner(
-        ctx,
-        doc_nodes_for_module,
-        partitions_for_nodes,
-        &namespace_name_partitions,
-        short_path,
-        namespace_paths,
-      );
-      generated_pages.extend(generated);
     }
   }
 
@@ -449,7 +448,6 @@ pub fn render_symbol_page(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
   short_path: &ShortPath,
-  namespace_paths: &[&str],
   namespaced_name: &str,
   doc_nodes: &[DocNodeWithContext],
 ) -> (BreadcrumbsCtx, SymbolGroupCtx) {
@@ -461,8 +459,8 @@ pub fn render_symbol_page(
       symbol: namespaced_name,
     },
   );
-  if !namespace_paths.is_empty() {
-    render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())
+  if !doc_nodes[0].ns_qualifiers.is_empty() {
+    render_ctx = render_ctx.with_namespace(doc_nodes[0].ns_qualifiers.clone());
   }
 
   // NOTE: `doc_nodes` should be sorted at this point.
