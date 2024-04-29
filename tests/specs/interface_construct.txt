@@ -57,7 +57,6 @@ interface I
             "col": 2,
             "byteIndex": 23
           },
-          "optional": false,
           "params": [
             {
               "kind": "identifier",
@@ -70,6 +69,7 @@ interface I
               }
             }
           ],
+          "optional": false,
           "returnType": null,
           "typeParams": []
         }

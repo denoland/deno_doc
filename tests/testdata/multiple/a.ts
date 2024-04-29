@@ -37,3 +37,7 @@ export default class Foobar {
 export interface Hello {
   world: "string";
 }
+
+export type Baz = {
+  foo: string;
+};

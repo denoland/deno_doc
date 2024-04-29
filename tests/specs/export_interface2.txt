@@ -50,8 +50,8 @@ interface TypedIface<T>
             "col": 4,
             "byteIndex": 37
           },
-          "optional": false,
           "params": [],
+          "optional": false,
           "returnType": {
             "repr": "T",
             "kind": "typeRef",

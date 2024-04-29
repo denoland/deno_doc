@@ -9,7 +9,7 @@
   {{~#each overloads_ctx~}}
     <label for="{{this.overload_id}}" class="functionOverload">
       {{~> deprecated this.deprecated ~}}
-      <code class="text-sm">
+      <code class="text-sm break-words">
         <span class="font-bold">{{this.name}}</span><span class="font-medium">{{{this.summary}}} {{! typedef rendering }}</span>
       </code>
       {{~#if this.summary_doc~}}

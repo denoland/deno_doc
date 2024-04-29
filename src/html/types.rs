@@ -588,8 +588,8 @@ pub(crate) fn render_type_params(
     items.push(content);
   }
 
-  Some(SectionCtx {
-    title: "Type Parameters".to_string(),
-    content: SectionContentCtx::DocEntry(items),
-  })
+  Some(SectionCtx::new(
+    "Type Parameters",
+    SectionContentCtx::DocEntry(items),
+  ))
 }

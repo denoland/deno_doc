@@ -1,10 +1,5 @@
 <section {{#if toc}}class="tocable"{{/if}}>
   <div class="space-y-2 flex-1 {{#if toc}}min-w-0{{/if}}">
-    {{~#if title~}}
-      <h2 class="text-lg font-semibold font-mono">{{title}}</h2>
-      <hr class="mt-2 mb-4" />
-    {{~/if~}}
-
     {{~> deprecated deprecated ~}}
 
     {{~#if usages~}}

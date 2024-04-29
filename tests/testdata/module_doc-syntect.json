@@ -1,9 +1,7 @@
 [
   {
-    "title": "main",
     "deprecated": null,
     "usages": {
-      "show_tabs": false,
       "usages": [
         {
           "name": "",
@@ -21,10 +19,8 @@
     }
   },
   {
-    "title": "foo",
     "deprecated": null,
     "usages": {
-      "show_tabs": false,
       "usages": [
         {
           "name": "",
@@ -40,7 +36,11 @@
       "docs": null,
       "sections": [
         {
-          "title": "Functions",
+          "header": {
+            "title": "Functions",
+            "href": null,
+            "doc": null
+          },
           "content": {
             "kind": "namespace_section",
             "content": [

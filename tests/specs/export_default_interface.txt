@@ -37,6 +37,9 @@ interface default
       "methods": [
         {
           "name": "read",
+          "jsDoc": {
+            "doc": "Read n bytes"
+          },
           "kind": "method",
           "location": {
             "filename": "file:///mod.ts",
@@ -44,10 +47,6 @@ interface default
             "col": 4,
             "byteIndex": 90
           },
-          "jsDoc": {
-            "doc": "Read n bytes"
-          },
-          "optional": true,
           "params": [
             {
               "kind": "identifier",
@@ -73,6 +72,7 @@ interface default
               }
             }
           ],
+          "optional": true,
           "returnType": {
             "repr": "Promise",
             "kind": "typeRef",

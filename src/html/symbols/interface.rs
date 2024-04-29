@@ -57,9 +57,9 @@ pub(crate) fn render_interface(
   sections
 }
 
-fn render_index_signatures(
+pub fn render_index_signatures(
   ctx: &RenderContext,
-  index_signatures: &[crate::interface::InterfaceIndexSignatureDef],
+  index_signatures: &[crate::ts_type::IndexSignatureDef],
 ) -> Option<SectionCtx> {
   if index_signatures.is_empty() {
     return None;
@@ -89,15 +89,15 @@ fn render_index_signatures(
     });
   }
 
-  Some(SectionCtx {
-    title: "Index Signatures".to_string(),
-    content: SectionContentCtx::IndexSignature(items),
-  })
+  Some(SectionCtx::new(
+    "Index Signatures",
+    SectionContentCtx::IndexSignature(items),
+  ))
 }
 
-fn render_call_signatures(
+pub fn render_call_signatures(
   ctx: &RenderContext,
-  call_signatures: &[crate::interface::InterfaceCallSignatureDef],
+  call_signatures: &[crate::ts_type::CallSignatureDef],
 ) -> Option<SectionCtx> {
   if call_signatures.is_empty() {
     return None;
@@ -134,16 +134,16 @@ fn render_call_signatures(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  Some(SectionCtx {
-    title: "Call Signatures".to_string(),
-    content: SectionContentCtx::DocEntry(items),
-  })
+  Some(SectionCtx::new(
+    "Call Signatures",
+    SectionContentCtx::DocEntry(items),
+  ))
 }
 
-fn render_properties(
+pub fn render_properties(
   ctx: &RenderContext,
   interface_name: &str,
-  properties: &[crate::interface::InterfacePropertyDef],
+  properties: &[crate::ts_type::PropertyDef],
 ) -> Option<SectionCtx> {
   if properties.is_empty() {
     return None;
@@ -204,16 +204,16 @@ fn render_properties(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  Some(SectionCtx {
-    title: "Properties".to_string(),
-    content: SectionContentCtx::DocEntry(items),
-  })
+  Some(SectionCtx::new(
+    "Properties",
+    SectionContentCtx::DocEntry(items),
+  ))
 }
 
-fn render_methods(
+pub fn render_methods(
   ctx: &RenderContext,
   interface_name: &str,
-  methods: &[crate::interface::InterfaceMethodDef],
+  methods: &[crate::ts_type::MethodDef],
 ) -> Option<SectionCtx> {
   if methods.is_empty() {
     return None;
@@ -265,8 +265,8 @@ fn render_methods(
     })
     .collect::<Vec<DocEntryCtx>>();
 
-  Some(SectionCtx {
-    title: "Methods".to_string(),
-    content: SectionContentCtx::DocEntry(items),
-  })
+  Some(SectionCtx::new(
+    "Methods",
+    SectionContentCtx::DocEntry(items),
+  ))
 }

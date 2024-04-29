@@ -1,6 +1,7 @@
 use super::render_context::RenderContext;
 use super::util::*;
 use crate::html::usage::UsagesCtx;
+use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
@@ -9,7 +10,6 @@ use comrak::nodes::AstNode;
 use comrak::nodes::NodeHtmlBlock;
 use comrak::nodes::NodeValue;
 use comrak::Arena;
-use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -48,6 +48,8 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
 
       (title, href)
     } else {
+      let title = if title.is_empty() { link } else { title };
+
       (title, link.to_string())
     };
 
@@ -73,29 +75,33 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
   })
 }
 
-fn split_markdown_title(md: &str) -> (Option<&str>, &str) {
+fn split_markdown_title(
+  md: &str,
+  prefer_title: bool,
+) -> (Option<&str>, Option<&str>) {
   let newline = md.find("\n\n").unwrap_or(usize::MAX);
   let codeblock = md.find("```").unwrap_or(usize::MAX);
 
   let index = newline.min(codeblock).min(md.len());
 
   match md.split_at(index) {
-    ("", body) => (None, body),
-    (title, "") => (None, title),
-    (title, body) => (Some(title), body),
+    ("", body) => (None, Some(body)),
+    (title, "") if prefer_title => (Some(title), None),
+    (title, "") if !prefer_title => (None, Some(title)),
+    (title, body) => (Some(title), Some(body)),
   }
 }
 
 #[cfg(feature = "ammonia")]
 struct AmmoniaRelativeUrlEvaluator {
-  current_specifier: Option<ModuleSpecifier>,
+  current_file: Option<ShortPath>,
   url_rewriter: URLRewriter,
 }
 
 #[cfg(feature = "ammonia")]
 impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
   fn evaluate<'a>(&self, url: &'a str) -> Option<Cow<'a, str>> {
-    Some((self.url_rewriter)(self.current_specifier.as_ref(), url).into())
+    Some((self.url_rewriter)(self.current_file.as_ref(), url).into())
   }
 }
 
@@ -241,18 +247,23 @@ fn render_node<'a>(
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Default)]
 pub struct Markdown {
   pub html: String,
   pub toc: Option<String>,
 }
 
+pub struct MarkdownToHTMLOptions {
+  pub summary: bool,
+  pub summary_prefer_title: bool,
+  pub render_toc: bool,
+}
+
 pub fn markdown_to_html(
   render_ctx: &RenderContext,
   md: &str,
-  summary: bool,
-  render_toc: bool,
-) -> Markdown {
+  render_options: MarkdownToHTMLOptions,
+) -> Option<Markdown> {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
@@ -280,14 +291,19 @@ pub fn markdown_to_html(
 
   let md = parse_links(md, render_ctx);
 
-  let md = if summary {
-    let (title, body) = split_markdown_title(md.as_ref());
-    title.unwrap_or(body)
+  let md = if render_options.summary {
+    let (title, _body) =
+      split_markdown_title(&md, render_options.summary_prefer_title);
+    title.unwrap_or_default()
   } else {
     md.as_ref()
   };
 
-  let class_name = if summary {
+  if md.is_empty() {
+    return None;
+  }
+
+  let class_name = if render_options.summary {
     "markdown_summary"
   } else {
     "markdown"
@@ -356,7 +372,7 @@ pub fn markdown_to_html(
         ammonia::UrlRelative::PassThrough,
         |url_rewriter| {
           ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
-            current_specifier: render_ctx.get_current_specifier().cloned(),
+            current_file: render_ctx.get_current_resolve().get_file().cloned(),
             url_rewriter: url_rewriter.clone(),
           }))
         },
@@ -371,7 +387,7 @@ pub fn markdown_to_html(
     html = ammonia_builder.clean(&html).to_string();
   }
 
-  let toc = if render_toc {
+  let toc = if render_options.render_toc {
     let toc = heading_adapter.into_toc();
 
     if toc.is_empty() {
@@ -407,21 +423,41 @@ pub fn markdown_to_html(
     None
   };
 
-  Markdown {
+  Some(Markdown {
     html: format!(r#"<div class="{class_name} flex-1">{html}</div>"#),
     toc,
-  }
+  })
 }
 
 pub(crate) fn render_markdown_summary(
   render_ctx: &RenderContext,
   md: &str,
 ) -> String {
-  markdown_to_html(render_ctx, md, true, false).html
+  markdown_to_html(
+    render_ctx,
+    md,
+    MarkdownToHTMLOptions {
+      summary: true,
+      summary_prefer_title: false,
+      render_toc: false,
+    },
+  )
+  .unwrap_or_default()
+  .html
 }
 
 pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
-  markdown_to_html(render_ctx, md, false, false).html
+  markdown_to_html(
+    render_ctx,
+    md,
+    MarkdownToHTMLOptions {
+      summary: false,
+      summary_prefer_title: false,
+      render_toc: false,
+    },
+  )
+  .unwrap_or_default()
+  .html
 }
 
 pub(crate) fn jsdoc_body_to_html(
@@ -430,11 +466,16 @@ pub(crate) fn jsdoc_body_to_html(
   summary: bool,
 ) -> Option<String> {
   if let Some(doc) = js_doc.doc.as_deref() {
-    if doc.is_empty() {
-      None
-    } else {
-      Some(markdown_to_html(ctx, doc, summary, false).html)
-    }
+    markdown_to_html(
+      ctx,
+      doc,
+      MarkdownToHTMLOptions {
+        summary,
+        summary_prefer_title: false,
+        render_toc: false,
+      },
+    )
+    .map(|markdown| markdown.html)
   } else {
     None
   }
@@ -461,10 +502,10 @@ pub(crate) fn jsdoc_examples(
     .collect::<Vec<ExampleCtx>>();
 
   if !examples.is_empty() {
-    Some(SectionCtx {
-      title: "Examples".to_string(),
-      content: SectionContentCtx::Example(examples),
-    })
+    Some(SectionCtx::new(
+      "Examples",
+      SectionContentCtx::Example(examples),
+    ))
   } else {
     None
   }
@@ -484,7 +525,7 @@ impl ExampleCtx {
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
     let id = name_to_id("example", &i.to_string());
 
-    let (maybe_title, body) = split_markdown_title(example);
+    let (maybe_title, body) = split_markdown_title(example, false);
     let title = if let Some(title) = maybe_title {
       title.to_string()
     } else {
@@ -492,7 +533,7 @@ impl ExampleCtx {
     };
 
     let markdown_title = render_markdown_summary(render_ctx, &title);
-    let markdown_body = render_markdown(render_ctx, body);
+    let markdown_body = render_markdown(render_ctx, body.unwrap_or_default());
 
     ExampleCtx {
       anchor: AnchorCtx { id: id.to_string() },
@@ -505,7 +546,6 @@ impl ExampleCtx {
 
 #[derive(Debug, Serialize, Clone, Default)]
 pub struct ModuleDocCtx {
-  pub title: Option<String>,
   pub deprecated: Option<String>,
   pub usages: Option<UsagesCtx>,
   pub toc: Option<String>,
@@ -515,18 +555,8 @@ pub struct ModuleDocCtx {
 impl ModuleDocCtx {
   pub const TEMPLATE: &'static str = "module_doc";
 
-  pub fn new(
-    render_ctx: &RenderContext,
-    specifier: &ModuleSpecifier,
-    doc_nodes_by_url: &super::ContextDocNodesByUrl,
-  ) -> Self {
-    let module_doc_nodes = doc_nodes_by_url.get(specifier).unwrap();
-
-    let title = if !render_ctx.ctx.hide_module_doc_title {
-      Some(render_ctx.ctx.url_to_short_path(specifier).to_name())
-    } else {
-      None
-    };
+  pub fn new(render_ctx: &RenderContext, short_path: &ShortPath) -> Self {
+    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(short_path).unwrap();
 
     let mut sections = Vec::with_capacity(7);
 
@@ -536,7 +566,10 @@ impl ModuleDocCtx {
     {
       let deprecated = node.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {
-          Some(doc.to_owned().unwrap_or_default())
+          Some(render_markdown(
+            render_ctx,
+            doc.as_deref().unwrap_or_default(),
+          ))
         } else {
           None
         }
@@ -546,12 +579,18 @@ impl ModuleDocCtx {
         sections.push(examples);
       }
 
-      let (html, toc) = if let Some(markdown) = node
-        .js_doc
-        .doc
-        .as_ref()
-        .map(|doc| markdown_to_html(render_ctx, doc, false, true))
-      {
+      let (html, toc) = if let Some(markdown) =
+        node.js_doc.doc.as_ref().and_then(|doc| {
+          markdown_to_html(
+            render_ctx,
+            doc,
+            MarkdownToHTMLOptions {
+              summary: false,
+              summary_prefer_title: false,
+              render_toc: true,
+            },
+          )
+        }) {
         (Some(markdown.html), markdown.toc)
       } else {
         (None, None)
@@ -562,23 +601,29 @@ impl ModuleDocCtx {
       (None, None, None)
     };
 
-    if !render_ctx
-      .ctx
-      .main_entrypoint
-      .as_ref()
-      .is_some_and(|main_entrypoint| main_entrypoint == specifier)
-    {
+    if !short_path.is_main {
       let partitions_by_kind =
         super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,
-        partitions_by_kind,
+        partitions_by_kind
+          .into_iter()
+          .map(|(title, nodes)| {
+            (
+              SectionHeaderCtx {
+                title,
+                href: None,
+                doc: None,
+              },
+              nodes,
+            )
+          })
+          .collect(),
       ));
     }
 
     Self {
-      title,
       deprecated,
       usages: UsagesCtx::new(render_ctx, &[]),
       toc,

@@ -79,6 +79,12 @@ class Bar extends obj.Foo
           "properties": [
             {
               "name": "Foo",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 14,
+                "byteIndex": 27
+              },
               "params": [],
               "computed": false,
               "optional": false,

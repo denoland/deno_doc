@@ -1,9 +1,8 @@
 use super::sidepanels;
 use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
-use super::util::qualify_drilldown_name;
 use super::util::BreadcrumbsCtx;
-use super::DocNodeKindWithDrilldown;
+use super::util::SectionHeaderCtx;
 use super::DocNodeWithContext;
 use super::FileMode;
 use super::GenerateCtx;
@@ -11,7 +10,6 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
-use std::sync::Arc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
@@ -20,12 +18,9 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
-use crate::function::FunctionDef;
 use crate::html::partition::Partition;
-use crate::variable::VariableDef;
 use crate::DocNode;
 use crate::DocNodeKind;
-use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Serialize;
 
@@ -48,7 +43,7 @@ impl HtmlHeadCtx {
     root: &str,
     page: &str,
     package_name: Option<&String>,
-    current_file: Option<ShortPath>,
+    current_file: Option<&ShortPath>,
   ) -> Self {
     Self {
       title: format!(
@@ -58,8 +53,7 @@ impl HtmlHeadCtx {
           .unwrap_or_default()
       ),
       current_file: current_file
-        .as_ref()
-        .map(|current_file| current_file.as_str())
+        .map(|current_file| &*current_file.path)
         .unwrap_or_default()
         .to_string(),
       stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
@@ -84,40 +78,35 @@ pub struct IndexCtx {
 impl IndexCtx {
   pub const TEMPLATE: &'static str = "pages/index";
 
+  /// short_path is None in the case this is a root index page but there is no main entrypoint
   pub fn new(
     ctx: &GenerateCtx,
-    specifier: Option<&ModuleSpecifier>,
-    doc_nodes_by_url: &super::ContextDocNodesByUrl,
+    short_path: Option<std::rc::Rc<ShortPath>>,
     partitions: Partition,
-    file: Option<ShortPath>,
   ) -> Self {
-    let short_path =
-      specifier.map(|specifier| ctx.url_to_short_path(specifier));
-
     // will be default on index page with no main entrypoint
     let default = vec![];
-    let doc_nodes = specifier
-      .or(ctx.main_entrypoint.as_ref())
-      .and_then(|specifier| doc_nodes_by_url.get(specifier))
+    let doc_nodes = short_path
+      .as_ref()
+      .and_then(|short_path| ctx.doc_nodes.get(short_path))
       .unwrap_or(&default);
 
     let render_ctx = RenderContext::new(
       ctx,
       doc_nodes,
       short_path
-        .as_ref()
-        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
-      specifier,
+        .as_deref()
+        .map_or(UrlResolveKind::Root, ShortPath::as_resolve_kind),
     );
 
-    let module_doc = specifier.map(|specifier| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, specifier, doc_nodes_by_url)
+    let module_doc = short_path.as_ref().map(|short_path| {
+      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
     });
 
     let root = ctx.href_resolver.resolve_path(
-      file
-        .as_ref()
-        .map_or(UrlResolveKind::Root, UrlResolveKind::File),
+      short_path
+        .as_deref()
+        .map_or(UrlResolveKind::Root, ShortPath::as_resolve_kind),
       UrlResolveKind::Root,
     );
 
@@ -125,8 +114,23 @@ impl IndexCtx {
       HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
 
     let all_symbols = if ctx.file_mode == FileMode::SingleDts {
-      let sections =
-        super::namespace::render_namespace(&render_ctx, partitions.clone());
+      let sections = super::namespace::render_namespace(
+        &render_ctx,
+        partitions
+          .clone()
+          .into_iter()
+          .map(|(title, nodes)| {
+            (
+              SectionHeaderCtx {
+                title,
+                href: None,
+                doc: None,
+              },
+              nodes,
+            )
+          })
+          .collect(),
+      );
 
       Some(SymbolContentCtx {
         id: String::new(),
@@ -137,13 +141,8 @@ impl IndexCtx {
       None
     };
 
-    let sidepanel_ctx = sidepanels::IndexSidepanelCtx::new(
-      ctx,
-      specifier,
-      doc_nodes_by_url,
-      partitions,
-      file.as_ref(),
-    );
+    let sidepanel_ctx =
+      sidepanels::IndexSidepanelCtx::new(ctx, short_path.clone(), partitions);
 
     IndexCtx {
       html_head_ctx,
@@ -165,12 +164,25 @@ pub struct AllSymbolsCtx {
 impl AllSymbolsCtx {
   pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  pub fn new(ctx: &GenerateCtx, partitions: Partition) -> Self {
+  pub fn new(
+    ctx: &GenerateCtx,
+    partitions: crate::html::partition::EntrypointPartition,
+  ) -> Self {
     // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
-    let render_ctx =
-      RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols, None);
+    let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
 
-    let sections = super::namespace::render_namespace(&render_ctx, partitions);
+    let sections = super::namespace::render_namespace(
+      &render_ctx,
+      partitions
+        .into_iter()
+        .map(|(path, nodes)| {
+          (
+            SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
+            nodes,
+          )
+        })
+        .collect(),
+    );
 
     let html_head_ctx =
       HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
@@ -201,7 +213,6 @@ pub enum SymbolPage {
 
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
-  current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   partitions_for_nodes: &Partition,
   doc_nodes: &[DocNodeWithContext],
@@ -217,17 +228,17 @@ pub fn generate_symbol_pages_for_module(
         .methods
         .iter()
         .map(|method| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::function(
-              qualify_drilldown_name(name, &method.name, method.is_static),
+          doc_nodes[0].create_child_method(
+            DocNode::function(
+              method.name.clone(),
               method.location.clone(),
               doc_nodes[0].declaration_kind,
               method.js_doc.clone(),
               method.function_def.clone(),
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
-          new_node
+            ),
+            name,
+            method.is_static,
+          )
         })
         .collect::<Vec<_>>();
 
@@ -238,20 +249,11 @@ pub fn generate_symbol_pages_for_module(
         .properties
         .iter()
         .map(|property| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::variable(
-              qualify_drilldown_name(name, &property.name, property.is_static),
-              property.location.clone(),
-              doc_nodes[0].declaration_kind,
-              property.js_doc.clone(),
-              VariableDef {
-                ts_type: property.ts_type.clone(),
-                kind: deno_ast::swc::ast::VarDeclKind::Const,
-              },
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Class);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
-          new_node
+          doc_nodes[0].create_child_property(
+            DocNode::from(property.clone()),
+            name,
+            property.is_static,
+          )
         })
         .collect::<Vec<_>>();
 
@@ -263,26 +265,11 @@ pub fn generate_symbol_pages_for_module(
         .methods
         .iter()
         .map(|method| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::function(
-              qualify_drilldown_name(name, &method.name, true),
-              method.location.clone(),
-              doc_nodes[0].declaration_kind,
-              method.js_doc.clone(),
-              FunctionDef {
-                def_name: None,
-                params: method.params.clone(),
-                return_type: method.return_type.clone(),
-                has_body: false,
-                is_async: false,
-                is_generator: false,
-                type_params: method.type_params.clone(),
-                decorators: vec![],
-              },
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
-          new_node
+          doc_nodes[0].create_child_method(
+            DocNode::from(method.clone()),
+            name,
+            true,
+          )
         })
         .collect::<Vec<_>>();
 
@@ -293,25 +280,50 @@ pub fn generate_symbol_pages_for_module(
         .properties
         .iter()
         .map(|property| {
-          let mut new_node =
-            doc_nodes[0].create_child(Arc::new(DocNode::variable(
-              qualify_drilldown_name(name, &property.name, true),
-              property.location.clone(),
-              doc_nodes[0].declaration_kind,
-              property.js_doc.clone(),
-              VariableDef {
-                ts_type: property.ts_type.clone(),
-                kind: deno_ast::swc::ast::VarDeclKind::Const,
-              },
-            )));
-          new_node.drilldown_parent_kind = Some(DocNodeKind::Interface);
-          new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
-          new_node
+          doc_nodes[0].create_child_property(
+            DocNode::from(property.clone()),
+            name,
+            true,
+          )
         })
         .collect::<Vec<_>>();
 
       drilldown_partitions
         .extend(super::partition::partition_nodes_by_name(&property_nodes));
+    } else if doc_nodes[0].kind == DocNodeKind::TypeAlias {
+      let type_alias = doc_nodes[0].type_alias_def.as_ref().unwrap();
+
+      if let Some(ts_type_literal) = type_alias.ts_type.type_literal.as_ref() {
+        let method_nodes = ts_type_literal
+          .methods
+          .iter()
+          .map(|method| {
+            doc_nodes[0].create_child_method(
+              DocNode::from(method.clone()),
+              name,
+              true,
+            )
+          })
+          .collect::<Vec<_>>();
+
+        drilldown_partitions
+          .extend(super::partition::partition_nodes_by_name(&method_nodes));
+
+        let property_nodes = ts_type_literal
+          .properties
+          .iter()
+          .map(|property| {
+            doc_nodes[0].create_child_property(
+              DocNode::from(property.clone()),
+              name,
+              true,
+            )
+          })
+          .collect::<Vec<_>>();
+
+        drilldown_partitions
+          .extend(super::partition::partition_nodes_by_name(&property_nodes));
+      }
     }
   }
   name_partitions.extend(drilldown_partitions);
@@ -321,7 +333,6 @@ pub fn generate_symbol_pages_for_module(
     doc_nodes,
     partitions_for_nodes,
     &name_partitions,
-    current_specifier,
     short_path,
     vec![],
   )
@@ -332,7 +343,6 @@ fn generate_symbol_pages_inner(
   doc_nodes_for_module: &[DocNodeWithContext],
   partitions_for_nodes: &Partition,
   name_partitions: &Partition,
-  current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: Vec<&str>,
 ) -> Vec<SymbolPage> {
@@ -356,7 +366,6 @@ fn generate_symbol_pages_inner(
     let (breadcrumbs_ctx, symbol_group_ctx) = render_symbol_page(
       ctx,
       doc_nodes_for_module,
-      current_specifier,
       short_path,
       &namespace_paths,
       &namespaced_name,
@@ -414,7 +423,6 @@ fn generate_symbol_pages_inner(
         doc_nodes_for_module,
         partitions_for_nodes,
         &namespace_name_partitions,
-        current_specifier,
         short_path,
         namespace_paths,
       );
@@ -440,7 +448,6 @@ impl SymbolPageCtx {
 pub fn render_symbol_page(
   ctx: &GenerateCtx,
   doc_nodes_for_module: &[DocNodeWithContext],
-  current_specifier: &ModuleSpecifier,
   short_path: &ShortPath,
   namespace_paths: &[&str],
   namespaced_name: &str,
@@ -453,7 +460,6 @@ pub fn render_symbol_page(
       file: short_path,
       symbol: namespaced_name,
     },
-    Some(current_specifier),
   );
   if !namespace_paths.is_empty() {
     render_ctx = render_ctx.with_namespace(namespace_paths.to_vec())

@@ -54,6 +54,12 @@ type T = { [key: string]: number; }
                 "repr": "number",
                 "kind": "keyword",
                 "keyword": "number"
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 18,
+                "byteIndex": 18
               }
             }
           ]

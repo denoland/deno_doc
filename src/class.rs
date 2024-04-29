@@ -18,6 +18,7 @@ use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
+use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
@@ -161,33 +162,6 @@ impl Display for ClassPropertyDef {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ClassIndexSignatureDef {
-  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
-  pub js_doc: JsDoc,
-  pub readonly: bool,
-  pub params: Vec<ParamDef>,
-  pub ts_type: Option<TsTypeDef>,
-  pub location: Location,
-}
-
-#[cfg(feature = "rust")]
-impl Display for ClassIndexSignatureDef {
-  fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    write!(
-      f,
-      "{}[{}]",
-      display_readonly(self.readonly),
-      SliceDisplayer::new(&self.params, ", ", false)
-    )?;
-    if let Some(ts_type) = &self.ts_type {
-      write!(f, ": {}", ts_type)?;
-    }
-    Ok(())
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct ClassMethodDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
@@ -248,7 +222,7 @@ pub struct ClassDef {
   pub is_abstract: bool,
   pub constructors: Vec<ClassConstructorDef>,
   pub properties: Vec<ClassPropertyDef>,
-  pub index_signatures: Vec<ClassIndexSignatureDef>,
+  pub index_signatures: Vec<IndexSignatureDef>,
   pub methods: Vec<ClassMethodDef>,
   pub extends: Option<String>,
   pub implements: Vec<TsTypeDef>,
@@ -434,7 +408,7 @@ pub fn class_to_class_def(
             .as_ref()
             .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-          let index_sig_def = ClassIndexSignatureDef {
+          let index_sig_def = IndexSignatureDef {
             location: get_location(parsed_source, ts_index_sig.start()),
             js_doc,
             readonly: ts_index_sig.readonly,
