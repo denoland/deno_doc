@@ -54,6 +54,16 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_current_resolve(
+    &self,
+    current_resolve: UrlResolveKind<'ctx>,
+  ) -> Self {
+    Self {
+      current_resolve,
+      ..self.clone()
+    }
+  }
+
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
   }

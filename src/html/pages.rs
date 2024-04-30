@@ -19,7 +19,6 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
-use crate::html::partition::Partition;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -83,7 +82,7 @@ impl IndexCtx {
   pub fn new(
     ctx: &GenerateCtx,
     short_path: Option<Rc<ShortPath>>,
-    partitions: Partition,
+    partitions: super::partition::Partitions<String>,
   ) -> Self {
     // will be default on index page with no main entrypoint
     let default = vec![];
@@ -167,7 +166,7 @@ impl AllSymbolsCtx {
 
   pub fn new(
     ctx: &GenerateCtx,
-    partitions: crate::html::partition::EntrypointPartition,
+    partitions: super::partition::Partitions<Rc<ShortPath>>,
   ) -> Self {
     // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
@@ -215,7 +214,7 @@ pub enum SymbolPage {
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   short_path: &ShortPath,
-  sidepanel_partitions: &Partition,
+  sidepanel_partitions: &super::partition::Partitions<String>,
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions =
@@ -395,12 +394,15 @@ pub fn generate_symbol_pages_for_module(
 
   let mut generated_pages = Vec::with_capacity(name_partitions.values().len());
 
+  let render_ctx =
+    RenderContext::new(ctx, module_doc_nodes, UrlResolveKind::File(short_path));
+
   for (name, doc_nodes) in name_partitions {
     let sidepanel_ctx =
       SidepanelCtx::new(ctx, sidepanel_partitions, short_path, &name);
 
     let (breadcrumbs_ctx, symbol_group_ctx) =
-      render_symbol_page(ctx, module_doc_nodes, short_path, &name, &doc_nodes);
+      render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
 
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
@@ -445,20 +447,16 @@ impl SymbolPageCtx {
 }
 
 pub fn render_symbol_page(
-  ctx: &GenerateCtx,
-  doc_nodes_for_module: &[DocNodeWithContext],
+  render_ctx: &RenderContext,
   short_path: &ShortPath,
   namespaced_name: &str,
   doc_nodes: &[DocNodeWithContext],
 ) -> (BreadcrumbsCtx, SymbolGroupCtx) {
-  let mut render_ctx = RenderContext::new(
-    ctx,
-    doc_nodes_for_module,
-    UrlResolveKind::Symbol {
+  let mut render_ctx =
+    render_ctx.with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
       symbol: namespaced_name,
-    },
-  );
+    });
   if !doc_nodes[0].ns_qualifiers.is_empty() {
     render_ctx = render_ctx.with_namespace(doc_nodes[0].ns_qualifiers.clone());
   }
