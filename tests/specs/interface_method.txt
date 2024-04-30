@@ -79,6 +79,7 @@ interface I
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [
         {
           "name": "m",

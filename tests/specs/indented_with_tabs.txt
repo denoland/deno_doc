@@ -75,6 +75,7 @@ namespace Tabs
           },
           "interfaceDef": {
             "extends": [],
+            "constructors": [],
             "methods": [],
             "properties": [
               {

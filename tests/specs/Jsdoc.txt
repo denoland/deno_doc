@@ -85,6 +85,7 @@ interface B
     },
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

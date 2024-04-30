@@ -49,6 +49,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
         "repr": "",
         "kind": "typeLiteral",
         "typeLiteral": {
+          "constructors": [],
           "methods": [
             {
               "name": "d",
@@ -219,6 +220,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                 "repr": "",
                 "kind": "typeLiteral",
                 "typeLiteral": {
+                  "constructors": [],
                   "methods": [],
                   "properties": [
                     {

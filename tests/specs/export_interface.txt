@@ -95,6 +95,7 @@ interface Reader extends Foo, Bar
           }
         }
       ],
+      "constructors": [],
       "methods": [
         {
           "name": "read",
@@ -199,6 +200,7 @@ interface Reader extends Foo, Bar
     "declarationKind": "private",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],
@@ -218,6 +220,7 @@ interface Reader extends Foo, Bar
     "declarationKind": "private",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

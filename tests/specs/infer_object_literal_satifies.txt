@@ -109,6 +109,7 @@ type Colors = "red" | "green" | "blue"
         "repr": "",
         "kind": "typeLiteral",
         "typeLiteral": {
+          "constructors": [],
           "methods": [],
           "properties": [
             {

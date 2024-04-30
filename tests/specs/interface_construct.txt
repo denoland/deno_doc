@@ -30,7 +30,7 @@ Defined in file:///mod.ts:1:1
 
 interface I
 
-  new(name: string)
+  constructor(name: string)
 
 
 # output.json
@@ -47,16 +47,8 @@ interface I
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
-      "methods": [
+      "constructors": [
         {
-          "name": "new",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
-          },
           "params": [
             {
               "kind": "identifier",
@@ -69,11 +61,17 @@ interface I
               }
             }
           ],
-          "optional": false,
           "returnType": null,
-          "typeParams": []
+          "typeParams": [],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 2,
+            "byteIndex": 23
+          }
         }
       ],
+      "methods": [],
       "properties": [],
       "callSignatures": [],
       "indexSignatures": [],

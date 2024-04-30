@@ -137,6 +137,7 @@ private namespace H
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],
@@ -215,6 +216,7 @@ private namespace H
     "declarationKind": "private",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

@@ -30,6 +30,7 @@ interface Interface
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],
