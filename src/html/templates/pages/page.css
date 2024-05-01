@@ -12,9 +12,17 @@ body {
   & > main {
     @apply flex-1;
   }
+}
 
-  & > .toc {
-    @apply w-64 flex-none;
+.toc {
+  @apply w-64 flex-none max-lg:hidden sticky top-0 max-h-screen box-border;
+
+  > div {
+    @apply overflow-y-scroll max-h-full;
+
+    > *:last-child {
+      @apply pb-4;
+    }
   }
 }
 

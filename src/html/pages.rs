@@ -72,7 +72,7 @@ pub struct IndexCtx {
   pub module_doc: Option<super::jsdoc::ModuleDocCtx>,
   pub all_symbols: Option<SymbolContentCtx>,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
-  pub toc: util::ToCCtx,
+  pub toc_ctx: util::ToCCtx,
 }
 
 impl IndexCtx {
@@ -145,7 +145,7 @@ impl IndexCtx {
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
-    let toc = util::ToCCtx {
+    let toc_ctx = util::ToCCtx {
       top_symbols: if ctx.file_mode != FileMode::SingleDts {
         Some(util::TopSymbolsCtx::new(&render_ctx))
       } else {
@@ -159,7 +159,7 @@ impl IndexCtx {
       module_doc,
       all_symbols,
       breadcrumbs_ctx,
-      toc,
+      toc_ctx,
     }
   }
 }
@@ -213,7 +213,7 @@ pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,
     symbol_group_ctx: SymbolGroupCtx,
-    toc: util::ToCCtx,
+    toc_ctx: util::ToCCtx,
   },
   Redirect {
     current_symbol: String,
@@ -407,13 +407,13 @@ pub fn generate_symbol_pages_for_module(
     RenderContext::new(ctx, module_doc_nodes, UrlResolveKind::File(short_path));
 
   for (name, doc_nodes) in name_partitions {
-    let (breadcrumbs_ctx, symbol_group_ctx, toc) =
+    let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx) =
       render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
 
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
       symbol_group_ctx,
-      toc,
+      toc_ctx,
     });
 
     if doc_nodes
@@ -445,7 +445,7 @@ pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
-  pub toc: util::ToCCtx,
+  pub toc_ctx: util::ToCCtx,
 }
 
 impl SymbolPageCtx {

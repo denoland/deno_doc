@@ -156,18 +156,12 @@ summary::-webkit-details-marker {
 }
 
 .toc {
-  @apply max-lg:hidden sticky top-0 max-h-screen box-border;
-
   > div {
-    @apply space-y-5 overflow-y-scroll max-h-full;
-
-    > *:last-child {
-      @apply pb-4;
-    }
+    @apply space-y-5;
   }
 
   .topSymbols {
-    @apply space-y-3;
+    @apply space-y-3 text-sm;
 
     ul {
       @apply list-none space-y-2.5;
@@ -176,13 +170,17 @@ summary::-webkit-details-marker {
         @apply block;
 
         a {
-          @apply flex items-center gap-2 leading-none;
+          @apply flex items-center gap-2;
 
           > span {
-            @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis text-sm -my-0.5 -ml-1 py-0.5 pl-1 rounded;
+            @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis -my-0.5 -ml-1 py-0.5 pl-1 rounded;
           }
         }
       }
+    }
+
+    > a:hover {
+      @apply underline;
     }
   }
 

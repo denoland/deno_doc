@@ -40,6 +40,9 @@ pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
 pub use util::SectionHeaderCtx;
+pub use util::ToCCtx;
+pub use util::TopSymbolCtx;
+pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
@@ -656,7 +659,7 @@ pub fn generate(
           SymbolPage::Symbol {
             breadcrumbs_ctx,
             symbol_group_ctx,
-            toc,
+            toc_ctx,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
@@ -695,7 +698,7 @@ pub fn generate(
                 html_head_ctx,
                 symbol_group_ctx,
                 breadcrumbs_ctx,
-                toc,
+                toc_ctx,
               };
 
               let symbol_page =
