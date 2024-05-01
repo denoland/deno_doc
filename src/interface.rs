@@ -7,6 +7,7 @@ use serde::Serialize;
 
 use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type::CallSignatureDef;
+use crate::ts_type::ConstructorDef;
 use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::MethodDef;
 use crate::ts_type::PropertyDef;
@@ -23,6 +24,8 @@ pub struct InterfaceDef {
   /// set when the interface is a default export
   pub def_name: Option<String>,
   pub extends: Vec<TsTypeDef>,
+  #[serde(default)]
+  pub constructors: Vec<ConstructorDef>,
   pub methods: Vec<MethodDef>,
   pub properties: Vec<PropertyDef>,
   pub call_signatures: Vec<CallSignatureDef>,
@@ -78,6 +81,7 @@ pub fn get_doc_for_ts_interface_decl(
 ) -> (String, InterfaceDef) {
   let interface_name = interface_decl.id.sym.to_string();
 
+  let mut constructors = vec![];
   let mut methods = vec![];
   let mut properties = vec![];
   let mut call_signatures = vec![];
@@ -266,7 +270,7 @@ pub fn get_doc_for_ts_interface_decl(
         }
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
-        if let Some(construct_js_doc) =
+        if let Some(js_doc) =
           js_doc_for_range(parsed_source, &ts_construct_sig.range())
         {
           let mut params = vec![];
@@ -286,19 +290,15 @@ pub fn get_doc_for_ts_interface_decl(
             .as_ref()
             .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-          let construct_sig_def = MethodDef {
-            name: "new".to_string(),
-            kind: deno_ast::swc::ast::MethodKind::Method,
-            js_doc: construct_js_doc,
+          let construct_sig_def = ConstructorDef {
+            js_doc,
             location: get_location(parsed_source, ts_construct_sig.start()),
-            computed: false,
-            optional: false,
             params,
             return_type: maybe_return_type,
             type_params,
           };
 
-          methods.push(construct_sig_def);
+          constructors.push(construct_sig_def);
         }
       }
     }
@@ -318,6 +318,7 @@ pub fn get_doc_for_ts_interface_decl(
   let interface_def = InterfaceDef {
     def_name,
     extends,
+    constructors,
     methods,
     properties,
     call_signatures,

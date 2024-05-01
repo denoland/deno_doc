@@ -76,6 +76,7 @@ private namespace Test
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [
         {

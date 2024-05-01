@@ -4,13 +4,28 @@
       "kind": [
         "class"
       ],
-      "name": "Foo",
+      "name": "Bar",
       "file": ".",
       "location": {
         "filename": "default",
-        "line": 25,
+        "line": 31,
         "col": 0,
-        "byteIndex": 488
+        "byteIndex": 591
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        "typeAlias"
+      ],
+      "name": "Baz",
+      "file": ".",
+      "location": {
+        "filename": "default",
+        "line": 41,
+        "col": 0,
+        "byteIndex": 705
       },
       "declarationKind": "export",
       "deprecated": false
@@ -19,13 +34,13 @@
       "kind": [
         "class"
       ],
-      "name": "Bar",
+      "name": "Foo",
       "file": ".",
       "location": {
         "filename": "default",
-        "line": 31,
+        "line": 25,
         "col": 0,
-        "byteIndex": 591
+        "byteIndex": 488
       },
       "declarationKind": "export",
       "deprecated": false
@@ -56,21 +71,6 @@
         "line": 37,
         "col": 0,
         "byteIndex": 658
-      },
-      "declarationKind": "export",
-      "deprecated": false
-    },
-    {
-      "kind": [
-        "typeAlias"
-      ],
-      "name": "Baz",
-      "file": ".",
-      "location": {
-        "filename": "default",
-        "line": 41,
-        "col": 0,
-        "byteIndex": 705
       },
       "declarationKind": "export",
       "deprecated": false

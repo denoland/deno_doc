@@ -158,6 +158,7 @@ const tpl2: string
         "repr": "",
         "kind": "typeLiteral",
         "typeLiteral": {
+          "constructors": [],
           "methods": [
             {
               "name": "get",

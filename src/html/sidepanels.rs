@@ -1,4 +1,3 @@
-use super::partition::Partition;
 use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
@@ -53,7 +52,7 @@ impl SidepanelCtx {
 
   pub fn new(
     ctx: &GenerateCtx,
-    partitions: &Partition,
+    partitions: &super::partition::Partitions<String>,
     file: &ShortPath,
     symbol: &str,
   ) -> Self {
@@ -63,13 +62,9 @@ impl SidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in nodes {
-          let name = if !node.ns_qualifiers.is_empty() {
-            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
-          } else {
-            node.get_name().to_string()
-          };
-
-          let entry = grouped_nodes.entry(name).or_insert(vec![]);
+          let entry = grouped_nodes
+            .entry(node.get_qualified_name())
+            .or_insert(vec![]);
           entry.push(node);
         }
 
@@ -122,7 +117,7 @@ impl IndexSidepanelCtx {
   pub fn new(
     ctx: &GenerateCtx,
     current_file: Option<Rc<ShortPath>>,
-    partitions: Partition,
+    partitions: super::partition::Partitions<String>,
   ) -> Self {
     let current_resolve_kind = current_file
       .as_deref()
@@ -156,13 +151,9 @@ impl IndexSidepanelCtx {
         let mut grouped_nodes = IndexMap::new();
 
         for node in &nodes {
-          let name = if !node.ns_qualifiers.is_empty() {
-            format!("{}.{}", node.ns_qualifiers.join("."), node.get_name())
-          } else {
-            node.get_name().to_string()
-          };
-
-          let entry = grouped_nodes.entry(name).or_insert(vec![]);
+          let entry = grouped_nodes
+            .entry(node.get_qualified_name())
+            .or_insert(vec![]);
           entry.push(node);
         }
 

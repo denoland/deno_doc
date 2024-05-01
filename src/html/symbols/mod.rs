@@ -163,82 +163,71 @@ impl DocBlockSubtitleCtx {
   pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
 
   fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
-    if matches!(
-      doc_node.kind,
-      DocNodeKind::Function
-        | DocNodeKind::Variable
-        | DocNodeKind::Enum
-        | DocNodeKind::TypeAlias
-        | DocNodeKind::Namespace
-    ) {
-      return None;
-    }
+    match doc_node.kind {
+      DocNodeKind::Class => {
+        let class_def = doc_node.class_def.as_ref().unwrap();
 
-    if doc_node.kind == DocNodeKind::Class {
-      let class_def = doc_node.class_def.as_ref().unwrap();
+        let current_type_params = class_def
+          .type_params
+          .iter()
+          .map(|def| def.name.as_str())
+          .collect::<HashSet<&str>>();
 
-      let current_type_params = class_def
-        .type_params
-        .iter()
-        .map(|def| def.name.as_str())
-        .collect::<HashSet<&str>>();
+        let ctx = &ctx.with_current_type_params(current_type_params);
 
-      let ctx = &ctx.with_current_type_params(current_type_params);
+        let mut class_implements = None;
+        let mut class_extends = None;
 
-      let mut class_implements = None;
-      let mut class_extends = None;
+        if !class_def.implements.is_empty() {
+          let impls = class_def
+            .implements
+            .iter()
+            .map(|extend| render_type_def(ctx, extend))
+            .collect::<Vec<String>>();
 
-      if !class_def.implements.is_empty() {
-        let impls = class_def
-          .implements
+          class_implements = Some(impls);
+        }
+
+        if let Some(extends) = class_def.extends.as_ref() {
+          class_extends = Some(DocBlockClassSubtitleExtendsCtx {
+            href: ctx.lookup_symbol_href(extends),
+            symbol: html_escape::encode_text(extends).into_owned(),
+            type_args: super::types::type_arguments(
+              ctx,
+              &class_def.super_type_params,
+            ),
+          });
+        }
+
+        Some(DocBlockSubtitleCtx::Class {
+          implements: class_implements,
+          extends: class_extends,
+        })
+      }
+      DocNodeKind::Interface => {
+        let interface_def = doc_node.interface_def.as_ref().unwrap();
+
+        if interface_def.extends.is_empty() {
+          return None;
+        }
+
+        let current_type_params = interface_def
+          .type_params
+          .iter()
+          .map(|def| def.name.as_str())
+          .collect::<HashSet<&str>>();
+        let ctx = &ctx.with_current_type_params(current_type_params);
+
+        let extends = interface_def
+          .extends
           .iter()
           .map(|extend| render_type_def(ctx, extend))
           .collect::<Vec<String>>();
 
-        class_implements = Some(impls);
+        Some(DocBlockSubtitleCtx::Interface { extends })
       }
-
-      if let Some(extends) = class_def.extends.as_ref() {
-        class_extends = Some(DocBlockClassSubtitleExtendsCtx {
-          href: ctx.lookup_symbol_href(extends),
-          symbol: html_escape::encode_text(extends).into_owned(),
-          type_args: super::types::type_arguments(
-            ctx,
-            &class_def.super_type_params,
-          ),
-        });
-      }
-
-      return Some(DocBlockSubtitleCtx::Class {
-        implements: class_implements,
-        extends: class_extends,
-      });
+      _ => None,
     }
-
-    if doc_node.kind == DocNodeKind::Interface {
-      let interface_def = doc_node.interface_def.as_ref().unwrap();
-
-      if interface_def.extends.is_empty() {
-        return None;
-      }
-
-      let current_type_params = interface_def
-        .type_params
-        .iter()
-        .map(|def| def.name.as_str())
-        .collect::<HashSet<&str>>();
-      let ctx = &ctx.with_current_type_params(current_type_params);
-
-      let extends = interface_def
-        .extends
-        .iter()
-        .map(|extend| render_type_def(ctx, extend))
-        .collect::<Vec<String>>();
-
-      return Some(DocBlockSubtitleCtx::Interface { extends });
-    }
-
-    unreachable!()
   }
 }
 
@@ -276,27 +265,33 @@ impl SymbolInnerCtx {
           continue;
         }
 
-        DocNodeKind::Variable => variable::render_variable(ctx, doc_node),
-        DocNodeKind::Class => class::render_class(ctx, doc_node),
+        DocNodeKind::Variable => variable::render_variable(ctx, doc_node, name),
+        DocNodeKind::Class => class::render_class(ctx, doc_node, name),
         DocNodeKind::Enum => r#enum::render_enum(ctx, doc_node),
-        DocNodeKind::Interface => interface::render_interface(ctx, doc_node),
-        DocNodeKind::TypeAlias => type_alias::render_type_alias(ctx, doc_node),
+        DocNodeKind::Interface => {
+          interface::render_interface(ctx, doc_node, name)
+        }
+        DocNodeKind::TypeAlias => {
+          type_alias::render_type_alias(ctx, doc_node, name)
+        }
 
         DocNodeKind::Namespace => {
           let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+          let ns_qualifiers = std::rc::Rc::new(doc_node.sub_qualifier());
           let namespace_nodes = namespace_def
             .elements
             .iter()
-            .map(|element| doc_node.create_child(element.clone()))
+            .map(|element| {
+              doc_node
+                .create_namespace_child(element.clone(), ns_qualifiers.clone())
+            })
             .collect::<Vec<_>>();
 
           let partitions =
             super::partition::partition_nodes_by_kind(&namespace_nodes, false);
 
-          let ns_parts = name.split('.').collect::<Vec<&str>>();
-
           namespace::render_namespace(
-            &ctx.with_namespace(ns_parts),
+            &ctx.with_namespace(ns_qualifiers),
             partitions
               .into_iter()
               .map(|(title, nodes)| {

@@ -47,6 +47,7 @@ interface Interface extends Iterator, Iterable
           }
         }
       ],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

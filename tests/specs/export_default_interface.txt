@@ -34,6 +34,7 @@ interface default
     "interfaceDef": {
       "defName": "Reader",
       "extends": [],
+      "constructors": [],
       "methods": [
         {
           "name": "read",

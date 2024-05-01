@@ -18,7 +18,7 @@ pub struct RenderContext<'ctx> {
   current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Rc<Vec<&'ctx str>>,
+  namespace_parts: Rc<Vec<String>>,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -47,19 +47,25 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  pub fn with_namespace(&self, namespace_parts: Vec<&'ctx str>) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Rc<Vec<String>>) -> Self {
     Self {
-      namespace_parts: Rc::new(namespace_parts),
+      namespace_parts,
+      ..self.clone()
+    }
+  }
+
+  pub fn with_current_resolve(
+    &self,
+    current_resolve: UrlResolveKind<'ctx>,
+  ) -> Self {
+    Self {
+      current_resolve,
       ..self.clone()
     }
   }
 
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
-  }
-
-  pub fn get_namespace_parts(&self) -> &[&str] {
-    &self.namespace_parts
   }
 
   pub fn get_current_resolve(&self) -> UrlResolveKind {
@@ -73,11 +79,7 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      let mut parts = self
-        .namespace_parts
-        .iter()
-        .map(|part| part.to_string())
-        .collect::<Vec<String>>();
+      let mut parts = (*self.namespace_parts).clone();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);
@@ -106,15 +108,13 @@ impl<'ctx> RenderContext<'ctx> {
               .get_file()
               .cloned()
               .unwrap_or_else(|| {
-                Rc::unwrap_or_clone(
-                  self
-                    .ctx
-                    .doc_nodes
-                    .keys()
-                    .find(|short_path| short_path.is_main)
-                    .unwrap()
-                    .clone(),
-                )
+                (**self
+                  .ctx
+                  .doc_nodes
+                  .keys()
+                  .find(|short_path| short_path.is_main)
+                  .unwrap())
+                .clone()
               }),
             symbol: target_symbol,
           },
