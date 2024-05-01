@@ -3,17 +3,21 @@
 @tailwind utilities;
 
 body {
-  @apply flex flex-col lg:flex-row w-full overflow-x-hidden;
+  @apply p-7 max-w-screen-xl w-full overflow-x-hidden mx-auto;
 }
 
 #content {
-  @apply p-7 max-w-screen-xl w-full overflow-x-hidden;
+  @apply flex gap-6 relative;
 
-  &:not(:has(#sidepanel)) {
-    @apply mx-auto;
+  & > main {
+    @apply flex-1;
+  }
+
+  & > .toc {
+    @apply w-64 flex-none;
   }
 }
 
-#sidepanel {
-  @apply py-3 pl-3 lg:w-72;
+#searchResults {
+  @apply absolute bg-white inset-0 hidden;
 }

@@ -1,10 +1,7 @@
 {{~> pages/html_head html_head_ctx ~}}
-
-{{~> index_sidepanel sidepanel_ctx ~}}
+{{~> pages/top_nav ~}}
 
 <div id="content">
-	{{~> pages/top_nav ~}}
-
   <main>
 	  {{~#if module_doc ~}}
 		  {{~> module_doc module_doc ~}}
@@ -14,6 +11,8 @@
 		  {{~> symbol_content all_symbols ~}}
 	  {{~/if~}}
   </main>
+
+  {{~> toc toc ~}}
 
   {{~> pages/search_results ~}}
 </div>

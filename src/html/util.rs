@@ -373,7 +373,7 @@ impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct AnchorCtx {
   pub id: String,
 }
@@ -394,6 +394,7 @@ pub enum SectionContentCtx {
 #[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct SectionHeaderCtx {
   pub title: String,
+  pub anchor: AnchorCtx,
   pub href: Option<String>,
   pub doc: Option<String>,
 }
@@ -416,14 +417,15 @@ impl SectionHeaderCtx {
           MarkdownToHTMLOptions {
             summary: true,
             summary_prefer_title: true,
-            render_toc: false,
           },
         )
-      })
-      .map(|markdown| markdown.html);
+      });
+
+    let title = path.display_name();
 
     SectionHeaderCtx {
-      title: path.display_name(),
+      title: title.clone(),
+      anchor: AnchorCtx { id: title },
       href: Some(render_ctx.ctx.href_resolver.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),
@@ -442,10 +444,17 @@ pub struct SectionCtx {
 impl SectionCtx {
   pub const TEMPLATE: &'static str = "section";
 
-  pub fn new(title: &'static str, content: SectionContentCtx) -> Self {
+  pub fn new(
+    render_context: &RenderContext,
+    title: &'static str,
+    content: SectionContentCtx,
+  ) -> Self {
+    let anchor = render_context.toc.add_entry(1, title.to_string());
+
     Self {
       header: SectionHeaderCtx {
         title: title.to_string(),
+        anchor: AnchorCtx { id: anchor },
         href: None,
         doc: None,
       },
@@ -556,4 +565,71 @@ pub fn qualify_drilldown_name(
     "{parent_name}{}.{drilldown_name}",
     if is_static { "" } else { ".prototype" },
   )
+}
+
+#[derive(Debug, Serialize)]
+pub struct TopSymbolCtx {
+  pub kind: Vec<DocNodeKindCtx>,
+  pub name: String,
+  pub href: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct TopSymbolsCtx {
+  pub symbols: Vec<TopSymbolCtx>,
+  pub all_symbols_href: String,
+}
+
+impl TopSymbolsCtx {
+  pub fn new(ctx: &RenderContext) -> Self {
+    let symbols = super::partition::partition_nodes_by_name(
+      &ctx
+        .ctx
+        .doc_nodes
+        .values()
+        .flatten()
+        .cloned()
+        .collect::<Vec<_>>(),
+      true,
+    )
+    .values()
+    .take(5)
+    .map(|nodes| {
+      let name = nodes[0].get_qualified_name();
+
+      TopSymbolCtx {
+        kind: nodes
+          .iter()
+          .map(|node| node.kind_with_drilldown.into())
+          .collect::<Vec<_>>(),
+        href: ctx.ctx.href_resolver.resolve_path(
+          ctx.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: &nodes[0].origin,
+            symbol: &name,
+          },
+        ),
+        name,
+      }
+    })
+    .collect();
+
+    Self {
+      symbols,
+      all_symbols_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_path(ctx.get_current_resolve(), UrlResolveKind::AllSymbols),
+    }
+  }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ToCCtx {
+  pub top_symbols: Option<TopSymbolsCtx>,
+  pub document_navigation: Option<String>,
+}
+
+impl ToCCtx {
+  pub const TEMPLATE: &'static str = "toc";
 }

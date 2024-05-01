@@ -1,6 +1,6 @@
-use super::sidepanels;
-use super::sidepanels::SidepanelCtx;
 use super::symbols::SymbolContentCtx;
+use super::util;
+use super::util::AnchorCtx;
 use super::util::BreadcrumbsCtx;
 use super::util::SectionHeaderCtx;
 use super::DocNodeWithContext;
@@ -66,13 +66,13 @@ impl HtmlHeadCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct IndexCtx {
   pub html_head_ctx: HtmlHeadCtx,
-  pub sidepanel_ctx: sidepanels::IndexSidepanelCtx,
   pub module_doc: Option<super::jsdoc::ModuleDocCtx>,
   pub all_symbols: Option<SymbolContentCtx>,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
+  pub toc: util::ToCCtx,
 }
 
 impl IndexCtx {
@@ -117,12 +117,14 @@ impl IndexCtx {
       let sections = super::namespace::render_namespace(
         &render_ctx,
         partitions
-          .clone()
           .into_iter()
           .map(|(title, nodes)| {
+            let anchor = render_ctx.toc.add_entry(1, title.clone());
+
             (
               SectionHeaderCtx {
                 title,
+                anchor: AnchorCtx { id: anchor },
                 href: None,
                 doc: None,
               },
@@ -141,15 +143,23 @@ impl IndexCtx {
       None
     };
 
-    let sidepanel_ctx =
-      sidepanels::IndexSidepanelCtx::new(ctx, short_path.clone(), partitions);
+    let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
+
+    let toc = util::ToCCtx {
+      top_symbols: if ctx.file_mode != FileMode::SingleDts {
+        Some(util::TopSymbolsCtx::new(&render_ctx))
+      } else {
+        None
+      },
+      document_navigation: render_ctx.toc.render(),
+    };
 
     IndexCtx {
       html_head_ctx,
-      sidepanel_ctx,
       module_doc,
       all_symbols,
-      breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
+      breadcrumbs_ctx,
+      toc,
     }
   }
 }
@@ -202,8 +212,8 @@ impl AllSymbolsCtx {
 pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,
-    sidepanel_ctx: SidepanelCtx,
     symbol_group_ctx: SymbolGroupCtx,
+    toc: util::ToCCtx,
   },
   Redirect {
     current_symbol: String,
@@ -214,7 +224,6 @@ pub enum SymbolPage {
 pub fn generate_symbol_pages_for_module(
   ctx: &GenerateCtx,
   short_path: &ShortPath,
-  sidepanel_partitions: &super::partition::Partitions<String>,
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions =
@@ -398,16 +407,13 @@ pub fn generate_symbol_pages_for_module(
     RenderContext::new(ctx, module_doc_nodes, UrlResolveKind::File(short_path));
 
   for (name, doc_nodes) in name_partitions {
-    let sidepanel_ctx =
-      SidepanelCtx::new(ctx, sidepanel_partitions, short_path, &name);
-
-    let (breadcrumbs_ctx, symbol_group_ctx) =
+    let (breadcrumbs_ctx, symbol_group_ctx, toc) =
       render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
 
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
-      sidepanel_ctx,
       symbol_group_ctx,
+      toc,
     });
 
     if doc_nodes
@@ -437,9 +443,9 @@ pub fn generate_symbol_pages_for_module(
 #[derive(Debug, Serialize)]
 pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
-  pub sidepanel_ctx: SidepanelCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
+  pub toc: util::ToCCtx,
 }
 
 impl SymbolPageCtx {
@@ -451,7 +457,7 @@ pub fn render_symbol_page(
   short_path: &ShortPath,
   namespaced_name: &str,
   doc_nodes: &[DocNodeWithContext],
-) -> (BreadcrumbsCtx, SymbolGroupCtx) {
+) -> (BreadcrumbsCtx, SymbolGroupCtx, util::ToCCtx) {
   let mut render_ctx =
     render_ctx.with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
@@ -465,5 +471,12 @@ pub fn render_symbol_page(
   let symbol_group_ctx =
     SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
 
-  (render_ctx.get_breadcrumbs(), symbol_group_ctx)
+  (
+    render_ctx.get_breadcrumbs(),
+    symbol_group_ctx,
+    util::ToCCtx {
+      top_symbols: None,
+      document_navigation: render_ctx.toc.render(),
+    },
+  )
 }

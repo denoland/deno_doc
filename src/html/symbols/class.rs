@@ -58,6 +58,7 @@ pub(crate) fn render_class(
 
   if !class_items.properties.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Properties",
       SectionContentCtx::DocEntry(render_class_properties(
         ctx,
@@ -69,6 +70,7 @@ pub(crate) fn render_class(
 
   if !class_items.methods.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Methods",
       SectionContentCtx::DocEntry(render_class_methods(
         ctx,
@@ -80,6 +82,7 @@ pub(crate) fn render_class(
 
   if !class_items.static_properties.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Static Properties",
       SectionContentCtx::DocEntry(render_class_properties(
         ctx,
@@ -91,6 +94,7 @@ pub(crate) fn render_class(
 
   if !class_items.static_methods.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Static Methods",
       SectionContentCtx::DocEntry(render_class_methods(
         ctx,
@@ -140,6 +144,7 @@ fn render_constructors(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Constructors",
     SectionContentCtx::DocEntry(items),
   ))

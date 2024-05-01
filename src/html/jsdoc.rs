@@ -13,7 +13,6 @@ use comrak::Arena;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::cmp::Ordering;
 
 #[cfg(feature = "ammonia")]
 use crate::html::comrak_adapters::URLRewriter;
@@ -247,23 +246,16 @@ fn render_node<'a>(
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-#[derive(Debug, Serialize, Clone, Default)]
-pub struct Markdown {
-  pub html: String,
-  pub toc: Option<String>,
-}
-
 pub struct MarkdownToHTMLOptions {
   pub summary: bool,
   pub summary_prefer_title: bool,
-  pub render_toc: bool,
 }
 
 pub fn markdown_to_html(
   render_ctx: &RenderContext,
   md: &str,
   render_options: MarkdownToHTMLOptions,
-) -> Option<Markdown> {
+) -> Option<String> {
   // TODO(bartlomieju): this should be initialized only once
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
@@ -285,9 +277,7 @@ pub fn markdown_to_html(
   let mut plugins = comrak::Plugins::default();
   plugins.render.codefence_syntax_highlighter =
     Some(&render_ctx.ctx.highlight_adapter);
-  let heading_adapter =
-    crate::html::comrak_adapters::HeadingToCAdapter::default();
-  plugins.render.heading_adapter = Some(&heading_adapter);
+  plugins.render.heading_adapter = Some(&render_ctx.toc);
 
   let md = parse_links(md, render_ctx);
 
@@ -387,46 +377,7 @@ pub fn markdown_to_html(
     html = ammonia_builder.clean(&html).to_string();
   }
 
-  let toc = if render_options.render_toc {
-    let toc = heading_adapter.into_toc();
-
-    if toc.is_empty() {
-      None
-    } else {
-      let mut toc_content = vec![String::from(r#"<nav class="toc"><ul>"#)];
-
-      let mut current_level = 1;
-
-      for (level, heading, anchor) in toc {
-        match current_level.cmp(&level) {
-          Ordering::Equal => {}
-          Ordering::Less => {
-            toc_content.push(r#"<li><ul>"#.to_string());
-            current_level = level;
-          }
-          Ordering::Greater => {
-            toc_content.push("</ul></li>".to_string());
-            current_level = level;
-          }
-        }
-
-        toc_content.push(format!(
-          r##"<li><a href="#{anchor}" title="{heading}">{heading}</a></li>"##
-        ));
-      }
-
-      toc_content.push(String::from("</ul></nav>"));
-
-      Some(toc_content.join(""))
-    }
-  } else {
-    None
-  };
-
-  Some(Markdown {
-    html: format!(r#"<div class="{class_name} flex-1">{html}</div>"#),
-    toc,
-  })
+  Some(format!(r#"<div class="{class_name}">{html}</div>"#))
 }
 
 pub(crate) fn render_markdown_summary(
@@ -439,11 +390,9 @@ pub(crate) fn render_markdown_summary(
     MarkdownToHTMLOptions {
       summary: true,
       summary_prefer_title: false,
-      render_toc: false,
     },
   )
   .unwrap_or_default()
-  .html
 }
 
 pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
@@ -453,11 +402,9 @@ pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
     MarkdownToHTMLOptions {
       summary: false,
       summary_prefer_title: false,
-      render_toc: false,
     },
   )
   .unwrap_or_default()
-  .html
 }
 
 pub(crate) fn jsdoc_body_to_html(
@@ -472,10 +419,8 @@ pub(crate) fn jsdoc_body_to_html(
       MarkdownToHTMLOptions {
         summary,
         summary_prefer_title: false,
-        render_toc: false,
       },
     )
-    .map(|markdown| markdown.html)
   } else {
     None
   }
@@ -503,6 +448,7 @@ pub(crate) fn jsdoc_examples(
 
   if !examples.is_empty() {
     Some(SectionCtx::new(
+      ctx,
       "Examples",
       SectionContentCtx::Example(examples),
     ))
@@ -548,7 +494,6 @@ impl ExampleCtx {
 pub struct ModuleDocCtx {
   pub deprecated: Option<String>,
   pub usages: Option<UsagesCtx>,
-  pub toc: Option<String>,
   pub sections: super::SymbolContentCtx,
 }
 
@@ -560,7 +505,7 @@ impl ModuleDocCtx {
 
     let mut sections = Vec::with_capacity(7);
 
-    let (deprecated, html, toc) = if let Some(node) = module_doc_nodes
+    let (deprecated, html) = if let Some(node) = module_doc_nodes
       .iter()
       .find(|n| n.kind == DocNodeKind::ModuleDoc)
     {
@@ -579,26 +524,11 @@ impl ModuleDocCtx {
         sections.push(examples);
       }
 
-      let (html, toc) = if let Some(markdown) =
-        node.js_doc.doc.as_ref().and_then(|doc| {
-          markdown_to_html(
-            render_ctx,
-            doc,
-            MarkdownToHTMLOptions {
-              summary: false,
-              summary_prefer_title: false,
-              render_toc: true,
-            },
-          )
-        }) {
-        (Some(markdown.html), markdown.toc)
-      } else {
-        (None, None)
-      };
+      let html = jsdoc_body_to_html(render_ctx, &node.js_doc, false);
 
-      (deprecated, html, toc)
+      (deprecated, html)
     } else {
-      (None, None, None)
+      (None, None)
     };
 
     if !short_path.is_main {
@@ -612,7 +542,8 @@ impl ModuleDocCtx {
           .map(|(title, nodes)| {
             (
               SectionHeaderCtx {
-                title,
+                title: title.clone(),
+                anchor: AnchorCtx { id: title },
                 href: None,
                 doc: None,
               },
@@ -626,7 +557,6 @@ impl ModuleDocCtx {
     Self {
       deprecated,
       usages: UsagesCtx::new(render_ctx, &[]),
-      toc,
       sections: super::SymbolContentCtx {
         id: "module_doc".to_string(),
         docs: html,
