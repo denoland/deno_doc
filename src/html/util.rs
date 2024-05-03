@@ -1,5 +1,6 @@
 use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
+use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -577,12 +578,13 @@ pub struct TopSymbolCtx {
 #[derive(Debug, Serialize)]
 pub struct TopSymbolsCtx {
   pub symbols: Vec<TopSymbolCtx>,
+  pub total_symbols: usize,
   pub all_symbols_href: String,
 }
 
 impl TopSymbolsCtx {
-  pub fn new(ctx: &RenderContext) -> Self {
-    let symbols = super::partition::partition_nodes_by_name(
+  pub fn new(ctx: &RenderContext) -> Option<Self> {
+    let partitions = super::partition::partition_nodes_by_name(
       &ctx
         .ctx
         .doc_nodes
@@ -591,45 +593,69 @@ impl TopSymbolsCtx {
         .cloned()
         .collect::<Vec<_>>(),
       true,
-    )
-    .values()
-    .take(5)
-    .map(|nodes| {
-      let name = nodes[0].get_qualified_name();
+    );
 
-      TopSymbolCtx {
-        kind: nodes
-          .iter()
-          .map(|node| node.kind_with_drilldown.into())
-          .collect::<Vec<_>>(),
-        href: ctx.ctx.href_resolver.resolve_path(
-          ctx.get_current_resolve(),
-          UrlResolveKind::Symbol {
-            file: &nodes[0].origin,
-            symbol: &name,
-          },
-        ),
-        name,
-      }
-    })
-    .collect();
+    if partitions.is_empty() {
+      return None;
+    }
 
-    Self {
+    let symbols = partitions
+      .values()
+      .take(5)
+      .map(|nodes| {
+        let name = nodes[0].get_qualified_name();
+
+        TopSymbolCtx {
+          kind: nodes
+            .iter()
+            .map(|node| node.kind_with_drilldown.into())
+            .collect::<Vec<_>>(),
+          href: ctx.ctx.href_resolver.resolve_path(
+            ctx.get_current_resolve(),
+            UrlResolveKind::Symbol {
+              file: &nodes[0].origin,
+              symbol: &name,
+            },
+          ),
+          name,
+        }
+      })
+      .collect();
+
+    Some(Self {
       symbols,
+      total_symbols: partitions.values().count(),
       all_symbols_href: ctx
         .ctx
         .href_resolver
         .resolve_path(ctx.get_current_resolve(), UrlResolveKind::AllSymbols),
-    }
+    })
   }
 }
 
 #[derive(Debug, Serialize)]
 pub struct ToCCtx {
+  pub usages: Option<UsagesCtx>,
   pub top_symbols: Option<TopSymbolsCtx>,
   pub document_navigation: Option<String>,
 }
 
 impl ToCCtx {
   pub const TEMPLATE: &'static str = "toc";
+
+  pub fn new(
+    ctx: RenderContext,
+    include_top_symbols: bool,
+    usage_doc_nodes: &[DocNodeWithContext],
+  ) -> Self {
+    Self {
+      usages: UsagesCtx::new(&ctx, usage_doc_nodes),
+      top_symbols: if include_top_symbols {
+        TopSymbolsCtx::new(&ctx)
+      } else {
+        None
+      },
+      document_navigation: ctx.toc.render(),
+    }
+  }
 }

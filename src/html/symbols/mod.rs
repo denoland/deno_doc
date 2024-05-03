@@ -1,7 +1,7 @@
 use crate::html::types::render_type_def;
-use crate::html::usage::UsagesCtx;
+use crate::html::util::AnchorCtx;
+use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::util::{AnchorCtx, SectionCtx};
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -33,7 +33,6 @@ struct SymbolCtx {
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
-  usages: Option<UsagesCtx>,
 }
 
 impl SymbolGroupCtx {
@@ -133,7 +132,6 @@ impl SymbolGroupCtx {
     SymbolGroupCtx {
       name: name.to_string(),
       symbols,
-      usages: UsagesCtx::new(ctx, doc_nodes),
     }
   }
 }

@@ -145,14 +145,8 @@ impl IndexCtx {
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
-    let toc_ctx = util::ToCCtx {
-      top_symbols: if ctx.file_mode != FileMode::SingleDts {
-        Some(util::TopSymbolsCtx::new(&render_ctx))
-      } else {
-        None
-      },
-      document_navigation: render_ctx.toc.render(),
-    };
+    let toc_ctx =
+      util::ToCCtx::new(render_ctx, ctx.file_mode != FileMode::SingleDts, &[]);
 
     IndexCtx {
       html_head_ctx,
@@ -474,9 +468,6 @@ pub fn render_symbol_page(
   (
     render_ctx.get_breadcrumbs(),
     symbol_group_ctx,
-    util::ToCCtx {
-      top_symbols: None,
-      document_navigation: render_ctx.toc.render(),
-    },
+    util::ToCCtx::new(render_ctx, false, doc_nodes),
   )
 }

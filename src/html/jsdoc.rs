@@ -1,6 +1,5 @@
 use super::render_context::RenderContext;
 use super::util::*;
-use crate::html::usage::UsagesCtx;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -313,7 +312,7 @@ pub fn markdown_to_html(
     let mut ammonia_builder = ammonia::Builder::default();
 
     ammonia_builder
-      .add_tags(["video", "button", "svg", "path"])
+      .add_tags(["video", "button", "svg", "path", "rect"])
       .add_generic_attributes(["id", "align"])
       .add_tag_attributes("button", ["data-copy"])
       .add_tag_attributes(
@@ -343,6 +342,7 @@ pub fn markdown_to_html(
           "stroke-linejoin",
         ],
       )
+      .add_tag_attributes("rect", ["x", "y", "width", "height", "fill"])
       .add_tag_attributes("video", ["src", "controls"])
       .add_allowed_classes("pre", ["highlight"])
       .add_allowed_classes("button", ["context_button"])
@@ -493,7 +493,6 @@ impl ExampleCtx {
 #[derive(Debug, Serialize, Clone, Default)]
 pub struct ModuleDocCtx {
   pub deprecated: Option<String>,
-  pub usages: Option<UsagesCtx>,
   pub sections: super::SymbolContentCtx,
 }
 
@@ -556,7 +555,6 @@ impl ModuleDocCtx {
 
     Self {
       deprecated,
-      usages: UsagesCtx::new(render_ctx, &[]),
       sections: super::SymbolContentCtx {
         id: "module_doc".to_string(),
         docs: html,

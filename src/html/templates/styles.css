@@ -156,6 +156,10 @@ summary::-webkit-details-marker {
 }
 
 .toc {
+  h3 {
+    @apply font-bold text-lg mb-3;
+  }
+
   > div {
     @apply space-y-5;
   }
@@ -201,9 +205,7 @@ summary::-webkit-details-marker {
   }
 }
 
-.usage {
-  @apply px-6 py-5 mb-4 border max-md:border-x-0 md:rounded-lg bg-stone-50 border-stone-200;
-
+.usages {
   nav {
     @apply flex items-center flex-row gap-2 mb-3 font-semibold;
 
@@ -227,8 +229,36 @@ summary::-webkit-details-marker {
   }
 }
 
-.usageContent pre.highlight {
-  @apply border border-gray-300 max-md:border-x-0;
+.usageContent {
+  .markdown {
+    @apply text-xs text-[#686868];
+
+    p {
+      @apply m-0;
+    }
+  }
+
+  pre.highlight {
+    @apply border border-gray-300 max-md:border-x-0 bg-transparent;
+    @apply mt-1 !important;
+
+    > code:first-child {
+      @apply py-2 px-3;
+      scrollbar-width: thin;
+    }
+
+    .context_button {
+      @apply top-1 right-2 hidden border-0;
+
+      svg rect {
+        @apply fill-white;
+      }
+    }
+
+    &:hover .context_button {
+      @apply block opacity-100;
+    }
+  }
 }
 
 .contextLink {
@@ -252,7 +282,7 @@ summary::-webkit-details-marker {
 }
 
 .context_button {
-  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-300 leading-[0];
+  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200 leading-[0];
 }
 
 /* markdown */
@@ -333,10 +363,10 @@ summary::-webkit-details-marker {
 
   pre {
     @apply font-mono text-sm rounded-lg text-black bg-stone-100;
-  }
 
-  pre > code:first-child {
-    @apply overflow-x-auto p-4 block;
+    & > code:first-child {
+      @apply overflow-x-auto p-4 block;
+    }
   }
 
   p {
