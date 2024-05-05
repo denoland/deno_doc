@@ -111,13 +111,7 @@ impl<'ctx> RenderContext<'ctx> {
               .get_file()
               .cloned()
               .unwrap_or_else(|| {
-                (**self
-                  .ctx
-                  .doc_nodes
-                  .keys()
-                  .find(|short_path| short_path.is_main)
-                  .unwrap())
-                .clone()
+                (**self.ctx.main_entrypoint.as_ref().unwrap()).clone()
               }),
             symbol: target_symbol,
           },

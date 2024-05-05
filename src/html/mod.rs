@@ -103,8 +103,8 @@ pub struct GenerateCtx<'ctx> {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
+  pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
-  pub sidebar_hide_all_symbols: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -114,6 +114,8 @@ impl<'ctx> GenerateCtx<'ctx> {
     file_mode: FileMode,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
   ) -> Result<Self, anyhow::Error> {
+    let mut main_entrypoint = None;
+
     let doc_nodes = doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
@@ -123,6 +125,10 @@ impl<'ctx> GenerateCtx<'ctx> {
           options.rewrite_map.as_ref(),
           common_ancestor.as_ref(),
         ));
+
+        if short_path.is_main {
+          main_entrypoint = Some(short_path.clone());
+        }
 
         let nodes = nodes
           .into_iter()
@@ -150,7 +156,7 @@ impl<'ctx> GenerateCtx<'ctx> {
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,
       rewrite_map: options.rewrite_map,
-      sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
+      main_entrypoint,
       file_mode,
     })
   }
@@ -568,21 +574,16 @@ pub fn generate(
 
   // Index page
   {
-    let main_entrypoint = ctx
-      .doc_nodes
-      .iter()
-      .find(|(short_path, _)| short_path.is_main);
-
     let partitions_for_entrypoint_nodes =
-      if let Some((_, doc_nodes)) = main_entrypoint {
-        get_partitions_for_file(&ctx, doc_nodes)
+      if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
+        get_partitions_for_file(&ctx, ctx.doc_nodes.get(entrypoint).unwrap())
       } else {
         Default::default()
       };
 
     let index = pages::IndexCtx::new(
       &ctx,
-      main_entrypoint.map(|(short_path, _)| short_path.clone()),
+      ctx.main_entrypoint.clone(),
       partitions_for_entrypoint_nodes,
     );
 

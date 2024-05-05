@@ -17,7 +17,7 @@
             </li>
           {{~/each~}}
         </ul>
-        {{~#if (gt (len top_symbols.symbols) 5)~}}
+        {{~#if (gt top_symbols.total_symbols 5)~}}
           <a class="flex items-center gap-0.5" href="{{top_symbols.all_symbols_href}}">
             <span class="leading-none">view all {{top_symbols.total_symbols}} symbols</span>
             {{~> icons/arrow ~}}

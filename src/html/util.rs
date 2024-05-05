@@ -227,7 +227,7 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
@@ -649,7 +649,13 @@ impl ToCCtx {
     usage_doc_nodes: &[DocNodeWithContext],
   ) -> Self {
     Self {
-      usages: UsagesCtx::new(&ctx, usage_doc_nodes),
+      usages: if ctx.get_current_resolve() == UrlResolveKind::Root
+        && ctx.ctx.main_entrypoint.is_none()
+      {
+        None
+      } else {
+        UsagesCtx::new(&ctx, usage_doc_nodes)
+      },
       top_symbols: if include_top_symbols {
         TopSymbolsCtx::new(&ctx)
       } else {
