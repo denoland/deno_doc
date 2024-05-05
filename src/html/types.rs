@@ -589,6 +589,7 @@ pub(crate) fn render_type_params(
   }
 
   Some(SectionCtx::new(
+    ctx,
     "Type Parameters",
     SectionContentCtx::DocEntry(items),
   ))

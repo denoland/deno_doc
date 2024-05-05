@@ -10,100 +10,6 @@
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
     },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": true,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
-    },
     "symbol_group_ctx": {
       "name": "Bar",
       "symbols": [
@@ -140,17 +46,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Bar } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -167,6 +63,21 @@
           "is_first_symbol": true
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Bar } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Bar } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": null
     }
   },
   null,
@@ -180,100 +91,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": true,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Baz",
@@ -298,6 +115,9 @@
                   {
                     "header": {
                       "title": "Properties",
+                      "anchor": {
+                        "id": "properties"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -326,17 +146,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Baz } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Baz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -353,6 +163,21 @@
           "is_first_symbol": true
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Baz } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Baz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li></ul>"
     }
   },
   {
@@ -365,100 +190,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": true,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Foo",
@@ -484,11 +215,14 @@
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": "<div class=\"markdown flex-1\"><p>some Foo docs</p>\n</div>",
+                "docs": "<div class=\"markdown\"><p>some Foo docs</p>\n</div>",
                 "sections": [
                   {
                     "header": {
                       "title": "Properties",
+                      "anchor": {
+                        "id": "properties"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -525,6 +259,9 @@
                   {
                     "header": {
                       "title": "Static Properties",
+                      "anchor": {
+                        "id": "static-properties"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -553,17 +290,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -580,6 +307,21 @@
           "is_first_symbol": true
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li></ul>"
     }
   },
   null,
@@ -593,100 +335,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": true,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Foobar",
@@ -720,17 +368,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">Foobar </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import Foobar from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -747,6 +385,21 @@
           "is_first_symbol": true
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">Foobar </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import Foobar from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": null
     }
   },
   null,
@@ -760,100 +413,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": true,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Hello",
@@ -878,6 +437,9 @@
                   {
                     "header": {
                       "title": "Properties",
+                      "anchor": {
+                        "id": "properties"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -906,17 +468,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Hello } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Hello } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -933,6 +485,21 @@
           "is_first_symbol": true
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Hello } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Hello } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li></ul>"
     }
   },
   {
@@ -945,100 +512,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Baz.foo",
@@ -1063,6 +536,9 @@
                   {
                     "header": {
                       "title": "Type",
+                      "anchor": {
+                        "id": "type"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -1091,17 +567,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Baz } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Baz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -1124,6 +590,21 @@
           "is_first_symbol": false
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Baz } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Baz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     }
   },
   {
@@ -1136,100 +617,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Foo.bar",
@@ -1254,6 +641,9 @@
                   {
                     "header": {
                       "title": "Type",
+                      "anchor": {
+                        "id": "type"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -1282,17 +672,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -1315,6 +695,21 @@
           "is_first_symbol": false
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     }
   },
   {
@@ -1327,100 +722,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Foo.prototype.\"><img src=x onerror=alert(1)>",
@@ -1445,6 +746,9 @@
                   {
                     "header": {
                       "title": "Type",
+                      "anchor": {
+                        "id": "type"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -1473,17 +777,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -1512,6 +806,21 @@
           "is_first_symbol": false
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     }
   },
   {
@@ -1524,100 +833,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Foo.prototype.foo",
@@ -1642,6 +857,9 @@
                   {
                     "header": {
                       "title": "Type",
+                      "anchor": {
+                        "id": "type"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -1670,17 +888,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -1709,6 +917,21 @@
           "is_first_symbol": false
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ Foo } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     }
   },
   {
@@ -1721,100 +944,6 @@
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Classes",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Bar",
-              "href": "../././~/Bar.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foo",
-              "href": "../././~/Foo.html",
-              "active": false,
-              "deprecated": false
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
-              "name": "Foobar",
-              "href": "../././~/Foobar.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Interfaces",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "Hello",
-              "href": "../././~/Hello.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "Type Aliases",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "TypeAlias",
-                  "char": "T",
-                  "title": "Type Alias",
-                  "title_lowercase": "type alias",
-                  "title_plural": "Type Aliases"
-                }
-              ],
-              "name": "Baz",
-              "href": "../././~/Baz.html",
-              "active": false,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "Hello.world",
@@ -1839,6 +968,9 @@
                   {
                     "header": {
                       "title": "Type",
+                      "anchor": {
+                        "id": "type"
+                      },
                       "href": null,
                       "doc": null
                     },
@@ -1867,17 +999,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Hello } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Hello } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -1900,6 +1022,21 @@
           "is_first_symbol": false
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ </span><span style=\"font-weight:bold;color:#a71d5d;\">type </span><span style=\"color:#323232;\">Hello } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\".\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { type Hello } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     }
   },
   {
@@ -1912,30 +1049,6 @@
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
       "url_search": "../../search.js"
-    },
-    "sidepanel_ctx": {
-      "partitions": [
-        {
-          "name": "Functions",
-          "symbols": [
-            {
-              "kind": [
-                {
-                  "kind": "Function",
-                  "char": "f",
-                  "title": "Function",
-                  "title_lowercase": "function",
-                  "title_plural": "Functions"
-                }
-              ],
-              "name": "x",
-              "href": "../.././foo/~/x.html",
-              "active": true,
-              "deprecated": false
-            }
-          ]
-        }
-      ]
     },
     "symbol_group_ctx": {
       "name": "x",
@@ -1974,6 +1087,9 @@
                       {
                         "header": {
                           "title": "Parameters",
+                          "anchor": {
+                            "id": "parameters"
+                          },
                           "href": null,
                           "doc": null
                         },
@@ -2002,6 +1118,9 @@
                       {
                         "header": {
                           "title": "Return Type",
+                          "anchor": {
+                            "id": "return-type"
+                          },
                           "href": null,
                           "doc": null
                         },
@@ -2032,17 +1151,7 @@
           "deprecated": null,
           "source_href": null
         }
-      ],
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown flex-1\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\"foo\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { x } from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7L2.75566 2.7V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ]
-      }
+      ]
     },
     "breadcrumbs_ctx": {
       "parts": [
@@ -2065,6 +1174,21 @@
           "is_first_symbol": true
         }
       ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span style=\"font-weight:bold;color:#a71d5d;\">import </span><span style=\"color:#323232;\">{ x } </span><span style=\"font-weight:bold;color:#a71d5d;\">from </span><span style=\"color:#183691;\">\"foo\"</span><span style=\"color:#323232;\">;\n</span></code><button class=\"context_button\" data-copy=\"import { x } from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
     }
   }
 ]

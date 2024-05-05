@@ -89,6 +89,7 @@ pub(crate) fn render_index_signatures(
   }
 
   Some(SectionCtx::new(
+    ctx,
     "Index Signatures",
     SectionContentCtx::IndexSignature(items),
   ))
@@ -134,6 +135,7 @@ pub(crate) fn render_call_signatures(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Call Signatures",
     SectionContentCtx::DocEntry(items),
   ))
@@ -204,6 +206,7 @@ pub(crate) fn render_properties(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Properties",
     SectionContentCtx::DocEntry(items),
   ))
@@ -265,6 +268,7 @@ pub(crate) fn render_methods(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Methods",
     SectionContentCtx::DocEntry(items),
   ))

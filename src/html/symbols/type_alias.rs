@@ -61,6 +61,7 @@ pub(crate) fn render_type_alias(
     }
   } else {
     sections.push(SectionCtx::new(
+      ctx,
       "Definition",
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,

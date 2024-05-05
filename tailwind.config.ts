@@ -37,6 +37,7 @@ export default {
     },
     {
       pattern: new RegExp(`^bg-(${Object.keys(extraColors).join("|")})\/15$`),
+      variants: ["hover"],
     },
   ],
   theme: {

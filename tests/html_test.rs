@@ -274,22 +274,15 @@ async fn symbol_group() {
 
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
-      let partitions_for_nodes =
-        partition::get_partitions_for_file(&ctx, doc_nodes);
-
-      let symbol_pages = generate_symbol_pages_for_module(
-        &ctx,
-        short_path,
-        &partitions_for_nodes,
-        doc_nodes,
-      );
+      let symbol_pages =
+        generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
 
       files.extend(symbol_pages.into_iter().map(
         |symbol_page| match symbol_page {
           SymbolPage::Symbol {
             breadcrumbs_ctx,
-            sidepanel_ctx,
             symbol_group_ctx,
+            toc_ctx,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
@@ -308,9 +301,9 @@ async fn symbol_group() {
 
             Some(pages::SymbolPageCtx {
               html_head_ctx,
-              sidepanel_ctx,
               symbol_group_ctx,
               breadcrumbs_ctx,
+              toc_ctx,
             })
           }
           SymbolPage::Redirect { .. } => None,

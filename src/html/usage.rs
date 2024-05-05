@@ -102,16 +102,17 @@ pub fn usage_to_md(
 }
 
 #[derive(Clone, Debug, Serialize)]
-pub struct UsagesCtx {
-  usages: Vec<UsageCtx>,
-}
-
-#[derive(Clone, Debug, Serialize)]
-pub struct UsageCtx {
+struct UsageCtx {
   name: String,
   content: String,
   icon: Option<std::borrow::Cow<'static, str>>,
   additional_css: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct UsagesCtx {
+  usages: Vec<UsageCtx>,
+  composed: bool,
 }
 
 impl UsagesCtx {
@@ -148,7 +149,10 @@ impl UsagesCtx {
       if usages.is_empty() {
         None
       } else {
-        Some(UsagesCtx { usages })
+        Some(UsagesCtx {
+          usages,
+          composed: true,
+        })
       }
     } else {
       let import_statement = usage_to_md(ctx, doc_nodes, &url);
@@ -162,6 +166,7 @@ impl UsagesCtx {
           icon: None,
           additional_css: "".to_string(),
         }],
+        composed: false,
       })
     }
   }

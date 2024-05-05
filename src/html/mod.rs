@@ -17,7 +17,6 @@ mod parameters;
 pub mod partition;
 mod render_context;
 mod search;
-pub mod sidepanels;
 mod symbols;
 #[cfg(feature = "tree-sitter")]
 mod tree_sitter;
@@ -41,6 +40,9 @@ pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
 pub use util::SectionHeaderCtx;
+pub use util::ToCCtx;
+pub use util::TopSymbolCtx;
+pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
@@ -371,12 +373,8 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_helper("print", Box::new(print));
 
   reg.register_template_string(
-    "sidepanel_common",
-    include_str!("./templates/sidepanel_common.hbs"),
-  )?;
-  reg.register_template_string(
-    sidepanels::SidepanelCtx::TEMPLATE,
-    include_str!("./templates/sidepanel.hbs"),
+    util::ToCCtx::TEMPLATE,
+    include_str!("./templates/toc.hbs"),
   )?;
   reg.register_template_string(
     util::DocEntryCtx::TEMPLATE,
@@ -385,10 +383,6 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     util::SectionCtx::TEMPLATE,
     include_str!("./templates/section.hbs"),
-  )?;
-  reg.register_template_string(
-    sidepanels::IndexSidepanelCtx::TEMPLATE,
-    include_str!("./templates/index_sidepanel.hbs"),
   )?;
   reg.register_template_string(
     "doc_node_kind_icon",
@@ -594,14 +588,6 @@ pub fn generate(
 
     if composable_output {
       files.insert(
-        "./sidepanel.html".to_string(),
-        ctx.render(
-          sidepanels::IndexSidepanelCtx::TEMPLATE,
-          &index.sidepanel_ctx,
-        ),
-      );
-
-      files.insert(
         "./breadcrumbs.html".to_string(),
         ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
       );
@@ -665,19 +651,15 @@ pub fn generate(
     for (short_path, doc_nodes) in &ctx.doc_nodes {
       let partitions_for_nodes = get_partitions_for_file(&ctx, doc_nodes);
 
-      let symbol_pages = generate_symbol_pages_for_module(
-        &ctx,
-        short_path,
-        &partitions_for_nodes,
-        doc_nodes,
-      );
+      let symbol_pages =
+        generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
 
       files.extend(symbol_pages.into_iter().flat_map(|symbol_page| {
         match symbol_page {
           SymbolPage::Symbol {
             breadcrumbs_ctx,
-            sidepanel_ctx,
             symbol_group_ctx,
+            toc_ctx,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
@@ -700,11 +682,6 @@ pub fn generate(
 
               vec![
                 (
-                  format!("{dir_name}/sidepanel.html"),
-                  ctx
-                    .render(sidepanels::SidepanelCtx::TEMPLATE, &sidepanel_ctx),
-                ),
-                (
                   format!("{dir_name}/breadcrumbs.html"),
                   ctx.render(util::BreadcrumbsCtx::TEMPLATE, &breadcrumbs_ctx),
                 ),
@@ -719,9 +696,9 @@ pub fn generate(
 
               let page_ctx = pages::SymbolPageCtx {
                 html_head_ctx,
-                sidepanel_ctx,
                 symbol_group_ctx,
                 breadcrumbs_ctx,
+                toc_ctx,
               };
 
               let symbol_page =
@@ -762,14 +739,6 @@ pub fn generate(
 
         if composable_output {
           let dir = format!("{}/~", short_path.path);
-          files.insert(
-            format!("{dir}/sidepanel.html"),
-            ctx.render(
-              sidepanels::IndexSidepanelCtx::TEMPLATE,
-              &index.sidepanel_ctx,
-            ),
-          );
-
           files.insert(
             format!("{dir}/breadcrumbs.html"),
             ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),

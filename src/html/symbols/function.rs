@@ -266,12 +266,14 @@ fn render_single_function(
 
   if !params.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Parameters",
       SectionContentCtx::DocEntry(params),
     ));
   }
 
   sections.push(SectionCtx::new(
+    ctx,
     "Return Type",
     SectionContentCtx::DocEntry(
       render_function_return_type(ctx, function_def, doc_node, overload_id)
