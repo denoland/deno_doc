@@ -47,6 +47,7 @@ pub(crate) fn render_variable(
     }
   } else {
     sections.push(SectionCtx::new(
+      ctx,
       "Type",
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,

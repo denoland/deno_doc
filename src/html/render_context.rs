@@ -19,6 +19,7 @@ pub struct RenderContext<'ctx> {
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Rc<Vec<String>>,
+  pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -34,6 +35,7 @@ impl<'ctx> RenderContext<'ctx> {
       current_type_params: Default::default(),
       current_resolve,
       namespace_parts: Rc::new(vec![]),
+      toc: Default::default(),
     }
   }
 
@@ -60,6 +62,7 @@ impl<'ctx> RenderContext<'ctx> {
   ) -> Self {
     Self {
       current_resolve,
+      toc: Default::default(),
       ..self.clone()
     }
   }
@@ -108,13 +111,7 @@ impl<'ctx> RenderContext<'ctx> {
               .get_file()
               .cloned()
               .unwrap_or_else(|| {
-                (**self
-                  .ctx
-                  .doc_nodes
-                  .keys()
-                  .find(|short_path| short_path.is_main)
-                  .unwrap())
-                .clone()
+                (**self.ctx.main_entrypoint.as_ref().unwrap()).clone()
               }),
             symbol: target_symbol,
           },

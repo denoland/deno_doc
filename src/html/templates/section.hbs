@@ -1,6 +1,8 @@
-<section class="section">
+<section class="section" id="{{header.anchor.id}}">
   <div>
-	  <h2>
+	  <h2 class="anchorable">
+      {{~> anchor header.anchor ~}}
+
 		  {{~#if header.href~}}
 			  <a href="{{header.href}}" class="contextLink">{{header.title}}</a>
 		  {{~else~}}

@@ -1,5 +1,6 @@
 use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
+use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -226,7 +227,7 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
@@ -373,7 +374,7 @@ impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct AnchorCtx {
   pub id: String,
 }
@@ -394,6 +395,7 @@ pub enum SectionContentCtx {
 #[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct SectionHeaderCtx {
   pub title: String,
+  pub anchor: AnchorCtx,
   pub href: Option<String>,
   pub doc: Option<String>,
 }
@@ -416,14 +418,15 @@ impl SectionHeaderCtx {
           MarkdownToHTMLOptions {
             summary: true,
             summary_prefer_title: true,
-            render_toc: false,
           },
         )
-      })
-      .map(|markdown| markdown.html);
+      });
+
+    let title = path.display_name();
 
     SectionHeaderCtx {
-      title: path.display_name(),
+      title: title.clone(),
+      anchor: AnchorCtx { id: title },
       href: Some(render_ctx.ctx.href_resolver.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),
@@ -442,10 +445,17 @@ pub struct SectionCtx {
 impl SectionCtx {
   pub const TEMPLATE: &'static str = "section";
 
-  pub fn new(title: &'static str, content: SectionContentCtx) -> Self {
+  pub fn new(
+    render_context: &RenderContext,
+    title: &'static str,
+    content: SectionContentCtx,
+  ) -> Self {
+    let anchor = render_context.toc.add_entry(1, title.to_string());
+
     Self {
       header: SectionHeaderCtx {
         title: title.to_string(),
+        anchor: AnchorCtx { id: anchor },
         href: None,
         doc: None,
       },
@@ -556,4 +566,102 @@ pub fn qualify_drilldown_name(
     "{parent_name}{}.{drilldown_name}",
     if is_static { "" } else { ".prototype" },
   )
+}
+
+#[derive(Debug, Serialize)]
+pub struct TopSymbolCtx {
+  pub kind: Vec<DocNodeKindCtx>,
+  pub name: String,
+  pub href: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct TopSymbolsCtx {
+  pub symbols: Vec<TopSymbolCtx>,
+  pub total_symbols: usize,
+  pub all_symbols_href: String,
+}
+
+impl TopSymbolsCtx {
+  pub fn new(ctx: &RenderContext) -> Option<Self> {
+    let partitions = super::partition::partition_nodes_by_name(
+      &ctx
+        .ctx
+        .doc_nodes
+        .values()
+        .flatten()
+        .cloned()
+        .collect::<Vec<_>>(),
+      true,
+    );
+
+    if partitions.is_empty() {
+      return None;
+    }
+
+    let symbols = partitions
+      .values()
+      .take(5)
+      .map(|nodes| {
+        let name = nodes[0].get_qualified_name();
+
+        TopSymbolCtx {
+          kind: nodes
+            .iter()
+            .map(|node| node.kind_with_drilldown.into())
+            .collect::<Vec<_>>(),
+          href: ctx.ctx.href_resolver.resolve_path(
+            ctx.get_current_resolve(),
+            UrlResolveKind::Symbol {
+              file: &nodes[0].origin,
+              symbol: &name,
+            },
+          ),
+          name,
+        }
+      })
+      .collect();
+
+    Some(Self {
+      symbols,
+      total_symbols: partitions.values().count(),
+      all_symbols_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_path(ctx.get_current_resolve(), UrlResolveKind::AllSymbols),
+    })
+  }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ToCCtx {
+  pub usages: Option<UsagesCtx>,
+  pub top_symbols: Option<TopSymbolsCtx>,
+  pub document_navigation: Option<String>,
+}
+
+impl ToCCtx {
+  pub const TEMPLATE: &'static str = "toc";
+
+  pub fn new(
+    ctx: RenderContext,
+    include_top_symbols: bool,
+    usage_doc_nodes: &[DocNodeWithContext],
+  ) -> Self {
+    Self {
+      usages: if ctx.get_current_resolve() == UrlResolveKind::Root
+        && ctx.ctx.main_entrypoint.is_none()
+      {
+        None
+      } else {
+        UsagesCtx::new(&ctx, usage_doc_nodes)
+      },
+      top_symbols: if include_top_symbols {
+        TopSymbolsCtx::new(&ctx)
+      } else {
+        None
+      },
+      document_navigation: ctx.toc.render(),
+    }
+  }
 }

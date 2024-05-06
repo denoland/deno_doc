@@ -1,5 +1,5 @@
 use crate::html::types::render_type_def;
-use crate::html::usage::UsagesCtx;
+use crate::html::util::AnchorCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
 use crate::html::DocNodeKindWithDrilldown;
@@ -33,7 +33,6 @@ struct SymbolCtx {
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
-  usages: Option<UsagesCtx>,
 }
 
 impl SymbolGroupCtx {
@@ -133,7 +132,6 @@ impl SymbolGroupCtx {
     SymbolGroupCtx {
       name: name.to_string(),
       symbols,
-      usages: UsagesCtx::new(ctx, doc_nodes),
     }
   }
 }
@@ -259,7 +257,17 @@ impl SymbolInnerCtx {
     let mut functions = vec![];
 
     for doc_node in doc_nodes {
-      let mut sections = match doc_node.kind {
+      let mut sections = vec![];
+      let docs =
+        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
+
+      if let Some(examples) =
+        crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
+      {
+        sections.push(examples);
+      }
+
+      sections.extend(match doc_node.kind {
         DocNodeKind::Function => {
           functions.push(doc_node);
           continue;
@@ -297,7 +305,8 @@ impl SymbolInnerCtx {
               .map(|(title, nodes)| {
                 (
                   crate::html::util::SectionHeaderCtx {
-                    title,
+                    title: title.clone(),
+                    anchor: AnchorCtx { id: title },
                     href: None,
                     doc: None,
                   },
@@ -308,15 +317,7 @@ impl SymbolInnerCtx {
           )
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
-      };
-
-      let docs =
-        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
-      let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
-
-      if let Some(examples) = examples {
-        sections.insert(0, examples);
-      }
+      });
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
         id: String::new(),

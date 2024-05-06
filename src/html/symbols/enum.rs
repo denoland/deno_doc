@@ -39,6 +39,7 @@ pub(crate) fn render_enum(
     .collect::<Vec<DocEntryCtx>>();
 
   vec![SectionCtx::new(
+    render_ctx,
     "Members",
     SectionContentCtx::DocEntry(items),
   )]

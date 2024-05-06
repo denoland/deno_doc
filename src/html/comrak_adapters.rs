@@ -7,6 +7,7 @@ use comrak::adapters::HeadingAdapter;
 use comrak::adapters::HeadingMeta;
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::Sourcepos;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::Arc;
@@ -224,15 +225,75 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
   }
 }
 
-#[derive(Default)]
+#[derive(Debug)]
+pub struct ToCEntry {
+  pub level: u8,
+  pub content: String,
+  pub anchor: String,
+}
+
+#[derive(Default, Clone)]
 pub struct HeadingToCAdapter {
-  toc: Mutex<Vec<(u8, String, String)>>,
-  anchorizer: Mutex<comrak::html::Anchorizer>,
+  toc: Arc<Mutex<Vec<ToCEntry>>>,
+  anchorizer: Arc<Mutex<comrak::html::Anchorizer>>,
+  offset: Arc<Mutex<u8>>,
 }
 
 impl HeadingToCAdapter {
-  pub fn into_toc(self) -> Vec<(u8, String, String)> {
-    self.toc.into_inner().unwrap()
+  pub fn add_entry(&self, level: u8, content: String) -> String {
+    let mut lock = self.toc.lock().unwrap();
+    let mut anchorizer = self.anchorizer.lock().unwrap();
+    let mut offset = self.offset.lock().unwrap();
+
+    let anchor = anchorizer.anchorize(content.clone());
+    *offset = level;
+
+    lock.push(ToCEntry {
+      level,
+      content,
+      anchor: anchor.clone(),
+    });
+
+    anchor
+  }
+
+  pub fn into_toc(self) -> Vec<ToCEntry> {
+    Arc::into_inner(self.toc).unwrap().into_inner().unwrap()
+  }
+
+  pub fn render(self) -> Option<String> {
+    let toc = Arc::into_inner(self.toc).unwrap().into_inner().unwrap();
+
+    if toc.is_empty() {
+      return None;
+    }
+
+    let mut toc_content = vec![String::from(r#"<ul>"#)];
+
+    let mut current_level = 1;
+
+    for entry in toc {
+      match current_level.cmp(&entry.level) {
+        Ordering::Equal => {}
+        Ordering::Less => {
+          toc_content.push(r#"<li><ul>"#.to_string());
+          current_level = entry.level;
+        }
+        Ordering::Greater => {
+          toc_content.push("</ul></li>".to_string());
+          current_level = entry.level;
+        }
+      }
+
+      toc_content.push(format!(
+        r##"<li><a href="#{}" title="{}">{}</a></li>"##,
+        entry.anchor, entry.content, entry.content
+      ));
+    }
+
+    toc_content.push(String::from("</ul>"));
+
+    Some(toc_content.join(""))
   }
 }
 
@@ -244,12 +305,17 @@ impl HeadingAdapter for HeadingToCAdapter {
     _sourcepos: Option<Sourcepos>,
   ) -> std::io::Result<()> {
     let mut anchorizer = self.anchorizer.lock().unwrap();
+    let offset = self.offset.lock().unwrap();
 
     let anchor = anchorizer.anchorize(heading.content.clone());
     writeln!(output, r#"<h{} id="{anchor}">"#, heading.level)?;
 
     let mut lock = self.toc.lock().unwrap();
-    lock.push((heading.level, heading.content.clone(), anchor));
+    lock.push(ToCEntry {
+      level: heading.level + *offset,
+      content: heading.content.clone(),
+      anchor,
+    });
 
     Ok(())
   }
