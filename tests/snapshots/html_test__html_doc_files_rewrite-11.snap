@@ -1,0 +1,5 @@
+---
+source: tests/html_test.rs
+expression: "files.get(\"./~/Foo.prototype.html\").unwrap()"
+---
+<meta http-equiv="refresh" content="0; url=..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html">
