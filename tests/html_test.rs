@@ -168,20 +168,23 @@ async fn html_doc_files() {
     ]
   );
 
-  insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
-  insta::assert_snapshot!(files.get("./index.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Bar.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Bar.prototype.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foo.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foo.prototype.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
-  insta::assert_snapshot!(files.get("fuse.js").unwrap());
-  insta::assert_snapshot!(files.get("page.css").unwrap());
-  insta::assert_snapshot!(files.get("script.js").unwrap());
-  insta::assert_snapshot!(files.get("search.js").unwrap());
-  insta::assert_snapshot!(files.get("search_index.js").unwrap());
-  insta::assert_snapshot!(files.get("styles.css").unwrap());
+  #[cfg(not(feature = "syntect"))]
+  {
+    insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
+    insta::assert_snapshot!(files.get("./index.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Bar.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Bar.prototype.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foo.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foo.prototype.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
+    insta::assert_snapshot!(files.get("fuse.js").unwrap());
+    insta::assert_snapshot!(files.get("page.css").unwrap());
+    insta::assert_snapshot!(files.get("script.js").unwrap());
+    insta::assert_snapshot!(files.get("search.js").unwrap());
+    insta::assert_snapshot!(files.get("search_index.js").unwrap());
+    insta::assert_snapshot!(files.get("styles.css").unwrap());
+  }
 }
 
 #[tokio::test]
@@ -247,32 +250,35 @@ async fn html_doc_files_rewrite() {
     ]
   );
 
-  insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
-  insta::assert_snapshot!(files.get("./index.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Bar.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Bar.prototype.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Baz.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Baz.foo.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foo.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foo.bar.html").unwrap());
-  insta::assert_snapshot!(files
-    .get("./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html")
-    .unwrap());
-  insta::assert_snapshot!(files.get("./~/Foo.prototype.foo.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foo.prototype.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Hello.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/Hello.world.html").unwrap());
-  insta::assert_snapshot!(files.get("./~/index.html").unwrap());
-  insta::assert_snapshot!(files.get("foo/~/index.html").unwrap());
-  insta::assert_snapshot!(files.get("foo/~/x.html").unwrap());
-  insta::assert_snapshot!(files.get("fuse.js").unwrap());
-  insta::assert_snapshot!(files.get("page.css").unwrap());
-  insta::assert_snapshot!(files.get("script.js").unwrap());
-  insta::assert_snapshot!(files.get("search.js").unwrap());
-  insta::assert_snapshot!(files.get("search_index.js").unwrap());
-  insta::assert_snapshot!(files.get("styles.css").unwrap());
+  #[cfg(not(feature = "syntect"))]
+  {
+    insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
+    insta::assert_snapshot!(files.get("./index.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Bar.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Bar.prototype.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Baz.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Baz.foo.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foo.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foo.bar.html").unwrap());
+    insta::assert_snapshot!(files
+      .get("./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html")
+      .unwrap());
+    insta::assert_snapshot!(files.get("./~/Foo.prototype.foo.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foo.prototype.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Hello.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/Hello.world.html").unwrap());
+    insta::assert_snapshot!(files.get("./~/index.html").unwrap());
+    insta::assert_snapshot!(files.get("foo/~/index.html").unwrap());
+    insta::assert_snapshot!(files.get("foo/~/x.html").unwrap());
+    insta::assert_snapshot!(files.get("fuse.js").unwrap());
+    insta::assert_snapshot!(files.get("page.css").unwrap());
+    insta::assert_snapshot!(files.get("script.js").unwrap());
+    insta::assert_snapshot!(files.get("search.js").unwrap());
+    insta::assert_snapshot!(files.get("search_index.js").unwrap());
+    insta::assert_snapshot!(files.get("styles.css").unwrap());
+  }
 }
 
 #[tokio::test]
