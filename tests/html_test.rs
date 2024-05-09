@@ -168,7 +168,7 @@ async fn html_doc_files() {
     ]
   );
 
-  #[cfg(not(feature = "syntect"))]
+  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -250,7 +250,7 @@ async fn html_doc_files_rewrite() {
     ]
   );
 
-  #[cfg(not(feature = "syntect"))]
+  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
