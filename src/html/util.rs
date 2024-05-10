@@ -255,7 +255,7 @@ pub fn href_path_resolve(
 ) -> String {
   let backs = match current {
     UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-      .repeat(if file.path == "." {
+      .repeat(if file.is_main {
         1
       } else {
         file.path.split('/').count() + 1

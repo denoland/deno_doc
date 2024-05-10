@@ -1,6 +1,4 @@
 use super::DocNodeWithContext;
-use super::FileMode;
-use super::GenerateCtx;
 use super::ShortPath;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
@@ -229,16 +227,13 @@ fn compare_node(
 }
 
 pub fn get_partitions_for_file(
-  ctx: &GenerateCtx,
   doc_nodes: &[DocNodeWithContext],
+  flatten_namespace: bool,
 ) -> Partitions<String> {
-  let categories = partition_nodes_by_category(
-    doc_nodes,
-    ctx.file_mode == FileMode::SingleDts,
-  );
+  let categories = partition_nodes_by_category(doc_nodes, flatten_namespace);
 
   if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(doc_nodes, ctx.file_mode == FileMode::SingleDts)
+    partition_nodes_by_kind(doc_nodes, flatten_namespace)
   } else {
     categories
   }

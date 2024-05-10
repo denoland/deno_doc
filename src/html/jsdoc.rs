@@ -532,7 +532,7 @@ impl ModuleDocCtx {
 
     if !short_path.is_main {
       let partitions_by_kind =
-        super::partition::partition_nodes_by_kind(module_doc_nodes, true);
+        super::partition::get_partitions_for_file(module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,

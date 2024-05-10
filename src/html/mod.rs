@@ -531,18 +531,9 @@ pub fn setup_highlighter(
 pub enum FileMode {
   #[default]
   Normal,
+  Dts,
   Single,
   SingleDts,
-}
-
-impl FileMode {
-  fn is_single(&self) -> bool {
-    match self {
-      FileMode::Normal => false,
-      FileMode::Single => true,
-      FileMode::SingleDts => true,
-    }
-  }
 }
 
 pub fn generate(
@@ -554,15 +545,16 @@ pub fn generate(
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
 
-  let file_mode = if doc_nodes_by_url.len() == 1 {
-    let (specifier, _) = doc_nodes_by_url.first().unwrap();
-    if specifier.as_str().ends_with(".d.ts") {
-      FileMode::SingleDts
-    } else {
-      FileMode::Single
-    }
-  } else {
-    FileMode::Normal
+  let file_mode = match (
+    doc_nodes_by_url
+      .keys()
+      .all(|specifier| specifier.as_str().ends_with(".d.ts")),
+    doc_nodes_by_url.len(),
+  ) {
+    (false, 1) => FileMode::Single,
+    (false, _) => FileMode::Normal,
+    (true, 1) => FileMode::SingleDts,
+    (true, _) => FileMode::Dts,
   };
 
   let composable_output = options.composable_output;
@@ -576,7 +568,10 @@ pub fn generate(
   {
     let partitions_for_entrypoint_nodes =
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
-        get_partitions_for_file(&ctx, ctx.doc_nodes.get(entrypoint).unwrap())
+        get_partitions_for_file(
+          ctx.doc_nodes.get(entrypoint).unwrap(),
+          ctx.file_mode == FileMode::SingleDts,
+        )
       } else {
         Default::default()
       };
@@ -593,14 +588,14 @@ pub fn generate(
         ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
       );
 
-      if index.module_doc.is_some() || index.all_symbols.is_some() {
+      if index.module_doc.is_some() || index.overview.is_some() {
         let mut out = String::new();
 
         if let Some(module_doc) = index.module_doc {
           out.push_str(&ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc));
         }
 
-        if let Some(all_symbols) = index.all_symbols {
+        if let Some(all_symbols) = index.overview {
           out.push_str(&ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols));
         }
 
@@ -650,7 +645,10 @@ pub fn generate(
   // Pages for all discovered symbols
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
-      let partitions_for_nodes = get_partitions_for_file(&ctx, doc_nodes);
+      let partitions_for_nodes = get_partitions_for_file(
+        doc_nodes,
+        ctx.file_mode == FileMode::SingleDts,
+      );
 
       let symbol_pages =
         generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
@@ -745,7 +743,7 @@ pub fn generate(
             ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
           );
 
-          if index.module_doc.is_some() || index.all_symbols.is_some() {
+          if index.module_doc.is_some() || index.overview.is_some() {
             let mut out = String::new();
 
             if let Some(module_doc) = index.module_doc {
@@ -754,7 +752,7 @@ pub fn generate(
               );
             }
 
-            if let Some(all_symbols) = index.all_symbols {
+            if let Some(all_symbols) = index.overview {
               out.push_str(
                 &ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols),
               );

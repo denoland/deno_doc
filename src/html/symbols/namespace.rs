@@ -46,7 +46,6 @@ fn get_namespace_section_render_ctx(
 pub struct NamespaceNodeCtx {
   pub tags: HashSet<Tag>,
   pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
-  pub origin_name: Option<String>,
   pub href: String,
   pub name: String,
   pub docs: Option<String>,
@@ -70,11 +69,6 @@ impl NamespaceNodeCtx {
         .iter()
         .map(|node| node.kind_with_drilldown.into())
         .collect(),
-      origin_name: if ctx.ctx.file_mode.is_single() {
-        None
-      } else {
-        Some(nodes[0].origin.display_name())
-      },
       href: ctx.ctx.href_resolver.resolve_path(
         ctx.get_current_resolve(),
         UrlResolveKind::Symbol {

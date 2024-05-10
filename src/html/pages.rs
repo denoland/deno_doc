@@ -70,7 +70,7 @@ impl HtmlHeadCtx {
 pub struct IndexCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub module_doc: Option<super::jsdoc::ModuleDocCtx>,
-  pub all_symbols: Option<SymbolContentCtx>,
+  pub overview: Option<SymbolContentCtx>,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub toc_ctx: util::ToCCtx,
 }
@@ -113,34 +113,83 @@ impl IndexCtx {
     let html_head_ctx =
       HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
 
-    let all_symbols = if ctx.file_mode == FileMode::SingleDts {
-      let sections = super::namespace::render_namespace(
-        &render_ctx,
-        partitions
-          .into_iter()
-          .map(|(title, nodes)| {
-            let anchor = render_ctx.toc.add_entry(1, title.clone());
+    let overview = match ctx.file_mode {
+      FileMode::Dts if short_path.is_none() => {
+        let entrypoints = ctx
+          .doc_nodes
+          .iter()
+          .map(|(short_path, nodes)| {
+            let docs = nodes
+              .iter()
+              .find(|node| node.kind == DocNodeKind::ModuleDoc)
+              .and_then(|node| {
+                crate::html::jsdoc::jsdoc_body_to_html(
+                  &render_ctx,
+                  &node.js_doc,
+                  true,
+                )
+              });
 
-            (
-              SectionHeaderCtx {
-                title,
-                anchor: AnchorCtx { id: anchor },
-                href: None,
-                doc: None,
-              },
-              nodes,
-            )
+            crate::html::namespace::NamespaceNodeCtx {
+              tags: Default::default(),
+              doc_node_kind_ctx: vec![],
+              href: ctx.href_resolver.resolve_path(
+                UrlResolveKind::Root,
+                short_path.as_resolve_kind(),
+              ),
+              name: short_path.display_name(),
+              docs,
+              deprecated: false,
+            }
           })
-          .collect(),
-      );
+          .collect::<Vec<_>>();
 
-      Some(SymbolContentCtx {
-        id: String::new(),
-        sections,
-        docs: None,
-      })
-    } else {
-      None
+        // render list of all entrypoints
+        let section = util::SectionCtx {
+          header: SectionHeaderCtx {
+            title: "".to_string(),
+            anchor: AnchorCtx { id: "".to_string() },
+            href: None,
+            doc: None,
+          },
+          content: util::SectionContentCtx::NamespaceSection(entrypoints),
+        };
+
+        Some(SymbolContentCtx {
+          id: String::new(),
+          sections: vec![section],
+          docs: None,
+        })
+      }
+      FileMode::SingleDts => {
+        // render "all symbols" page on index page
+        let sections = super::namespace::render_namespace(
+          &render_ctx,
+          partitions
+            .into_iter()
+            .map(|(title, nodes)| {
+              let anchor = render_ctx.toc.add_entry(1, title.clone());
+
+              (
+                SectionHeaderCtx {
+                  title,
+                  anchor: AnchorCtx { id: anchor },
+                  href: None,
+                  doc: None,
+                },
+                nodes,
+              )
+            })
+            .collect(),
+        );
+
+        Some(SymbolContentCtx {
+          id: String::new(),
+          sections,
+          docs: None,
+        })
+      }
+      _ => None,
     };
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
@@ -151,7 +200,7 @@ impl IndexCtx {
     IndexCtx {
       html_head_ctx,
       module_doc,
-      all_symbols,
+      overview,
       breadcrumbs_ctx,
       toc_ctx,
     }
