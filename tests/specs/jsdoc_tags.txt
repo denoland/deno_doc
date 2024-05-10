@@ -34,7 +34,7 @@ function a(b, c, d): void
   @return {number}
       throw doc
 
-  @see
+  @since
       1.0.0
 
   @experimental
