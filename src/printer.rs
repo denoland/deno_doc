@@ -402,7 +402,7 @@ impl<'a> DocPrinter<'a> {
         self.format_jsdoc_tag_doc(w, doc, indent)
       }
       JsDocTag::Since { doc } => {
-        writeln!(w, "{}@{}", Indent(indent), colors::magenta("see"))?;
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("since"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
       }
       JsDocTag::Throws { type_ref, doc } => {
