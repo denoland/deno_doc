@@ -91,8 +91,7 @@ type Test = OtherPrivateType
     "jsDoc": {
       "tags": [
         {
-          "kind": "unsupported",
-          "value": "@internal"
+          "kind": "internal"
         }
       ]
     },
@@ -190,8 +189,7 @@ type Test = OtherPrivateType
           "jsDoc": {
             "tags": [
               {
-                "kind": "unsupported",
-                "value": "@internal"
+                "kind": "internal"
               }
             ]
           },
@@ -216,8 +214,7 @@ type Test = OtherPrivateType
           "jsDoc": {
             "tags": [
               {
-                "kind": "unsupported",
-                "value": "@internal"
+                "kind": "internal"
               }
             ]
           },
@@ -284,8 +281,7 @@ type Test = OtherPrivateType
     "jsDoc": {
       "tags": [
         {
-          "kind": "unsupported",
-          "value": "@internal"
+          "kind": "internal"
         }
       ]
     },

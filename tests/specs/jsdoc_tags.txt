@@ -6,11 +6,15 @@
  * @param [c=1] additional doc
  * @param [d] more doc
  * @returns {string} returning doc
+ * @throws {number} throw doc
+ * @since 1.0.0
+ * @experimental
+ * @internal
  */
 export function a(b, c, d) {}
 
 # output.txt
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:13:1
 
 function a(b, c, d): void
   a is a function
@@ -27,6 +31,14 @@ function a(b, c, d): void
   @return {string}
       returning doc
 
+  @return {number}
+      throw doc
+
+  @see
+      1.0.0
+
+  @experimental
+  @internal
 
 
 # output.json
@@ -36,9 +48,9 @@ function a(b, c, d): void
     "name": "a",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 9,
+      "line": 13,
       "col": 0,
-      "byteIndex": 149
+      "byteIndex": 225
     },
     "declarationKind": "export",
     "jsDoc": {
@@ -66,6 +78,21 @@ function a(b, c, d): void
           "kind": "return",
           "type": "string",
           "doc": "returning doc"
+        },
+        {
+          "kind": "throws",
+          "type": "number",
+          "doc": "throw doc"
+        },
+        {
+          "kind": "since",
+          "doc": "1.0.0"
+        },
+        {
+          "kind": "experimental"
+        },
+        {
+          "kind": "internal"
         }
       ]
     },

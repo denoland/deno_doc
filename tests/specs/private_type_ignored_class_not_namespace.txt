@@ -73,8 +73,7 @@ private namespace MyNamespace
           "jsDoc": {
             "tags": [
               {
-                "kind": "unsupported",
-                "value": "@internal"
+                "kind": "internal"
               }
             ]
           },

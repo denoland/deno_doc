@@ -255,6 +255,9 @@ impl<'a> DocPrinter<'a> {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("example"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
       }
+      JsDocTag::Experimental => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("experimental"))
+      }
       JsDocTag::Extends { type_ref, doc } => {
         writeln!(
           w,
@@ -267,6 +270,9 @@ impl<'a> DocPrinter<'a> {
       }
       JsDocTag::Ignore => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("ignore"))
+      }
+      JsDocTag::Internal => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("internal"))
       }
       JsDocTag::Module => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("module"))
