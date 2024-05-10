@@ -33,6 +33,7 @@ private const obj: { a: string; b: string; }
         "repr": "",
         "kind": "typeLiteral",
         "typeLiteral": {
+          "constructors": [],
           "methods": [],
           "properties": [
             {

@@ -16,6 +16,7 @@ use std::collections::HashSet;
 pub(crate) fn render_class(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
+  name: &str,
 ) -> Vec<SectionCtx> {
   let class_def = doc_node.class_def.as_ref().unwrap();
 
@@ -57,10 +58,11 @@ pub(crate) fn render_class(
 
   if !class_items.properties.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Properties",
       SectionContentCtx::DocEntry(render_class_properties(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.properties,
       )),
     ));
@@ -68,10 +70,11 @@ pub(crate) fn render_class(
 
   if !class_items.methods.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Methods",
       SectionContentCtx::DocEntry(render_class_methods(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.methods,
       )),
     ));
@@ -79,10 +82,11 @@ pub(crate) fn render_class(
 
   if !class_items.static_properties.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Static Properties",
       SectionContentCtx::DocEntry(render_class_properties(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.static_properties,
       )),
     ));
@@ -90,10 +94,11 @@ pub(crate) fn render_class(
 
   if !class_items.static_methods.is_empty() {
     sections.push(SectionCtx::new(
+      ctx,
       "Static Methods",
       SectionContentCtx::DocEntry(render_class_methods(
         ctx,
-        doc_node.get_name(),
+        name,
         class_items.static_methods,
       )),
     ));
@@ -139,6 +144,7 @@ fn render_constructors(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Constructors",
     SectionContentCtx::DocEntry(items),
   ))

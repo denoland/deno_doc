@@ -75,6 +75,7 @@ class Bar extends obj.Foo
         "repr": "",
         "kind": "typeLiteral",
         "typeLiteral": {
+          "constructors": [],
           "methods": [],
           "properties": [
             {

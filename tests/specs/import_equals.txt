@@ -37,6 +37,7 @@ interface Options
     "declarationKind": "export",
     "interfaceDef": {
       "extends": [],
+      "constructors": [],
       "methods": [],
       "properties": [],
       "callSignatures": [],

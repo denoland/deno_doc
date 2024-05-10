@@ -510,6 +510,18 @@ impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
   }
 
   fn visit_interface_def(&mut self, def: &crate::interface::InterfaceDef) {
+    // constructors
+    for constructor in &def.constructors {
+      self
+        .diagnostics
+        .check_missing_js_doc(&constructor.js_doc, &constructor.location);
+      self.diagnostics.check_missing_return_type(
+        constructor.return_type.as_ref(),
+        &constructor.js_doc,
+        &constructor.location,
+      );
+    }
+
     // properties
     for prop in &def.properties {
       self

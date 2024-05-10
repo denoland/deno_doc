@@ -358,6 +358,7 @@ export { Hello } from "./reexport.ts";
       "declarationKind": "export",
       "interfaceDef": {
         "extends": [],
+        "constructors": [],
         "methods": [],
         "properties": [],
         "callSignatures": [],
@@ -937,6 +938,7 @@ async fn json_module() {
           "repr": "",
           "kind": "typeLiteral",
           "typeLiteral": {
+            "constructors": [],
             "methods": [],
             "properties": [{
               "name": "a",
@@ -1031,6 +1033,7 @@ async fn json_module() {
                 "repr": "",
                 "kind": "typeLiteral",
                 "typeLiteral": {
+                  "constructors": [],
                   "methods": [],
                   "properties": [{
                     "name": "a",

@@ -27,10 +27,6 @@
 
       {{~> deprecated this.deprecated ~}}
 
-      {{~#if (and @first ../usages)~}}
-        {{~> usages ../usages ~}}
-      {{~/if~}}
-
       <div>
         {{~#each this.content~}}
           {{~#if (eq kind "function")~}}

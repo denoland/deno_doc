@@ -1,5 +1,6 @@
 use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
+use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -36,7 +37,7 @@ pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
 
 impl NamespacedSymbols {
   pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols = compute_namespaced_symbols(doc_nodes.to_vec(), &[]);
+    let symbols = compute_namespaced_symbols(doc_nodes);
     Self(Rc::new(symbols))
   }
 
@@ -46,8 +47,7 @@ impl NamespacedSymbols {
 }
 
 pub fn compute_namespaced_symbols(
-  doc_nodes: Vec<DocNodeWithContext>,
-  current_path: &[String],
+  doc_nodes: &[DocNodeWithContext],
 ) -> HashSet<Vec<String>> {
   let mut namespaced_symbols = HashSet::new();
 
@@ -59,15 +59,14 @@ pub fn compute_namespaced_symbols(
     }
     // TODO: handle export aliasing
 
-    let mut name_path = current_path.to_vec();
-    name_path.push(doc_node.get_name().to_string());
+    let name_path = Rc::new(doc_node.sub_qualifier());
 
     match doc_node.kind {
       DocNodeKind::Class => {
         let class_def = doc_node.class_def.as_ref().unwrap();
 
         namespaced_symbols.extend(class_def.methods.iter().map(|method| {
-          let mut method_path = current_path.to_vec();
+          let mut method_path = (*doc_node.ns_qualifiers).clone();
           method_path.extend(
             qualify_drilldown_name(
               doc_node.get_name(),
@@ -82,7 +81,7 @@ pub fn compute_namespaced_symbols(
 
         namespaced_symbols.extend(class_def.properties.iter().map(
           |property| {
-            let mut method_path = current_path.to_vec();
+            let mut method_path = (*doc_node.ns_qualifiers).clone();
             method_path.extend(
               qualify_drilldown_name(
                 doc_node.get_name(),
@@ -100,7 +99,7 @@ pub fn compute_namespaced_symbols(
         let interface_def = doc_node.interface_def.as_ref().unwrap();
 
         namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
-          let mut method_path = current_path.to_vec();
+          let mut method_path = (*doc_node.ns_qualifiers).clone();
           method_path.extend(
             qualify_drilldown_name(doc_node.get_name(), &method.name, true)
               .split('.')
@@ -111,7 +110,7 @@ pub fn compute_namespaced_symbols(
 
         namespaced_symbols.extend(interface_def.properties.iter().map(
           |property| {
-            let mut method_path = current_path.to_vec();
+            let mut method_path = (*doc_node.ns_qualifiers).clone();
             method_path.extend(
               qualify_drilldown_name(doc_node.get_name(), &property.name, true)
                 .split('.')
@@ -128,7 +127,7 @@ pub fn compute_namespaced_symbols(
         {
           namespaced_symbols.extend(type_literal.methods.iter().map(
             |method| {
-              let mut method_path = current_path.to_vec();
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
               method_path.extend(
                 qualify_drilldown_name(doc_node.get_name(), &method.name, true)
                   .split('.')
@@ -140,7 +139,44 @@ pub fn compute_namespaced_symbols(
 
           namespaced_symbols.extend(type_literal.properties.iter().map(
             |property| {
-              let mut method_path = current_path.to_vec();
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              method_path.extend(
+                qualify_drilldown_name(
+                  doc_node.get_name(),
+                  &property.name,
+                  true,
+                )
+                .split('.')
+                .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+        }
+      }
+      DocNodeKind::Variable => {
+        let variable = doc_node.variable_def.as_ref().unwrap();
+
+        if let Some(type_literal) = variable
+          .ts_type
+          .as_ref()
+          .and_then(|ts_type| ts_type.type_literal.as_ref())
+        {
+          namespaced_symbols.extend(type_literal.methods.iter().map(
+            |method| {
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              method_path.extend(
+                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
+                  .split('.')
+                  .map(|part| part.to_string()),
+              );
+              method_path
+            },
+          ));
+
+          namespaced_symbols.extend(type_literal.properties.iter().map(
+            |property| {
+              let mut method_path = (*doc_node.ns_qualifiers).clone();
               method_path.extend(
                 qualify_drilldown_name(
                   doc_node.get_name(),
@@ -158,17 +194,18 @@ pub fn compute_namespaced_symbols(
       _ => {}
     }
 
-    namespaced_symbols.insert(name_path.clone());
+    namespaced_symbols.insert((*name_path).clone());
 
     if doc_node.kind == DocNodeKind::Namespace {
       let namespace_def = doc_node.namespace_def.as_ref().unwrap();
       namespaced_symbols.extend(compute_namespaced_symbols(
-        namespace_def
+        &namespace_def
           .elements
           .iter()
-          .map(|element| doc_node.create_child(element.clone()))
-          .collect(),
-        &name_path,
+          .map(|element| {
+            doc_node.create_namespace_child(element.clone(), name_path.clone())
+          })
+          .collect::<Vec<_>>(),
       ))
     }
   }
@@ -190,7 +227,7 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
@@ -337,7 +374,7 @@ impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct AnchorCtx {
   pub id: String,
 }
@@ -358,6 +395,7 @@ pub enum SectionContentCtx {
 #[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct SectionHeaderCtx {
   pub title: String,
+  pub anchor: AnchorCtx,
   pub href: Option<String>,
   pub doc: Option<String>,
 }
@@ -380,14 +418,15 @@ impl SectionHeaderCtx {
           MarkdownToHTMLOptions {
             summary: true,
             summary_prefer_title: true,
-            render_toc: false,
           },
         )
-      })
-      .map(|markdown| markdown.html);
+      });
+
+    let title = path.display_name();
 
     SectionHeaderCtx {
-      title: path.display_name(),
+      title: title.clone(),
+      anchor: AnchorCtx { id: title },
       href: Some(render_ctx.ctx.href_resolver.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),
@@ -406,10 +445,17 @@ pub struct SectionCtx {
 impl SectionCtx {
   pub const TEMPLATE: &'static str = "section";
 
-  pub fn new(title: &'static str, content: SectionContentCtx) -> Self {
+  pub fn new(
+    render_context: &RenderContext,
+    title: &'static str,
+    content: SectionContentCtx,
+  ) -> Self {
+    let anchor = render_context.toc.add_entry(1, title.to_string());
+
     Self {
       header: SectionHeaderCtx {
         title: title.to_string(),
+        anchor: AnchorCtx { id: anchor },
         href: None,
         doc: None,
       },
@@ -520,4 +566,96 @@ pub fn qualify_drilldown_name(
     "{parent_name}{}.{drilldown_name}",
     if is_static { "" } else { ".prototype" },
   )
+}
+
+#[derive(Debug, Serialize)]
+pub struct TopSymbolCtx {
+  pub kind: Vec<DocNodeKindCtx>,
+  pub name: String,
+  pub href: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct TopSymbolsCtx {
+  pub symbols: Vec<TopSymbolCtx>,
+  pub total_symbols: usize,
+  pub all_symbols_href: String,
+}
+
+impl TopSymbolsCtx {
+  pub fn new(ctx: &RenderContext) -> Option<Self> {
+    let partitions = ctx
+      .ctx
+      .doc_nodes
+      .values()
+      .flat_map(|nodes| super::partition::partition_nodes_by_name(nodes, true))
+      .collect::<Vec<_>>();
+
+    if partitions.is_empty() {
+      return None;
+    }
+
+    let total_symbols = partitions.len();
+
+    let symbols = partitions
+      .into_iter()
+      .take(5)
+      .map(|(name, nodes)| TopSymbolCtx {
+        kind: nodes
+          .iter()
+          .map(|node| node.kind_with_drilldown.into())
+          .collect::<Vec<_>>(),
+        href: ctx.ctx.href_resolver.resolve_path(
+          ctx.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: &nodes[0].origin,
+            symbol: &name,
+          },
+        ),
+        name,
+      })
+      .collect();
+
+    Some(Self {
+      symbols,
+      total_symbols,
+      all_symbols_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_path(ctx.get_current_resolve(), UrlResolveKind::AllSymbols),
+    })
+  }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ToCCtx {
+  pub usages: Option<UsagesCtx>,
+  pub top_symbols: Option<TopSymbolsCtx>,
+  pub document_navigation: Option<String>,
+}
+
+impl ToCCtx {
+  pub const TEMPLATE: &'static str = "toc";
+
+  pub fn new(
+    ctx: RenderContext,
+    include_top_symbols: bool,
+    usage_doc_nodes: &[DocNodeWithContext],
+  ) -> Self {
+    Self {
+      usages: if ctx.get_current_resolve() == UrlResolveKind::Root
+        && ctx.ctx.main_entrypoint.is_none()
+      {
+        None
+      } else {
+        UsagesCtx::new(&ctx, usage_doc_nodes)
+      },
+      top_symbols: if include_top_symbols {
+        TopSymbolsCtx::new(&ctx)
+      } else {
+        None
+      },
+      document_navigation: ctx.toc.render(),
+    }
+  }
 }

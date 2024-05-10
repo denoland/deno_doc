@@ -9,6 +9,7 @@ use crate::html::DocNodeWithContext;
 pub(crate) fn render_interface(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
+  name: &str,
 ) -> Vec<SectionCtx> {
   let interface_def = doc_node.interface_def.as_ref().unwrap();
 
@@ -43,21 +44,19 @@ pub(crate) fn render_interface(
   }
 
   if let Some(properties) =
-    render_properties(ctx, doc_node.get_name(), &interface_def.properties)
+    render_properties(ctx, name, &interface_def.properties)
   {
     sections.push(properties);
   }
 
-  if let Some(methods) =
-    render_methods(ctx, doc_node.get_name(), &interface_def.methods)
-  {
+  if let Some(methods) = render_methods(ctx, name, &interface_def.methods) {
     sections.push(methods);
   }
 
   sections
 }
 
-pub fn render_index_signatures(
+pub(crate) fn render_index_signatures(
   ctx: &RenderContext,
   index_signatures: &[crate::ts_type::IndexSignatureDef],
 ) -> Option<SectionCtx> {
@@ -90,12 +89,13 @@ pub fn render_index_signatures(
   }
 
   Some(SectionCtx::new(
+    ctx,
     "Index Signatures",
     SectionContentCtx::IndexSignature(items),
   ))
 }
 
-pub fn render_call_signatures(
+pub(crate) fn render_call_signatures(
   ctx: &RenderContext,
   call_signatures: &[crate::ts_type::CallSignatureDef],
 ) -> Option<SectionCtx> {
@@ -135,12 +135,13 @@ pub fn render_call_signatures(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Call Signatures",
     SectionContentCtx::DocEntry(items),
   ))
 }
 
-pub fn render_properties(
+pub(crate) fn render_properties(
   ctx: &RenderContext,
   interface_name: &str,
   properties: &[crate::ts_type::PropertyDef],
@@ -205,12 +206,13 @@ pub fn render_properties(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Properties",
     SectionContentCtx::DocEntry(items),
   ))
 }
 
-pub fn render_methods(
+pub(crate) fn render_methods(
   ctx: &RenderContext,
   interface_name: &str,
   methods: &[crate::ts_type::MethodDef],
@@ -266,6 +268,7 @@ pub fn render_methods(
     .collect::<Vec<DocEntryCtx>>();
 
   Some(SectionCtx::new(
+    ctx,
     "Methods",
     SectionContentCtx::DocEntry(items),
   ))

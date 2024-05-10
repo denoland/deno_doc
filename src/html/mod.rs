@@ -17,7 +17,6 @@ mod parameters;
 pub mod partition;
 mod render_context;
 mod search;
-pub mod sidepanels;
 mod symbols;
 #[cfg(feature = "tree-sitter")]
 mod tree_sitter;
@@ -41,6 +40,9 @@ pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
 pub use util::SectionHeaderCtx;
+pub use util::ToCCtx;
+pub use util::TopSymbolCtx;
+pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
@@ -101,8 +103,8 @@ pub struct GenerateCtx<'ctx> {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
+  pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
-  pub sidebar_hide_all_symbols: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -112,6 +114,8 @@ impl<'ctx> GenerateCtx<'ctx> {
     file_mode: FileMode,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
   ) -> Result<Self, anyhow::Error> {
+    let mut main_entrypoint = None;
+
     let doc_nodes = doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
@@ -121,6 +125,10 @@ impl<'ctx> GenerateCtx<'ctx> {
           options.rewrite_map.as_ref(),
           common_ancestor.as_ref(),
         ));
+
+        if short_path.is_main {
+          main_entrypoint = Some(short_path.clone());
+        }
 
         let nodes = nodes
           .into_iter()
@@ -148,7 +156,7 @@ impl<'ctx> GenerateCtx<'ctx> {
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,
       rewrite_map: options.rewrite_map,
-      sidebar_hide_all_symbols: file_mode == FileMode::SingleDts,
+      main_entrypoint,
       file_mode,
     })
   }
@@ -290,14 +298,23 @@ impl DocNodeWithContext {
     }
   }
 
+  pub fn create_namespace_child(
+    &self,
+    doc_node: Arc<DocNode>,
+    qualifiers: Rc<Vec<String>>,
+  ) -> Self {
+    let mut child = self.create_child(doc_node);
+    child.ns_qualifiers = qualifiers;
+    child
+  }
+
   pub fn create_child_method(
     &self,
     mut method_doc_node: DocNode,
-    parent_name: &str,
     is_static: bool,
   ) -> Self {
     method_doc_node.name =
-      qualify_drilldown_name(parent_name, &method_doc_node.name, is_static);
+      qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static);
     method_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Arc::new(method_doc_node));
@@ -309,17 +326,33 @@ impl DocNodeWithContext {
   pub fn create_child_property(
     &self,
     mut property_doc_node: DocNode,
-    parent_name: &str,
     is_static: bool,
   ) -> Self {
-    property_doc_node.name =
-      qualify_drilldown_name(parent_name, &property_doc_node.name, is_static);
+    property_doc_node.name = qualify_drilldown_name(
+      self.get_name(),
+      &property_doc_node.name,
+      is_static,
+    );
     property_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Arc::new(property_doc_node));
     new_node.drilldown_parent_kind = Some(self.kind);
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
     new_node
+  }
+
+  pub fn get_qualified_name(&self) -> String {
+    if self.ns_qualifiers.is_empty() {
+      self.get_name().to_string()
+    } else {
+      format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
+    }
+  }
+
+  pub fn sub_qualifier(&self) -> Vec<String> {
+    let mut ns_qualifiers = (*self.ns_qualifiers).clone();
+    ns_qualifiers.push(self.get_name().to_string());
+    ns_qualifiers
   }
 }
 
@@ -346,12 +379,8 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_helper("print", Box::new(print));
 
   reg.register_template_string(
-    "sidepanel_common",
-    include_str!("./templates/sidepanel_common.hbs"),
-  )?;
-  reg.register_template_string(
-    sidepanels::SidepanelCtx::TEMPLATE,
-    include_str!("./templates/sidepanel.hbs"),
+    util::ToCCtx::TEMPLATE,
+    include_str!("./templates/toc.hbs"),
   )?;
   reg.register_template_string(
     util::DocEntryCtx::TEMPLATE,
@@ -360,10 +389,6 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     util::SectionCtx::TEMPLATE,
     include_str!("./templates/section.hbs"),
-  )?;
-  reg.register_template_string(
-    sidepanels::IndexSidepanelCtx::TEMPLATE,
-    include_str!("./templates/index_sidepanel.hbs"),
   )?;
   reg.register_template_string(
     "doc_node_kind_icon",
@@ -549,33 +574,20 @@ pub fn generate(
 
   // Index page
   {
-    let main_entrypoint = ctx
-      .doc_nodes
-      .iter()
-      .find(|(short_path, _)| short_path.is_main);
-
     let partitions_for_entrypoint_nodes =
-      if let Some((_, doc_nodes)) = main_entrypoint {
-        get_partitions_for_file(&ctx, doc_nodes)
+      if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
+        get_partitions_for_file(&ctx, ctx.doc_nodes.get(entrypoint).unwrap())
       } else {
         Default::default()
       };
 
     let index = pages::IndexCtx::new(
       &ctx,
-      main_entrypoint.map(|(short_path, _)| short_path.clone()),
+      ctx.main_entrypoint.clone(),
       partitions_for_entrypoint_nodes,
     );
 
     if composable_output {
-      files.insert(
-        "./sidepanel.html".to_string(),
-        ctx.render(
-          sidepanels::IndexSidepanelCtx::TEMPLATE,
-          &index.sidepanel_ctx,
-        ),
-      );
-
       files.insert(
         "./breadcrumbs.html".to_string(),
         ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
@@ -640,19 +652,15 @@ pub fn generate(
     for (short_path, doc_nodes) in &ctx.doc_nodes {
       let partitions_for_nodes = get_partitions_for_file(&ctx, doc_nodes);
 
-      let symbol_pages = generate_symbol_pages_for_module(
-        &ctx,
-        short_path,
-        &partitions_for_nodes,
-        doc_nodes,
-      );
+      let symbol_pages =
+        generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
 
       files.extend(symbol_pages.into_iter().flat_map(|symbol_page| {
         match symbol_page {
           SymbolPage::Symbol {
             breadcrumbs_ctx,
-            sidepanel_ctx,
             symbol_group_ctx,
+            toc_ctx,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
@@ -675,11 +683,6 @@ pub fn generate(
 
               vec![
                 (
-                  format!("{dir_name}/sidepanel.html"),
-                  ctx
-                    .render(sidepanels::SidepanelCtx::TEMPLATE, &sidepanel_ctx),
-                ),
-                (
                   format!("{dir_name}/breadcrumbs.html"),
                   ctx.render(util::BreadcrumbsCtx::TEMPLATE, &breadcrumbs_ctx),
                 ),
@@ -694,9 +697,9 @@ pub fn generate(
 
               let page_ctx = pages::SymbolPageCtx {
                 html_head_ctx,
-                sidepanel_ctx,
                 symbol_group_ctx,
                 breadcrumbs_ctx,
+                toc_ctx,
               };
 
               let symbol_page =
@@ -737,14 +740,6 @@ pub fn generate(
 
         if composable_output {
           let dir = format!("{}/~", short_path.path);
-          files.insert(
-            format!("{dir}/sidepanel.html"),
-            ctx.render(
-              sidepanels::IndexSidepanelCtx::TEMPLATE,
-              &index.sidepanel_ctx,
-            ),
-          );
-
           files.insert(
             format!("{dir}/breadcrumbs.html"),
             ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),

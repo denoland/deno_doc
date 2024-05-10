@@ -2,14 +2,6 @@
   <div class="space-y-2 flex-1 {{#if toc}}min-w-0{{/if}}">
     {{~> deprecated deprecated ~}}
 
-    {{~#if usages~}}
-      {{~> usages usages ~}}
-    {{~/if~}}
-
     {{~> symbol_content sections ~}}
   </div>
-
-  {{~#if toc~}}
-    {{{~toc~}}} {{! markdown rendering ToC }}
-  {{~/if~}}
 </section>
