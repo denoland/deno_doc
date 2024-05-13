@@ -6,6 +6,7 @@ import { createCache } from "jsr:@deno/cache-dir@0.8";
 import type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.73";
 
 export type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.73";
+export * from "./types.d.ts";
 
 const encoder = new TextEncoder();
 
