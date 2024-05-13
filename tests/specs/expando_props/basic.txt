@@ -3,33 +3,15 @@
 export function test() {
 }
 
+/** doc1 */
 test.skip = (param: string): void => {
 };
 
+/** doc2 */
 test.textProp = "asdf";
+
+/** doc3 */
 test.booleanProp = true;
-
-# diagnostics
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:5:6
-  | 
-5 | test.skip = (param: string): void => {
-  |      ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:8:6
-  | 
-8 | test.textProp = "asdf";
-  |      ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:9:6
-  | 
-9 | test.booleanProp = true;
-  |      ^
-
 
 # output.txt
 Defined in file:///mod.ts:2:1
@@ -37,13 +19,17 @@ Defined in file:///mod.ts:2:1
 function test(): void
   Testing
 
-Defined in file:///mod.ts:5:6
+Defined in file:///mod.ts:6:6
 
 namespace test
+  Additional properties on the `test` function.
 
   const skip: (param: string) => void
+    doc1
   const textProp: "asdf"
+    doc2
   const booleanProp: true
+    doc3
 
 
 # output.json
@@ -79,11 +65,14 @@ namespace test
     "name": "test",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 5,
+      "line": 6,
       "col": 5,
-      "byteIndex": 48
+      "byteIndex": 60
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Additional properties on the `test` function."
+    },
     "namespaceDef": {
       "elements": [
         {
@@ -91,11 +80,14 @@ namespace test
           "name": "skip",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 5,
+            "line": 6,
             "col": 5,
-            "byteIndex": 48
+            "byteIndex": 60
           },
           "declarationKind": "declare",
+          "jsDoc": {
+            "doc": "doc1"
+          },
           "variableDef": {
             "tsType": {
               "repr": "",
@@ -130,11 +122,14 @@ namespace test
           "name": "textProp",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 8,
+            "line": 10,
             "col": 5,
-            "byteIndex": 91
+            "byteIndex": 115
           },
           "declarationKind": "declare",
+          "jsDoc": {
+            "doc": "doc2"
+          },
           "variableDef": {
             "tsType": {
               "repr": "asdf",
@@ -152,11 +147,14 @@ namespace test
           "name": "booleanProp",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 9,
+            "line": 13,
             "col": 5,
-            "byteIndex": 115
+            "byteIndex": 152
           },
           "declarationKind": "declare",
+          "jsDoc": {
+            "doc": "doc3"
+          },
           "variableDef": {
             "tsType": {
               "repr": "true",

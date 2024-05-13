@@ -375,24 +375,23 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_expando_property(
     &self,
-    module_info: &EsModuleInfo,
+    source: &ParsedSource,
     expando_property: ExpandoPropertyRef,
   ) -> Option<DocNode> {
-    let location = get_location(
-      module_info.source(),
-      expando_property.prop_name_range().start(),
-    );
+    let location =
+      get_location(source, expando_property.prop_name_range().start());
     let ts_type = infer_simple_ts_type_from_init(
-      module_info.source(),
+      source,
       Some(expando_property.assignment()),
       /* is const */ true,
     );
+    let js_doc = js_doc_for_range(source, &expando_property.inner().range())?;
 
     Some(DocNode::variable(
       expando_property.prop_name().to_string(),
       location,
       DeclarationKind::Declare,
-      Default::default(),
+      js_doc,
       VariableDef {
         ts_type,
         kind: VarDeclKind::Const,
@@ -1111,7 +1110,14 @@ impl<'a> DocParser<'a> {
       func_doc.name.clone(),
       elements[0].location.clone(),
       DeclarationKind::Declare,
-      Default::default(),
+      // give this a JS doc to prevent a missing JS doc diagnostic
+      JsDoc {
+        doc: Some(format!(
+          "Additional properties on the `{}` function.",
+          func_doc.name
+        )),
+        tags: vec![],
+      },
       NamespaceDef { elements },
     ))
   }
@@ -1180,7 +1186,7 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_class_decl(parsed_source, n, &n.class.range())
       }
       SymbolNodeRef::ExpandoProperty(n) => {
-        self.get_doc_for_expando_property(module_info, n)
+        self.get_doc_for_expando_property(parsed_source, n)
       }
       SymbolNodeRef::ExportDefaultDecl(n) => {
         self.get_doc_for_export_default_decl(parsed_source, n)
