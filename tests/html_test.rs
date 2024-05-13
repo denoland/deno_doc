@@ -1,3 +1,5 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+
 use deno_ast::ModuleSpecifier;
 use deno_doc::html::pages::SymbolPage;
 use deno_doc::html::*;

@@ -1,16 +1,15 @@
-// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use std::panic::AssertUnwindSafe;
-use std::sync::Arc;
 
 use deno_ast::diagnostics::Diagnostic;
 use deno_doc::DocNode;
 use deno_graph::source::Source;
 use deno_graph::ModuleSpecifier;
 use file_test_runner::collect_and_run_tests;
-use file_test_runner::CollectOptions;
-use file_test_runner::CollectedTest;
-use file_test_runner::FileCollectionStrategy;
+use file_test_runner::collection::strategies::TestPerFileCollectionStrategy;
+use file_test_runner::collection::CollectOptions;
+use file_test_runner::collection::CollectedTest;
 use file_test_runner::RunOptions;
 use file_test_runner::TestResult;
 use indexmap::IndexMap;
@@ -27,16 +26,15 @@ fn main() {
   collect_and_run_tests(
     CollectOptions {
       base: "tests/specs".into(),
-      strategy: FileCollectionStrategy::TestPerFile { file_pattern: None },
-      root_category_name: "specs".to_string(),
+      strategy: Box::new(TestPerFileCollectionStrategy { file_pattern: None }),
       filter_override: None,
     },
     RunOptions { parallel: true },
-    Arc::new(|test| {
+    |test| {
       TestResult::from_maybe_panic(AssertUnwindSafe(|| {
         run_test(test);
       }))
-    }),
+    },
   )
 }
 
