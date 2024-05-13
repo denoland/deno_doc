@@ -584,47 +584,41 @@ pub struct TopSymbolsCtx {
 
 impl TopSymbolsCtx {
   pub fn new(ctx: &RenderContext) -> Option<Self> {
-    let partitions = super::partition::partition_nodes_by_name(
-      &ctx
-        .ctx
-        .doc_nodes
-        .values()
-        .flatten()
-        .cloned()
-        .collect::<Vec<_>>(),
-      true,
-    );
+    let partitions = ctx
+      .ctx
+      .doc_nodes
+      .values()
+      .flat_map(|nodes| super::partition::partition_nodes_by_name(nodes, true))
+      .collect::<Vec<_>>();
 
     if partitions.is_empty() {
       return None;
     }
 
-    let symbols = partitions
-      .values()
-      .take(5)
-      .map(|nodes| {
-        let name = nodes[0].get_qualified_name();
+    let total_symbols = partitions.len();
 
-        TopSymbolCtx {
-          kind: nodes
-            .iter()
-            .map(|node| node.kind_with_drilldown.into())
-            .collect::<Vec<_>>(),
-          href: ctx.ctx.href_resolver.resolve_path(
-            ctx.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: &nodes[0].origin,
-              symbol: &name,
-            },
-          ),
-          name,
-        }
+    let symbols = partitions
+      .into_iter()
+      .take(5)
+      .map(|(name, nodes)| TopSymbolCtx {
+        kind: nodes
+          .iter()
+          .map(|node| node.kind_with_drilldown.into())
+          .collect::<Vec<_>>(),
+        href: ctx.ctx.href_resolver.resolve_path(
+          ctx.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: &nodes[0].origin,
+            symbol: &name,
+          },
+        ),
+        name,
       })
       .collect();
 
     Some(Self {
       symbols,
-      total_symbols: partitions.values().count(),
+      total_symbols,
       all_symbols_href: ctx
         .ctx
         .href_resolver

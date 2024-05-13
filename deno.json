@@ -4,7 +4,7 @@
     "test": "deno test -A",
     "tailwind": "deno run -A build_css.ts",
     "gen_html": "deno task tailwind && cargo run --example ddoc --features=html -- --name \"std HTTP and Assert\" --html ../deno_std/http/mod.ts ../deno_std/assert/mod.ts ../deno_std/collections/mod.ts --output generated_docs/ --main_entrypoint ../deno_std/assert/mod.ts",
-    "test:update": "UPDATE=1 cargo test --locked --all-targets && UPDATE=1 cargo test --locked --all-targets --features=tree-sitter && UPDATE=1 cargo test --locked --all-targets --features=syntect"
+    "test:update": "UPDATE=1 cargo test --locked --all-targets && UPDATE=1 cargo test --locked --all-targets --features=tree-sitter && UPDATE=1 cargo test --locked --all-targets --features=syntect && cargo insta test --review"
   },
   "exclude": [
     "target",

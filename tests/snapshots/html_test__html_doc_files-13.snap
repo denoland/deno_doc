@@ -1,0 +1,7 @@
+---
+source: tests/html_test.rs
+expression: "files.get(\"search_index.js\").unwrap()"
+---
+(function () {
+  window.DENO_DOC_SEARCH_INDEX = {"nodes":[{"kind":["class"],"name":"Bar","file":".","location":{"filename":"default","line":8,"col":0,"byteIndex":77},"declarationKind":"export","deprecated":false},{"kind":["class"],"name":"Foo","file":".","location":{"filename":"default","line":6,"col":0,"byteIndex":56},"declarationKind":"export","deprecated":false},{"kind":["class"],"name":"Foobar","file":".","location":{"filename":"default","line":13,"col":0,"byteIndex":175},"declarationKind":"export","deprecated":false}]};
+})()

@@ -389,7 +389,7 @@ pub(crate) fn render_markdown_summary(
     md,
     MarkdownToHTMLOptions {
       summary: true,
-      summary_prefer_title: false,
+      summary_prefer_title: true,
     },
   )
   .unwrap_or_default()
@@ -418,7 +418,7 @@ pub(crate) fn jsdoc_body_to_html(
       doc,
       MarkdownToHTMLOptions {
         summary,
-        summary_prefer_title: false,
+        summary_prefer_title: true,
       },
     )
   } else {
