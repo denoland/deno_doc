@@ -1597,13 +1597,13 @@ pub fn infer_ts_type_from_expr(
   }
 }
 
-pub fn infer_simple_ts_type_from_var_decl(
+pub fn infer_simple_ts_type_from_init(
   parsed_source: &ParsedSource,
-  decl: &VarDeclarator,
+  init: Option<&Expr>,
   is_const: bool,
 ) -> Option<TsTypeDef> {
-  if let Some(init_expr) = &decl.init {
-    infer_ts_type_from_expr(parsed_source, init_expr.as_ref(), is_const)
+  if let Some(init_expr) = init {
+    infer_ts_type_from_expr(parsed_source, init_expr, is_const)
   } else {
     None
   }

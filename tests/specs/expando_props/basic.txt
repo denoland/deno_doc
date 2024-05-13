@@ -1,0 +1,175 @@
+# mod.ts
+/** Testing */
+export function test() {
+}
+
+test.skip = (param: string): void => {
+};
+
+test.textProp = "asdf";
+test.booleanProp = true;
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:5:6
+  | 
+5 | test.skip = (param: string): void => {
+  |      ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:8:6
+  | 
+8 | test.textProp = "asdf";
+  |      ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:9:6
+  | 
+9 | test.booleanProp = true;
+  |      ^
+
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+function test(): void
+  Testing
+
+Defined in file:///mod.ts:5:6
+
+namespace test
+
+  const skip: (param: string) => void
+  const textProp: "asdf"
+  const booleanProp: true
+
+
+# output.json
+[
+  {
+    "kind": "function",
+    "name": "test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0,
+      "byteIndex": 15
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Testing"
+    },
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "namespace",
+    "name": "test",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 5,
+      "col": 5,
+      "byteIndex": 48
+    },
+    "declarationKind": "export",
+    "namespaceDef": {
+      "elements": [
+        {
+          "kind": "variable",
+          "name": "skip",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 5,
+            "byteIndex": 48
+          },
+          "declarationKind": "declare",
+          "variableDef": {
+            "tsType": {
+              "repr": "",
+              "kind": "fnOrConstructor",
+              "fnOrConstructor": {
+                "constructor": false,
+                "tsType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "keyword": "void"
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "param",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    }
+                  }
+                ],
+                "typeParams": []
+              }
+            },
+            "kind": "const"
+          }
+        },
+        {
+          "kind": "variable",
+          "name": "textProp",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 5,
+            "byteIndex": 91
+          },
+          "declarationKind": "declare",
+          "variableDef": {
+            "tsType": {
+              "repr": "asdf",
+              "kind": "literal",
+              "literal": {
+                "kind": "string",
+                "string": "asdf"
+              }
+            },
+            "kind": "const"
+          }
+        },
+        {
+          "kind": "variable",
+          "name": "booleanProp",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 5,
+            "byteIndex": 115
+          },
+          "declarationKind": "declare",
+          "variableDef": {
+            "tsType": {
+              "repr": "true",
+              "kind": "literal",
+              "literal": {
+                "kind": "boolean",
+                "boolean": true
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,4 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+
 use crate::ts_type::TsTypeDef;
 use deno_ast::swc::ast::TsTypeParam;
 use deno_ast::swc::ast::TsTypeParamDecl;

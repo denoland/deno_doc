@@ -8,6 +8,7 @@ use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::ModuleDoc;
 use crate::node::NamespaceDef;
+use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
@@ -48,8 +49,10 @@ use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::swc::ast::VarDeclarator;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRange;
+use deno_ast::SourceRanged;
 use deno_ast::SourceRangedForSpanned;
 use deno_graph::symbols::EsModuleInfo;
+use deno_graph::symbols::ExpandoPropertyRef;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
@@ -281,12 +284,12 @@ impl<'a> DocParser<'a> {
                 if first_def.module.specifier() != module_info.specifier() {
                   for definition in definitions {
                     let decl = definition.symbol_decl;
-                    let maybe_doc = self.doc_for_maybe_node(
+                    let maybe_docs = self.docs_for_maybe_node(
                       definition.module,
                       definition.symbol,
                       decl.maybe_node(),
                     );
-                    if let Some(mut doc_node) = maybe_doc {
+                    for mut doc_node in maybe_docs {
                       doc_node.name = export_name.clone();
                       doc_node.declaration_kind = DeclarationKind::Export;
 
@@ -368,6 +371,33 @@ impl<'a> DocParser<'a> {
     }
 
     Ok(imports)
+  }
+
+  fn get_doc_for_expando_property(
+    &self,
+    module_info: &EsModuleInfo,
+    expando_property: ExpandoPropertyRef,
+  ) -> Option<DocNode> {
+    let location = get_location(
+      module_info.source(),
+      expando_property.prop_name_range().start(),
+    );
+    let ts_type = infer_simple_ts_type_from_init(
+      module_info.source(),
+      Some(expando_property.assignment()),
+      /* is const */ true,
+    );
+
+    Some(DocNode::variable(
+      expando_property.prop_name().to_string(),
+      location,
+      DeclarationKind::Declare,
+      Default::default(),
+      VariableDef {
+        ts_type,
+        kind: VarDeclKind::Const,
+      },
+    ))
   }
 
   fn get_doc_for_var_declarator_ident(
@@ -565,12 +595,12 @@ impl<'a> DocParser<'a> {
           continue;
         }
 
-        let maybe_doc = self.doc_for_maybe_node(
+        let maybe_docs = self.docs_for_maybe_node(
           definition.module,
           definition.symbol,
           definition.symbol_decl.maybe_node(),
         );
-        if let Some(mut doc_node) = maybe_doc {
+        for mut doc_node in maybe_docs {
           doc_node.name = export_name.to_string();
           doc_node.declaration_kind = DeclarationKind::Export;
 
@@ -624,9 +654,9 @@ impl<'a> DocParser<'a> {
       .is_none());
     let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
-      if let Some(mut doc_node) =
-        self.doc_for_maybe_node(module_info, child_symbol, decl.maybe_node())
-      {
+      let maybe_docs =
+        self.docs_for_maybe_node(module_info, child_symbol, decl.maybe_node());
+      for mut doc_node in maybe_docs {
         let is_declared = decl
           .maybe_node()
           .map(|node| self.get_declare_for_symbol_node(node))
@@ -966,12 +996,12 @@ impl<'a> DocParser<'a> {
           continue;
         }
         handled_symbols.insert(definition.symbol.unique_id());
-        let maybe_doc = self.doc_for_maybe_node(
+        let maybe_docs = self.docs_for_maybe_node(
           definition.module,
           definition.symbol,
           definition.symbol_decl.maybe_node(),
         );
-        if let Some(mut doc_node) = maybe_doc {
+        for mut doc_node in maybe_docs {
           doc_node.name = export_name.clone();
           doc_node.declaration_kind = DeclarationKind::Export;
 
@@ -1002,12 +1032,13 @@ impl<'a> DocParser<'a> {
     doc_nodes
   }
 
-  fn doc_for_maybe_node(
+  fn docs_for_maybe_node(
     &self,
     module_info: ModuleInfoRef,
     symbol: &Symbol,
     maybe_node: Option<SymbolNodeRef<'_>>,
-  ) -> Option<DocNode> {
+  ) -> Vec<DocNode> {
+    let mut docs = Vec::with_capacity(2);
     let maybe_doc = match module_info {
       ModuleInfoRef::Json(module_info) => parse_json_module_doc_node(
         module_info.specifier(),
@@ -1022,11 +1053,67 @@ impl<'a> DocParser<'a> {
       }
     };
 
-    if maybe_doc.is_some() {
+    if let Some(doc) = maybe_doc {
+      docs.push(doc);
+
       self.check_private_type_in_public_diagnostic(module_info, symbol);
+
+      if let Some(node) = maybe_node {
+        if node.is_function() {
+          // find any expando properties for this function symbol
+          if let Some(expando_namespace) = self
+            .maybe_expando_property_namespace_doc(&docs[0], module_info, symbol)
+          {
+            docs.push(expando_namespace);
+          }
+        }
+      }
     }
 
-    maybe_doc
+    docs
+  }
+
+  fn maybe_expando_property_namespace_doc(
+    &self,
+    func_doc: &DocNode,
+    module_info: ModuleInfoRef,
+    symbol: &Symbol,
+  ) -> Option<DocNode> {
+    let expando_properties = symbol.exports().iter().flat_map(|(name, id)| {
+      let symbol = module_info.symbol(*id).unwrap();
+      symbol
+        .decls()
+        .iter()
+        .filter_map(move |n| match n.maybe_node() {
+          Some(SymbolNodeRef::ExpandoProperty(n)) => Some((name, n)),
+          _ => None,
+        })
+    });
+    let elements = expando_properties
+      .flat_map(|(name, n)| {
+        let mut docs = self.docs_for_maybe_node(
+          module_info,
+          symbol,
+          Some(SymbolNodeRef::ExpandoProperty(n)),
+        );
+        for doc in &mut docs {
+          doc.name = name.clone();
+          doc.declaration_kind = DeclarationKind::Declare;
+        }
+        docs
+      })
+      .map(Arc::new)
+      .collect::<Vec<_>>();
+    if elements.is_empty() {
+      return None;
+    }
+    Some(DocNode::namespace(
+      func_doc.name.clone(),
+      elements[0].location.clone(),
+      DeclarationKind::Declare,
+      Default::default(),
+      NamespaceDef { elements },
+    ))
   }
 
   fn check_private_type_in_public_diagnostic(
@@ -1091,6 +1178,9 @@ impl<'a> DocParser<'a> {
     match node {
       SymbolNodeRef::ClassDecl(n) => {
         self.get_doc_for_class_decl(parsed_source, n, &n.class.range())
+      }
+      SymbolNodeRef::ExpandoProperty(n) => {
+        self.get_doc_for_expando_property(module_info, n)
       }
       SymbolNodeRef::ExportDefaultDecl(n) => {
         self.get_doc_for_export_default_decl(parsed_source, n)
@@ -1195,6 +1285,7 @@ impl<'a> DocParser<'a> {
       | SymbolNodeRef::ClassMethod(_)
       | SymbolNodeRef::ClassProp(_)
       | SymbolNodeRef::ClassParamProp(_)
+      | SymbolNodeRef::ExpandoProperty(_)
       | SymbolNodeRef::Constructor(_)
       | SymbolNodeRef::TsIndexSignature(_)
       | SymbolNodeRef::TsCallSignatureDecl(_)
