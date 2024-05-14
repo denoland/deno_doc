@@ -8,7 +8,7 @@ use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::ts_type::infer_simple_ts_type_from_var_decl;
+use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 
@@ -60,9 +60,9 @@ pub fn get_docs_for_var_declarator(
                 }
               }
             }
-            let maybe_type_ann = infer_simple_ts_type_from_var_decl(
+            let maybe_type_ann = infer_simple_ts_type_from_init(
               module_info.source(),
-              var_declarator,
+              var_declarator.init.as_deref(),
               var_decl.kind == VarDeclKind::Const,
             );
             if let Some(type_ann) = maybe_type_ann {
@@ -76,9 +76,9 @@ pub fn get_docs_for_var_declarator(
       }
     })
     .or_else(|| {
-      infer_simple_ts_type_from_var_decl(
+      infer_simple_ts_type_from_init(
         module_info.source(),
-        var_declarator,
+        var_declarator.init.as_deref(),
         var_decl.kind == VarDeclKind::Const,
       )
     });

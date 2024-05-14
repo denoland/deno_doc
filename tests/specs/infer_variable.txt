@@ -1,126 +1,82 @@
 # mod.ts
+/** doc1 */
 export let a = (0);
+/** doc2 */
 export const b = a++;
+/** doc3 */
 export const c = <string> 1;
+/** doc4 */
 export const d = 1 as string;
+/** doc5 */
 export const e = await 1;
+/** doc6 */
 export const f = true ? "a" : 1;
+/** doc7 */
 export const g = (true ? "a" : null)!;
+/** doc8 */
 export const h = null!;
+/** doc9 */
 export const i = 1 == "bar";
+/** doc10 */
 export const j = 1 >> 1;
-
-# diagnostics
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:12
-  | 
-1 | export let a = (0);
-  |            ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:2:14
-  | 
-2 | export const b = a++;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:14
-  | 
-3 | export const c = <string> 1;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:4:14
-  | 
-4 | export const d = 1 as string;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:5:14
-  | 
-5 | export const e = await 1;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:6:14
-  | 
-6 | export const f = true ? "a" : 1;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:7:14
-  | 
-7 | export const g = (true ? "a" : null)!;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:8:14
-  | 
-8 | export const h = null!;
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:9:14
-  | 
-9 | export const i = 1 == "bar";
-  |              ^
-
-
-error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:10:14
-   | 
-10 | export const j = 1 >> 1;
-   |              ^
-
+/** doc11 */
+export const k = (value: string) => 1;
 
 # output.txt
-Defined in file:///mod.ts:1:12
+Defined in file:///mod.ts:2:12
 
 let a: number
-
-Defined in file:///mod.ts:2:14
-
-const b: number
-
-Defined in file:///mod.ts:3:14
-
-const c: string
+  doc1
 
 Defined in file:///mod.ts:4:14
 
-const d: string
-
-Defined in file:///mod.ts:5:14
-
-const e: 1
+const b: number
+  doc2
 
 Defined in file:///mod.ts:6:14
 
-const f: "a" | 1
-
-Defined in file:///mod.ts:7:14
-
-const g: "a"
+const c: string
+  doc3
 
 Defined in file:///mod.ts:8:14
 
-const h: never
-
-Defined in file:///mod.ts:9:14
-
-const i: boolean
+const d: string
+  doc4
 
 Defined in file:///mod.ts:10:14
 
+const e: 1
+  doc5
+
+Defined in file:///mod.ts:12:14
+
+const f: "a" | 1
+  doc6
+
+Defined in file:///mod.ts:14:14
+
+const g: "a"
+  doc7
+
+Defined in file:///mod.ts:16:14
+
+const h: never
+  doc8
+
+Defined in file:///mod.ts:18:14
+
+const i: boolean
+  doc9
+
+Defined in file:///mod.ts:20:14
+
 const j: number
+  doc10
+
+Defined in file:///mod.ts:22:14
+
+const k: (value: string) => unknown
+  doc11
 
 
 # output.json
@@ -130,11 +86,14 @@ const j: number
     "name": "a",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 1,
+      "line": 2,
       "col": 11,
-      "byteIndex": 11
+      "byteIndex": 23
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc1"
+    },
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -149,11 +108,14 @@ const j: number
     "name": "b",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 2,
+      "line": 4,
       "col": 13,
-      "byteIndex": 33
+      "byteIndex": 57
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc2"
+    },
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -168,11 +130,14 @@ const j: number
     "name": "c",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 3,
+      "line": 6,
       "col": 13,
-      "byteIndex": 55
+      "byteIndex": 91
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc3"
+    },
     "variableDef": {
       "tsType": {
         "repr": "string",
@@ -187,11 +152,14 @@ const j: number
     "name": "d",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 4,
+      "line": 8,
       "col": 13,
-      "byteIndex": 84
+      "byteIndex": 132
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc4"
+    },
     "variableDef": {
       "tsType": {
         "repr": "string",
@@ -206,11 +174,14 @@ const j: number
     "name": "e",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 5,
+      "line": 10,
       "col": 13,
-      "byteIndex": 114
+      "byteIndex": 174
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc5"
+    },
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -228,11 +199,14 @@ const j: number
     "name": "f",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 6,
+      "line": 12,
       "col": 13,
-      "byteIndex": 140
+      "byteIndex": 212
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc6"
+    },
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -264,11 +238,14 @@ const j: number
     "name": "g",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 7,
+      "line": 14,
       "col": 13,
-      "byteIndex": 173
+      "byteIndex": 257
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc7"
+    },
     "variableDef": {
       "tsType": {
         "repr": "a",
@@ -286,11 +263,14 @@ const j: number
     "name": "h",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 8,
+      "line": 16,
       "col": 13,
-      "byteIndex": 212
+      "byteIndex": 308
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc8"
+    },
     "variableDef": {
       "tsType": {
         "repr": "never",
@@ -305,11 +285,14 @@ const j: number
     "name": "i",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 9,
+      "line": 18,
       "col": 13,
-      "byteIndex": 236
+      "byteIndex": 344
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc9"
+    },
     "variableDef": {
       "tsType": {
         "repr": "boolean",
@@ -324,16 +307,61 @@ const j: number
     "name": "j",
     "location": {
       "filename": "file:///mod.ts",
-      "line": 10,
+      "line": 20,
       "col": 13,
-      "byteIndex": 265
+      "byteIndex": 386
     },
     "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc10"
+    },
     "variableDef": {
       "tsType": {
         "repr": "number",
         "kind": "keyword",
         "keyword": "number"
+      },
+      "kind": "const"
+    }
+  },
+  {
+    "kind": "variable",
+    "name": "k",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 22,
+      "col": 13,
+      "byteIndex": 424
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc11"
+    },
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "fnOrConstructor",
+        "fnOrConstructor": {
+          "constructor": false,
+          "tsType": {
+            "repr": "unknown",
+            "kind": "keyword",
+            "keyword": "unknown"
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "value",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "typeParams": []
+        }
       },
       "kind": "const"
     }
