@@ -33,17 +33,21 @@ use std::borrow::Cow;
 use std::collections::HashSet;
 use std::rc::Rc;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub enum DocDiagnosticKind {
   MissingJsDoc,
   MissingExplicitType,
   MissingReturnType,
-  PrivateTypeRef {
-    name: String,
-    reference: String,
-    /// The location of the reference.
-    reference_location: Location,
-  },
+  PrivateTypeRef(Box<PrivateTypeRefDiagnostic>),
+}
+
+#[derive(Debug, Clone)]
+pub struct PrivateTypeRefDiagnostic {
+  pub name: String,
+  pub reference: String,
+  pub reference_text_info: SourceTextInfo,
+  /// The location of the reference.
+  pub reference_location: Location,
 }
 
 #[derive(Clone)]
@@ -89,10 +93,9 @@ impl Diagnostic for DocDiagnostic {
       DocDiagnosticKind::MissingReturnType => Cow::Borrowed(
         "exported function is missing an explicit return type annotation",
       ),
-      DocDiagnosticKind::PrivateTypeRef {
-        reference, name, ..
-      } => Cow::Owned(format!(
-        "public type '{name}' references private type '{reference}'",
+      DocDiagnosticKind::PrivateTypeRef(diagnostic) => Cow::Owned(format!(
+        "public type '{}' references private type '{}'",
+        diagnostic.name, diagnostic.reference,
       )),
     }
   }
@@ -130,23 +133,23 @@ impl Diagnostic for DocDiagnostic {
   }
   fn snippet_fixed(&self) -> Option<DiagnosticSnippet<'_>> {
     match &self.kind {
-      DocDiagnosticKind::PrivateTypeRef {
-        reference_location, ..
-      } => Some(DiagnosticSnippet {
-        source: Cow::Borrowed(&self.text_info),
-        highlight: DiagnosticSnippetHighlight {
-          style: DiagnosticSnippetHighlightStyle::Hint,
-          range: DiagnosticSourceRange {
-            start: DiagnosticSourcePos::ByteIndex(
-              reference_location.byte_index,
-            ),
-            end: DiagnosticSourcePos::ByteIndex(
-              reference_location.byte_index + 1,
-            ),
+      DocDiagnosticKind::PrivateTypeRef(diagnostic) => {
+        Some(DiagnosticSnippet {
+          source: Cow::Borrowed(&diagnostic.reference_text_info),
+          highlight: DiagnosticSnippetHighlight {
+            style: DiagnosticSnippetHighlightStyle::Hint,
+            range: DiagnosticSourceRange {
+              start: DiagnosticSourcePos::ByteIndex(
+                diagnostic.reference_location.byte_index,
+              ),
+              end: DiagnosticSourcePos::ByteIndex(
+                diagnostic.reference_location.byte_index + 1,
+              ),
+            },
+            description: Some(Cow::Borrowed("this is the referenced type")),
           },
-          description: Some(Cow::Borrowed("this is the referenced type")),
-        },
-      }),
+        })
+      }
       _ => None,
     }
   }
@@ -222,28 +225,31 @@ impl<'a> DiagnosticsCollector<'a> {
         decl_range.start,
       ),
       text_info: decl_module.text_info().clone(),
-      kind: DocDiagnosticKind::PrivateTypeRef {
-        name: decl_name.to_string(),
-        reference: reference.to_string(),
-        reference_location: referenced_symbol
-          .decls()
-          .iter()
-          .next()
-          .map(|d| {
-            get_text_info_location(
-              referenced_module.specifier().as_str(),
-              referenced_module.text_info(),
-              d.range.start,
-            )
-          })
-          // should never happen, but just in case
-          .unwrap_or_else(|| Location {
-            filename: referenced_module.specifier().to_string(),
-            line: 1,
-            col: 0,
-            byte_index: 0,
-          }),
-      },
+      kind: DocDiagnosticKind::PrivateTypeRef(Box::new(
+        PrivateTypeRefDiagnostic {
+          name: decl_name.to_string(),
+          reference: reference.to_string(),
+          reference_text_info: referenced_module.text_info().clone(),
+          reference_location: referenced_symbol
+            .decls()
+            .iter()
+            .next()
+            .map(|d| {
+              get_text_info_location(
+                referenced_module.specifier().as_str(),
+                referenced_module.text_info(),
+                d.range.start,
+              )
+            })
+            // should never happen, but just in case
+            .unwrap_or_else(|| Location {
+              filename: referenced_module.specifier().to_string(),
+              line: 1,
+              col: 0,
+              byte_index: 0,
+            }),
+        },
+      )),
     })
   }
 

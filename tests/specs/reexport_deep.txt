@@ -23,7 +23,7 @@ error[private-type-ref]: public type 'UrlMessageEntity' references private type 
   | ^
   = hint: make the referenced type public or remove the reference
   | 
-1 | import type { MessageEntity } from "./a.ts";
+1 | export declare namespace MessageEntity {
   | - this is the referenced type
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
@@ -36,8 +36,8 @@ error[private-type-ref]: public type 'UrlMessageEntity' references private type 
   | ^
   = hint: make the referenced type public or remove the reference
   | 
-1 | import type { MessageEntity } from "./a.ts";
-  |                                            - this is the referenced type
+2 |   export interface TextLinkMessageEntity {
+  |   - this is the referenced type
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
