@@ -23,8 +23,8 @@ error[private-type-ref]: public type 'MyClass' references private type 'YesDiagn
   | ^
   = hint: make the referenced type public or remove the reference
   | 
-3 | export class MyClass extends YesDiagnostic2 {
-  |                          - this is the referenced type
+7 | export class YesDiagnostic2 {}
+  | - this is the referenced type
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -36,8 +36,8 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
   |   ^
   = hint: make the referenced type public or remove the reference
   | 
-1 | import { MyNamespace, YesDiagnostic2 } from "./diagnostic.ts";
-  |                        - this is the referenced type
+3 | export namespace MyNamespace {
+  | - this is the referenced type
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -49,8 +49,8 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
   |   ^
   = hint: make the referenced type public or remove the reference
   | 
-1 | import { MyNamespace, YesDiagnostic2 } from "./diagnostic.ts";
-  |                                                         - this is the referenced type
+4 |   export class YesDiagnostic {}
+  |   - this is the referenced type
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
