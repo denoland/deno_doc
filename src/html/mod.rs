@@ -25,7 +25,6 @@ mod usage;
 mod util;
 
 use crate::html::pages::SymbolPage;
-use crate::html::partition::get_partitions_for_file;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -191,7 +190,12 @@ impl ShortPath {
       rewrite_map.and_then(|rewrite_map| rewrite_map.get(&specifier))
     {
       return ShortPath {
-        path: rewrite.to_owned(),
+        path: rewrite
+          .strip_prefix('.')
+          .unwrap_or(rewrite)
+          .strip_prefix('/')
+          .unwrap_or(rewrite)
+          .to_owned(),
         specifier,
         is_main,
       };
@@ -379,7 +383,7 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_helper("print", Box::new(print));
 
   reg.register_template_string(
-    util::ToCCtx::TEMPLATE,
+    ToCCtx::TEMPLATE,
     include_str!("./templates/toc.hbs"),
   )?;
   reg.register_template_string(
@@ -566,12 +570,25 @@ pub fn generate(
 
   // Index page
   {
-    let partitions_for_entrypoint_nodes =
+    let (partitions_for_entrypoint_nodes, is_categories) =
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
-        get_partitions_for_file(
-          ctx.doc_nodes.get(entrypoint).unwrap(),
+        let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
+        let categories = partition::partition_nodes_by_category(
+          nodes,
           ctx.file_mode == FileMode::SingleDts,
-        )
+        );
+
+        if categories.len() == 1 && categories.contains_key("Uncategorized") {
+          (
+            partition::partition_nodes_by_kind(
+              nodes,
+              ctx.file_mode == FileMode::SingleDts,
+            ),
+            false,
+          )
+        } else {
+          (categories, true)
+        }
       } else {
         Default::default()
       };
@@ -580,6 +597,7 @@ pub fn generate(
       &ctx,
       ctx.main_entrypoint.clone(),
       partitions_for_entrypoint_nodes,
+      is_categories,
     );
 
     if composable_output {
@@ -609,15 +627,15 @@ pub fn generate(
     }
   }
 
+  let all_doc_nodes = ctx
+    .doc_nodes
+    .values()
+    .flatten()
+    .cloned()
+    .collect::<Vec<DocNodeWithContext>>();
+
   // All symbols (list of all symbols in all files)
   if ctx.file_mode != FileMode::SingleDts {
-    let all_doc_nodes = ctx
-      .doc_nodes
-      .values()
-      .flatten()
-      .cloned()
-      .collect::<Vec<DocNodeWithContext>>();
-
     let partitions_by_kind =
       partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 
@@ -642,10 +660,32 @@ pub fn generate(
     }
   }
 
+  if ctx.file_mode == FileMode::SingleDts {
+    let categories =
+      partition::partition_nodes_by_category(&all_doc_nodes, true);
+
+    if categories.len() != 1 {
+      for (category, nodes) in &categories {
+        let partitions = partition::partition_nodes_by_kind(nodes, true);
+
+        let index = pages::IndexCtx::new_category(
+          &ctx,
+          category,
+          partitions,
+          &all_doc_nodes,
+        );
+        files.insert(
+          format!("{}.html", util::slugify(category)),
+          ctx.render(pages::IndexCtx::TEMPLATE, &index),
+        );
+      }
+    }
+  }
+
   // Pages for all discovered symbols
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
-      let partitions_for_nodes = get_partitions_for_file(
+      let doc_nodes_by_kind = partition::partition_nodes_by_kind(
         doc_nodes,
         ctx.file_mode == FileMode::SingleDts,
       );
@@ -664,6 +704,7 @@ pub fn generate(
               UrlResolveKind::Symbol {
                 file: short_path,
                 symbol: &symbol_group_ctx.name,
+                category: None,
               },
               UrlResolveKind::Root,
             );
@@ -733,7 +774,7 @@ pub fn generate(
         let index = pages::IndexCtx::new(
           &ctx,
           Some(short_path.clone()),
-          partitions_for_nodes,
+          doc_nodes_by_kind,
         );
 
         if composable_output {

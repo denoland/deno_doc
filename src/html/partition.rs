@@ -225,16 +225,3 @@ fn compare_node(
     .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
     .then_with(|| node1.kind.cmp(&node2.kind))
 }
-
-pub fn get_partitions_for_file(
-  doc_nodes: &[DocNodeWithContext],
-  flatten_namespace: bool,
-) -> Partitions<String> {
-  let categories = partition_nodes_by_category(doc_nodes, flatten_namespace);
-
-  if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(doc_nodes, flatten_namespace)
-  } else {
-    categories
-  }
-}

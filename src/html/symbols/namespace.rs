@@ -74,6 +74,7 @@ impl NamespaceNodeCtx {
         UrlResolveKind::Symbol {
           file: &nodes[0].origin,
           symbol: &name,
+          category: None,
         },
       ),
       name,

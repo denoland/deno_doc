@@ -19,6 +19,7 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -83,6 +84,7 @@ impl IndexCtx {
     ctx: &GenerateCtx,
     short_path: Option<Rc<ShortPath>>,
     partitions: super::partition::Partitions<String>,
+    is_categories: bool,
   ) -> Self {
     // will be default on index page with no main entrypoint
     let default = vec![];
@@ -103,12 +105,9 @@ impl IndexCtx {
       super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
     });
 
-    let root = ctx.href_resolver.resolve_path(
-      short_path
-        .as_deref()
-        .map_or(UrlResolveKind::Root, ShortPath::as_resolve_kind),
-      UrlResolveKind::Root,
-    );
+    let root = ctx
+      .href_resolver
+      .resolve_path(render_ctx.get_current_resolve(), UrlResolveKind::Root);
 
     let html_head_ctx =
       HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
@@ -172,9 +171,16 @@ impl IndexCtx {
 
               (
                 SectionHeaderCtx {
+                  href: if is_categories {
+                    Some(render_ctx.ctx.href_resolver.resolve_path(
+                      render_ctx.get_current_resolve(),
+                      UrlResolveKind::Category(&title),
+                    ))
+                  } else {
+                    None
+                  },
                   title,
                   anchor: AnchorCtx { id: anchor },
-                  href: None,
                   doc: None,
                 },
                 nodes,
@@ -201,6 +207,60 @@ impl IndexCtx {
       html_head_ctx,
       module_doc,
       overview,
+      breadcrumbs_ctx,
+      toc_ctx,
+    }
+  }
+
+  pub fn new_category(
+    ctx: &GenerateCtx,
+    name: &str,
+    partitions: super::partition::Partitions<String>,
+    all_doc_nodes: &[DocNodeWithContext],
+  ) -> Self {
+    let render_ctx =
+      RenderContext::new(ctx, all_doc_nodes, UrlResolveKind::Category(name));
+
+    let sections = super::namespace::render_namespace(
+      &render_ctx,
+      partitions
+        .into_iter()
+        .map(|(title, nodes)| {
+          let anchor = render_ctx.toc.add_entry(1, title.clone());
+
+          (
+            SectionHeaderCtx {
+              title,
+              anchor: AnchorCtx { id: anchor },
+              href: None,
+              doc: None,
+            },
+            nodes,
+          )
+        })
+        .collect(),
+    );
+
+    let root = ctx
+      .href_resolver
+      .resolve_path(UrlResolveKind::Category(name), UrlResolveKind::Root);
+
+    let html_head_ctx =
+      HtmlHeadCtx::new(&root, name, ctx.package_name.as_ref(), None);
+
+    let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
+
+    let toc_ctx =
+      util::ToCCtx::new(render_ctx, ctx.file_mode != FileMode::SingleDts, &[]);
+
+    IndexCtx {
+      html_head_ctx,
+      module_doc: None,
+      overview: Some(SymbolContentCtx {
+        id: String::new(),
+        sections,
+        docs: None,
+      }),
       breadcrumbs_ctx,
       toc_ctx,
     }
@@ -469,10 +529,12 @@ pub fn generate_symbol_pages_for_module(
           UrlResolveKind::Symbol {
             file: short_path,
             symbol: &prototype_name,
+            category: None,
           },
           UrlResolveKind::Symbol {
             file: short_path,
             symbol: &name,
+            category: None,
           },
         ),
         current_symbol: prototype_name,
@@ -505,6 +567,17 @@ pub fn render_symbol_page(
     render_ctx.with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
       symbol: namespaced_name,
+      category: if render_ctx.ctx.file_mode == FileMode::SingleDts {
+        doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
+          if let JsDocTag::Category { doc } = tag {
+            Some(doc.as_ref())
+          } else {
+            None
+          }
+        })
+      } else {
+        None
+      },
     });
   if !doc_nodes[0].ns_qualifiers.is_empty() {
     render_ctx = render_ctx.with_namespace(doc_nodes[0].ns_qualifiers.clone());

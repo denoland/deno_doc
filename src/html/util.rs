@@ -9,6 +9,8 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
+use deno_ast::swc::atoms::once_cell::sync::Lazy;
+use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -231,10 +233,13 @@ impl NamespacedGlobalSymbols {
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
+  Category(&'a str),
   File(&'a ShortPath),
   Symbol {
     file: &'a ShortPath,
     symbol: &'a str,
+    /// Only some if FileMode is SingleDts and categories are used
+    category: Option<&'a str>,
   },
 }
 
@@ -243,6 +248,7 @@ impl UrlResolveKind<'_> {
     match self {
       UrlResolveKind::Root => None,
       UrlResolveKind::AllSymbols => None,
+      UrlResolveKind::Category(_) => None,
       UrlResolveKind::File(file) => Some(file),
       UrlResolveKind::Symbol { file, .. } => Some(file),
     }
@@ -262,6 +268,7 @@ pub fn href_path_resolve(
       }),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
+    UrlResolveKind::Category(_) => String::from("./"),
   };
 
   match target {
@@ -271,11 +278,15 @@ pub fn href_path_resolve(
     UrlResolveKind::Symbol {
       file: target_file,
       symbol: target_symbol,
+      ..
     } => {
       format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
     }
     UrlResolveKind::File(target_file) => {
       format!("{backs}./{}/~/index.html", target_file.path)
+    }
+    UrlResolveKind::Category(category) => {
+      format!("{backs}./{}.html", slugify(category))
     }
   }
 }
@@ -610,6 +621,7 @@ impl TopSymbolsCtx {
           UrlResolveKind::Symbol {
             file: &nodes[0].origin,
             symbol: &name,
+            category: None,
           },
         ),
         name,
@@ -658,4 +670,13 @@ impl ToCCtx {
       document_navigation: ctx.toc.render(),
     }
   }
+}
+
+pub fn slugify(name: &str) -> String {
+  static REJECTED_CHARS: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap());
+
+  REJECTED_CHARS
+    .replace_all(&name.to_lowercase(), "")
+    .replace(' ', "-")
 }

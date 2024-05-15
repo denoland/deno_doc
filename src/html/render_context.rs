@@ -93,6 +93,7 @@ impl<'ctx> RenderContext<'ctx> {
             UrlResolveKind::Symbol {
               file: self.get_current_resolve().get_file().unwrap(),
               symbol: &current_parts.join("."),
+              category: None,
             },
           ));
         }
@@ -114,6 +115,7 @@ impl<'ctx> RenderContext<'ctx> {
                 (**self.ctx.main_entrypoint.as_ref().unwrap()).clone()
               }),
             symbol: target_symbol,
+            category: None,
           },
         ),
       );
@@ -132,6 +134,7 @@ impl<'ctx> RenderContext<'ctx> {
             UrlResolveKind::Symbol {
               file: short_path,
               symbol: target_symbol,
+              category: None,
             },
           ));
         }
@@ -179,6 +182,25 @@ impl<'ctx> RenderContext<'ctx> {
           },
         ]
       }
+      UrlResolveKind::Category(category) => {
+        vec![
+          BreadcrumbCtx {
+            name: index_name,
+            href: self
+              .ctx
+              .href_resolver
+              .resolve_path(self.current_resolve, UrlResolveKind::Root),
+            is_symbol: false,
+            is_first_symbol: false,
+          },
+          BreadcrumbCtx {
+            name: category.to_owned(),
+            href: super::util::slugify(category),
+            is_symbol: false,
+            is_first_symbol: false,
+          },
+        ]
+      }
       UrlResolveKind::File(file) => {
         if file.is_main {
           vec![BreadcrumbCtx {
@@ -207,7 +229,11 @@ impl<'ctx> RenderContext<'ctx> {
           ]
         }
       }
-      UrlResolveKind::Symbol { file, symbol } => {
+      UrlResolveKind::Symbol {
+        file,
+        symbol,
+        category,
+      } => {
         let mut parts = vec![BreadcrumbCtx {
           name: index_name,
           href: self
@@ -228,6 +254,16 @@ impl<'ctx> RenderContext<'ctx> {
             is_symbol: false,
             is_first_symbol: false,
           });
+        } else if let Some(category) = category {
+          parts.push(BreadcrumbCtx {
+            name: category.to_string(),
+            href: self.ctx.href_resolver.resolve_path(
+              self.current_resolve,
+              UrlResolveKind::Category(category),
+            ),
+            is_symbol: false,
+            is_first_symbol: false,
+          });
         }
 
         let (_, symbol_parts) = symbol.split('.').enumerate().fold(
@@ -241,6 +277,7 @@ impl<'ctx> RenderContext<'ctx> {
                 UrlResolveKind::Symbol {
                   file,
                   symbol: &symbol_parts.join("."),
+                  category,
                 },
               ),
               is_symbol: true,
