@@ -84,7 +84,7 @@ impl IndexCtx {
     ctx: &GenerateCtx,
     short_path: Option<Rc<ShortPath>>,
     partitions: super::partition::Partitions<String>,
-    is_categories: bool,
+    uses_categories: bool,
   ) -> Self {
     // will be default on index page with no main entrypoint
     let default = vec![];
@@ -171,7 +171,7 @@ impl IndexCtx {
 
               (
                 SectionHeaderCtx {
-                  href: if is_categories {
+                  href: if uses_categories {
                     Some(render_ctx.ctx.href_resolver.resolve_path(
                       render_ctx.get_current_resolve(),
                       UrlResolveKind::Category(&title),
@@ -529,12 +529,10 @@ pub fn generate_symbol_pages_for_module(
           UrlResolveKind::Symbol {
             file: short_path,
             symbol: &prototype_name,
-            category: None,
           },
           UrlResolveKind::Symbol {
             file: short_path,
             symbol: &name,
-            category: None,
           },
         ),
         current_symbol: prototype_name,
@@ -563,22 +561,23 @@ pub fn render_symbol_page(
   namespaced_name: &str,
   doc_nodes: &[DocNodeWithContext],
 ) -> (BreadcrumbsCtx, SymbolGroupCtx, util::ToCCtx) {
-  let mut render_ctx =
-    render_ctx.with_current_resolve(UrlResolveKind::Symbol {
+  let mut render_ctx = render_ctx
+    .with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
       symbol: namespaced_name,
-      category: if render_ctx.ctx.file_mode == FileMode::SingleDts {
-        doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
-          if let JsDocTag::Category { doc } = tag {
-            Some(doc.as_ref())
-          } else {
-            None
-          }
-        })
-      } else {
-        None
-      },
+    })
+    .with_category(if render_ctx.ctx.file_mode == FileMode::SingleDts {
+      doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
+        if let JsDocTag::Category { doc } = tag {
+          Some(doc.as_ref())
+        } else {
+          None
+        }
+      })
+    } else {
+      None
     });
+
   if !doc_nodes[0].ns_qualifiers.is_empty() {
     render_ctx = render_ctx.with_namespace(doc_nodes[0].ns_qualifiers.clone());
   }

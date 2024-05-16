@@ -238,8 +238,6 @@ pub enum UrlResolveKind<'a> {
   Symbol {
     file: &'a ShortPath,
     symbol: &'a str,
-    /// Only some if FileMode is SingleDts and categories are used
-    category: Option<&'a str>,
   },
 }
 
@@ -621,7 +619,6 @@ impl TopSymbolsCtx {
           UrlResolveKind::Symbol {
             file: &nodes[0].origin,
             symbol: &name,
-            category: None,
           },
         ),
         name,

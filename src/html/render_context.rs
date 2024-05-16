@@ -19,6 +19,8 @@ pub struct RenderContext<'ctx> {
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Rc<Vec<String>>,
+  /// Only some when in `FileMode::SingleDts` and using categories
+  category: Option<&'ctx str>,
   pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
 }
 
@@ -35,6 +37,7 @@ impl<'ctx> RenderContext<'ctx> {
       current_type_params: Default::default(),
       current_resolve,
       namespace_parts: Rc::new(vec![]),
+      category: None,
       toc: Default::default(),
     }
   }
@@ -67,6 +70,14 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_category(&self, category: Option<&'ctx str>) -> Self {
+    Self {
+      category,
+      toc: Default::default(),
+      ..self.clone()
+    }
+  }
+
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
   }
@@ -93,7 +104,6 @@ impl<'ctx> RenderContext<'ctx> {
             UrlResolveKind::Symbol {
               file: self.get_current_resolve().get_file().unwrap(),
               symbol: &current_parts.join("."),
-              category: None,
             },
           ));
         }
@@ -115,7 +125,6 @@ impl<'ctx> RenderContext<'ctx> {
                 (**self.ctx.main_entrypoint.as_ref().unwrap()).clone()
               }),
             symbol: target_symbol,
-            category: None,
           },
         ),
       );
@@ -134,7 +143,6 @@ impl<'ctx> RenderContext<'ctx> {
             UrlResolveKind::Symbol {
               file: short_path,
               symbol: target_symbol,
-              category: None,
             },
           ));
         }
@@ -229,11 +237,7 @@ impl<'ctx> RenderContext<'ctx> {
           ]
         }
       }
-      UrlResolveKind::Symbol {
-        file,
-        symbol,
-        category,
-      } => {
+      UrlResolveKind::Symbol { file, symbol } => {
         let mut parts = vec![BreadcrumbCtx {
           name: index_name,
           href: self
@@ -254,7 +258,7 @@ impl<'ctx> RenderContext<'ctx> {
             is_symbol: false,
             is_first_symbol: false,
           });
-        } else if let Some(category) = category {
+        } else if let Some(category) = self.category {
           parts.push(BreadcrumbCtx {
             name: category.to_string(),
             href: self.ctx.href_resolver.resolve_path(
@@ -277,7 +281,6 @@ impl<'ctx> RenderContext<'ctx> {
                 UrlResolveKind::Symbol {
                   file,
                   symbol: &symbol_parts.join("."),
-                  category,
                 },
               ),
               is_symbol: true,

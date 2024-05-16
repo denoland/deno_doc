@@ -570,7 +570,7 @@ pub fn generate(
 
   // Index page
   {
-    let (partitions_for_entrypoint_nodes, is_categories) =
+    let (partitions_for_entrypoint_nodes, uses_categories) =
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
         let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
         let categories = partition::partition_nodes_by_category(
@@ -597,7 +597,7 @@ pub fn generate(
       &ctx,
       ctx.main_entrypoint.clone(),
       partitions_for_entrypoint_nodes,
-      is_categories,
+      uses_categories,
     );
 
     if composable_output {
@@ -704,7 +704,6 @@ pub fn generate(
               UrlResolveKind::Symbol {
                 file: short_path,
                 symbol: &symbol_group_ctx.name,
-                category: None,
               },
               UrlResolveKind::Root,
             );
@@ -775,6 +774,7 @@ pub fn generate(
           &ctx,
           Some(short_path.clone()),
           doc_nodes_by_kind,
+          false,
         );
 
         if composable_output {
