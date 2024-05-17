@@ -46,6 +46,9 @@ export default {
         ...extraColors,
         "contextLink": "#0E6590",
       },
+      borderWidth: {
+        "1.5": "1.5px",
+      },
     },
   },
   darkMode: "class",
