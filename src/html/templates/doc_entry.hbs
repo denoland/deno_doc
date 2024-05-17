@@ -13,7 +13,7 @@
 
       <code>
         {{~#if name_href~}}
-          <a class="font-bold link" href="{{name_href}}">{{{name}}}</a>
+          <a class="font-medium link" href="{{name_href}}">{{{name}}}</a>
         {{~else~}}
           <span class="font-bold">{{{name}}}</span>
         {{~/if~}}
@@ -27,7 +27,7 @@
   </div>
 
   {{~#if js_doc~}}
-    <div class="markdown_border">
+    <div class="max-w-prose">
       {{{~js_doc~}}} {{! markdown rendering }}
     </div>
   {{~/if~}}

@@ -18,7 +18,9 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
   <script src="..&#x2F;search.js" defer></script>
 </head>
 <body class="ddoc">
-<nav class="flex lg:items-center justify-between mb-6 gap-4 max-lg:flex-col-reverse"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+<nav class="top-0 sticky bg-white z-50 py-3">
+  <div class="max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
+    <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -35,11 +37,14 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
 </span><ul><li>Baz</li></ul></ul>
-<input
-		type="text"
-		id="searchbar"
-		style="display: none;"
-		class="flex-1 lg:max-w-80 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+</div>
+
+    <input
+      type="text"
+      id="searchbar"
+      style="display: none;"
+      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+  </div>
 </nav>
 <div id="content"><main class="symbolGroup" id="symbol_Baz"><article>
       <div>
@@ -48,7 +53,7 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
             <span class="text-TypeAlias">type alias</span>&nbsp;<span class="font-bold">Baz</span>
           </div></div></div><div><div class="space-y-7" id=""><section class="section" id="properties">
   <div>
-	  <h2 class="anchorable"><a href="#properties" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+	  <h2 class="anchorable mb-1"><a href="#properties" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -70,7 +75,7 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
   </defs>
 </svg>
 </a>
-Properties</h2></div><div class="ml-2 space-y-3"><div class="anchorable docEntry" id="property_foo"><a href="#property_foo" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+Properties</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry" id="property_foo"><a href="#property_foo" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -93,7 +98,7 @@ Properties</h2></div><div class="ml-2 space-y-3"><div class="anchorable docEntry
 </svg>
 </a>
 <div class="docEntryHeader">
-    <span><code><a class="font-bold link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium"><span>: <span>string</span></span></span>
+    <span><code><a class="font-medium link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium"><span>: <span>string</span></span></span>
       </code>
     </span></div></div>
 </div></section>
