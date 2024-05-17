@@ -3,22 +3,26 @@
 @tailwind utilities;
 
 body {
-  @apply p-7 max-w-screen-xl w-full overflow-x-hidden mx-auto;
+  @apply max-w-screen-xl mx-auto px-4 md:px-8 lg:px-10 xl:px-14 lg:pt-4;
 }
 
 #content {
-  @apply flex gap-6 relative;
+  @apply mt-4 grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12;
 
   & > main {
-    @apply flex-1;
+    @apply min-w-0 col-span-full;
+  }
+
+  &:has(.toc) > main {
+    @apply lg:col-span-3 lg:row-start-1;
   }
 }
 
 .toc {
-  @apply w-64 flex-none max-lg:hidden sticky top-0 max-h-screen box-border;
+  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-4 pt-4;
 
   > div {
-    @apply overflow-y-scroll max-h-full;
+    @apply max-h-full lg:overflow-y-scroll;
 
     > *:last-child {
       @apply pb-4;

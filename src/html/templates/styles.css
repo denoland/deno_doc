@@ -199,7 +199,7 @@ a {
   }
 
   .documentNavigation {
-    @apply text-sm space-y-3;
+    @apply max-lg:hidden text-sm space-y-3;
 
     > ul {
       @apply space-y-2 block overflow-y-auto;
@@ -373,7 +373,7 @@ a {
   }
 
   pre {
-    @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5 border-slate-300 -mx-6 rounded-none md:rounded-md md:border-1.5 md:mx-0;
+    @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5 border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
 
     & > code:first-child {
       @apply overflow-x-auto px-6 py-4 block;

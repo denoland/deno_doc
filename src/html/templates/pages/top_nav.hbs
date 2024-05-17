@@ -1,9 +1,13 @@
-<nav class="flex lg:items-center justify-between mb-6 gap-4 max-lg:flex-col-reverse">
-	{{~> breadcrumbs breadcrumbs_ctx ~}}
+<nav class="top-0 sticky bg-white z-50 py-3">
+  <div class="max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
+    <div class="lg:col-span-3">
+      {{~> breadcrumbs breadcrumbs_ctx ~}}
+    </div>
 
-	<input
-		type="text"
-		id="searchbar"
-		style="display: none;"
-		class="flex-1 lg:max-w-80 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+    <input
+      type="text"
+      id="searchbar"
+      style="display: none;"
+      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+  </div>
 </nav>
