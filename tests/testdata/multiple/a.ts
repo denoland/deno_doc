@@ -24,7 +24,7 @@
  */
 export class Foo {
   static bar: "string";
-  foo: "string";
+  foo: A;
   '"><img src=x onerror=alert(1)>' = 0;
 }
 
@@ -41,3 +41,8 @@ export interface Hello {
 export type Baz = {
   foo: string;
 };
+
+class A {}
+
+/** @internal */
+export class B {}

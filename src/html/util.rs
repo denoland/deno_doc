@@ -53,7 +53,7 @@ pub fn compute_namespaced_symbols(
 
   for doc_node in doc_nodes {
     if doc_node.kind == DocNodeKind::ModuleDoc
-      || doc_node.declaration_kind == crate::node::DeclarationKind::Private
+      || doc_node.kind == DocNodeKind::Import
     {
       continue;
     }
@@ -599,6 +599,7 @@ impl TopSymbolsCtx {
 
     let symbols = partitions
       .into_iter()
+      .filter(|(_name, node)| !node[0].is_internal())
       .take(5)
       .map(|(name, nodes)| TopSymbolCtx {
         kind: nodes
