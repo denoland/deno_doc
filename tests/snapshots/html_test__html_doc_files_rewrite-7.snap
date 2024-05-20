@@ -125,7 +125,7 @@ Properties</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry
 </svg>
 </a>
 <div class="docEntryHeader">
-    <span><code><a class="font-medium link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.foo.html">foo</a><span class="font-medium"><span>: <span>"string"</span></span></span>
+    <span><code><a class="font-medium link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.foo.html">foo</a><span class="font-medium"><span>: <a href="../././~/A.html" class="link">A</a></span></span>
       </code>
     </span></div></div>
 </div></section>
