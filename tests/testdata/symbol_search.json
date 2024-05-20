@@ -10,7 +10,7 @@
         "filename": "default",
         "line": 45,
         "col": 0,
-        "byteIndex": 737
+        "byteIndex": 741
       },
       "declarationKind": "private",
       "deprecated": false
@@ -25,7 +25,7 @@
         "filename": "default",
         "line": 48,
         "col": 0,
-        "byteIndex": 766
+        "byteIndex": 770
       },
       "declarationKind": "export",
       "deprecated": false
@@ -40,7 +40,7 @@
         "filename": "default",
         "line": 31,
         "col": 0,
-        "byteIndex": 584
+        "byteIndex": 588
       },
       "declarationKind": "export",
       "deprecated": false
@@ -55,7 +55,7 @@
         "filename": "default",
         "line": 41,
         "col": 0,
-        "byteIndex": 698
+        "byteIndex": 702
       },
       "declarationKind": "export",
       "deprecated": false
@@ -85,7 +85,7 @@
         "filename": "default",
         "line": 34,
         "col": 0,
-        "byteIndex": 618
+        "byteIndex": 622
       },
       "declarationKind": "export",
       "deprecated": false
@@ -100,7 +100,7 @@
         "filename": "default",
         "line": 37,
         "col": 0,
-        "byteIndex": 651
+        "byteIndex": 655
       },
       "declarationKind": "export",
       "deprecated": false

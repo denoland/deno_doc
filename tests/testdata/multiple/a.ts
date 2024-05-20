@@ -24,7 +24,7 @@
  */
 export class Foo {
   static bar: "string";
-  foo: A;
+  foo: A = A;
   '"><img src=x onerror=alert(1)>' = 0;
 }
 
