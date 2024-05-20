@@ -25,6 +25,7 @@ mod usage;
 mod util;
 
 use crate::html::pages::SymbolPage;
+use crate::js_doc::JsDocTag;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -357,6 +358,15 @@ impl DocNodeWithContext {
     let mut ns_qualifiers = (*self.ns_qualifiers).clone();
     ns_qualifiers.push(self.get_name().to_string());
     ns_qualifiers
+  }
+
+  pub fn is_internal(&self) -> bool {
+    self.inner.declaration_kind == crate::node::DeclarationKind::Private
+      || self
+        .js_doc
+        .tags
+        .iter()
+        .any(|tag| tag == &JsDocTag::Internal)
   }
 }
 

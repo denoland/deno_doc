@@ -95,6 +95,10 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions));
         }
 
+        if doc_nodes[0].is_internal() {
+          tags.insert(Tag::Private);
+        }
+
         let deprecated = if all_deprecated
           && !(doc_nodes[0].kind == DocNodeKind::Function
             && doc_nodes.len() == 1)

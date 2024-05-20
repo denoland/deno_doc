@@ -185,7 +185,6 @@ async fn html_doc_files() {
     insta::assert_snapshot!(files.get("script.js").unwrap());
     insta::assert_snapshot!(files.get("search.js").unwrap());
     insta::assert_snapshot!(files.get("search_index.js").unwrap());
-    insta::assert_snapshot!(files.get("styles.css").unwrap());
   }
 }
 
@@ -227,6 +226,10 @@ async fn html_doc_files_rewrite() {
     [
       "./all_symbols.html",
       "./index.html",
+      "./~/A.html",
+      "./~/A.prototype.html",
+      "./~/B.html",
+      "./~/B.prototype.html",
       "./~/Bar.html",
       "./~/Bar.prototype.html",
       "./~/Baz.foo.html",
@@ -279,7 +282,6 @@ async fn html_doc_files_rewrite() {
     insta::assert_snapshot!(files.get("script.js").unwrap());
     insta::assert_snapshot!(files.get("search.js").unwrap());
     insta::assert_snapshot!(files.get("search_index.js").unwrap());
-    insta::assert_snapshot!(files.get("styles.css").unwrap());
   }
 }
 

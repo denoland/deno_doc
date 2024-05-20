@@ -33,7 +33,13 @@ fn get_namespace_section_render_ctx(
 
   let nodes = grouped_nodes
     .into_iter()
-    .map(|(name, nodes)| NamespaceNodeCtx::new(ctx, name, nodes))
+    .filter_map(|(name, nodes)| {
+      if nodes[0].is_internal() {
+        None
+      } else {
+        Some(NamespaceNodeCtx::new(ctx, name, nodes))
+      }
+    })
     .collect::<Vec<_>>();
 
   SectionCtx {

@@ -58,16 +58,11 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
         format!("[{title}]({link})")
       }
     } else {
-      let title = if !title.is_empty() {
-        format!(" | {title}")
-      } else {
-        String::new()
-      };
-
+      #[allow(clippy::collapsible_if)]
       if code {
-        format!("`{link}`{title}")
+        format!("`{title}`")
       } else {
-        format!("{link}{title}")
+        title.to_string()
       }
     }
   })
@@ -561,5 +556,105 @@ impl ModuleDocCtx {
         sections,
       },
     }
+  }
+}
+
+#[cfg(test)]
+mod test {
+  use crate::html::href_path_resolve;
+  use crate::html::jsdoc::parse_links;
+  use crate::html::GenerateCtx;
+  use crate::html::GenerateOptions;
+  use crate::html::HrefResolver;
+
+  use crate::html::RenderContext;
+  use crate::html::UrlResolveKind;
+
+  struct EmptyResolver {}
+
+  impl HrefResolver for EmptyResolver {
+    fn resolve_path(
+      &self,
+      current: UrlResolveKind,
+      target: UrlResolveKind,
+    ) -> String {
+      href_path_resolve(current, target)
+    }
+
+    fn resolve_global_symbol(&self, _symbol: &[String]) -> Option<String> {
+      None
+    }
+
+    fn resolve_import_href(
+      &self,
+      _symbol: &[String],
+      _src: &str,
+    ) -> Option<String> {
+      None
+    }
+
+    fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
+      current_resolve
+        .get_file()
+        .map(|current_file| current_file.path.to_string())
+    }
+
+    fn resolve_source(&self, _location: &crate::Location) -> Option<String> {
+      None
+    }
+  }
+
+  #[test]
+  fn parse_links_test() {
+    let ctx = GenerateCtx::new(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: std::rc::Rc::new(EmptyResolver {}),
+        usage_composer: None,
+        rewrite_map: None,
+        composable_output: false,
+      },
+      Default::default(),
+      Default::default(),
+      Default::default(),
+    )
+    .unwrap();
+
+    let render_ctx = RenderContext::new(&ctx, &[], UrlResolveKind::AllSymbols);
+
+    assert_eq!(
+      parse_links("foo {@link https://example.com} bar", &render_ctx),
+      "foo [https://example.com](https://example.com) bar"
+    );
+    assert_eq!(
+      parse_links("foo {@linkcode https://example.com} bar", &render_ctx),
+      "foo [`https://example.com`](https://example.com) bar"
+    );
+
+    assert_eq!(
+      parse_links("foo {@link https://example.com Example} bar", &render_ctx),
+      "foo [Example](https://example.com) bar"
+    );
+    assert_eq!(
+      parse_links("foo {@link https://example.com|Example} bar", &render_ctx),
+      "foo [Example](https://example.com) bar"
+    );
+    assert_eq!(
+      parse_links(
+        "foo {@linkcode https://example.com Example} bar",
+        &render_ctx
+      ),
+      "foo [`Example`](https://example.com) bar"
+    );
+
+    assert_eq!(
+      parse_links("foo {@link unknownSymbol} bar", &render_ctx),
+      "foo unknownSymbol bar"
+    );
+    assert_eq!(
+      parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx),
+      "foo `unknownSymbol` bar"
+    );
   }
 }

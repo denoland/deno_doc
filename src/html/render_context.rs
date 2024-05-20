@@ -13,7 +13,7 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
   pub ctx: &'ctx GenerateCtx<'ctx>,
-  current_exports: NamespacedSymbols,
+  scoped_symbols: NamespacedSymbols,
   current_imports: Rc<HashMap<String, String>>,
   current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
@@ -32,7 +32,7 @@ impl<'ctx> RenderContext<'ctx> {
   ) -> Self {
     Self {
       ctx,
-      current_exports: NamespacedSymbols::new(doc_nodes),
+      scoped_symbols: NamespacedSymbols::new(doc_nodes),
       current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,
@@ -98,7 +98,7 @@ impl<'ctx> RenderContext<'ctx> {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);
 
-        if self.current_exports.contains(&current_parts) {
+        if self.scoped_symbols.contains(&current_parts) {
           return Some(self.ctx.href_resolver.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
@@ -112,7 +112,7 @@ impl<'ctx> RenderContext<'ctx> {
       }
     }
 
-    if self.current_exports.contains(&target_symbol_parts) {
+    if self.scoped_symbols.contains(&target_symbol_parts) {
       return Some(
         self.ctx.href_resolver.resolve_path(
           self.get_current_resolve(),

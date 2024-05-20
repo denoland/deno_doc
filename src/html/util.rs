@@ -55,7 +55,7 @@ pub fn compute_namespaced_symbols(
 
   for doc_node in doc_nodes {
     if doc_node.kind == DocNodeKind::ModuleDoc
-      || doc_node.declaration_kind == crate::node::DeclarationKind::Private
+      || doc_node.kind == DocNodeKind::Import
     {
       continue;
     }
@@ -598,6 +598,7 @@ impl TopSymbolsCtx {
       .doc_nodes
       .values()
       .flat_map(|nodes| super::partition::partition_nodes_by_name(nodes, true))
+      .filter(|(_name, node)| !node[0].is_internal())
       .collect::<Vec<_>>();
 
     if partitions.is_empty() {
