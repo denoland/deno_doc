@@ -589,6 +589,7 @@ impl TopSymbolsCtx {
       .doc_nodes
       .values()
       .flat_map(|nodes| super::partition::partition_nodes_by_name(nodes, true))
+      .filter(|(_name, node)| !node[0].is_internal())
       .collect::<Vec<_>>();
 
     if partitions.is_empty() {
@@ -599,7 +600,6 @@ impl TopSymbolsCtx {
 
     let symbols = partitions
       .into_iter()
-      .filter(|(_name, node)| !node[0].is_internal())
       .take(5)
       .map(|(name, nodes)| TopSymbolCtx {
         kind: nodes
