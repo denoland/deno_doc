@@ -34,11 +34,7 @@ pub fn usage_to_md(
     let is_default = doc_nodes[0].name == "default";
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
-      dbg!("file", &file);
-      file
-        .display_name()
-        .replace('-', "_")
-        .replace(|c: char| c.is_ascii_alphanumeric(), "")
+      "module".to_string()
     } else {
       parts[0].to_string()
     };
@@ -69,8 +65,6 @@ pub fn usage_to_md(
     });
 
     let mut usage_statement = if is_default {
-      dbg!(&url);
-      dbg!(&import_symbol);
       format!(
         r#"import {}{} from "{url}";"#,
         if is_type { "type " } else { "" },

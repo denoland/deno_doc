@@ -48,5 +48,5 @@ class A {}
 export class B {}
 
 /** A module's default export item. */
-const default_ = 0;
+const default_: number = 0;
 export { default_ as default }
