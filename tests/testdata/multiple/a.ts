@@ -46,7 +46,3 @@ class A {}
 
 /** @internal */
 export class B {}
-
-/** A module's default export item. */
-const default_: number = 0;
-export { default_ as default }

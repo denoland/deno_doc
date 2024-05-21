@@ -26,7 +26,7 @@ pub fn usage_to_md(
   doc_nodes: &[DocNodeWithContext],
   url: &str,
 ) -> String {
-  let usage = if let UrlResolveKind::Symbol { symbol, file } =
+  let usage = if let UrlResolveKind::Symbol { symbol, file: _ } =
     ctx.get_current_resolve()
   {
     let mut parts = symbol.split('.').collect::<Vec<&str>>();
