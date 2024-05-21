@@ -219,7 +219,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       attributes
         .entry("class".into())
         .or_default()
-        .push_str(" flex gap-2");
+        .push_str(" !flex gap-2");
     }
     comrak::html::write_opening_tag(output, "code", attributes)
   }

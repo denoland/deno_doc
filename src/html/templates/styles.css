@@ -5,6 +5,10 @@ summary::-webkit-details-marker {
   @apply hidden;
 }
 
+a {
+  word-wrap: break-word;
+}
+
 & {
   --ddoc-selection-border-width: 2px;
   --ddoc-selection-border-color-default: #D6D3D1;
@@ -56,19 +60,19 @@ summary::-webkit-details-marker {
 }
 
 .docEntry {
-  @apply text-sm;
+  @apply text-sm mb-4;
 
   .docEntryHeader {
-    @apply flex justify-between items-start;
+    @apply flex justify-between items-start md:text-base;
 
     > span {
-      @apply flex items-center break-words gap-2;
+      @apply flex items-center break-words gap-2 items-baseline;
     }
   }
 }
 
 .section {
-  @apply space-y-6;
+  @apply space-y-6 mb-6;
 
   > div {
     @apply space-y-1;
@@ -76,13 +80,19 @@ summary::-webkit-details-marker {
     > h2 {
       @apply text-xl leading-6 font-semibold py-1;
     }
+
+    > .markdown_summary {
+      @apply text-base max-w-prose;
+    }
+
   }
 }
 
 .namespaceSection {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-3 md:gap-x-8 md:gap-y-8;
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10 md:gap-x-8 md:gap-y-8;
+
   .namespaceItem {
-    @apply flex gap-x-2.5;
+    @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4;
 
     .docNodeKindIcon {
       @apply w-auto flex-col justify-start;
@@ -189,7 +199,7 @@ summary::-webkit-details-marker {
   }
 
   .documentNavigation {
-    @apply text-sm space-y-3;
+    @apply max-lg:hidden text-sm space-y-3;
 
     > ul {
       @apply space-y-2 block overflow-y-auto;
@@ -262,18 +272,19 @@ summary::-webkit-details-marker {
 }
 
 .contextLink {
-  @apply text-contextLink/80 underline decoration-[1.5px] decoration-contextLink/50 underline-offset-4 hover:text-contextLink hover:decoration-contextLink;
+  @apply text-contextLink/80 underline decoration-[1.5px] decoration-contextLink/50 underline-offset-[0.15em] hover:text-contextLink hover:decoration-contextLink;
+  text-decoration-skip-ink: auto
 }
 
 .breadcrumbs {
-  @apply break-all inline-flex gap-1 items-center;
+  @apply break-all inline-flex flex-wrap gap-1 items-center;
 
   > li:first-child {
-    @apply text-xl lg:text-2xl leading-none font-bold;
+    @apply text-2xl leading-none font-bold;
   }
 
   li {
-    @apply inline lg:text-xl leading-[0.9em];
+    @apply inline text-lg lg:text-xl leading-[0.9em];
   }
 }
 
@@ -294,11 +305,11 @@ summary::-webkit-details-marker {
   @apply inline text-stone-600;
 
   p {
-    @apply inline-block;
+    @apply inline-block line-clamp-4;
   }
 
   :not(pre) > code {
-    @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
+    @apply font-mono text-sm py-0.5 px-1.5 rounded bg-stone-200;
   }
 }
 
@@ -352,7 +363,7 @@ summary::-webkit-details-marker {
   /* Inline code */
 
   :not(pre) > code {
-    @apply font-mono text-sm py-0.5 px-1 rounded bg-stone-200;
+    @apply font-mono text-sm py-0.5 px-1.5 rounded-md bg-stone-200;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -362,10 +373,10 @@ summary::-webkit-details-marker {
   }
 
   pre {
-    @apply font-mono text-sm rounded-lg text-black bg-stone-100;
+    @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5 border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
 
     & > code:first-child {
-      @apply overflow-x-auto p-4 block;
+      @apply overflow-x-auto px-6 py-4 block;
     }
   }
 
@@ -378,11 +389,19 @@ summary::-webkit-details-marker {
   }
 
   td {
-    @apply p-2 border border-stone-500;
+    @apply p-2;
   }
 
   th {
-    @apply font-bold text-center;
+    @apply font-bold text-center py-1.5;
+  }
+
+  th, td {
+    @apply border-1.5 border-slate-300;
+  }
+
+  tr:nth-child(2n) {
+    @apply bg-slate-50;
   }
 
   img {

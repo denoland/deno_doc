@@ -20,7 +20,7 @@ const extraColors = {
   "writeonly": TAG_PURPLE,
   "readonly": TAG_PURPLE,
   "protected": TAG_PURPLE,
-  "private": TAG_PURPLE,
+  "private": TAG_CYAN,
   "optional": TAG_CYAN,
   "permissions": TAG_CYAN,
   "other": "#57534E", // stone 600
@@ -45,6 +45,9 @@ export default {
       colors: {
         ...extraColors,
         "contextLink": "#0E6590",
+      },
+      borderWidth: {
+        "1.5": "1.5px",
       },
     },
   },

@@ -27,9 +27,7 @@ where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
     for node in doc_nodes {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import)
-        || node.declaration_kind == crate::node::DeclarationKind::Private
-      {
+      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import) {
         continue;
       }
 

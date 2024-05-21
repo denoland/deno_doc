@@ -4,13 +4,43 @@
       "kind": [
         "class"
       ],
+      "name": "A",
+      "file": ".",
+      "location": {
+        "filename": "default",
+        "line": 45,
+        "col": 0,
+        "byteIndex": 741
+      },
+      "declarationKind": "private",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        "class"
+      ],
+      "name": "B",
+      "file": ".",
+      "location": {
+        "filename": "default",
+        "line": 48,
+        "col": 0,
+        "byteIndex": 770
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        "class"
+      ],
       "name": "Bar",
       "file": ".",
       "location": {
         "filename": "default",
         "line": 31,
         "col": 0,
-        "byteIndex": 591
+        "byteIndex": 588
       },
       "declarationKind": "export",
       "deprecated": false
@@ -25,7 +55,7 @@
         "filename": "default",
         "line": 41,
         "col": 0,
-        "byteIndex": 705
+        "byteIndex": 702
       },
       "declarationKind": "export",
       "deprecated": false
@@ -55,7 +85,7 @@
         "filename": "default",
         "line": 34,
         "col": 0,
-        "byteIndex": 625
+        "byteIndex": 622
       },
       "declarationKind": "export",
       "deprecated": false
@@ -70,7 +100,7 @@
         "filename": "default",
         "line": 37,
         "col": 0,
-        "byteIndex": 658
+        "byteIndex": 655
       },
       "declarationKind": "export",
       "deprecated": false
