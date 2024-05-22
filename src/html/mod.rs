@@ -788,9 +788,8 @@ pub fn generate(
         );
 
         if composable_output {
-          let dir = format!("{}/~", short_path.path);
           files.insert(
-            format!("{dir}/breadcrumbs.html"),
+            format!("{}/breadcrumbs.html", short_path.path),
             ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
           );
 
@@ -809,11 +808,11 @@ pub fn generate(
               );
             }
 
-            files.insert(format!("{dir}/content.html"), out);
+            files.insert(format!("{}/content.html", short_path.path), out);
           }
         } else {
           files.insert(
-            format!("{}/~/index.html", short_path.path),
+            format!("{}/index.html", short_path.path),
             ctx.render(pages::IndexCtx::TEMPLATE, &index),
           );
         }

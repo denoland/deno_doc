@@ -114,7 +114,7 @@ impl IndexCtx {
 
     let overview = match ctx.file_mode {
       FileMode::Dts if short_path.is_none() => {
-        let entrypoints = ctx
+        let mut entrypoints = ctx
           .doc_nodes
           .iter()
           .map(|(short_path, nodes)| {
@@ -142,6 +142,8 @@ impl IndexCtx {
             }
           })
           .collect::<Vec<_>>();
+
+        entrypoints.sort_by(|a, b| a.name.cmp(&b.name));
 
         // render list of all entrypoints
         let section = util::SectionCtx {

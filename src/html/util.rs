@@ -258,12 +258,16 @@ pub fn href_path_resolve(
   target: UrlResolveKind,
 ) -> String {
   let backs = match current {
-    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-      .repeat(if file.is_main {
-        1
-      } else {
-        file.path.split('/').count() + 1
-      }),
+    UrlResolveKind::File(file) => "../".repeat(if file.is_main {
+      1
+    } else {
+      file.path.split('/').count()
+    }),
+    UrlResolveKind::Symbol { file, .. } => "../".repeat(if file.is_main {
+      1
+    } else {
+      file.path.split('/').count() + 1
+    }),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
     UrlResolveKind::Category(_) => String::from("./"),
@@ -281,7 +285,7 @@ pub fn href_path_resolve(
       format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
     }
     UrlResolveKind::File(target_file) => {
-      format!("{backs}./{}/~/index.html", target_file.path)
+      format!("{backs}./{}/index.html", target_file.path)
     }
     UrlResolveKind::Category(category) => {
       format!("{backs}./{}.html", slugify(category))

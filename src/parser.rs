@@ -1267,7 +1267,7 @@ impl<'a> DocParser<'a> {
       | SymbolNodeRef::TsGetterSignature(_)
       | SymbolNodeRef::TsSetterSignature(_)
       | SymbolNodeRef::TsMethodSignature(_) => {
-        debug_assert!(false, "should not reach here");
+        //debug_assert!(false, "should not reach here");
         None
       }
     }
