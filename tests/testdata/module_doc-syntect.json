@@ -44,6 +44,38 @@
               }
             ]
           }
+        },
+        {
+          "header": {
+            "title": "Variables",
+            "anchor": {
+              "id": "Variables"
+            },
+            "href": null,
+            "doc": null
+          },
+          "content": {
+            "kind": "namespace_section",
+            "content": [
+              {
+                "tags": [],
+                "doc_node_kind_ctx": [
+                  {
+                    "kind": "Variable",
+                    "char": "v",
+                    "title": "Variable",
+                    "title_lowercase": "variable",
+                    "title_plural": "Variables"
+                  }
+                ],
+                "origin_name": null,
+                "href": "../.././foo/~/default.html",
+                "name": "default",
+                "docs": "<div class=\"markdown_summary\"><p>The default export item.</p>\n</div>",
+                "deprecated": false
+              }
+            ]
+          }
         }
       ]
     }

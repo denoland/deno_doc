@@ -26,7 +26,7 @@ pub fn usage_to_md(
   doc_nodes: &[DocNodeWithContext],
   url: &str,
 ) -> String {
-  let usage = if let UrlResolveKind::Symbol { symbol, file } =
+  let usage = if let UrlResolveKind::Symbol { symbol, file: _ } =
     ctx.get_current_resolve()
   {
     let mut parts = symbol.split('.').collect::<Vec<&str>>();
@@ -34,10 +34,7 @@ pub fn usage_to_md(
     let is_default = doc_nodes[0].name == "default";
 
     let import_symbol = if is_default && doc_nodes[0].get_name() == "default" {
-      file
-        .display_name()
-        .replace('-', "_")
-        .replace(|c: char| c.is_ascii_alphanumeric(), "")
+      "module".to_string()
     } else {
       parts[0].to_string()
     };
