@@ -658,7 +658,7 @@ mod test {
     fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
       current_resolve
         .get_file()
-        .map(|current_file| current_file.path.to_string())
+        .map(|current_file| current_file.display_name())
     }
 
     fn resolve_source(&self, _location: &Location) -> Option<String> {
