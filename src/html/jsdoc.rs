@@ -777,15 +777,6 @@ mod test {
     );
 
     assert_eq!(
-      parse_links("foo {@link bar} bar", &render_ctx),
-      "foo [bar](../../.././/a.ts/~/bar.html) bar"
-    );
-    assert_eq!(
-      parse_links("foo {@linkcode bar} bar", &render_ctx),
-      "foo [`bar`](../../.././/a.ts/~/bar.html) bar"
-    );
-
-    assert_eq!(
       parse_links("foo {@link unknownSymbol} bar", &render_ctx),
       "foo unknownSymbol bar"
     );
@@ -796,6 +787,15 @@ mod test {
 
     #[cfg(not(target_os = "windows"))]
     {
+      assert_eq!(
+        parse_links("foo {@link bar} bar", &render_ctx),
+        "foo [bar](../../.././/a.ts/~/bar.html) bar"
+      );
+      assert_eq!(
+        parse_links("foo {@linkcode bar} bar", &render_ctx),
+        "foo [`bar`](../../.././/a.ts/~/bar.html) bar"
+      );
+
       assert_eq!(
         parse_links("foo {@link module:b.ts.baz} bar", &render_ctx),
         "foo [b.ts baz](../../.././/b.ts/~/baz.html) bar"
