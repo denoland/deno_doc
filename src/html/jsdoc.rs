@@ -33,22 +33,77 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       == "code";
     let value = captures.name("value").unwrap().as_str();
 
-    let (link, title) = if let Some((link, title)) =
+    let (link, mut title) = if let Some((link, title)) =
       value.split_once('|').or_else(|| value.split_once(' '))
     {
-      (link.trim(), title.trim())
+      (link.trim(), title.trim().to_string())
     } else {
-      (value, "")
+      (value, "".to_string())
     };
 
-    let (title, link) = if let Some(href) = ctx.lookup_symbol_href(link) {
-      let title = if title.is_empty() { link } else { title };
+    let link = if let Some(module_link) = link.strip_prefix("module:") {
+      let parts = module_link.split('.').collect::<Vec<_>>();
+
+      let mut link = String::new();
+
+      for i in (0..parts.len()).rev() {
+        let module = parts[0..=i].join(".");
+        let symbol = parts[i + 1..].join(".");
+
+        let module = ctx.ctx.doc_nodes.iter().find(|(short_path, _)| {
+          short_path.path == module || short_path.display_name() == module
+        });
+
+        if let Some((short_path, nodes)) = module {
+          if symbol.is_empty() {
+            link = ctx.ctx.href_resolver.resolve_path(
+              ctx.get_current_resolve(),
+              short_path.as_resolve_kind(),
+            );
+            if title.is_empty() {
+              title = short_path.display_name();
+            }
+
+            break;
+          } else if nodes.iter().any(|node| node.get_qualified_name() == symbol)
+          {
+            link = ctx.ctx.href_resolver.resolve_path(
+              ctx.get_current_resolve(),
+              UrlResolveKind::Symbol {
+                file: short_path,
+                symbol: &symbol,
+              },
+            );
+            if title.is_empty() {
+              title = format!("{} {symbol}", short_path.display_name());
+            }
+
+            break;
+          }
+        }
+      }
+
+      link
+    } else {
+      link.to_string()
+    };
+
+    let (title, link) = if let Some(href) = ctx.lookup_symbol_href(&link) {
+      let title = if title.is_empty() {
+        link
+      } else {
+        title.to_string()
+      };
 
       (title, href)
     } else {
-      let title = if title.is_empty() { link } else { title };
+      let title = if title.is_empty() {
+        link.clone()
+      } else {
+        title.to_string()
+      };
 
-      (title, link.to_string())
+      (title, link)
     };
 
     if LINK_RE.is_match(&link) {
@@ -566,9 +621,16 @@ mod test {
   use crate::html::GenerateCtx;
   use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
+  use crate::DocNode;
+  use crate::Location;
+  use deno_ast::ModuleSpecifier;
+  use indexmap::IndexMap;
 
   use crate::html::RenderContext;
   use crate::html::UrlResolveKind;
+  use crate::interface::InterfaceDef;
+  use crate::js_doc::JsDoc;
+  use crate::node::DeclarationKind;
 
   struct EmptyResolver {}
 
@@ -599,7 +661,7 @@ mod test {
         .map(|current_file| current_file.path.to_string())
     }
 
-    fn resolve_source(&self, _location: &crate::Location) -> Option<String> {
+    fn resolve_source(&self, _location: &Location) -> Option<String> {
       None
     }
   }
@@ -617,11 +679,77 @@ mod test {
       },
       Default::default(),
       Default::default(),
-      Default::default(),
+      IndexMap::from([
+        (
+          ModuleSpecifier::parse("file:///a.ts").unwrap(),
+          vec![
+            DocNode::interface(
+              "foo".to_string(),
+              Location::default(),
+              DeclarationKind::Export,
+              JsDoc::default(),
+              InterfaceDef {
+                def_name: None,
+                extends: vec![],
+                constructors: vec![],
+                methods: vec![],
+                properties: vec![],
+                call_signatures: vec![],
+                index_signatures: vec![],
+                type_params: vec![],
+              },
+            ),
+            DocNode::interface(
+              "bar".to_string(),
+              Location::default(),
+              DeclarationKind::Export,
+              JsDoc::default(),
+              InterfaceDef {
+                def_name: None,
+                extends: vec![],
+                constructors: vec![],
+                methods: vec![],
+                properties: vec![],
+                call_signatures: vec![],
+                index_signatures: vec![],
+                type_params: vec![],
+              },
+            ),
+          ],
+        ),
+        (
+          ModuleSpecifier::parse("file:///b.ts").unwrap(),
+          vec![DocNode::interface(
+            "baz".to_string(),
+            Location::default(),
+            DeclarationKind::Export,
+            JsDoc::default(),
+            InterfaceDef {
+              def_name: None,
+              extends: vec![],
+              constructors: vec![],
+              methods: vec![],
+              properties: vec![],
+              call_signatures: vec![],
+              index_signatures: vec![],
+              type_params: vec![],
+            },
+          )],
+        ),
+      ]),
     )
     .unwrap();
 
-    let render_ctx = RenderContext::new(&ctx, &[], UrlResolveKind::AllSymbols);
+    let (a_short_path, nodes) = ctx.doc_nodes.first().unwrap();
+
+    let render_ctx = RenderContext::new(
+      &ctx,
+      nodes,
+      UrlResolveKind::Symbol {
+        file: a_short_path,
+        symbol: "foo",
+      },
+    );
 
     assert_eq!(
       parse_links("foo {@link https://example.com} bar", &render_ctx),
@@ -649,12 +777,30 @@ mod test {
     );
 
     assert_eq!(
+      parse_links("foo {@link bar} bar", &render_ctx),
+      "foo [bar](../../.././/a.ts/~/bar.html) bar"
+    );
+    assert_eq!(
+      parse_links("foo {@linkcode bar} bar", &render_ctx),
+      "foo [`bar`](../../.././/a.ts/~/bar.html) bar"
+    );
+
+    assert_eq!(
       parse_links("foo {@link unknownSymbol} bar", &render_ctx),
       "foo unknownSymbol bar"
     );
     assert_eq!(
       parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx),
       "foo `unknownSymbol` bar"
+    );
+
+    assert_eq!(
+      parse_links("foo {@link module:b.ts.baz} bar", &render_ctx),
+      "foo [b.ts baz](../../.././/b.ts/~/baz.html) bar"
+    );
+    assert_eq!(
+      parse_links("foo {@linkcode module:b.ts.baz} bar", &render_ctx),
+      "foo [`b.ts baz`](../../.././/b.ts/~/baz.html) bar"
     );
   }
 }
