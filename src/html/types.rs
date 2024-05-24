@@ -407,7 +407,7 @@ fn type_def_join(
   union: &[crate::ts_type::TsTypeDef],
   join: &str,
 ) -> String {
-  if union.len() <= 3 {
+  if union.len() <= 2 {
     let items = union
       .iter()
       .map(|element| render_type_def(ctx, element))
@@ -420,14 +420,14 @@ fn type_def_join(
 
     for element in union {
       items.push(format!(
-        "<div><span> {join} </span>{}</div>",
+        r#"<span><br /><span class="ml-4"><span> {join} </span>{}</span></span>"#,
         render_type_def(ctx, element)
       ));
     }
 
     let content = items.join("");
 
-    format!(r#"<div class="ml-4">{content}</div>"#)
+    format!(r#"<span>{content}</span>"#)
   }
 }
 
@@ -435,7 +435,7 @@ fn type_def_tuple(
   ctx: &RenderContext,
   tuple_items: &[crate::ts_type::TsTypeDef],
 ) -> String {
-  if tuple_items.len() <= 3 {
+  if tuple_items.len() <= 2 {
     let items = tuple_items
       .iter()
       .map(|element| render_type_def(ctx, element))
@@ -454,7 +454,7 @@ fn type_def_tuple(
     }
 
     let content = items.join("");
-    format!(r#"<span>[</span><div class="pl-4">{content}</div><span>]</span>"#)
+    format!(r#"<span>[</span><div class="ml-4">{content}</div><span>]</span>"#)
   }
 }
 
@@ -464,14 +464,24 @@ pub(crate) fn type_params_summary(
 ) -> String {
   if type_params.is_empty() {
     String::new()
+  } else if type_params.len() == 1 {
+    format!(
+      "<span>&lt;{}&lt;</span>",
+      type_param_summary(ctx, &type_params[0], "extends")
+    )
   } else {
-    let items = type_params
-      .iter()
-      .map(|type_param| type_param_summary(ctx, type_param, "extends"))
-      .collect::<Vec<String>>()
-      .join("<span>, </span>");
+    let mut items = Vec::with_capacity(type_params.len());
 
-    format!("<span>&lt;{items}&gt;</span>")
+    for type_param in type_params {
+      items.push(format!(
+        "<div>{},</div>",
+        type_param_summary(ctx, type_param, "extends")
+      ));
+    }
+
+    let content = items.join("");
+
+    format!(r#"<span>&lt;<div class="ml-4">{content}</div>&gt;</span>"#)
   }
 }
 
