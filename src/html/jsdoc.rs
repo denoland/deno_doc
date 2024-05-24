@@ -794,10 +794,12 @@ mod test {
       "foo `unknownSymbol` bar"
     );
 
+    #[cfg(not(windows))]
     assert_eq!(
       parse_links("foo {@link module:b.ts.baz} bar", &render_ctx),
       "foo [b.ts baz](../../.././/b.ts/~/baz.html) bar"
     );
+    #[cfg(not(windows))]
     assert_eq!(
       parse_links("foo {@linkcode module:b.ts.baz} bar", &render_ctx),
       "foo [`b.ts baz`](../../.././/b.ts/~/baz.html) bar"
