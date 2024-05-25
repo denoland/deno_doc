@@ -107,6 +107,21 @@
     },
     {
       "kind": [
+        "variable"
+      ],
+      "name": "default",
+      "file": "foo",
+      "location": {
+        "filename": "foo",
+        "line": 7,
+        "col": 6,
+        "byteIndex": 167
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "function"
       ],
       "name": "x",
