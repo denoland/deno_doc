@@ -6,7 +6,8 @@ use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 
 use deno_ast::SourceRange;
-use deno_graph::symbols::DefinitionPath;
+use deno_graph::symbols::DefinitionPathNode;
+use deno_graph::symbols::DefinitionPathNodeResolved;
 use deno_graph::symbols::ResolveDepsMode;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::SymbolDecl;
@@ -118,29 +119,36 @@ impl SymbolVisibility {
           symbol_has_ignorable_js_doc_tag(module_info, decl_symbol);
         let mut dep_symbol_ids = Vec::new();
         let mut pending_entries =
-          root_symbol.resolve_symbol_dep(module_info, symbol, &dep);
+          root_symbol.resolve_symbol_dep(module_info, &dep);
         while let Some(entry) = pending_entries.pop() {
           match entry {
-            ResolvedSymbolDepEntry::Path(path) => {
+            ResolvedSymbolDepEntry::Path(path_node) => {
+              let path = match path_node {
+                DefinitionPathNode::Resolved(path) => path,
+                DefinitionPathNode::Unresolved(_) => continue,
+              };
+              let Some(path_symbol) = path.symbol() else {
+                continue;
+              };
               if !path_has_ignorable_tag
-                && symbol_has_ignorable_js_doc_tag(path.module(), path.symbol())
+                && symbol_has_ignorable_js_doc_tag(path.module(), path_symbol)
               {
                 path_has_ignorable_tag = true;
               }
 
               // only analyze declarations
-              if path.symbol().is_decl() {
-                dep_symbol_ids.push(path.symbol().unique_id());
+              if path_symbol.is_decl() {
+                dep_symbol_ids.push(path_symbol.unique_id());
               }
 
               // queue the next parts
               match path {
-                DefinitionPath::Path { next, .. } => {
-                  pending_entries
-                    .extend(next.into_iter().map(ResolvedSymbolDepEntry::Path));
+                DefinitionPathNodeResolved::Link(link) => {
+                  pending_entries.extend(
+                    link.next.into_iter().map(ResolvedSymbolDepEntry::Path),
+                  );
                 }
-                DefinitionPath::Definition(_)
-                | DefinitionPath::Unresolved(_) => {}
+                DefinitionPathNodeResolved::Definition(_) => {}
               }
             }
             ResolvedSymbolDepEntry::ImportType(_) => {
