@@ -23,6 +23,8 @@ lazy_static! {
   .unwrap();
   static ref LINK_RE: regex::Regex =
     regex::Regex::new(r"(^\.{0,2}\/)|(^[A-Za-z]+:\S)").unwrap();
+  static ref MODULE_LINK_RE: regex::Regex =
+    regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
 }
 
 fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
@@ -41,44 +43,47 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       (value, "".to_string())
     };
 
-    let link = if let Some(module_link) = link.strip_prefix("module:") {
-      let parts = module_link.split('.').collect::<Vec<_>>();
+    let link = if let Some(module_link_captures) = MODULE_LINK_RE.captures(link)
+    {
+      let module_match = module_link_captures.get(1).unwrap();
+      let module_link = module_match.as_str();
+      let symbol_match = module_link_captures.get(2);
 
-      let mut link = String::new();
+      let mut link = link.to_string();
 
-      for i in (0..parts.len()).rev() {
-        let module = parts[0..=i].join(".");
-        let symbol = parts[i + 1..].join(".");
+      let module = ctx.ctx.doc_nodes.iter().find(|(short_path, _)| {
+        short_path.path == module_link
+          || short_path.display_name() == module_link
+      });
 
-        let module = ctx.ctx.doc_nodes.iter().find(|(short_path, _)| {
-          short_path.path == module || short_path.display_name() == module
-        });
-
-        if let Some((short_path, nodes)) = module {
-          if symbol.is_empty() {
-            link = ctx.ctx.href_resolver.resolve_path(
-              ctx.get_current_resolve(),
-              short_path.as_resolve_kind(),
-            );
-            if title.is_empty() {
-              title = short_path.display_name();
-            }
-
-            break;
-          } else if nodes.iter().any(|node| node.get_qualified_name() == symbol)
+      if let Some((short_path, nodes)) = module {
+        if let Some(symbol_match) = symbol_match {
+          if nodes
+            .iter()
+            .any(|node| node.get_qualified_name() == symbol_match.as_str())
           {
             link = ctx.ctx.href_resolver.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::Symbol {
                 file: short_path,
-                symbol: &symbol,
+                symbol: &symbol_match.as_str(),
               },
             );
             if title.is_empty() {
-              title = format!("{} {symbol}", short_path.display_name());
+              title = format!(
+                "{} {}",
+                short_path.display_name(),
+                symbol_match.as_str()
+              );
             }
-
-            break;
+          }
+        } else {
+          link = ctx.ctx.href_resolver.resolve_path(
+            ctx.get_current_resolve(),
+            short_path.as_resolve_kind(),
+          );
+          if title.is_empty() {
+            title = short_path.display_name();
           }
         }
       }
@@ -797,11 +802,20 @@ mod test {
       );
 
       assert_eq!(
-        parse_links("foo {@link module:b.ts.baz} bar", &render_ctx),
+        parse_links("foo {@link [b.ts]} bar", &render_ctx),
+        "foo [b.ts](../../.././/b.ts/~/index.html) bar"
+      );
+      assert_eq!(
+        parse_links("foo {@linkcode [b.ts]} bar", &render_ctx),
+        "foo [`b.ts`](../../.././/b.ts/~/index.html) bar"
+      );
+
+      assert_eq!(
+        parse_links("foo {@link [b.ts].baz} bar", &render_ctx),
         "foo [b.ts baz](../../.././/b.ts/~/baz.html) bar"
       );
       assert_eq!(
-        parse_links("foo {@linkcode module:b.ts.baz} bar", &render_ctx),
+        parse_links("foo {@linkcode [b.ts].baz} bar", &render_ctx),
         "foo [`b.ts baz`](../../.././/b.ts/~/baz.html) bar"
       );
     }
