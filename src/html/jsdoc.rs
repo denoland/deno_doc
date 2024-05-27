@@ -66,7 +66,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
               ctx.get_current_resolve(),
               UrlResolveKind::Symbol {
                 file: short_path,
-                symbol: &symbol_match.as_str(),
+                symbol: symbol_match.as_str(),
               },
             );
             if title.is_empty() {
