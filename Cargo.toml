@@ -70,7 +70,7 @@ criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
 file_test_runner = "0.7.0"
 tokio = { version = "1.25.0", features = ["full"] }
 pretty_assertions = "1.0.0"
-insta = "1.38.0"
+insta = { version = "1.38.0", features = ["json"] }
 
 [features]
 default = ["html", "rust", "ammonia"]

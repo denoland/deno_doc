@@ -365,29 +365,8 @@ async fn symbol_group() {
     }
   }
 
-  let mut files_json = serde_json::to_string_pretty(&files).unwrap();
-  files_json.push('\n');
-
-  let testdata_path = std::env::current_dir()
-    .unwrap()
-    .join("tests")
-    .join("testdata");
-
-  #[cfg(feature = "syntect")]
-  let symbol_group_json_path = testdata_path.join("symbol_group-syntect.json");
-  #[cfg(feature = "tree-sitter")]
-  let symbol_group_json_path =
-    testdata_path.join("symbol_group-tree-sitter.json");
   #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
-  let symbol_group_json_path = testdata_path.join("symbol_group.json");
-
-  if std::env::var("UPDATE").is_ok() {
-    fs::write(&symbol_group_json_path, &files_json).unwrap();
-  }
-
-  let symbol_group_json = fs::read_to_string(symbol_group_json_path).unwrap();
-
-  assert_eq!(files_json, symbol_group_json);
+  insta::assert_json_snapshot!(files);
 }
 
 #[tokio::test]
@@ -428,22 +407,8 @@ async fn symbol_search() {
   .unwrap();
 
   let search_index = generate_search_index(&ctx);
-  let mut file_json = serde_json::to_string_pretty(&search_index).unwrap();
-  file_json.push('\n');
 
-  let symbol_search_json_path = std::env::current_dir()
-    .unwrap()
-    .join("tests")
-    .join("testdata")
-    .join("symbol_search.json");
-
-  if std::env::var("UPDATE").is_ok() {
-    fs::write(&symbol_search_json_path, &file_json).unwrap();
-  }
-
-  let symbol_search_json = fs::read_to_string(symbol_search_json_path).unwrap();
-
-  assert_eq!(file_json, symbol_search_json);
+  insta::assert_json_snapshot!(search_index);
 }
 
 #[tokio::test]
@@ -493,25 +458,6 @@ async fn module_doc() {
     module_docs.push(module_doc);
   }
 
-  let mut file_json = serde_json::to_string_pretty(&module_docs).unwrap();
-  file_json.push('\n');
-
-  let testdata_path = std::env::current_dir()
-    .unwrap()
-    .join("tests")
-    .join("testdata");
-
-  #[cfg(feature = "syntect")]
-  let module_docs_json_path = testdata_path.join("module_doc-syntect.json");
-  #[cfg(feature = "tree-sitter")]
-  let module_docs_json_path = testdata_path.join("module_doc-tree-sitter.json");
   #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
-  let module_docs_json_path = testdata_path.join("module_doc.json");
-
-  if std::env::var("UPDATE").is_ok() {
-    fs::write(&module_docs_json_path, &file_json).unwrap();
-  }
-
-  let module_docs_json = fs::read_to_string(module_docs_json_path).unwrap();
-  assert_eq!(file_json, module_docs_json);
+  insta::assert_json_snapshot!(module_docs); // no syntax
 }
