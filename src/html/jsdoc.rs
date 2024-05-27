@@ -146,6 +146,9 @@ fn match_node_value<'a>(
             for child_node in paragraph_child.children().skip(1) {
               node_without_alert.append(child_node);
             }
+            for child_node in node.children().skip(1) {
+              node_without_alert.append(child_node);
+            }
 
             document.append(node_without_alert);
 
@@ -656,5 +659,50 @@ mod test {
       parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx),
       "foo `unknownSymbol` bar"
     );
+  }
+
+  #[test]
+  fn markdown_alerts() {
+    let ctx = GenerateCtx::new(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: std::rc::Rc::new(EmptyResolver {}),
+        usage_composer: None,
+        rewrite_map: None,
+        composable_output: false,
+      },
+      Default::default(),
+      Default::default(),
+      Default::default(),
+    )
+    .unwrap();
+
+    let render_ctx = RenderContext::new(&ctx, &[], UrlResolveKind::AllSymbols);
+
+    let md = super::render_markdown(
+      &render_ctx,
+      r#"
+      > [!NOTE]
+      > foo
+      >
+      > bar"#,
+    );
+
+    assert!(md.contains("foo"));
+    assert!(md.contains("bar"));
+
+    let md = super::render_markdown(
+      &render_ctx,
+      r#"
+      > [!NOTE]
+      >
+      > foo
+      >
+      > bar"#,
+    );
+
+    assert!(md.contains("foo"));
+    assert!(md.contains("bar"));
   }
 }
