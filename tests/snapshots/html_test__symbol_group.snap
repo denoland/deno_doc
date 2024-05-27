@@ -1,3 +1,7 @@
+---
+source: tests/html_test.rs
+expression: files
+---
 [
   {
     "html_head_ctx": {
