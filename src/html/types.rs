@@ -418,16 +418,21 @@ fn type_def_join(
   } else {
     let mut items = Vec::with_capacity(union.len());
 
-    for element in union {
+    for (i, element) in union.iter().enumerate() {
       items.push(format!(
-        r#"<span><br /><span class="ml-4"><span> {join} </span>{}</span></span>"#,
+        r#"<span>{}{}</span>"#,
+        if i != 0 {
+          format!("<span> {join} </span>")
+        } else {
+          String::new()
+        },
         render_type_def(ctx, element)
       ));
     }
 
-    let content = items.join("");
+    let content = items.join("<br />");
 
-    format!(r#"<span>{content}</span>"#)
+    format!(r#"<div class="ml-indent">{content}</div>"#)
   }
 }
 
@@ -454,7 +459,9 @@ fn type_def_tuple(
     }
 
     let content = items.join("");
-    format!(r#"<span>[</span><div class="ml-4">{content}</div><span>]</span>"#)
+    format!(
+      r#"<span>[</span><div class="ml-indent">{content}</div><span>]</span>"#
+    )
   }
 }
 
@@ -481,7 +488,7 @@ pub(crate) fn type_params_summary(
 
     let content = items.join("");
 
-    format!(r#"<span>&lt;<div class="ml-4">{content}</div>&gt;</span>"#)
+    format!(r#"<span>&lt;<div class="ml-indent">{content}</div>&gt;</span>"#)
   }
 }
 

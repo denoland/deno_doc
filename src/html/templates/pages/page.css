@@ -19,7 +19,7 @@ body {
 }
 
 .toc {
-  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-4 pt-4;
+  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-20 pt-20;
 
   > div {
     @apply max-h-full lg:overflow-y-scroll;

@@ -49,6 +49,9 @@ export default {
       borderWidth: {
         "1.5": "1.5px",
       },
+      margin: {
+        "indent": "2ch",
+      }
     },
   },
   darkMode: "class",
