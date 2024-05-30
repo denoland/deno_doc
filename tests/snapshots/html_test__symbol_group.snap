@@ -706,7 +706,17 @@ expression: files
                     "html_attrs": "checked",
                     "name": "qaz",
                     "deprecated": "",
-                    "summary": "(<span><span>a<span>: <span>string</span></span></span><span>, </span><span>b<span>: <span>number</span></span></span></span>)",
+                    "summary": "(<span><span>a<span>: <span>string</span></span></span></span>)",
+                    "summary_doc": null
+                  },
+                  {
+                    "function_id": "function_qaz",
+                    "overload_id": "function_qaz_1",
+                    "additional_css": "\n#function_qaz_1 {\n  display: none;\n}\n#function_qaz_1:checked ~ *:last-child > :not(#function_qaz_1_div) {\n  display: none;\n}\n#function_qaz_1:checked ~ div:first-of-type > label[for='function_qaz_1'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n",
+                    "html_attrs": "",
+                    "name": "qaz",
+                    "deprecated": null,
+                    "summary": "(<span><span>a<span>: <span>number</span></span></span></span>)",
                     "summary_doc": null
                   }
                 ],
@@ -738,14 +748,49 @@ expression: files
                               "tags": [],
                               "js_doc": null,
                               "source_href": null
-                            },
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "header": {
+                          "title": "Return Type",
+                          "anchor": {
+                            "id": "return-type"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": []
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "function_qaz_1_div",
+                    "docs": null,
+                    "sections": [
+                      {
+                        "header": {
+                          "title": "Parameters",
+                          "anchor": {
+                            "id": "parameters-1"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": [
                             {
-                              "id": "function_qaz_0_parameters_b",
-                              "name": "b",
+                              "id": "function_qaz_1_parameters_a",
+                              "name": "a",
                               "name_href": null,
                               "content": "<span>: <span>number</span></span>",
                               "anchor": {
-                                "id": "function_qaz_0_parameters_b"
+                                "id": "function_qaz_1_parameters_a"
                               },
                               "tags": [],
                               "js_doc": null,
@@ -758,7 +803,7 @@ expression: files
                         "header": {
                           "title": "Return Type",
                           "anchor": {
-                            "id": "return-type"
+                            "id": "return-type-1"
                           },
                           "href": null,
                           "doc": null
@@ -808,7 +853,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>"
     }
   },
   {

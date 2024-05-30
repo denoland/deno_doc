@@ -112,6 +112,7 @@ expression: search_index
     {
       "kind": [
         "function",
+        "function",
         "function"
       ],
       "name": "qaz",
