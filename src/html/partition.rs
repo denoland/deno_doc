@@ -173,12 +173,7 @@ pub fn partition_nodes_by_entrypoint(
     create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
       let entry = partitions.entry(node.origin.clone()).or_default();
 
-      if !entry.iter().any(|n| {
-        n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
-      }) {
-        entry.push(node.clone());
-      }
+      entry.push(node.clone());
     });
 
   for (_file, nodes) in partitions.iter_mut() {
