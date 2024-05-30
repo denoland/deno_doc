@@ -111,6 +111,22 @@ expression: search_index
     },
     {
       "kind": [
+        "function",
+        "function"
+      ],
+      "name": "qaz",
+      "file": ".",
+      "location": {
+        "filename": "default",
+        "line": 53,
+        "col": 0,
+        "byteIndex": 812
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "variable"
       ],
       "name": "default",
