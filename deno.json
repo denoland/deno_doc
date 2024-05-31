@@ -9,5 +9,10 @@
   "exclude": [
     "target",
     "benches/fixtures"
-  ]
+  ],
+  "lint": {
+    "exclude": [
+      "tests/testdata"
+    ]
+  }
 }
