@@ -12,6 +12,7 @@
   ],
   "lint": {
     "exclude": [
+      "src/html",
       "tests/testdata"
     ]
   }
