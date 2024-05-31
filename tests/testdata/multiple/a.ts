@@ -46,3 +46,10 @@ class A {}
 
 /** @internal */
 export class B {}
+
+/**
+ * @deprecated
+ */
+export function qaz(a: string);
+export function qaz(a: number);
+export function qaz(a: string | number) {}

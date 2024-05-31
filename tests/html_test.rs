@@ -244,6 +244,7 @@ async fn html_doc_files_rewrite() {
       "./~/Hello.html",
       "./~/Hello.world.html",
       "./~/index.html",
+      "./~/qaz.html",
       "foo/~/default.html",
       "foo/~/index.html",
       "foo/~/x.html",

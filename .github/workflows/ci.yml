@@ -52,7 +52,7 @@ jobs:
       - name: Lint
         run: |
           cargo clippy --all-targets --locked -- -D clippy::all
-          deno lint --ignore=src/html,benches/fixtures,target/
+          deno lint
 
       - name: Tailwind Check
         run: |

@@ -2,6 +2,7 @@ use crate::html::render_context::RenderContext;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
 use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Serialize;
 use std::collections::HashSet;
 
@@ -51,7 +52,7 @@ fn get_namespace_section_render_ctx(
 #[derive(Debug, Serialize, Clone)]
 pub struct NamespaceNodeCtx {
   pub tags: HashSet<Tag>,
-  pub doc_node_kind_ctx: Vec<DocNodeKindCtx>,
+  pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub origin_name: Option<String>,
   pub href: String,
   pub name: String,

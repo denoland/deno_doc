@@ -9,6 +9,7 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
+use indexmap::IndexSet;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -319,7 +320,7 @@ impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
 pub struct DocNodeKindCtx {
   pub kind: &'static str,
   pub char: char,
@@ -570,7 +571,7 @@ pub fn qualify_drilldown_name(
 
 #[derive(Debug, Serialize)]
 pub struct TopSymbolCtx {
-  pub kind: Vec<DocNodeKindCtx>,
+  pub kind: IndexSet<DocNodeKindCtx>,
   pub name: String,
   pub href: String,
 }
@@ -605,7 +606,7 @@ impl TopSymbolsCtx {
         kind: nodes
           .iter()
           .map(|node| node.kind_with_drilldown.into())
-          .collect::<Vec<_>>(),
+          .collect(),
         href: ctx.ctx.href_resolver.resolve_path(
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
