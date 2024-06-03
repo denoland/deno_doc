@@ -157,6 +157,12 @@ Classes</h2></div><div class="namespaceSection"><div class="namespaceItem" ><div
 </a>
 Functions</h2></div><div class="namespaceSection"><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
+		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;c.html" title="c">c</a>
+
+	      <div><span class="italic">No documentation available</span></div>
+      </div>
+    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;qaz.html" title="qaz">qaz</a>
 
 	      <div><span class="italic">No documentation available</span></div>
@@ -263,7 +269,7 @@ Type Aliases</h2></div><div class="namespaceSection"><div class="namespaceItem" 
 <span class="hover:bg-Interface/15">Hello</span>
               </a>
             </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
-            <span class="leading-none">view all 8 symbols</span><svg
+            <span class="leading-none">view all 9 symbols</span><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"

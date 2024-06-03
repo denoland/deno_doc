@@ -111,6 +111,21 @@ expression: search_index
     },
     {
       "kind": [
+        "function"
+      ],
+      "name": "c",
+      "file": ".",
+      "location": {
+        "filename": "default",
+        "line": 57,
+        "col": 13,
+        "byteIndex": 933
+      },
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "function",
         "function",
         "function"
