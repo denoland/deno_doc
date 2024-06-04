@@ -10,7 +10,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 1 | export async function a() {
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 

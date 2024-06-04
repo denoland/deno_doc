@@ -19,7 +19,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 4 |   f: number;
   |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 

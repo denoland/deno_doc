@@ -34,7 +34,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 19 |   a() {}
    |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

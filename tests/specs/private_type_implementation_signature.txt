@@ -27,6 +27,7 @@ error[private-type-ref]: public type 'SameName' references private type 'YesDiag
    | 
 13 | interface YesDiagnostic1 {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -40,9 +41,9 @@ error[private-type-ref]: public type 'test' references private type 'YesDiagnost
    | 
 14 | interface YesDiagnostic2 {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 
 # output.txt
 Defined in file:///mod.ts:4:1

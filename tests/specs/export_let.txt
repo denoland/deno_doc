@@ -56,7 +56,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 7 | export let tpl = `foobarbaz`;
   |            ^
 
-
 # output.txt
 Defined in file:///mod.ts:3:12
 
