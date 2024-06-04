@@ -68,7 +68,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 18 |   method(@readonly param: string) {}
    |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

@@ -8,7 +8,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 1 | export interface Interface extends Iterator {}
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 

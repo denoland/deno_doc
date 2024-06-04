@@ -25,7 +25,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 3 | function foo(): void { }
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:3:1
 

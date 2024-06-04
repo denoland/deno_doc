@@ -33,6 +33,7 @@ error[private-type-ref]: public type 'Data.prototype.prop' references private ty
    | 
  1 | interface PrivateNotExported {
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -46,9 +47,9 @@ error[private-type-ref]: public type 'Data.prototype.prop2' references private t
    | 
  4 | export interface PrivateExportedButNotFromModTs {
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 
 # output.txt
 Defined in file:///data.ts:8:1

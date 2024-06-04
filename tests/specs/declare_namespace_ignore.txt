@@ -22,7 +22,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 3 |     const a: "a";
   |           ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

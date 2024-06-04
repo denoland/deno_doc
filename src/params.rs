@@ -324,7 +324,7 @@ pub fn prop_name_to_string(
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => comp_prop_name
-      .text_fast(parsed_source.text_info())
+      .text_fast(parsed_source.text_info_lazy())
       .to_string(),
   }
 }

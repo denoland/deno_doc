@@ -17,9 +17,9 @@ error[private-type-ref]: public type 'Other.prototype.prop' references private t
   | 
 7 | class YesDiagnostic {}
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 
 # output.txt
 Defined in file:///mod.ts:2:1

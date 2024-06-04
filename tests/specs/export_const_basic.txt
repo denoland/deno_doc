@@ -76,7 +76,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 18 | export const tpl2 = `Value: ${num}`;
    |              ^
 
-
 # output.txt
 Defined in file:///mod.ts:14:14
 
