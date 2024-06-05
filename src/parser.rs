@@ -580,6 +580,10 @@ impl<'a> DocParser<'a> {
     let mut handled_symbols = HashSet::new();
 
     for (export_name, export_symbol_id) in symbol.exports() {
+      if export_name == &namespace_name
+      {
+        continue;
+      }
       handled_symbols.insert(UniqueSymbolId::new(
         module_info.module_id(),
         *export_symbol_id,
