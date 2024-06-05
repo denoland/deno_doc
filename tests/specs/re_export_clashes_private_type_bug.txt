@@ -46,6 +46,7 @@ error[private-type-ref]: public type 'MyClass.prototype.internal' references pri
    | 
  5 | class Internal1 {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -59,9 +60,9 @@ error[private-type-ref]: public type 'MyClass.prototype.internal2' references pr
    | 
  6 | class Internal2 {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 
 # output.txt
 Defined in file:///other.ts:2:14

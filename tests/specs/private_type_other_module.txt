@@ -25,6 +25,7 @@ error[private-type-ref]: public type 'MyClass' references private type 'YesDiagn
   | 
 7 | export class YesDiagnostic2 {}
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -38,6 +39,7 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
   | 
 3 | export namespace MyNamespace {
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -51,6 +53,7 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
   | 
 4 |   export class YesDiagnostic {}
   |   - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -74,7 +77,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 5 |   other: Uint8Array;
   |   ^
-
 
 # output.txt
 Defined in file:///mod.ts:3:1

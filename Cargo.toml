@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.138.0"
+version = "0.139.0"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -11,7 +11,7 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.77.0", default-features = false, features = ["symbols"] }
+deno_graph = { version = "0.78.0", default-features = false, features = ["symbols"] }
 import_map = "0.19.0"
 serde = { version = "1.0.140", features = ["derive"] }
 
@@ -26,7 +26,7 @@ required-features = ["html"]
 [dependencies]
 anyhow = "1.0.58"
 cfg-if = "1.0.0"
-deno_ast = "0.38.0"
+deno_ast = "0.39.0"
 deno_graph.workspace = true
 indexmap = "2.0.2"
 futures = "0.3.26"

@@ -56,7 +56,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 7 |       export const g = ["a", 1, true] as const;
   |                    ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:14
 

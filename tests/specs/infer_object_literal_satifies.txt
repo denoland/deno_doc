@@ -33,7 +33,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 12 | export const g: boolean = favoriteColors.green;
    |              ^
 
-
 # output.txt
 Defined in file:///mod.ts:4:14
 

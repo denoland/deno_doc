@@ -70,7 +70,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 15 |     fn = (a: string): void => {};
    |     ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

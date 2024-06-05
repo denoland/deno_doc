@@ -20,6 +20,7 @@ error[private-type-ref]: public type 'Test.Other' references private type 'YesDi
   | 
 9 | class YesDiagnostic {}
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -36,7 +37,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 2 |   export class Other extends YesDiagnostic {
   |   ^
-
 
 # output.txt
 Defined in file:///mod.ts:9:1

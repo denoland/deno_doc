@@ -41,7 +41,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 5 |   [pc]: string;
   |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
