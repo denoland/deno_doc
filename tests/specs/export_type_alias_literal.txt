@@ -14,7 +14,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 1 | export type A = {
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 

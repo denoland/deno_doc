@@ -132,12 +132,50 @@ impl<'ctx> GenerateCtx<'ctx> {
 
         let nodes = nodes
           .into_iter()
-          .map(|node| DocNodeWithContext {
-            origin: short_path.clone(),
-            ns_qualifiers: Rc::new(vec![]),
-            drilldown_parent_kind: None,
-            kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
-            inner: Arc::new(node),
+          .map(|node| {
+            let node = if node
+              .variable_def
+              .as_ref()
+              .and_then(|def| def.ts_type.as_ref())
+              .and_then(|ts_type| ts_type.kind.as_ref())
+              .is_some_and(|kind| {
+                kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
+              }) {
+              let fn_or_constructor = node
+                .variable_def
+                .unwrap()
+                .ts_type
+                .unwrap()
+                .fn_or_constructor
+                .unwrap();
+
+              DocNode::function(
+                node.name,
+                node.location,
+                node.declaration_kind,
+                node.js_doc,
+                crate::function::FunctionDef {
+                  def_name: None,
+                  params: fn_or_constructor.params,
+                  return_type: Some(fn_or_constructor.ts_type),
+                  has_body: false,
+                  is_async: false,
+                  is_generator: false,
+                  type_params: fn_or_constructor.type_params,
+                  decorators: vec![],
+                },
+              )
+            } else {
+              node
+            };
+
+            DocNodeWithContext {
+              origin: short_path.clone(),
+              ns_qualifiers: Rc::new(vec![]),
+              drilldown_parent_kind: None,
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
+              inner: Arc::new(node),
+            }
           })
           .collect::<Vec<_>>();
 

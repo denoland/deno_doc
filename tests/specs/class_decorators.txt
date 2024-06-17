@@ -59,7 +59,6 @@ error[missing-return-type]: exported function is missing an explicit return type
 13 |   @enumerable(false)
    |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 

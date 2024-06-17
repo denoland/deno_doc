@@ -112,14 +112,14 @@ impl Diagnostic for DocDiagnostic {
   fn snippet(&self) -> Option<DiagnosticSnippet<'_>> {
     Some(DiagnosticSnippet {
       source: Cow::Borrowed(&self.text_info),
-      highlight: DiagnosticSnippetHighlight {
+      highlights: vec![DiagnosticSnippetHighlight {
         style: DiagnosticSnippetHighlightStyle::Error,
         range: DiagnosticSourceRange {
           start: DiagnosticSourcePos::ByteIndex(self.location.byte_index),
           end: DiagnosticSourcePos::ByteIndex(self.location.byte_index + 1),
         },
         description: None,
-      },
+      }],
     })
   }
 
@@ -136,7 +136,7 @@ impl Diagnostic for DocDiagnostic {
       DocDiagnosticKind::PrivateTypeRef(diagnostic) => {
         Some(DiagnosticSnippet {
           source: Cow::Borrowed(&diagnostic.reference_text_info),
-          highlight: DiagnosticSnippetHighlight {
+          highlights: vec![DiagnosticSnippetHighlight {
             style: DiagnosticSnippetHighlightStyle::Hint,
             range: DiagnosticSourceRange {
               start: DiagnosticSourcePos::ByteIndex(
@@ -147,7 +147,7 @@ impl Diagnostic for DocDiagnostic {
               ),
             },
             description: Some(Cow::Borrowed("this is the referenced type")),
-          },
+          }],
         })
       }
       _ => None,

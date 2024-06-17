@@ -86,26 +86,17 @@ pub fn partition_nodes_by_kind(
 ) -> Partitions<String> {
   let mut partitions =
     create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
-      if let Some((node_kind, nodes)) =
-        partitions.iter_mut().find(|(kind, nodes)| {
-          nodes.iter().any(|n| {
-            n.get_qualified_name() == node.get_qualified_name()
-              && n.kind_with_drilldown != node.kind_with_drilldown
-              && kind != &&node.kind_with_drilldown
-          })
-        })
-      {
-        assert_ne!(node_kind, &node.kind_with_drilldown);
+      let maybe_nodes = partitions.values_mut().find(|nodes| {
+        nodes
+          .iter()
+          .any(|n| n.get_qualified_name() == node.get_qualified_name())
+      });
 
+      if let Some(nodes) = maybe_nodes {
         nodes.push(node.clone());
       } else {
         let entry = partitions.entry(node.kind_with_drilldown).or_default();
-        if !entry
-          .iter()
-          .any(|n| n.get_qualified_name() == node.get_qualified_name())
-        {
-          entry.push(node.clone());
-        }
+        entry.push(node.clone());
       }
     });
 
@@ -180,12 +171,7 @@ pub fn partition_nodes_by_entrypoint(
     create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
       let entry = partitions.entry(node.origin.clone()).or_default();
 
-      if !entry.iter().any(|n| {
-        n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
-      }) {
-        entry.push(node.clone());
-      }
+      entry.push(node.clone());
     });
 
   for (_file, nodes) in partitions.iter_mut() {
