@@ -131,7 +131,7 @@ impl IndexCtx {
 
             crate::html::namespace::NamespaceNodeCtx {
               tags: Default::default(),
-              doc_node_kind_ctx: vec![],
+              doc_node_kind_ctx: Default::default(),
               href: ctx.href_resolver.resolve_path(
                 UrlResolveKind::Root,
                 short_path.as_resolve_kind(),
