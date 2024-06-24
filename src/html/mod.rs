@@ -89,6 +89,7 @@ pub struct GenerateOptions {
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub composable_output: bool,
+  pub disable_search: bool,
 }
 
 #[non_exhaustive]
@@ -105,6 +106,7 @@ pub struct GenerateCtx<'ctx> {
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
+  pub disable_search: bool,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -196,6 +198,7 @@ impl<'ctx> GenerateCtx<'ctx> {
       rewrite_map: options.rewrite_map,
       main_entrypoint,
       file_mode,
+      disable_search: options.disable_search,
     })
   }
 
@@ -761,6 +764,7 @@ pub fn generate(
               &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
               Some(short_path),
+              ctx.disable_search,
             );
 
             if composable_output {
@@ -786,6 +790,7 @@ pub fn generate(
                 symbol_group_ctx,
                 breadcrumbs_ctx,
                 toc_ctx,
+                disable_search: ctx.disable_search,
               };
 
               let symbol_page =

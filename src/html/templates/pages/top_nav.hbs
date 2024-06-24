@@ -4,10 +4,12 @@
       {{~> breadcrumbs breadcrumbs_ctx ~}}
     </div>
 
-    <input
-      type="text"
-      id="searchbar"
-      style="display: none;"
-      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+    {{#if (not disable_search)}}
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+    {{/if}}
   </div>
 </nav>

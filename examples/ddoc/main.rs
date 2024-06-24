@@ -226,6 +226,7 @@ fn generate_docs_directory(
     usage_composer: None,
     rewrite_map: Some(index_map),
     composable_output: false,
+    disable_search: false
   };
   let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 

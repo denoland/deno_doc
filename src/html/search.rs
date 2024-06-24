@@ -1,5 +1,6 @@
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use crate::js_doc::JsDocTag;
 use crate::node::Location;
 use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
@@ -12,7 +13,10 @@ struct SearchIndexNode {
   kind: Vec<DocNodeKind>,
   name: String,
   file: String,
+  doc: String,
   location: Location,
+  url: String,
+  category: String,
   declaration_kind: crate::node::DeclarationKind,
   deprecated: bool,
 }
@@ -38,6 +42,29 @@ fn doc_nodes_into_search_index_node(
     String::new()
   };
 
+  let doc = doc_nodes[0].js_doc.doc.clone().unwrap_or_default();
+
+  let abs_url = ctx.href_resolver.resolve_path(
+    super::UrlResolveKind::Root,
+    super::UrlResolveKind::Symbol {
+      file: &doc_nodes[0].origin,
+      symbol: &name,
+    },
+  );
+
+  let category = doc_nodes[0]
+    .js_doc
+    .tags
+    .iter()
+    .find_map(|x| {
+      if let JsDocTag::Category { doc } = x {
+        Some(doc.clone())
+      } else {
+        None
+      }
+    })
+    .unwrap_or_default();
+
   SearchIndexNode {
     kind: kinds,
     name: html_escape::encode_text(&name).to_string(),
@@ -45,7 +72,10 @@ fn doc_nodes_into_search_index_node(
       &doc_nodes[0].origin.path,
     )
     .into_owned(),
+    doc,
     location,
+    url: abs_url,
+    category,
     declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
   }

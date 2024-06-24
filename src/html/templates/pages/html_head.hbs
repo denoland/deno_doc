@@ -8,10 +8,12 @@
   <link rel="stylesheet" href="{{stylesheet_url}}">
   <link rel="stylesheet" href="{{page_stylesheet_url}}">
 
-  <script src="{{url_search_index}}" defer></script>
-  <script src="{{script_js}}" defer></script>
-  <script src="{{fuse_js}}" defer></script>
-  <script src="{{url_search}}" defer></script>
+  {{#if (not disable_search)}}
+    <script src="{{url_search_index}}" defer></script>
+    <script src="{{script_js}}" defer></script>
+    <script src="{{fuse_js}}" defer></script>
+    <script src="{{url_search}}" defer></script>
+  {{/if}}
 </head>
 <body>
 <div class="ddoc">

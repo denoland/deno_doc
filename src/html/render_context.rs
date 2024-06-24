@@ -405,6 +405,7 @@ mod test {
         usage_composer: None,
         rewrite_map: None,
         composable_output: false,
+        disable_search: false,
       },
       None,
       Default::default(),

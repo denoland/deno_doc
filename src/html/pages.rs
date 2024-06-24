@@ -35,6 +35,7 @@ pub struct HtmlHeadCtx {
   script_js: String,
   fuse_js: String,
   url_search: String,
+  disable_search: bool,
 }
 
 impl HtmlHeadCtx {
@@ -45,6 +46,7 @@ impl HtmlHeadCtx {
     page: &str,
     package_name: Option<&String>,
     current_file: Option<&ShortPath>,
+    disable_search: bool,
   ) -> Self {
     Self {
       title: format!(
@@ -63,6 +65,7 @@ impl HtmlHeadCtx {
       script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
       url_search: format!("{root}{SEARCH_FILENAME}"),
+      disable_search,
     }
   }
 }
@@ -74,6 +77,7 @@ pub struct IndexCtx {
   pub overview: Option<SymbolContentCtx>,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub toc_ctx: util::ToCCtx,
+  pub disable_search: bool,
 }
 
 impl IndexCtx {
@@ -109,8 +113,13 @@ impl IndexCtx {
       .href_resolver
       .resolve_path(render_ctx.get_current_resolve(), UrlResolveKind::Root);
 
-    let html_head_ctx =
-      HtmlHeadCtx::new(&root, "Index", ctx.package_name.as_ref(), None);
+    let html_head_ctx = HtmlHeadCtx::new(
+      &root,
+      "Index",
+      ctx.package_name.as_ref(),
+      None,
+      ctx.disable_search,
+    );
 
     let overview = match ctx.file_mode {
       FileMode::Dts if short_path.is_none() => {
@@ -211,6 +220,7 @@ impl IndexCtx {
       overview,
       breadcrumbs_ctx,
       toc_ctx,
+      disable_search: ctx.disable_search,
     }
   }
 
@@ -247,8 +257,13 @@ impl IndexCtx {
       .href_resolver
       .resolve_path(UrlResolveKind::Category(name), UrlResolveKind::Root);
 
-    let html_head_ctx =
-      HtmlHeadCtx::new(&root, name, ctx.package_name.as_ref(), None);
+    let html_head_ctx = HtmlHeadCtx::new(
+      &root,
+      name,
+      ctx.package_name.as_ref(),
+      None,
+      ctx.disable_search,
+    );
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
@@ -265,6 +280,7 @@ impl IndexCtx {
       }),
       breadcrumbs_ctx,
       toc_ctx,
+      disable_search: ctx.disable_search,
     }
   }
 }
@@ -274,6 +290,7 @@ pub struct AllSymbolsCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub content: SymbolContentCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
+  pub disable_search: bool,
 }
 
 impl AllSymbolsCtx {
@@ -299,8 +316,13 @@ impl AllSymbolsCtx {
         .collect(),
     );
 
-    let html_head_ctx =
-      HtmlHeadCtx::new("./", "All Symbols", ctx.package_name.as_ref(), None);
+    let html_head_ctx = HtmlHeadCtx::new(
+      "./",
+      "All Symbols",
+      ctx.package_name.as_ref(),
+      None,
+      ctx.disable_search,
+    );
 
     AllSymbolsCtx {
       html_head_ctx,
@@ -310,6 +332,7 @@ impl AllSymbolsCtx {
         docs: None,
       },
       breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
+      disable_search: ctx.disable_search,
     }
   }
 }
@@ -551,6 +574,7 @@ pub struct SymbolPageCtx {
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub toc_ctx: util::ToCCtx,
+  pub disable_search: bool,
 }
 
 impl SymbolPageCtx {
