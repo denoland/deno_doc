@@ -1,20 +1,23 @@
 {{~> pages/html_head html_head_ctx ~}}
-{{~> pages/top_nav ~}}
+{{~> pages/category_panel categories_panel ~}}
+<div>
+  {{~> pages/top_nav ~}}
 
-<div id="content">
-  <main>
-	  {{~#if module_doc ~}}
-		  {{~> module_doc module_doc ~}}
-	  {{~/if~}}
+  <div id="content">
+    <main>
+      {{~#if module_doc ~}}
+        {{~> module_doc module_doc ~}}
+      {{~/if~}}
 
-	  {{~#if overview ~}}
-		  {{~> symbol_content overview ~}}
-	  {{~/if~}}
-  </main>
+      {{~#if overview ~}}
+        {{~> symbol_content overview ~}}
+      {{~/if~}}
+    </main>
 
-  {{~> toc toc_ctx ~}}
+    {{~> toc toc_ctx ~}}
 
-  {{~> pages/search_results ~}}
+    {{~> pages/search_results ~}}
+  </div>
 </div>
 </div>
 </body>

@@ -10,8 +10,8 @@ use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
-use regex::Regex;
 use indexmap::IndexSet;
+use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -404,6 +404,7 @@ pub enum SectionContentCtx {
   Example(Vec<super::jsdoc::ExampleCtx>),
   IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
   NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
+  Empty,
 }
 
 #[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]

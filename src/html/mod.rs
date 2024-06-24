@@ -89,6 +89,7 @@ pub struct GenerateOptions {
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub composable_output: bool,
+  pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
 }
 
@@ -106,6 +107,7 @@ pub struct GenerateCtx<'ctx> {
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
+  pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
 }
 
@@ -198,6 +200,7 @@ impl<'ctx> GenerateCtx<'ctx> {
       rewrite_map: options.rewrite_map,
       main_entrypoint,
       file_mode,
+      category_docs: options.category_docs,
       disable_search: options.disable_search,
     })
   }
@@ -516,6 +519,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/pages/html_head.hbs"),
   )?;
   reg.register_template_string(
+    pages::CategoriesPanelCtx::TEMPLATE,
+    include_str!("./templates/pages/category_panel.hbs"),
+  )?;
+  reg.register_template_string(
     pages::AllSymbolsCtx::TEMPLATE,
     include_str!("./templates/pages/all_symbols.hbs"),
   )?;
@@ -750,6 +757,7 @@ pub fn generate(
             breadcrumbs_ctx,
             symbol_group_ctx,
             toc_ctx,
+            categories_panel,
           } => {
             let root = ctx.href_resolver.resolve_path(
               UrlResolveKind::Symbol {
@@ -791,6 +799,7 @@ pub fn generate(
                 breadcrumbs_ctx,
                 toc_ctx,
                 disable_search: ctx.disable_search,
+                categories_panel,
               };
 
               let symbol_page =

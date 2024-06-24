@@ -15,13 +15,15 @@
 		{{~/if~}}
   </div>
 
-  {{~#if (eq content.kind "namespace_section")~}}
-    {{~> namespace_section content.content ~}}
-  {{~else~}}
-    <div class="mt-2 space-y-2">
-      {{~#each content.content~}}
-        {{~> (lookup ../content "kind") this ~}}
-      {{~/each~}}
-    </div>
+  {{~#if (ne content.kind "empty")~}}
+    {{~#if (eq content.kind "namespace_section")~}}
+      {{~> namespace_section content.content ~}}
+    {{~else~}}
+      <div class="mt-2 space-y-2">
+        {{~#each content.content~}}
+          {{~> (lookup ../content "kind") this ~}}
+        {{~/each~}}
+      </div>
+    {{~/if~}}
   {{~/if~}}
 </section>
