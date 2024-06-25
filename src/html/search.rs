@@ -44,7 +44,7 @@ fn doc_nodes_into_search_index_node(
 
   let doc = doc_nodes[0].js_doc.doc.clone().unwrap_or_default();
 
-  let abs_url = ctx.href_resolver.resolve_path(
+  let abs_url = ctx.resolve_path(
     super::UrlResolveKind::Root,
     super::UrlResolveKind::Symbol {
       file: &doc_nodes[0].origin,

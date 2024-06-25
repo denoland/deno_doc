@@ -20,6 +20,7 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
 use crate::DocNode;
 use crate::DocNodeKind;
@@ -98,7 +99,7 @@ impl CategoriesPanelCtx {
           .keys()
           .map(|short_path| CategoriesPanelCategoryCtx {
             name: short_path.display_name(),
-            href: ctx.ctx.href_resolver.resolve_path(
+            href: ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::File(short_path),
             ),
@@ -109,7 +110,7 @@ impl CategoriesPanelCtx {
 
         Some(CategoriesPanelCtx {
           categories,
-          all_symbols_href: ctx.ctx.href_resolver.resolve_path(
+          all_symbols_href: ctx.ctx.resolve_path(
             ctx.get_current_resolve(),
             UrlResolveKind::AllSymbols,
           ),
@@ -134,7 +135,7 @@ impl CategoriesPanelCtx {
         let categories = partitions
           .into_keys()
           .map(|title| CategoriesPanelCategoryCtx {
-            href: ctx.ctx.href_resolver.resolve_path(
+            href: ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::Category(&title),
             ),
@@ -145,7 +146,7 @@ impl CategoriesPanelCtx {
         if !categories.is_empty() {
           Some(CategoriesPanelCtx {
             categories,
-            all_symbols_href: ctx.ctx.href_resolver.resolve_path(
+            all_symbols_href: ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::AllSymbols,
             ),
@@ -172,6 +173,7 @@ pub struct IndexCtx {
   pub module_doc: Option<super::jsdoc::ModuleDocCtx>,
   pub overview: Option<SymbolContentCtx>,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
+  pub usage: Option<UsagesCtx>,
   pub toc_ctx: util::ToCCtx,
   pub disable_search: bool,
   pub categories_panel: Option<CategoriesPanelCtx>,
@@ -206,9 +208,8 @@ impl IndexCtx {
       super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
     });
 
-    let root = ctx
-      .href_resolver
-      .resolve_path(render_ctx.get_current_resolve(), UrlResolveKind::Root);
+    let root =
+      ctx.resolve_path(render_ctx.get_current_resolve(), UrlResolveKind::Root);
 
     let html_head_ctx = HtmlHeadCtx::new(
       &root,
@@ -241,7 +242,7 @@ impl IndexCtx {
 
             util::SectionCtx {
               header: SectionHeaderCtx {
-                href: Some(ctx.href_resolver.resolve_path(
+                href: Some(ctx.resolve_path(
                   UrlResolveKind::Root,
                   short_path.as_resolve_kind(),
                 )),
@@ -274,7 +275,7 @@ impl IndexCtx {
 
             util::SectionCtx {
               header: SectionHeaderCtx {
-                href: Some(render_ctx.ctx.href_resolver.resolve_path(
+                href: Some(render_ctx.ctx.resolve_path(
                   render_ctx.get_current_resolve(),
                   UrlResolveKind::Category(&title),
                 )),
@@ -301,14 +302,20 @@ impl IndexCtx {
     let dts_mode = matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts);
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+    let usage = dts_mode.then(|| UsagesCtx::new(&render_ctx, &[])).flatten();
 
-    let toc_ctx = util::ToCCtx::new(render_ctx, !dts_mode, &[]);
+    let toc_ctx = util::ToCCtx::new(
+      render_ctx,
+      !dts_mode,
+      if dts_mode { None } else { Some(&[]) },
+    );
 
     IndexCtx {
       html_head_ctx,
       module_doc,
       overview,
       breadcrumbs_ctx,
+      usage,
       toc_ctx,
       disable_search: ctx.disable_search,
       categories_panel,
@@ -348,9 +355,8 @@ impl IndexCtx {
         .collect(),
     );
 
-    let root = ctx
-      .href_resolver
-      .resolve_path(UrlResolveKind::Category(name), UrlResolveKind::Root);
+    let root =
+      ctx.resolve_path(UrlResolveKind::Category(name), UrlResolveKind::Root);
 
     let html_head_ctx = HtmlHeadCtx::new(
       &root,
@@ -363,11 +369,12 @@ impl IndexCtx {
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+    let usage = UsagesCtx::new(&render_ctx, &[]);
 
     let toc_ctx = util::ToCCtx::new(
       render_ctx,
       !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts),
-      &[],
+      None,
     );
 
     IndexCtx {
@@ -379,6 +386,7 @@ impl IndexCtx {
         docs: None,
       }),
       breadcrumbs_ctx,
+      usage,
       toc_ctx,
       disable_search: ctx.disable_search,
       categories_panel,
@@ -659,7 +667,7 @@ pub fn generate_symbol_pages_for_module(
     {
       let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {
-        href: ctx.href_resolver.resolve_path(
+        href: ctx.resolve_path(
           UrlResolveKind::Symbol {
             file: short_path,
             symbol: &prototype_name,
@@ -725,6 +733,6 @@ pub fn render_symbol_page(
   (
     render_ctx.get_breadcrumbs(),
     symbol_group_ctx,
-    util::ToCCtx::new(render_ctx, false, doc_nodes),
+    util::ToCCtx::new(render_ctx, false, Some(doc_nodes)),
   )
 }

@@ -3,6 +3,7 @@ use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
+use crate::html::FileMode;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
@@ -442,7 +443,7 @@ impl SectionHeaderCtx {
     SectionHeaderCtx {
       title: title.clone(),
       anchor: AnchorCtx { id: title },
-      href: Some(render_ctx.ctx.href_resolver.resolve_path(
+      href: Some(render_ctx.ctx.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),
       )),
@@ -490,6 +491,7 @@ pub enum Tag {
   Protected,
   Private,
   Optional,
+  Unstable,
   Permissions(Vec<String>),
   Other(String),
 }
@@ -621,7 +623,7 @@ impl TopSymbolsCtx {
           .iter()
           .map(|node| node.kind_with_drilldown.into())
           .collect(),
-        href: ctx.ctx.href_resolver.resolve_path(
+        href: ctx.ctx.resolve_path(
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
             file: &nodes[0].origin,
@@ -637,7 +639,6 @@ impl TopSymbolsCtx {
       total_symbols,
       all_symbols_href: ctx
         .ctx
-        .href_resolver
         .resolve_path(ctx.get_current_resolve(), UrlResolveKind::AllSymbols),
     })
   }
@@ -656,15 +657,26 @@ impl ToCCtx {
   pub fn new(
     ctx: RenderContext,
     include_top_symbols: bool,
-    usage_doc_nodes: &[DocNodeWithContext],
+    usage_doc_nodes: Option<&[DocNodeWithContext]>,
   ) -> Self {
+    if ctx.get_current_resolve() == UrlResolveKind::Root
+      && matches!(ctx.ctx.file_mode, FileMode::SingleDts | FileMode::Dts)
+    {
+      return Self {
+        usages: None,
+        top_symbols: None,
+        document_navigation: None,
+      };
+    }
+
     Self {
       usages: if ctx.get_current_resolve() == UrlResolveKind::Root
         && ctx.ctx.main_entrypoint.is_none()
       {
         None
       } else {
-        UsagesCtx::new(&ctx, usage_doc_nodes)
+        usage_doc_nodes
+          .and_then(|usage_doc_nodes| UsagesCtx::new(&ctx, usage_doc_nodes))
       },
       top_symbols: if include_top_symbols {
         TopSymbolsCtx::new(&ctx)

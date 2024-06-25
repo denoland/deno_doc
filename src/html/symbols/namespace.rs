@@ -76,7 +76,7 @@ impl NamespaceNodeCtx {
         .iter()
         .map(|node| node.kind_with_drilldown.into())
         .collect(),
-      href: ctx.ctx.href_resolver.resolve_path(
+      href: ctx.ctx.resolve_path(
         ctx.get_current_resolve(),
         UrlResolveKind::Symbol {
           file: &nodes[0].origin,

@@ -342,7 +342,7 @@ async fn symbol_group() {
             symbol_group_ctx,
             toc_ctx,
           } => {
-            let root = ctx.href_resolver.resolve_path(
+            let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
                 symbol: &symbol_group_ctx.name,

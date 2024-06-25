@@ -62,7 +62,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             .iter()
             .any(|node| node.get_qualified_name() == symbol_match.as_str())
           {
-            link = ctx.ctx.href_resolver.resolve_path(
+            link = ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::Symbol {
                 file: short_path,
@@ -78,7 +78,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             }
           }
         } else {
-          link = ctx.ctx.href_resolver.resolve_path(
+          link = ctx.ctx.resolve_path(
             ctx.get_current_resolve(),
             short_path.as_resolve_kind(),
           );

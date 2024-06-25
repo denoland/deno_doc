@@ -67,6 +67,16 @@ impl SymbolGroupCtx {
 
         let mut tags = HashSet::new();
 
+        if doc_nodes.iter().any(|node| {
+          node
+            .js_doc
+            .tags
+            .iter()
+            .any(|tag| matches!(tag, JsDocTag::Experimental))
+        }) {
+          tags.insert(Tag::Unstable);
+        }
+
         let permissions = doc_nodes
           .iter()
           .flat_map(|node| {

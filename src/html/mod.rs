@@ -91,6 +91,7 @@ pub struct GenerateOptions {
   pub composable_output: bool,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
+  pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
 }
 
 #[non_exhaustive]
@@ -109,6 +110,7 @@ pub struct GenerateCtx<'ctx> {
   pub file_mode: FileMode,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
+  pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -202,6 +204,7 @@ impl<'ctx> GenerateCtx<'ctx> {
       file_mode,
       category_docs: options.category_docs,
       disable_search: options.disable_search,
+      symbol_redirect_map: options.symbol_redirect_map,
     })
   }
 
@@ -211,6 +214,24 @@ impl<'ctx> GenerateCtx<'ctx> {
     data: &T,
   ) -> String {
     self.hbs.render(template, data).unwrap()
+  }
+
+  pub fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    if let Some(symbol_redirect_map) = &self.symbol_redirect_map {
+      if let UrlResolveKind::Symbol { file, symbol } = target {
+        if let Some(path_map) = symbol_redirect_map.get(&file.path) {
+          if let Some(href) = path_map.get(symbol) {
+            return href.clone();
+          }
+        }
+      }
+    }
+
+    self.href_resolver.resolve_path(current, target)
   }
 }
 
@@ -497,6 +518,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/usages.hbs"),
   )?;
   reg.register_template_string(
+    "usages_large",
+    include_str!("./templates/usages_large.hbs"),
+  )?;
+  reg.register_template_string(
     util::Tag::TEMPLATE,
     include_str!("./templates/tag.hbs"),
   )?;
@@ -759,7 +784,7 @@ pub fn generate(
             toc_ctx,
             categories_panel,
           } => {
-            let root = ctx.href_resolver.resolve_path(
+            let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
                 symbol: &symbol_group_ctx.name,

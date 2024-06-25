@@ -5,11 +5,15 @@
 
   <div id="content">
     <main>
-      {{~#if module_doc ~}}
+      {{~#if usage~}}
+        {{~> usages_large usage ~}}
+      {{~/if~}}
+
+      {{~#if module_doc~}}
         {{~> module_doc module_doc ~}}
       {{~/if~}}
 
-      {{~#if overview ~}}
+      {{~#if overview~}}
         {{~> symbol_content overview ~}}
       {{~/if~}}
     </main>

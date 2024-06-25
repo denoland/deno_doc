@@ -240,6 +240,10 @@ a {
 }
 
 .usageContent {
+  :not(.markdown) h3 {
+    @apply font-bold text-lg mb-3;
+  }
+
   .markdown {
     @apply text-xs text-[#686868];
 
@@ -249,7 +253,7 @@ a {
   }
 
   pre.highlight {
-    @apply border border-gray-300 max-md:border-x-0 bg-transparent;
+    @apply border border-gray-300 max-md:border-x-0 bg-white;
     @apply mt-1 !important;
 
     > code:first-child {

@@ -17,6 +17,7 @@ const extraColors = {
   "new": TAG_PURPLE,
   "abstract": TAG_CYAN,
   "deprecated": "#DC2626", // red 600
+  "unstable": TAG_PURPLE,
   "writeonly": TAG_PURPLE,
   "readonly": TAG_PURPLE,
   "protected": TAG_PURPLE,
