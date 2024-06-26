@@ -475,7 +475,7 @@ pub fn generate_symbol_pages_for_module(
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions =
-    super::partition::partition_nodes_by_name(module_doc_nodes, true);
+    partition::partition_nodes_by_name(module_doc_nodes, true);
 
   let mut drilldown_partitions = IndexMap::new();
   for doc_nodes in name_partitions.values() {
@@ -493,6 +493,7 @@ pub fn generate_symbol_pages_for_module(
               doc_node.create_child_method(
                 DocNode::function(
                   method.name.clone(),
+                  false,
                   method.location.clone(),
                   doc_node.declaration_kind,
                   method.js_doc.clone(),
@@ -503,9 +504,8 @@ pub fn generate_symbol_pages_for_module(
             })
             .collect::<Vec<_>>();
 
-          drilldown_partitions.extend(
-            super::partition::partition_nodes_by_name(&method_nodes, false),
-          );
+          drilldown_partitions
+            .extend(partition::partition_nodes_by_name(&method_nodes, false));
 
           let property_nodes = class
             .properties
@@ -539,9 +539,8 @@ pub fn generate_symbol_pages_for_module(
             })
             .collect::<Vec<_>>();
 
-          drilldown_partitions.extend(
-            super::partition::partition_nodes_by_name(&method_nodes, false),
-          );
+          drilldown_partitions
+            .extend(partition::partition_nodes_by_name(&method_nodes, false));
 
           let property_nodes =
             interface
@@ -559,9 +558,8 @@ pub fn generate_symbol_pages_for_module(
               })
               .collect::<Vec<_>>();
 
-          drilldown_partitions.extend(
-            super::partition::partition_nodes_by_name(&property_nodes, false),
-          );
+          drilldown_partitions
+            .extend(partition::partition_nodes_by_name(&property_nodes, false));
         }
         DocNodeKind::TypeAlias => {
           let type_alias = doc_node.type_alias_def.as_ref().unwrap();
@@ -584,9 +582,8 @@ pub fn generate_symbol_pages_for_module(
               })
               .collect::<Vec<_>>();
 
-            drilldown_partitions.extend(
-              super::partition::partition_nodes_by_name(&method_nodes, false),
-            );
+            drilldown_partitions
+              .extend(partition::partition_nodes_by_name(&method_nodes, false));
 
             let property_nodes = ts_type_literal
               .properties
@@ -603,9 +600,10 @@ pub fn generate_symbol_pages_for_module(
               })
               .collect::<Vec<_>>();
 
-            drilldown_partitions.extend(
-              super::partition::partition_nodes_by_name(&property_nodes, false),
-            );
+            drilldown_partitions.extend(partition::partition_nodes_by_name(
+              &property_nodes,
+              false,
+            ));
           }
         }
         DocNodeKind::Variable => {
@@ -625,9 +623,8 @@ pub fn generate_symbol_pages_for_module(
               })
               .collect::<Vec<_>>();
 
-            drilldown_partitions.extend(
-              super::partition::partition_nodes_by_name(&method_nodes, false),
-            );
+            drilldown_partitions
+              .extend(partition::partition_nodes_by_name(&method_nodes, false));
 
             let property_nodes = ts_type_literal
               .properties
@@ -638,9 +635,10 @@ pub fn generate_symbol_pages_for_module(
               })
               .collect::<Vec<_>>();
 
-            drilldown_partitions.extend(
-              super::partition::partition_nodes_by_name(&property_nodes, false),
-            );
+            drilldown_partitions.extend(partition::partition_nodes_by_name(
+              &property_nodes,
+              false,
+            ));
           }
         }
         _ => {}

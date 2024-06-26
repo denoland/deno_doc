@@ -92,6 +92,7 @@ pub struct GenerateOptions {
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
   pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
+  pub default_symbol_map: Option<IndexMap<String, String>>,
 }
 
 #[non_exhaustive]
@@ -111,6 +112,7 @@ pub struct GenerateCtx<'ctx> {
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
   pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
+  pub default_symbol_map: Option<IndexMap<String, String>>,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -138,7 +140,17 @@ impl<'ctx> GenerateCtx<'ctx> {
 
         let nodes = nodes
           .into_iter()
-          .map(|node| {
+          .map(|mut node| {
+            if node.name == "default" {
+              if let Some(default_rename) =
+                options.default_symbol_map.as_ref().and_then(
+                  |default_symbol_map| default_symbol_map.get(&short_path.path),
+                )
+              {
+                node.name = default_rename.clone();
+              }
+            }
+
             let node = if node
               .variable_def
               .as_ref()
@@ -155,8 +167,9 @@ impl<'ctx> GenerateCtx<'ctx> {
                 .fn_or_constructor
                 .unwrap();
 
-              DocNode::function(
+              let mut new_node = DocNode::function(
                 node.name,
+                false,
                 node.location,
                 node.declaration_kind,
                 node.js_doc,
@@ -170,7 +183,9 @@ impl<'ctx> GenerateCtx<'ctx> {
                   type_params: fn_or_constructor.type_params,
                   decorators: vec![],
                 },
-              )
+              );
+              new_node.is_default = node.is_default;
+              new_node
             } else {
               node
             };
@@ -181,6 +196,7 @@ impl<'ctx> GenerateCtx<'ctx> {
               drilldown_parent_kind: None,
               kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
               inner: Arc::new(node),
+              parent: None,
             }
           })
           .collect::<Vec<_>>();
@@ -205,6 +221,7 @@ impl<'ctx> GenerateCtx<'ctx> {
       category_docs: options.category_docs,
       disable_search: options.disable_search,
       symbol_redirect_map: options.symbol_redirect_map,
+      default_symbol_map: options.default_symbol_map,
     })
   }
 
@@ -355,6 +372,7 @@ pub struct DocNodeWithContext {
   pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Arc<DocNode>,
+  pub parent: Option<Box<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
@@ -365,6 +383,7 @@ impl DocNodeWithContext {
       drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
       inner: doc_node,
+      parent: Some(Box::new(self.clone())),
     }
   }
 
@@ -432,6 +451,13 @@ impl DocNodeWithContext {
         .tags
         .iter()
         .any(|tag| tag == &JsDocTag::Internal)
+  }
+
+  fn get_topmost_ancestor(&self) -> &DocNodeWithContext {
+    match &self.parent {
+      Some(parent_node) => parent_node.get_topmost_ancestor(),
+      None => self,
+    }
   }
 }
 
