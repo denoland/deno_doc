@@ -744,7 +744,7 @@ pub fn generate(
     .collect::<Vec<DocNodeWithContext>>();
 
   // All symbols (list of all symbols in all files)
-  if ctx.file_mode != FileMode::SingleDts {
+  {
     let partitions_by_kind =
       partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 

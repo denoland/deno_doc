@@ -1,20 +1,22 @@
 {{#if this}}
   <div class="toc">
-    <nav class="documentNavigation">
-      <h3>Categories</h3>
+    <div>
+      <nav class="documentNavigation">
+        <h3>Categories</h3>
 
-      <ul>
-        {{~#each categories~}}
-          <li><a href="{{this.href}}" title="{{this.name}}">{{this.name}}</a></li>
-        {{~/each~}}
+        <ul>
+          {{~#each categories~}}
+            <li><a href="{{this.href}}" title="{{this.name}}">{{this.name}}</a></li>
+          {{~/each~}}
 
-        <li>
-          <a class="!flex items-center gap-0.5" href="{{all_symbols_href}}">
-            <span class="leading-none">view all {{total_symbols}} symbols</span>
-            {{~> icons/arrow ~}}
-          </a>
-        </li>
-      </ul>
-    </nav>
+          <li>
+            <a class="!flex items-center gap-0.5" href="{{all_symbols_href}}">
+              <span class="leading-none">view all {{total_symbols}} symbols</span>
+              {{~> icons/arrow ~}}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </div>
 {{/if}}

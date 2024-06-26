@@ -210,7 +210,7 @@ a {
     }
 
     a {
-      @apply hover:underline block overflow-x-hidden whitespace-nowrap text-ellipsis;
+      @apply hover:underline block overflow-hidden whitespace-nowrap text-ellipsis;
     }
   }
 }

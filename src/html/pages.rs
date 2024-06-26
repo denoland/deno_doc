@@ -734,9 +734,15 @@ pub fn render_symbol_page(
   let symbol_group_ctx =
     SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
 
+  let toc_nodes = (!matches!(
+    render_ctx.ctx.file_mode,
+    FileMode::SingleDts | FileMode::Dts
+  ))
+  .then_some(doc_nodes);
+
   (
     render_ctx.get_breadcrumbs(),
     symbol_group_ctx,
-    util::ToCCtx::new(render_ctx, false, Some(doc_nodes)),
+    util::ToCCtx::new(render_ctx, false, toc_nodes),
   )
 }
