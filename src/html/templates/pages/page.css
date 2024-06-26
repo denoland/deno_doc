@@ -3,11 +3,10 @@
 @tailwind utilities;
 
 .ddoc {
-  @apply grid grid-cols-6;
-  @apply px-4 md:px-8 lg:px-10 xl:px-14 lg:pt-4;
+  @apply grid grid-cols-6 items-start px-4 md:px-8 lg:px-10 xl:px-14 lg:pt-4 mb-4 md:mb-8 lg:mb-12;
 
   & > .toc {
-    @apply lg:col-start-1 lg:col-span-1 !important;
+    @apply lg:col-start-1 lg:col-span-1 -mt-3 pt-3 !important;
   }
 
   & > div:not(.toc) {
@@ -28,7 +27,7 @@
 }
 
 .toc {
-  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-20 pt-20;
+  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen lg:h-fit flex flex-col box-border gap-y-4 -mt-20 pt-20;
 
   > div {
     @apply max-h-full lg:overflow-y-scroll;

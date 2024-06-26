@@ -463,10 +463,53 @@ impl SectionCtx {
 
   pub fn new(
     render_context: &RenderContext,
-    title: &'static str,
-    content: SectionContentCtx,
+    title: &str,
+    mut content: SectionContentCtx,
   ) -> Self {
-    let anchor = render_context.toc.add_entry(1, title.to_string());
+    let anchor = render_context.toc.add_entry(
+      1,
+      title.to_owned(),
+      render_context.toc.anchorize(title.to_owned()),
+    );
+
+    match &mut content {
+      SectionContentCtx::DocEntry(entries) => {
+        for entry in entries {
+          let anchor = render_context.toc.anchorize(entry.id.to_owned());
+
+          entry.id = anchor.clone();
+          entry.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(2, entry.name.clone(), anchor);
+        }
+      }
+      SectionContentCtx::Example(examples) => {
+        for example in examples {
+          let anchor = render_context.toc.anchorize(example.id.to_owned());
+
+          example.id = anchor.clone();
+          example.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(
+            2,
+            example.markdown_title.clone(),
+            anchor,
+          );
+        }
+      }
+      SectionContentCtx::IndexSignature(_) => {}
+      SectionContentCtx::NamespaceSection(nodes) => {
+        for node in nodes {
+          let anchor = render_context.toc.anchorize(node.id.to_owned());
+
+          node.id = anchor.clone();
+          node.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(2, node.name.clone(), anchor);
+        }
+      }
+      SectionContentCtx::Empty => {}
+    }
 
     Self {
       header: SectionHeaderCtx {

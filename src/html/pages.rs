@@ -238,7 +238,11 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.add_entry(1, title.clone());
+            let anchor = render_ctx.toc.add_entry(
+              1,
+              title.clone(),
+              render_ctx.toc.anchorize(title.clone()),
+            );
 
             util::SectionCtx {
               header: SectionHeaderCtx {
@@ -267,7 +271,11 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.add_entry(1, title.clone());
+            let anchor = render_ctx.toc.add_entry(
+              1,
+              title.clone(),
+              render_ctx.toc.anchorize(title.clone()),
+            );
 
             let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
               category_docs.get(&title).cloned().flatten()
@@ -336,16 +344,14 @@ impl IndexCtx {
       partitions
         .into_iter()
         .map(|(title, nodes)| {
-          let anchor = render_ctx.toc.add_entry(1, title.clone());
-
           let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
             category_docs.get(&title).cloned().flatten()
           });
 
           (
             SectionHeaderCtx {
+              anchor: AnchorCtx { id: title.clone() },
               title,
-              anchor: AnchorCtx { id: anchor },
               href: None,
               doc,
             },

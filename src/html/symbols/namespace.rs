@@ -43,14 +43,19 @@ fn get_namespace_section_render_ctx(
     })
     .collect::<Vec<_>>();
 
-  SectionCtx {
-    header,
-    content: SectionContentCtx::NamespaceSection(nodes),
-  }
+  let mut section = SectionCtx::new(
+    ctx,
+    &header.title,
+    SectionContentCtx::NamespaceSection(nodes),
+  );
+  section.header = header;
+  section
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct NamespaceNodeCtx {
+  pub id: String,
+  pub anchor: AnchorCtx,
   pub tags: HashSet<Tag>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
@@ -65,12 +70,16 @@ impl NamespaceNodeCtx {
     name: String,
     nodes: Vec<DocNodeWithContext>,
   ) -> Self {
+    let id = name_to_id("namespace", &name);
+
     let docs =
       crate::html::jsdoc::jsdoc_body_to_html(ctx, &nodes[0].js_doc, true);
 
     let tags = Tag::from_js_doc(&nodes[0].js_doc);
 
     NamespaceNodeCtx {
+      id: id.clone(),
+      anchor: AnchorCtx { id },
       tags,
       doc_node_kind_ctx: nodes
         .iter()

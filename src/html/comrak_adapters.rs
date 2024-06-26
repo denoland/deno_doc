@@ -232,23 +232,59 @@ pub struct ToCEntry {
   pub anchor: String,
 }
 
-#[derive(Default, Clone)]
+#[derive(Debug)]
+pub struct ToCGroup {
+  pub toc: Vec<ToCEntry>,
+  pub id: Option<String>,
+}
+
+#[derive(Clone)]
 pub struct HeadingToCAdapter {
-  toc: Arc<Mutex<Vec<ToCEntry>>>,
+  toc_groups: Arc<Mutex<Vec<ToCGroup>>>,
   anchorizer: Arc<Mutex<comrak::html::Anchorizer>>,
   offset: Arc<Mutex<u8>>,
 }
 
+impl Default for HeadingToCAdapter {
+  fn default() -> Self {
+    Self {
+      toc_groups: Arc::new(Mutex::new(vec![ToCGroup {
+        toc: vec![],
+        id: None,
+      }])),
+      anchorizer: Arc::new(Mutex::new(Default::default())),
+      offset: Arc::new(Mutex::new(0)),
+    }
+  }
+}
+
 impl HeadingToCAdapter {
-  pub fn add_entry(&self, level: u8, content: String) -> String {
-    let mut lock = self.toc.lock().unwrap();
+  pub fn create_group(&self, id: String) {
+    let mut toc_groups = self.toc_groups.lock().unwrap();
+
+    toc_groups.push(ToCGroup {
+      toc: vec![],
+      id: Some(id),
+    });
+  }
+
+  pub fn anchorize(&self, content: String) -> String {
     let mut anchorizer = self.anchorizer.lock().unwrap();
+    anchorizer.anchorize(content.clone())
+  }
+
+  pub fn add_entry(
+    &self,
+    level: u8,
+    content: String,
+    anchor: String,
+  ) -> String {
+    let mut toc_groups = self.toc_groups.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
-    let anchor = anchorizer.anchorize(content.clone());
     *offset = level;
 
-    lock.push(ToCEntry {
+    toc_groups.last_mut().unwrap().toc.push(ToCEntry {
       level,
       content,
       anchor: anchor.clone(),
@@ -257,41 +293,63 @@ impl HeadingToCAdapter {
     anchor
   }
 
-  pub fn into_toc(self) -> Vec<ToCEntry> {
-    Arc::into_inner(self.toc).unwrap().into_inner().unwrap()
+  pub fn into_toc(self) -> Vec<ToCGroup> {
+    Arc::into_inner(self.toc_groups)
+      .unwrap()
+      .into_inner()
+      .unwrap()
   }
 
   pub fn render(self) -> Option<String> {
-    let toc = Arc::into_inner(self.toc).unwrap().into_inner().unwrap();
+    let toc_groups = Arc::into_inner(self.toc_groups)
+      .unwrap()
+      .into_inner()
+      .unwrap();
 
-    if toc.is_empty() {
+    if toc_groups.is_empty()
+      || (toc_groups.len() == 1 && toc_groups[0].toc.is_empty())
+    {
       return None;
     }
 
-    let mut toc_content = vec![String::from(r#"<ul>"#)];
+    let mut toc_content = vec![];
 
-    let mut current_level = 1;
-
-    for entry in toc {
-      match current_level.cmp(&entry.level) {
-        Ordering::Equal => {}
-        Ordering::Less => {
-          toc_content.push(r#"<li><ul>"#.to_string());
-          current_level = entry.level;
-        }
-        Ordering::Greater => {
-          toc_content.push("</ul></li>".to_string());
-          current_level = entry.level;
-        }
+    for toc_group in toc_groups {
+      if toc_group.toc.is_empty() {
+        continue;
       }
 
       toc_content.push(format!(
-        r##"<li><a href="#{}" title="{}">{}</a></li>"##,
-        entry.anchor, entry.content, entry.content
+        r#"<ul{}>"#,
+        toc_group
+          .id
+          .map(|id| format!(r#" id="{id}""#))
+          .unwrap_or_default(),
       ));
-    }
 
-    toc_content.push(String::from("</ul>"));
+      let mut current_level = 1;
+
+      for entry in toc_group.toc {
+        match current_level.cmp(&entry.level) {
+          Ordering::Equal => {}
+          Ordering::Less => {
+            toc_content.push(r#"<li><ul>"#.to_string());
+            current_level = entry.level;
+          }
+          Ordering::Greater => {
+            toc_content.push("</ul></li>".to_string());
+            current_level = entry.level;
+          }
+        }
+
+        toc_content.push(format!(
+          r##"<li><a href="#{}" title="{}">{}</a></li>"##,
+          entry.anchor, entry.content, entry.content
+        ));
+      }
+
+      toc_content.push(String::from("</ul>"));
+    }
 
     Some(toc_content.join(""))
   }
@@ -310,8 +368,8 @@ impl HeadingAdapter for HeadingToCAdapter {
     let anchor = anchorizer.anchorize(heading.content.clone());
     writeln!(output, r#"<h{} id="{anchor}">"#, heading.level)?;
 
-    let mut lock = self.toc.lock().unwrap();
-    lock.push(ToCEntry {
+    let mut lock = self.toc_groups.lock().unwrap();
+    lock.last_mut().unwrap().toc.push(ToCEntry {
       level: heading.level + *offset,
       content: heading.content.clone(),
       anchor,
