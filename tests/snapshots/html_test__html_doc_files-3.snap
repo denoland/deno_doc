@@ -12,14 +12,15 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
   <link rel="stylesheet" href="..&#x2F;styles.css">
   <link rel="stylesheet" href="..&#x2F;page.css">
 
-  <script src="..&#x2F;search_index.js" defer></script>
-  <script src="..&#x2F;script.js" defer></script>
-  <script src="..&#x2F;fuse.js" defer></script>
-  <script src="..&#x2F;search.js" defer></script>
+    <script src="..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;script.js" defer></script>
+    <script src="..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;search.js" defer></script>
 </head>
-<body class="ddoc">
-<nav class="top-0 sticky bg-white z-50 py-3">
-  <div class="max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
+<body>
+<div class="ddoc">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14">
+  <div class="h-full max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
     <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
@@ -31,11 +32,11 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
 </span><ul><li>Bar</li></ul></ul>
 </div>
 
-    <input
-      type="text"
-      id="searchbar"
-      style="display: none;"
-      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
 <div id="content"><main class="symbolGroup" id="symbol_Bar"><article>
@@ -49,7 +50,7 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
 </div>
     </article></main>
 <div class="toc">
-  <div><div class="usageContent">
+    <div><div class="usageContent">
     <h3>Usage</h3><div class="markdown"><pre class="highlight"><code>import { Bar } from ".";
 </code><button class="context_button" data-copy="import { Bar } from &quot;.&quot;;
 "><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -59,7 +60,8 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
 </svg>
 </button><code></code></pre>
 </div></div></div>
+  </div><div id="searchResults"></div></div>
 </div>
-<div id="searchResults"></div></div>
+</div>
 </body>
 </html>

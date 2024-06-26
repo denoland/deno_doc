@@ -43,6 +43,7 @@ namespace Namespace1
   {
     "kind": "namespace",
     "name": "Namespace1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -55,6 +56,7 @@ namespace Namespace1
         {
           "kind": "class",
           "name": "Test1",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
@@ -77,6 +79,7 @@ namespace Namespace1
         {
           "kind": "class",
           "name": "Test2",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 5,

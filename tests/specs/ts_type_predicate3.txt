@@ -30,6 +30,7 @@ class C
   {
     "kind": "class",
     "name": "C",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

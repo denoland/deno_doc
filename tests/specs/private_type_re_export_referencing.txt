@@ -71,6 +71,7 @@ class Data
   {
     "kind": "class",
     "name": "Data",
+    "isDefault": false,
     "location": {
       "filename": "file:///data.ts",
       "line": 8,

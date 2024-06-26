@@ -187,6 +187,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "s",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -209,6 +210,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "n",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -231,6 +233,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -253,6 +256,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "bi",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -275,6 +279,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "re",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -297,6 +302,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "tpl",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -328,6 +334,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "d",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -350,6 +357,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "s2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -369,6 +377,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "n2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -388,6 +397,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "bi2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,
@@ -407,6 +417,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "sym",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 11,
@@ -426,6 +437,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "m",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
@@ -459,6 +471,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "fn1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -498,6 +511,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "fn2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
@@ -537,6 +551,7 @@ const tpl: `foobar`
   {
     "kind": "variable",
     "name": "s3",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 15,

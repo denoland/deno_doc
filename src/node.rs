@@ -119,7 +119,7 @@ pub enum DeclarationKind {
 pub struct DocNode {
   pub kind: DocNodeKind,
   pub name: String,
-  #[serde(default)]
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub is_default: Option<bool>,
   pub location: Location,
   pub declaration_kind: DeclarationKind,

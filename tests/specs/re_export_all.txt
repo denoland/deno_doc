@@ -47,6 +47,7 @@ class Test
   {
     "kind": "class",
     "name": "Test",
+    "isDefault": false,
     "location": {
       "filename": "file:///b.ts",
       "line": 1,
@@ -69,6 +70,7 @@ class Test
   {
     "kind": "variable",
     "name": "test1",
+    "isDefault": false,
     "location": {
       "filename": "file:///a.ts",
       "line": 1,

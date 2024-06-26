@@ -19,6 +19,7 @@ type T = { readonly [key: string]: number; }
   {
     "kind": "typeAlias",
     "name": "T",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

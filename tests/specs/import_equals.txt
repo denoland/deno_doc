@@ -27,6 +27,7 @@ interface Options
   {
     "kind": "interface",
     "name": "Options",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

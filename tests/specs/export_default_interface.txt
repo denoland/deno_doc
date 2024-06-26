@@ -21,6 +21,7 @@ interface default
   {
     "kind": "interface",
     "name": "default",
+    "isDefault": true,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

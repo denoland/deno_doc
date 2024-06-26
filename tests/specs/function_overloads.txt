@@ -33,6 +33,7 @@ function a(b: number): number
   {
     "kind": "function",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -66,6 +67,7 @@ function a(b: number): number
   {
     "kind": "function",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -99,6 +101,7 @@ function a(b: number): number
   {
     "kind": "function",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,

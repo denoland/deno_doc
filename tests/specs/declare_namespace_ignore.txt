@@ -36,6 +36,7 @@ namespace RootNs
   {
     "kind": "namespace",
     "name": "RootNs",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -51,6 +52,7 @@ namespace RootNs
         {
           "kind": "variable",
           "name": "a",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,

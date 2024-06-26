@@ -41,6 +41,7 @@ class Bar extends obj.Foo
   {
     "kind": "class",
     "name": "Bar",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -63,6 +64,7 @@ class Bar extends obj.Foo
   {
     "kind": "variable",
     "name": "obj",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

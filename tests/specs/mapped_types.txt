@@ -21,6 +21,7 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
   {
     "kind": "typeAlias",
     "name": "MappedTypeWithNewProperties",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

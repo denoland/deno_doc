@@ -20,6 +20,7 @@ function default(): void
   {
     "kind": "function",
     "name": "default",
+    "isDefault": true,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

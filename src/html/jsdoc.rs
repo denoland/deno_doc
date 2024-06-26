@@ -684,7 +684,10 @@ mod test {
         usage_composer: None,
         rewrite_map: None,
         composable_output: false,
+        category_docs: None,
         disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
       },
       Default::default(),
       Default::default(),
@@ -694,6 +697,7 @@ mod test {
           vec![
             DocNode::interface(
               "foo".to_string(),
+              false,
               Location::default(),
               DeclarationKind::Export,
               JsDoc::default(),
@@ -710,6 +714,7 @@ mod test {
             ),
             DocNode::interface(
               "bar".to_string(),
+              false,
               Location::default(),
               DeclarationKind::Export,
               JsDoc::default(),
@@ -730,6 +735,7 @@ mod test {
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
           vec![DocNode::interface(
             "baz".to_string(),
+            false,
             Location::default(),
             DeclarationKind::Export,
             JsDoc::default(),
@@ -807,11 +813,11 @@ mod test {
 
       assert_eq!(
         parse_links("foo {@link [b.ts]} bar", &render_ctx),
-        "foo [b.ts](../../.././/b.ts/~/index.html) bar"
+        "foo [b.ts](../../.././/b.ts/index.html) bar"
       );
       assert_eq!(
         parse_links("foo {@linkcode [b.ts]} bar", &render_ctx),
-        "foo [`b.ts`](../../.././/b.ts/~/index.html) bar"
+        "foo [`b.ts`](../../.././/b.ts/index.html) bar"
       );
 
       assert_eq!(
@@ -835,7 +841,10 @@ mod test {
         usage_composer: None,
         rewrite_map: None,
         composable_output: false,
+        category_docs: None,
         disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
       },
       Default::default(),
       Default::default(),

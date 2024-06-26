@@ -59,6 +59,7 @@ private interface YesDiagnostic
   {
     "kind": "class",
     "name": "MyClass",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -143,6 +144,7 @@ private interface YesDiagnostic
   {
     "kind": "interface",
     "name": "YesDiagnostic",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,

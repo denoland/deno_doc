@@ -370,6 +370,7 @@ mod test {
       vec![DocNode {
         kind: DocNodeKind::Import,
         name: "foo".to_string(),
+        is_default: None,
         location: Location {
           filename: "a".to_string(),
           line: 0,
@@ -403,6 +404,7 @@ mod test {
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,
+        default_symbol_map: None,
       },
       None,
       Default::default(),

@@ -12,14 +12,15 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   <link rel="stylesheet" href=".&#x2F;styles.css">
   <link rel="stylesheet" href=".&#x2F;page.css">
 
-  <script src=".&#x2F;search_index.js" defer></script>
-  <script src=".&#x2F;script.js" defer></script>
-  <script src=".&#x2F;fuse.js" defer></script>
-  <script src=".&#x2F;search.js" defer></script>
+    <script src=".&#x2F;search_index.js" defer></script>
+    <script src=".&#x2F;script.js" defer></script>
+    <script src=".&#x2F;fuse.js" defer></script>
+    <script src=".&#x2F;search.js" defer></script>
 </head>
-<body class="ddoc">
-<nav class="top-0 sticky bg-white z-50 py-3">
-  <div class="max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
+<body>
+<div class="ddoc">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14">
+  <div class="h-full max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
     <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
@@ -31,15 +32,15 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 </span><li>all symbols</li></ul>
 </div>
 
-    <input
-      type="text"
-      id="searchbar"
-      style="display: none;"
-      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
 <div id="content">
-	<main><div class="space-y-7" id=""><section class="section" id="default">
+    <main><div class="space-y-7" id=""><section class="section" id="default">
   <div>
 	  <h2 class="anchorable mb-1"><a href="#default" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -63,19 +64,19 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
 
 	      <div><span class="italic">No documentation available</span></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">Foo</a>
 
 	      <div><span class="italic">No documentation available</span></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
 
@@ -85,5 +86,7 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 </section>
 </div>
 </main><div id="searchResults"></div></div>
+</div>
+</div>
 </body>
 </html>

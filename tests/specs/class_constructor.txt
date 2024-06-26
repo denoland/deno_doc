@@ -60,6 +60,7 @@ class Class3
   {
     "kind": "class",
     "name": "Class",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -110,6 +111,7 @@ class Class3
   {
     "kind": "class",
     "name": "Class2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -148,6 +150,7 @@ class Class3
   {
     "kind": "class",
     "name": "Class3",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 15,

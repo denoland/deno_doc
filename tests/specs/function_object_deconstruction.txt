@@ -19,6 +19,7 @@ function f({a, b, ...c}): void
   {
     "kind": "function",
     "name": "f",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
