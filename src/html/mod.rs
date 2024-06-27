@@ -52,6 +52,10 @@ pub const PAGE_STYLESHEET: &str =
   include_str!("./templates/pages/page.gen.css");
 pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
 
+pub const RESET_STYLESHEET: &str =
+  include_str!("./templates/pages/reset.gen.css");
+pub const RESET_STYLESHEET_FILENAME: &str = "reset.css";
+
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
 pub const SCRIPT_JS: &str = include_str!("./templates/script.js");
@@ -932,6 +936,7 @@ pub fn generate(
 
   if !composable_output {
     files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
+    files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
     files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
     files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
   }

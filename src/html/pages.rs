@@ -15,6 +15,7 @@ use std::rc::Rc;
 
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
+use super::RESET_STYLESHEET_FILENAME;
 use super::SCRIPT_FILENAME;
 use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
@@ -33,6 +34,7 @@ pub struct HtmlHeadCtx {
   current_file: String,
   stylesheet_url: String,
   page_stylesheet_url: String,
+  reset_stylesheet_url: String,
   url_search_index: String,
   script_js: String,
   fuse_js: String,
@@ -63,6 +65,7 @@ impl HtmlHeadCtx {
         .to_string(),
       stylesheet_url: format!("{root}{STYLESHEET_FILENAME}"),
       page_stylesheet_url: format!("{root}{PAGE_STYLESHEET_FILENAME}"),
+      reset_stylesheet_url: format!("{root}{RESET_STYLESHEET_FILENAME}"),
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
       script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
