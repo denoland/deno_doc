@@ -192,9 +192,6 @@ impl DocNode {
     js_doc: JsDoc,
     fn_def: super::function::FunctionDef,
   ) -> Self {
-    if name == "default" {
-      dbg!();
-    }
     Self {
       kind: DocNodeKind::Function,
       name,
