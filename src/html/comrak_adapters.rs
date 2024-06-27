@@ -284,11 +284,19 @@ impl HeadingToCAdapter {
 
     *offset = level;
 
-    toc_groups.last_mut().unwrap().toc.push(ToCEntry {
-      level,
-      content,
-      anchor: anchor.clone(),
-    });
+    let toc_group = toc_groups.last_mut().unwrap();
+
+    if toc_group
+      .toc
+      .last()
+      .map_or(true, |toc| toc.content != content)
+    {
+      toc_group.toc.push(ToCEntry {
+        level,
+        content,
+        anchor: anchor.clone(),
+      });
+    }
 
     anchor
   }

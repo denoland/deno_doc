@@ -775,7 +775,7 @@ pub fn generate(
 
     if categories.len() != 1 {
       for (category, nodes) in &categories {
-        let partitions = partition::partition_nodes_by_kind(nodes, true);
+        let partitions = partition::partition_nodes_by_kind(nodes, false);
 
         let index = pages::IndexCtx::new_category(
           &ctx,

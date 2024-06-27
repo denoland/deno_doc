@@ -653,10 +653,8 @@ pub fn generate_symbol_pages_for_module(
     RenderContext::new(ctx, module_doc_nodes, UrlResolveKind::File(short_path));
 
   for (name, doc_nodes) in name_partitions {
-    let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx) =
+    let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx, categories_panel) =
       render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
-
-    let categories_panel = CategoriesPanelCtx::new(&render_ctx);
 
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
@@ -708,7 +706,12 @@ pub fn render_symbol_page(
   short_path: &ShortPath,
   namespaced_name: &str,
   doc_nodes: &[DocNodeWithContext],
-) -> (BreadcrumbsCtx, SymbolGroupCtx, util::ToCCtx) {
+) -> (
+  BreadcrumbsCtx,
+  SymbolGroupCtx,
+  util::ToCCtx,
+  Option<CategoriesPanelCtx>,
+) {
   let mut render_ctx = render_ctx
     .with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
@@ -734,6 +737,8 @@ pub fn render_symbol_page(
   let symbol_group_ctx =
     SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
 
+  let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+
   let toc_nodes = (!matches!(
     render_ctx.ctx.file_mode,
     FileMode::SingleDts | FileMode::Dts
@@ -744,5 +749,6 @@ pub fn render_symbol_page(
     render_ctx.get_breadcrumbs(),
     symbol_group_ctx,
     util::ToCCtx::new(render_ctx, false, toc_nodes),
+    categories_panel,
   )
 }
