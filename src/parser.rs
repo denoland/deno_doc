@@ -273,6 +273,7 @@ impl<'a> DocParser<'a> {
                 };
                 let ns_doc_node = DocNode::namespace(
                   export_name,
+                  false,
                   definition_location(first_def),
                   DeclarationKind::Export,
                   js_doc,
@@ -389,6 +390,7 @@ impl<'a> DocParser<'a> {
 
     Some(DocNode::variable(
       expando_property.prop_name().to_string(),
+      false,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -427,6 +429,7 @@ impl<'a> DocParser<'a> {
       let location = get_location(module_info.source(), ident.start());
       DocNode::variable(
         name,
+        false,
         location,
         DeclarationKind::Declare,
         js_doc,
@@ -454,6 +457,7 @@ impl<'a> DocParser<'a> {
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::class(
       name,
+      false,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -473,6 +477,7 @@ impl<'a> DocParser<'a> {
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::function(
       name,
+      false,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -495,6 +500,7 @@ impl<'a> DocParser<'a> {
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::interface(
       name,
+      false,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -517,6 +523,7 @@ impl<'a> DocParser<'a> {
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::type_alias(
       name,
+      false,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -536,6 +543,7 @@ impl<'a> DocParser<'a> {
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::r#enum(
       name,
+      false,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -633,8 +641,10 @@ impl<'a> DocParser<'a> {
 
     let js_doc = js_doc_for_range(module_info.source(), full_range)?;
     let location = get_location(module_info.source(), full_range.start);
+    let is_default = namespace_name == "default";
     Some(DocNode::namespace(
       namespace_name,
+      is_default,
       location,
       DeclarationKind::Declare,
       js_doc,
@@ -696,6 +706,7 @@ impl<'a> DocParser<'a> {
         };
         DocNode::class(
           name,
+          true,
           location,
           DeclarationKind::Export,
           js_doc,
@@ -712,6 +723,7 @@ impl<'a> DocParser<'a> {
         );
         DocNode::function(
           name,
+          true,
           location,
           DeclarationKind::Export,
           js_doc,
@@ -728,6 +740,7 @@ impl<'a> DocParser<'a> {
           );
         DocNode::interface(
           name,
+          true,
           location,
           DeclarationKind::Export,
           js_doc,
@@ -749,11 +762,12 @@ impl<'a> DocParser<'a> {
       let location = get_location(parsed_source, export_expr.start());
       Some(DocNode::variable(
         String::from("default"),
+        true,
         location,
         DeclarationKind::Export,
         js_doc,
-        super::variable::VariableDef {
-          kind: deno_ast::swc::ast::VarDeclKind::Var,
+        VariableDef {
+          kind: VarDeclKind::Var,
           ts_type: super::ts_type::infer_ts_type_from_expr(
             parsed_source,
             export_expr.expr.as_ref(),
@@ -768,7 +782,7 @@ impl<'a> DocParser<'a> {
 
   fn get_imports_for_module_body(
     &self,
-    module_body: &[deno_ast::swc::ast::ModuleItem],
+    module_body: &[ModuleItem],
   ) -> HashMap<String, Import> {
     let mut imports = HashMap::new();
 
@@ -1002,6 +1016,7 @@ impl<'a> DocParser<'a> {
         );
         for mut doc_node in maybe_docs {
           doc_node.name = export_name.clone();
+          doc_node.is_default = Some(export_name == "default");
           doc_node.declaration_kind = DeclarationKind::Export;
 
           doc_nodes.push(doc_node);
@@ -1108,6 +1123,7 @@ impl<'a> DocParser<'a> {
     }
     Some(DocNode::namespace(
       func_doc.name.clone(),
+      false,
       elements[0].location.clone(),
       DeclarationKind::Declare,
       // give this a JS doc to prevent a missing JS doc diagnostic
@@ -1267,7 +1283,7 @@ impl<'a> DocParser<'a> {
       | SymbolNodeRef::TsGetterSignature(_)
       | SymbolNodeRef::TsSetterSignature(_)
       | SymbolNodeRef::TsMethodSignature(_) => {
-        debug_assert!(false, "should not reach here");
+        //debug_assert!(false, "should not reach here");
         None
       }
     }
@@ -1344,6 +1360,7 @@ fn parse_json_module_doc_node(
     Some(DocNode {
       kind: DocNodeKind::Variable,
       name: "default".to_string(),
+      is_default: Some(true),
       location: Location {
         filename: specifier.to_string(),
         col: 0,

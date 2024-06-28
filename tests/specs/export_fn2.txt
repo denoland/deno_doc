@@ -45,6 +45,7 @@ private interface AssignOpts
   {
     "kind": "function",
     "name": "foo",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -161,6 +162,7 @@ private interface AssignOpts
   {
     "kind": "interface",
     "name": "AssignOpts",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

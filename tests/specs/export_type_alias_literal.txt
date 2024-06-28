@@ -25,6 +25,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
   {
     "kind": "typeAlias",
     "name": "A",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -27,6 +27,7 @@ function noop(): void
   {
     "kind": "function",
     "name": "noop",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,

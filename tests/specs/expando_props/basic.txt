@@ -37,6 +37,7 @@ namespace test
   {
     "kind": "function",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -63,6 +64,7 @@ namespace test
   {
     "kind": "namespace",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -78,6 +80,7 @@ namespace test
         {
           "kind": "variable",
           "name": "skip",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
@@ -120,6 +123,7 @@ namespace test
         {
           "kind": "variable",
           "name": "textProp",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 10,
@@ -145,6 +149,7 @@ namespace test
         {
           "kind": "variable",
           "name": "booleanProp",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 13,

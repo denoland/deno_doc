@@ -19,6 +19,7 @@ class default
   {
     "kind": "class",
     "name": "default",
+    "isDefault": true,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

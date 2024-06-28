@@ -46,6 +46,7 @@ interface Thing
   {
     "kind": "interface",
     "name": "Thing",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

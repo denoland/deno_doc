@@ -82,6 +82,7 @@ private namespace H
   {
     "kind": "function",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -105,6 +106,7 @@ private namespace H
   {
     "kind": "class",
     "name": "C",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -127,6 +129,7 @@ private namespace H
   {
     "kind": "interface",
     "name": "E",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -147,6 +150,7 @@ private namespace H
   {
     "kind": "namespace",
     "name": "G",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -161,6 +165,7 @@ private namespace H
   {
     "kind": "function",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -184,6 +189,7 @@ private namespace H
   {
     "kind": "class",
     "name": "D",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -206,6 +212,7 @@ private namespace H
   {
     "kind": "interface",
     "name": "F",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -226,6 +233,7 @@ private namespace H
   {
     "kind": "namespace",
     "name": "H",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,

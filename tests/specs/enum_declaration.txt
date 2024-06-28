@@ -20,6 +20,7 @@ enum Enum
   {
     "kind": "enum",
     "name": "Enum",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

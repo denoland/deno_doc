@@ -25,6 +25,10 @@
         {{~/if~}}
       </div>
 
+      {{~#if (and usage @first)~}}
+        {{~> usages_large usage ~}}
+      {{~/if~}}
+
       {{~> deprecated this.deprecated ~}}
 
       <div>

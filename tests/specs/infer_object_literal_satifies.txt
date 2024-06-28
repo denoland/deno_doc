@@ -52,6 +52,7 @@ type Colors = "red" | "green" | "blue"
   {
     "kind": "typeAlias",
     "name": "Colors",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -96,6 +97,7 @@ type Colors = "red" | "green" | "blue"
   {
     "kind": "variable",
     "name": "favoriteColors",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -194,6 +196,7 @@ type Colors = "red" | "green" | "blue"
   {
     "kind": "variable",
     "name": "g",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,

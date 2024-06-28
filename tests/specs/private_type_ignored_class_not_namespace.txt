@@ -29,6 +29,7 @@ private namespace MyNamespace
   {
     "kind": "typeAlias",
     "name": "PrivateProp",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -51,6 +52,7 @@ private namespace MyNamespace
   {
     "kind": "namespace",
     "name": "MyNamespace",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -63,6 +65,7 @@ private namespace MyNamespace
         {
           "kind": "class",
           "name": "MyInternal",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,

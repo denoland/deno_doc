@@ -36,6 +36,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
   {
     "kind": "variable",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

@@ -62,7 +62,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             .iter()
             .any(|node| node.get_qualified_name() == symbol_match.as_str())
           {
-            link = ctx.ctx.href_resolver.resolve_path(
+            link = ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::Symbol {
                 file: short_path,
@@ -78,7 +78,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             }
           }
         } else {
-          link = ctx.ctx.href_resolver.resolve_path(
+          link = ctx.ctx.resolve_path(
             ctx.get_current_resolve(),
             short_path.as_resolve_kind(),
           );
@@ -517,9 +517,9 @@ pub(crate) fn jsdoc_examples(
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ExampleCtx {
-  anchor: AnchorCtx,
-  id: String,
-  markdown_title: String,
+  pub anchor: AnchorCtx,
+  pub id: String,
+  pub markdown_title: String,
   markdown_body: String,
 }
 
@@ -684,6 +684,10 @@ mod test {
         usage_composer: None,
         rewrite_map: None,
         composable_output: false,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
       },
       Default::default(),
       Default::default(),
@@ -693,6 +697,7 @@ mod test {
           vec![
             DocNode::interface(
               "foo".to_string(),
+              false,
               Location::default(),
               DeclarationKind::Export,
               JsDoc::default(),
@@ -709,6 +714,7 @@ mod test {
             ),
             DocNode::interface(
               "bar".to_string(),
+              false,
               Location::default(),
               DeclarationKind::Export,
               JsDoc::default(),
@@ -729,6 +735,7 @@ mod test {
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
           vec![DocNode::interface(
             "baz".to_string(),
+            false,
             Location::default(),
             DeclarationKind::Export,
             JsDoc::default(),
@@ -806,11 +813,11 @@ mod test {
 
       assert_eq!(
         parse_links("foo {@link [b.ts]} bar", &render_ctx),
-        "foo [b.ts](../../.././/b.ts/~/index.html) bar"
+        "foo [b.ts](../../.././/b.ts/index.html) bar"
       );
       assert_eq!(
         parse_links("foo {@linkcode [b.ts]} bar", &render_ctx),
-        "foo [`b.ts`](../../.././/b.ts/~/index.html) bar"
+        "foo [`b.ts`](../../.././/b.ts/index.html) bar"
       );
 
       assert_eq!(
@@ -834,6 +841,10 @@ mod test {
         usage_composer: None,
         rewrite_map: None,
         composable_output: false,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
       },
       Default::default(),
       Default::default(),

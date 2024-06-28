@@ -25,7 +25,6 @@ mod usage;
 mod util;
 
 use crate::html::pages::SymbolPage;
-use crate::html::partition::get_partitions_for_file;
 use crate::js_doc::JsDocTag;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
@@ -52,6 +51,10 @@ pub const STYLESHEET_FILENAME: &str = "styles.css";
 pub const PAGE_STYLESHEET: &str =
   include_str!("./templates/pages/page.gen.css");
 pub const PAGE_STYLESHEET_FILENAME: &str = "page.css";
+
+pub const RESET_STYLESHEET: &str =
+  include_str!("./templates/pages/reset.gen.css");
+pub const RESET_STYLESHEET_FILENAME: &str = "reset.css";
 
 const SEARCH_INDEX_FILENAME: &str = "search_index.js";
 
@@ -90,6 +93,10 @@ pub struct GenerateOptions {
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub composable_output: bool,
+  pub category_docs: Option<IndexMap<String, Option<String>>>,
+  pub disable_search: bool,
+  pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
+  pub default_symbol_map: Option<IndexMap<String, String>>,
 }
 
 #[non_exhaustive]
@@ -106,6 +113,10 @@ pub struct GenerateCtx<'ctx> {
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
+  pub category_docs: Option<IndexMap<String, Option<String>>>,
+  pub disable_search: bool,
+  pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
+  pub default_symbol_map: Option<IndexMap<String, String>>,
 }
 
 impl<'ctx> GenerateCtx<'ctx> {
@@ -133,7 +144,17 @@ impl<'ctx> GenerateCtx<'ctx> {
 
         let nodes = nodes
           .into_iter()
-          .map(|node| {
+          .map(|mut node| {
+            if node.name == "default" {
+              if let Some(default_rename) =
+                options.default_symbol_map.as_ref().and_then(
+                  |default_symbol_map| default_symbol_map.get(&short_path.path),
+                )
+              {
+                node.name = default_rename.clone();
+              }
+            }
+
             let node = if node
               .variable_def
               .as_ref()
@@ -150,8 +171,9 @@ impl<'ctx> GenerateCtx<'ctx> {
                 .fn_or_constructor
                 .unwrap();
 
-              DocNode::function(
+              let mut new_node = DocNode::function(
                 node.name,
+                false,
                 node.location,
                 node.declaration_kind,
                 node.js_doc,
@@ -165,7 +187,9 @@ impl<'ctx> GenerateCtx<'ctx> {
                   type_params: fn_or_constructor.type_params,
                   decorators: vec![],
                 },
-              )
+              );
+              new_node.is_default = node.is_default;
+              new_node
             } else {
               node
             };
@@ -176,6 +200,7 @@ impl<'ctx> GenerateCtx<'ctx> {
               drilldown_parent_kind: None,
               kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
               inner: Arc::new(node),
+              parent: None,
             }
           })
           .collect::<Vec<_>>();
@@ -197,6 +222,10 @@ impl<'ctx> GenerateCtx<'ctx> {
       rewrite_map: options.rewrite_map,
       main_entrypoint,
       file_mode,
+      category_docs: options.category_docs,
+      disable_search: options.disable_search,
+      symbol_redirect_map: options.symbol_redirect_map,
+      default_symbol_map: options.default_symbol_map,
     })
   }
 
@@ -206,6 +235,24 @@ impl<'ctx> GenerateCtx<'ctx> {
     data: &T,
   ) -> String {
     self.hbs.render(template, data).unwrap()
+  }
+
+  pub fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    if let Some(symbol_redirect_map) = &self.symbol_redirect_map {
+      if let UrlResolveKind::Symbol { file, symbol } = target {
+        if let Some(path_map) = symbol_redirect_map.get(&file.path) {
+          if let Some(href) = path_map.get(symbol) {
+            return href.clone();
+          }
+        }
+      }
+    }
+
+    self.href_resolver.resolve_path(current, target)
   }
 }
 
@@ -230,7 +277,12 @@ impl ShortPath {
       rewrite_map.and_then(|rewrite_map| rewrite_map.get(&specifier))
     {
       return ShortPath {
-        path: rewrite.to_owned(),
+        path: rewrite
+          .strip_prefix('.')
+          .unwrap_or(rewrite)
+          .strip_prefix('/')
+          .unwrap_or(rewrite)
+          .to_owned(),
         specifier,
         is_main,
       };
@@ -324,6 +376,7 @@ pub struct DocNodeWithContext {
   pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Arc<DocNode>,
+  pub parent: Option<Box<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
@@ -334,6 +387,7 @@ impl DocNodeWithContext {
       drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
       inner: doc_node,
+      parent: Some(Box::new(self.clone())),
     }
   }
 
@@ -402,6 +456,13 @@ impl DocNodeWithContext {
         .iter()
         .any(|tag| tag == &JsDocTag::Internal)
   }
+
+  fn get_topmost_ancestor(&self) -> &DocNodeWithContext {
+    match &self.parent {
+      Some(parent_node) => parent_node.get_topmost_ancestor(),
+      None => self,
+    }
+  }
 }
 
 impl core::ops::Deref for DocNodeWithContext {
@@ -427,7 +488,7 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_helper("print", Box::new(print));
 
   reg.register_template_string(
-    util::ToCCtx::TEMPLATE,
+    ToCCtx::TEMPLATE,
     include_str!("./templates/toc.hbs"),
   )?;
   reg.register_template_string(
@@ -487,6 +548,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
     include_str!("./templates/usages.hbs"),
   )?;
   reg.register_template_string(
+    "usages_large",
+    include_str!("./templates/usages_large.hbs"),
+  )?;
+  reg.register_template_string(
     util::Tag::TEMPLATE,
     include_str!("./templates/tag.hbs"),
   )?;
@@ -507,6 +572,10 @@ pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
   reg.register_template_string(
     pages::HtmlHeadCtx::TEMPLATE,
     include_str!("./templates/pages/html_head.hbs"),
+  )?;
+  reg.register_template_string(
+    pages::CategoriesPanelCtx::TEMPLATE,
+    include_str!("./templates/pages/category_panel.hbs"),
   )?;
   reg.register_template_string(
     pages::AllSymbolsCtx::TEMPLATE,
@@ -579,18 +648,9 @@ pub fn setup_highlighter(
 pub enum FileMode {
   #[default]
   Normal,
+  Dts,
   Single,
   SingleDts,
-}
-
-impl FileMode {
-  fn is_single(&self) -> bool {
-    match self {
-      FileMode::Normal => false,
-      FileMode::Single => true,
-      FileMode::SingleDts => true,
-    }
-  }
 }
 
 pub fn generate(
@@ -602,15 +662,16 @@ pub fn generate(
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
   }
 
-  let file_mode = if doc_nodes_by_url.len() == 1 {
-    let (specifier, _) = doc_nodes_by_url.first().unwrap();
-    if specifier.as_str().ends_with(".d.ts") {
-      FileMode::SingleDts
-    } else {
-      FileMode::Single
-    }
-  } else {
-    FileMode::Normal
+  let file_mode = match (
+    doc_nodes_by_url
+      .keys()
+      .all(|specifier| specifier.as_str().ends_with(".d.ts")),
+    doc_nodes_by_url.len(),
+  ) {
+    (false, 1) => FileMode::Single,
+    (false, _) => FileMode::Normal,
+    (true, 1) => FileMode::SingleDts,
+    (true, _) => FileMode::Dts,
   };
 
   let composable_output = options.composable_output;
@@ -622,9 +683,25 @@ pub fn generate(
 
   // Index page
   {
-    let partitions_for_entrypoint_nodes =
+    let (partitions_for_entrypoint_nodes, uses_categories) =
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
-        get_partitions_for_file(&ctx, ctx.doc_nodes.get(entrypoint).unwrap())
+        let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
+        let categories = partition::partition_nodes_by_category(
+          nodes,
+          ctx.file_mode == FileMode::SingleDts,
+        );
+
+        if categories.len() == 1 && categories.contains_key("Uncategorized") {
+          (
+            partition::partition_nodes_by_kind(
+              nodes,
+              ctx.file_mode == FileMode::SingleDts,
+            ),
+            false,
+          )
+        } else {
+          (categories, true)
+        }
       } else {
         Default::default()
       };
@@ -633,6 +710,7 @@ pub fn generate(
       &ctx,
       ctx.main_entrypoint.clone(),
       partitions_for_entrypoint_nodes,
+      uses_categories,
     );
 
     if composable_output {
@@ -641,14 +719,14 @@ pub fn generate(
         ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
       );
 
-      if index.module_doc.is_some() || index.all_symbols.is_some() {
+      if index.module_doc.is_some() || index.overview.is_some() {
         let mut out = String::new();
 
         if let Some(module_doc) = index.module_doc {
           out.push_str(&ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc));
         }
 
-        if let Some(all_symbols) = index.all_symbols {
+        if let Some(all_symbols) = index.overview {
           out.push_str(&ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols));
         }
 
@@ -662,15 +740,15 @@ pub fn generate(
     }
   }
 
-  // All symbols (list of all symbols in all files)
-  if ctx.file_mode != FileMode::SingleDts {
-    let all_doc_nodes = ctx
-      .doc_nodes
-      .values()
-      .flatten()
-      .cloned()
-      .collect::<Vec<DocNodeWithContext>>();
+  let all_doc_nodes = ctx
+    .doc_nodes
+    .values()
+    .flatten()
+    .cloned()
+    .collect::<Vec<DocNodeWithContext>>();
 
+  // All symbols (list of all symbols in all files)
+  {
     let partitions_by_kind =
       partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
 
@@ -695,10 +773,35 @@ pub fn generate(
     }
   }
 
+  if ctx.file_mode == FileMode::SingleDts {
+    let categories =
+      partition::partition_nodes_by_category(&all_doc_nodes, true);
+
+    if categories.len() != 1 {
+      for (category, nodes) in &categories {
+        let partitions = partition::partition_nodes_by_kind(nodes, false);
+
+        let index = pages::IndexCtx::new_category(
+          &ctx,
+          category,
+          partitions,
+          &all_doc_nodes,
+        );
+        files.insert(
+          format!("{}.html", util::slugify(category)),
+          ctx.render(pages::IndexCtx::TEMPLATE, &index),
+        );
+      }
+    }
+  }
+
   // Pages for all discovered symbols
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
-      let partitions_for_nodes = get_partitions_for_file(&ctx, doc_nodes);
+      let doc_nodes_by_kind = partition::partition_nodes_by_kind(
+        doc_nodes,
+        ctx.file_mode == FileMode::SingleDts,
+      );
 
       let symbol_pages =
         generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
@@ -709,8 +812,9 @@ pub fn generate(
             breadcrumbs_ctx,
             symbol_group_ctx,
             toc_ctx,
+            categories_panel,
           } => {
-            let root = ctx.href_resolver.resolve_path(
+            let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
                 symbol: &symbol_group_ctx.name,
@@ -723,6 +827,7 @@ pub fn generate(
               &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
               Some(short_path),
+              ctx.disable_search,
             );
 
             if composable_output {
@@ -748,6 +853,8 @@ pub fn generate(
                 symbol_group_ctx,
                 breadcrumbs_ctx,
                 toc_ctx,
+                disable_search: ctx.disable_search,
+                categories_panel,
               };
 
               let symbol_page =
@@ -783,17 +890,17 @@ pub fn generate(
         let index = pages::IndexCtx::new(
           &ctx,
           Some(short_path.clone()),
-          partitions_for_nodes,
+          doc_nodes_by_kind,
+          false,
         );
 
         if composable_output {
-          let dir = format!("{}/~", short_path.path);
           files.insert(
-            format!("{dir}/breadcrumbs.html"),
+            format!("{}/breadcrumbs.html", short_path.path),
             ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
           );
 
-          if index.module_doc.is_some() || index.all_symbols.is_some() {
+          if index.module_doc.is_some() || index.overview.is_some() {
             let mut out = String::new();
 
             if let Some(module_doc) = index.module_doc {
@@ -802,17 +909,17 @@ pub fn generate(
               );
             }
 
-            if let Some(all_symbols) = index.all_symbols {
+            if let Some(all_symbols) = index.overview {
               out.push_str(
                 &ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols),
               );
             }
 
-            files.insert(format!("{dir}/content.html"), out);
+            files.insert(format!("{}/content.html", short_path.path), out);
           }
         } else {
           files.insert(
-            format!("{}/~/index.html", short_path.path),
+            format!("{}/index.html", short_path.path),
             ctx.render(pages::IndexCtx::TEMPLATE, &index),
           );
         }
@@ -829,6 +936,7 @@ pub fn generate(
 
   if !composable_output {
     files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
+    files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
     files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
     files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
   }

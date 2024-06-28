@@ -128,6 +128,7 @@ impl From<ClassPropertyDef> for DocNode {
   fn from(def: ClassPropertyDef) -> DocNode {
     DocNode::variable(
       def.name,
+      false,
       def.location,
       DeclarationKind::Private,
       def.js_doc,
@@ -181,6 +182,7 @@ impl From<ClassMethodDef> for DocNode {
   fn from(def: ClassMethodDef) -> DocNode {
     DocNode::function(
       def.name,
+      false,
       def.location,
       DeclarationKind::Private,
       def.js_doc,

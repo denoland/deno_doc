@@ -79,6 +79,7 @@ namespace SameName
   {
     "kind": "namespace",
     "name": "SameName",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -96,6 +97,7 @@ namespace SameName
   {
     "kind": "function",
     "name": "SameName",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -125,6 +127,7 @@ namespace SameName
   {
     "kind": "function",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -153,6 +156,7 @@ namespace SameName
   {
     "kind": "function",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -179,6 +183,7 @@ namespace SameName
   {
     "kind": "interface",
     "name": "YesDiagnostic1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -199,6 +204,7 @@ namespace SameName
   {
     "kind": "interface",
     "name": "YesDiagnostic2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,

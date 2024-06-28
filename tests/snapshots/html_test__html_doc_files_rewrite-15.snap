@@ -9,18 +9,20 @@ expression: "files.get(\"./~/Hello.world.html\").unwrap()"
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
-  <link rel="stylesheet" href="..&#x2F;styles.css">
-  <link rel="stylesheet" href="..&#x2F;page.css">
+  <link rel="stylesheet" href="..&#x2F;..&#x2F;styles.css">
+  <link rel="stylesheet" href="..&#x2F;..&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;..&#x2F;reset.css">
 
-  <script src="..&#x2F;search_index.js" defer></script>
-  <script src="..&#x2F;script.js" defer></script>
-  <script src="..&#x2F;fuse.js" defer></script>
-  <script src="..&#x2F;search.js" defer></script>
+    <script src="..&#x2F;..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;..&#x2F;script.js" defer></script>
+    <script src="..&#x2F;..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;..&#x2F;search.js" defer></script>
 </head>
-<body class="ddoc">
-<nav class="top-0 sticky bg-white z-50 py-3">
-  <div class="max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
-    <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+<body>
+<div class="ddoc">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14">
+  <div class="h-full max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
+    <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href="..&#x2F;..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -28,7 +30,7 @@ expression: "files.get(\"./~/Hello.world.html\").unwrap()"
 	xmlns="http://www.w3.org/2000/svg">
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
-</span><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;index.html" class="contextLink">.</a></li><span class="text-[#0F172A]"><svg
+</span><li><a href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;index.html" class="contextLink">.</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -36,14 +38,14 @@ expression: "files.get(\"./~/Hello.world.html\").unwrap()"
 	xmlns="http://www.w3.org/2000/svg">
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
-</span><ul><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" class="contextLink">Hello</a></li><span>.</span><li>world</li></ul></ul>
+</span><ul><li><a href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" class="contextLink">Hello</a></li><span>.</span><li>world</li></ul></ul>
 </div>
 
-    <input
-      type="text"
-      id="searchbar"
-      style="display: none;"
-      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
 <div id="content"><main class="symbolGroup" id="symbol_Hello.world"><article>
@@ -75,7 +77,7 @@ expression: "files.get(\"./~/Hello.world.html\").unwrap()"
   </defs>
 </svg>
 </a>
-Type</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry" id="variable_Hello_world"><a href="#variable_Hello_world" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+Type</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry" id="variable_hello_world"><a href="#variable_hello_world" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -106,7 +108,7 @@ Type</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry" id="
 </div>
     </article></main>
 <div class="toc">
-  <div><div class="usageContent">
+    <div><div class="usageContent">
     <h3>Usage</h3><div class="markdown"><pre class="highlight"><code>import { type Hello } from ".";
 </code><button class="context_button" data-copy="import { type Hello } from &quot;.&quot;;
 "><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,8 +118,9 @@ Type</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry" id="
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-        <h3>Document Navigation</h3><ul><li><a href="#type" title="Type">Type</a></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#type" title="Type">Type</a></li><li><ul><li><a href="#variable_hello_world" title=""></a></li></ul></nav></div>
+  </div><div id="searchResults"></div></div>
 </div>
-<div id="searchResults"></div></div>
+</div>
 </body>
 </html>

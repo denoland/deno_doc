@@ -19,6 +19,7 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
   {
     "kind": "typeAlias",
     "name": "T",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

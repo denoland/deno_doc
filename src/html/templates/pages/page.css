@@ -1,16 +1,35 @@
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply max-w-screen-xl mx-auto px-4 md:px-8 lg:px-10 xl:px-14 lg:pt-4;
+.ddoc {
+  @apply lg:grid grid-cols-6 items-start gap-6 px-4 md:px-8 lg:px-10 xl:px-14 max-lg:pt-4;
+
+  &:not(:has(> div.toc)) {
+    @apply lg:pt-4;
+  }
+
+  &:has(> div.toc) > div:not(.toc) {
+    @apply lg:pt-4;
+  }
+
+  & > .toc {
+    @apply max-lg:hidden lg:col-start-1 lg:col-span-1 -mt-0 pt-0 !important;
+
+    h3 {
+      @apply pt-3 !important;
+    }
+  }
+
+  & > div:not(.toc) {
+    @apply col-span-5;
+  }
 }
 
 #content {
-  @apply mt-4 grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12;
+  @apply mt-4 grid gap-6 grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12;
 
   & > main {
-    @apply min-w-0 col-span-full;
+    @apply min-w-0 col-span-full pb-4 md:pb-8 lg:pb-12;
   }
 
   &:has(.toc) > main {
@@ -19,10 +38,10 @@ body {
 }
 
 .toc {
-  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-4 pt-4;
+  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen lg:h-fit flex flex-col box-border gap-y-4 -mt-14 pt-14;
 
   > div {
-    @apply max-h-full lg:overflow-y-scroll;
+    @apply max-h-full lg:overflow-y-auto;
 
     > *:last-child {
       @apply pb-4;

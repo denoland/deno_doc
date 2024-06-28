@@ -142,6 +142,10 @@ async fn html_doc_files() {
       usage_composer: None,
       rewrite_map: None,
       composable_output: false,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
     },
     get_files("single").await,
   )
@@ -163,6 +167,7 @@ async fn html_doc_files() {
       "./~/Foobar.prototype.html",
       "fuse.js",
       "page.css",
+      "reset.css",
       "script.js",
       "search.js",
       "search_index.js",
@@ -213,6 +218,10 @@ async fn html_doc_files_rewrite() {
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
       composable_output: false,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
     },
     get_files("multiple").await,
   )
@@ -244,13 +253,13 @@ async fn html_doc_files_rewrite() {
       "./~/Hello.html",
       "./~/Hello.world.html",
       "./~/c.html",
-      "./~/index.html",
       "./~/qaz.html",
+      "foo/index.html",
       "foo/~/default.html",
-      "foo/~/index.html",
       "foo/~/x.html",
       "fuse.js",
       "page.css",
+      "reset.css",
       "script.js",
       "search.js",
       "search_index.js",
@@ -277,8 +286,7 @@ async fn html_doc_files_rewrite() {
     insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
     insta::assert_snapshot!(files.get("./~/Hello.html").unwrap());
     insta::assert_snapshot!(files.get("./~/Hello.world.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/index.html").unwrap());
-    insta::assert_snapshot!(files.get("foo/~/index.html").unwrap());
+    insta::assert_snapshot!(files.get("foo/index.html").unwrap());
     insta::assert_snapshot!(files.get("foo/~/x.html").unwrap());
     insta::assert_snapshot!(files.get("fuse.js").unwrap());
     insta::assert_snapshot!(files.get("page.css").unwrap());
@@ -318,6 +326,10 @@ async fn symbol_group() {
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
       composable_output: false,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
     },
     None,
     Default::default(),
@@ -338,8 +350,9 @@ async fn symbol_group() {
             breadcrumbs_ctx,
             symbol_group_ctx,
             toc_ctx,
+            categories_panel,
           } => {
-            let root = ctx.href_resolver.resolve_path(
+            let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
                 symbol: &symbol_group_ctx.name,
@@ -352,6 +365,7 @@ async fn symbol_group() {
               &symbol_group_ctx.name,
               ctx.package_name.as_ref(),
               Some(short_path),
+              false,
             );
 
             Some(pages::SymbolPageCtx {
@@ -359,6 +373,8 @@ async fn symbol_group() {
               symbol_group_ctx,
               breadcrumbs_ctx,
               toc_ctx,
+              disable_search: false,
+              categories_panel,
             })
           }
           SymbolPage::Redirect { .. } => None,
@@ -401,6 +417,10 @@ async fn symbol_search() {
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
       composable_output: false,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
     },
     None,
     Default::default(),
@@ -443,6 +463,10 @@ async fn module_doc() {
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
       composable_output: false,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
     },
     None,
     FileMode::Single,

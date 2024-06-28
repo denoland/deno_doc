@@ -1,20 +1,28 @@
 {{~> pages/html_head html_head_ctx ~}}
-{{~> pages/top_nav ~}}
+{{~> pages/category_panel categories_panel ~}}
+<div>
+  {{~> pages/top_nav ~}}
 
-<div id="content">
-  <main>
-	  {{~#if module_doc ~}}
-		  {{~> module_doc module_doc ~}}
-	  {{~/if~}}
+  <div id="content">
+    <main>
+      {{~#if usage~}}
+        {{~> usages_large usage ~}}
+      {{~/if~}}
 
-	  {{~#if all_symbols ~}}
-		  {{~> symbol_content all_symbols ~}}
-	  {{~/if~}}
-  </main>
+      {{~#if module_doc~}}
+        {{~> module_doc module_doc ~}}
+      {{~/if~}}
 
-  {{~> toc toc_ctx ~}}
+      {{~#if overview~}}
+        {{~> symbol_content overview ~}}
+      {{~/if~}}
+    </main>
 
-  {{~> pages/search_results ~}}
+    {{~> toc toc_ctx ~}}
+
+    {{~> pages/search_results ~}}
+  </div>
+</div>
 </div>
 </body>
 </html>

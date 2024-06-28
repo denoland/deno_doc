@@ -20,6 +20,7 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
   {
     "kind": "class",
     "name": "Class",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

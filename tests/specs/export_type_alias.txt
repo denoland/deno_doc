@@ -13,6 +13,7 @@ type NumberArray = Array<number>
   {
     "kind": "typeAlias",
     "name": "NumberArray",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

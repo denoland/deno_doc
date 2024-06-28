@@ -20,6 +20,7 @@ function bar(): void
   {
     "kind": "function",
     "name": "bar",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

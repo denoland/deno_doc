@@ -19,6 +19,8 @@ pub struct RenderContext<'ctx> {
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Rc<Vec<String>>,
+  /// Only some when in `FileMode::SingleDts` and using categories
+  category: Option<&'ctx str>,
   pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
 }
 
@@ -35,6 +37,7 @@ impl<'ctx> RenderContext<'ctx> {
       current_type_params: Default::default(),
       current_resolve,
       namespace_parts: Rc::new(vec![]),
+      category: None,
       toc: Default::default(),
     }
   }
@@ -67,6 +70,14 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_category(&self, category: Option<&'ctx str>) -> Self {
+    Self {
+      category,
+      toc: Default::default(),
+      ..self.clone()
+    }
+  }
+
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
   }
@@ -88,7 +99,7 @@ impl<'ctx> RenderContext<'ctx> {
         current_parts.extend_from_slice(&target_symbol_parts);
 
         if self.scoped_symbols.contains(&current_parts) {
-          return Some(self.ctx.href_resolver.resolve_path(
+          return Some(self.ctx.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
               file: self.get_current_resolve().get_file().unwrap(),
@@ -103,7 +114,7 @@ impl<'ctx> RenderContext<'ctx> {
 
     if self.scoped_symbols.contains(&target_symbol_parts) {
       return Some(
-        self.ctx.href_resolver.resolve_path(
+        self.ctx.resolve_path(
           self.get_current_resolve(),
           UrlResolveKind::Symbol {
             file: &self
@@ -127,7 +138,7 @@ impl<'ctx> RenderContext<'ctx> {
           .keys()
           .find(|short_path| short_path.specifier == module_specifier)
         {
-          return Some(self.ctx.href_resolver.resolve_path(
+          return Some(self.ctx.resolve_path(
             self.get_current_resolve(),
             UrlResolveKind::Symbol {
               file: short_path,
@@ -166,7 +177,6 @@ impl<'ctx> RenderContext<'ctx> {
             name: index_name,
             href: self
               .ctx
-              .href_resolver
               .resolve_path(self.current_resolve, UrlResolveKind::Root),
             is_symbol: false,
             is_first_symbol: false,
@@ -174,6 +184,24 @@ impl<'ctx> RenderContext<'ctx> {
           BreadcrumbCtx {
             name: "all symbols".to_string(),
             href: "".to_string(),
+            is_symbol: false,
+            is_first_symbol: false,
+          },
+        ]
+      }
+      UrlResolveKind::Category(category) => {
+        vec![
+          BreadcrumbCtx {
+            name: index_name,
+            href: self
+              .ctx
+              .resolve_path(self.current_resolve, UrlResolveKind::Root),
+            is_symbol: false,
+            is_first_symbol: false,
+          },
+          BreadcrumbCtx {
+            name: category.to_owned(),
+            href: super::util::slugify(category),
             is_symbol: false,
             is_first_symbol: false,
           },
@@ -193,7 +221,6 @@ impl<'ctx> RenderContext<'ctx> {
               name: index_name,
               href: self
                 .ctx
-                .href_resolver
                 .resolve_path(self.current_resolve, UrlResolveKind::Root),
               is_symbol: false,
               is_first_symbol: false,
@@ -212,7 +239,6 @@ impl<'ctx> RenderContext<'ctx> {
           name: index_name,
           href: self
             .ctx
-            .href_resolver
             .resolve_path(self.current_resolve, UrlResolveKind::Root),
           is_symbol: false,
           is_first_symbol: false,
@@ -223,8 +249,17 @@ impl<'ctx> RenderContext<'ctx> {
             name: file.display_name(),
             href: self
               .ctx
-              .href_resolver
               .resolve_path(self.current_resolve, UrlResolveKind::File(file)),
+            is_symbol: false,
+            is_first_symbol: false,
+          });
+        } else if let Some(category) = self.category {
+          parts.push(BreadcrumbCtx {
+            name: category.to_string(),
+            href: self.ctx.resolve_path(
+              self.current_resolve,
+              UrlResolveKind::Category(category),
+            ),
             is_symbol: false,
             is_first_symbol: false,
           });
@@ -236,7 +271,7 @@ impl<'ctx> RenderContext<'ctx> {
             symbol_parts.push(symbol_part);
             let breadcrumb = BreadcrumbCtx {
               name: symbol_part.to_string(),
-              href: self.ctx.href_resolver.resolve_path(
+              href: self.ctx.resolve_path(
                 self.current_resolve,
                 UrlResolveKind::Symbol {
                   file,
@@ -335,6 +370,7 @@ mod test {
       vec![DocNode {
         kind: DocNodeKind::Import,
         name: "foo".to_string(),
+        is_default: None,
         location: Location {
           filename: "a".to_string(),
           line: 0,
@@ -365,6 +401,10 @@ mod test {
         usage_composer: None,
         rewrite_map: None,
         composable_output: false,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
       },
       None,
       Default::default(),
