@@ -11,6 +11,7 @@ expression: "files.get(\"./index.html\").unwrap()"
   <meta name="doc-current-file" content="">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="reset.css">
 
     <script src="search_index.js" defer></script>
     <script src="script.js" defer></script>
