@@ -37,6 +37,7 @@ interface I
   {
     "kind": "interface",
     "name": "I",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

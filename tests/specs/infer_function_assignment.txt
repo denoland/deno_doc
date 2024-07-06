@@ -19,6 +19,7 @@ function foo(n: number, b: string): void
   {
     "kind": "function",
     "name": "foo",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

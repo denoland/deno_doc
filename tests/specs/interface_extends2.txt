@@ -20,6 +20,7 @@ interface Interface extends Iterator, Iterable
   {
     "kind": "interface",
     "name": "Interface",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

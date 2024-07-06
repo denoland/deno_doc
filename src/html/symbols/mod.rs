@@ -1,4 +1,5 @@
 use crate::html::types::render_type_def;
+use crate::html::usage::UsagesCtx;
 use crate::html::util::AnchorCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
@@ -22,6 +23,7 @@ pub mod variable;
 #[derive(Debug, Serialize, Clone)]
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
+  usage: Option<UsagesCtx>,
   tags: HashSet<Tag>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
@@ -66,6 +68,16 @@ impl SymbolGroupCtx {
           super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
         let mut tags = HashSet::new();
+
+        if doc_nodes.iter().any(|node| {
+          node
+            .js_doc
+            .tags
+            .iter()
+            .any(|tag| matches!(tag, JsDocTag::Experimental))
+        }) {
+          tags.insert(Tag::Unstable);
+        }
 
         let permissions = doc_nodes
           .iter()
@@ -119,6 +131,13 @@ impl SymbolGroupCtx {
           None
         };
 
+        let usage = matches!(
+          ctx.ctx.file_mode,
+          super::FileMode::SingleDts | super::FileMode::Dts
+        )
+        .then(|| UsagesCtx::new(ctx, doc_nodes))
+        .flatten();
+
         SymbolCtx {
           tags,
           kind: doc_nodes[0].kind_with_drilldown.into(),
@@ -129,6 +148,7 @@ impl SymbolGroupCtx {
             .href_resolver
             .resolve_source(&doc_nodes[0].location),
           deprecated,
+          usage,
         }
       })
       .collect::<Vec<_>>();

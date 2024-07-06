@@ -26,6 +26,7 @@ async function* ag()
   {
     "kind": "function",
     "name": "ag",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

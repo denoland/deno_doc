@@ -1,12 +1,16 @@
 {{~> pages/html_head html_head_ctx ~}}
-{{~> pages/top_nav ~}}
+{{~> pages/category_panel categories_panel ~}}
+<div>
+  {{~> pages/top_nav ~}}
 
-<div id="content">
-  {{~> symbol_group symbol_group_ctx ~}}
+  <div id="content">
+    {{~> symbol_group symbol_group_ctx ~}}
 
-  {{~> toc toc_ctx ~}}
+    {{~> toc toc_ctx ~}}
 
-  {{~> pages/search_results ~}}
+    {{~> pages/search_results ~}}
+  </div>
+</div>
 </div>
 </body>
 </html>

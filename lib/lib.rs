@@ -190,7 +190,7 @@ async fn inner_doc(
       let text = String::from_utf8(content.to_vec())
         .context("Failed decoding import map.")?;
       let result = import_map::parse_from_json_with_options(
-        &specifier,
+        specifier,
         &text,
         ImportMapOptions {
           address_hook: None,

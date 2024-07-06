@@ -968,6 +968,7 @@ impl From<MethodDef> for DocNode {
   fn from(def: MethodDef) -> DocNode {
     DocNode::function(
       def.name,
+      false,
       def.location,
       DeclarationKind::Private,
       def.js_doc,
@@ -1022,6 +1023,7 @@ impl From<PropertyDef> for DocNode {
   fn from(def: PropertyDef) -> DocNode {
     DocNode::variable(
       def.name,
+      false,
       def.location,
       DeclarationKind::Private,
       def.js_doc,

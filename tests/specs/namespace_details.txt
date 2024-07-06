@@ -41,6 +41,7 @@ namespace Namespace
   {
     "kind": "namespace",
     "name": "Namespace",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -53,6 +54,7 @@ namespace Namespace
         {
           "kind": "function",
           "name": "a",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,
@@ -79,6 +81,7 @@ namespace Namespace
         {
           "kind": "class",
           "name": "B",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 13,

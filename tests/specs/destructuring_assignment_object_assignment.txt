@@ -21,6 +21,7 @@ private const obj: { a: string; b: string; }
   {
     "kind": "variable",
     "name": "obj",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -83,6 +84,7 @@ private const obj: { a: string; b: string; }
   {
     "kind": "variable",
     "name": "a1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -98,6 +100,7 @@ private const obj: { a: string; b: string; }
   {
     "kind": "variable",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

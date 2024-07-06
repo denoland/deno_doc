@@ -3,13 +3,16 @@ use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
+use crate::html::FileMode;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
+use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
+use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -232,6 +235,7 @@ impl NamespacedGlobalSymbols {
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
+  Category(&'a str),
   File(&'a ShortPath),
   Symbol {
     file: &'a ShortPath,
@@ -244,6 +248,7 @@ impl UrlResolveKind<'_> {
     match self {
       UrlResolveKind::Root => None,
       UrlResolveKind::AllSymbols => None,
+      UrlResolveKind::Category(_) => None,
       UrlResolveKind::File(file) => Some(file),
       UrlResolveKind::Symbol { file, .. } => Some(file),
     }
@@ -255,14 +260,19 @@ pub fn href_path_resolve(
   target: UrlResolveKind,
 ) -> String {
   let backs = match current {
-    UrlResolveKind::Symbol { file, .. } | UrlResolveKind::File(file) => "../"
-      .repeat(if file.path == "." {
-        1
-      } else {
-        file.path.split('/').count() + 1
-      }),
+    UrlResolveKind::File(file) => "../".repeat(if file.is_main {
+      1
+    } else {
+      file.path.split('/').count()
+    }),
+    UrlResolveKind::Symbol { file, .. } => "../".repeat(if file.is_main {
+      1
+    } else {
+      file.path.split('/').count() + 1
+    }),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
+    UrlResolveKind::Category(_) => String::from("./"),
   };
 
   match target {
@@ -272,11 +282,15 @@ pub fn href_path_resolve(
     UrlResolveKind::Symbol {
       file: target_file,
       symbol: target_symbol,
+      ..
     } => {
       format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
     }
     UrlResolveKind::File(target_file) => {
-      format!("{backs}./{}/~/index.html", target_file.path)
+      format!("{backs}./{}/index.html", target_file.path)
+    }
+    UrlResolveKind::Category(category) => {
+      format!("{backs}./{}.html", slugify(category))
     }
   }
 }
@@ -391,6 +405,7 @@ pub enum SectionContentCtx {
   Example(Vec<super::jsdoc::ExampleCtx>),
   IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
   NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
+  Empty,
 }
 
 #[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
@@ -428,7 +443,7 @@ impl SectionHeaderCtx {
     SectionHeaderCtx {
       title: title.clone(),
       anchor: AnchorCtx { id: title },
-      href: Some(render_ctx.ctx.href_resolver.resolve_path(
+      href: Some(render_ctx.ctx.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),
       )),
@@ -448,10 +463,53 @@ impl SectionCtx {
 
   pub fn new(
     render_context: &RenderContext,
-    title: &'static str,
-    content: SectionContentCtx,
+    title: &str,
+    mut content: SectionContentCtx,
   ) -> Self {
-    let anchor = render_context.toc.add_entry(1, title.to_string());
+    let anchor = render_context.toc.add_entry(
+      1,
+      title.to_owned(),
+      render_context.toc.anchorize(title.to_owned()),
+    );
+
+    match &mut content {
+      SectionContentCtx::DocEntry(entries) => {
+        for entry in entries {
+          let anchor = render_context.toc.anchorize(entry.id.to_owned());
+
+          entry.id = anchor.clone();
+          entry.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(2, entry.name.clone(), anchor);
+        }
+      }
+      SectionContentCtx::Example(examples) => {
+        for example in examples {
+          let anchor = render_context.toc.anchorize(example.id.to_owned());
+
+          example.id = anchor.clone();
+          example.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(
+            2,
+            example.markdown_title.clone(),
+            anchor,
+          );
+        }
+      }
+      SectionContentCtx::IndexSignature(_) => {}
+      SectionContentCtx::NamespaceSection(nodes) => {
+        for node in nodes {
+          let anchor = render_context.toc.anchorize(node.id.to_owned());
+
+          node.id = anchor.clone();
+          node.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(2, node.name.clone(), anchor);
+        }
+      }
+      SectionContentCtx::Empty => {}
+    }
 
     Self {
       header: SectionHeaderCtx {
@@ -476,6 +534,7 @@ pub enum Tag {
   Protected,
   Private,
   Optional,
+  Unstable,
   Permissions(Vec<String>),
   Other(String),
 }
@@ -607,7 +666,7 @@ impl TopSymbolsCtx {
           .iter()
           .map(|node| node.kind_with_drilldown.into())
           .collect(),
-        href: ctx.ctx.href_resolver.resolve_path(
+        href: ctx.ctx.resolve_path(
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
             file: &nodes[0].origin,
@@ -623,7 +682,6 @@ impl TopSymbolsCtx {
       total_symbols,
       all_symbols_href: ctx
         .ctx
-        .href_resolver
         .resolve_path(ctx.get_current_resolve(), UrlResolveKind::AllSymbols),
     })
   }
@@ -642,15 +700,26 @@ impl ToCCtx {
   pub fn new(
     ctx: RenderContext,
     include_top_symbols: bool,
-    usage_doc_nodes: &[DocNodeWithContext],
+    usage_doc_nodes: Option<&[DocNodeWithContext]>,
   ) -> Self {
+    if ctx.get_current_resolve() == UrlResolveKind::Root
+      && matches!(ctx.ctx.file_mode, FileMode::SingleDts | FileMode::Dts)
+    {
+      return Self {
+        usages: None,
+        top_symbols: None,
+        document_navigation: None,
+      };
+    }
+
     Self {
       usages: if ctx.get_current_resolve() == UrlResolveKind::Root
         && ctx.ctx.main_entrypoint.is_none()
       {
         None
       } else {
-        UsagesCtx::new(&ctx, usage_doc_nodes)
+        usage_doc_nodes
+          .and_then(|usage_doc_nodes| UsagesCtx::new(&ctx, usage_doc_nodes))
       },
       top_symbols: if include_top_symbols {
         TopSymbolsCtx::new(&ctx)
@@ -660,4 +729,13 @@ impl ToCCtx {
       document_navigation: ctx.toc.render(),
     }
   }
+}
+
+pub fn slugify(name: &str) -> String {
+  static REJECTED_CHARS: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap());
+
+  REJECTED_CHARS
+    .replace_all(&name.to_lowercase(), "")
+    .replace(' ', "-")
 }

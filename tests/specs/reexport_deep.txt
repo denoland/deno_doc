@@ -64,6 +64,7 @@ Defined in file:///mod.ts:1:1
   {
     "kind": "typeAlias",
     "name": "UrlMessageEntity",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

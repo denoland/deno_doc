@@ -32,6 +32,7 @@ interface Generic<T>
   {
     "kind": "interface",
     "name": "Generic",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -56,6 +57,7 @@ interface Generic<T>
   {
     "kind": "function",
     "name": "f",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

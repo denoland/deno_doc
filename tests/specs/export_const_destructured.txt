@@ -55,6 +55,7 @@ const h: number
   {
     "kind": "variable",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -77,6 +78,7 @@ const h: number
   {
     "kind": "variable",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -99,6 +101,7 @@ const h: number
   {
     "kind": "variable",
     "name": "f",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
@@ -118,6 +121,7 @@ const h: number
   {
     "kind": "variable",
     "name": "h",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,

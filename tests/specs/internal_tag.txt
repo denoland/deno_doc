@@ -80,6 +80,7 @@ type Test = OtherPrivateType
   {
     "kind": "class",
     "name": "MyClass",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -170,6 +171,7 @@ type Test = OtherPrivateType
   {
     "kind": "class",
     "name": "Other",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 19,
@@ -248,6 +250,7 @@ type Test = OtherPrivateType
   {
     "kind": "typeAlias",
     "name": "Test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 34,
@@ -270,6 +273,7 @@ type Test = OtherPrivateType
   {
     "kind": "typeAlias",
     "name": "PrivateType",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

@@ -107,6 +107,7 @@ private namespace MyNamespace3
   {
     "kind": "typeAlias",
     "name": "PrivatePropThroughNamespaceRef",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -126,6 +127,7 @@ private namespace MyNamespace3
   {
     "kind": "namespace",
     "name": "MyNamespace",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -138,6 +140,7 @@ private namespace MyNamespace3
         {
           "kind": "class",
           "name": "Export",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
@@ -183,6 +186,7 @@ private namespace MyNamespace3
   {
     "kind": "namespace",
     "name": "MyNamespace2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -195,6 +199,7 @@ private namespace MyNamespace3
         {
           "kind": "class",
           "name": "MyClass",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
@@ -240,6 +245,7 @@ private namespace MyNamespace3
   {
     "kind": "namespace",
     "name": "MyNamespace3",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 11,
@@ -252,6 +258,7 @@ private namespace MyNamespace3
         {
           "kind": "class",
           "name": "MyClass",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,

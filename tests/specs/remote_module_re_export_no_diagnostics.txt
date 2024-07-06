@@ -53,6 +53,7 @@ class PublicType2
   {
     "kind": "function",
     "name": "myFunction",
+    "isDefault": false,
     "location": {
       "filename": "https://localhost/mod.ts",
       "line": 1,
@@ -72,6 +73,7 @@ class PublicType2
   {
     "kind": "class",
     "name": "PublicType",
+    "isDefault": false,
     "location": {
       "filename": "https://localhost/mod.ts",
       "line": 5,
@@ -117,6 +119,7 @@ class PublicType2
   {
     "kind": "function",
     "name": "myFunction2",
+    "isDefault": false,
     "location": {
       "filename": "http://localhost/mod.ts",
       "line": 1,
@@ -136,6 +139,7 @@ class PublicType2
   {
     "kind": "class",
     "name": "PublicType2",
+    "isDefault": false,
     "location": {
       "filename": "http://localhost/mod.ts",
       "line": 5,
