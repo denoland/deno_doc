@@ -8,6 +8,7 @@ use deno_ast::SourcePos;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
 use deno_ast::SourceTextInfo;
+use deno_ast::swc::common::source_map::Pos;
 use regex::Regex;
 
 use crate::js_doc::JsDoc;
@@ -70,7 +71,18 @@ pub(crate) fn js_doc_for_range(
 pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
 ) -> Option<Option<(JsDoc, SourceRange)>> {
-  let comments = parsed_source.get_leading_comments();
+  let shebang_length = parsed_source.module().shebang.as_ref().map_or(0, |shebang| shebang.len());
+  let pos_leading_comment = parsed_source
+      .comments()
+      .leading_map()
+      .keys()
+      .min()?;
+
+  let comments = if shebang_length > 0 {
+    parsed_source.comments().get_leading(SourcePos::unsafely_from_byte_pos(*pos_leading_comment))
+  } else {
+    parsed_source.get_leading_comments()
+  };
   if let Some(js_doc_comment) = comments.and_then(|comments| {
     comments.iter().find(|comment| {
       comment.kind == CommentKind::Block && comment.text.starts_with('*')
