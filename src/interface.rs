@@ -183,8 +183,6 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let name = expr_to_name(&ts_prop_sig.key);
 
-          let params = vec![];
-
           let ts_type = ts_prop_sig
             .type_ann
             .as_deref()
@@ -199,7 +197,7 @@ pub fn get_doc_for_ts_interface_decl(
             name,
             js_doc: prop_js_doc,
             location: get_location(parsed_source, ts_prop_sig.start()),
-            params,
+            params: vec![],
             ts_type,
             readonly: ts_prop_sig.readonly,
             computed: ts_prop_sig.computed,
