@@ -440,10 +440,8 @@ impl TsTypeDef {
               .as_ref()
               .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-            let type_params = maybe_type_param_decl_to_type_param_defs(
-              parsed_source,
-              None,
-            );
+            let type_params =
+              maybe_type_param_decl_to_type_param_defs(parsed_source, None);
             let prop_def = PropertyDef {
               name,
               js_doc,

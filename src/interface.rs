@@ -188,10 +188,8 @@ pub fn get_doc_for_ts_interface_decl(
             .as_deref()
             .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
 
-          let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
-            None,
-          );
+          let type_params =
+            maybe_type_param_decl_to_type_param_defs(parsed_source, None);
 
           let prop_def = PropertyDef {
             name,
