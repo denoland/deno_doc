@@ -145,7 +145,7 @@ pub fn get_doc_for_ts_interface_decl(
             js_doc: method_js_doc,
             location: get_location(parsed_source, ts_getter_sig.start()),
             computed: ts_getter_sig.computed,
-            optional: ts_getter_sig.optional,
+            optional: false,
             params: vec![],
             return_type: maybe_return_type,
             type_params: vec![],
@@ -169,7 +169,7 @@ pub fn get_doc_for_ts_interface_decl(
             js_doc: method_js_doc,
             location: get_location(parsed_source, ts_setter_sig.start()),
             computed: ts_setter_sig.computed,
-            optional: ts_setter_sig.optional,
+            optional: false,
             params,
             return_type: None,
             type_params: vec![],
@@ -183,12 +183,7 @@ pub fn get_doc_for_ts_interface_decl(
         {
           let name = expr_to_name(&ts_prop_sig.key);
 
-          let mut params = vec![];
-
-          for param in &ts_prop_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
-            params.push(param_def);
-          }
+          let params = vec![];
 
           let ts_type = ts_prop_sig
             .type_ann
@@ -197,7 +192,7 @@ pub fn get_doc_for_ts_interface_decl(
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             parsed_source,
-            ts_prop_sig.type_params.as_deref(),
+            None,
           );
 
           let prop_def = PropertyDef {
