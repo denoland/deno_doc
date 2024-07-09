@@ -150,6 +150,24 @@ expression: search_index
     },
     {
       "kind": [
+        "function"
+      ],
+      "name": "d",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 59,
+        "col": 0,
+        "byteIndex": 961
+      },
+      "url": "././~/d.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
         "function",
         "function",
         "function"

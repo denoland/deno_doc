@@ -253,6 +253,7 @@ async fn html_doc_files_rewrite() {
       "./~/Hello.html",
       "./~/Hello.world.html",
       "./~/c.html",
+      "./~/d.html",
       "./~/qaz.html",
       "foo/index.html",
       "foo/~/default.html",

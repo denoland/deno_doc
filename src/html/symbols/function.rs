@@ -219,7 +219,9 @@ fn render_single_function(
         .unwrap_or_default();
 
       if let Some(default) = &default {
-        ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
+        if default != "[UNSUPPORTED]" {
+          ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
+        }
       }
 
       let tags = if matches!(
