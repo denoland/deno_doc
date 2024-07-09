@@ -397,7 +397,7 @@ impl TsTypeDef {
               location: get_location(parsed_source, ts_getter_sig.start()),
               params: vec![],
               computed: ts_getter_sig.computed,
-              optional: ts_getter_sig.optional,
+              optional: false,
               return_type: maybe_return_type,
               type_params: vec![],
             };
@@ -422,7 +422,7 @@ impl TsTypeDef {
               location: get_location(parsed_source, ts_setter_sig.start()),
               params,
               computed: ts_setter_sig.computed,
-              optional: ts_setter_sig.optional,
+              optional: false,
               return_type: None,
               type_params: vec![],
             };
@@ -435,26 +435,18 @@ impl TsTypeDef {
           {
             let name = expr_to_name(&ts_prop_sig.key);
 
-            let params = ts_prop_sig
-              .params
-              .iter()
-              .map(|param| ts_fn_param_to_param_def(parsed_source, param))
-              .collect();
-
             let ts_type = ts_prop_sig
               .type_ann
               .as_ref()
               .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
 
-            let type_params = maybe_type_param_decl_to_type_param_defs(
-              parsed_source,
-              ts_prop_sig.type_params.as_deref(),
-            );
+            let type_params =
+              maybe_type_param_decl_to_type_param_defs(parsed_source, None);
             let prop_def = PropertyDef {
               name,
               js_doc,
               location: get_location(parsed_source, ts_prop_sig.start()),
-              params,
+              params: vec![],
               ts_type,
               readonly: ts_prop_sig.readonly,
               computed: ts_prop_sig.computed,
