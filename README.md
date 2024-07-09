@@ -36,6 +36,21 @@ $ deno task build
 $ deno task test
 ```
 
+We use [insta](https://github.com/mitsuhiko/insta) testing tool for taking
+snapshots of the html output. If you change the rednering of html output, or
+change the fixture files for html testing, you need to update snapshot using
+[cargo-insta](https://insta.rs/docs/quickstart/) command.
+
+```
+# update snapshots
+cargo insta test
+
+# review snapshots
+cargo insta review
+```
+
+See [the insta docs](https://insta.rs/docs/quickstart/) for more details.
+
 ## Contributing
 
 - If you are going to work on an issue, mention so in the issue comments
