@@ -48,6 +48,7 @@ namespace Tabs
   {
     "kind": "namespace",
     "name": "Tabs",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -63,6 +64,7 @@ namespace Tabs
         {
           "kind": "interface",
           "name": "Tabs",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 16,

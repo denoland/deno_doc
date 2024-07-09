@@ -9,7 +9,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 | export function bar() {};
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -21,6 +20,7 @@ function bar(): void
   {
     "kind": "function",
     "name": "bar",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

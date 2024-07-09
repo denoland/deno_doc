@@ -27,7 +27,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 7 |       enum Foo {
   |       ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -44,6 +43,7 @@ namespace RootNs
   {
     "kind": "namespace",
     "name": "RootNs",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -59,6 +59,7 @@ namespace RootNs
         {
           "kind": "variable",
           "name": "a",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
@@ -81,6 +82,7 @@ namespace RootNs
         {
           "kind": "namespace",
           "name": "NestedNs",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
@@ -96,6 +98,7 @@ namespace RootNs
               {
                 "kind": "enum",
                 "name": "Foo",
+                "isDefault": false,
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 7,

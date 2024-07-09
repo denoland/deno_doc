@@ -36,6 +36,10 @@ fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
   cursor: unset;
   padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */
 }}
+
+.ddoc:has(#{overload_id}:not(:checked)) #{overload_id}_toc {{
+  display: none;
+}}
 "#
   )
 }
@@ -151,6 +155,8 @@ fn render_single_function(
   doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
+  ctx.toc.create_group(format!("{overload_id}_toc"));
+
   let function_def = doc_node.function_def.as_ref().unwrap();
 
   let current_type_params = function_def

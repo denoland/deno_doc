@@ -28,7 +28,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 4 |   constructor (a: string | number) {
   |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -43,6 +42,7 @@ class A
   {
     "kind": "class",
     "name": "A",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

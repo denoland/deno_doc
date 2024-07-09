@@ -1,3 +1,7 @@
+---
+source: tests/html_test.rs
+expression: files
+---
 [
   {
     "html_head_ctx": {
@@ -5,10 +9,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "A",
@@ -21,6 +27,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "usage": null,
           "tags": [
             {
               "kind": "private"
@@ -78,7 +85,9 @@
       },
       "top_symbols": null,
       "document_navigation": null
-    }
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   null,
   {
@@ -87,10 +96,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "B",
@@ -103,6 +114,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "usage": null,
           "tags": [
             {
               "kind": "private"
@@ -160,7 +172,9 @@
       },
       "top_symbols": null,
       "document_navigation": null
-    }
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   null,
   {
@@ -169,10 +183,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Bar",
@@ -185,6 +201,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "usage": null,
           "tags": [],
           "subtitle": {
             "kind": "class",
@@ -242,7 +259,9 @@
       },
       "top_symbols": null,
       "document_navigation": null
-    }
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   null,
   {
@@ -251,10 +270,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Baz",
@@ -267,6 +288,7 @@
             "title_lowercase": "type alias",
             "title_plural": "Type Aliases"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -341,8 +363,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -350,10 +374,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Foo",
@@ -366,6 +392,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "usage": null,
           "tags": [],
           "subtitle": {
             "kind": "class",
@@ -394,12 +421,12 @@
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "property_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;",
+                          "id": "property_quotgtltimg-srcx-onerroralert1gt",
                           "name": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
                           "name_href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
                           "content": "<span>: <span>number</span></span>",
                           "anchor": {
-                            "id": "property_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"
+                            "id": "property_quotgtltimg-srcx-onerroralert1gt"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -485,8 +512,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_quotgtltimg-srcx-onerroralert1gt\" title=\"\"&gt;&lt;img src=x onerror=alert(1)&gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   null,
   {
@@ -495,10 +524,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Foobar",
@@ -511,6 +542,7 @@
             "title_lowercase": "class",
             "title_plural": "Classes"
           },
+          "usage": null,
           "tags": [],
           "subtitle": {
             "kind": "class",
@@ -555,7 +587,7 @@
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import Foobar from \".\";\n</code><button class=\"context_button\" data-copy=\"import Foobar from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import default from \".\";\n</code><button class=\"context_button\" data-copy=\"import default from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -564,7 +596,9 @@
       },
       "top_symbols": null,
       "document_navigation": null
-    }
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   null,
   {
@@ -573,10 +607,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Hello",
@@ -589,6 +625,7 @@
             "title_lowercase": "interface",
             "title_plural": "Interfaces"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -663,8 +700,321 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
+  },
+  {
+    "html_head_ctx": {
+      "title": "c - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
+      "url_search_index": "../search_index.js",
+      "script_js": "../script.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js",
+      "disable_search": false
+    },
+    "symbol_group_ctx": {
+      "name": "c",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Function",
+            "char": "f",
+            "title": "Function",
+            "title_lowercase": "function",
+            "title_plural": "Functions"
+          },
+          "usage": null,
+          "tags": [],
+          "subtitle": null,
+          "content": [
+            {
+              "kind": "function",
+              "value": {
+                "overloads_ctx": [
+                  {
+                    "function_id": "function_c",
+                    "overload_id": "function_c_0",
+                    "additional_css": "\n#function_c_0 {\n  display: none;\n}\n#function_c_0:checked ~ *:last-child > :not(#function_c_0_div) {\n  display: none;\n}\n#function_c_0:checked ~ div:first-of-type > label[for='function_c_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_c_0:not(:checked)) #function_c_0_toc {\n  display: none;\n}\n",
+                    "html_attrs": "checked",
+                    "name": "c",
+                    "deprecated": null,
+                    "summary": "()<span>: <span>string</span></span>",
+                    "summary_doc": null
+                  }
+                ],
+                "functions": [
+                  {
+                    "id": "function_c_0_div",
+                    "docs": null,
+                    "sections": [
+                      {
+                        "header": {
+                          "title": "Return Type",
+                          "anchor": {
+                            "id": "return-type"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": [
+                            {
+                              "id": "function_c_0_return",
+                              "name": "",
+                              "name_href": null,
+                              "content": "<span>string</span>",
+                              "anchor": {
+                                "id": "function_c_0_return"
+                              },
+                              "tags": [],
+                              "js_doc": null,
+                              "source_href": null
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "c",
+          "href": "../././~/c.html",
+          "is_symbol": true,
+          "is_first_symbol": true
+        }
+      ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { c } from \".\";\n</code><button class=\"context_button\" data-copy=\"import { c } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul id=\"function_c_0_toc\"><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><ul><li><a href=\"#function_c_0_return\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
+  },
+  {
+    "html_head_ctx": {
+      "title": "qaz - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
+      "url_search_index": "../search_index.js",
+      "script_js": "../script.js",
+      "fuse_js": "../fuse.js",
+      "url_search": "../search.js",
+      "disable_search": false
+    },
+    "symbol_group_ctx": {
+      "name": "qaz",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Function",
+            "char": "f",
+            "title": "Function",
+            "title_lowercase": "function",
+            "title_plural": "Functions"
+          },
+          "usage": null,
+          "tags": [],
+          "subtitle": null,
+          "content": [
+            {
+              "kind": "function",
+              "value": {
+                "overloads_ctx": [
+                  {
+                    "function_id": "function_qaz",
+                    "overload_id": "function_qaz_0",
+                    "additional_css": "\n#function_qaz_0 {\n  display: none;\n}\n#function_qaz_0:checked ~ *:last-child > :not(#function_qaz_0_div) {\n  display: none;\n}\n#function_qaz_0:checked ~ div:first-of-type > label[for='function_qaz_0'] {\n  background-color: #D256460C;\n  border: solid var(--ddoc-selection-border-width) #DC2626;\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_qaz_0:not(:checked)) #function_qaz_0_toc {\n  display: none;\n}\n",
+                    "html_attrs": "checked",
+                    "name": "qaz",
+                    "deprecated": "",
+                    "summary": "(<span><span>a<span>: <span>string</span></span></span></span>)",
+                    "summary_doc": null
+                  },
+                  {
+                    "function_id": "function_qaz",
+                    "overload_id": "function_qaz_1",
+                    "additional_css": "\n#function_qaz_1 {\n  display: none;\n}\n#function_qaz_1:checked ~ *:last-child > :not(#function_qaz_1_div) {\n  display: none;\n}\n#function_qaz_1:checked ~ div:first-of-type > label[for='function_qaz_1'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_qaz_1:not(:checked)) #function_qaz_1_toc {\n  display: none;\n}\n",
+                    "html_attrs": "",
+                    "name": "qaz",
+                    "deprecated": null,
+                    "summary": "(<span><span>a<span>: <span>number</span></span></span></span>)",
+                    "summary_doc": null
+                  }
+                ],
+                "functions": [
+                  {
+                    "id": "function_qaz_0_div",
+                    "docs": null,
+                    "sections": [
+                      {
+                        "header": {
+                          "title": "Parameters",
+                          "anchor": {
+                            "id": "parameters"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": [
+                            {
+                              "id": "function_qaz_0_parameters_a",
+                              "name": "a",
+                              "name_href": null,
+                              "content": "<span>: <span>string</span></span>",
+                              "anchor": {
+                                "id": "function_qaz_0_parameters_a"
+                              },
+                              "tags": [],
+                              "js_doc": null,
+                              "source_href": null
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "header": {
+                          "title": "Return Type",
+                          "anchor": {
+                            "id": "return-type"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": []
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "function_qaz_1_div",
+                    "docs": null,
+                    "sections": [
+                      {
+                        "header": {
+                          "title": "Parameters",
+                          "anchor": {
+                            "id": "parameters-1"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": [
+                            {
+                              "id": "function_qaz_1_parameters_a",
+                              "name": "a",
+                              "name_href": null,
+                              "content": "<span>: <span>number</span></span>",
+                              "anchor": {
+                                "id": "function_qaz_1_parameters_a"
+                              },
+                              "tags": [],
+                              "js_doc": null,
+                              "source_href": null
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "header": {
+                          "title": "Return Type",
+                          "anchor": {
+                            "id": "return-type-1"
+                          },
+                          "href": null,
+                          "doc": null
+                        },
+                        "content": {
+                          "kind": "doc_entry",
+                          "content": []
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "parts": [
+        {
+          "name": "index",
+          "href": "../",
+          "is_symbol": false,
+          "is_first_symbol": false
+        },
+        {
+          "name": "qaz",
+          "href": "../././~/qaz.html",
+          "is_symbol": true,
+          "is_first_symbol": true
+        }
+      ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import { qaz } from \".\";\n</code><button class=\"context_button\" data-copy=\"import { qaz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation": "<ul id=\"function_qaz_0_toc\"><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul><ul id=\"function_qaz_1_toc\"><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -672,10 +1022,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Baz.foo",
@@ -688,6 +1040,7 @@
             "title_lowercase": "property",
             "title_plural": "Properties"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -710,12 +1063,12 @@
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_Baz_foo",
+                          "id": "variable_baz_foo",
                           "name": "",
                           "name_href": null,
                           "content": "<span>string</span>",
                           "anchor": {
-                            "id": "variable_Baz_foo"
+                            "id": "variable_baz_foo"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -768,8 +1121,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_baz_foo\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -777,10 +1132,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Foo.bar",
@@ -793,6 +1150,7 @@
             "title_lowercase": "property",
             "title_plural": "Properties"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -815,12 +1173,12 @@
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_Foo_bar",
+                          "id": "variable_foo_bar",
                           "name": "",
                           "name_href": null,
                           "content": "<span>\"string\"</span>",
                           "anchor": {
-                            "id": "variable_Foo_bar"
+                            "id": "variable_foo_bar"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -873,8 +1231,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_foo_bar\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -882,10 +1242,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Foo.prototype.\"><img src=x onerror=alert(1)>",
@@ -898,6 +1260,7 @@
             "title_lowercase": "property",
             "title_plural": "Properties"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -920,12 +1283,12 @@
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_Foo_prototype_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;",
+                          "id": "variable_foo_prototype_quotgtltimg-srcx-onerroralert1gt",
                           "name": "",
                           "name_href": null,
                           "content": "<span>number</span>",
                           "anchor": {
-                            "id": "variable_Foo_prototype_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"
+                            "id": "variable_foo_prototype_quotgtltimg-srcx-onerroralert1gt"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -984,8 +1347,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_foo_prototype_quotgtltimg-srcx-onerroralert1gt\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -993,10 +1358,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Foo.prototype.foo",
@@ -1009,6 +1376,7 @@
             "title_lowercase": "property",
             "title_plural": "Properties"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -1031,12 +1399,12 @@
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_Foo_prototype_foo",
+                          "id": "variable_foo_prototype_foo",
                           "name": "",
                           "name_href": null,
                           "content": "<a href=\"../././~/A.html\" class=\"link\">A</a>",
                           "anchor": {
-                            "id": "variable_Foo_prototype_foo"
+                            "id": "variable_foo_prototype_foo"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1095,8 +1463,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_foo_prototype_foo\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -1104,10 +1474,12 @@
       "current_file": ".",
       "stylesheet_url": "../styles.css",
       "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js"
+      "url_search": "../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "Hello.world",
@@ -1120,6 +1492,7 @@
             "title_lowercase": "property",
             "title_plural": "Properties"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -1142,12 +1515,12 @@
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_Hello_world",
+                          "id": "variable_hello_world",
                           "name": "",
                           "name_href": null,
                           "content": "<span>\"string\"</span>",
                           "anchor": {
-                            "id": "variable_Hello_world"
+                            "id": "variable_hello_world"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1200,8 +1573,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_hello_world\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -1209,10 +1584,12 @@
       "current_file": "foo",
       "stylesheet_url": "../../styles.css",
       "page_stylesheet_url": "../../page.css",
+      "reset_stylesheet_url": "../../reset.css",
       "url_search_index": "../../search_index.js",
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
-      "url_search": "../../search.js"
+      "url_search": "../../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "default",
@@ -1225,6 +1602,7 @@
             "title_lowercase": "variable",
             "title_plural": "Variables"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -1280,7 +1658,7 @@
         },
         {
           "name": "foo",
-          "href": "../.././foo/~/index.html",
+          "href": "../.././foo/index.html",
           "is_symbol": false,
           "is_first_symbol": false
         },
@@ -1297,7 +1675,7 @@
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import module from \"foo\";\n</code><button class=\"context_button\" data-copy=\"import module from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import default from \"foo\";\n</code><button class=\"context_button\" data-copy=\"import default from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1305,8 +1683,10 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
-    }
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_default\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   },
   {
     "html_head_ctx": {
@@ -1314,10 +1694,12 @@
       "current_file": "foo",
       "stylesheet_url": "../../styles.css",
       "page_stylesheet_url": "../../page.css",
+      "reset_stylesheet_url": "../../reset.css",
       "url_search_index": "../../search_index.js",
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
-      "url_search": "../../search.js"
+      "url_search": "../../search.js",
+      "disable_search": false
     },
     "symbol_group_ctx": {
       "name": "x",
@@ -1330,6 +1712,7 @@
             "title_lowercase": "function",
             "title_plural": "Functions"
           },
+          "usage": null,
           "tags": [],
           "subtitle": null,
           "content": [
@@ -1340,7 +1723,7 @@
                   {
                     "function_id": "function_x",
                     "overload_id": "function_x_0",
-                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n",
+                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_x_0:not(:checked)) #function_x_0_toc {\n  display: none;\n}\n",
                     "html_attrs": "checked",
                     "name": "x",
                     "deprecated": null,
@@ -1432,7 +1815,7 @@
         },
         {
           "name": "foo",
-          "href": "../.././foo/~/index.html",
+          "href": "../.././foo/index.html",
           "is_symbol": false,
           "is_first_symbol": false
         },
@@ -1457,7 +1840,9 @@
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
-    }
+      "document_navigation": "<ul id=\"function_x_0_toc\"><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><ul><li><a href=\"#function_x_0_return\" title=\"\"></a></li></ul>"
+    },
+    "disable_search": false,
+    "categories_panel": null
   }
 ]

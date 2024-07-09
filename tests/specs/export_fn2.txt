@@ -17,6 +17,7 @@ error[private-type-ref]: public type 'foo' references private type 'AssignOpts'
   | 
 1 | interface AssignOpts {
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -26,7 +27,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 5 | export function foo([e,,f, ...g]: number[], { c, d: asdf, i = "asdf", ...rest}, ops: AssignOpts = {}): void {
   | ^
-
 
 # output.txt
 Defined in file:///mod.ts:5:1
@@ -45,6 +45,7 @@ private interface AssignOpts
   {
     "kind": "function",
     "name": "foo",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -161,6 +162,7 @@ private interface AssignOpts
   {
     "kind": "interface",
     "name": "AssignOpts",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

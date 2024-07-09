@@ -119,6 +119,8 @@ pub enum DeclarationKind {
 pub struct DocNode {
   pub kind: DocNodeKind,
   pub name: String,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub is_default: Option<bool>,
   pub location: Location,
   pub declaration_kind: DeclarationKind,
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
@@ -153,6 +155,7 @@ impl Default for DocNode {
   fn default() -> Self {
     Self {
       kind: DocNodeKind::ModuleDoc,
+      is_default: None,
       name: "".to_string(),
       declaration_kind: DeclarationKind::Private,
       location: Location::default(),
@@ -183,6 +186,7 @@ impl DocNode {
 
   pub fn function(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -191,6 +195,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Function,
       name,
+      is_default: Some(is_default),
       location,
       declaration_kind,
       js_doc,
@@ -201,6 +206,7 @@ impl DocNode {
 
   pub fn variable(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -209,6 +215,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Variable,
       name,
+      is_default: Some(is_default),
       declaration_kind,
       location,
       js_doc,
@@ -219,6 +226,7 @@ impl DocNode {
 
   pub fn r#enum(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -227,6 +235,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Enum,
       name,
+      is_default: Some(is_default),
       declaration_kind,
       location,
       js_doc,
@@ -237,6 +246,7 @@ impl DocNode {
 
   pub fn class(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -245,6 +255,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Class,
       name,
+      is_default: Some(is_default),
       declaration_kind,
       location,
       js_doc,
@@ -255,6 +266,7 @@ impl DocNode {
 
   pub fn type_alias(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -263,6 +275,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::TypeAlias,
       name,
+      is_default: Some(is_default),
       declaration_kind,
       location,
       js_doc,
@@ -273,6 +286,7 @@ impl DocNode {
 
   pub fn namespace(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -281,6 +295,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Namespace,
       name,
+      is_default: Some(is_default),
       declaration_kind,
       location,
       js_doc,
@@ -291,6 +306,7 @@ impl DocNode {
 
   pub fn interface(
     name: String,
+    is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
     js_doc: JsDoc,
@@ -299,6 +315,7 @@ impl DocNode {
     Self {
       kind: DocNodeKind::Interface,
       name,
+      is_default: Some(is_default),
       declaration_kind,
       location,
       js_doc,

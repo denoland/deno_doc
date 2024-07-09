@@ -22,6 +22,7 @@ error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references
    | 
 10 | interface YesDiagnostic {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -38,7 +39,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 6 |   private myMethod(): NoDiagnostic {
   |   ^
-
 
 # output.txt
 Defined in file:///mod.ts:2:1
@@ -59,6 +59,7 @@ private interface YesDiagnostic
   {
     "kind": "class",
     "name": "MyClass",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -143,6 +144,7 @@ private interface YesDiagnostic
   {
     "kind": "interface",
     "name": "YesDiagnostic",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,

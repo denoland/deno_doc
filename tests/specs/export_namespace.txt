@@ -45,7 +45,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 16 |   export class Other {}
    |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -63,6 +62,7 @@ namespace RootNs
   {
     "kind": "namespace",
     "name": "RootNs",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -78,6 +78,7 @@ namespace RootNs
         {
           "kind": "variable",
           "name": "a",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
@@ -100,6 +101,7 @@ namespace RootNs
         {
           "kind": "namespace",
           "name": "NestedNs",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
@@ -115,6 +117,7 @@ namespace RootNs
               {
                 "kind": "enum",
                 "name": "Foo",
+                "isDefault": false,
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 7,
@@ -184,6 +187,7 @@ namespace RootNs
         {
           "kind": "namespace",
           "name": "OtherNs",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 15,
@@ -196,6 +200,7 @@ namespace RootNs
               {
                 "kind": "class",
                 "name": "Other",
+                "isDefault": false,
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 16,

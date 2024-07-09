@@ -17,7 +17,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 |     something(): T
   |     ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -31,6 +30,7 @@ interface TypedIface<T>
   {
     "kind": "interface",
     "name": "TypedIface",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

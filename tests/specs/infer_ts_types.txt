@@ -244,7 +244,6 @@ error[missing-return-type]: exported function is missing an explicit return type
 54 |   declare function cannotInfer();
    |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:17:1
 
@@ -316,6 +315,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "s",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -335,6 +335,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "n",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -354,6 +355,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -373,6 +375,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "bi",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -392,6 +395,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "re",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -414,6 +418,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "tpl",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -445,6 +450,7 @@ namespace MyNamespace
   {
     "kind": "variable",
     "name": "complexTpl",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -550,6 +556,7 @@ namespace MyNamespace
   {
     "kind": "function",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -573,6 +580,7 @@ namespace MyNamespace
   {
     "kind": "function",
     "name": "testAsync",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -605,6 +613,7 @@ namespace MyNamespace
   {
     "kind": "function",
     "name": "cannotInfer",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 17,
@@ -624,6 +633,7 @@ namespace MyNamespace
   {
     "kind": "function",
     "name": "cannotInferAsync",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 23,
@@ -643,6 +653,7 @@ namespace MyNamespace
   {
     "kind": "function",
     "name": "cannotInferGenerator",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 29,
@@ -662,6 +673,7 @@ namespace MyNamespace
   {
     "kind": "class",
     "name": "MyClass",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 32,
@@ -812,6 +824,7 @@ namespace MyNamespace
   {
     "kind": "namespace",
     "name": "MyNamespace",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 52,
@@ -824,6 +837,7 @@ namespace MyNamespace
         {
           "kind": "function",
           "name": "cannotInfer",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 54,

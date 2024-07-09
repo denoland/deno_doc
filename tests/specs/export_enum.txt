@@ -27,6 +27,7 @@ enum Hello
   {
     "kind": "enum",
     "name": "Hello",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

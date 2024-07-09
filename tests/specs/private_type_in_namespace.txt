@@ -17,6 +17,7 @@ error[private-type-ref]: public type 'Output["other"]' references private type '
   | 
 1 | namespace Test {
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -30,6 +31,7 @@ error[private-type-ref]: public type 'Output["other"]' references private type '
   | 
 2 |   export class Other {}
   |   - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -46,7 +48,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 6 |   other: Test.Other;
   |   ^
-
 
 # output.txt
 Defined in file:///mod.ts:5:1
@@ -67,6 +68,7 @@ private namespace Test
   {
     "kind": "interface",
     "name": "Output",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -109,6 +111,7 @@ private namespace Test
   {
     "kind": "namespace",
     "name": "Test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -121,6 +124,7 @@ private namespace Test
         {
           "kind": "class",
           "name": "Other",
+          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,

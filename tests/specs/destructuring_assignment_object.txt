@@ -39,6 +39,7 @@ private const rest
   {
     "kind": "variable",
     "name": "obj",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -101,6 +102,7 @@ private const rest
   {
     "kind": "variable",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -116,6 +118,7 @@ private const rest
   {
     "kind": "variable",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -131,6 +134,7 @@ private const rest
   {
     "kind": "variable",
     "name": "rest",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -146,6 +150,7 @@ private const rest
   {
     "kind": "variable",
     "name": "a1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -161,6 +166,7 @@ private const rest
   {
     "kind": "variable",
     "name": "b1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -176,6 +182,7 @@ private const rest
   {
     "kind": "variable",
     "name": "a2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

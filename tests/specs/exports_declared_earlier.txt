@@ -25,7 +25,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 3 | function foo(): void { }
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:3:1
 
@@ -45,6 +44,7 @@ const hello: "world"
   {
     "kind": "variable",
     "name": "hello",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -67,6 +67,7 @@ const hello: "world"
   {
     "kind": "function",
     "name": "say",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -101,6 +102,7 @@ const hello: "world"
   {
     "kind": "function",
     "name": "bar",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,

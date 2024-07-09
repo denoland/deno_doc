@@ -33,7 +33,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 12 | export const g: boolean = favoriteColors.green;
    |              ^
 
-
 # output.txt
 Defined in file:///mod.ts:4:14
 
@@ -53,6 +52,7 @@ type Colors = "red" | "green" | "blue"
   {
     "kind": "typeAlias",
     "name": "Colors",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -97,6 +97,7 @@ type Colors = "red" | "green" | "blue"
   {
     "kind": "variable",
     "name": "favoriteColors",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -195,6 +196,7 @@ type Colors = "red" | "green" | "blue"
   {
     "kind": "variable",
     "name": "g",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,

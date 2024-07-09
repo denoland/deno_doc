@@ -8,7 +8,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 1 | export namespace Namespace {}
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -21,6 +20,7 @@ namespace Namespace
   {
     "kind": "namespace",
     "name": "Namespace",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

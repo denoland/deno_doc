@@ -16,7 +16,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 | export function f(): Generic<[string, number]> { return {}; }
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -33,6 +32,7 @@ interface Generic<T>
   {
     "kind": "interface",
     "name": "Generic",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -57,6 +57,7 @@ interface Generic<T>
   {
     "kind": "function",
     "name": "f",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

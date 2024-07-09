@@ -25,6 +25,7 @@ error[private-type-ref]: public type 'UrlMessageEntity' references private type 
   | 
 1 | export declare namespace MessageEntity {
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -38,6 +39,7 @@ error[private-type-ref]: public type 'UrlMessageEntity' references private type 
   | 
 2 |   export interface TextLinkMessageEntity {
   |   - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -47,7 +49,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
   | ^
-
 
 # output.txt
 Defined in file:///mod.ts:2:1
@@ -63,6 +64,7 @@ Defined in file:///mod.ts:1:1
   {
     "kind": "typeAlias",
     "name": "UrlMessageEntity",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

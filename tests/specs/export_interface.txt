@@ -23,6 +23,7 @@ error[private-type-ref]: public type 'Reader' references private type 'Foo'
   | 
 1 | interface Foo {
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -36,9 +37,9 @@ error[private-type-ref]: public type 'Reader' references private type 'Bar'
   | 
 3 | interface Bar {
   | - this is the referenced type
+  | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 
 # output.txt
 Defined in file:///mod.ts:3:1
@@ -66,6 +67,7 @@ interface Reader extends Foo, Bar
   {
     "kind": "interface",
     "name": "Reader",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -191,6 +193,7 @@ interface Reader extends Foo, Bar
   {
     "kind": "interface",
     "name": "Foo",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -211,6 +214,7 @@ interface Reader extends Foo, Bar
   {
     "kind": "interface",
     "name": "Bar",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,

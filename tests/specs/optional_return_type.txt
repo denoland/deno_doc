@@ -17,7 +17,6 @@ error[missing-return-type]: exported function is missing an explicit return type
 1 | export function foo(a: number) {
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -29,6 +28,7 @@ function foo(a: number)
   {
     "kind": "function",
     "name": "foo",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -11,15 +11,17 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   <meta name="doc-current-file" content="">
   <link rel="stylesheet" href=".&#x2F;styles.css">
   <link rel="stylesheet" href=".&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href=".&#x2F;reset.css">
 
-  <script src=".&#x2F;search_index.js" defer></script>
-  <script src=".&#x2F;script.js" defer></script>
-  <script src=".&#x2F;fuse.js" defer></script>
-  <script src=".&#x2F;search.js" defer></script>
+    <script src=".&#x2F;search_index.js" defer></script>
+    <script src=".&#x2F;script.js" defer></script>
+    <script src=".&#x2F;fuse.js" defer></script>
+    <script src=".&#x2F;search.js" defer></script>
 </head>
-<body class="ddoc">
-<nav class="top-0 sticky bg-white z-50 py-3">
-  <div class="max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
+<body>
+<div class="ddoc">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14">
+  <div class="h-full max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
     <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
@@ -31,15 +33,15 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 </span><li>all symbols</li></ul>
 </div>
 
-    <input
-      type="text"
-      id="searchbar"
-      style="display: none;"
-      class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
 <div id="content">
-	<main><div class="space-y-7" id=""><section class="section" id=".">
+    <main><div class="space-y-7" id=""><section class="section" id=".">
   <div>
 	  <h2 class="anchorable mb-1"><a href="#." class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -63,35 +65,47 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;index.html" class="contextLink">.</a></h2><div class="markdown_summary"><p>Some docs</p>
-</div></div><div class="namespaceSection"><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<a href=".&#x2F;.&#x2F;.&#x2F;index.html" class="contextLink">.</a></h2><div class="markdown_summary"><p>Some docs</p>
+</div></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
 
 	      <div><span class="italic">No documentation available</span></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
+    </div><div id="namespace_baz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz">Baz</a>
 
 	      <div><span class="italic">No documentation available</span></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_c" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;c.html" title="c">c</a>
+
+	      <div><span class="italic">No documentation available</span></div>
+      </div>
+    </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">Foo</a>
 
 	      <div><div class="markdown_summary"><p>some Foo docs</p>
 </div></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
 
 	      <div><span class="italic">No documentation available</span></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+    </div><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello">Hello</a>
+
+	      <div><span class="italic">No documentation available</span></div>
+      </div>
+    </div><div id="namespace_qaz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;qaz.html" title="qaz">qaz</a>
 
 	      <div><span class="italic">No documentation available</span></div>
       </div>
@@ -121,14 +135,14 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;index.html" class="contextLink">foo</a></h2></div><div class="namespaceSection"><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+<a href=".&#x2F;.&#x2F;foo&#x2F;index.html" class="contextLink">foo</a></h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">default</a>
 
 	      <div><div class="markdown_summary"><p>The default export item.</p>
 </div></div>
       </div>
-    </div><div class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">x</a>
 
@@ -138,5 +152,7 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 </section>
 </div>
 </main><div id="searchResults"></div></div>
+</div>
+</div>
 </body>
 </html>

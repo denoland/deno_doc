@@ -56,7 +56,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 7 |       export const g = ["a", 1, true] as const;
   |                    ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:14
 
@@ -92,6 +91,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -115,6 +115,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "b",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -138,6 +139,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "c",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -161,6 +163,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "d",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -195,6 +198,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "e",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -218,6 +222,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "f",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -241,6 +246,7 @@ const g: ("a" | 1 | true)[]
   {
     "kind": "variable",
     "name": "g",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,

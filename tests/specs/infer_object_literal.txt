@@ -25,7 +25,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 4 | export const a = {
   |              ^
 
-
 # output.txt
 Defined in file:///mod.ts:4:14
 
@@ -37,6 +36,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
   {
     "kind": "variable",
     "name": "a",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

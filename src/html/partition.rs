@@ -1,6 +1,4 @@
 use super::DocNodeWithContext;
-use super::FileMode;
-use super::GenerateCtx;
 use super::ShortPath;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
@@ -88,26 +86,17 @@ pub fn partition_nodes_by_kind(
 ) -> Partitions<String> {
   let mut partitions =
     create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
-      if let Some((node_kind, nodes)) =
-        partitions.iter_mut().find(|(kind, nodes)| {
-          nodes.iter().any(|n| {
-            n.get_qualified_name() == node.get_qualified_name()
-              && n.kind_with_drilldown != node.kind_with_drilldown
-              && kind != &&node.kind_with_drilldown
-          })
-        })
-      {
-        assert_ne!(node_kind, &node.kind_with_drilldown);
+      let maybe_nodes = partitions.values_mut().find(|nodes| {
+        nodes
+          .iter()
+          .any(|n| n.get_qualified_name() == node.get_qualified_name())
+      });
 
+      if let Some(nodes) = maybe_nodes {
         nodes.push(node.clone());
       } else {
         let entry = partitions.entry(node.kind_with_drilldown).or_default();
-        if !entry
-          .iter()
-          .any(|n| n.get_qualified_name() == node.get_qualified_name())
-        {
-          entry.push(node.clone());
-        }
+        entry.push(node.clone());
       }
     });
 
@@ -182,12 +171,7 @@ pub fn partition_nodes_by_entrypoint(
     create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
       let entry = partitions.entry(node.origin.clone()).or_default();
 
-      if !entry.iter().any(|n| {
-        n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
-      }) {
-        entry.push(node.clone());
-      }
+      entry.push(node.clone());
     });
 
   for (_file, nodes) in partitions.iter_mut() {
@@ -224,20 +208,4 @@ fn compare_node(
     })
     .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
     .then_with(|| node1.kind.cmp(&node2.kind))
-}
-
-pub fn get_partitions_for_file(
-  ctx: &GenerateCtx,
-  doc_nodes: &[DocNodeWithContext],
-) -> Partitions<String> {
-  let categories = partition_nodes_by_category(
-    doc_nodes,
-    ctx.file_mode == FileMode::SingleDts,
-  );
-
-  if categories.len() == 1 && categories.contains_key("Uncategorized") {
-    partition_nodes_by_kind(doc_nodes, ctx.file_mode == FileMode::SingleDts)
-  } else {
-    categories
-  }
 }

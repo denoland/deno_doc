@@ -15,7 +15,6 @@ error[missing-return-type]: exported function is missing an explicit return type
 1 | export async function* ag() {}
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -27,6 +26,7 @@ async function* ag()
   {
     "kind": "function",
     "name": "ag",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

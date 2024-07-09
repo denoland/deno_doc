@@ -56,7 +56,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 7 | export let tpl = `foobarbaz`;
   |            ^
 
-
 # output.txt
 Defined in file:///mod.ts:3:12
 
@@ -92,6 +91,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "str",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -111,6 +111,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "num",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -130,6 +131,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "bool",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -149,6 +151,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "dateStr",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -168,6 +171,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "regex",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -190,6 +194,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "sym",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -209,6 +214,7 @@ let tpl: `foobarbaz`
   {
     "kind": "variable",
     "name": "tpl",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,

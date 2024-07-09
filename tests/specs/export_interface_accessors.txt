@@ -32,7 +32,6 @@ error[missing-return-type]: exported function is missing an explicit return type
 3 |   set size(value: number | string);
   |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -47,6 +46,7 @@ interface Thing
   {
     "kind": "interface",
     "name": "Thing",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

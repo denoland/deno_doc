@@ -76,7 +76,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 18 | export const tpl2 = `Value: ${num}`;
    |              ^
 
-
 # output.txt
 Defined in file:///mod.ts:14:14
 
@@ -121,6 +120,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "fizzBuzz",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -146,6 +146,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "env",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -257,6 +258,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "num",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
@@ -279,6 +281,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "bool",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -301,6 +304,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "bigint",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
@@ -323,6 +327,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "regex",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 15,
@@ -345,6 +350,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "date",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
@@ -367,6 +373,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "tpl1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 17,
@@ -398,6 +405,7 @@ const tpl2: string
   {
     "kind": "variable",
     "name": "tpl2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 18,

@@ -27,6 +27,7 @@ error[private-type-ref]: public type 'SameName' references private type 'YesDiag
    | 
 13 | interface YesDiagnostic1 {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -40,9 +41,9 @@ error[private-type-ref]: public type 'test' references private type 'YesDiagnost
    | 
 14 | interface YesDiagnostic2 {}
    | - this is the referenced type
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 
 # output.txt
 Defined in file:///mod.ts:4:1
@@ -78,6 +79,7 @@ namespace SameName
   {
     "kind": "namespace",
     "name": "SameName",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -95,6 +97,7 @@ namespace SameName
   {
     "kind": "function",
     "name": "SameName",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -124,6 +127,7 @@ namespace SameName
   {
     "kind": "function",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -152,6 +156,7 @@ namespace SameName
   {
     "kind": "function",
     "name": "test",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -178,6 +183,7 @@ namespace SameName
   {
     "kind": "interface",
     "name": "YesDiagnostic1",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -198,6 +204,7 @@ namespace SameName
   {
     "kind": "interface",
     "name": "YesDiagnostic2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,

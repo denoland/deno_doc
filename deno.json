@@ -9,5 +9,11 @@
   "exclude": [
     "target",
     "benches/fixtures"
-  ]
+  ],
+  "lint": {
+    "exclude": [
+      "src/html",
+      "tests/testdata"
+    ]
+  }
 }

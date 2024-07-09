@@ -10,7 +10,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 1 | export function adopt<T>(p: import("./module.ts").Pet<T>) {
   | ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -22,6 +21,7 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
   {
     "kind": "function",
     "name": "adopt",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

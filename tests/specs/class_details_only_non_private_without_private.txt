@@ -33,7 +33,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 4 |   public pub() {}
   |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:1:1
 
@@ -48,6 +47,7 @@ class Class
   {
     "kind": "class",
     "name": "Class",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

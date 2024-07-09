@@ -73,7 +73,7 @@ fn run_test(test: &CollectedTest) {
         .to_string()
     })
     .collect::<Vec<_>>()
-    .join("\n");
+    .join("\n\n");
   let spec = if update_var.as_ref().map(|v| v.as_str()) == Ok("1") {
     let mut spec = spec;
     spec.output_json_file.text = json_output.clone();

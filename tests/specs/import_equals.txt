@@ -15,7 +15,6 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 2 |   export interface Options {
   |   ^
 
-
 # output.txt
 Defined in file:///mod.ts:2:3
 
@@ -28,6 +27,7 @@ interface Options
   {
     "kind": "interface",
     "name": "Options",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
