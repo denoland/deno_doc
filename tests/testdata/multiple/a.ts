@@ -55,3 +55,11 @@ export function qaz(a: number);
 export function qaz(a: string | number) {}
 
 export const c = (): string => "hello";
+
+export function d(
+  foo: number = 1,
+  bar: string = "bar",
+  baz: { hello?: string } = {},
+): string {
+  return foo + bar;
+}
