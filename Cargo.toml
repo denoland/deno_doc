@@ -11,8 +11,8 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.79.0", default-features = false, features = ["symbols"], git = "https://github.com/bartlomieju/deno_graph", branch = "upgrade_swc_crates" }
-deno_ast = { version = "0.39.2", git = "https://github.com/bartlomieju/deno_ast", branch = "bump_swc_crates" }
+deno_graph = { version = "0.80.0", default-features = false, features = ["symbols"] }
+deno_ast = { version = "0.40.0" }
 import_map = "0.20.0"
 serde = { version = "1.0.140", features = ["derive"] }
 
