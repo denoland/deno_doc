@@ -40,7 +40,7 @@ export default {
       pattern: new RegExp(`^border-(${Object.keys(extraColors).join("|")})\/50$`),
     },
     {
-      pattern: new RegExp(`^bg-(${Object.keys(extraColors).join("|")})\/5$`),
+      pattern: new RegExp(`^bg-(${Object.keys(extraColors).join("|")})\/(?:5|15)$`),
       variants: ["hover"],
     },
   ],

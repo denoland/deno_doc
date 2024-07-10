@@ -2,7 +2,7 @@
 @tailwind utilities;
 
 .ddoc {
-  @apply flex h-screen items-start gap-6 p-4 pt-2 md:px-8 lg:p-2 lg:pt-0 xl:px-14 max-lg:pt-4;
+  @apply flex h-screen items-start gap-6 p-4 pt-2 lg:p-2 lg:pt-0 max-lg:pt-4;
 
   /* doesn't have categories panel */
   &:not(:has(> div.toc)) {
@@ -16,7 +16,7 @@
 
   /* Categories panel */
   & > .toc {
-    @apply max-lg:hidden md:flex md:flex-col -mt-0 pt-0 h-full max-h-screen border-r border-gray-000;
+    @apply max-lg:hidden md:flex md:flex-col -mt-0 pt-0 h-full max-h-screen;
     @apply w-[290px] flex-shrink-0;
 
     h3 {
