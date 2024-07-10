@@ -265,27 +265,28 @@ impl<'ctx> RenderContext<'ctx> {
           });
         }
 
-        let (_, symbol_parts) = symbol.split('.').enumerate().fold(
-          (vec![], vec![]),
-          |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
-            symbol_parts.push(symbol_part);
-            let breadcrumb = BreadcrumbCtx {
-              name: symbol_part.to_string(),
-              href: self.ctx.resolve_path(
-                self.current_resolve,
-                UrlResolveKind::Symbol {
-                  file,
-                  symbol: &symbol_parts.join("."),
-                },
-              ),
-              is_symbol: true,
-              is_first_symbol: i == 0,
-            };
-            breadcrumbs.push(breadcrumb);
+        let (_, symbol_parts) =
+          split_with_brackets(symbol).into_iter().enumerate().fold(
+            (vec![], vec![]),
+            |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
+              symbol_parts.push(symbol_part.clone());
+              let breadcrumb = BreadcrumbCtx {
+                name: symbol_part,
+                href: self.ctx.resolve_path(
+                  self.current_resolve,
+                  UrlResolveKind::Symbol {
+                    file,
+                    symbol: &symbol_parts.join("."),
+                  },
+                ),
+                is_symbol: true,
+                is_first_symbol: i == 0,
+              };
+              breadcrumbs.push(breadcrumb);
 
-            (symbol_parts, breadcrumbs)
-          },
-        );
+              (symbol_parts, breadcrumbs)
+            },
+          );
 
         parts.extend(symbol_parts);
 
@@ -295,6 +296,41 @@ impl<'ctx> RenderContext<'ctx> {
 
     BreadcrumbsCtx { parts }
   }
+}
+
+fn split_with_brackets(s: &str) -> Vec<String> {
+  let mut result = Vec::new();
+  let mut current = String::new();
+  let mut bracket = false;
+
+  for c in s.chars() {
+    if c == ']' {
+      bracket = false;
+      current.push(c);
+      result.push(current.clone());
+      current.clear();
+    } else if c == '[' {
+      bracket = true;
+      if !current.is_empty() {
+        result.push(current.clone());
+        current.clear();
+      }
+      current.push(c);
+    } else if c == '.' && !bracket {
+      if !current.is_empty() {
+        result.push(current.clone());
+        current.clear();
+      }
+    } else {
+      current.push(c);
+    }
+  }
+
+  if !current.is_empty() {
+    result.push(current.clone());
+  }
+
+  result
 }
 
 fn get_current_imports(

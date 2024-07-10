@@ -20,9 +20,9 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
 </head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14">
-  <div class="h-full max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
-    <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+  <div class="h-full">
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -37,13 +37,13 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
         type="text"
         id="searchbar"
         style="display: none;"
-        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
 <div id="content"><main class="symbolGroup" id="symbol_Bar"><article>
       <div>
         <div>
-          <div class="text-xl leading-none break-all">
+          <div class="text-2xl leading-none break-all">
             <span class="text-Class">class</span>&nbsp;<span class="font-bold">Bar</span>
           </div><div class="symbolSubtitle"><div>
     <span class="type"> extends </span><a class="link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html">Foo</a><span> </span>

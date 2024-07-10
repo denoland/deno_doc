@@ -9,20 +9,13 @@ pub(crate) fn render_params(
 ) -> String {
   if params.is_empty() {
     String::new()
-  } else if params.len() <= 3 {
-    let items = params
-      .iter()
-      .enumerate()
-      .map(|(i, element)| render_param(ctx, element, i))
-      .collect::<Vec<String>>()
-      .join("<span>, </span>");
-
-    format!("<span>{items}</span>")
+  } else if params.len() == 1 {
+    format!("<span>{}</span>", render_param(ctx, &params[0], 0))
   } else {
     let mut items = Vec::with_capacity(params.len());
 
     for (i, def) in params.iter().enumerate() {
-      items.push(format!("<div>{}</div>", render_param(ctx, def, i)));
+      items.push(format!("<div>{},</div>", render_param(ctx, def, i)));
     }
 
     let content = items.join("");

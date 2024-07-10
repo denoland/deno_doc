@@ -736,51 +736,48 @@ expression: files
             {
               "kind": "function",
               "value": {
-                "overloads_ctx": [
-                  {
-                    "function_id": "function_c",
-                    "overload_id": "function_c_0",
-                    "additional_css": "\n#function_c_0 {\n  display: none;\n}\n#function_c_0:checked ~ *:last-child > :not(#function_c_0_div) {\n  display: none;\n}\n#function_c_0:checked ~ div:first-of-type > label[for='function_c_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_c_0:not(:checked)) #function_c_0_toc {\n  display: none;\n}\n",
-                    "html_attrs": "checked",
-                    "name": "c",
-                    "deprecated": null,
-                    "summary": "()<span>: <span>string</span></span>",
-                    "summary_doc": null
-                  }
-                ],
                 "functions": [
                   {
-                    "id": "function_c_0_div",
-                    "docs": null,
-                    "sections": [
-                      {
-                        "header": {
-                          "title": "Return Type",
-                          "anchor": {
-                            "id": "return-type"
+                    "id": "function_c_0",
+                    "anchor": {
+                      "id": "function_c_0"
+                    },
+                    "name": "c",
+                    "summary": "()<span>: <span>string</span></span>",
+                    "deprecated": null,
+                    "content": {
+                      "id": "",
+                      "docs": null,
+                      "sections": [
+                        {
+                          "header": {
+                            "title": "Return Type",
+                            "anchor": {
+                              "id": "return-type"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
-                        },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_c_0_return",
-                              "name": "",
-                              "name_href": null,
-                              "content": "<span>string</span>",
-                              "anchor": {
-                                "id": "function_c_0_return"
-                              },
-                              "tags": [],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_c_0_return",
+                                "name": null,
+                                "name_href": null,
+                                "content": "<span>string</span>",
+                                "anchor": {
+                                  "id": "function_c_0_return"
+                                },
+                                "tags": [],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 ]
               }
@@ -820,7 +817,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul id=\"function_c_0_toc\"><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><ul><li><a href=\"#function_c_0_return\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -856,122 +853,118 @@ expression: files
             {
               "kind": "function",
               "value": {
-                "overloads_ctx": [
-                  {
-                    "function_id": "function_qaz",
-                    "overload_id": "function_qaz_0",
-                    "additional_css": "\n#function_qaz_0 {\n  display: none;\n}\n#function_qaz_0:checked ~ *:last-child > :not(#function_qaz_0_div) {\n  display: none;\n}\n#function_qaz_0:checked ~ div:first-of-type > label[for='function_qaz_0'] {\n  background-color: #D256460C;\n  border: solid var(--ddoc-selection-border-width) #DC2626;\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_qaz_0:not(:checked)) #function_qaz_0_toc {\n  display: none;\n}\n",
-                    "html_attrs": "checked",
-                    "name": "qaz",
-                    "deprecated": "",
-                    "summary": "(<span><span>a<span>: <span>string</span></span></span></span>)",
-                    "summary_doc": null
-                  },
-                  {
-                    "function_id": "function_qaz",
-                    "overload_id": "function_qaz_1",
-                    "additional_css": "\n#function_qaz_1 {\n  display: none;\n}\n#function_qaz_1:checked ~ *:last-child > :not(#function_qaz_1_div) {\n  display: none;\n}\n#function_qaz_1:checked ~ div:first-of-type > label[for='function_qaz_1'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_qaz_1:not(:checked)) #function_qaz_1_toc {\n  display: none;\n}\n",
-                    "html_attrs": "",
-                    "name": "qaz",
-                    "deprecated": null,
-                    "summary": "(<span><span>a<span>: <span>number</span></span></span></span>)",
-                    "summary_doc": null
-                  }
-                ],
                 "functions": [
                   {
-                    "id": "function_qaz_0_div",
-                    "docs": null,
-                    "sections": [
-                      {
-                        "header": {
-                          "title": "Parameters",
-                          "anchor": {
-                            "id": "parameters"
+                    "id": "function_qaz_0",
+                    "anchor": {
+                      "id": "function_qaz_0"
+                    },
+                    "name": "qaz",
+                    "summary": "(<span><span>a<span>: <span>string</span></span></span></span>)",
+                    "deprecated": "",
+                    "content": {
+                      "id": "",
+                      "docs": null,
+                      "sections": [
+                        {
+                          "header": {
+                            "title": "Parameters",
+                            "anchor": {
+                              "id": "parameters"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_qaz_0_parameters_a",
+                                "name": "a",
+                                "name_href": null,
+                                "content": "<span>: <span>string</span></span>",
+                                "anchor": {
+                                  "id": "function_qaz_0_parameters_a"
+                                },
+                                "tags": [],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
                         },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_qaz_0_parameters_a",
-                              "name": "a",
-                              "name_href": null,
-                              "content": "<span>: <span>string</span></span>",
-                              "anchor": {
-                                "id": "function_qaz_0_parameters_a"
-                              },
-                              "tags": [],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "header": {
-                          "title": "Return Type",
-                          "anchor": {
-                            "id": "return-type"
+                        {
+                          "header": {
+                            "title": "Return Type",
+                            "anchor": {
+                              "id": "return-type"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
-                        },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": []
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": []
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   },
                   {
-                    "id": "function_qaz_1_div",
-                    "docs": null,
-                    "sections": [
-                      {
-                        "header": {
-                          "title": "Parameters",
-                          "anchor": {
-                            "id": "parameters-1"
+                    "id": "function_qaz_1",
+                    "anchor": {
+                      "id": "function_qaz_1"
+                    },
+                    "name": "qaz",
+                    "summary": "(<span><span>a<span>: <span>number</span></span></span></span>)",
+                    "deprecated": null,
+                    "content": {
+                      "id": "",
+                      "docs": null,
+                      "sections": [
+                        {
+                          "header": {
+                            "title": "Parameters",
+                            "anchor": {
+                              "id": "parameters-1"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_qaz_1_parameters_a",
+                                "name": "a",
+                                "name_href": null,
+                                "content": "<span>: <span>number</span></span>",
+                                "anchor": {
+                                  "id": "function_qaz_1_parameters_a"
+                                },
+                                "tags": [],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
                         },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_qaz_1_parameters_a",
-                              "name": "a",
-                              "name_href": null,
-                              "content": "<span>: <span>number</span></span>",
-                              "anchor": {
-                                "id": "function_qaz_1_parameters_a"
-                              },
-                              "tags": [],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "header": {
-                          "title": "Return Type",
-                          "anchor": {
-                            "id": "return-type-1"
+                        {
+                          "header": {
+                            "title": "Return Type",
+                            "anchor": {
+                              "id": "return-type-1"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
-                        },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": []
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": []
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 ]
               }
@@ -1011,7 +1004,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul id=\"function_qaz_0_toc\"><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul><ul id=\"function_qaz_1_toc\"><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1063,12 +1056,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_baz_foo",
-                          "name": "",
+                          "id": "variable_Baz_foo",
+                          "name": null,
                           "name_href": null,
                           "content": "<span>string</span>",
                           "anchor": {
-                            "id": "variable_baz_foo"
+                            "id": "variable_Baz_foo"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1121,7 +1114,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_baz_foo\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1173,12 +1166,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_foo_bar",
-                          "name": "",
+                          "id": "variable_Foo_bar",
+                          "name": null,
                           "name_href": null,
                           "content": "<span>\"string\"</span>",
                           "anchor": {
-                            "id": "variable_foo_bar"
+                            "id": "variable_Foo_bar"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1231,7 +1224,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_foo_bar\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1283,12 +1276,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_foo_prototype_quotgtltimg-srcx-onerroralert1gt",
-                          "name": "",
+                          "id": "variable_Foo_prototype_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;",
+                          "name": null,
                           "name_href": null,
                           "content": "<span>number</span>",
                           "anchor": {
-                            "id": "variable_foo_prototype_quotgtltimg-srcx-onerroralert1gt"
+                            "id": "variable_Foo_prototype_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1347,7 +1340,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_foo_prototype_quotgtltimg-srcx-onerroralert1gt\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1399,12 +1392,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_foo_prototype_foo",
-                          "name": "",
+                          "id": "variable_Foo_prototype_foo",
+                          "name": null,
                           "name_href": null,
                           "content": "<a href=\"../././~/A.html\" class=\"link\">A</a>",
                           "anchor": {
-                            "id": "variable_foo_prototype_foo"
+                            "id": "variable_Foo_prototype_foo"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1463,7 +1456,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_foo_prototype_foo\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1515,12 +1508,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "variable_hello_world",
-                          "name": "",
+                          "id": "variable_Hello_world",
+                          "name": null,
                           "name_href": null,
                           "content": "<span>\"string\"</span>",
                           "anchor": {
-                            "id": "variable_hello_world"
+                            "id": "variable_Hello_world"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1573,7 +1566,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_hello_world\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1626,7 +1619,7 @@ expression: files
                       "content": [
                         {
                           "id": "variable_default",
-                          "name": "",
+                          "name": null,
                           "name_href": null,
                           "content": "<span>number</span>",
                           "anchor": {
@@ -1683,7 +1676,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><ul><li><a href=\"#variable_default\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1719,82 +1712,79 @@ expression: files
             {
               "kind": "function",
               "value": {
-                "overloads_ctx": [
-                  {
-                    "function_id": "function_x",
-                    "overload_id": "function_x_0",
-                    "additional_css": "\n#function_x_0 {\n  display: none;\n}\n#function_x_0:checked ~ *:last-child > :not(#function_x_0_div) {\n  display: none;\n}\n#function_x_0:checked ~ div:first-of-type > label[for='function_x_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_x_0:not(:checked)) #function_x_0_toc {\n  display: none;\n}\n",
-                    "html_attrs": "checked",
-                    "name": "x",
-                    "deprecated": null,
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
-                    "summary_doc": null
-                  }
-                ],
                 "functions": [
                   {
-                    "id": "function_x_0_div",
-                    "docs": null,
-                    "sections": [
-                      {
-                        "header": {
-                          "title": "Parameters",
-                          "anchor": {
-                            "id": "parameters"
+                    "id": "function_x_0",
+                    "anchor": {
+                      "id": "function_x_0"
+                    },
+                    "name": "x",
+                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "deprecated": null,
+                    "content": {
+                      "id": "",
+                      "docs": null,
+                      "sections": [
+                        {
+                          "header": {
+                            "title": "Parameters",
+                            "anchor": {
+                              "id": "parameters"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_x_0_parameters__n",
+                                "name": "_n",
+                                "name_href": null,
+                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "anchor": {
+                                  "id": "function_x_0_parameters__n"
+                                },
+                                "tags": [
+                                  {
+                                    "kind": "optional"
+                                  }
+                                ],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
                         },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_x_0_parameters__n",
-                              "name": "_n",
-                              "name_href": null,
-                              "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
-                              "anchor": {
-                                "id": "function_x_0_parameters__n"
-                              },
-                              "tags": [
-                                {
-                                  "kind": "optional"
-                                }
-                              ],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "header": {
-                          "title": "Return Type",
-                          "anchor": {
-                            "id": "return-type"
+                        {
+                          "header": {
+                            "title": "Return Type",
+                            "anchor": {
+                              "id": "return-type"
+                            },
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
-                        },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_x_0_return",
-                              "name": "",
-                              "name_href": null,
-                              "content": "<span>void</span>",
-                              "anchor": {
-                                "id": "function_x_0_return"
-                              },
-                              "tags": [],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_x_0_return",
+                                "name": null,
+                                "name_href": null,
+                                "content": "<span>void</span>",
+                                "anchor": {
+                                  "id": "function_x_0_return"
+                                },
+                                "tags": [],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 ]
               }
@@ -1840,7 +1830,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul id=\"function_x_0_toc\"><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><ul><li><a href=\"#function_x_0_return\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null

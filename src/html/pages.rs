@@ -280,9 +280,23 @@ impl IndexCtx {
               render_ctx.toc.anchorize(title.clone()),
             );
 
-            let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
-              category_docs.get(&title).cloned().flatten()
-            });
+            let doc = ctx
+              .category_docs
+              .as_ref()
+              .and_then(|category_docs| {
+                category_docs.get(&title).cloned().flatten()
+              })
+              .and_then(|doc| {
+                super::jsdoc::markdown_to_html(
+                  &render_ctx,
+                  &doc,
+                  super::jsdoc::MarkdownToHTMLOptions {
+                    summary: false,
+                    summary_prefer_title: false,
+                    no_toc: false,
+                  },
+                )
+              });
 
             util::SectionCtx {
               header: SectionHeaderCtx {

@@ -12,54 +12,19 @@ use crate::params::ParamPatternDef;
 use serde::Serialize;
 use std::collections::HashSet;
 
-fn render_css_for_fn(overload_id: &str, deprecated: bool) -> String {
-  let (bg_color, border_color) = if deprecated {
-    ("#D256460C", "#DC2626")
-  } else {
-    (
-      "var(--ddoc-selection-selected-bg)",
-      "var(--ddoc-selection-selected-border-color)",
-    )
-  };
-
-  format!(
-    r#"
-#{overload_id} {{
-  display: none;
-}}
-#{overload_id}:checked ~ *:last-child > :not(#{overload_id}_div) {{
-  display: none;
-}}
-#{overload_id}:checked ~ div:first-of-type > label[for='{overload_id}'] {{
-  background-color: {bg_color};
-  border: solid var(--ddoc-selection-border-width) {border_color};
-  cursor: unset;
-  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */
-}}
-
-.ddoc:has(#{overload_id}:not(:checked)) #{overload_id}_toc {{
-  display: none;
-}}
-"#
-  )
-}
-
 #[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
-  function_id: String,
-  overload_id: String,
-  additional_css: String,
-  html_attrs: String,
+  id: String,
+  anchor: AnchorCtx,
   name: String,
-  deprecated: Option<String>,
   summary: String,
-  summary_doc: Option<String>,
+  deprecated: Option<String>,
+  content: SymbolContentCtx,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct FunctionCtx {
-  overloads_ctx: Vec<OverloadRenderCtx>,
-  functions: Vec<SymbolContentCtx>,
+  functions: Vec<OverloadRenderCtx>,
 }
 
 impl FunctionCtx {
@@ -69,8 +34,17 @@ impl FunctionCtx {
     ctx: &RenderContext,
     doc_nodes: Vec<&DocNodeWithContext>,
   ) -> Self {
-    let mut overloads_ctx = Vec::with_capacity(doc_nodes.len());
     let mut functions_content = Vec::with_capacity(doc_nodes.len());
+
+    let overloads_count = doc_nodes
+      .iter()
+      .enumerate()
+      .filter(|(i, doc_node)| {
+        let function_def = doc_node.function_def.as_ref().unwrap();
+
+        !(function_def.has_body && *i != 0)
+      })
+      .count();
 
     for (i, doc_node) in doc_nodes.into_iter().enumerate() {
       let function_def = doc_node.function_def.as_ref().unwrap();
@@ -84,7 +58,7 @@ impl FunctionCtx {
           Some(
             doc
               .as_ref()
-              .map(|doc| crate::html::jsdoc::render_markdown(ctx, doc))
+              .map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true))
               .unwrap_or_default(),
           )
         } else {
@@ -94,40 +68,28 @@ impl FunctionCtx {
 
       let overload_id =
         name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
-      let id = name_to_id("function", doc_node.get_name());
-      let css = render_css_for_fn(&overload_id, deprecated.is_some());
 
-      let summary_doc = if !(function_def.has_body && i == 0) {
-        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, true)
-      } else {
-        None
-      };
+      if overloads_count > 1 {
+        ctx.toc.add_entry(
+          0,
+          format!("Overload {}", i + 1),
+          overload_id.clone(),
+        );
+      }
 
-      let html_attrs = (i == 0)
-        .then_some("checked")
-        .unwrap_or_default()
-        .to_string();
-
-      overloads_ctx.push(OverloadRenderCtx {
-        function_id: id.to_string(),
-        overload_id: overload_id.to_string(),
-        additional_css: css,
-        html_attrs,
+      functions_content.push(OverloadRenderCtx {
+        id: overload_id.clone(),
+        anchor: AnchorCtx {
+          id: overload_id.clone(),
+        },
         name: doc_node.get_name().to_string(),
-        deprecated,
         summary: render_function_summary(function_def, ctx),
-        summary_doc,
+        deprecated,
+        content: render_single_function(ctx, doc_node, &overload_id),
       });
-
-      functions_content.push(render_single_function(
-        ctx,
-        doc_node,
-        &overload_id,
-      ));
     }
 
     FunctionCtx {
-      overloads_ctx,
       functions: functions_content,
     }
   }
@@ -155,8 +117,6 @@ fn render_single_function(
   doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
-  ctx.toc.create_group(format!("{overload_id}_toc"));
-
   let function_def = doc_node.function_def.as_ref().unwrap();
 
   let current_type_params = function_def
@@ -236,16 +196,18 @@ fn render_single_function(
         HashSet::new()
       };
 
+      let param_doc = param_docs
+        .get(name.as_str())
+        .and_then(|(doc, _, _)| doc.as_deref());
+
       DocEntryCtx::new(
         ctx,
         &id,
-        &name,
+        Some(name),
         None,
         &ts_type,
         tags,
-        param_docs
-          .get(name.as_str())
-          .and_then(|(doc, _, _)| doc.as_deref()),
+        param_doc,
         &doc_node.location,
       )
     })
@@ -288,7 +250,7 @@ fn render_single_function(
   ));
 
   SymbolContentCtx {
-    id: format!("{overload_id}_div"),
+    id: String::new(),
     sections,
     docs,
   }
@@ -315,7 +277,7 @@ fn render_function_return_type(
   Some(DocEntryCtx::new(
     render_ctx,
     &id,
-    "",
+    None,
     None,
     &render_type_def(render_ctx, return_type),
     HashSet::new(),

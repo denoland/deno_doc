@@ -1,25 +1,30 @@
-<div class="anchorable docEntry" id="{{id}}">
-  {{~> anchor anchor ~}}
+<div class="{{#if name}}anchorable{{/if}} docEntry" id="{{id}}">
 
   <div class="docEntryHeader">
-    <span>
+    <div>
       {{~#if tags~}}
-        <span class="space-x-1">
+        <div class="space-x-1 mb-1">
           {{~#each tags~}}
             {{~> tag value=this ~}}
           {{~/each~}}
-        </span>
+        </div>
       {{~/if~}}
 
       <code>
-        {{~#if name_href~}}
-          <a class="font-medium link" href="{{name_href}}">{{{name}}}</a>
-        {{~else~}}
-          <span class="font-bold">{{{name}}}</span>
+        {{~#if name~}}
+          {{~> anchor anchor ~}}
         {{~/if~}}
-        <span class="font-medium">{{{content}}}</span>
+
+        {{~#if name_href~}}
+          <a class="font-bold font-lg link" href="{{name_href}}">{{{name}}}</a>
+        {{~else~}}
+          {{~#if name~}}
+            <span class="font-bold font-lg">{{{name}}}</span>
+          {{~/if~}}
+        {{~/if~}}
+        <span class="font-medium text-stone-500">{{{content}}}</span>
       </code>
-    </span>
+    </div>
 
     {{~#if source_href~}}
       {{~> source_button source_href ~}}
@@ -27,7 +32,7 @@
   </div>
 
   {{~#if js_doc~}}
-    <div class="max-w-prose">
+    <div class="max-w-[75ch]">
       {{{~js_doc~}}} {{! markdown rendering }}
     </div>
   {{~/if~}}

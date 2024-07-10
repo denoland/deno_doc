@@ -149,7 +149,7 @@ impl UsagesCtx {
           additional_css: render_css_for_usage(&entry.name),
           name: entry.name,
           icon: entry.icon,
-          content: crate::html::jsdoc::render_markdown(ctx, &content),
+          content: crate::html::jsdoc::render_markdown(ctx, &content, true),
         })
         .collect::<Vec<_>>();
 
@@ -164,7 +164,7 @@ impl UsagesCtx {
     } else {
       let import_statement = usage_to_md(ctx, doc_nodes, &url);
       let rendered_import_statement =
-        crate::html::jsdoc::render_markdown(ctx, &import_statement);
+        crate::html::jsdoc::render_markdown(ctx, &import_statement, true);
 
       Some(UsagesCtx {
         usages: vec![UsageCtx {

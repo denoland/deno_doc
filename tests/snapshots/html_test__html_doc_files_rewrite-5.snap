@@ -20,9 +20,9 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
 </head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14">
-  <div class="h-full max-lg:flex md:items-center justify-between gap-4 max-md:flex-col-reverse lg:grid lg:grid-cols-4 lg:gap-12">
-    <div class="lg:col-span-3"><ul class="breadcrumbs"><li><a href="..&#x2F;..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+  <div class="h-full">
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -45,13 +45,13 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
         type="text"
         id="searchbar"
         style="display: none;"
-        class="lg:col-[span_1_/_-1] flex-1 py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
 <div id="content"><main class="symbolGroup" id="symbol_Baz"><article>
       <div>
         <div>
-          <div class="text-xl leading-none break-all">
+          <div class="text-2xl leading-none break-all">
             <span class="text-TypeAlias">type alias</span>&nbsp;<span class="font-bold">Baz</span>
           </div></div></div><div><div class="space-y-7" id=""><section class="section" id="properties">
   <div>
@@ -77,7 +77,10 @@ expression: "files.get(\"./~/Baz.html\").unwrap()"
   </defs>
 </svg>
 </a>
-Properties</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry" id="property_foo"><a href="#property_foo" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="property_foo">
+
+  <div class="docEntryHeader">
+    <div><code><a href="#property_foo" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -99,10 +102,9 @@ Properties</h2></div><div class="mt-2 space-y-2"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<div class="docEntryHeader">
-    <span><code><a class="font-medium link" href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium"><span>: <span>string</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium text-stone-500"><span>: <span>string</span></span></span>
       </code>
-    </span></div></div>
+    </div></div></div>
 </div></section>
 </div>
 </div>

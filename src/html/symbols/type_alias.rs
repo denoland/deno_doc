@@ -66,7 +66,7 @@ pub(crate) fn render_type_alias(
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
         &id,
-        "",
+        None,
         None,
         &render_type_def(ctx, &type_alias_def.ts_type),
         HashSet::new(),

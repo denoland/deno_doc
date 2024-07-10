@@ -120,7 +120,7 @@ pub(crate) fn render_call_signatures(
       DocEntryCtx::new(
         ctx,
         &id,
-        "",
+        None,
         None,
         &format!(
           "{}({}){ts_type}",
@@ -187,11 +187,11 @@ pub(crate) fn render_properties(
       DocEntryCtx::new(
         ctx,
         &id,
-        &if property.computed {
+        Some(if property.computed {
           format!("[{}]", html_escape::encode_text(&property.name))
         } else {
           html_escape::encode_text(&property.name).into_owned()
-        },
+        }),
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,
           &property.name,
@@ -249,7 +249,7 @@ pub(crate) fn render_methods(
       DocEntryCtx::new(
         ctx,
         &id,
-        &name,
+        Some(name),
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,
           &method.name,
