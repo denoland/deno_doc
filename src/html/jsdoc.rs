@@ -306,6 +306,7 @@ fn render_node<'a>(
 pub struct MarkdownToHTMLOptions {
   pub summary: bool,
   pub summary_prefer_title: bool,
+  pub no_toc: bool,
 }
 
 pub fn markdown_to_html(
@@ -334,7 +335,9 @@ pub fn markdown_to_html(
   let mut plugins = comrak::Plugins::default();
   plugins.render.codefence_syntax_highlighter =
     Some(&render_ctx.ctx.highlight_adapter);
-  plugins.render.heading_adapter = Some(&render_ctx.toc);
+  if !render_options.no_toc {
+    plugins.render.heading_adapter = Some(&render_ctx.toc);
+  }
 
   let md = parse_links(md, render_ctx);
 
@@ -448,18 +451,24 @@ pub(crate) fn render_markdown_summary(
     MarkdownToHTMLOptions {
       summary: true,
       summary_prefer_title: true,
+      no_toc: false,
     },
   )
   .unwrap_or_default()
 }
 
-pub(crate) fn render_markdown(render_ctx: &RenderContext, md: &str) -> String {
+pub(crate) fn render_markdown(
+  render_ctx: &RenderContext,
+  md: &str,
+  no_toc: bool,
+) -> String {
   markdown_to_html(
     render_ctx,
     md,
     MarkdownToHTMLOptions {
       summary: false,
       summary_prefer_title: false,
+      no_toc,
     },
   )
   .unwrap_or_default()
@@ -477,6 +486,7 @@ pub(crate) fn jsdoc_body_to_html(
       MarkdownToHTMLOptions {
         summary,
         summary_prefer_title: true,
+        no_toc: false,
       },
     )
   } else {
@@ -537,7 +547,8 @@ impl ExampleCtx {
     };
 
     let markdown_title = render_markdown_summary(render_ctx, &title);
-    let markdown_body = render_markdown(render_ctx, body.unwrap_or_default());
+    let markdown_body =
+      render_markdown(render_ctx, body.unwrap_or_default(), true);
 
     ExampleCtx {
       anchor: AnchorCtx { id: id.to_string() },
@@ -571,6 +582,7 @@ impl ModuleDocCtx {
           Some(render_markdown(
             render_ctx,
             doc.as_deref().unwrap_or_default(),
+            false,
           ))
         } else {
           None
@@ -861,6 +873,7 @@ mod test {
       > foo
       >
       > bar"#,
+      true,
     );
 
     assert!(md.contains("foo"));
@@ -874,6 +887,7 @@ mod test {
       > foo
       >
       > bar"#,
+      true,
     );
 
     assert!(md.contains("foo"));

@@ -30,7 +30,7 @@ a {
 }
 
 .anchorable {
-  @apply relative;
+  @apply relative scroll-mt-16;
 
   &:hover .anchor {
     @apply block;
@@ -60,31 +60,30 @@ a {
 }
 
 .docEntry {
-  @apply mb-4 space-y-4;
+  @apply mb-4 space-y-2;
 
   .docEntryHeader {
     @apply flex justify-between items-start md:text-base;
 
-    > span {
-      @apply flex items-center break-words gap-2 items-baseline;
+    > div {
+      @apply break-words;
     }
   }
 }
 
 .section {
-  @apply space-y-6 mb-6;
+  @apply space-y-2 mb-2 scroll-mt-16;
 
-  > div {
-    @apply space-y-1;
+  > div:first-child {
+    @apply space-y-8;
 
     > h2 {
       @apply text-xl leading-6 font-semibold py-1;
     }
 
     > .markdown_summary {
-      @apply text-base max-w-prose;
+      @apply text-base max-w-[75ch];
     }
-
   }
 }
 
@@ -202,10 +201,32 @@ a {
     @apply max-lg:hidden text-sm space-y-3;
 
     > ul {
-      @apply space-y-2 block overflow-y-auto;
+      @apply space-y-2 block overflow-y-auto flex-grow;
+
+      > li {
+        @apply mt-0.5 mx-3;
+      }
+
+      li {
+        &:has(> ul) {
+          @apply mt-0 !important;
+        }
+
+        &:has(> a) {
+          @apply pb-0 !important;
+        }
+      }
 
       ul {
-        @apply ml-3.5 space-y-2;
+        @apply ml-3.5 space-y-2 text-gray-1 text-[.8rem] leading-none;
+
+        li {
+          @apply mt-1 !important;
+
+          a {
+            @apply hover:text-black p-1;
+          }
+        }
       }
     }
 
@@ -292,10 +313,6 @@ a {
   }
 }
 
-.functionOverload {
-  @apply space-y-1 block px-4 py-2.5 rounded-lg border border-stone-300 cursor-pointer hover:bg-stone-100;
-}
-
 .context_button {
   @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200 leading-[0];
 }
@@ -318,7 +335,7 @@ a {
 }
 
 .markdown {
-  @apply space-y-3 shrink min-w-0;
+  @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm md:max-w-screen-md lg:max-w-[75ch];
 
   a:not(.no_color) {
     @apply link;

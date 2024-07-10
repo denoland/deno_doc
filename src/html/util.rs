@@ -434,6 +434,7 @@ impl SectionHeaderCtx {
           MarkdownToHTMLOptions {
             summary: true,
             summary_prefer_title: true,
+            no_toc: false,
           },
         )
       });
@@ -475,12 +476,16 @@ impl SectionCtx {
     match &mut content {
       SectionContentCtx::DocEntry(entries) => {
         for entry in entries {
+          let Some(name) = &entry.name else {
+            continue;
+          };
+
           let anchor = render_context.toc.anchorize(entry.id.to_owned());
 
           entry.id = anchor.clone();
           entry.anchor.id = anchor.clone();
 
-          render_context.toc.add_entry(2, entry.name.clone(), anchor);
+          render_context.toc.add_entry(2, name.clone(), anchor);
         }
       }
       SectionContentCtx::Example(examples) => {
@@ -567,7 +572,7 @@ impl Tag {
 #[derive(Debug, Serialize, Clone)]
 pub struct DocEntryCtx {
   id: String,
-  name: String,
+  name: Option<String>,
   name_href: Option<String>,
   content: String,
   anchor: AnchorCtx,
@@ -583,7 +588,7 @@ impl DocEntryCtx {
   pub fn new(
     ctx: &RenderContext,
     id: &str,
-    name: &str,
+    name: Option<String>,
     name_href: Option<String>,
     content: &str,
     tags: HashSet<Tag>,
@@ -591,12 +596,12 @@ impl DocEntryCtx {
     location: &crate::Location,
   ) -> Self {
     let maybe_jsdoc =
-      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc));
+      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true));
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
       id: id.to_string(),
-      name: name.to_string(),
+      name,
       name_href,
       content: content.to_string(),
       anchor: AnchorCtx { id: id.to_string() },

@@ -473,7 +473,7 @@ pub(crate) fn type_params_summary(
     String::new()
   } else if type_params.len() == 1 {
     format!(
-      "<span>&lt;{}&lt;</span>",
+      "<span>&lt;{}&gt;</span>",
       type_param_summary(ctx, &type_params[0], "extends")
     )
   } else {
@@ -594,7 +594,7 @@ pub(crate) fn render_type_params(
     let content = DocEntryCtx::new(
       ctx,
       &id,
-      &html_escape::encode_text(&type_param.name),
+      Some(html_escape::encode_text(&type_param.name).into_owned()),
       None,
       &format!("{constraint}{default}"),
       HashSet::new(),

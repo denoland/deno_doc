@@ -5,5 +5,16 @@ export default {
     "./src/html/templates/pages/*.hbs",
     "./src/html/templates/pages/search.js",
   ],
+  theme: {
+    extend: {
+      colors: {
+        gray: {
+          "000": "#e3e5e9",
+          1: "#868789",
+
+        }
+      }
+    }
+  },
   darkMode: "class",
 } as Config;

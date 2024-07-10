@@ -2,39 +2,56 @@
 @tailwind utilities;
 
 .ddoc {
-  @apply lg:grid grid-cols-6 items-start gap-6 px-4 md:px-8 lg:px-10 xl:px-14 max-lg:pt-4;
+  @apply flex h-screen items-start gap-6 p-4 pt-2 md:px-8 lg:p-2 lg:pt-0 xl:px-14 max-lg:pt-4;
 
+  /* doesn't have categories panel */
   &:not(:has(> div.toc)) {
     @apply lg:pt-4;
   }
 
+  /* Has categories panel, target non-categories panel content */
   &:has(> div.toc) > div:not(.toc) {
     @apply lg:pt-4;
   }
 
+  /* Categories panel */
   & > .toc {
-    @apply max-lg:hidden lg:col-start-1 lg:col-span-1 -mt-0 pt-0 !important;
+    @apply max-lg:hidden md:flex md:flex-col -mt-0 pt-0 h-full max-h-screen border-r border-gray-000;
+    @apply w-[290px] flex-shrink-0;
 
     h3 {
       @apply pt-3 !important;
     }
   }
 
+  /* Non-categories panel content */
   & > div:not(.toc) {
-    @apply col-span-5;
+    @apply flex flex-col flex-grow;
   }
 }
 
 #content {
-  @apply mt-4 grid gap-6 grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12;
+  @apply mt-4;
 
   & > main {
-    @apply min-w-0 col-span-full pb-4 md:pb-8 lg:pb-12;
+    @apply min-w-0 col-span-full pb-0 md:pb-8 lg:pb-12 flex flex-col gap-3 flex-grow;
   }
 
   &:has(.toc) > main {
     @apply lg:col-span-3 lg:row-start-1;
   }
+
+  .toc {
+    @apply max-md:hidden xl:flex xl:flex-col;
+  }
+}
+
+#content, #topnav > div {
+  @apply flex flex-row justify-between gap-6 gap-8 lg:gap-12;
+}
+
+#content .toc, #searchbar {
+  @apply flex-shrink-0 min-w-[250px] max-w-[300px];
 }
 
 .toc {

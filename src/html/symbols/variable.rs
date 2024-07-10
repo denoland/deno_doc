@@ -52,7 +52,7 @@ pub(crate) fn render_variable(
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
         &id,
-        "",
+        None,
         None,
         &render_type_def(ctx, ts_type),
         HashSet::new(),
