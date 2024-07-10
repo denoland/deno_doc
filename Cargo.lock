@@ -536,7 +536,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.141.1"
+version = "0.142.0"
 dependencies = [
  "ammonia",
  "anyhow",
