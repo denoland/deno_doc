@@ -1,0 +1,146 @@
+# mod.ts
+#!/usr/bin/env -S deno run --allow-net --allow-read
+/**
+ This module provides simple examples of a class, an interface, and a function.
+ * @module MyModule
+ */
+
+/**
+ * A is a simple class.
+ */
+export class A {}
+
+/**
+ * B is a simple interface.
+ */
+export interface B {}
+
+/**
+ * C is a function.
+ */
+export function C() {}
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+  This module provides simple examples of a class, an interface, and a function.
+
+  @module
+
+Defined in file:///mod.ts:20:1
+
+function C(): void
+  C is a function.
+
+Defined in file:///mod.ts:10:1
+
+class A
+  A is a simple class.
+
+
+Defined in file:///mod.ts:15:1
+
+interface B
+  B is a simple interface.
+
+
+
+# output.json
+[
+  {
+    "kind": "moduleDoc",
+    "name": "",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0,
+      "byteIndex": 52
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "This module provides simple examples of a class, an interface, and a function.",
+      "tags": [
+        {
+          "kind": "module"
+        }
+      ]
+    }
+  },
+  {
+    "kind": "class",
+    "name": "A",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 10,
+      "col": 0,
+      "byteIndex": 193
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "A is a simple class."
+    },
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "kind": "interface",
+    "name": "B",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 15,
+      "col": 0,
+      "byteIndex": 248
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "B is a simple interface."
+    },
+    "interfaceDef": {
+      "extends": [],
+      "constructors": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "kind": "function",
+    "name": "C",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 20,
+      "col": 0,
+      "byteIndex": 299
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "C is a function."
+    },
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
