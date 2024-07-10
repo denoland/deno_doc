@@ -35,12 +35,16 @@ impl FunctionCtx {
     doc_nodes: Vec<&DocNodeWithContext>,
   ) -> Self {
     let mut functions_content = Vec::with_capacity(doc_nodes.len());
-    
-    let overloads_count = doc_nodes.iter().enumerate().filter(|(i, doc_node)| {
-      let function_def = doc_node.function_def.as_ref().unwrap();
 
-      !(function_def.has_body && *i != 0)
-    }).count();
+    let overloads_count = doc_nodes
+      .iter()
+      .enumerate()
+      .filter(|(i, doc_node)| {
+        let function_def = doc_node.function_def.as_ref().unwrap();
+
+        !(function_def.has_body && *i != 0)
+      })
+      .count();
 
     for (i, doc_node) in doc_nodes.into_iter().enumerate() {
       let function_def = doc_node.function_def.as_ref().unwrap();
@@ -66,9 +70,11 @@ impl FunctionCtx {
         name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
 
       if overloads_count > 1 {
-        ctx
-          .toc
-          .add_entry(0, format!("Overload {}", i + 1), overload_id.clone());
+        ctx.toc.add_entry(
+          0,
+          format!("Overload {}", i + 1),
+          overload_id.clone(),
+        );
       }
 
       functions_content.push(OverloadRenderCtx {
@@ -189,7 +195,7 @@ fn render_single_function(
       } else {
         HashSet::new()
       };
-      
+
       let param_doc = param_docs
         .get(name.as_str())
         .and_then(|(doc, _, _)| doc.as_deref());
