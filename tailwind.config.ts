@@ -37,10 +37,14 @@ export default {
       pattern: new RegExp(`^text-(${Object.keys(extraColors).join("|")})$`),
     },
     {
-      pattern: new RegExp(`^border-(${Object.keys(extraColors).join("|")})\/50$`),
+      pattern: new RegExp(
+        `^border-(${Object.keys(extraColors).join("|")})\/50$`,
+      ),
     },
     {
-      pattern: new RegExp(`^bg-(${Object.keys(extraColors).join("|")})\/(?:5|15)$`),
+      pattern: new RegExp(
+        `^bg-(${Object.keys(extraColors).join("|")})\/(?:5|15)$`,
+      ),
       variants: ["hover"],
     },
   ],
@@ -51,14 +55,14 @@ export default {
         "contextLink": "#0E6590",
         gray: {
           1: "#868789",
-        }
+        },
       },
       borderWidth: {
         "1.5": "1.5px",
       },
       margin: {
         "indent": "2ch",
-      }
+      },
     },
   },
   darkMode: "class",

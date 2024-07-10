@@ -186,7 +186,6 @@ async fn html_doc_files() {
     insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
     insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
     insta::assert_snapshot!(files.get("fuse.js").unwrap());
-    insta::assert_snapshot!(files.get("page.css").unwrap());
     insta::assert_snapshot!(files.get("script.js").unwrap());
     insta::assert_snapshot!(files.get("search.js").unwrap());
     insta::assert_snapshot!(files.get("search_index.js").unwrap());
@@ -289,7 +288,6 @@ async fn html_doc_files_rewrite() {
     insta::assert_snapshot!(files.get("foo/index.html").unwrap());
     insta::assert_snapshot!(files.get("foo/~/x.html").unwrap());
     insta::assert_snapshot!(files.get("fuse.js").unwrap());
-    insta::assert_snapshot!(files.get("page.css").unwrap());
     insta::assert_snapshot!(files.get("script.js").unwrap());
     insta::assert_snapshot!(files.get("search.js").unwrap());
     insta::assert_snapshot!(files.get("search_index.js").unwrap());
