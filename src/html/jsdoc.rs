@@ -14,7 +14,8 @@ use comrak::Arena;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::io::{BufWriter, Write};
+use std::io::BufWriter;
+use std::io::Write;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
