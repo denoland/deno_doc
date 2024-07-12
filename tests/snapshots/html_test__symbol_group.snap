@@ -853,114 +853,111 @@ expression: files
             {
               "kind": "function",
               "value": {
-                "overloads_ctx": [
-                  {
-                    "function_id": "function_d",
-                    "overload_id": "function_d_0",
-                    "additional_css": "\n#function_d_0 {\n  display: none;\n}\n#function_d_0:checked ~ *:last-child > :not(#function_d_0_div) {\n  display: none;\n}\n#function_d_0:checked ~ div:first-of-type > label[for='function_d_0'] {\n  background-color: var(--ddoc-selection-selected-bg);\n  border: solid var(--ddoc-selection-border-width) var(--ddoc-selection-selected-border-color);\n  cursor: unset;\n  padding: var(--ddoc-selection-padding); /* 1px less to counter the increased border */\n}\n\n.ddoc:has(#function_d_0:not(:checked)) #function_d_0_toc {\n  display: none;\n}\n",
-                    "html_attrs": "checked",
-                    "name": "d",
-                    "deprecated": null,
-                    "summary": "(<span><span>foo?<span>: <span>number</span></span></span><span>, </span><span>bar?<span>: <span>string</span></span></span><span>, </span><span>baz?<span>: { hello?<span>: <span>string</span></span>;  }</span></span></span>)<span>: <span>string</span></span>",
-                    "summary_doc": null
-                  }
-                ],
                 "functions": [
                   {
-                    "id": "function_d_0_div",
-                    "docs": null,
-                    "sections": [
-                      {
-                        "header": {
-                          "title": "Parameters",
-                          "anchor": {
-                            "id": "parameters"
-                          },
-                          "href": null,
-                          "doc": null
-                        },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_d_0_parameters_foo",
-                              "name": "foo",
-                              "name_href": null,
-                              "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
-                              "anchor": {
-                                "id": "function_d_0_parameters_foo"
-                              },
-                              "tags": [
-                                {
-                                  "kind": "optional"
-                                }
-                              ],
-                              "js_doc": null,
-                              "source_href": null
+                    "id": "function_d_0",
+                    "anchor": {
+                      "id": "function_d_0"
+                    },
+                    "name": "d",
+                    "summary": "(<div class=\"ml-4\"><div><span>foo?<span>: <span>number</span></span></span>,</div><div><span>bar?<span>: <span>string</span></span></span>,</div><div><span>baz?<span>: { hello?<span>: <span>string</span></span>;  }</span></span>,</div></div>)<span>: <span>string</span></span>",
+                    "deprecated": null,
+                    "content": {
+                      "id": "",
+                      "docs": null,
+                      "sections": [
+                        {
+                          "header": {
+                            "title": "Parameters",
+                            "anchor": {
+                              "id": "parameters"
                             },
-                            {
-                              "id": "function_d_0_parameters_bar",
-                              "name": "bar",
-                              "name_href": null,
-                              "content": "<span>: <span>string</span></span><span><span class=\"font-normal\"> = </span>bar</span>",
-                              "anchor": {
-                                "id": "function_d_0_parameters_bar"
-                              },
-                              "tags": [
-                                {
-                                  "kind": "optional"
-                                }
-                              ],
-                              "js_doc": null,
-                              "source_href": null
-                            },
-                            {
-                              "id": "function_d_0_parameters_baz",
-                              "name": "baz",
-                              "name_href": null,
-                              "content": "<span>: { hello?<span>: <span>string</span></span>;  }</span>",
-                              "anchor": {
-                                "id": "function_d_0_parameters_baz"
-                              },
-                              "tags": [
-                                {
-                                  "kind": "optional"
-                                }
-                              ],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "header": {
-                          "title": "Return Type",
-                          "anchor": {
-                            "id": "return-type"
+                            "href": null,
+                            "doc": null
                           },
-                          "href": null,
-                          "doc": null
-                        },
-                        "content": {
-                          "kind": "doc_entry",
-                          "content": [
-                            {
-                              "id": "function_d_0_return",
-                              "name": "",
-                              "name_href": null,
-                              "content": "<span>string</span>",
-                              "anchor": {
-                                "id": "function_d_0_return"
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_d_0_parameters_foo",
+                                "name": "foo",
+                                "name_href": null,
+                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
+                                "anchor": {
+                                  "id": "function_d_0_parameters_foo"
+                                },
+                                "tags": [
+                                  {
+                                    "kind": "optional"
+                                  }
+                                ],
+                                "js_doc": null,
+                                "source_href": null
                               },
-                              "tags": [],
-                              "js_doc": null,
-                              "source_href": null
-                            }
-                          ]
+                              {
+                                "id": "function_d_0_parameters_bar",
+                                "name": "bar",
+                                "name_href": null,
+                                "content": "<span>: <span>string</span></span><span><span class=\"font-normal\"> = </span>bar</span>",
+                                "anchor": {
+                                  "id": "function_d_0_parameters_bar"
+                                },
+                                "tags": [
+                                  {
+                                    "kind": "optional"
+                                  }
+                                ],
+                                "js_doc": null,
+                                "source_href": null
+                              },
+                              {
+                                "id": "function_d_0_parameters_baz",
+                                "name": "baz",
+                                "name_href": null,
+                                "content": "<span>: { hello?<span>: <span>string</span></span>;  }</span>",
+                                "anchor": {
+                                  "id": "function_d_0_parameters_baz"
+                                },
+                                "tags": [
+                                  {
+                                    "kind": "optional"
+                                  }
+                                ],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "header": {
+                            "title": "Return Type",
+                            "anchor": {
+                              "id": "return-type"
+                            },
+                            "href": null,
+                            "doc": null
+                          },
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_d_0_return",
+                                "name": null,
+                                "name_href": null,
+                                "content": "<span>string</span>",
+                                "anchor": {
+                                  "id": "function_d_0_return"
+                                },
+                                "tags": [],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 ]
               }
@@ -1000,7 +997,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul id=\"function_d_0_toc\"><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameters_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameters_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameters_baz\" title=\"baz\">baz</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><ul><li><a href=\"#function_d_0_return\" title=\"\"></a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameters_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameters_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameters_baz\" title=\"baz\">baz</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null

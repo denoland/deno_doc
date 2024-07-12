@@ -287,10 +287,12 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if let Some(examples) =
-        crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
-      {
-        sections.push(examples);
+      if doc_node.kind != DocNodeKind::Function {
+        if let Some(examples) =
+          crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
+        {
+          sections.push(examples);
+        }
       }
 
       sections.extend(match doc_node.kind {
