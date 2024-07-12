@@ -488,7 +488,20 @@ impl SectionCtx {
           render_context.toc.add_entry(2, name.clone(), anchor);
         }
       }
-      SectionContentCtx::Example(_) => {}
+      SectionContentCtx::Example(examples) => {
+        for example in examples {
+          let anchor = render_context.toc.anchorize(example.id.to_owned());
+
+          example.id = anchor.clone();
+          example.anchor.id = anchor.clone();
+
+          render_context.toc.add_entry(
+            2,
+            super::jsdoc::strip(render_context, &example.title),
+            anchor,
+          );
+        }
+      }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {

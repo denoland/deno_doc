@@ -285,7 +285,7 @@ impl HeadingToCAdapter {
     }
 
     let mut toc_content = vec!["<ul>".to_string()];
-    let mut current_level = toc.first().unwrap().level;
+    let mut current_level = toc.iter().map(|entry| entry.level).min().unwrap();
 
     for entry in toc {
       match current_level.cmp(&entry.level) {

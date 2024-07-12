@@ -1,5 +1,7 @@
 use super::render_context::RenderContext;
 use super::util::*;
+#[cfg(feature = "ammonia")]
+use crate::html::comrak_adapters::URLRewriter;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -12,9 +14,7 @@ use comrak::Arena;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cell::RefCell;
-
-#[cfg(feature = "ammonia")]
-use crate::html::comrak_adapters::URLRewriter;
+use std::io::{BufWriter, Write};
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -298,7 +298,7 @@ fn render_node<'a>(
   options: &comrak::Options,
   plugins: &comrak::Plugins,
 ) -> String {
-  let mut bw = std::io::BufWriter::new(Vec::new());
+  let mut bw = BufWriter::new(Vec::new());
   comrak::format_html_with_plugins(node, options, &mut bw, plugins).unwrap();
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
@@ -307,6 +307,46 @@ pub struct MarkdownToHTMLOptions {
   pub summary: bool,
   pub summary_prefer_title: bool,
   pub no_toc: bool,
+}
+
+pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
+  let mut options = comrak::Options::default();
+  options.extension.autolink = true;
+  options.extension.description_lists = true;
+  options.extension.strikethrough = true;
+  options.extension.superscript = true;
+  options.extension.table = true;
+  options.extension.tagfilter = true;
+  options.extension.tasklist = true;
+  options.render.escape = true;
+
+  let md = parse_links(md, render_ctx);
+
+  let arena = Arena::new();
+  let root = comrak::parse_document(&arena, &md, &options);
+
+  walk_node(&arena, root, &options, &Default::default());
+
+  fn collect_text<'a>(node: &'a AstNode<'a>, output: &mut BufWriter<Vec<u8>>) {
+    match node.data.borrow().value {
+      NodeValue::Text(ref literal)
+      | NodeValue::Code(comrak::nodes::NodeCode { ref literal, .. }) => {
+        output.write_all(literal.as_bytes()).unwrap();
+      }
+      NodeValue::LineBreak | NodeValue::SoftBreak => {
+        output.write_all(&[b' ']).unwrap()
+      }
+      _ => {
+        for n in node.children() {
+          collect_text(n, output);
+        }
+      }
+    }
+  }
+
+  let mut bw = BufWriter::new(Vec::new());
+  collect_text(root, &mut bw);
+  String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
 pub fn markdown_to_html(
@@ -529,6 +569,7 @@ pub(crate) fn jsdoc_examples(
 pub struct ExampleCtx {
   pub anchor: AnchorCtx,
   pub id: String,
+  pub title: String,
   pub markdown_title: String,
   markdown_body: String,
 }
@@ -553,6 +594,7 @@ impl ExampleCtx {
     ExampleCtx {
       anchor: AnchorCtx { id: id.to_string() },
       id: id.to_string(),
+      title,
       markdown_title,
       markdown_body,
     }
