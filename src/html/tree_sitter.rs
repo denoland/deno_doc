@@ -47,7 +47,8 @@ pub fn tree_sitter_language_cb(
       "json" | "jsonc" => tree_sitter_language_json(),
       "css" => tree_sitter_language_css(),
       "md" | "markdown" => tree_sitter_language_markdown(),
-      "toml" => tree_sitter_language_toml(),
+      "xml" => tree_sitter_language_xml(),
+      "dtd" => tree_sitter_language_dtd(),
       "regex" => tree_sitter_language_regex(),
       "rs" | "rust" => tree_sitter_language_rust(),
       "html" => tree_sitter_language_html(),
@@ -190,16 +191,31 @@ fn tree_sitter_language_markdown() -> &'static HighlightConfiguration {
   })
 }
 
-fn tree_sitter_language_toml() -> &'static HighlightConfiguration {
+fn tree_sitter_language_xml() -> &'static HighlightConfiguration {
   static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
-      tree_sitter_toml::language(),
-      tree_sitter_toml::HIGHLIGHT_QUERY,
+      tree_sitter_xml::language_xml(),
+      tree_sitter_xml::XML_HIGHLIGHT_QUERY,
       "",
       "",
     )
-    .expect("failed to initialize tree_sitter_toml highlighter");
+    .expect("failed to initialize tree_sitter_xml highlighter");
+    config.configure(CAPTURE_NAMES);
+    config
+  })
+}
+
+fn tree_sitter_language_dtd() -> &'static HighlightConfiguration {
+  static CONFIG: OnceLock<HighlightConfiguration> = OnceLock::new();
+  CONFIG.get_or_init(|| {
+    let mut config = HighlightConfiguration::new(
+      tree_sitter_xml::language_dtd(),
+      tree_sitter_xml::DTD_HIGHLIGHT_QUERY,
+      "",
+      "",
+    )
+    .expect("failed to initialize tree_sitter_dtd highlighter");
     config.configure(CAPTURE_NAMES);
     config
   })
