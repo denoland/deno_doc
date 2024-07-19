@@ -236,23 +236,18 @@ pub struct ToCEntry {
 pub struct Anchorizer {
   map: HashMap<String, i32>,
   itoa_buffer: itoa::Buffer,
-  reuse_last_space_for_id: bool,
 }
 
 impl Anchorizer {
   pub fn anchorize(&mut self, s: &str) -> String {
-    let mut s = s.to_lowercase();
-    let last_space = s.rfind(" ").unwrap_or(0);
-    s = REJECTED_CHARS.replace_all(&s, "").replace(" ", "-");
+    let mut s = REJECTED_CHARS
+      .replace_all(&s.to_lowercase(), "")
+      .replace(' ', "-");
 
     if let Some(count) = self.map.get_mut(&s) {
       let a = self.itoa_buffer.format(*count);
-      if last_space > 0 && self.reuse_last_space_for_id {
-        s.replace_range(last_space..last_space + a.len(), &a);
-      } else {
-        s.push('-');
-        s.push_str(a);
-      }
+      s.push('-');
+      s.push_str(a);
 
       *count += 1;
     } else {
