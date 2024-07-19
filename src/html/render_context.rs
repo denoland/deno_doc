@@ -12,7 +12,7 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  pub ctx: &'ctx GenerateCtx<'ctx>,
+  pub ctx: &'ctx GenerateCtx,
   scoped_symbols: NamespacedSymbols,
   current_imports: Rc<HashMap<String, String>>,
   current_type_params: Rc<HashSet<&'ctx str>>,
@@ -26,7 +26,7 @@ pub struct RenderContext<'ctx> {
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
-    ctx: &'ctx GenerateCtx<'ctx>,
+    ctx: &'ctx GenerateCtx,
     doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {

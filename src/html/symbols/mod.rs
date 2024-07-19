@@ -9,6 +9,7 @@ use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Serialize;
 use std::collections::HashSet;
 
@@ -24,7 +25,7 @@ pub mod variable;
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   usage: Option<UsagesCtx>,
-  tags: HashSet<Tag>,
+  tags: IndexSet<Tag>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
   deprecated: Option<String>,
@@ -67,7 +68,7 @@ impl SymbolGroupCtx {
         let all_deprecated =
           super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
-        let mut tags = HashSet::new();
+        let mut tags = indexmap::IndexSet::new();
 
         if doc_nodes.iter().any(|node| {
           node
@@ -79,7 +80,7 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Unstable);
         }
 
-        let permissions = doc_nodes
+        let mut permissions = doc_nodes
           .iter()
           .flat_map(|node| {
             node
@@ -101,10 +102,13 @@ impl SymbolGroupCtx {
               })
               .flatten()
           })
-          .collect::<Vec<_>>();
+          .collect::<indexmap::IndexSet<_>>();
 
         if !permissions.is_empty() {
-          tags.insert(Tag::Permissions(permissions));
+          permissions.sort();
+          tags.insert(Tag::Permissions(
+            permissions.into_iter().collect::<Vec<_>>(),
+          ));
         }
 
         if doc_nodes[0].is_internal() {
@@ -328,20 +332,17 @@ impl SymbolInnerCtx {
 
           namespace::render_namespace(
             &ctx.with_namespace(ns_qualifiers),
-            partitions
-              .into_iter()
-              .map(|(title, nodes)| {
-                (
-                  crate::html::util::SectionHeaderCtx {
-                    title: title.clone(),
-                    anchor: AnchorCtx { id: title },
-                    href: None,
-                    doc: None,
-                  },
-                  nodes,
-                )
-              })
-              .collect(),
+            partitions.into_iter().map(|(title, nodes)| {
+              (
+                crate::html::util::SectionHeaderCtx {
+                  title: title.clone(),
+                  anchor: AnchorCtx { id: title },
+                  href: None,
+                  doc: None,
+                },
+                nodes,
+              )
+            }),
           )
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),

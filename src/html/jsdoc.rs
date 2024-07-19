@@ -374,10 +374,13 @@ pub fn markdown_to_html(
   }
 
   let mut plugins = comrak::Plugins::default();
-  plugins.render.codefence_syntax_highlighter =
-    Some(&render_ctx.ctx.highlight_adapter);
-  if !render_options.no_toc {
-    plugins.render.heading_adapter = Some(&render_ctx.toc);
+
+  if !render_options.summary {
+    plugins.render.codefence_syntax_highlighter =
+      Some(&render_ctx.ctx.highlight_adapter);
+    if !render_options.no_toc {
+      plugins.render.heading_adapter = Some(&render_ctx.toc);
+    }
   }
 
   let md = parse_links(md, render_ctx);
@@ -649,20 +652,17 @@ impl ModuleDocCtx {
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,
-        partitions_by_kind
-          .into_iter()
-          .map(|(title, nodes)| {
-            (
-              SectionHeaderCtx {
-                title: title.clone(),
-                anchor: AnchorCtx { id: title },
-                href: None,
-                doc: None,
-              },
-              nodes,
-            )
-          })
-          .collect(),
+        partitions_by_kind.into_iter().map(|(title, nodes)| {
+          (
+            SectionHeaderCtx {
+              title: title.clone(),
+              anchor: AnchorCtx { id: title },
+              href: None,
+              doc: None,
+            },
+            nodes,
+          )
+        }),
       ));
     }
 

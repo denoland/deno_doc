@@ -83,7 +83,7 @@ pub struct CategoriesPanelCtx {
 }
 
 impl CategoriesPanelCtx {
-  pub const TEMPLATE: &'static str = "pages/category_panel";
+  pub const TEMPLATE: &'static str = "category_panel";
 
   pub fn new(ctx: &RenderContext) -> Option<Self> {
     match ctx.ctx.file_mode {
@@ -241,11 +241,8 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.add_entry(
-              1,
-              title.clone(),
-              render_ctx.toc.anchorize(title.clone()),
-            );
+            let anchor = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &anchor);
 
             util::SectionCtx {
               header: SectionHeaderCtx {
@@ -274,11 +271,8 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.add_entry(
-              1,
-              title.clone(),
-              render_ctx.toc.anchorize(title.clone()),
-            );
+            let anchor = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &anchor);
 
             let doc = ctx
               .category_docs
@@ -358,24 +352,21 @@ impl IndexCtx {
 
     let sections = super::namespace::render_namespace(
       &render_ctx,
-      partitions
-        .into_iter()
-        .map(|(title, nodes)| {
-          let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
-            category_docs.get(&title).cloned().flatten()
-          });
+      partitions.into_iter().map(|(title, nodes)| {
+        let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
+          category_docs.get(&title).cloned().flatten()
+        });
 
-          (
-            SectionHeaderCtx {
-              anchor: AnchorCtx { id: title.clone() },
-              title,
-              href: None,
-              doc,
-            },
-            nodes,
-          )
-        })
-        .collect(),
+        (
+          SectionHeaderCtx {
+            anchor: AnchorCtx { id: title.clone() },
+            title,
+            href: None,
+            doc,
+          },
+          nodes,
+        )
+      }),
     );
 
     let root =
@@ -438,15 +429,12 @@ impl AllSymbolsCtx {
 
     let sections = super::namespace::render_namespace(
       &render_ctx,
-      partitions
-        .into_iter()
-        .map(|(path, nodes)| {
-          (
-            SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
-            nodes,
-          )
-        })
-        .collect(),
+      partitions.into_iter().map(|(path, nodes)| {
+        (
+          SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
+          nodes,
+        )
+      }),
     );
 
     let html_head_ctx = HtmlHeadCtx::new(

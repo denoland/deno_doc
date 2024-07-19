@@ -70,11 +70,9 @@ impl FunctionCtx {
         name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
 
       if overloads_count > 1 {
-        ctx.toc.add_entry(
-          0,
-          format!("Overload {}", i + 1),
-          overload_id.clone(),
-        );
+        ctx
+          .toc
+          .add_entry(0, &format!("Overload {}", i + 1), &overload_id);
       }
 
       functions_content.push(OverloadRenderCtx {

@@ -8,10 +8,9 @@ use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: IndexMap<SectionHeaderCtx, Vec<DocNodeWithContext>>,
+  partitions: impl Iterator<Item = (SectionHeaderCtx, Vec<DocNodeWithContext>)>,
 ) -> Vec<SectionCtx> {
   partitions
-    .into_iter()
     .map(|(header, doc_nodes)| {
       get_namespace_section_render_ctx(ctx, header, doc_nodes)
     })

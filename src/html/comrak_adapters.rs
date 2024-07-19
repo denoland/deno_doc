@@ -232,11 +232,42 @@ pub struct ToCEntry {
   pub anchor: String,
 }
 
+#[derive(Default)]
+pub struct Anchorizer {
+  map: HashMap<String, i32>,
+  itoa_buffer: itoa::Buffer,
+  reuse_last_space_for_id: bool,
+}
+
+impl Anchorizer {
+  pub fn anchorize(&mut self, s: &str) -> String {
+    let mut s = s.to_lowercase();
+    let last_space = s.rfind(" ").unwrap_or(0);
+    s = REJECTED_CHARS.replace_all(&s, "").replace(" ", "-");
+
+    if let Some(count) = self.map.get_mut(&s) {
+      let a = self.itoa_buffer.format(*count);
+      if last_space > 0 && self.reuse_last_space_for_id {
+        s.replace_range(last_space..last_space + a.len(), &a);
+      } else {
+        s.push('-');
+        s.push_str(a);
+      }
+
+      *count += 1;
+    } else {
+      self.map.insert(s.clone(), 1);
+    }
+
+    s
+  }
+}
+
 #[derive(Clone)]
 pub struct HeadingToCAdapter {
   toc: Arc<Mutex<Vec<ToCEntry>>>,
-  anchorizer: Arc<Mutex<comrak::html::Anchorizer>>,
   offset: Arc<Mutex<u8>>,
+  anchorizer: Arc<Mutex<Anchorizer>>,
 }
 
 impl Default for HeadingToCAdapter {
@@ -249,18 +280,18 @@ impl Default for HeadingToCAdapter {
   }
 }
 
+lazy_static! {
+  static ref REJECTED_CHARS: regex::Regex =
+    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap();
+}
+
 impl HeadingToCAdapter {
-  pub fn anchorize(&self, content: String) -> String {
+  pub fn anchorize(&self, content: &str) -> String {
     let mut anchorizer = self.anchorizer.lock().unwrap();
-    anchorizer.anchorize(content.clone())
+    anchorizer.anchorize(content)
   }
 
-  pub fn add_entry(
-    &self,
-    level: u8,
-    content: String,
-    anchor: String,
-  ) -> String {
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
     let mut toc = self.toc.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
@@ -269,12 +300,10 @@ impl HeadingToCAdapter {
     if toc.last().map_or(true, |toc| toc.content != content) {
       toc.push(ToCEntry {
         level,
-        content,
-        anchor: anchor.clone(),
+        content: content.to_owned(),
+        anchor: anchor.to_owned(),
       });
     }
-
-    anchor
   }
 
   pub fn render(self) -> Option<String> {
@@ -322,7 +351,7 @@ impl HeadingAdapter for HeadingToCAdapter {
     let mut anchorizer = self.anchorizer.lock().unwrap();
     let offset = self.offset.lock().unwrap();
 
-    let anchor = anchorizer.anchorize(heading.content.clone());
+    let anchor = anchorizer.anchorize(&heading.content);
     writeln!(output, r#"<h{} id="{anchor}">"#, heading.level)?;
 
     let mut toc = self.toc.lock().unwrap();
