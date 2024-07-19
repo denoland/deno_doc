@@ -26,6 +26,74 @@ lazy_static! {
     regex::Regex::new(r"(^\.{0,2}\/)|(^[A-Za-z]+:\S)").unwrap();
   static ref MODULE_LINK_RE: regex::Regex =
     regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
+
+  #[cfg(feature = "ammonia")]
+  static ref AMMONIA: ammonia::Builder<'static> = {
+    let mut ammonia_builder = ammonia::Builder::default();
+
+    ammonia_builder
+      .add_tags(["video", "button", "svg", "path", "rect"])
+      .add_generic_attributes(["id", "align"])
+      .add_tag_attributes("button", ["data-copy"])
+      .add_tag_attributes(
+        "svg",
+        [
+          "width",
+          "height",
+          "viewBox",
+          "fill",
+          "xmlns",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
+      )
+      .add_tag_attributes(
+        "path",
+        [
+          "d",
+          "fill",
+          "fill-rule",
+          "clip-rule",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
+      )
+      .add_tag_attributes("rect", ["x", "y", "width", "height", "fill"])
+      .add_tag_attributes("video", ["src", "controls"])
+      .add_allowed_classes("pre", ["highlight"])
+      .add_allowed_classes("button", ["context_button"])
+      .add_allowed_classes(
+        "div",
+        [
+          "alert",
+          "alert-note",
+          "alert-tip",
+          "alert-important",
+          "alert-warning",
+          "alert-caution",
+        ],
+      )
+      .link_rel(Some("nofollow"))
+      .url_relative(
+      ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator())));
+
+    #[cfg(feature = "syntect")]
+    ammonia_builder.add_tag_attributes("span", ["style"]);
+
+    #[cfg(feature = "tree-sitter")]
+    ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
+
+    ammonia_builder
+  };
+}
+
+thread_local! {
+  static CURRENT_FILE: RefCell<Option<Option<ShortPath>>> = RefCell::new(None);
+  static URL_REWRITER: RefCell<Option<Option<URLRewriter>>> = RefCell::new(None);
 }
 
 fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
@@ -147,15 +215,23 @@ fn split_markdown_title(
 }
 
 #[cfg(feature = "ammonia")]
-struct AmmoniaRelativeUrlEvaluator {
-  current_file: Option<ShortPath>,
-  url_rewriter: URLRewriter,
-}
+struct AmmoniaRelativeUrlEvaluator();
 
 #[cfg(feature = "ammonia")]
 impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
   fn evaluate<'a>(&self, url: &'a str) -> Option<Cow<'a, str>> {
-    Some((self.url_rewriter)(self.current_file.as_ref(), url).into())
+    URL_REWRITER.with(|url_rewriter| {
+      if let Some(url_rewriter) = url_rewriter.borrow().as_ref().unwrap() {
+        CURRENT_FILE.with(|current_file| {
+          Some(
+            url_rewriter(current_file.borrow().as_ref().unwrap().as_ref(), url)
+              .into(),
+          )
+        })
+      } else {
+        Some(Cow::Borrowed(url))
+      }
+    })
   }
 }
 
@@ -403,7 +479,7 @@ pub fn markdown_to_html(
     "markdown"
   };
 
-  let mut html = {
+  let html = {
     let arena = Arena::new();
     let root = comrak::parse_document(&arena, md, &options);
 
@@ -414,75 +490,24 @@ pub fn markdown_to_html(
 
   #[cfg(feature = "ammonia")]
   {
-    let mut ammonia_builder = ammonia::Builder::default();
+    CURRENT_FILE
+      .set(Some(render_ctx.get_current_resolve().get_file().cloned()));
+    URL_REWRITER.set(Some(render_ctx.ctx.url_rewriter.clone()));
 
-    ammonia_builder
-      .add_tags(["video", "button", "svg", "path", "rect"])
-      .add_generic_attributes(["id", "align"])
-      .add_tag_attributes("button", ["data-copy"])
-      .add_tag_attributes(
-        "svg",
-        [
-          "width",
-          "height",
-          "viewBox",
-          "fill",
-          "xmlns",
-          "stroke",
-          "stroke-width",
-          "stroke-linecap",
-          "stroke-linejoin",
-        ],
-      )
-      .add_tag_attributes(
-        "path",
-        [
-          "d",
-          "fill",
-          "fill-rule",
-          "clip-rule",
-          "stroke",
-          "stroke-width",
-          "stroke-linecap",
-          "stroke-linejoin",
-        ],
-      )
-      .add_tag_attributes("rect", ["x", "y", "width", "height", "fill"])
-      .add_tag_attributes("video", ["src", "controls"])
-      .add_allowed_classes("pre", ["highlight"])
-      .add_allowed_classes("button", ["context_button"])
-      .add_allowed_classes(
-        "div",
-        [
-          "alert",
-          "alert-note",
-          "alert-tip",
-          "alert-important",
-          "alert-warning",
-          "alert-caution",
-        ],
-      )
-      .link_rel(Some("nofollow"))
-      .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
-        ammonia::UrlRelative::PassThrough,
-        |url_rewriter| {
-          ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
-            current_file: render_ctx.get_current_resolve().get_file().cloned(),
-            url_rewriter: url_rewriter.clone(),
-          }))
-        },
-      ));
+    let html = Some(format!(
+      r#"<div class="{class_name}">{}</div>"#,
+      AMMONIA.clean(&html)
+    ));
 
-    #[cfg(feature = "syntect")]
-    ammonia_builder.add_tag_attributes("span", ["style"]);
+    CURRENT_FILE.set(None);
+    URL_REWRITER.set(None);
 
-    #[cfg(feature = "tree-sitter")]
-    ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
-
-    html = ammonia_builder.clean(&html).to_string();
+    html
   }
-
-  Some(format!(r#"<div class="{class_name}">{html}</div>"#))
+  #[cfg(not(feature = "ammonia"))]
+  {
+    Some(format!(r#"<div class="{class_name}">{html}</div>"#))
+  }
 }
 
 pub(crate) fn render_markdown_summary(

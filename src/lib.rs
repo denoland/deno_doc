@@ -113,7 +113,7 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
       namespace_def
         .elements
         .into_iter()
-        .map(std::sync::Arc::unwrap_or_clone)
+        .map(std::rc::Rc::unwrap_or_clone)
         .collect()
     }
     DocNodeKind::Interface => {

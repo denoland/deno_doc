@@ -31,7 +31,7 @@ where
 
       if flatten_namespaces && node.kind == DocNodeKind::Namespace {
         let namespace_def = node.namespace_def.as_ref().unwrap();
-        let ns_qualifiers = Rc::new(node.sub_qualifier());
+        let ns_qualifiers: Rc<[String]> = node.sub_qualifier().into();
 
         partitioner_inner(
           partitions,

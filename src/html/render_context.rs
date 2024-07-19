@@ -18,7 +18,7 @@ pub struct RenderContext<'ctx> {
   current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Rc<Vec<String>>,
+  namespace_parts: Rc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
   category: Option<&'ctx str>,
   pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
@@ -36,7 +36,7 @@ impl<'ctx> RenderContext<'ctx> {
       current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,
-      namespace_parts: Rc::new(vec![]),
+      namespace_parts: Rc::new([]),
       category: None,
       toc: Default::default(),
     }
@@ -52,7 +52,7 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  pub fn with_namespace(&self, namespace_parts: Rc<Vec<String>>) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Rc<[String]>) -> Self {
     Self {
       namespace_parts,
       ..self.clone()
@@ -93,7 +93,8 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      let mut parts = (*self.namespace_parts).clone();
+      // TODO: clean this up to not clone and to_vec
+      let mut parts = self.namespace_parts.to_vec();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);

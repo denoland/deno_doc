@@ -317,7 +317,8 @@ impl SymbolInnerCtx {
 
         DocNodeKind::Namespace => {
           let namespace_def = doc_node.namespace_def.as_ref().unwrap();
-          let ns_qualifiers = std::rc::Rc::new(doc_node.sub_qualifier());
+          let ns_qualifiers: std::rc::Rc<[String]> =
+            doc_node.sub_qualifier().into();
           let namespace_nodes = namespace_def
             .elements
             .iter()

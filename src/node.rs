@@ -2,13 +2,13 @@
 
 use serde::Deserialize;
 use serde::Serialize;
-use std::sync::Arc;
+use std::rc::Rc;
 
 use crate::js_doc::JsDoc;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
-  pub elements: Vec<Arc<DocNode>>,
+  pub elements: Vec<Rc<DocNode>>,
 }
 
 #[derive(

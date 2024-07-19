@@ -6,7 +6,6 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::sync::Arc;
 
 use crate::DocNode;
 
@@ -353,10 +352,10 @@ impl GenerateCtx {
 
             DocNodeWithContext {
               origin: short_path.clone(),
-              ns_qualifiers: Rc::new(vec![]),
+              ns_qualifiers: Rc::new([]),
               drilldown_parent_kind: None,
               kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
-              inner: Arc::new(node),
+              inner: Rc::new(node),
               parent: None,
             }
           })
@@ -528,15 +527,15 @@ pub enum DocNodeKindWithDrilldown {
 #[derive(Clone, Debug)]
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
-  pub ns_qualifiers: Rc<Vec<String>>,
+  pub ns_qualifiers: Rc<[String]>,
   pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
-  pub inner: Arc<DocNode>,
+  pub inner: Rc<DocNode>,
   pub parent: Option<Box<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
-  pub fn create_child(&self, doc_node: Arc<DocNode>) -> Self {
+  pub fn create_child(&self, doc_node: Rc<DocNode>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
@@ -549,8 +548,8 @@ impl DocNodeWithContext {
 
   pub fn create_namespace_child(
     &self,
-    doc_node: Arc<DocNode>,
-    qualifiers: Rc<Vec<String>>,
+    doc_node: Rc<DocNode>,
+    qualifiers: Rc<[String]>,
   ) -> Self {
     let mut child = self.create_child(doc_node);
     child.ns_qualifiers = qualifiers;
@@ -566,7 +565,7 @@ impl DocNodeWithContext {
       qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static);
     method_doc_node.declaration_kind = self.declaration_kind;
 
-    let mut new_node = self.create_child(Arc::new(method_doc_node));
+    let mut new_node = self.create_child(Rc::new(method_doc_node));
     new_node.drilldown_parent_kind = Some(self.kind);
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
     new_node
@@ -584,7 +583,7 @@ impl DocNodeWithContext {
     );
     property_doc_node.declaration_kind = self.declaration_kind;
 
-    let mut new_node = self.create_child(Arc::new(property_doc_node));
+    let mut new_node = self.create_child(Rc::new(property_doc_node));
     new_node.drilldown_parent_kind = Some(self.kind);
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
     new_node
@@ -599,7 +598,7 @@ impl DocNodeWithContext {
   }
 
   pub fn sub_qualifier(&self) -> Vec<String> {
-    let mut ns_qualifiers = (*self.ns_qualifiers).clone();
+    let mut ns_qualifiers = Vec::from(&*self.ns_qualifiers);
     ns_qualifiers.push(self.get_name().to_string());
     ns_qualifiers
   }
