@@ -59,8 +59,12 @@ pub fn usage_to_md(
             if is_default {
               import_symbol.clone()
             } else {
-              let mut joined =
-                String::with_capacity(symbol.len() - usage_symbol.len() - 1);
+              let capacity = if symbol.len() == usage_symbol.len() {
+                0
+              } else {
+                symbol.len() - usage_symbol.len() - 1
+              };
+              let mut joined = String::with_capacity(capacity);
 
               for part in parts {
                 if !joined.is_empty() {
