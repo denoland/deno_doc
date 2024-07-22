@@ -169,7 +169,7 @@ impl<'a> DocPrinter<'a> {
     if !js_doc.tags.is_empty() {
       writeln!(w)?;
     }
-    for tag in &js_doc.tags {
+    for tag in js_doc.tags.iter() {
       self.format_jsdoc_tag(w, tag, indent)?;
     }
     Ok(())
@@ -178,7 +178,7 @@ impl<'a> DocPrinter<'a> {
   fn format_jsdoc_tag_maybe_doc(
     &self,
     w: &mut Formatter<'_>,
-    maybe_doc: &Option<String>,
+    maybe_doc: &Option<Box<str>>,
     indent: i64,
   ) -> FmtResult {
     if let Some(doc) = maybe_doc {
@@ -420,7 +420,7 @@ impl<'a> DocPrinter<'a> {
   fn format_class(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {
     let class_def = node.class_def.as_ref().unwrap();
     let has_overloads = class_def.constructors.len() > 1;
-    for node in &class_def.constructors {
+    for node in class_def.constructors.iter() {
       if !has_overloads || !node.has_body {
         writeln!(w, "{}{}", Indent(1), node,)?;
         self.format_jsdoc(w, &node.js_doc, 2)?;
@@ -433,13 +433,13 @@ impl<'a> DocPrinter<'a> {
           .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
           != deno_ast::swc::ast::Accessibility::Private
     }) {
-      for d in &node.decorators {
+      for d in node.decorators.iter() {
         writeln!(w, "{}{}", Indent(1), d)?;
       }
       writeln!(w, "{}{}", Indent(1), node,)?;
       self.format_jsdoc(w, &node.js_doc, 2)?;
     }
-    for index_sign_def in &class_def.index_signatures {
+    for index_sign_def in class_def.index_signatures.iter() {
       writeln!(w, "{}{}", Indent(1), index_sign_def)?;
     }
     for node in class_def.methods.iter().filter(|node| {
@@ -456,7 +456,7 @@ impl<'a> DocPrinter<'a> {
         .count()
         > 1;
       if !has_overloads || !node.function_def.has_body {
-        for d in &node.function_def.decorators {
+        for d in node.function_def.decorators.iter() {
           writeln!(w, "{}{}", Indent(1), d)?;
         }
         writeln!(w, "{}{}", Indent(1), node,)?;
@@ -529,7 +529,7 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
   ) -> FmtResult {
     let class_def = node.class_def.as_ref().unwrap();
-    for node in &class_def.decorators {
+    for node in class_def.decorators.iter() {
       writeln!(w, "{}{}", Indent(indent), node)?;
     }
     write!(

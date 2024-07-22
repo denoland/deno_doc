@@ -11,12 +11,12 @@ use serde_json::json;
 #[serde(rename_all = "camelCase")]
 struct SearchIndexNode {
   kind: Vec<DocNodeKind>,
-  name: String,
-  file: String,
-  doc: String,
+  name: Box<str>,
+  file: Box<str>,
+  doc: Box<str>,
   location: Location,
-  url: String,
-  category: String,
+  url: Box<str>,
+  category: Box<str>,
   declaration_kind: crate::node::DeclarationKind,
   deprecated: bool,
 }
@@ -37,9 +37,9 @@ fn doc_nodes_into_search_index_node(
     .keys()
     .find(|short_path| short_path.specifier == location_url)
   {
-    html_escape::encode_text(&short_path.display_name()).into_owned()
+    html_escape::encode_text(&short_path.display_name()).into()
   } else {
-    String::new()
+    "".into()
   };
 
   let doc = doc_nodes[0].js_doc.doc.clone().unwrap_or_default();
@@ -67,14 +67,14 @@ fn doc_nodes_into_search_index_node(
 
   SearchIndexNode {
     kind: kinds,
-    name: html_escape::encode_text(&name).to_string(),
+    name: html_escape::encode_text(&name).into(),
     file: html_escape::encode_double_quoted_attribute(
       &doc_nodes[0].origin.path,
     )
-    .into_owned(),
+    .into(),
     doc,
     location,
-    url: abs_url,
+    url: abs_url.into_boxed_str(),
     category,
     declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,

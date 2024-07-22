@@ -11,6 +11,7 @@ use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
 use std::collections::HashSet;
+use std::ops::Deref;
 
 #[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
@@ -124,29 +125,28 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let param_docs =
-    doc_node
-      .js_doc
-      .tags
-      .iter()
-      .filter_map(|tag| {
-        if let JsDocTag::Param {
-          name,
-          doc,
-          optional,
-          default,
-          ..
-        } = tag
-        {
-          Some((name.as_str(), (doc, *optional, default)))
-        } else {
-          None
-        }
-      })
-      .collect::<std::collections::HashMap<
-        &str,
-        (&Option<String>, bool, &Option<String>),
-      >>();
+  let param_docs = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Param {
+        name,
+        doc,
+        optional,
+        default,
+        ..
+      } = tag
+      {
+        Some((name.deref(), (doc, *optional, default)))
+      } else {
+        None
+      }
+    })
+    .collect::<std::collections::HashMap<
+      &str,
+      (&Option<Box<str>>, bool, &Option<Box<str>>),
+    >>();
 
   let params = function_def
     .params
@@ -166,7 +166,7 @@ fn render_single_function(
 
       let ts_type =
         if let ParamPatternDef::Assign { left, right } = &param.pattern {
-          default = default.or(Some(right.to_string()));
+          default = default.or(Some(right.deref().into()));
           left.ts_type.as_ref()
         } else {
           param.ts_type.as_ref()
@@ -177,7 +177,7 @@ fn render_single_function(
         .unwrap_or_default();
 
       if let Some(default) = &default {
-        if default != "[UNSUPPORTED]" {
+        if default.deref() != "[UNSUPPORTED]" {
           ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
         }
       }

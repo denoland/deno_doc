@@ -396,7 +396,7 @@ mod test {
     }
 
     fn resolve_source(&self, location: &Location) -> Option<String> {
-      Some(location.filename.clone())
+      Some(location.filename.clone().into_string())
     }
   }
 
@@ -406,10 +406,10 @@ mod test {
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
       vec![DocNode {
         kind: DocNodeKind::Import,
-        name: "foo".to_string(),
+        name: "foo".into(),
         is_default: None,
         location: Location {
-          filename: "a".to_string(),
+          filename: "a".into(),
           line: 0,
           col: 0,
           byte_index: 0,

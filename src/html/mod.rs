@@ -301,13 +301,13 @@ impl GenerateCtx {
         let nodes = nodes
           .into_iter()
           .map(|mut node| {
-            if node.name == "default" {
+            if &*node.name == "default" {
               if let Some(default_rename) =
                 options.default_symbol_map.as_ref().and_then(
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
               {
-                node.name = default_rename.clone();
+                node.name = default_rename.as_str().into();
               }
             }
 
@@ -341,7 +341,7 @@ impl GenerateCtx {
                   is_async: false,
                   is_generator: false,
                   type_params: fn_or_constructor.type_params,
-                  decorators: vec![],
+                  decorators: Box::new([]),
                 },
               );
               new_node.is_default = node.is_default;
@@ -562,7 +562,8 @@ impl DocNodeWithContext {
     is_static: bool,
   ) -> Self {
     method_doc_node.name =
-      qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static);
+      qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static)
+        .into_boxed_str();
     method_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(method_doc_node));
@@ -580,7 +581,8 @@ impl DocNodeWithContext {
       self.get_name(),
       &property_doc_node.name,
       is_static,
-    );
+    )
+    .into_boxed_str();
     property_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(property_doc_node));

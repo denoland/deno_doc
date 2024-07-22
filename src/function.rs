@@ -26,9 +26,9 @@ pub struct FunctionDef {
   pub has_body: bool,
   pub is_async: bool,
   pub is_generator: bool,
-  pub type_params: Vec<TsTypeParamDef>,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub decorators: Vec<DecoratorDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
+  pub decorators: Box<[DecoratorDef]>,
 }
 
 pub fn function_to_function_def(
@@ -58,7 +58,7 @@ pub fn function_to_function_def(
           repr: "Promise".to_string(),
           kind: Some(crate::ts_type::TsTypeDefKind::TypeRef),
           type_ref: Some(crate::ts_type::TsTypeRefDef {
-            type_params: Some(vec![TsTypeDef::keyword("void")]),
+            type_params: Some(Box::new([TsTypeDef::keyword("void")])),
             type_name: "Promise".to_string(),
           }),
           ..Default::default()

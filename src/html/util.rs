@@ -537,8 +537,8 @@ pub enum Tag {
   Private,
   Optional,
   Unstable,
-  Permissions(Vec<String>),
-  Other(String),
+  Permissions(Box<[Box<str>]>),
+  Other(Box<str>),
 }
 
 impl Tag {

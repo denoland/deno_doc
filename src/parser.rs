@@ -271,7 +271,7 @@ impl<'a> DocParser<'a> {
                     .collect(),
                 };
                 let ns_doc_node = DocNode::namespace(
-                  export_name,
+                  export_name.into_boxed_str(),
                   false,
                   definition_location(first_def),
                   DeclarationKind::Export,
@@ -290,7 +290,7 @@ impl<'a> DocParser<'a> {
                       decl.maybe_node(),
                     );
                     for mut doc_node in maybe_docs {
-                      doc_node.name = export_name.clone();
+                      doc_node.name = export_name.as_str().into();
                       doc_node.declaration_kind = DeclarationKind::Export;
 
                       flattened_docs.push(doc_node);
@@ -358,7 +358,7 @@ impl<'a> DocParser<'a> {
             };
 
             let doc_node = DocNode::import(
-              name,
+              name.into_boxed_str(),
               location.clone(),
               js_doc.clone(),
               import_def,
@@ -388,7 +388,7 @@ impl<'a> DocParser<'a> {
     let js_doc = js_doc_for_range(source, &expando_property.inner().range())?;
 
     Some(DocNode::variable(
-      expando_property.prop_name().to_string(),
+      expando_property.prop_name().to_string().into_boxed_str(),
       false,
       location,
       DeclarationKind::Declare,
@@ -427,7 +427,7 @@ impl<'a> DocParser<'a> {
     .map(|(name, var_def)| {
       let location = get_location(module_info.source(), ident.start());
       DocNode::variable(
-        name,
+        name.into_boxed_str(),
         false,
         location,
         DeclarationKind::Declare,
@@ -455,7 +455,7 @@ impl<'a> DocParser<'a> {
       super::class::get_doc_for_class_decl(parsed_source, class_decl);
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::class(
-      name,
+      name.into_boxed_str(),
       false,
       location,
       DeclarationKind::Declare,
@@ -475,7 +475,7 @@ impl<'a> DocParser<'a> {
       super::function::get_doc_for_fn_decl(parsed_source, fn_decl);
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::function(
-      name,
+      name.into_boxed_str(),
       false,
       location,
       DeclarationKind::Declare,
@@ -498,7 +498,7 @@ impl<'a> DocParser<'a> {
     );
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::interface(
-      name,
+      name.into_boxed_str(),
       false,
       location,
       DeclarationKind::Declare,
@@ -521,7 +521,7 @@ impl<'a> DocParser<'a> {
       );
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::type_alias(
-      name,
+      name.into_boxed_str(),
       false,
       location,
       DeclarationKind::Declare,
@@ -541,7 +541,7 @@ impl<'a> DocParser<'a> {
       super::r#enum::get_doc_for_ts_enum_decl(parsed_source, ts_enum);
     let location = get_location(parsed_source, full_range.start);
     Some(DocNode::r#enum(
-      name,
+      name.into_boxed_str(),
       false,
       location,
       DeclarationKind::Declare,
@@ -607,7 +607,7 @@ impl<'a> DocParser<'a> {
           definition.symbol_decl.maybe_node(),
         );
         for mut doc_node in maybe_docs {
-          doc_node.name = export_name.to_string();
+          doc_node.name = export_name.as_str().into();
           doc_node.declaration_kind = DeclarationKind::Export;
 
           elements.push(Rc::new(doc_node));
@@ -642,7 +642,7 @@ impl<'a> DocParser<'a> {
     let location = get_location(module_info.source(), full_range.start);
     let is_default = namespace_name == "default";
     Some(DocNode::namespace(
-      namespace_name,
+      namespace_name.into_boxed_str(),
       is_default,
       location,
       DeclarationKind::Declare,
@@ -691,8 +691,10 @@ impl<'a> DocParser<'a> {
 
     let doc_node = match &export_default_decl.decl {
       DefaultDecl::Class(class_expr) => {
-        let default_name =
-          class_expr.ident.as_ref().map(|ident| ident.sym.to_string());
+        let default_name = class_expr
+          .ident
+          .as_ref()
+          .map(|ident| ident.sym.to_string().into_boxed_str());
         let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
           parsed_source,
           &class_expr.class,
@@ -704,7 +706,7 @@ impl<'a> DocParser<'a> {
           js_doc
         };
         DocNode::class(
-          name,
+          name.into_boxed_str(),
           true,
           location,
           DeclarationKind::Export,
@@ -721,7 +723,7 @@ impl<'a> DocParser<'a> {
           default_name,
         );
         DocNode::function(
-          name,
+          name.into_boxed_str(),
           true,
           location,
           DeclarationKind::Export,
@@ -738,7 +740,7 @@ impl<'a> DocParser<'a> {
             Some(default_name),
           );
         DocNode::interface(
-          name,
+          name.into_boxed_str(),
           true,
           location,
           DeclarationKind::Export,
@@ -760,7 +762,7 @@ impl<'a> DocParser<'a> {
     {
       let location = get_location(parsed_source, export_expr.start());
       Some(DocNode::variable(
-        String::from("default"),
+        "default".into(),
         true,
         location,
         DeclarationKind::Export,
@@ -1014,7 +1016,7 @@ impl<'a> DocParser<'a> {
           definition.symbol_decl.maybe_node(),
         );
         for mut doc_node in maybe_docs {
-          doc_node.name = export_name.clone();
+          doc_node.name = export_name.as_str().into();
           doc_node.is_default = Some(export_name == "default");
           doc_node.declaration_kind = DeclarationKind::Export;
 
@@ -1110,7 +1112,7 @@ impl<'a> DocParser<'a> {
           Some(SymbolNodeRef::ExpandoProperty(n)),
         );
         for doc in &mut docs {
-          doc.name = name.clone();
+          doc.name = name.as_str().into();
           doc.declaration_kind = DeclarationKind::Declare;
         }
         docs
@@ -1127,11 +1129,11 @@ impl<'a> DocParser<'a> {
       DeclarationKind::Declare,
       // give this a JS doc to prevent a missing JS doc diagnostic
       JsDoc {
-        doc: Some(format!(
-          "Additional properties on the `{}` function.",
-          func_doc.name
-        )),
-        tags: vec![],
+        doc: Some(
+          format!("Additional properties on the `{}` function.", func_doc.name)
+            .into_boxed_str(),
+        ),
+        tags: Box::new([]),
       },
       NamespaceDef { elements },
     ))
@@ -1358,10 +1360,10 @@ fn parse_json_module_doc_node(
   if let Ok(value) = serde_json::from_str(source) {
     Some(DocNode {
       kind: DocNodeKind::Variable,
-      name: "default".to_string(),
+      name: "default".into(),
       is_default: Some(true),
       location: Location {
-        filename: specifier.to_string(),
+        filename: specifier.to_string().into_boxed_str(),
         col: 0,
         line: 1,
         byte_index: 0,
@@ -1410,7 +1412,7 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
             readonly: false,
             computed: false,
             optional: false,
-            type_params: Vec::new(),
+            type_params: Box::new([]),
             location: Default::default(),
           })
           .collect(),

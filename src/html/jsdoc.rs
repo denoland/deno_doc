@@ -776,7 +776,7 @@ mod test {
           ModuleSpecifier::parse("file:///a.ts").unwrap(),
           vec![
             DocNode::interface(
-              "foo".to_string(),
+              "foo".into(),
               false,
               Location::default(),
               DeclarationKind::Export,
@@ -789,11 +789,11 @@ mod test {
                 properties: vec![],
                 call_signatures: vec![],
                 index_signatures: vec![],
-                type_params: vec![],
+                type_params: Box::new([]),
               },
             ),
             DocNode::interface(
-              "bar".to_string(),
+              "bar".into(),
               false,
               Location::default(),
               DeclarationKind::Export,
@@ -806,7 +806,7 @@ mod test {
                 properties: vec![],
                 call_signatures: vec![],
                 index_signatures: vec![],
-                type_params: vec![],
+                type_params: Box::new([]),
               },
             ),
           ],
@@ -814,7 +814,7 @@ mod test {
         (
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
           vec![DocNode::interface(
-            "baz".to_string(),
+            "baz".into(),
             false,
             Location::default(),
             DeclarationKind::Export,
@@ -827,7 +827,7 @@ mod test {
               properties: vec![],
               call_signatures: vec![],
               index_signatures: vec![],
-              type_params: vec![],
+              type_params: Box::new([]),
             },
           )],
         ),

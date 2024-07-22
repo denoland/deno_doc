@@ -43,7 +43,7 @@ pub enum DocNodeKind {
 )]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
-  pub filename: String,
+  pub filename: Box<str>,
   /// The 1-indexed display line.
   /// todo(#150): why is one of these 0-indexed and the other 1-indexed?
   pub line: usize,
@@ -118,7 +118,7 @@ pub enum DeclarationKind {
 #[serde(rename_all = "camelCase")]
 pub struct DocNode {
   pub kind: DocNodeKind,
-  pub name: String,
+  pub name: Box<str>,
   #[serde(skip_serializing_if = "Option::is_none", default)]
   pub is_default: Option<bool>,
   pub location: Location,
@@ -156,7 +156,7 @@ impl Default for DocNode {
     Self {
       kind: DocNodeKind::ModuleDoc,
       is_default: None,
-      name: "".to_string(),
+      name: "".into(),
       declaration_kind: DeclarationKind::Private,
       location: Location::default(),
       js_doc: JsDoc::default(),
@@ -176,7 +176,7 @@ impl DocNode {
   pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
     Self {
       kind: DocNodeKind::ModuleDoc,
-      name: "".to_string(),
+      name: "".into(),
       location,
       declaration_kind: DeclarationKind::Export,
       js_doc,
@@ -185,7 +185,7 @@ impl DocNode {
   }
 
   pub fn function(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -205,7 +205,7 @@ impl DocNode {
   }
 
   pub fn variable(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -225,7 +225,7 @@ impl DocNode {
   }
 
   pub fn r#enum(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -245,7 +245,7 @@ impl DocNode {
   }
 
   pub fn class(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -265,7 +265,7 @@ impl DocNode {
   }
 
   pub fn type_alias(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -285,7 +285,7 @@ impl DocNode {
   }
 
   pub fn namespace(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -305,7 +305,7 @@ impl DocNode {
   }
 
   pub fn interface(
-    name: String,
+    name: Box<str>,
     is_default: bool,
     location: Location,
     declaration_kind: DeclarationKind,
@@ -325,7 +325,7 @@ impl DocNode {
   }
 
   pub fn import(
-    name: String,
+    name: Box<str>,
     location: Location,
     js_doc: JsDoc,
     import_def: ImportDef,
@@ -343,12 +343,14 @@ impl DocNode {
 
   pub fn get_name(&self) -> &str {
     let default_name = match self.kind {
-      DocNodeKind::Class => self.class_def.as_ref().unwrap().def_name.as_ref(),
+      DocNodeKind::Class => {
+        self.class_def.as_ref().unwrap().def_name.as_deref()
+      }
       DocNodeKind::Function => {
-        self.function_def.as_ref().unwrap().def_name.as_ref()
+        self.function_def.as_ref().unwrap().def_name.as_deref()
       }
       DocNodeKind::Interface => {
-        self.interface_def.as_ref().unwrap().def_name.as_ref()
+        self.interface_def.as_ref().unwrap().def_name.as_deref()
       }
       DocNodeKind::Enum
       | DocNodeKind::Import

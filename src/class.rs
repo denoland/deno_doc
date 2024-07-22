@@ -113,14 +113,14 @@ pub struct ClassPropertyDef {
   pub ts_type: Option<TsTypeDef>,
   pub readonly: bool,
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub decorators: Vec<DecoratorDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
+  pub decorators: Box<[DecoratorDef]>,
   pub optional: bool,
   pub is_abstract: bool,
   pub is_static: bool,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
-  pub name: String,
+  pub name: Box<str>,
   pub location: Location,
 }
 
@@ -172,7 +172,7 @@ pub struct ClassMethodDef {
   pub is_static: bool,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
-  pub name: String,
+  pub name: Box<str>,
   pub kind: deno_ast::swc::ast::MethodKind,
   pub function_def: FunctionDef,
   pub location: Location,
@@ -220,24 +220,24 @@ impl Display for ClassMethodDef {
 pub struct ClassDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   /// set when the class is a default export and has a name in its declaration
-  pub def_name: Option<String>,
+  pub def_name: Option<Box<str>>,
   pub is_abstract: bool,
-  pub constructors: Vec<ClassConstructorDef>,
-  pub properties: Vec<ClassPropertyDef>,
-  pub index_signatures: Vec<IndexSignatureDef>,
-  pub methods: Vec<ClassMethodDef>,
-  pub extends: Option<String>,
-  pub implements: Vec<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
-  pub super_type_params: Vec<TsTypeDef>,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub decorators: Vec<DecoratorDef>,
+  pub constructors: Box<[ClassConstructorDef]>,
+  pub properties: Box<[ClassPropertyDef]>,
+  pub index_signatures: Box<[IndexSignatureDef]>,
+  pub methods: Box<[ClassMethodDef]>,
+  pub extends: Option<Box<str>>,
+  pub implements: Box<[TsTypeDef]>,
+  pub type_params: Box<[TsTypeParamDef]>,
+  pub super_type_params: Box<[TsTypeDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
+  pub decorators: Box<[DecoratorDef]>,
 }
 
 pub fn class_to_class_def(
   parsed_source: &ParsedSource,
   class: &deno_ast::swc::ast::Class,
-  def_name: Option<String>,
+  def_name: Option<Box<str>>,
 ) -> (ClassDef, JsDoc) {
   use deno_ast::swc::ast::Expr;
 
@@ -262,10 +262,10 @@ pub fn class_to_class_def(
     }
   }
 
-  let extends: Option<String> = match &class.super_class {
+  let extends: Option<Box<str>> = match &class.super_class {
     Some(boxed) => {
       let expr: &Expr = boxed;
-      walk_class_extends(expr)
+      walk_class_extends(expr).map(|s| s.into_boxed_str())
     }
     None => None,
   };
@@ -274,7 +274,7 @@ pub fn class_to_class_def(
     .implements
     .iter()
     .map(|expr| TsTypeDef::ts_expr_with_type_args(parsed_source, expr))
-    .collect::<Vec<_>>();
+    .collect::<Box<[_]>>();
 
   for member in &class.body {
     use deno_ast::swc::ast::ClassMember::*;
@@ -351,7 +351,7 @@ pub fn class_to_class_def(
             is_abstract: class_method.is_abstract,
             is_static: class_method.is_static,
             is_override: class_method.is_override,
-            name: method_name,
+            name: method_name.into_boxed_str(),
             kind: class_method.kind,
             function_def: fn_def,
             location: get_location(parsed_source, class_method.start()),
@@ -388,7 +388,7 @@ pub fn class_to_class_def(
             is_static: class_prop.is_static,
             is_override: class_prop.is_override,
             accessibility: class_prop.accessibility,
-            name: prop_name,
+            name: prop_name.into_boxed_str(),
             decorators,
             location: get_location(parsed_source, class_prop.start()),
           };
@@ -453,10 +453,10 @@ pub fn class_to_class_def(
       is_abstract: class.is_abstract,
       extends,
       implements,
-      constructors,
-      properties,
-      index_signatures,
-      methods,
+      constructors: constructors.into_boxed_slice(),
+      properties: properties.into_boxed_slice(),
+      index_signatures: index_signatures.into_boxed_slice(),
+      methods: methods.into_boxed_slice(),
       type_params,
       super_type_params,
       decorators,

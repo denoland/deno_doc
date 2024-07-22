@@ -106,9 +106,7 @@ impl SymbolGroupCtx {
 
         if !permissions.is_empty() {
           permissions.sort();
-          tags.insert(Tag::Permissions(
-            permissions.into_iter().collect::<Vec<_>>(),
-          ));
+          tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
         if doc_nodes[0].is_internal() {

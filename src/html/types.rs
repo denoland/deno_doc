@@ -559,7 +559,7 @@ pub(crate) fn render_type_params(
     .iter()
     .filter_map(|tag| {
       if let JsDocTag::Template { name, doc } = tag {
-        doc.as_ref().map(|doc| (name.as_str(), doc.as_str()))
+        doc.as_ref().map(|doc| (&**name, &**doc))
       } else {
         None
       }

@@ -66,7 +66,7 @@ mod tests;
 #[cfg(feature = "rust")]
 pub fn find_nodes_by_name_recursively(
   doc_nodes: Vec<DocNode>,
-  name: String,
+  name: &str,
 ) -> Vec<DocNode> {
   let mut parts = name.splitn(2, '.');
   let name = parts.next();
@@ -76,17 +76,14 @@ pub fn find_nodes_by_name_recursively(
   }
 
   let name = name.unwrap();
-  let doc_nodes = find_nodes_by_name(doc_nodes, name.to_string());
+  let doc_nodes = find_nodes_by_name(doc_nodes, name);
 
   let mut found: Vec<DocNode> = vec![];
   match leftover {
     Some(leftover) => {
       for node in doc_nodes {
         let children = get_children_of_node(node);
-        found.extend(find_nodes_by_name_recursively(
-          children,
-          leftover.to_string(),
-        ));
+        found.extend(find_nodes_by_name_recursively(children, leftover));
       }
       found
     }
@@ -95,10 +92,10 @@ pub fn find_nodes_by_name_recursively(
 }
 
 #[cfg(feature = "rust")]
-fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: String) -> Vec<DocNode> {
+fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: &str) -> Vec<DocNode> {
   let mut found: Vec<DocNode> = vec![];
   for node in doc_nodes {
-    if node.name == name {
+    if &*node.name == name {
       found.push(node);
     }
   }
@@ -130,10 +127,10 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
     DocNodeKind::Class => {
       let class_def = node.class_def.unwrap();
       let mut doc_nodes: Vec<DocNode> = vec![];
-      for method in class_def.methods {
+      for method in class_def.methods.into_vec().into_iter() {
         doc_nodes.push(method.into());
       }
-      for property in class_def.properties {
+      for property in class_def.properties.into_vec().into_iter() {
         doc_nodes.push(property.into());
       }
       doc_nodes

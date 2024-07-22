@@ -28,21 +28,21 @@ pub fn usage_to_md(
 ) -> String {
   let usage =
     if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
-      let mut parts = symbol.split('.').collect::<Vec<&str>>();
+      let mut parts = symbol.split('.');
 
       let top_node = doc_nodes[0].get_topmost_ancestor();
 
       let is_default = top_node.is_default.is_some_and(|is_default| is_default)
-        || top_node.name == "default";
+        || &*top_node.name == "default";
 
       let import_symbol = if is_default {
         if top_node.is_default.is_some_and(|is_default| is_default) {
           top_node.name.clone()
         } else {
-          "module".to_string()
+          "module".into()
         }
       } else {
-        parts[0].to_string()
+        parts.clone().next().unwrap().into()
       };
 
       let usage_symbol = if doc_nodes
@@ -50,8 +50,8 @@ pub fn usage_to_md(
         .all(|node| node.drilldown_parent_kind.is_some())
       {
         None
-      } else if parts.len() > 1 {
-        parts.pop().map(|usage_symbol| {
+      } else {
+        parts.nth_back(0).map(|usage_symbol| {
           (
             usage_symbol,
             // if it is namespaces within namespaces, we simply re-join them together
@@ -59,12 +59,19 @@ pub fn usage_to_md(
             if is_default {
               import_symbol.clone()
             } else {
-              parts.join(".")
+              let mut joined =
+                String::with_capacity(symbol.len() - usage_symbol.len() - 1);
+
+              for part in parts {
+                if !joined.is_empty() {
+                  joined.push('.');
+                }
+                joined.push_str(part);
+              }
+              joined.into_boxed_str()
             },
           )
         })
-      } else {
-        None
       };
 
       let is_type = doc_nodes.iter().all(|doc_node| {
