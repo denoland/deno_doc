@@ -18,7 +18,7 @@ pub(crate) fn render_class(
   doc_node: &DocNodeWithContext,
   name: &str,
 ) -> Vec<SectionCtx> {
-  let class_def = doc_node.class_def.as_ref().unwrap();
+  let class_def = doc_node.class_def().unwrap();
 
   let current_type_params = class_def
     .type_params

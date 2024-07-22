@@ -25,12 +25,12 @@ where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
     for node in doc_nodes {
-      if matches!(node.kind, DocNodeKind::ModuleDoc | DocNodeKind::Import) {
+      if matches!(node.kind(), DocNodeKind::ModuleDoc | DocNodeKind::Import) {
         continue;
       }
 
-      if flatten_namespaces && node.kind == DocNodeKind::Namespace {
-        let namespace_def = node.namespace_def.as_ref().unwrap();
+      if flatten_namespaces && node.kind() == DocNodeKind::Namespace {
+        let namespace_def = node.namespace_def().unwrap();
         let ns_qualifiers: Rc<[String]> = node.sub_qualifier().into();
 
         partitioner_inner(
@@ -72,7 +72,7 @@ pub fn partition_nodes_by_name(
     });
 
   for val in partitions.values_mut() {
-    val.sort_by_key(|n| n.kind);
+    val.sort_by_key(|n| n.kind());
   }
 
   partitions.sort_keys();
@@ -138,7 +138,7 @@ pub fn partition_nodes_by_category(
 
       if !entry.iter().any(|n| {
         n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
+          && n.kind() == node.kind()
       }) {
         entry.push(node.clone());
       }
@@ -207,5 +207,5 @@ fn compare_node(
         .cmp(&node2.get_qualified_name().to_ascii_lowercase())
     })
     .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
-    .then_with(|| node1.kind.cmp(&node2.kind))
+    .then_with(|| node1.kind().cmp(&node2.kind()))
 }

@@ -104,17 +104,15 @@ fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: &str) -> Vec<DocNode> {
 
 #[cfg(feature = "rust")]
 fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
-  match node.kind {
-    DocNodeKind::Namespace => {
-      let namespace_def = node.namespace_def.unwrap();
-      namespace_def
-        .elements
-        .into_iter()
-        .map(std::rc::Rc::unwrap_or_clone)
-        .collect()
-    }
-    DocNodeKind::Interface => {
-      let interface_def = node.interface_def.unwrap();
+  use node::DocNodeDef;
+
+  match node.def {
+    DocNodeDef::Namespace { namespace_def } => namespace_def
+      .elements
+      .into_iter()
+      .map(std::rc::Rc::unwrap_or_clone)
+      .collect(),
+    DocNodeDef::Interface { interface_def } => {
       let mut doc_nodes: Vec<DocNode> = vec![];
       for method in interface_def.methods {
         doc_nodes.push(method.into());
@@ -124,8 +122,7 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
       }
       doc_nodes
     }
-    DocNodeKind::Class => {
-      let class_def = node.class_def.unwrap();
+    DocNodeDef::Class { class_def } => {
       let mut doc_nodes: Vec<DocNode> = vec![];
       for method in class_def.methods.into_vec().into_iter() {
         doc_nodes.push(method.into());

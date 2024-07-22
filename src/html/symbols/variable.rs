@@ -13,7 +13,7 @@ pub(crate) fn render_variable(
   doc_node: &DocNodeWithContext,
   name: &str,
 ) -> Vec<SectionCtx> {
-  let variable_def = doc_node.variable_def.as_ref().unwrap();
+  let variable_def = doc_node.variable_def().unwrap();
 
   let Some(ts_type) = &variable_def.ts_type else {
     return vec![];

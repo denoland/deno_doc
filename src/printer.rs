@@ -51,7 +51,8 @@ impl<'a> DocPrinter<'a> {
 
     let mut sorted = Vec::from(doc_nodes);
     sorted.sort_unstable_by(|a, b| {
-      let kind_cmp = self.kind_order(&a.kind).cmp(&self.kind_order(&b.kind));
+      let kind_cmp =
+        self.kind_order(&a.kind()).cmp(&self.kind_order(&b.kind()));
       if kind_cmp == core::cmp::Ordering::Equal {
         a.name.cmp(&b.name)
       } else {
@@ -60,10 +61,10 @@ impl<'a> DocPrinter<'a> {
     });
 
     for node in &sorted {
-      let has_overloads = if node.kind == DocNodeKind::Function {
+      let has_overloads = if node.kind() == DocNodeKind::Function {
         sorted
           .iter()
-          .filter(|n| n.kind == DocNodeKind::Function && n.name == node.name)
+          .filter(|n| n.kind() == DocNodeKind::Function && n.name == node.name)
           .count()
           > 1
       } else {
@@ -72,8 +73,7 @@ impl<'a> DocPrinter<'a> {
 
       if !has_overloads
         || node
-          .function_def
-          .as_ref()
+          .function_def()
           .map(|def| !def.has_body)
           .unwrap_or(false)
       {
@@ -97,7 +97,7 @@ impl<'a> DocPrinter<'a> {
       self.format_jsdoc(w, &node.js_doc, indent + 1)?;
       writeln!(w)?;
 
-      match node.kind {
+      match node.kind() {
         DocNodeKind::Class => self.format_class(w, node)?,
         DocNodeKind::Enum => self.format_enum(w, node)?,
         DocNodeKind::Interface => self.format_interface(w, node)?,
@@ -134,7 +134,7 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
     has_overloads: bool,
   ) -> FmtResult {
-    match node.kind {
+    match node.kind() {
       DocNodeKind::ModuleDoc => self.format_module_doc(w, node, indent),
       DocNodeKind::Function => {
         self.format_function_signature(w, node, indent, has_overloads)
@@ -418,7 +418,7 @@ impl<'a> DocPrinter<'a> {
   }
 
   fn format_class(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {
-    let class_def = node.class_def.as_ref().unwrap();
+    let class_def = node.class_def().unwrap();
     let has_overloads = class_def.constructors.len() > 1;
     for node in class_def.constructors.iter() {
       if !has_overloads || !node.has_body {
@@ -467,7 +467,7 @@ impl<'a> DocPrinter<'a> {
   }
 
   fn format_enum(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {
-    let enum_def = node.enum_def.as_ref().unwrap();
+    let enum_def = node.enum_def().unwrap();
     for member in &enum_def.members {
       writeln!(w, "{}{}", Indent(1), colors::bold(&member.name))?;
       self.format_jsdoc(w, &member.js_doc, 2)?;
@@ -480,7 +480,7 @@ impl<'a> DocPrinter<'a> {
     w: &mut Formatter<'_>,
     node: &DocNode,
   ) -> FmtResult {
-    let interface_def = node.interface_def.as_ref().unwrap();
+    let interface_def = node.interface_def().unwrap();
 
     for constructor in &interface_def.constructors {
       writeln!(w, "{}{}", Indent(1), constructor)?;
@@ -505,12 +505,12 @@ impl<'a> DocPrinter<'a> {
     w: &mut Formatter<'_>,
     node: &DocNode,
   ) -> FmtResult {
-    let elements = &node.namespace_def.as_ref().unwrap().elements;
+    let elements = &node.namespace_def().unwrap().elements;
     for node in elements {
-      let has_overloads = if node.kind == DocNodeKind::Function {
+      let has_overloads = if node.kind() == DocNodeKind::Function {
         elements
           .iter()
-          .filter(|n| n.kind == DocNodeKind::Function && n.name == node.name)
+          .filter(|n| n.kind() == DocNodeKind::Function && n.name == node.name)
           .count()
           > 1
       } else {
@@ -528,7 +528,7 @@ impl<'a> DocPrinter<'a> {
     node: &DocNode,
     indent: i64,
   ) -> FmtResult {
-    let class_def = node.class_def.as_ref().unwrap();
+    let class_def = node.class_def().unwrap();
     for node in class_def.decorators.iter() {
       writeln!(w, "{}{}", Indent(indent), node)?;
     }
@@ -595,7 +595,7 @@ impl<'a> DocPrinter<'a> {
     indent: i64,
     has_overloads: bool,
   ) -> FmtResult {
-    let function_def = node.function_def.as_ref().unwrap();
+    let function_def = node.function_def().unwrap();
     if !has_overloads || !function_def.has_body {
       write!(
         w,
@@ -633,7 +633,7 @@ impl<'a> DocPrinter<'a> {
     node: &DocNode,
     indent: i64,
   ) -> FmtResult {
-    let interface_def = node.interface_def.as_ref().unwrap();
+    let interface_def = node.interface_def().unwrap();
     write!(
       w,
       "{}{}{} {}",
@@ -680,7 +680,7 @@ impl<'a> DocPrinter<'a> {
     node: &DocNode,
     indent: i64,
   ) -> FmtResult {
-    let type_alias_def = node.type_alias_def.as_ref().unwrap();
+    let type_alias_def = node.type_alias_def().unwrap();
     write!(
       w,
       "{}{}{} {}",
@@ -723,7 +723,7 @@ impl<'a> DocPrinter<'a> {
     node: &DocNode,
     indent: i64,
   ) -> FmtResult {
-    let variable_def = node.variable_def.as_ref().unwrap();
+    let variable_def = node.variable_def().unwrap();
     write!(
       w,
       "{}{}{} {}",

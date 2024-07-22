@@ -340,8 +340,8 @@ fn get_current_imports(
   let mut imports = HashMap::new();
 
   for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::Import {
-      let import_def = doc_node.import_def.as_ref().unwrap();
+    if doc_node.kind() == DocNodeKind::Import {
+      let import_def = doc_node.import_def().unwrap();
       // TODO: handle import aliasing
       if import_def.imported.as_deref() == Some(doc_node.get_name()) {
         imports.insert(doc_node.get_name().to_string(), import_def.src.clone());
@@ -405,7 +405,6 @@ mod test {
     let doc_nodes_by_url = indexmap::IndexMap::from([(
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
       vec![DocNode {
-        kind: DocNodeKind::Import,
         name: "foo".into(),
         is_default: None,
         location: Location {
@@ -416,17 +415,12 @@ mod test {
         },
         declaration_kind: DeclarationKind::Private,
         js_doc: Default::default(),
-        function_def: None,
-        variable_def: None,
-        enum_def: None,
-        class_def: None,
-        type_alias_def: None,
-        namespace_def: None,
-        interface_def: None,
-        import_def: Some(ImportDef {
-          src: "b".to_string(),
-          imported: Some("foo".to_string()),
-        }),
+        def: crate::node::DocNodeDef::Import {
+          import_def: ImportDef {
+            src: "b".to_string(),
+            imported: Some("foo".to_string()),
+          },
+        },
       }],
     )]);
 

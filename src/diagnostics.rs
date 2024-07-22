@@ -367,8 +367,9 @@ impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
       }
 
       if let Some(last_node) = last_node {
-        if doc_node.name == last_node.name && last_node.function_def.is_some() {
-          if let Some(current_fn) = &doc_node.function_def {
+        if doc_node.name == last_node.name && last_node.function_def().is_some()
+        {
+          if let Some(current_fn) = &doc_node.function_def() {
             if current_fn.has_body {
               continue; // it's an overload. Ignore it
             }
@@ -402,29 +403,29 @@ impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
       return; // skip, we don't do these diagnostics above private nodes
     }
 
-    if is_js_docable_kind(&doc_node.kind) {
+    if is_js_docable_kind(&doc_node.kind()) {
       self
         .diagnostics
         .check_missing_js_doc(&doc_node.js_doc, &doc_node.location);
     }
 
-    if let Some(def) = &doc_node.class_def {
+    if let Some(def) = &doc_node.class_def() {
       self.visit_class_def(def);
     }
 
-    if let Some(def) = &doc_node.function_def {
+    if let Some(def) = &doc_node.function_def() {
       self.visit_function_def(doc_node, def);
     }
 
-    if let Some(def) = &doc_node.interface_def {
+    if let Some(def) = &doc_node.interface_def() {
       self.visit_interface_def(def);
     }
 
-    if let Some(def) = &doc_node.namespace_def {
+    if let Some(def) = &doc_node.namespace_def() {
       self.visit_namespace_def(def);
     }
 
-    if let Some(def) = &doc_node.variable_def {
+    if let Some(def) = &doc_node.variable_def() {
       self.visit_variable_def(doc_node, def);
     }
   }

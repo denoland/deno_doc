@@ -41,14 +41,14 @@ impl FunctionCtx {
       .iter()
       .enumerate()
       .filter(|(i, doc_node)| {
-        let function_def = doc_node.function_def.as_ref().unwrap();
+        let function_def = doc_node.function_def().unwrap();
 
         !(function_def.has_body && *i != 0)
       })
       .count();
 
     for (i, doc_node) in doc_nodes.into_iter().enumerate() {
-      let function_def = doc_node.function_def.as_ref().unwrap();
+      let function_def = doc_node.function_def().unwrap();
 
       if function_def.has_body && i != 0 {
         continue;
@@ -116,7 +116,7 @@ fn render_single_function(
   doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
-  let function_def = doc_node.function_def.as_ref().unwrap();
+  let function_def = doc_node.function_def().unwrap();
 
   let current_type_params = function_def
     .type_params

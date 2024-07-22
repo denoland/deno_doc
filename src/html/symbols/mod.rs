@@ -50,7 +50,7 @@ impl SymbolGroupCtx {
       IndexMap::<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::Import {
+      if doc_node.kind() == DocNodeKind::Import {
         continue;
       }
 
@@ -114,7 +114,7 @@ impl SymbolGroupCtx {
         }
 
         let deprecated = if all_deprecated
-          && !(doc_nodes[0].kind == DocNodeKind::Function
+          && !(doc_nodes[0].kind() == DocNodeKind::Function
             && doc_nodes.len() == 1)
         {
           doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
@@ -189,9 +189,9 @@ impl DocBlockSubtitleCtx {
   pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
 
   fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
-    match doc_node.kind {
+    match doc_node.kind() {
       DocNodeKind::Class => {
-        let class_def = doc_node.class_def.as_ref().unwrap();
+        let class_def = doc_node.class_def().unwrap();
 
         let current_type_params = class_def
           .type_params
@@ -231,7 +231,7 @@ impl DocBlockSubtitleCtx {
         })
       }
       DocNodeKind::Interface => {
-        let interface_def = doc_node.interface_def.as_ref().unwrap();
+        let interface_def = doc_node.interface_def().unwrap();
 
         if interface_def.extends.is_empty() {
           return None;
@@ -289,7 +289,7 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if doc_node.kind != DocNodeKind::Function {
+      if doc_node.kind() != DocNodeKind::Function {
         if let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
         {
@@ -297,7 +297,7 @@ impl SymbolInnerCtx {
         }
       }
 
-      sections.extend(match doc_node.kind {
+      sections.extend(match doc_node.kind() {
         DocNodeKind::Function => {
           functions.push(doc_node);
           continue;
@@ -314,7 +314,7 @@ impl SymbolInnerCtx {
         }
 
         DocNodeKind::Namespace => {
-          let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+          let namespace_def = doc_node.namespace_def().unwrap();
           let ns_qualifiers: std::rc::Rc<[String]> =
             doc_node.sub_qualifier().into();
           let namespace_nodes = namespace_def

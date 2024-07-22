@@ -646,7 +646,7 @@ impl ModuleDocCtx {
 
     let (deprecated, html) = if let Some(node) = module_doc_nodes
       .iter()
-      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+      .find(|n| n.kind() == DocNodeKind::ModuleDoc)
     {
       let deprecated = node.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {

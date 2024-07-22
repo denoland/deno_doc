@@ -56,8 +56,8 @@ pub fn compute_namespaced_symbols(
   let mut namespaced_symbols = HashSet::<Vec<String>>::new();
 
   for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::ModuleDoc
-      || doc_node.kind == DocNodeKind::Import
+    if doc_node.kind() == DocNodeKind::ModuleDoc
+      || doc_node.kind() == DocNodeKind::Import
     {
       continue;
     }
@@ -65,9 +65,9 @@ pub fn compute_namespaced_symbols(
 
     let name_path: Rc<[String]> = doc_node.sub_qualifier().into();
 
-    match doc_node.kind {
+    match doc_node.kind() {
       DocNodeKind::Class => {
-        let class_def = doc_node.class_def.as_ref().unwrap();
+        let class_def = doc_node.class_def().unwrap();
 
         namespaced_symbols.extend(class_def.methods.iter().map(|method| {
           let mut method_path = doc_node.ns_qualifiers.to_vec();
@@ -100,7 +100,7 @@ pub fn compute_namespaced_symbols(
         ));
       }
       DocNodeKind::Interface => {
-        let interface_def = doc_node.interface_def.as_ref().unwrap();
+        let interface_def = doc_node.interface_def().unwrap();
 
         namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
           let mut method_path = doc_node.ns_qualifiers.to_vec();
@@ -125,7 +125,7 @@ pub fn compute_namespaced_symbols(
         ));
       }
       DocNodeKind::TypeAlias => {
-        let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
+        let type_alias_def = doc_node.type_alias_def().unwrap();
 
         if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
         {
@@ -159,7 +159,7 @@ pub fn compute_namespaced_symbols(
         }
       }
       DocNodeKind::Variable => {
-        let variable = doc_node.variable_def.as_ref().unwrap();
+        let variable = doc_node.variable_def().unwrap();
 
         if let Some(type_literal) = variable
           .ts_type
@@ -200,8 +200,8 @@ pub fn compute_namespaced_symbols(
 
     namespaced_symbols.insert(name_path.to_vec());
 
-    if doc_node.kind == DocNodeKind::Namespace {
-      let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+    if doc_node.kind() == DocNodeKind::Namespace {
+      let namespace_def = doc_node.namespace_def().unwrap();
       namespaced_symbols.extend(compute_namespaced_symbols(
         &namespace_def
           .elements
@@ -425,7 +425,7 @@ impl SectionHeaderCtx {
 
     let doc = module_doc_nodes
       .iter()
-      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+      .find(|n| n.kind() == DocNodeKind::ModuleDoc)
       .and_then(|node| node.js_doc.doc.as_ref())
       .and_then(|doc| {
         markdown_to_html(

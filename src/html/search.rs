@@ -26,7 +26,7 @@ fn doc_nodes_into_search_index_node(
   doc_nodes: Vec<DocNodeWithContext>,
   name: String,
 ) -> SearchIndexNode {
-  let kinds = doc_nodes.iter().map(|node| node.kind).collect();
+  let kinds = doc_nodes.iter().map(|node| node.kind()).collect();
   let deprecated =
     super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 

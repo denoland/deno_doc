@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
+use crate::node::DocNodeDef;
 use crate::DocNode;
 
 pub mod comrak_adapters;
@@ -312,20 +313,18 @@ impl GenerateCtx {
             }
 
             let node = if node
-              .variable_def
+              .variable_def()
               .as_ref()
               .and_then(|def| def.ts_type.as_ref())
               .and_then(|ts_type| ts_type.kind.as_ref())
               .is_some_and(|kind| {
                 kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
               }) {
-              let fn_or_constructor = node
-                .variable_def
-                .unwrap()
-                .ts_type
-                .unwrap()
-                .fn_or_constructor
-                .unwrap();
+              let DocNodeDef::Variable { variable_def } = node.def else {
+                unreachable!()
+              };
+              let fn_or_constructor =
+                variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
 
               let mut new_node = DocNode::function(
                 node.name,
@@ -354,7 +353,7 @@ impl GenerateCtx {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
               drilldown_parent_kind: None,
-              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind()),
               inner: Rc::new(node),
               parent: None,
             }
@@ -540,7 +539,7 @@ impl DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
       drilldown_parent_kind: None,
-      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
+      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind()),
       inner: doc_node,
       parent: Some(Box::new(self.clone())),
     }
@@ -567,7 +566,7 @@ impl DocNodeWithContext {
     method_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(method_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind);
+    new_node.drilldown_parent_kind = Some(self.kind());
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
     new_node
   }
@@ -586,7 +585,7 @@ impl DocNodeWithContext {
     property_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(property_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind);
+    new_node.drilldown_parent_kind = Some(self.kind());
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
     new_node
   }

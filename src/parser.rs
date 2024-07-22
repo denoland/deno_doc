@@ -259,14 +259,14 @@ impl<'a> DocParser<'a> {
                 // hoist any module doc to be the exported namespaces module doc
                 let mut js_doc = JsDoc::default();
                 for doc_node in &doc_nodes {
-                  if matches!(doc_node.kind, DocNodeKind::ModuleDoc) {
+                  if matches!(doc_node.kind(), DocNodeKind::ModuleDoc) {
                     js_doc = doc_node.js_doc.clone();
                   }
                 }
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
                     .into_iter()
-                    .filter(|dn| !matches!(dn.kind, DocNodeKind::ModuleDoc))
+                    .filter(|dn| !matches!(dn.kind(), DocNodeKind::ModuleDoc))
                     .map(Rc::new)
                     .collect(),
                 };
@@ -1359,7 +1359,6 @@ fn parse_json_module_doc_node(
 ) -> Option<DocNode> {
   if let Ok(value) = serde_json::from_str(source) {
     Some(DocNode {
-      kind: DocNodeKind::Variable,
       name: "default".into(),
       is_default: Some(true),
       location: Location {
@@ -1369,11 +1368,13 @@ fn parse_json_module_doc_node(
         byte_index: 0,
       },
       declaration_kind: DeclarationKind::Export,
-      variable_def: Some(VariableDef {
-        kind: VarDeclKind::Var,
-        ts_type: Some(parse_json_module_type(&value)),
-      }),
-      ..Default::default()
+      js_doc: JsDoc::default(),
+      def: node::DocNodeDef::Variable {
+        variable_def: VariableDef {
+          kind: VarDeclKind::Var,
+          ts_type: Some(parse_json_module_type(&value)),
+        },
+      },
     })
   } else {
     // no doc nodes

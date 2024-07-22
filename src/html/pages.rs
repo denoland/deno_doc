@@ -230,7 +230,7 @@ impl IndexCtx {
           .map(|(short_path, nodes)| {
             let doc = nodes
               .iter()
-              .find(|node| node.kind == DocNodeKind::ModuleDoc)
+              .find(|node| node.kind() == DocNodeKind::ModuleDoc)
               .and_then(|node| {
                 crate::html::jsdoc::jsdoc_body_to_html(
                   &render_ctx,
@@ -484,12 +484,13 @@ pub fn generate_symbol_pages_for_module(
 
   let mut drilldown_partitions = IndexMap::new();
   for doc_nodes in name_partitions.values() {
-    let has_class =
-      doc_nodes.iter().any(|node| node.kind == DocNodeKind::Class);
+    let has_class = doc_nodes
+      .iter()
+      .any(|node| node.kind() == DocNodeKind::Class);
     for doc_node in doc_nodes {
-      match doc_node.kind {
+      match doc_node.kind() {
         DocNodeKind::Class => {
-          let class = doc_node.class_def.as_ref().unwrap();
+          let class = doc_node.class_def().unwrap();
 
           let method_nodes = class
             .methods
@@ -528,7 +529,7 @@ pub fn generate_symbol_pages_for_module(
           );
         }
         DocNodeKind::Interface => {
-          let interface = doc_node.interface_def.as_ref().unwrap();
+          let interface = doc_node.interface_def().unwrap();
           let method_nodes = interface
             .methods
             .iter()
@@ -567,7 +568,7 @@ pub fn generate_symbol_pages_for_module(
             .extend(partition::partition_nodes_by_name(&property_nodes, false));
         }
         DocNodeKind::TypeAlias => {
-          let type_alias = doc_node.type_alias_def.as_ref().unwrap();
+          let type_alias = doc_node.type_alias_def().unwrap();
 
           if let Some(ts_type_literal) =
             type_alias.ts_type.type_literal.as_ref()
@@ -612,7 +613,7 @@ pub fn generate_symbol_pages_for_module(
           }
         }
         DocNodeKind::Variable => {
-          let variable = doc_node.variable_def.as_ref().unwrap();
+          let variable = doc_node.variable_def().unwrap();
 
           if let Some(ts_type_literal) = variable
             .ts_type
@@ -670,7 +671,7 @@ pub fn generate_symbol_pages_for_module(
 
     if doc_nodes
       .iter()
-      .any(|doc_node| doc_node.kind == DocNodeKind::Class)
+      .any(|doc_node| doc_node.kind() == DocNodeKind::Class)
     {
       let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {
