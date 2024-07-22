@@ -239,6 +239,9 @@ pub struct Anchorizer {
 }
 
 impl Anchorizer {
+  /// Returns a String that has been converted into an anchor using the GFM algorithm.
+  /// This replaces comrak's implementation to improve the performance.
+  /// @see https://docs.rs/comrak/latest/comrak/struct.Anchorizer.html#method.anchorize
   pub fn anchorize(&mut self, s: &str) -> String {
     let mut s = REJECTED_CHARS
       .replace_all(&s.to_lowercase(), "")
