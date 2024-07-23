@@ -50,7 +50,6 @@ type Colors = "red" | "green" | "blue"
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "Colors",
     "isDefault": false,
     "location": {
@@ -60,6 +59,7 @@ type Colors = "red" | "green" | "blue"
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "",
@@ -95,7 +95,6 @@ type Colors = "red" | "green" | "blue"
     }
   },
   {
-    "kind": "variable",
     "name": "favoriteColors",
     "isDefault": false,
     "location": {
@@ -105,6 +104,7 @@ type Colors = "red" | "green" | "blue"
       "byteIndex": 116
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -194,7 +194,6 @@ type Colors = "red" | "green" | "blue"
     }
   },
   {
-    "kind": "variable",
     "name": "g",
     "isDefault": false,
     "location": {
@@ -204,6 +203,7 @@ type Colors = "red" | "green" | "blue"
       "byteIndex": 331
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "boolean",

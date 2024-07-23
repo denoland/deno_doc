@@ -77,7 +77,6 @@ namespace SameName
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "SameName",
     "isDefault": false,
     "location": {
@@ -90,12 +89,12 @@ namespace SameName
     "jsDoc": {
       "doc": "Comment"
     },
+    "kind": "namespace",
     "namespaceDef": {
       "elements": []
     }
   },
   {
-    "kind": "function",
     "name": "SameName",
     "isDefault": false,
     "location": {
@@ -108,6 +107,7 @@ namespace SameName
     "jsDoc": {
       "doc": "Comment"
     },
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -125,7 +125,6 @@ namespace SameName
     }
   },
   {
-    "kind": "function",
     "name": "test",
     "isDefault": false,
     "location": {
@@ -138,6 +137,7 @@ namespace SameName
     "jsDoc": {
       "doc": "Comment"
     },
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -154,7 +154,6 @@ namespace SameName
     }
   },
   {
-    "kind": "function",
     "name": "test",
     "isDefault": false,
     "location": {
@@ -164,6 +163,7 @@ namespace SameName
       "byteIndex": 162
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -181,7 +181,6 @@ namespace SameName
     }
   },
   {
-    "kind": "interface",
     "name": "YesDiagnostic1",
     "isDefault": false,
     "location": {
@@ -191,6 +190,7 @@ namespace SameName
       "byteIndex": 205
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -202,7 +202,6 @@ namespace SameName
     }
   },
   {
-    "kind": "interface",
     "name": "YesDiagnostic2",
     "isDefault": false,
     "location": {
@@ -212,6 +211,7 @@ namespace SameName
       "byteIndex": 233
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

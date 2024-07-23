@@ -83,7 +83,7 @@ pub struct CategoriesPanelCtx {
 }
 
 impl CategoriesPanelCtx {
-  pub const TEMPLATE: &'static str = "pages/category_panel";
+  pub const TEMPLATE: &'static str = "category_panel";
 
   pub fn new(ctx: &RenderContext) -> Option<Self> {
     match ctx.ctx.file_mode {
@@ -230,7 +230,7 @@ impl IndexCtx {
           .map(|(short_path, nodes)| {
             let doc = nodes
               .iter()
-              .find(|node| node.kind == DocNodeKind::ModuleDoc)
+              .find(|node| node.kind() == DocNodeKind::ModuleDoc)
               .and_then(|node| {
                 crate::html::jsdoc::jsdoc_body_to_html(
                   &render_ctx,
@@ -241,11 +241,8 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.add_entry(
-              1,
-              title.clone(),
-              render_ctx.toc.anchorize(title.clone()),
-            );
+            let anchor = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &anchor);
 
             util::SectionCtx {
               header: SectionHeaderCtx {
@@ -274,11 +271,8 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.add_entry(
-              1,
-              title.clone(),
-              render_ctx.toc.anchorize(title.clone()),
-            );
+            let anchor = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &anchor);
 
             let doc = ctx
               .category_docs
@@ -358,24 +352,21 @@ impl IndexCtx {
 
     let sections = super::namespace::render_namespace(
       &render_ctx,
-      partitions
-        .into_iter()
-        .map(|(title, nodes)| {
-          let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
-            category_docs.get(&title).cloned().flatten()
-          });
+      partitions.into_iter().map(|(title, nodes)| {
+        let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
+          category_docs.get(&title).cloned().flatten()
+        });
 
-          (
-            SectionHeaderCtx {
-              anchor: AnchorCtx { id: title.clone() },
-              title,
-              href: None,
-              doc,
-            },
-            nodes,
-          )
-        })
-        .collect(),
+        (
+          SectionHeaderCtx {
+            anchor: AnchorCtx { id: title.clone() },
+            title,
+            href: None,
+            doc,
+          },
+          nodes,
+        )
+      }),
     );
 
     let root =
@@ -438,15 +429,12 @@ impl AllSymbolsCtx {
 
     let sections = super::namespace::render_namespace(
       &render_ctx,
-      partitions
-        .into_iter()
-        .map(|(path, nodes)| {
-          (
-            SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
-            nodes,
-          )
-        })
-        .collect(),
+      partitions.into_iter().map(|(path, nodes)| {
+        (
+          SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
+          nodes,
+        )
+      }),
     );
 
     let html_head_ctx = HtmlHeadCtx::new(
@@ -496,12 +484,13 @@ pub fn generate_symbol_pages_for_module(
 
   let mut drilldown_partitions = IndexMap::new();
   for doc_nodes in name_partitions.values() {
-    let has_class =
-      doc_nodes.iter().any(|node| node.kind == DocNodeKind::Class);
+    let has_class = doc_nodes
+      .iter()
+      .any(|node| node.kind() == DocNodeKind::Class);
     for doc_node in doc_nodes {
-      match doc_node.kind {
+      match doc_node.kind() {
         DocNodeKind::Class => {
-          let class = doc_node.class_def.as_ref().unwrap();
+          let class = doc_node.class_def().unwrap();
 
           let method_nodes = class
             .methods
@@ -540,7 +529,7 @@ pub fn generate_symbol_pages_for_module(
           );
         }
         DocNodeKind::Interface => {
-          let interface = doc_node.interface_def.as_ref().unwrap();
+          let interface = doc_node.interface_def().unwrap();
           let method_nodes = interface
             .methods
             .iter()
@@ -579,7 +568,7 @@ pub fn generate_symbol_pages_for_module(
             .extend(partition::partition_nodes_by_name(&property_nodes, false));
         }
         DocNodeKind::TypeAlias => {
-          let type_alias = doc_node.type_alias_def.as_ref().unwrap();
+          let type_alias = doc_node.type_alias_def().unwrap();
 
           if let Some(ts_type_literal) =
             type_alias.ts_type.type_literal.as_ref()
@@ -624,7 +613,7 @@ pub fn generate_symbol_pages_for_module(
           }
         }
         DocNodeKind::Variable => {
-          let variable = doc_node.variable_def.as_ref().unwrap();
+          let variable = doc_node.variable_def().unwrap();
 
           if let Some(ts_type_literal) = variable
             .ts_type
@@ -682,7 +671,7 @@ pub fn generate_symbol_pages_for_module(
 
     if doc_nodes
       .iter()
-      .any(|doc_node| doc_node.kind == DocNodeKind::Class)
+      .any(|doc_node| doc_node.kind() == DocNodeKind::Class)
     {
       let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {

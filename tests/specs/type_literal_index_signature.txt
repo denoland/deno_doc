@@ -17,7 +17,6 @@ type T = { [key: string]: number; }
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "T",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ type T = { [key: string]: number; }
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "",

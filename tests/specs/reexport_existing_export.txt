@@ -22,7 +22,6 @@ function foo(): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -32,6 +31,7 @@ function foo(): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -46,7 +46,6 @@ function foo(): void
     }
   },
   {
-    "kind": "function",
     "name": "bar",
     "isDefault": false,
     "location": {
@@ -56,6 +55,7 @@ function foo(): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

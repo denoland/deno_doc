@@ -44,7 +44,6 @@ interface Thing
 # output.json
 [
   {
-    "kind": "interface",
     "name": "Thing",
     "isDefault": false,
     "location": {
@@ -54,6 +53,7 @@ interface Thing
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

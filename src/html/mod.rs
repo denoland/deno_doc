@@ -6,8 +6,8 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::sync::Arc;
 
+use crate::node::DocNodeDef;
 use crate::DocNode;
 
 pub mod comrak_adapters;
@@ -22,7 +22,7 @@ mod symbols;
 mod tree_sitter;
 mod types;
 mod usage;
-mod util;
+pub mod util;
 
 use crate::html::pages::SymbolPage;
 use crate::js_doc::JsDocTag;
@@ -67,6 +67,164 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
+fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
+  let mut reg = Handlebars::new();
+  reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
+  reg.set_strict_mode(true);
+
+  #[cfg(debug_assertions)]
+  reg.set_dev_mode(true);
+
+  handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
+  reg.register_helper("concat", Box::new(concat));
+
+  handlebars_helper!(print: |a: Json| println!("{a:#?}"));
+  reg.register_helper("print", Box::new(print));
+
+  reg.register_template_string(
+    ToCCtx::TEMPLATE,
+    include_str!("./templates/toc.hbs"),
+  )?;
+  reg.register_template_string(
+    util::DocEntryCtx::TEMPLATE,
+    include_str!("./templates/doc_entry.hbs"),
+  )?;
+  reg.register_template_string(
+    util::SectionCtx::TEMPLATE,
+    include_str!("./templates/section.hbs"),
+  )?;
+  reg.register_template_string(
+    "doc_node_kind_icon",
+    include_str!("./templates/doc_node_kind_icon.hbs"),
+  )?;
+  reg.register_template_string(
+    "namespace_section",
+    include_str!("./templates/namespace_section.hbs"),
+  )?;
+  reg.register_template_string(
+    symbols::DocBlockSubtitleCtx::TEMPLATE_CLASS,
+    include_str!("./templates/doc_block_subtitle_class.hbs"),
+  )?;
+  reg.register_template_string(
+    symbols::DocBlockSubtitleCtx::TEMPLATE_INTERFACE,
+    include_str!("./templates/doc_block_subtitle_interface.hbs"),
+  )?;
+  reg.register_template_string(
+    util::AnchorCtx::TEMPLATE,
+    include_str!("./templates/anchor.hbs"),
+  )?;
+  reg.register_template_string(
+    SymbolGroupCtx::TEMPLATE,
+    include_str!("./templates/symbol_group.hbs"),
+  )?;
+  reg.register_template_string(
+    SymbolContentCtx::TEMPLATE,
+    include_str!("./templates/symbol_content.hbs"),
+  )?;
+  reg.register_template_string(
+    jsdoc::ExampleCtx::TEMPLATE,
+    include_str!("./templates/example.hbs"),
+  )?;
+  reg.register_template_string(
+    symbols::function::FunctionCtx::TEMPLATE,
+    include_str!("./templates/function.hbs"),
+  )?;
+  reg.register_template_string(
+    jsdoc::ModuleDocCtx::TEMPLATE,
+    include_str!("./templates/module_doc.hbs"),
+  )?;
+  reg.register_template_string(
+    util::BreadcrumbsCtx::TEMPLATE,
+    include_str!("./templates/breadcrumbs.hbs"),
+  )?;
+  reg.register_template_string(
+    usage::UsagesCtx::TEMPLATE,
+    include_str!("./templates/usages.hbs"),
+  )?;
+  reg.register_template_string(
+    "usages_large",
+    include_str!("./templates/usages_large.hbs"),
+  )?;
+  reg.register_template_string(
+    util::Tag::TEMPLATE,
+    include_str!("./templates/tag.hbs"),
+  )?;
+  reg.register_template_string(
+    "source_button",
+    include_str!("./templates/source_button.hbs"),
+  )?;
+  reg.register_template_string(
+    "deprecated",
+    include_str!("./templates/deprecated.hbs"),
+  )?;
+  reg.register_template_string(
+    "index_signature",
+    include_str!("./templates/index_signature.hbs"),
+  )?;
+  reg.register_template_string(
+    pages::CategoriesPanelCtx::TEMPLATE,
+    include_str!("./templates/category_panel.hbs"),
+  )?;
+
+  // pages
+  reg.register_template_string(
+    pages::HtmlHeadCtx::TEMPLATE,
+    include_str!("./templates/pages/html_head.hbs"),
+  )?;
+  reg.register_template_string(
+    pages::AllSymbolsCtx::TEMPLATE,
+    include_str!("./templates/pages/all_symbols.hbs"),
+  )?;
+  reg.register_template_string(
+    pages::SymbolPageCtx::TEMPLATE,
+    include_str!("./templates/pages/symbol.hbs"),
+  )?;
+  reg.register_template_string(
+    pages::IndexCtx::TEMPLATE,
+    include_str!("./templates/pages/index.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/top_nav",
+    include_str!("./templates/pages/top_nav.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/search_results",
+    include_str!("./templates/pages/search_results.hbs"),
+  )?;
+  reg.register_template_string(
+    "pages/redirect",
+    include_str!("./templates/pages/redirect.hbs"),
+  )?;
+
+  // icons
+  reg.register_template_string(
+    "icons/arrow",
+    include_str!("./templates/icons/arrow.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/copy",
+    include_str!("./templates/icons/copy.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/link",
+    include_str!("./templates/icons/link.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/source",
+    include_str!("./templates/icons/source.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/menu",
+    include_str!("./templates/icons/menu.svg"),
+  )?;
+
+  Ok(reg)
+}
+
+lazy_static! {
+  pub static ref HANDLEBARS: Handlebars<'static> = setup_hbs().unwrap();
+}
+
 pub type UsageComposer = Rc<
   dyn Fn(
     &RenderContext,
@@ -100,11 +258,10 @@ pub struct GenerateOptions {
 }
 
 #[non_exhaustive]
-pub struct GenerateCtx<'ctx> {
+pub struct GenerateCtx {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
-  pub hbs: Handlebars<'ctx>,
   pub highlight_adapter: comrak_adapters::HighlightAdapter,
   #[cfg(feature = "ammonia")]
   pub url_rewriter: Option<comrak_adapters::URLRewriter>,
@@ -119,7 +276,7 @@ pub struct GenerateCtx<'ctx> {
   pub default_symbol_map: Option<IndexMap<String, String>>,
 }
 
-impl<'ctx> GenerateCtx<'ctx> {
+impl GenerateCtx {
   pub fn new(
     options: GenerateOptions,
     common_ancestor: Option<PathBuf>,
@@ -145,31 +302,29 @@ impl<'ctx> GenerateCtx<'ctx> {
         let nodes = nodes
           .into_iter()
           .map(|mut node| {
-            if node.name == "default" {
+            if &*node.name == "default" {
               if let Some(default_rename) =
                 options.default_symbol_map.as_ref().and_then(
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
               {
-                node.name = default_rename.clone();
+                node.name = default_rename.as_str().into();
               }
             }
 
             let node = if node
-              .variable_def
+              .variable_def()
               .as_ref()
               .and_then(|def| def.ts_type.as_ref())
               .and_then(|ts_type| ts_type.kind.as_ref())
               .is_some_and(|kind| {
                 kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
               }) {
-              let fn_or_constructor = node
-                .variable_def
-                .unwrap()
-                .ts_type
-                .unwrap()
-                .fn_or_constructor
-                .unwrap();
+              let DocNodeDef::Variable { variable_def } = node.def else {
+                unreachable!()
+              };
+              let fn_or_constructor =
+                variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
 
               let mut new_node = DocNode::function(
                 node.name,
@@ -185,7 +340,7 @@ impl<'ctx> GenerateCtx<'ctx> {
                   is_async: false,
                   is_generator: false,
                   type_params: fn_or_constructor.type_params,
-                  decorators: vec![],
+                  decorators: Box::new([]),
                 },
               );
               new_node.is_default = node.is_default;
@@ -196,10 +351,10 @@ impl<'ctx> GenerateCtx<'ctx> {
 
             DocNodeWithContext {
               origin: short_path.clone(),
-              ns_qualifiers: Rc::new(vec![]),
+              ns_qualifiers: Rc::new([]),
               drilldown_parent_kind: None,
-              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind),
-              inner: Arc::new(node),
+              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind()),
+              inner: Rc::new(node),
               parent: None,
             }
           })
@@ -213,7 +368,6 @@ impl<'ctx> GenerateCtx<'ctx> {
       package_name: options.package_name,
       common_ancestor,
       doc_nodes,
-      hbs: setup_hbs()?,
       highlight_adapter: setup_highlighter(false),
       #[cfg(feature = "ammonia")]
       url_rewriter: None,
@@ -234,7 +388,7 @@ impl<'ctx> GenerateCtx<'ctx> {
     template: &str,
     data: &T,
   ) -> String {
-    self.hbs.render(template, data).unwrap()
+    HANDLEBARS.render(template, data).unwrap()
   }
 
   pub fn resolve_path(
@@ -372,20 +526,20 @@ pub enum DocNodeKindWithDrilldown {
 #[derive(Clone, Debug)]
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
-  pub ns_qualifiers: Rc<Vec<String>>,
+  pub ns_qualifiers: Rc<[String]>,
   pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
-  pub inner: Arc<DocNode>,
+  pub inner: Rc<DocNode>,
   pub parent: Option<Box<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
-  pub fn create_child(&self, doc_node: Arc<DocNode>) -> Self {
+  pub fn create_child(&self, doc_node: Rc<DocNode>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
       drilldown_parent_kind: None,
-      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind),
+      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind()),
       inner: doc_node,
       parent: Some(Box::new(self.clone())),
     }
@@ -393,8 +547,8 @@ impl DocNodeWithContext {
 
   pub fn create_namespace_child(
     &self,
-    doc_node: Arc<DocNode>,
-    qualifiers: Rc<Vec<String>>,
+    doc_node: Rc<DocNode>,
+    qualifiers: Rc<[String]>,
   ) -> Self {
     let mut child = self.create_child(doc_node);
     child.ns_qualifiers = qualifiers;
@@ -407,11 +561,12 @@ impl DocNodeWithContext {
     is_static: bool,
   ) -> Self {
     method_doc_node.name =
-      qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static);
+      qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static)
+        .into_boxed_str();
     method_doc_node.declaration_kind = self.declaration_kind;
 
-    let mut new_node = self.create_child(Arc::new(method_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind);
+    let mut new_node = self.create_child(Rc::new(method_doc_node));
+    new_node.drilldown_parent_kind = Some(self.kind());
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
     new_node
   }
@@ -425,11 +580,12 @@ impl DocNodeWithContext {
       self.get_name(),
       &property_doc_node.name,
       is_static,
-    );
+    )
+    .into_boxed_str();
     property_doc_node.declaration_kind = self.declaration_kind;
 
-    let mut new_node = self.create_child(Arc::new(property_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind);
+    let mut new_node = self.create_child(Rc::new(property_doc_node));
+    new_node.drilldown_parent_kind = Some(self.kind());
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
     new_node
   }
@@ -443,7 +599,7 @@ impl DocNodeWithContext {
   }
 
   pub fn sub_qualifier(&self) -> Vec<String> {
-    let mut ns_qualifiers = (*self.ns_qualifiers).clone();
+    let mut ns_qualifiers = Vec::from(&*self.ns_qualifiers);
     ns_qualifiers.push(self.get_name().to_string());
     ns_qualifiers
   }
@@ -471,160 +627,6 @@ impl core::ops::Deref for DocNodeWithContext {
   fn deref(&self) -> &Self::Target {
     &self.inner
   }
-}
-
-pub fn setup_hbs<'t>() -> Result<Handlebars<'t>, anyhow::Error> {
-  let mut reg = Handlebars::new();
-  reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
-  reg.set_strict_mode(true);
-
-  #[cfg(debug_assertions)]
-  reg.set_dev_mode(true);
-
-  handlebars_helper!(concat: |a: str, b: str| format!("{a}{b}"));
-  reg.register_helper("concat", Box::new(concat));
-
-  handlebars_helper!(print: |a: Json| println!("{a:#?}"));
-  reg.register_helper("print", Box::new(print));
-
-  reg.register_template_string(
-    ToCCtx::TEMPLATE,
-    include_str!("./templates/toc.hbs"),
-  )?;
-  reg.register_template_string(
-    util::DocEntryCtx::TEMPLATE,
-    include_str!("./templates/doc_entry.hbs"),
-  )?;
-  reg.register_template_string(
-    util::SectionCtx::TEMPLATE,
-    include_str!("./templates/section.hbs"),
-  )?;
-  reg.register_template_string(
-    "doc_node_kind_icon",
-    include_str!("./templates/doc_node_kind_icon.hbs"),
-  )?;
-  reg.register_template_string(
-    "namespace_section",
-    include_str!("./templates/namespace_section.hbs"),
-  )?;
-  reg.register_template_string(
-    symbols::DocBlockSubtitleCtx::TEMPLATE_CLASS,
-    include_str!("./templates/doc_block_subtitle_class.hbs"),
-  )?;
-  reg.register_template_string(
-    symbols::DocBlockSubtitleCtx::TEMPLATE_INTERFACE,
-    include_str!("./templates/doc_block_subtitle_interface.hbs"),
-  )?;
-  reg.register_template_string(
-    util::AnchorCtx::TEMPLATE,
-    include_str!("./templates/anchor.hbs"),
-  )?;
-  reg.register_template_string(
-    SymbolGroupCtx::TEMPLATE,
-    include_str!("./templates/symbol_group.hbs"),
-  )?;
-  reg.register_template_string(
-    SymbolContentCtx::TEMPLATE,
-    include_str!("./templates/symbol_content.hbs"),
-  )?;
-  reg.register_template_string(
-    jsdoc::ExampleCtx::TEMPLATE,
-    include_str!("./templates/example.hbs"),
-  )?;
-  reg.register_template_string(
-    symbols::function::FunctionCtx::TEMPLATE,
-    include_str!("./templates/function.hbs"),
-  )?;
-  reg.register_template_string(
-    jsdoc::ModuleDocCtx::TEMPLATE,
-    include_str!("./templates/module_doc.hbs"),
-  )?;
-  reg.register_template_string(
-    util::BreadcrumbsCtx::TEMPLATE,
-    include_str!("./templates/breadcrumbs.hbs"),
-  )?;
-  reg.register_template_string(
-    usage::UsagesCtx::TEMPLATE,
-    include_str!("./templates/usages.hbs"),
-  )?;
-  reg.register_template_string(
-    "usages_large",
-    include_str!("./templates/usages_large.hbs"),
-  )?;
-  reg.register_template_string(
-    util::Tag::TEMPLATE,
-    include_str!("./templates/tag.hbs"),
-  )?;
-  reg.register_template_string(
-    "source_button",
-    include_str!("./templates/source_button.hbs"),
-  )?;
-  reg.register_template_string(
-    "deprecated",
-    include_str!("./templates/deprecated.hbs"),
-  )?;
-  reg.register_template_string(
-    "index_signature",
-    include_str!("./templates/index_signature.hbs"),
-  )?;
-
-  // pages
-  reg.register_template_string(
-    pages::HtmlHeadCtx::TEMPLATE,
-    include_str!("./templates/pages/html_head.hbs"),
-  )?;
-  reg.register_template_string(
-    pages::CategoriesPanelCtx::TEMPLATE,
-    include_str!("./templates/pages/category_panel.hbs"),
-  )?;
-  reg.register_template_string(
-    pages::AllSymbolsCtx::TEMPLATE,
-    include_str!("./templates/pages/all_symbols.hbs"),
-  )?;
-  reg.register_template_string(
-    pages::SymbolPageCtx::TEMPLATE,
-    include_str!("./templates/pages/symbol.hbs"),
-  )?;
-  reg.register_template_string(
-    pages::IndexCtx::TEMPLATE,
-    include_str!("./templates/pages/index.hbs"),
-  )?;
-  reg.register_template_string(
-    "pages/top_nav",
-    include_str!("./templates/pages/top_nav.hbs"),
-  )?;
-  reg.register_template_string(
-    "pages/search_results",
-    include_str!("./templates/pages/search_results.hbs"),
-  )?;
-  reg.register_template_string(
-    "pages/redirect",
-    include_str!("./templates/pages/redirect.hbs"),
-  )?;
-
-  // icons
-  reg.register_template_string(
-    "icons/arrow",
-    include_str!("./templates/icons/arrow.svg"),
-  )?;
-  reg.register_template_string(
-    "icons/copy",
-    include_str!("./templates/icons/copy.svg"),
-  )?;
-  reg.register_template_string(
-    "icons/link",
-    include_str!("./templates/icons/link.svg"),
-  )?;
-  reg.register_template_string(
-    "icons/source",
-    include_str!("./templates/icons/source.svg"),
-  )?;
-  reg.register_template_string(
-    "icons/menu",
-    include_str!("./templates/icons/menu.svg"),
-  )?;
-
-  Ok(reg)
 }
 
 pub fn setup_highlighter(

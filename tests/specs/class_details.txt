@@ -32,7 +32,6 @@ class C
 # output.json
 [
   {
-    "kind": "class",
     "name": "C",
     "isDefault": false,
     "location": {
@@ -42,6 +41,7 @@ class C
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

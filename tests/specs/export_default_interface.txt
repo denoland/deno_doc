@@ -19,7 +19,6 @@ interface default
 # output.json
 [
   {
-    "kind": "interface",
     "name": "default",
     "isDefault": true,
     "location": {
@@ -32,6 +31,7 @@ interface default
     "jsDoc": {
       "doc": "Interface js doc"
     },
+    "kind": "interface",
     "interfaceDef": {
       "defName": "Reader",
       "extends": [],

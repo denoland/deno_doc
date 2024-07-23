@@ -13,7 +13,7 @@ pub(crate) fn render_type_alias(
   doc_node: &DocNodeWithContext,
   name: &str,
 ) -> Vec<SectionCtx> {
-  let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
+  let type_alias_def = doc_node.type_alias_def().unwrap();
 
   let current_type_params = type_alias_def
     .type_params

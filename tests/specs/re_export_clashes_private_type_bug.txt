@@ -139,7 +139,6 @@ class MyClass
 # output.json
 [
   {
-    "kind": "variable",
     "name": "Test1",
     "isDefault": false,
     "location": {
@@ -152,6 +151,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -165,7 +165,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test2",
     "isDefault": false,
     "location": {
@@ -178,6 +177,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -191,7 +191,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test3",
     "isDefault": false,
     "location": {
@@ -204,6 +203,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -217,7 +217,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test4",
     "isDefault": false,
     "location": {
@@ -230,6 +229,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -243,7 +243,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test5",
     "isDefault": false,
     "location": {
@@ -256,6 +255,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -269,7 +269,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test6",
     "isDefault": false,
     "location": {
@@ -282,6 +281,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -295,7 +295,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test7",
     "isDefault": false,
     "location": {
@@ -308,6 +307,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -321,7 +321,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test8",
     "isDefault": false,
     "location": {
@@ -334,6 +333,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -347,7 +347,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test9",
     "isDefault": false,
     "location": {
@@ -360,6 +359,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -373,7 +373,6 @@ class MyClass
     }
   },
   {
-    "kind": "variable",
     "name": "Test10",
     "isDefault": false,
     "location": {
@@ -386,6 +385,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -399,7 +399,6 @@ class MyClass
     }
   },
   {
-    "kind": "class",
     "name": "MyClass",
     "isDefault": false,
     "location": {
@@ -412,6 +411,7 @@ class MyClass
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -476,7 +476,6 @@ class MyClass
     }
   },
   {
-    "kind": "class",
     "name": "Internal1",
     "isDefault": false,
     "location": {
@@ -486,6 +485,7 @@ class MyClass
       "byteIndex": 115
     },
     "declarationKind": "private",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -499,7 +499,6 @@ class MyClass
     }
   },
   {
-    "kind": "class",
     "name": "Internal2",
     "isDefault": false,
     "location": {
@@ -509,6 +508,7 @@ class MyClass
       "byteIndex": 134
     },
     "declarationKind": "private",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

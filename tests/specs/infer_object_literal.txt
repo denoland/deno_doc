@@ -34,7 +34,6 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
 # output.json
 [
   {
-    "kind": "variable",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -44,6 +43,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
       "byteIndex": 84
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",

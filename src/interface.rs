@@ -30,7 +30,7 @@ pub struct InterfaceDef {
   pub properties: Vec<PropertyDef>,
   pub call_signatures: Vec<CallSignatureDef>,
   pub index_signatures: Vec<IndexSignatureDef>,
-  pub type_params: Vec<TsTypeParamDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
 }
 
 pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
@@ -148,7 +148,7 @@ pub fn get_doc_for_ts_interface_decl(
             optional: false,
             params: vec![],
             return_type: maybe_return_type,
-            type_params: vec![],
+            type_params: Box::new([]),
           };
           methods.push(method_def);
         }
@@ -172,7 +172,7 @@ pub fn get_doc_for_ts_interface_decl(
             optional: false,
             params,
             return_type: None,
-            type_params: vec![],
+            type_params: Box::new([]),
           };
           methods.push(method_def);
         }

@@ -45,7 +45,6 @@ class Test
 # output.json
 [
   {
-    "kind": "class",
     "name": "Test",
     "isDefault": false,
     "location": {
@@ -55,6 +54,7 @@ class Test
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -68,7 +68,6 @@ class Test
     }
   },
   {
-    "kind": "variable",
     "name": "test1",
     "isDefault": false,
     "location": {
@@ -78,6 +77,7 @@ class Test
       "byteIndex": 6
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",

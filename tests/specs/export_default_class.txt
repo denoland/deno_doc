@@ -17,7 +17,6 @@ class default
 # output.json
 [
   {
-    "kind": "class",
     "name": "default",
     "isDefault": true,
     "location": {
@@ -30,6 +29,7 @@ class default
     "jsDoc": {
       "doc": "Class doc"
     },
+    "kind": "class",
     "classDef": {
       "defName": "Foobar",
       "isAbstract": false,

@@ -48,7 +48,6 @@ interface B
 # output.json
 [
   {
-    "kind": "moduleDoc",
     "name": "",
     "location": {
       "filename": "file:///mod.ts",
@@ -64,10 +63,10 @@ interface B
           "kind": "module"
         }
       ]
-    }
+    },
+    "kind": "moduleDoc"
   },
   {
-    "kind": "class",
     "name": "A",
     "isDefault": false,
     "location": {
@@ -80,6 +79,7 @@ interface B
     "jsDoc": {
       "doc": "A is a simple class."
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -93,7 +93,6 @@ interface B
     }
   },
   {
-    "kind": "interface",
     "name": "B",
     "isDefault": false,
     "location": {
@@ -106,6 +105,7 @@ interface B
     "jsDoc": {
       "doc": "B is a simple interface."
     },
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -117,7 +117,6 @@ interface B
     }
   },
   {
-    "kind": "function",
     "name": "C",
     "isDefault": false,
     "location": {
@@ -130,6 +129,7 @@ interface B
     "jsDoc": {
       "doc": "C is a function."
     },
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

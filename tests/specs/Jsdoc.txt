@@ -46,7 +46,6 @@ interface B
 # output.json
 [
   {
-    "kind": "class",
     "name": "A",
     "isDefault": false,
     "location": {
@@ -59,6 +58,7 @@ interface B
     "jsDoc": {
       "doc": "A is a class\n\nNothing more"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -72,7 +72,6 @@ interface B
     }
   },
   {
-    "kind": "interface",
     "name": "B",
     "isDefault": false,
     "location": {
@@ -85,6 +84,7 @@ interface B
     "jsDoc": {
       "doc": "B is an interface\n\nShould be"
     },
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -96,7 +96,6 @@ interface B
     }
   },
   {
-    "kind": "function",
     "name": "C",
     "isDefault": false,
     "location": {
@@ -109,6 +108,7 @@ interface B
     "jsDoc": {
       "doc": "C is a function\n\nSummarised"
     },
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

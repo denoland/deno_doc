@@ -37,7 +37,6 @@ interface I
 # output.json
 [
   {
-    "kind": "interface",
     "name": "I",
     "isDefault": false,
     "location": {
@@ -47,6 +46,7 @@ interface I
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

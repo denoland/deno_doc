@@ -19,7 +19,6 @@ async function a(): Promise<void>
 # output.json
 [
   {
-    "kind": "function",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -29,6 +28,7 @@ async function a(): Promise<void>
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

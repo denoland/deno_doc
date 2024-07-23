@@ -18,7 +18,6 @@ class Class extends Object implements Iterator, Iterable
 # output.json
 [
   {
-    "kind": "class",
     "name": "Class",
     "isDefault": false,
     "location": {
@@ -28,6 +27,7 @@ class Class extends Object implements Iterator, Iterable
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

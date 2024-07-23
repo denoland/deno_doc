@@ -62,6 +62,7 @@ tree-sitter-md = { version = "0.1.7", optional = true }
 tree-sitter-rust = { version = "0.20.4", optional = true }
 tree-sitter-html = { version = "0.20.0", optional = true }
 tree-sitter-bash = { version = "0.20.5", optional = true }
+itoa = "1.0.10"
 
 [dev-dependencies]
 anyhow = { version = "1.0.58" }

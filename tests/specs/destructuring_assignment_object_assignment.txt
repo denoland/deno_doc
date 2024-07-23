@@ -19,7 +19,6 @@ private const obj: { a: string; b: string; }
 # output.json
 [
   {
-    "kind": "variable",
     "name": "obj",
     "isDefault": false,
     "location": {
@@ -29,6 +28,7 @@ private const obj: { a: string; b: string; }
       "byteIndex": 6
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -82,7 +82,6 @@ private const obj: { a: string; b: string; }
     }
   },
   {
-    "kind": "variable",
     "name": "a1",
     "isDefault": false,
     "location": {
@@ -92,13 +91,13 @@ private const obj: { a: string; b: string; }
       "byteIndex": 47
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -108,6 +107,7 @@ private const obj: { a: string; b: string; }
       "byteIndex": 57
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"

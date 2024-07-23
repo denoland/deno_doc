@@ -47,14 +47,14 @@ pub enum ParamPatternDef {
 pub struct ParamDef {
   #[serde(flatten)]
   pub pattern: ParamPatternDef,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub decorators: Vec<DecoratorDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
+  pub decorators: Box<[DecoratorDef]>,
   pub ts_type: Option<TsTypeDef>,
 }
 
 impl Display for ParamDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    for decorator in &self.decorators {
+    for decorator in self.decorators.iter() {
       write!(f, "{} ", decorator)?;
     }
     match &self.pattern {
@@ -156,7 +156,7 @@ pub fn ident_to_param_def(
       name: ident.id.sym.to_string(),
       optional: ident.id.optional,
     },
-    decorators: Vec::new(),
+    decorators: Box::new([]),
     ts_type,
   }
 }
@@ -174,7 +174,7 @@ fn rest_pat_to_param_def(
     pattern: ParamPatternDef::Rest {
       arg: Box::new(pat_to_param_def(parsed_source, &rest_pat.arg)),
     },
-    decorators: Vec::new(),
+    decorators: Box::new([]),
     ts_type,
   }
 }
@@ -217,7 +217,7 @@ fn object_pat_to_param_def(
       props,
       optional: object_pat.optional,
     },
-    decorators: Vec::new(),
+    decorators: Box::new([]),
     ts_type,
   }
 }
@@ -241,7 +241,7 @@ fn array_pat_to_param_def(
       elements,
       optional: array_pat.optional,
     },
-    decorators: Vec::new(),
+    decorators: Box::new([]),
     ts_type,
   }
 }
@@ -265,7 +265,7 @@ pub fn assign_pat_to_param_def(
       left: Box::new(left),
       right: crate::interface::expr_to_name(&assign_pat.right),
     },
-    decorators: Vec::new(),
+    decorators: Box::new([]),
     ts_type: None,
   }
 }

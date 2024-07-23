@@ -2,32 +2,35 @@
 @tailwind utilities;
 
 .ddoc {
-  @apply flex h-screen items-start gap-6 p-4 pt-2 lg:p-2 lg:pt-0 max-lg:pt-4;
+  /* keep in sync with #topnav further down */
+  @apply flex h-screen items-start gap-6 p-4 lg:p-2;
 
-  /* doesn't have categories panel */
-  &:not(:has(> div.toc)) {
+  &:not(:has(#categoryPanel)) {
     @apply lg:pt-4;
   }
 
-  /* Has categories panel, target non-categories panel content */
-  &:has(> div.toc) > div:not(.toc) {
-    @apply lg:pt-4;
-  }
+  &:has(#categoryPanel) {
+    & > div:not(#categoryPanel) {
+      @apply lg:pt-4;
+    }
 
-  /* Categories panel */
-  & > .toc {
-    @apply max-lg:hidden md:flex md:flex-col -mt-0 pt-0 h-full max-h-screen;
-    @apply w-[290px] flex-shrink-0;
-
-    h3 {
-      @apply pt-3 !important;
+    #topnav {
+      @apply lg:-ml-6 lg:pl-6 !important;
     }
   }
 
-  /* Non-categories panel content */
-  & > div:not(.toc) {
+  &:not(:has(#categoryPanel)),
+  &:has(#categoryPanel) > div:not(#categoryPanel) {
+    @apply pt-1;
+  }
+
+  & > div:not(#categoryPanel) {
     @apply flex flex-col flex-grow;
   }
+}
+
+#categoryPanel {
+  @apply max-lg:hidden lg:flex lg:flex-col -mt-0 pt-0 w-[250px] flex-shrink-0 top-0 sticky max-h-screen h-fit box-border;
 }
 
 #content {
@@ -40,22 +43,22 @@
   &:has(.toc) > main {
     @apply lg:col-span-3 lg:row-start-1;
   }
+}
 
-  .toc {
-    @apply max-md:hidden xl:flex xl:flex-col;
-  }
+#topnav {
+  @apply -ml-4 pl-4 lg:-ml-2 lg:pl-2;
 }
 
 #content, #topnav > div {
   @apply flex flex-row justify-between gap-6 gap-8 lg:gap-12;
 }
 
-#content .toc, #searchbar {
+.toc, #searchbar {
   @apply flex-shrink-0 min-w-[250px] max-w-[300px];
 }
 
 .toc {
-  @apply max-lg:row-start-1 lg:col-[span_1_/_-1] lg:top-0 lg:sticky lg:max-h-screen lg:h-fit flex flex-col box-border gap-y-4 -mt-14 pt-14;
+  @apply max-sm:hidden sm:flex sm:flex-col max-lg:row-start-1 lg:col-[span_1_/_-1] top-0 sticky max-h-screen h-fit box-border gap-y-4 -mt-14 pt-14;
 
   > div {
     @apply max-h-full lg:overflow-y-auto;

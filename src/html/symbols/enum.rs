@@ -7,7 +7,7 @@ pub(crate) fn render_enum(
   render_ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
 ) -> Vec<SectionCtx> {
-  let mut members = doc_node.enum_def.as_ref().unwrap().members.clone();
+  let mut members = doc_node.enum_def().unwrap().members.clone();
 
   members.sort_by(|a, b| a.name.cmp(&b.name));
 

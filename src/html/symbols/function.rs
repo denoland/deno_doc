@@ -11,6 +11,7 @@ use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use serde::Serialize;
 use std::collections::HashSet;
+use std::ops::Deref;
 
 #[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
@@ -40,14 +41,14 @@ impl FunctionCtx {
       .iter()
       .enumerate()
       .filter(|(i, doc_node)| {
-        let function_def = doc_node.function_def.as_ref().unwrap();
+        let function_def = doc_node.function_def().unwrap();
 
         !(function_def.has_body && *i != 0)
       })
       .count();
 
     for (i, doc_node) in doc_nodes.into_iter().enumerate() {
-      let function_def = doc_node.function_def.as_ref().unwrap();
+      let function_def = doc_node.function_def().unwrap();
 
       if function_def.has_body && i != 0 {
         continue;
@@ -70,11 +71,9 @@ impl FunctionCtx {
         name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
 
       if overloads_count > 1 {
-        ctx.toc.add_entry(
-          0,
-          format!("Overload {}", i + 1),
-          overload_id.clone(),
-        );
+        ctx
+          .toc
+          .add_entry(0, &format!("Overload {}", i + 1), &overload_id);
       }
 
       functions_content.push(OverloadRenderCtx {
@@ -117,7 +116,7 @@ fn render_single_function(
   doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
-  let function_def = doc_node.function_def.as_ref().unwrap();
+  let function_def = doc_node.function_def().unwrap();
 
   let current_type_params = function_def
     .type_params
@@ -126,29 +125,28 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let param_docs =
-    doc_node
-      .js_doc
-      .tags
-      .iter()
-      .filter_map(|tag| {
-        if let JsDocTag::Param {
-          name,
-          doc,
-          optional,
-          default,
-          ..
-        } = tag
-        {
-          Some((name.as_str(), (doc, *optional, default)))
-        } else {
-          None
-        }
-      })
-      .collect::<std::collections::HashMap<
-        &str,
-        (&Option<String>, bool, &Option<String>),
-      >>();
+  let param_docs = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Param {
+        name,
+        doc,
+        optional,
+        default,
+        ..
+      } = tag
+      {
+        Some((name.deref(), (doc, *optional, default)))
+      } else {
+        None
+      }
+    })
+    .collect::<std::collections::HashMap<
+      &str,
+      (&Option<Box<str>>, bool, &Option<Box<str>>),
+    >>();
 
   let params = function_def
     .params
@@ -168,7 +166,7 @@ fn render_single_function(
 
       let ts_type =
         if let ParamPatternDef::Assign { left, right } = &param.pattern {
-          default = default.or(Some(right.to_string()));
+          default = default.or(Some(right.deref().into()));
           left.ts_type.as_ref()
         } else {
           param.ts_type.as_ref()
@@ -179,7 +177,7 @@ fn render_single_function(
         .unwrap_or_default();
 
       if let Some(default) = &default {
-        if default != "[UNSUPPORTED]" {
+        if default.deref() != "[UNSUPPORTED]" {
           ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
         }
       }

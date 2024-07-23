@@ -83,7 +83,7 @@ impl DecoratorDef {
 pub fn decorators_to_defs(
   parsed_source: &ParsedSource,
   decorators: &[Decorator],
-) -> Vec<DecoratorDef> {
+) -> Box<[DecoratorDef]> {
   decorators
     .iter()
     .map(|d| DecoratorDef::from_ast_decorator(parsed_source, d))

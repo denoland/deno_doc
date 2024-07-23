@@ -58,14 +58,14 @@ impl TsTypeParamDef {
 pub fn maybe_type_param_decl_to_type_param_defs(
   parsed_source: &ParsedSource,
   maybe_type_param_decl: Option<&TsTypeParamDecl>,
-) -> Vec<TsTypeParamDef> {
+) -> Box<[TsTypeParamDef]> {
   if let Some(type_params_decl) = maybe_type_param_decl {
     type_params_decl
       .params
       .iter()
       .map(|type_param| TsTypeParamDef::new(parsed_source, type_param))
-      .collect::<Vec<_>>()
+      .collect::<Box<[_]>>()
   } else {
-    vec![]
+    Box::new([])
   }
 }

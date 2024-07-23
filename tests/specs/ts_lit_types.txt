@@ -65,7 +65,6 @@ type tplLitArg = `test${number}`
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "boolLit",
     "isDefault": false,
     "location": {
@@ -75,6 +74,7 @@ type tplLitArg = `test${number}`
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "false",
@@ -88,7 +88,6 @@ type tplLitArg = `test${number}`
     }
   },
   {
-    "kind": "typeAlias",
     "name": "strLit",
     "isDefault": false,
     "location": {
@@ -98,6 +97,7 @@ type tplLitArg = `test${number}`
       "byteIndex": 29
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "text",
@@ -111,7 +111,6 @@ type tplLitArg = `test${number}`
     }
   },
   {
-    "kind": "typeAlias",
     "name": "tplLit",
     "isDefault": false,
     "location": {
@@ -121,6 +120,7 @@ type tplLitArg = `test${number}`
       "byteIndex": 58
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "text",
@@ -143,7 +143,6 @@ type tplLitArg = `test${number}`
     }
   },
   {
-    "kind": "typeAlias",
     "name": "tplLitArg",
     "isDefault": false,
     "location": {
@@ -153,6 +152,7 @@ type tplLitArg = `test${number}`
       "byteIndex": 87
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "test${number}",
@@ -188,7 +188,6 @@ type tplLitArg = `test${number}`
     }
   },
   {
-    "kind": "typeAlias",
     "name": "numLit",
     "isDefault": false,
     "location": {
@@ -198,6 +197,7 @@ type tplLitArg = `test${number}`
       "byteIndex": 128
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "5",

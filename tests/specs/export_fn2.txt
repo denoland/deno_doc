@@ -43,7 +43,6 @@ private interface AssignOpts
 # output.json
 [
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -53,6 +52,7 @@ private interface AssignOpts
       "byteIndex": 39
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -160,7 +160,6 @@ private interface AssignOpts
     }
   },
   {
-    "kind": "interface",
     "name": "AssignOpts",
     "isDefault": false,
     "location": {
@@ -170,6 +169,7 @@ private interface AssignOpts
       "byteIndex": 0
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

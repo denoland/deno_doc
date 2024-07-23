@@ -28,7 +28,6 @@ interface TypedIface<T>
 # output.json
 [
   {
-    "kind": "interface",
     "name": "TypedIface",
     "isDefault": false,
     "location": {
@@ -38,6 +37,7 @@ interface TypedIface<T>
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

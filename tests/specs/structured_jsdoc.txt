@@ -64,7 +64,6 @@ class A
 # output.json
 [
   {
-    "kind": "class",
     "name": "A",
     "isDefault": false,
     "location": {
@@ -77,6 +76,7 @@ class A
     "jsDoc": {
       "doc": "Class doc"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [

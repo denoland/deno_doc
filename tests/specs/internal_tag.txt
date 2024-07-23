@@ -78,7 +78,6 @@ type Test = OtherPrivateType
 # output.json
 [
   {
-    "kind": "class",
     "name": "MyClass",
     "isDefault": false,
     "location": {
@@ -95,6 +94,7 @@ type Test = OtherPrivateType
         }
       ]
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -169,7 +169,6 @@ type Test = OtherPrivateType
     }
   },
   {
-    "kind": "class",
     "name": "Other",
     "isDefault": false,
     "location": {
@@ -182,6 +181,7 @@ type Test = OtherPrivateType
     "jsDoc": {
       "doc": "Test"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -248,7 +248,6 @@ type Test = OtherPrivateType
     }
   },
   {
-    "kind": "typeAlias",
     "name": "Test",
     "isDefault": false,
     "location": {
@@ -258,6 +257,7 @@ type Test = OtherPrivateType
       "byteIndex": 480
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "OtherPrivateType",
@@ -271,7 +271,6 @@ type Test = OtherPrivateType
     }
   },
   {
-    "kind": "typeAlias",
     "name": "PrivateType",
     "isDefault": false,
     "location": {
@@ -288,6 +287,7 @@ type Test = OtherPrivateType
         }
       ]
     },
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "string",

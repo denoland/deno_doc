@@ -18,7 +18,7 @@ pub(crate) fn render_class(
   doc_node: &DocNodeWithContext,
   name: &str,
 ) -> Vec<SectionCtx> {
-  let class_def = doc_node.class_def.as_ref().unwrap();
+  let class_def = doc_node.class_def().unwrap();
 
   let current_type_params = class_def
     .type_params
@@ -258,20 +258,20 @@ fn property_or_method_cmp(
 struct ClassItems {
   properties: Vec<PropertyOrMethod>,
   static_properties: Vec<PropertyOrMethod>,
-  methods: BTreeMap<String, Vec<ClassMethodDef>>,
-  static_methods: BTreeMap<String, Vec<ClassMethodDef>>,
+  methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
+  static_methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
 }
 
 fn partition_properties_and_classes(
-  properties: Vec<ClassPropertyDef>,
-  methods: Vec<ClassMethodDef>,
+  properties: Box<[ClassPropertyDef]>,
+  methods: Box<[ClassMethodDef]>,
 ) -> ClassItems {
   let mut out_properties = vec![];
   let mut out_static_properties = vec![];
   let mut out_methods = BTreeMap::new();
   let mut out_static_methods = BTreeMap::new();
 
-  for property in properties {
+  for property in properties.into_vec().into_iter() {
     if property.is_static {
       out_static_properties.push(PropertyOrMethod::Property(property));
     } else {
@@ -279,7 +279,7 @@ fn partition_properties_and_classes(
     }
   }
 
-  for method in methods {
+  for method in methods.into_vec().into_iter() {
     if matches!(method.kind, MethodKind::Getter | MethodKind::Setter) {
       if method.is_static {
         out_static_properties.push(PropertyOrMethod::Method(method));
@@ -493,7 +493,7 @@ fn render_class_properties(
 fn render_class_methods(
   ctx: &RenderContext,
   class_name: &str,
-  methods: BTreeMap<String, Vec<ClassMethodDef>>,
+  methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
 ) -> Vec<DocEntryCtx> {
   methods
     .values()

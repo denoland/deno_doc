@@ -64,7 +64,6 @@ private const rest5
 # output.json
 [
   {
-    "kind": "variable",
     "name": "array",
     "isDefault": false,
     "location": {
@@ -74,6 +73,7 @@ private const rest5
       "byteIndex": 6
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -88,7 +88,6 @@ private const rest5
     }
   },
   {
-    "kind": "variable",
     "name": "a1",
     "isDefault": false,
     "location": {
@@ -98,13 +97,13 @@ private const rest5
       "byteIndex": 34
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b1",
     "isDefault": false,
     "location": {
@@ -114,13 +113,13 @@ private const rest5
       "byteIndex": 38
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "a2",
     "isDefault": false,
     "location": {
@@ -130,13 +129,13 @@ private const rest5
       "byteIndex": 58
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b2",
     "isDefault": false,
     "location": {
@@ -146,13 +145,13 @@ private const rest5
       "byteIndex": 64
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "a3",
     "isDefault": false,
     "location": {
@@ -162,13 +161,13 @@ private const rest5
       "byteIndex": 84
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b3",
     "isDefault": false,
     "location": {
@@ -178,13 +177,13 @@ private const rest5
       "byteIndex": 96
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "a4",
     "isDefault": false,
     "location": {
@@ -194,13 +193,13 @@ private const rest5
       "byteIndex": 116
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b4",
     "isDefault": false,
     "location": {
@@ -210,13 +209,13 @@ private const rest5
       "byteIndex": 120
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "rest4",
     "isDefault": false,
     "location": {
@@ -226,13 +225,13 @@ private const rest5
       "byteIndex": 127
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "a5",
     "isDefault": false,
     "location": {
@@ -242,13 +241,13 @@ private const rest5
       "byteIndex": 150
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b5",
     "isDefault": false,
     "location": {
@@ -258,13 +257,13 @@ private const rest5
       "byteIndex": 156
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "rest5",
     "isDefault": false,
     "location": {
@@ -274,6 +273,7 @@ private const rest5
       "byteIndex": 163
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"

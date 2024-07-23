@@ -198,7 +198,7 @@ a {
   }
 
   .documentNavigation {
-    @apply max-lg:hidden text-sm space-y-3;
+    @apply max-sm:hidden text-sm space-y-3;
 
     > ul {
       @apply space-y-2 block overflow-y-auto flex-grow;
@@ -293,6 +293,18 @@ a {
     &:hover .context_button {
       @apply block opacity-100;
     }
+  }
+}
+
+#categoryPanel {
+  @apply pt-3;
+
+  ul {
+    @apply space-y-3;
+  }
+
+  a {
+    @apply hover:underline block overflow-hidden whitespace-nowrap text-ellipsis py-1.5 px-3.5;
   }
 }
 

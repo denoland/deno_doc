@@ -42,7 +42,6 @@ const hello: "world"
 # output.json
 [
   {
-    "kind": "variable",
     "name": "hello",
     "isDefault": false,
     "location": {
@@ -52,6 +51,7 @@ const hello: "world"
       "byteIndex": 6
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "world",
@@ -65,7 +65,6 @@ const hello: "world"
     }
   },
   {
-    "kind": "function",
     "name": "say",
     "isDefault": false,
     "location": {
@@ -75,6 +74,7 @@ const hello: "world"
       "byteIndex": 23
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -100,7 +100,6 @@ const hello: "world"
     }
   },
   {
-    "kind": "function",
     "name": "bar",
     "isDefault": false,
     "location": {
@@ -110,6 +109,7 @@ const hello: "world"
       "byteIndex": 61
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
