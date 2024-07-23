@@ -51,31 +51,33 @@ pub fn usage_to_md(
       {
         None
       } else {
-        parts.nth_back(0).map(|usage_symbol| {
-          (
-            usage_symbol,
-            // if it is namespaces within namespaces, we simply re-join them together
-            // instead of trying to figure out some sort of nested restructuring
-            if is_default {
-              import_symbol.clone()
-            } else {
-              let capacity = if symbol.len() == usage_symbol.len() {
-                0
+        let last = parts.next_back();
+        if let Some(usage_symbol) = last {
+          if usage_symbol == symbol {
+            None
+          } else {
+            Some((
+              usage_symbol,
+              // if it is namespaces within namespaces, we simply re-join them together
+              // instead of trying to figure out some sort of nested restructuring
+              if is_default {
+                import_symbol.clone()
               } else {
-                symbol.len() - usage_symbol.len() - 1
-              };
-              let mut joined = String::with_capacity(capacity);
-
-              for part in parts {
-                if !joined.is_empty() {
-                  joined.push('.');
+                let capacity = symbol.len() - usage_symbol.len() - 1;
+                let mut joined = String::with_capacity(capacity);
+                for part in parts {
+                  if !joined.is_empty() {
+                    joined.push('.');
+                  }
+                  joined.push_str(part);
                 }
-                joined.push_str(part);
-              }
-              joined.into_boxed_str()
-            },
-          )
-        })
+                joined.into_boxed_str()
+              },
+            ))
+          }
+        } else {
+          None
+        }
       };
 
       let is_type = doc_nodes.iter().all(|doc_node| {
