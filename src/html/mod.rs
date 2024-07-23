@@ -475,9 +475,9 @@ impl ShortPath {
     }
   }
 
-  pub fn display_name(&self) -> String {
+  pub fn display_name(&self) -> &str {
     if self.is_main {
-      "default".to_string()
+      "default"
     } else {
       self
         .path
@@ -485,7 +485,6 @@ impl ShortPath {
         .unwrap_or(&self.path)
         .strip_prefix('/')
         .unwrap_or(&self.path)
-        .to_string()
     }
   }
 
@@ -503,7 +502,7 @@ impl Ord for ShortPath {
     other
       .is_main
       .cmp(&self.is_main)
-      .then_with(|| self.display_name().cmp(&other.display_name()))
+      .then_with(|| self.display_name().cmp(other.display_name()))
   }
 }
 

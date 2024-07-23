@@ -442,8 +442,10 @@ impl SectionHeaderCtx {
     let title = path.display_name();
 
     SectionHeaderCtx {
-      title: title.clone(),
-      anchor: AnchorCtx { id: title },
+      title: title.to_string(),
+      anchor: AnchorCtx {
+        id: title.to_string(),
+      },
       href: Some(render_ctx.ctx.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),

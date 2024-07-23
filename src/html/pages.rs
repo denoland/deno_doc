@@ -85,7 +85,7 @@ pub struct CategoriesPanelCtx {
 impl CategoriesPanelCtx {
   pub const TEMPLATE: &'static str = "category_panel";
 
-  pub fn new(ctx: &RenderContext) -> Option<Self> {
+  pub fn new(ctx: &RenderContext, current_path: Option<&str>) -> Option<Self> {
     match ctx.ctx.file_mode {
       FileMode::Dts => {
         let total_symbols = ctx
@@ -101,11 +101,14 @@ impl CategoriesPanelCtx {
           .doc_nodes
           .keys()
           .map(|short_path| CategoriesPanelCategoryCtx {
-            name: short_path.display_name(),
+            name: short_path.display_name().to_string(),
             href: ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
               UrlResolveKind::File(short_path),
             ),
+            active: current_path.is_some_and(|current_path| {
+              current_path == short_path.display_name()
+            }),
           })
           .collect::<Vec<_>>();
 
@@ -142,6 +145,8 @@ impl CategoriesPanelCtx {
               ctx.get_current_resolve(),
               UrlResolveKind::Category(&title),
             ),
+            active: current_path
+              .is_some_and(|current_path| current_path == title),
             name: title,
           })
           .collect::<Vec<_>>();
@@ -168,6 +173,7 @@ impl CategoriesPanelCtx {
 pub struct CategoriesPanelCategoryCtx {
   pub name: String,
   pub href: String,
+  pub active: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -241,8 +247,8 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.anchorize(&title);
-            render_ctx.toc.add_entry(1, &title, &anchor);
+            let anchor = render_ctx.toc.anchorize(title);
+            render_ctx.toc.add_entry(1, title, &anchor);
 
             util::SectionCtx {
               header: SectionHeaderCtx {
@@ -250,7 +256,7 @@ impl IndexCtx {
                   UrlResolveKind::Root,
                   short_path.as_resolve_kind(),
                 )),
-                title,
+                title: title.to_string(),
                 anchor: AnchorCtx { id: anchor },
                 doc,
               },
@@ -320,7 +326,12 @@ impl IndexCtx {
 
     let dts_mode = matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts);
 
-    let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+    let categories_panel = CategoriesPanelCtx::new(
+      &render_ctx,
+      short_path
+        .as_ref()
+        .map(|short_path| short_path.display_name()),
+    );
     let usage = dts_mode.then(|| UsagesCtx::new(&render_ctx, &[])).flatten();
 
     let toc_ctx = util::ToCCtx::new(
@@ -382,7 +393,7 @@ impl IndexCtx {
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
-    let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+    let categories_panel = CategoriesPanelCtx::new(&render_ctx, Some(name));
     let usage = UsagesCtx::new(&render_ctx, &[]);
 
     let toc_ctx = util::ToCCtx::new(
@@ -445,7 +456,7 @@ impl AllSymbolsCtx {
       ctx.disable_search,
     );
 
-    let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+    let categories_panel = CategoriesPanelCtx::new(&render_ctx, None);
 
     AllSymbolsCtx {
       html_head_ctx,
@@ -743,7 +754,14 @@ pub fn render_symbol_page(
   let symbol_group_ctx =
     SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
 
-  let categories_panel = CategoriesPanelCtx::new(&render_ctx);
+  let categories_panel = CategoriesPanelCtx::new(
+    &render_ctx,
+    Some(
+      render_ctx
+        .category
+        .unwrap_or_else(|| short_path.display_name()),
+    ),
+  );
 
   let toc_nodes = (!matches!(
     render_ctx.ctx.file_mode,

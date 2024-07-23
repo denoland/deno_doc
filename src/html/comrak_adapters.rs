@@ -118,8 +118,9 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       syntect::util::LinesWithEndings::from(code),
       |lines, line| {
         let regions = highlighter.highlight_line(line, &self.syntax_set)?;
+
         syntect::html::append_highlighted_html_for_styled_line(
-          &regions[..],
+          &regions,
           syntect::html::IncludeBackground::No,
           lines,
         )?;
