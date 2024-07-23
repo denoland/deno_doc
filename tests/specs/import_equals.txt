@@ -25,7 +25,6 @@ interface Options
 # output.json
 [
   {
-    "kind": "interface",
     "name": "Options",
     "isDefault": false,
     "location": {
@@ -35,6 +34,7 @@ interface Options
       "byteIndex": 24
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

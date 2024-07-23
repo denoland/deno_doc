@@ -17,7 +17,6 @@ function foo(bar: A | B): asserts bar is B
 # output.json
 [
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ function foo(bar: A | B): asserts bar is B
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

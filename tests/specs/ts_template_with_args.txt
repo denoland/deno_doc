@@ -17,7 +17,6 @@ const tpl: `test${number}`
 # output.json
 [
   {
-    "kind": "variable",
     "name": "tpl",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ const tpl: `test${number}`
       "byteIndex": 13
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "test${number}",

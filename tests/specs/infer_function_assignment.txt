@@ -17,7 +17,6 @@ function foo(n: number, b: string): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ function foo(n: number, b: string): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

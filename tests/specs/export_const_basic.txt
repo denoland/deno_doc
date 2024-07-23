@@ -118,7 +118,6 @@ const tpl2: string
 # output.json
 [
   {
-    "kind": "variable",
     "name": "fizzBuzz",
     "isDefault": false,
     "location": {
@@ -131,6 +130,7 @@ const tpl2: string
     "jsDoc": {
       "doc": "Something about fizzBuzz"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "fizzBuzz",
@@ -144,7 +144,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "env",
     "isDefault": false,
     "location": {
@@ -154,6 +153,7 @@ const tpl2: string
       "byteIndex": 82
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -256,7 +256,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "num",
     "isDefault": false,
     "location": {
@@ -266,6 +265,7 @@ const tpl2: string
       "byteIndex": 221
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "100",
@@ -279,7 +279,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "bool",
     "isDefault": false,
     "location": {
@@ -289,6 +288,7 @@ const tpl2: string
       "byteIndex": 245
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "false",
@@ -302,7 +302,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "bigint",
     "isDefault": false,
     "location": {
@@ -312,6 +311,7 @@ const tpl2: string
       "byteIndex": 272
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "123",
@@ -325,7 +325,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "regex",
     "isDefault": false,
     "location": {
@@ -335,6 +334,7 @@ const tpl2: string
       "byteIndex": 300
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "hello",
@@ -348,7 +348,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "date",
     "isDefault": false,
     "location": {
@@ -358,6 +357,7 @@ const tpl2: string
       "byteIndex": 330
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Date",
@@ -371,7 +371,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "tpl1",
     "isDefault": false,
     "location": {
@@ -381,6 +380,7 @@ const tpl2: string
       "byteIndex": 362
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "foo",
@@ -403,7 +403,6 @@ const tpl2: string
     }
   },
   {
-    "kind": "variable",
     "name": "tpl2",
     "isDefault": false,
     "location": {
@@ -413,6 +412,7 @@ const tpl2: string
       "byteIndex": 389
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",

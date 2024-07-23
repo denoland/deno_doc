@@ -18,7 +18,6 @@ interface Interface extends Iterator, Iterable
 # output.json
 [
   {
-    "kind": "interface",
     "name": "Interface",
     "isDefault": false,
     "location": {
@@ -28,6 +27,7 @@ interface Interface extends Iterator, Iterable
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [
         {

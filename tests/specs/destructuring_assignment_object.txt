@@ -37,7 +37,6 @@ private const rest
 # output.json
 [
   {
-    "kind": "variable",
     "name": "obj",
     "isDefault": false,
     "location": {
@@ -47,6 +46,7 @@ private const rest
       "byteIndex": 6
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -100,7 +100,6 @@ private const rest
     }
   },
   {
-    "kind": "variable",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -110,13 +109,13 @@ private const rest
       "byteIndex": 44
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -126,13 +125,13 @@ private const rest
       "byteIndex": 47
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "rest",
     "isDefault": false,
     "location": {
@@ -142,13 +141,13 @@ private const rest
       "byteIndex": 53
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "a1",
     "isDefault": false,
     "location": {
@@ -158,13 +157,13 @@ private const rest
       "byteIndex": 78
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "b1",
     "isDefault": false,
     "location": {
@@ -174,13 +173,13 @@ private const rest
       "byteIndex": 85
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"
     }
   },
   {
-    "kind": "variable",
     "name": "a2",
     "isDefault": false,
     "location": {
@@ -190,6 +189,7 @@ private const rest
       "byteIndex": 112
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": null,
       "kind": "const"

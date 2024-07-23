@@ -89,7 +89,6 @@ let tpl: `foobarbaz`
 # output.json
 [
   {
-    "kind": "variable",
     "name": "str",
     "isDefault": false,
     "location": {
@@ -99,6 +98,7 @@ let tpl: `foobarbaz`
       "byteIndex": 11
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",
@@ -109,7 +109,6 @@ let tpl: `foobarbaz`
     }
   },
   {
-    "kind": "variable",
     "name": "num",
     "isDefault": false,
     "location": {
@@ -119,6 +118,7 @@ let tpl: `foobarbaz`
       "byteIndex": 37
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -129,7 +129,6 @@ let tpl: `foobarbaz`
     }
   },
   {
-    "kind": "variable",
     "name": "bool",
     "isDefault": false,
     "location": {
@@ -139,6 +138,7 @@ let tpl: `foobarbaz`
       "byteIndex": 59
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "boolean",
@@ -149,7 +149,6 @@ let tpl: `foobarbaz`
     }
   },
   {
-    "kind": "variable",
     "name": "dateStr",
     "isDefault": false,
     "location": {
@@ -159,6 +158,7 @@ let tpl: `foobarbaz`
       "byteIndex": 84
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Date",
@@ -169,7 +169,6 @@ let tpl: `foobarbaz`
     }
   },
   {
-    "kind": "variable",
     "name": "regex",
     "isDefault": false,
     "location": {
@@ -179,6 +178,7 @@ let tpl: `foobarbaz`
       "byteIndex": 113
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "RegExp",
@@ -192,7 +192,6 @@ let tpl: `foobarbaz`
     }
   },
   {
-    "kind": "variable",
     "name": "sym",
     "isDefault": false,
     "location": {
@@ -202,6 +201,7 @@ let tpl: `foobarbaz`
       "byteIndex": 150
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Symbol",
@@ -212,7 +212,6 @@ let tpl: `foobarbaz`
     }
   },
   {
-    "kind": "variable",
     "name": "tpl",
     "isDefault": false,
     "location": {
@@ -222,6 +221,7 @@ let tpl: `foobarbaz`
       "byteIndex": 182
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "foobarbaz",

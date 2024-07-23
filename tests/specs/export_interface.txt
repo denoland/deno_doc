@@ -65,7 +65,6 @@ interface Reader extends Foo, Bar
 # output.json
 [
   {
-    "kind": "interface",
     "name": "Reader",
     "isDefault": false,
     "location": {
@@ -78,6 +77,7 @@ interface Reader extends Foo, Bar
     "jsDoc": {
       "doc": "Interface js doc"
     },
+    "kind": "interface",
     "interfaceDef": {
       "extends": [
         {
@@ -191,7 +191,6 @@ interface Reader extends Foo, Bar
     }
   },
   {
-    "kind": "interface",
     "name": "Foo",
     "isDefault": false,
     "location": {
@@ -201,6 +200,7 @@ interface Reader extends Foo, Bar
       "byteIndex": 0
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -212,7 +212,6 @@ interface Reader extends Foo, Bar
     }
   },
   {
-    "kind": "interface",
     "name": "Bar",
     "isDefault": false,
     "location": {
@@ -222,6 +221,7 @@ interface Reader extends Foo, Bar
       "byteIndex": 18
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

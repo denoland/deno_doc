@@ -18,7 +18,6 @@ namespace Namespace
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "Namespace",
     "isDefault": false,
     "location": {
@@ -28,6 +27,7 @@ namespace Namespace
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": []
     }

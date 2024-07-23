@@ -313,7 +313,6 @@ namespace MyNamespace
 # output.json
 [
   {
-    "kind": "variable",
     "name": "s",
     "isDefault": false,
     "location": {
@@ -323,6 +322,7 @@ namespace MyNamespace
       "byteIndex": 11
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",
@@ -333,7 +333,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "variable",
     "name": "n",
     "isDefault": false,
     "location": {
@@ -343,6 +342,7 @@ namespace MyNamespace
       "byteIndex": 35
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -353,7 +353,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "variable",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -363,6 +362,7 @@ namespace MyNamespace
       "byteIndex": 55
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "boolean",
@@ -373,7 +373,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "variable",
     "name": "bi",
     "isDefault": false,
     "location": {
@@ -383,6 +382,7 @@ namespace MyNamespace
       "byteIndex": 77
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "bigint",
@@ -393,7 +393,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "variable",
     "name": "re",
     "isDefault": false,
     "location": {
@@ -403,6 +402,7 @@ namespace MyNamespace
       "byteIndex": 99
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "hello",
@@ -416,7 +416,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "variable",
     "name": "tpl",
     "isDefault": false,
     "location": {
@@ -426,6 +425,7 @@ namespace MyNamespace
       "byteIndex": 124
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "foobar",
@@ -448,7 +448,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "variable",
     "name": "complexTpl",
     "isDefault": false,
     "location": {
@@ -458,6 +457,7 @@ namespace MyNamespace
       "byteIndex": 151
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "f${string | number}${string | null}o${string}${number}o",
@@ -554,7 +554,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "function",
     "name": "test",
     "isDefault": false,
     "location": {
@@ -564,6 +563,7 @@ namespace MyNamespace
       "byteIndex": 219
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -578,7 +578,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "function",
     "name": "testAsync",
     "isDefault": false,
     "location": {
@@ -588,6 +587,7 @@ namespace MyNamespace
       "byteIndex": 271
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -611,7 +611,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "function",
     "name": "cannotInfer",
     "isDefault": false,
     "location": {
@@ -621,6 +620,7 @@ namespace MyNamespace
       "byteIndex": 338
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,
@@ -631,7 +631,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "function",
     "name": "cannotInferAsync",
     "isDefault": false,
     "location": {
@@ -641,6 +640,7 @@ namespace MyNamespace
       "byteIndex": 415
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,
@@ -651,7 +651,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "function",
     "name": "cannotInferGenerator",
     "isDefault": false,
     "location": {
@@ -661,6 +660,7 @@ namespace MyNamespace
       "byteIndex": 525
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,
@@ -671,7 +671,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "class",
     "name": "MyClass",
     "isDefault": false,
     "location": {
@@ -681,6 +680,7 @@ namespace MyNamespace
       "byteIndex": 570
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -822,7 +822,6 @@ namespace MyNamespace
     }
   },
   {
-    "kind": "namespace",
     "name": "MyNamespace",
     "isDefault": false,
     "location": {
@@ -832,10 +831,10 @@ namespace MyNamespace
       "byteIndex": 825
     },
     "declarationKind": "export",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "function",
           "name": "cannotInfer",
           "isDefault": false,
           "location": {
@@ -845,6 +844,7 @@ namespace MyNamespace
             "byteIndex": 909
           },
           "declarationKind": "declare",
+          "kind": "function",
           "functionDef": {
             "params": [],
             "returnType": null,

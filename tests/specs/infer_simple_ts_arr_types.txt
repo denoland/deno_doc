@@ -89,7 +89,6 @@ const g: ("a" | 1 | true)[]
 # output.json
 [
   {
-    "kind": "variable",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -99,6 +98,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 13
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -113,7 +113,6 @@ const g: ("a" | 1 | true)[]
     }
   },
   {
-    "kind": "variable",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -123,6 +122,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 41
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -137,7 +137,6 @@ const g: ("a" | 1 | true)[]
     }
   },
   {
-    "kind": "variable",
     "name": "c",
     "isDefault": false,
     "location": {
@@ -147,6 +146,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 72
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -161,7 +161,6 @@ const g: ("a" | 1 | true)[]
     }
   },
   {
-    "kind": "variable",
     "name": "d",
     "isDefault": false,
     "location": {
@@ -171,6 +170,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 102
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -196,7 +196,6 @@ const g: ("a" | 1 | true)[]
     }
   },
   {
-    "kind": "variable",
     "name": "e",
     "isDefault": false,
     "location": {
@@ -206,6 +205,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 135
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -220,7 +220,6 @@ const g: ("a" | 1 | true)[]
     }
   },
   {
-    "kind": "variable",
     "name": "f",
     "isDefault": false,
     "location": {
@@ -230,6 +229,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 169
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "any[]",
@@ -244,7 +244,6 @@ const g: ("a" | 1 | true)[]
     }
   },
   {
-    "kind": "variable",
     "name": "g",
     "isDefault": false,
     "location": {
@@ -254,6 +253,7 @@ const g: ("a" | 1 | true)[]
       "byteIndex": 205
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",

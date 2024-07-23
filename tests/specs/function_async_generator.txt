@@ -24,7 +24,6 @@ async function* ag()
 # output.json
 [
   {
-    "kind": "function",
     "name": "ag",
     "isDefault": false,
     "location": {
@@ -34,6 +33,7 @@ async function* ag()
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,

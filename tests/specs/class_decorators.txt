@@ -76,7 +76,6 @@ class A
 # output.json
 [
   {
-    "kind": "class",
     "name": "A",
     "isDefault": false,
     "location": {
@@ -86,6 +85,7 @@ class A
       "byteIndex": 8
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

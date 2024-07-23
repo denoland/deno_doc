@@ -46,7 +46,6 @@ namespace Tabs
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "Tabs",
     "isDefault": false,
     "location": {
@@ -59,10 +58,10 @@ namespace Tabs
     "jsDoc": {
       "doc": "Line 1\n\nLine 2\n\n\tIndented"
     },
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "interface",
           "name": "Tabs",
           "isDefault": false,
           "location": {
@@ -75,6 +74,7 @@ namespace Tabs
           "jsDoc": {
             "doc": "Line 1\n\nLine 2\n\n\tIndented"
           },
+          "kind": "interface",
           "interfaceDef": {
             "extends": [],
             "constructors": [],

@@ -41,7 +41,6 @@ namespace RootNs
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "RootNs",
     "isDefault": false,
     "location": {
@@ -54,10 +53,10 @@ namespace RootNs
     "jsDoc": {
       "doc": "Namespace JSdoc"
     },
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "variable",
           "name": "a",
           "isDefault": false,
           "location": {
@@ -67,6 +66,7 @@ namespace RootNs
             "byteIndex": 60
           },
           "declarationKind": "export",
+          "kind": "variable",
           "variableDef": {
             "tsType": {
               "repr": "a",
@@ -80,7 +80,6 @@ namespace RootNs
           }
         },
         {
-          "kind": "namespace",
           "name": "NestedNs",
           "isDefault": false,
           "location": {
@@ -93,10 +92,10 @@ namespace RootNs
           "jsDoc": {
             "doc": "Nested namespace JSDoc"
           },
+          "kind": "namespace",
           "namespaceDef": {
             "elements": [
               {
-                "kind": "enum",
                 "name": "Foo",
                 "isDefault": false,
                 "location": {
@@ -106,6 +105,7 @@ namespace RootNs
                   "byteIndex": 135
                 },
                 "declarationKind": "export",
+                "kind": "enum",
                 "enumDef": {
                   "members": [
                     {

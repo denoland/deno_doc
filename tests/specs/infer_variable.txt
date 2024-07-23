@@ -82,7 +82,6 @@ const k: (value: string) => unknown
 # output.json
 [
   {
-    "kind": "variable",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -95,6 +94,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc1"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -105,7 +105,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -118,6 +117,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc2"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -128,7 +128,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "c",
     "isDefault": false,
     "location": {
@@ -141,6 +140,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc3"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",
@@ -151,7 +151,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "d",
     "isDefault": false,
     "location": {
@@ -164,6 +163,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc4"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",
@@ -174,7 +174,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "e",
     "isDefault": false,
     "location": {
@@ -187,6 +186,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc5"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "1",
@@ -200,7 +200,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "f",
     "isDefault": false,
     "location": {
@@ -213,6 +212,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc6"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -240,7 +240,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "g",
     "isDefault": false,
     "location": {
@@ -253,6 +252,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc7"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "a",
@@ -266,7 +266,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "h",
     "isDefault": false,
     "location": {
@@ -279,6 +278,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc8"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "never",
@@ -289,7 +289,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "i",
     "isDefault": false,
     "location": {
@@ -302,6 +301,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc9"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "boolean",
@@ -312,7 +312,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "j",
     "isDefault": false,
     "location": {
@@ -325,6 +324,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc10"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "number",
@@ -335,7 +335,6 @@ const k: (value: string) => unknown
     }
   },
   {
-    "kind": "variable",
     "name": "k",
     "isDefault": false,
     "location": {
@@ -348,6 +347,7 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc11"
     },
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",

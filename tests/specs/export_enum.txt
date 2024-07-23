@@ -25,7 +25,6 @@ enum Hello
 # output.json
 [
   {
-    "kind": "enum",
     "name": "Hello",
     "isDefault": false,
     "location": {
@@ -38,6 +37,7 @@ enum Hello
     "jsDoc": {
       "doc": "Some enum for good measure"
     },
+    "kind": "enum",
     "enumDef": {
       "members": [
         {

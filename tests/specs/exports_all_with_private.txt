@@ -80,7 +80,6 @@ private namespace H
 # output.json
 [
   {
-    "kind": "function",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -90,6 +89,7 @@ private namespace H
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -104,7 +104,6 @@ private namespace H
     }
   },
   {
-    "kind": "class",
     "name": "C",
     "isDefault": false,
     "location": {
@@ -114,6 +113,7 @@ private namespace H
       "byteIndex": 39
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -127,7 +127,6 @@ private namespace H
     }
   },
   {
-    "kind": "interface",
     "name": "E",
     "isDefault": false,
     "location": {
@@ -137,6 +136,7 @@ private namespace H
       "byteIndex": 68
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -148,7 +148,6 @@ private namespace H
     }
   },
   {
-    "kind": "namespace",
     "name": "G",
     "isDefault": false,
     "location": {
@@ -158,12 +157,12 @@ private namespace H
       "byteIndex": 105
     },
     "declarationKind": "export",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": []
     }
   },
   {
-    "kind": "function",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -173,6 +172,7 @@ private namespace H
       "byteIndex": 23
     },
     "declarationKind": "private",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {
@@ -187,7 +187,6 @@ private namespace H
     }
   },
   {
-    "kind": "class",
     "name": "D",
     "isDefault": false,
     "location": {
@@ -197,6 +196,7 @@ private namespace H
       "byteIndex": 57
     },
     "declarationKind": "private",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -210,7 +210,6 @@ private namespace H
     }
   },
   {
-    "kind": "interface",
     "name": "F",
     "isDefault": false,
     "location": {
@@ -220,6 +219,7 @@ private namespace H
       "byteIndex": 90
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -231,7 +231,6 @@ private namespace H
     }
   },
   {
-    "kind": "namespace",
     "name": "H",
     "isDefault": false,
     "location": {
@@ -241,6 +240,7 @@ private namespace H
       "byteIndex": 127
     },
     "declarationKind": "private",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": []
     }

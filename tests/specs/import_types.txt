@@ -19,7 +19,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "adopt",
     "isDefault": false,
     "location": {
@@ -29,6 +28,7 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

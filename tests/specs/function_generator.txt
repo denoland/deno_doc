@@ -24,7 +24,6 @@ function* g()
 # output.json
 [
   {
-    "kind": "function",
     "name": "g",
     "isDefault": false,
     "location": {
@@ -34,6 +33,7 @@ function* g()
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,

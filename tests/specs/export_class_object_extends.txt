@@ -39,7 +39,6 @@ class Bar extends obj.Foo
 # output.json
 [
   {
-    "kind": "class",
     "name": "Bar",
     "isDefault": false,
     "location": {
@@ -49,6 +48,7 @@ class Bar extends obj.Foo
       "byteIndex": 38
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -62,7 +62,6 @@ class Bar extends obj.Foo
     }
   },
   {
-    "kind": "variable",
     "name": "obj",
     "isDefault": false,
     "location": {
@@ -72,6 +71,7 @@ class Bar extends obj.Foo
       "byteIndex": 19
     },
     "declarationKind": "private",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",

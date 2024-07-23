@@ -86,7 +86,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
 # output.json
 [
   {
-    "kind": "class",
     "name": "Foobar",
     "isDefault": false,
     "location": {
@@ -99,6 +98,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
     "jsDoc": {
       "doc": "Class doc"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

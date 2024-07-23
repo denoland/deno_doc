@@ -33,7 +33,6 @@ function a(b: number): number
 # output.json
 [
   {
-    "kind": "function",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -43,6 +42,7 @@ function a(b: number): number
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -67,7 +67,6 @@ function a(b: number): number
     }
   },
   {
-    "kind": "function",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -77,6 +76,7 @@ function a(b: number): number
       "byteIndex": 38
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -101,7 +101,6 @@ function a(b: number): number
     }
   },
   {
-    "kind": "function",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -111,6 +110,7 @@ function a(b: number): number
       "byteIndex": 76
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

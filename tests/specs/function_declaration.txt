@@ -17,7 +17,6 @@ function fun(): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "fun",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ function fun(): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

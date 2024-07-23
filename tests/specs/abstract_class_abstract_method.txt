@@ -28,7 +28,6 @@ abstract class Class
 # output.json
 [
   {
-    "kind": "class",
     "name": "Class",
     "isDefault": false,
     "location": {
@@ -38,6 +37,7 @@ abstract class Class
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": true,
       "constructors": [],

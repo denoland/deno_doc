@@ -60,7 +60,6 @@ namespace RootNs
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "RootNs",
     "isDefault": false,
     "location": {
@@ -73,10 +72,10 @@ namespace RootNs
     "jsDoc": {
       "doc": "Namespace JSdoc"
     },
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "variable",
           "name": "a",
           "isDefault": false,
           "location": {
@@ -86,6 +85,7 @@ namespace RootNs
             "byteIndex": 66
           },
           "declarationKind": "export",
+          "kind": "variable",
           "variableDef": {
             "tsType": {
               "repr": "a",
@@ -99,7 +99,6 @@ namespace RootNs
           }
         },
         {
-          "kind": "namespace",
           "name": "NestedNs",
           "isDefault": false,
           "location": {
@@ -112,10 +111,10 @@ namespace RootNs
           "jsDoc": {
             "doc": "Nested namespace JSDoc"
           },
+          "kind": "namespace",
           "namespaceDef": {
             "elements": [
               {
-                "kind": "enum",
                 "name": "Foo",
                 "isDefault": false,
                 "location": {
@@ -125,6 +124,7 @@ namespace RootNs
                   "byteIndex": 148
                 },
                 "declarationKind": "export",
+                "kind": "enum",
                 "enumDef": {
                   "members": [
                     {
@@ -185,7 +185,6 @@ namespace RootNs
           }
         },
         {
-          "kind": "namespace",
           "name": "OtherNs",
           "isDefault": false,
           "location": {
@@ -195,10 +194,10 @@ namespace RootNs
             "byteIndex": 235
           },
           "declarationKind": "export",
+          "kind": "namespace",
           "namespaceDef": {
             "elements": [
               {
-                "kind": "class",
                 "name": "Other",
                 "isDefault": false,
                 "location": {
@@ -208,6 +207,7 @@ namespace RootNs
                   "byteIndex": 264
                 },
                 "declarationKind": "export",
+                "kind": "class",
                 "classDef": {
                   "isAbstract": false,
                   "constructors": [],

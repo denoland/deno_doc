@@ -11,7 +11,6 @@ type NumberArray = Array<number>
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "NumberArray",
     "isDefault": false,
     "location": {
@@ -24,6 +23,7 @@ type NumberArray = Array<number>
     "jsDoc": {
       "doc": "Array holding numbers"
     },
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "Array",

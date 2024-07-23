@@ -39,7 +39,6 @@ private class YesDiagnostic
 # output.json
 [
   {
-    "kind": "class",
     "name": "Other",
     "isDefault": false,
     "location": {
@@ -52,6 +51,7 @@ private class YesDiagnostic
     "jsDoc": {
       "doc": "Comment"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -91,7 +91,6 @@ private class YesDiagnostic
     }
   },
   {
-    "kind": "class",
     "name": "YesDiagnostic",
     "isDefault": false,
     "location": {
@@ -101,6 +100,7 @@ private class YesDiagnostic
       "byteIndex": 78
     },
     "declarationKind": "private",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

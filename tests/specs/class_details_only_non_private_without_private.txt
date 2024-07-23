@@ -45,7 +45,6 @@ class Class
 # output.json
 [
   {
-    "kind": "class",
     "name": "Class",
     "isDefault": false,
     "location": {
@@ -55,6 +54,7 @@ class Class
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

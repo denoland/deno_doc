@@ -84,7 +84,6 @@ class C
 # output.json
 [
   {
-    "kind": "function",
     "name": "f1",
     "isDefault": false,
     "location": {
@@ -94,6 +93,7 @@ class C
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -150,7 +150,6 @@ class C
     }
   },
   {
-    "kind": "function",
     "name": "f2",
     "isDefault": false,
     "location": {
@@ -160,6 +159,7 @@ class C
       "byteIndex": 46
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -196,7 +196,6 @@ class C
     }
   },
   {
-    "kind": "function",
     "name": "f3",
     "isDefault": false,
     "location": {
@@ -206,6 +205,7 @@ class C
       "byteIndex": 103
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -238,7 +238,6 @@ class C
     }
   },
   {
-    "kind": "function",
     "name": "assertIsDefined",
     "isDefault": false,
     "location": {
@@ -248,6 +247,7 @@ class C
       "byteIndex": 150
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {
@@ -303,7 +303,6 @@ class C
     }
   },
   {
-    "kind": "class",
     "name": "C",
     "isDefault": false,
     "location": {
@@ -313,6 +312,7 @@ class C
       "byteIndex": 372
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
