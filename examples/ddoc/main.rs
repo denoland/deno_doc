@@ -150,7 +150,7 @@ async fn run() -> anyhow::Result<()> {
     doc_nodes.extend(nodes);
   }
 
-  doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
+  doc_nodes.retain(|doc_node| doc_node.kind() != DocNodeKind::Import);
   if let Some(filter) = maybe_filter {
     doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter);
   }
