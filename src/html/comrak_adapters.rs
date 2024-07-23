@@ -115,7 +115,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
     let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
 
     match self.highlight_html(
-      syntect::util::LinesWithEndings::from(&code),
+      syntect::util::LinesWithEndings::from(code),
       |lines, line| {
         let regions = highlighter.highlight_line(line, &self.syntax_set)?;
         syntect::html::append_highlighted_html_for_styled_line(
@@ -131,7 +131,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       Err(_) => output.write_all(code.as_bytes())?,
     }
 
-    self.write_button(output, &code)
+    self.write_button(output, code)
   }
 
   #[cfg(all(feature = "tree-sitter", not(feature = "syntect")))]
