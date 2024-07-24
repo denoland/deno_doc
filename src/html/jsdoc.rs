@@ -152,7 +152,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             short_path.as_resolve_kind(),
           );
           if title.is_empty() {
-            title = short_path.display_name();
+            title = short_path.display_name().to_string();
           }
         }
       }
@@ -255,12 +255,27 @@ fn match_node_value<'a>(
         if paragraph_child.data.borrow().value == NodeValue::Paragraph {
           let alert = paragraph_child.first_child().and_then(|text_child| {
             if let NodeValue::Text(text) = &text_child.data.borrow().value {
-              match text.as_str() {
-                "[!NOTE]" => Some(Alert::Note),
-                "[!TIP]" => Some(Alert::Tip),
-                "[!IMPORTANT]" => Some(Alert::Important),
-                "[!WARNING]" => Some(Alert::Warning),
-                "[!CAUTION]" => Some(Alert::Caution),
+              match text
+                .split_once(' ')
+                .map_or((text.as_str(), None), |(kind, title)| {
+                  (kind, Some(title))
+                }) {
+                ("[!NOTE]", title) => {
+                  Some((Alert::Note, title.unwrap_or("Note").to_string()))
+                }
+                ("[!TIP]", title) => {
+                  Some((Alert::Tip, title.unwrap_or("Tip").to_string()))
+                }
+                ("[!IMPORTANT]", title) => Some((
+                  Alert::Important,
+                  title.unwrap_or("Important").to_string(),
+                )),
+                ("[!WARNING]", title) => {
+                  Some((Alert::Warning, title.unwrap_or("Warning").to_string()))
+                }
+                ("[!CAUTION]", title) => {
+                  Some((Alert::Caution, title.unwrap_or("Caution").to_string()))
+                }
                 _ => None,
               }
             } else {
@@ -268,7 +283,7 @@ fn match_node_value<'a>(
             }
           });
 
-          if let Some(alert) = alert {
+          if let Some((alert, title)) = alert {
             let start_col = node.data.borrow().sourcepos.start;
 
             let document = arena.alloc(AstNode::new(RefCell::new(Ast::new(
@@ -293,22 +308,22 @@ fn match_node_value<'a>(
 
             let alert_title = match alert {
               Alert::Note => format!(
-                "{}Note",
+                "{}{title}",
                 include_str!("./templates/icons/info-circle.svg")
               ),
               Alert::Tip => {
-                format!("{}Tip", include_str!("./templates/icons/bulb.svg"))
+                format!("{}{title}", include_str!("./templates/icons/bulb.svg"))
               }
               Alert::Important => format!(
-                "{}Important",
+                "{}{title}",
                 include_str!("./templates/icons/warning-message.svg")
               ),
               Alert::Warning => format!(
-                "{}Warning",
+                "{}{title}",
                 include_str!("./templates/icons/warning-triangle.svg")
               ),
               Alert::Caution => format!(
-                "{}Caution",
+                "{}{title}",
                 include_str!("./templates/icons/warning-octagon.svg")
               ),
             };
@@ -746,7 +761,7 @@ mod test {
     fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
       current_resolve
         .get_file()
-        .map(|current_file| current_file.display_name())
+        .map(|current_file| current_file.display_name().to_string())
     }
 
     fn resolve_source(&self, _location: &Location) -> Option<String> {

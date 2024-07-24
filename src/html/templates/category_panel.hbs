@@ -2,7 +2,7 @@
   <div id="categoryPanel">
     <ul>
       {{~#each categories~}}
-        <li><a href="{{this.href}}" title="{{this.name}}">{{this.name}}</a></li>
+        <li{{#if this.active}} class="active"{{/if}}><a href="{{this.href}}" title="{{this.name}}">{{this.name}}</a></li>
       {{~/each~}}
 
       <li>

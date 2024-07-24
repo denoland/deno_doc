@@ -20,7 +20,7 @@ pub struct RenderContext<'ctx> {
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
   namespace_parts: Rc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
-  category: Option<&'ctx str>,
+  pub category: Option<&'ctx str>,
   pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
 }
 
@@ -227,7 +227,7 @@ impl<'ctx> RenderContext<'ctx> {
               is_first_symbol: false,
             },
             BreadcrumbCtx {
-              name: file.display_name(),
+              name: file.display_name().to_string(),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
@@ -247,7 +247,7 @@ impl<'ctx> RenderContext<'ctx> {
 
         if !file.is_main {
           parts.push(BreadcrumbCtx {
-            name: file.display_name(),
+            name: file.display_name().to_string(),
             href: self
               .ctx
               .resolve_path(self.current_resolve, UrlResolveKind::File(file)),

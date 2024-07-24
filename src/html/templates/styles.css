@@ -75,7 +75,7 @@ a {
   @apply space-y-2 mb-2 scroll-mt-16;
 
   > div:first-child {
-    @apply space-y-8;
+    @apply space-y-2;
 
     > h2 {
       @apply text-xl leading-6 font-semibold py-1;
@@ -297,14 +297,18 @@ a {
 }
 
 #categoryPanel {
-  @apply pt-3;
+  @apply pt-3 text-sm;
 
   ul {
-    @apply space-y-3;
-  }
+    @apply space-y-2 overflow-y-auto;
 
-  a {
-    @apply hover:underline block overflow-hidden whitespace-nowrap text-ellipsis py-1.5 px-3.5;
+    li {
+      @apply ml-1 mr-3;
+
+      a {
+        @apply hover:underline block overflow-hidden whitespace-nowrap text-ellipsis py-1.5 px-3.5;
+      }
+    }
   }
 }
 
@@ -442,7 +446,7 @@ a {
   }
 
   .alert {
-    @apply py-2 px-4 border-l-4 space-y-2;
+    @apply py-4 px-6 border-2 space-y-2 rounded-lg;
 
     div:first-child {
       @apply font-medium flex items-center gap-1.5;
@@ -454,7 +458,7 @@ a {
   }
 
   .alert-note {
-    @apply border-blue-600;
+    @apply border-blue-600 bg-blue-600/5;
 
     div:first-child {
       @apply text-blue-600 stroke-blue-600;
@@ -462,7 +466,7 @@ a {
   }
 
   .alert-tip {
-    @apply border-green-600;
+    @apply border-green-600 bg-green-600/5;
 
     div:first-child {
       @apply text-green-600 stroke-green-600;
@@ -470,7 +474,7 @@ a {
   }
 
   .alert-important {
-    @apply border-purple-600;
+    @apply border-purple-600 bg-purple-600/5;
 
     div:first-child {
       @apply text-purple-600 stroke-purple-600;
@@ -478,7 +482,7 @@ a {
   }
 
   .alert-warning {
-    @apply border-yellow-600;
+    @apply border-yellow-600 bg-yellow-600/5;
 
     div:first-child {
       @apply text-yellow-600 stroke-yellow-600;
@@ -486,7 +490,7 @@ a {
   }
 
   .alert-caution {
-    @apply border-red-600;
+    @apply border-red-600 bg-red-600/5;
 
     div:first-child {
       @apply text-red-600 stroke-red-600;
