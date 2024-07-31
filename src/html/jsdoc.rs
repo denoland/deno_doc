@@ -92,8 +92,8 @@ lazy_static! {
 }
 
 thread_local! {
-  static CURRENT_FILE: RefCell<Option<Option<ShortPath>>> = RefCell::new(None);
-  static URL_REWRITER: RefCell<Option<Option<URLRewriter>>> = RefCell::new(None);
+  static CURRENT_FILE: RefCell<Option<Option<ShortPath>>> = const { RefCell::new(None) };
+  static URL_REWRITER: RefCell<Option<Option<URLRewriter>>> = const { RefCell::new(None) };
 }
 
 fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {

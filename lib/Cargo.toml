@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 anyhow = "1.0.43"
-deno_graph = { workspace = true, features = ["wasm_executor"] }
+deno_graph = { workspace = true }
 deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
 serde.workspace = true

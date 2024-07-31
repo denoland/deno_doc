@@ -4,7 +4,6 @@ use crate::colors;
 use crate::display::display_abstract;
 use crate::display::display_async;
 use crate::display::display_generator;
-use crate::display::Indent;
 use crate::display::SliceDisplayer;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -755,4 +754,15 @@ fn fmt_visibility(decl_kind: DeclarationKind) -> impl std::fmt::Display {
   } else {
     ""
   })
+}
+
+struct Indent(pub i64);
+
+impl Display for Indent {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    for _ in 0..self.0 {
+      write!(f, "  ")?;
+    }
+    Ok(())
+  }
 }
