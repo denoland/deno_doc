@@ -60,7 +60,7 @@ tree-sitter-css = { version = "0.20.0", optional = true }
 tree-sitter-toml = { version = "0.20.0", optional = true }
 tree-sitter-md = { version = "0.1.7", optional = true }
 tree-sitter-rust = { version = "0.20.4", optional = true }
-tree-sitter-html = { version = "0.20.0", optional = true }
+tree-sitter-html = { version = "=0.20.0", optional = true } # pin to keep tree-sitter 0.20
 tree-sitter-bash = { version = "0.20.5", optional = true }
 itoa = "1.0.10"
 
