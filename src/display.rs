@@ -4,17 +4,6 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result;
 
-pub(crate) struct Indent(pub i64);
-
-impl Display for Indent {
-  fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-    for _ in 0..self.0 {
-      write!(f, "  ")?;
-    }
-    Ok(())
-  }
-}
-
 pub(crate) struct SliceDisplayer<'a, T: Display>(&'a [T], &'a str, bool);
 
 impl<'a, T: Display> SliceDisplayer<'a, T> {
