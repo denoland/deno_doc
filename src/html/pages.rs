@@ -742,13 +742,18 @@ pub fn render_symbol_page(
       symbol: namespaced_name,
     })
     .with_category(if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
-        if let JsDocTag::Category { doc } = tag {
-          Some(doc.as_ref())
-        } else {
-          None
-        }
-      })
+      doc_nodes[0]
+        .get_topmost_ancestor()
+        .js_doc
+        .tags
+        .iter()
+        .find_map(|tag| {
+          if let JsDocTag::Category { doc } = tag {
+            Some(doc.as_ref())
+          } else {
+            None
+          }
+        })
     } else {
       None
     });

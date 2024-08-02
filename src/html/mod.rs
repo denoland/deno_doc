@@ -823,8 +823,7 @@ pub fn generate(
               UrlResolveKind::Root,
             );
 
-            let mut title_parts =
-              Vec::with_capacity(breadcrumbs_ctx.parts.len());
+            let mut title_parts = vec![];
             let mut symbol_parts = vec![];
 
             for breadcrumb in breadcrumbs_ctx.parts.iter().skip(1) {
