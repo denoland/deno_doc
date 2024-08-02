@@ -47,14 +47,15 @@ impl HtmlHeadCtx {
 
   pub fn new(
     root: &str,
-    page: &str,
+    page: Option<&str>,
     package_name: Option<&String>,
     current_file: Option<&ShortPath>,
     disable_search: bool,
   ) -> Self {
     Self {
       title: format!(
-        "{page} - {}documentation",
+        "{}{}documentation",
+        page.map(|page| format!("{page} - ")).unwrap_or_default(),
         package_name
           .map(|package_name| format!("{package_name} "))
           .unwrap_or_default()
@@ -222,7 +223,13 @@ impl IndexCtx {
 
     let html_head_ctx = HtmlHeadCtx::new(
       &root,
-      "Index",
+      short_path.as_ref().and_then(|short_path| {
+        if short_path.is_main {
+          None
+        } else {
+          Some(short_path.display_name())
+        }
+      }),
       ctx.package_name.as_ref(),
       None,
       ctx.disable_search,
@@ -385,7 +392,7 @@ impl IndexCtx {
 
     let html_head_ctx = HtmlHeadCtx::new(
       &root,
-      name,
+      Some(name),
       ctx.package_name.as_ref(),
       None,
       ctx.disable_search,
@@ -450,7 +457,7 @@ impl AllSymbolsCtx {
 
     let html_head_ctx = HtmlHeadCtx::new(
       "./",
-      "All Symbols",
+      Some("All Symbols"),
       ctx.package_name.as_ref(),
       None,
       ctx.disable_search,

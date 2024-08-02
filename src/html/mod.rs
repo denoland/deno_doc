@@ -823,9 +823,18 @@ pub fn generate(
               UrlResolveKind::Root,
             );
 
+            let title = breadcrumbs_ctx
+              .parts
+              .iter()
+              .skip(1)
+              .rev()
+              .map(|breadcrumb| breadcrumb.name.as_str())
+              .collect::<Vec<_>>()
+              .join(" - ");
+
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              &symbol_group_ctx.name,
+              Some(&title),
               ctx.package_name.as_ref(),
               Some(short_path),
               ctx.disable_search,

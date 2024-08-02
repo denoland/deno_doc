@@ -361,7 +361,7 @@ async fn symbol_group() {
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              &symbol_group_ctx.name,
+              Some(&symbol_group_ctx.name),
               ctx.package_name.as_ref(),
               Some(short_path),
               false,
