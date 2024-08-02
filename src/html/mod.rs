@@ -823,19 +823,10 @@ pub fn generate(
               UrlResolveKind::Root,
             );
 
-            let mut title_parts = vec![];
-            let mut symbol_parts = vec![];
-
-            for breadcrumb in breadcrumbs_ctx.parts.iter().skip(1) {
-              if breadcrumb.is_symbol {
-                symbol_parts.push(breadcrumb.name.as_str());
-              } else {
-                title_parts.push(breadcrumb.name.as_str());
-              }
-            }
-            let symbol_name = symbol_parts.join(".");
-            title_parts.push(&symbol_name);
+            let mut title_parts = breadcrumbs_ctx.to_strings();
             title_parts.reverse();
+            // contains the package name, which we already render in the head
+            title_parts.pop();
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,

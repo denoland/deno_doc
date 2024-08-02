@@ -14,6 +14,7 @@ use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
 use regex::Regex;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
@@ -332,6 +333,22 @@ pub struct BreadcrumbsCtx {
 
 impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
+
+  pub fn to_strings(&self) -> Vec<Cow<str>> {
+    let mut title_parts = vec![];
+    let mut symbol_parts = vec![];
+
+    for breadcrumb in self.parts.iter() {
+      if breadcrumb.is_symbol {
+        symbol_parts.push(breadcrumb.name.as_str());
+      } else {
+        title_parts.push(Cow::Borrowed(breadcrumb.name.as_str()));
+      }
+    }
+    title_parts.push(Cow::Owned(symbol_parts.join(".")));
+
+    title_parts
+  }
 }
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]

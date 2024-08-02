@@ -200,10 +200,9 @@ async fn html_doc_files_rewrite() {
     .join("testdata")
     .join("multiple");
   let mut rewrite_map = IndexMap::new();
-  rewrite_map.insert(
-    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
-    ".".to_string(),
-  );
+  let main_specifier =
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap();
+  rewrite_map.insert(main_specifier.clone(), ".".to_string());
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
@@ -212,7 +211,7 @@ async fn html_doc_files_rewrite() {
   let files = generate(
     GenerateOptions {
       package_name: None,
-      main_entrypoint: None,
+      main_entrypoint: Some(main_specifier),
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),

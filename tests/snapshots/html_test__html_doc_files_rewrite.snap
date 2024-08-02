@@ -41,9 +41,9 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </div>
 </nav>
 <div id="content">
-    <main><div class="space-y-7" id=""><section class="section" id=".">
+    <main><div class="space-y-7" id=""><section class="section" id="default">
   <div>
-	  <h2 class="anchorable mb-1"><a href="#." class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+	  <h2 class="anchorable mb-1"><a href="#default" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -65,7 +65,7 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;.&#x2F;index.html" class="contextLink">.</a></h2><div class="markdown_summary"><p>Some docs</p>
+<a href=".&#x2F;" class="contextLink">default</a></h2><div class="markdown_summary"><p>Some docs</p>
 </div></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
