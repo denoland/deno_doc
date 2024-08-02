@@ -823,18 +823,24 @@ pub fn generate(
               UrlResolveKind::Root,
             );
 
-            let title = breadcrumbs_ctx
-              .parts
-              .iter()
-              .skip(1)
-              .rev()
-              .map(|breadcrumb| breadcrumb.name.as_str())
-              .collect::<Vec<_>>()
-              .join(" - ");
+            let mut title_parts =
+              Vec::with_capacity(breadcrumbs_ctx.parts.len());
+            let mut symbol_parts = vec![];
+
+            for breadcrumb in breadcrumbs_ctx.parts.iter().skip(1) {
+              if breadcrumb.is_symbol {
+                symbol_parts.push(breadcrumb.name.as_str());
+              } else {
+                title_parts.push(breadcrumb.name.as_str());
+              }
+            }
+            let symbol_name = symbol_parts.join(".");
+            title_parts.push(&symbol_name);
+            title_parts.reverse();
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              Some(&title),
+              Some(&title_parts.join(" - ")),
               ctx.package_name.as_ref(),
               Some(short_path),
               ctx.disable_search,
