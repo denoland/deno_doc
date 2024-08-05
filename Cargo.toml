@@ -14,7 +14,7 @@ members = ["lib"]
 deno_graph = { version = "0.81.0", default-features = false, features = ["symbols"] }
 deno_ast = { version = "0.41.2" }
 import_map = "0.20.0"
-serde = { version = "1.0.140", features = ["derive"] }
+serde = { version = "1.0.204", features = ["derive"] }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -25,23 +25,23 @@ name = "ddoc"
 required-features = ["html"]
 
 [dependencies]
-anyhow = "1.0.58"
+anyhow = "1.0.86"
 cfg-if = "1.0.0"
 deno_ast.workspace = true
 deno_graph.workspace = true
-indexmap = "2.0.2"
-futures = "0.3.26"
+indexmap = "2.3.0"
+futures = "0.3.30"
 import_map.workspace = true
-lazy_static = "1.4.0"
-regex = "1.6.0"
+lazy_static = "1.5.0"
+regex = "1.10.6"
 serde.workspace = true
-serde_json = { version = "1.0.82", features = ["preserve_order"] }
-termcolor = "1.1.2"
+serde_json = { version = "1.0.122", features = ["preserve_order"] }
+termcolor = "1.4.1"
 
 html-escape = { version = "0.2.13", optional = true }
-comrak = { version = "0.20.0", optional = true, default-features = false }
-handlebars = { version = "5.0", optional = true, features = ["string_helpers"] }
-syntect = { version = "5.1.0", optional = true, default-features = false, features = [
+comrak = { version = "0.26.0", optional = true, default-features = false }
+handlebars = { version = "5.1", optional = true, features = ["string_helpers"] }
+syntect = { version = "5.2.0", optional = true, default-features = false, features = [
   "parsing",
   "default-syntaxes",
   "default-themes",
@@ -52,9 +52,9 @@ syntect = { version = "5.1.0", optional = true, default-features = false, featur
 ammonia = { version = "3.3.0", optional = true }
 
 tree-sitter-highlight = { version = "0.20.1", optional = true }
-tree-sitter-javascript = { version = "0.20.1", optional = true }
-tree-sitter-typescript = { version = "0.20.3", optional = true }
-tree-sitter-json = { version = "0.20.1", optional = true }
+tree-sitter-javascript = { version = "0.20.4", optional = true }
+tree-sitter-typescript = { version = "0.20.5", optional = true }
+tree-sitter-json = { version = "0.20.2", optional = true }
 tree-sitter-regex = { version = "0.20.0", optional = true }
 tree-sitter-css = { version = "0.20.0", optional = true }
 tree-sitter-toml = { version = "0.20.0", optional = true }
@@ -62,17 +62,17 @@ tree-sitter-md = { version = "0.1.7", optional = true }
 tree-sitter-rust = { version = "0.20.4", optional = true }
 tree-sitter-html = { version = "=0.20.0", optional = true } # pin to keep tree-sitter 0.20
 tree-sitter-bash = { version = "0.20.5", optional = true }
-itoa = "1.0.10"
+itoa = "1.0.11"
 
 [dev-dependencies]
-anyhow = { version = "1.0.58" }
-clap = "2.33.3"
+anyhow = { version = "1.0.86" }
+clap = "2.34.0"
 console_static_text = "0.8.2"
 criterion = { version = "0.4.0", features = ["async_futures", "html_reports"] }
-file_test_runner = "0.7.0"
-tokio = { version = "1.25.0", features = ["full"] }
-pretty_assertions = "1.0.0"
-insta = { version = "1.38.0", features = ["json"] }
+file_test_runner = "0.7.2"
+tokio = { version = "1.39.2", features = ["full"] }
+pretty_assertions = "1.4.0"
+insta = { version = "1.39.0", features = ["json"] }
 
 [features]
 default = ["html", "rust", "ammonia"]
