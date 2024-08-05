@@ -823,9 +823,14 @@ pub fn generate(
               UrlResolveKind::Root,
             );
 
+            let mut title_parts = breadcrumbs_ctx.to_strings();
+            title_parts.reverse();
+            // contains the package name, which we already render in the head
+            title_parts.pop();
+
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              &symbol_group_ctx.name,
+              Some(&title_parts.join(" - ")),
               ctx.package_name.as_ref(),
               Some(short_path),
               ctx.disable_search,
