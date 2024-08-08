@@ -316,6 +316,14 @@ pub trait HrefResolver {
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
+
+  /// Resolve external JSDoc module links.
+  /// Returns a tuple with link and title.
+  fn resolve_external_jsdoc_module(
+    &self,
+    module: &str,
+    symbol: Option<&str>,
+  ) -> Option<(String, String)>;
 }
 
 #[derive(Debug, Serialize, Clone)]
