@@ -778,10 +778,10 @@ mod test {
 
     fn resolve_external_jsdoc_module(
       &self,
-      module: &str,
-      symbol: Option<&str>,
+      _module: &str,
+      _symbol: Option<&str>,
     ) -> Option<(String, String)> {
-      todo!()
+      None
     }
   }
 
