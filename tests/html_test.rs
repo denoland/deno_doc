@@ -77,6 +77,14 @@ impl HrefResolver for EmptyResolver {
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
     None
   }
+
+  fn resolve_external_jsdoc_module(
+    &self,
+    _module: &str,
+    _symbol: Option<&str>,
+  ) -> Option<(String, String)> {
+    None
+  }
 }
 
 async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {

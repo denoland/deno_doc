@@ -203,6 +203,14 @@ impl HrefResolver for EmptyResolver {
   fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
     Some(location.filename.to_string())
   }
+
+  fn resolve_external_jsdoc_module(
+    &self,
+    _module: &str,
+    _symbol: Option<&str>,
+  ) -> Option<(String, String)> {
+    None
+  }
 }
 
 fn generate_docs_directory(

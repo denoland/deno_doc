@@ -155,6 +155,14 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             title = short_path.display_name().to_string();
           }
         }
+      } else if let Some((external_link, external_title)) =
+        ctx.ctx.href_resolver.resolve_external_jsdoc_module(
+          module_link,
+          symbol_match.map(|symbol_match| symbol_match.as_str()),
+        )
+      {
+        link = external_link;
+        title = external_title;
       }
 
       link
@@ -765,6 +773,14 @@ mod test {
     }
 
     fn resolve_source(&self, _location: &Location) -> Option<String> {
+      None
+    }
+
+    fn resolve_external_jsdoc_module(
+      &self,
+      _module: &str,
+      _symbol: Option<&str>,
+    ) -> Option<(String, String)> {
       None
     }
   }

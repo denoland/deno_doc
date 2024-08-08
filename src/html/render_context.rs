@@ -398,6 +398,14 @@ mod test {
     fn resolve_source(&self, location: &Location) -> Option<String> {
       Some(location.filename.clone().into_string())
     }
+
+    fn resolve_external_jsdoc_module(
+      &self,
+      _module: &str,
+      _symbol: Option<&str>,
+    ) -> Option<(String, String)> {
+      None
+    }
   }
 
   #[test]
