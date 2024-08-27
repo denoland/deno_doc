@@ -389,12 +389,7 @@ fn walk_node<'a>(
   }
 }
 
-fn walk_node_title<'a>(
-  arena: &'a Arena<AstNode<'a>>,
-  node: &'a AstNode<'a>,
-  options: &comrak::Options,
-  plugins: &comrak::Plugins,
-) {
+fn walk_node_title<'a>(node: &'a AstNode<'a>) {
   for child in node.children() {
     if matches!(
       child.data.borrow().value,
@@ -414,7 +409,7 @@ fn walk_node_title<'a>(
         | NodeValue::WikiLink(_)
         | NodeValue::Underline
     ) {
-      walk_node_title(arena, child, options, plugins);
+      walk_node_title(child);
     } else {
       // delete the node
       child.detach();
@@ -523,7 +518,7 @@ pub fn markdown_to_html(
     let root = comrak::parse_document(&arena, &md, &options);
 
     if render_options.title_only {
-      walk_node_title(&arena, root, &options, &plugins);
+      walk_node_title(root);
 
       if let Some(child) = root.first_child() {
         render_node(child, &options, &plugins)
@@ -571,7 +566,7 @@ pub(crate) fn render_markdown(
       no_toc,
     },
   )
-  .unwrap_or_default()
+    .unwrap_or_default()
 }
 
 pub(crate) fn jsdoc_body_to_html(
@@ -871,7 +866,7 @@ mod test {
         ),
       ]),
     )
-    .unwrap();
+      .unwrap();
 
     let (a_short_path, nodes) = ctx.doc_nodes.first().unwrap();
 
@@ -968,7 +963,7 @@ mod test {
       Default::default(),
       Default::default(),
     )
-    .unwrap();
+      .unwrap();
 
     let render_ctx = RenderContext::new(&ctx, &[], UrlResolveKind::AllSymbols);
 
