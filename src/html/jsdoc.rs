@@ -566,7 +566,7 @@ pub(crate) fn render_markdown(
       no_toc,
     },
   )
-    .unwrap_or_default()
+  .unwrap_or_default()
 }
 
 pub(crate) fn jsdoc_body_to_html(
@@ -866,7 +866,7 @@ mod test {
         ),
       ]),
     )
-      .unwrap();
+    .unwrap();
 
     let (a_short_path, nodes) = ctx.doc_nodes.first().unwrap();
 
@@ -963,7 +963,7 @@ mod test {
       Default::default(),
       Default::default(),
     )
-      .unwrap();
+    .unwrap();
 
     let render_ctx = RenderContext::new(&ctx, &[], UrlResolveKind::AllSymbols);
 
