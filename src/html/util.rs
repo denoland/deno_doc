@@ -457,8 +457,7 @@ impl SectionHeaderCtx {
           render_ctx,
           doc,
           MarkdownToHTMLOptions {
-            summary: true,
-            summary_prefer_title: true,
+            title_only: true,
             no_toc: false,
           },
         )

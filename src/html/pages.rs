@@ -298,8 +298,7 @@ impl IndexCtx {
                   &render_ctx,
                   &doc,
                   super::jsdoc::MarkdownToHTMLOptions {
-                    summary: false,
-                    summary_prefer_title: false,
+                    title_only: false,
                     no_toc: false,
                   },
                 )
