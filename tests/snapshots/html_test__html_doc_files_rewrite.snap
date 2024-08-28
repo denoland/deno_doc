@@ -70,7 +70,8 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
 
-	      <div><span class="italic">No documentation available</span></div>
+	      <div><div class="markdown_summary"><p>Bar docs</p>
+</div></div>
       </div>
     </div><div id="namespace_baz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
@@ -101,7 +102,8 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
 
-	      <div><span class="italic">No documentation available</span></div>
+	      <div><div class="markdown_summary"><p>Foobar docs</p>
+</div></div>
       </div>
     </div><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">

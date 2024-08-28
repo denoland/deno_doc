@@ -28,9 +28,24 @@ export class Foo {
   '"><img src=x onerror=alert(1)>' = 0;
 }
 
+/**
+ * > Some quote in bar docs
+ * > This quote part is ignored
+ * > when getting the title of this doc
+ *
+ * Bar docs
+ */
 export class Bar extends Foo {
 }
 
+/**
+ * ```ts
+ * // This code block is ignored when getting the title of this doc
+ * const foobar = new Foobar();
+ * ```
+ *
+ * Foobar docs
+ */
 export default class Foobar {
 }
 

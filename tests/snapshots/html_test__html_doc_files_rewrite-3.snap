@@ -47,7 +47,13 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
             <span class="text-Class">class</span>&nbsp;<span class="font-bold">Bar</span>
           </div><div class="symbolSubtitle"><div>
     <span class="type"> extends </span><a class="link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html">Foo</a><span> </span>
-  </div></div></div></div><div><div class="space-y-7" id=""></div>
+  </div></div></div></div><div><div class="space-y-7" id=""><div class="markdown"><blockquote>
+<p>Some quote in bar docs
+This quote part is ignored
+when getting the title of this doc</p>
+</blockquote>
+<p>Bar docs</p>
+</div></div>
 </div>
     </article></main>
 <div class="toc">

@@ -13,9 +13,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 45,
+        "line": 60,
         "col": 0,
-        "byteIndex": 741
+        "byteIndex": 1006
       },
       "url": "././~/A.html",
       "category": "",
@@ -31,9 +31,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 48,
+        "line": 63,
         "col": 0,
-        "byteIndex": 770
+        "byteIndex": 1035
       },
       "url": "././~/B.html",
       "category": "",
@@ -46,12 +46,12 @@ expression: search_index
       ],
       "name": "Bar",
       "file": ".",
-      "doc": "",
+      "doc": "> Some quote in bar docs\n> This quote part is ignored\n> when getting the title of this doc\n\nBar docs",
       "location": {
         "filename": "default",
-        "line": 31,
+        "line": 38,
         "col": 0,
-        "byteIndex": 588
+        "byteIndex": 711
       },
       "url": "././~/Bar.html",
       "category": "",
@@ -67,9 +67,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 41,
+        "line": 56,
         "col": 0,
-        "byteIndex": 702
+        "byteIndex": 967
       },
       "url": "././~/Baz.html",
       "category": "",
@@ -100,12 +100,12 @@ expression: search_index
       ],
       "name": "Foobar",
       "file": ".",
-      "doc": "",
+      "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs",
       "location": {
         "filename": "default",
-        "line": 34,
+        "line": 49,
         "col": 0,
-        "byteIndex": 622
+        "byteIndex": 887
       },
       "url": "././~/Foobar.html",
       "category": "",
@@ -121,9 +121,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 37,
+        "line": 52,
         "col": 0,
-        "byteIndex": 655
+        "byteIndex": 920
       },
       "url": "././~/Hello.html",
       "category": "",
@@ -139,9 +139,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 57,
+        "line": 72,
         "col": 13,
-        "byteIndex": 933
+        "byteIndex": 1198
       },
       "url": "././~/c.html",
       "category": "",
@@ -157,9 +157,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 59,
+        "line": 74,
         "col": 0,
-        "byteIndex": 961
+        "byteIndex": 1226
       },
       "url": "././~/d.html",
       "category": "",
@@ -177,9 +177,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 53,
+        "line": 68,
         "col": 0,
-        "byteIndex": 812
+        "byteIndex": 1077
       },
       "url": "././~/qaz.html",
       "category": "",
