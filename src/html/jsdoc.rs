@@ -205,10 +205,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
   })
 }
 
-fn split_markdown_title(
-  md: &str,
-  prefer_title: bool,
-) -> (Option<&str>, Option<&str>) {
+fn split_markdown_title(md: &str) -> (Option<&str>, Option<&str>) {
   let newline = md.find("\n\n").unwrap_or(usize::MAX);
   let codeblock = md.find("```").unwrap_or(usize::MAX);
 
@@ -216,8 +213,7 @@ fn split_markdown_title(
 
   match md.split_at(index) {
     ("", body) => (None, Some(body)),
-    (title, "") if prefer_title => (Some(title), None),
-    (title, "") if !prefer_title => (None, Some(title)),
+    (title, "") => (None, Some(title)),
     (title, body) => (Some(title), Some(body)),
   }
 }
@@ -393,6 +389,34 @@ fn walk_node<'a>(
   }
 }
 
+fn walk_node_title<'a>(node: &'a AstNode<'a>) {
+  for child in node.children() {
+    if matches!(
+      child.data.borrow().value,
+      NodeValue::Document
+        | NodeValue::Paragraph
+        | NodeValue::Heading(_)
+        | NodeValue::Text(_)
+        | NodeValue::Code(_)
+        | NodeValue::HtmlInline(_)
+        | NodeValue::Emph
+        | NodeValue::Strong
+        | NodeValue::Strikethrough
+        | NodeValue::Superscript
+        | NodeValue::Link(_)
+        | NodeValue::Math(_)
+        | NodeValue::Escaped
+        | NodeValue::WikiLink(_)
+        | NodeValue::Underline
+    ) {
+      walk_node_title(child);
+    } else {
+      // delete the node
+      child.detach();
+    }
+  }
+}
+
 fn render_node<'a>(
   node: &'a AstNode<'a>,
   options: &comrak::Options,
@@ -404,8 +428,7 @@ fn render_node<'a>(
 }
 
 pub struct MarkdownToHTMLOptions {
-  pub summary: bool,
-  pub summary_prefer_title: bool,
+  pub title_only: bool,
   pub no_toc: bool,
 }
 
@@ -474,7 +497,7 @@ pub fn markdown_to_html(
 
   let mut plugins = comrak::Plugins::default();
 
-  if !render_options.summary {
+  if !render_options.title_only {
     plugins.render.codefence_syntax_highlighter =
       Some(&render_ctx.ctx.highlight_adapter);
     if !render_options.no_toc {
@@ -484,19 +507,7 @@ pub fn markdown_to_html(
 
   let md = parse_links(md, render_ctx);
 
-  let md = if render_options.summary {
-    let (title, _body) =
-      split_markdown_title(&md, render_options.summary_prefer_title);
-    title.unwrap_or_default()
-  } else {
-    md.as_ref()
-  };
-
-  if md.is_empty() {
-    return None;
-  }
-
-  let class_name = if render_options.summary {
+  let class_name = if render_options.title_only {
     "markdown_summary"
   } else {
     "markdown"
@@ -504,11 +515,20 @@ pub fn markdown_to_html(
 
   let html = {
     let arena = Arena::new();
-    let root = comrak::parse_document(&arena, md, &options);
+    let root = comrak::parse_document(&arena, &md, &options);
 
-    walk_node(&arena, root, &options, &plugins);
+    if render_options.title_only {
+      walk_node_title(root);
 
-    render_node(root, &options, &plugins)
+      if let Some(child) = root.first_child() {
+        render_node(child, &options, &plugins)
+      } else {
+        return None;
+      }
+    } else {
+      walk_node(&arena, root, &options, &plugins);
+      render_node(root, &options, &plugins)
+    }
   };
 
   #[cfg(feature = "ammonia")]
@@ -533,22 +553,6 @@ pub fn markdown_to_html(
   }
 }
 
-pub(crate) fn render_markdown_summary(
-  render_ctx: &RenderContext,
-  md: &str,
-) -> String {
-  markdown_to_html(
-    render_ctx,
-    md,
-    MarkdownToHTMLOptions {
-      summary: true,
-      summary_prefer_title: true,
-      no_toc: false,
-    },
-  )
-  .unwrap_or_default()
-}
-
 pub(crate) fn render_markdown(
   render_ctx: &RenderContext,
   md: &str,
@@ -558,8 +562,7 @@ pub(crate) fn render_markdown(
     render_ctx,
     md,
     MarkdownToHTMLOptions {
-      summary: false,
-      summary_prefer_title: false,
+      title_only: false,
       no_toc,
     },
   )
@@ -576,8 +579,7 @@ pub(crate) fn jsdoc_body_to_html(
       ctx,
       doc,
       MarkdownToHTMLOptions {
-        summary,
-        summary_prefer_title: true,
+        title_only: summary,
         no_toc: false,
       },
     )
@@ -632,14 +634,14 @@ impl ExampleCtx {
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
     let id = name_to_id("example", &i.to_string());
 
-    let (maybe_title, body) = split_markdown_title(example, false);
+    let (maybe_title, body) = split_markdown_title(example);
     let title = if let Some(title) = maybe_title {
       title.to_string()
     } else {
       format!("Example {}", i + 1)
     };
 
-    let markdown_title = render_markdown_summary(render_ctx, &title);
+    let markdown_title = render_markdown(render_ctx, &title, false);
     let markdown_body =
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
