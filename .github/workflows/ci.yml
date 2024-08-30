@@ -50,6 +50,7 @@ jobs:
           deno fmt --check
 
       - name: Lint
+        if: contains(matrix.os, 'ubuntu')
         run: |
           cargo clippy --all-targets --locked -- -D clippy::all
           deno lint
