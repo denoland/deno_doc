@@ -255,7 +255,7 @@ impl<'a> DocParser<'a> {
                   first_def.module.specifier(),
                 )?;
                 let doc_nodes = self
-                  .parse_with_reexports_inner(&specifier, visited.clone())?;
+                  .parse_with_reexports_inner(specifier, visited.clone())?;
                 // hoist any module doc to be the exported namespaces module doc
                 let mut js_doc = JsDoc::default();
                 for doc_node in &doc_nodes {
@@ -1340,7 +1340,7 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier, DocError> {
+  ) -> Result<&ModuleSpecifier, DocError> {
     self
       .graph
       .resolve_dependency(specifier, referrer, /* prefer_types */ true)
