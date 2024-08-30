@@ -1340,7 +1340,7 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &str,
     referrer: &ModuleSpecifier,
-  ) -> Result<ModuleSpecifier, DocError> {
+  ) -> Result<&ModuleSpecifier, DocError> {
     self
       .graph
       .resolve_dependency(specifier, referrer, /* prefer_types */ true)

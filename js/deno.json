@@ -1,6 +1,5 @@
 {
   "name": "@deno/doc",
-  "version": "0.0.0",
   "exports": {
     ".": "./mod.ts",
     "./types": "./types.d.ts"
