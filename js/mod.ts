@@ -2,10 +2,10 @@
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode } from "./types.d.ts";
-import { createCache } from "jsr:@deno/cache-dir@0.8";
-import type { CacheSetting, LoadResponse, RequestDestination } from "jsr:@deno/graph@0.81";
+import { createCache } from "jsr:@deno/cache-dir@0.11";
+import type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.82";
 
-export type { CacheSetting, LoadResponse, RequestDestination } from "jsr:@deno/graph@0.81";
+export type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.82";
 export * from "./types.d.ts";
 
 const encoder = new TextEncoder();
@@ -46,7 +46,6 @@ export interface DocOptions {
    */
   load?(
     specifier: string,
-    destination: RequestDestination,
     isDynamic?: boolean,
     cacheSetting?: CacheSetting,
     checksum?: string,
@@ -100,13 +99,11 @@ export async function doc(
     includeAll,
     (specifier: string, options: {
       isDynamic: boolean;
-      destination: RequestDestination;
       cacheSetting: CacheSetting;
       checksum: string | undefined;
     }) => {
       return load(
         specifier,
-        options.destination,
         options.isDynamic,
         options.cacheSetting,
         options.checksum,

@@ -53,7 +53,6 @@ impl Loader for JsLoader {
     struct JsLoadOptions {
       pub is_dynamic: bool,
       pub cache_setting: &'static str,
-      pub destination: &'static str,
       pub checksum: Option<String>,
     }
 
@@ -62,11 +61,6 @@ impl Loader for JsLoader {
     let arg1 = serde_wasm_bindgen::to_value(&JsLoadOptions {
       is_dynamic: options.is_dynamic,
       cache_setting: options.cache_setting.as_js_str(),
-      destination: match options.destination {
-        // NOTICE: Remember to update the JS code when updating this
-        deno_graph::source::RequestDestination::Script => "script",
-        deno_graph::source::RequestDestination::Json => "json",
-      },
       checksum: options.maybe_checksum.map(|c| c.into_string()),
     })
     .unwrap();
@@ -189,7 +183,6 @@ async fn inner_doc(
           is_dynamic: false,
           cache_setting: CacheSetting::Use,
           maybe_checksum: None,
-          destination: deno_graph::source::RequestDestination::Json,
         },
       )
       .await?

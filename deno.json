@@ -16,9 +16,5 @@
       "src/html",
       "tests/testdata"
     ]
-  },
-  "patch": [
-    "../deno_graph/js",
-    "../deno_cache_dir"
-  ]
+  }
 }
