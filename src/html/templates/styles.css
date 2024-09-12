@@ -336,7 +336,7 @@ a {
 .see {
   @apply list-disc list-inside;
 
-  > li div {
+  > li * {
     display: inline-block;
   }
 }
