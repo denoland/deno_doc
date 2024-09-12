@@ -16,8 +16,8 @@
   </div>
 
   {{~#if (ne content.kind "empty")~}}
-    {{~#if (eq content.kind "namespace_section")~}}
-      {{~> namespace_section content.content ~}}
+    {{~#if (or (eq content.kind "namespace_section") (eq content.kind "see"))~}}
+      {{~> (lookup ../content "kind") content.content ~}}
     {{~else~}}
       <div class="space-y-8">
         {{~#each content.content~}}

@@ -1,8 +1,8 @@
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
-use crate::html::util::AnchorCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::util::{AnchorCtx, SectionContentCtx};
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
@@ -347,6 +347,27 @@ impl SymbolInnerCtx {
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       });
 
+      let references = doc_node
+        .js_doc
+        .tags
+        .iter()
+        .filter_map(|tag| {
+          if let JsDocTag::See { doc } = tag {
+            Some(generate_see(ctx, doc))
+          } else {
+            None
+          }
+        })
+        .collect::<Vec<_>>();
+
+      if !references.is_empty() {
+        sections.push(SectionCtx::new(
+          ctx,
+          "See",
+          SectionContentCtx::See(references),
+        ));
+      }
+
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
         id: String::new(),
         sections,
@@ -362,4 +383,14 @@ impl SymbolInnerCtx {
 
     content_parts
   }
+}
+
+fn generate_see(ctx: &RenderContext, doc: &str) -> String {
+  let doc = if let Some(href) = ctx.lookup_symbol_href(doc) {
+    format!("[{doc}]({href})")
+  } else {
+    doc.to_string()
+  };
+
+  crate::html::jsdoc::render_markdown(ctx, &doc, true)
 }

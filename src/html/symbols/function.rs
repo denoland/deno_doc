@@ -249,6 +249,27 @@ fn render_single_function(
     ),
   ));
 
+  let references = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::See { doc } = tag {
+        Some(super::generate_see(ctx, doc))
+      } else {
+        None
+      }
+    })
+    .collect::<Vec<_>>();
+
+  if !references.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "See",
+      SectionContentCtx::See(references),
+    ));
+  }
+
   SymbolContentCtx {
     id: String::new(),
     sections,
