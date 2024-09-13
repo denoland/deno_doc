@@ -33,11 +33,32 @@ impl JsDoc {
   }
 }
 
+fn handle_codeblock<'a>(
+  line: &'a str,
+  is_codeblock: &mut bool,
+) -> Option<&'a str> {
+  if *is_codeblock && line.starts_with("# ") {
+    if line.contains("```") {
+      *is_codeblock = !*is_codeblock;
+      Some("```")
+    } else {
+      None
+    }
+  } else {
+    if line.contains("```") {
+      *is_codeblock = !*is_codeblock;
+    }
+    Some(line)
+  }
+}
+
 impl From<String> for JsDoc {
   fn from(value: String) -> Self {
     let mut tags = Vec::new();
     let mut doc_lines: Option<String> = None;
     let mut is_tag = false;
+    let mut is_codeblock = false;
+    let mut tag_is_codeblock = false;
     let mut current_tag: Option<String> = None;
     let mut current_tag_name = "";
     for line in value.lines() {
@@ -48,6 +69,7 @@ impl From<String> for JsDoc {
           assert!(current_tag.is_none());
         }
         if caps.is_some() {
+          tag_is_codeblock = false;
           let current_tag = std::mem::take(&mut current_tag);
           if let Some(current_tag) = current_tag {
             tags.push(current_tag.into());
@@ -56,25 +78,33 @@ impl From<String> for JsDoc {
         if let Some(caps) = caps {
           current_tag_name = caps.get(1).unwrap().as_str();
         }
-        let current_tag = if let Some(current_tag) = &mut current_tag {
-          current_tag.push('\n');
-          current_tag
-        } else {
-          current_tag = Some(String::new());
-          current_tag.as_mut().unwrap()
-        };
-        // certain tags, we want to preserve any leading whitespace
-        if matches!(current_tag_name, "example") {
-          current_tag.push_str(line.trim_end());
-        } else {
-          current_tag.push_str(line.trim());
+        if let Some(line) = handle_codeblock(line, &mut tag_is_codeblock) {
+          let current_tag = if let Some(current_tag) = &mut current_tag {
+            current_tag.push('\n');
+            current_tag
+          } else {
+            current_tag = Some(String::new());
+            current_tag.as_mut().unwrap()
+          };
+
+          // certain tags, we want to preserve any leading whitespace
+          if matches!(current_tag_name, "example") {
+            current_tag.push_str(line.trim_end());
+          } else {
+            current_tag.push_str(line.trim());
+          }
         }
       } else if let Some(doc_lines) = &mut doc_lines {
-        doc_lines.push('\n');
-        doc_lines.push_str(line);
+        if let Some(line) = handle_codeblock(line, &mut is_codeblock) {
+          doc_lines.push('\n');
+          doc_lines.push_str(line);
+        }
       } else {
         doc_lines = Some(String::new());
         doc_lines.as_mut().unwrap().push_str(line);
+        if line.contains("```") {
+          is_codeblock = !is_codeblock;
+        }
       }
     }
     if let Some(current_tag) = current_tag {
