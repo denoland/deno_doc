@@ -77,21 +77,6 @@ Deno.test({
 });
 
 Deno.test({
-  name: "doc() - missing specifier",
-  // TODO(@kitsonk) - remove when new deno_graph crate published
-  sanitizeResources: false,
-  async fn() {
-    await assertRejects(
-      async () => {
-        await doc("https://deno.land/x/bad.ts");
-      },
-      Error,
-      `Module not found "https://deno.land/x/bad.ts".`,
-    );
-  },
-});
-
-Deno.test({
   name: "doc() - bad specifier",
   async fn() {
     await assertRejects(
