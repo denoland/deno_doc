@@ -13,9 +13,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 60,
+        "line": 62,
         "col": 0,
-        "byteIndex": 1006
+        "byteIndex": 1037
       },
       "url": "././~/A.html",
       "category": "",
@@ -31,9 +31,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 63,
+        "line": 65,
         "col": 0,
-        "byteIndex": 1035
+        "byteIndex": 1066
       },
       "url": "././~/B.html",
       "category": "",
@@ -67,9 +67,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 56,
+        "line": 58,
         "col": 0,
-        "byteIndex": 967
+        "byteIndex": 998
       },
       "url": "././~/Baz.html",
       "category": "",
@@ -100,12 +100,12 @@ expression: search_index
       ],
       "name": "Foobar",
       "file": ".",
-      "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs",
+      "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs\n",
       "location": {
         "filename": "default",
-        "line": 49,
+        "line": 51,
         "col": 0,
-        "byteIndex": 887
+        "byteIndex": 918
       },
       "url": "././~/Foobar.html",
       "category": "",
@@ -121,9 +121,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 52,
+        "line": 54,
         "col": 0,
-        "byteIndex": 920
+        "byteIndex": 951
       },
       "url": "././~/Hello.html",
       "category": "",
@@ -139,9 +139,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 72,
+        "line": 74,
         "col": 13,
-        "byteIndex": 1198
+        "byteIndex": 1229
       },
       "url": "././~/c.html",
       "category": "",
@@ -157,9 +157,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 74,
+        "line": 76,
         "col": 0,
-        "byteIndex": 1226
+        "byteIndex": 1257
       },
       "url": "././~/d.html",
       "category": "",
@@ -177,9 +177,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 68,
+        "line": 70,
         "col": 0,
-        "byteIndex": 1077
+        "byteIndex": 1108
       },
       "url": "././~/qaz.html",
       "category": "",

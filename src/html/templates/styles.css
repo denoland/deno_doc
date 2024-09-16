@@ -333,6 +333,14 @@ a {
   @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200 leading-[0];
 }
 
+.see {
+  @apply list-disc list-inside;
+
+  > li * {
+    display: inline-block;
+  }
+}
+
 /* markdown */
 .markdown_border {
   @apply ml-1 pl-2.5 border-l-2 border-stone-300/40;

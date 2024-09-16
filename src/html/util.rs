@@ -430,6 +430,7 @@ pub enum SectionContentCtx {
   Example(Vec<super::jsdoc::ExampleCtx>),
   IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
   NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
+  See(Vec<String>),
   Empty,
 }
 
@@ -536,6 +537,7 @@ impl SectionCtx {
           node.anchor.id = anchor;
         }
       }
+      SectionContentCtx::See(_) => {}
       SectionContentCtx::Empty => {}
     }
 

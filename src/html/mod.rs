@@ -165,6 +165,7 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     pages::CategoriesPanelCtx::TEMPLATE,
     include_str!("./templates/category_panel.hbs"),
   )?;
+  reg.register_template_string("see", include_str!("./templates/see.hbs"))?;
 
   // pages
   reg.register_template_string(

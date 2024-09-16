@@ -45,6 +45,8 @@ export class Bar extends Foo {
  * ```
  *
  * Foobar docs
+ *
+ * @see https://example.com
  */
 export default class Foobar {
 }
