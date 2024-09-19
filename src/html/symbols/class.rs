@@ -136,7 +136,7 @@ fn render_constructors(
         Some(html_escape::encode_text(&name).into_owned()),
         None,
         &format!("({params})"),
-        HashSet::from([Tag::New]),
+        [Tag::New].into(),
         constructor.js_doc.doc.as_deref(),
         &constructor.location,
       )

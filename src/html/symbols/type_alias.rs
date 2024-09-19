@@ -69,7 +69,7 @@ pub(crate) fn render_type_alias(
         None,
         None,
         &render_type_def(ctx, &type_alias_def.ts_type),
-        HashSet::new(),
+        Default::default(),
         None,
         &doc_node.location,
       )]),
