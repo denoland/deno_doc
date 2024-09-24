@@ -28,7 +28,8 @@
 }
 
 #categoryPanel {
-  @apply max-lg:hidden -mt-0 pt-0 w-[250px] flex-shrink-0 top-0 sticky h-screen box-border;
+  @apply max-lg:hidden -mt-0 pt-0 w-[250px] flex-shrink-0 top-0 sticky h-screen
+    box-border;
 
   > ul {
     @apply max-h-full overflow-y-auto;
@@ -39,7 +40,8 @@
   @apply mt-4;
 
   > main {
-    @apply min-w-0 col-span-full pb-0 md:pb-8 lg:pb-12 flex flex-col gap-3 flex-grow;
+    @apply min-w-0 col-span-full pb-0 md:pb-8 lg:pb-12 flex flex-col gap-3
+      flex-grow;
   }
 
   &:has(.toc) > main {
@@ -60,7 +62,9 @@
 }
 
 .toc {
-  @apply max-sm:hidden sm:flex sm:flex-col max-lg:row-start-1 lg:col-[span_1_/_-1] top-0 sticky max-h-screen h-fit box-border gap-y-4 -mt-14 pt-14;
+  @apply max-sm:hidden sm:flex sm:flex-col max-lg:row-start-1
+    lg:col-[span_1_/_-1] top-0 sticky max-h-screen h-fit box-border gap-y-4
+    -mt-14 pt-14;
 
   > div {
     @apply max-h-full lg:overflow-y-auto;

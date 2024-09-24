@@ -11,9 +11,9 @@ a {
 
 & {
   --ddoc-selection-border-width: 2px;
-  --ddoc-selection-border-color-default: #D6D3D1;
-  --ddoc-selection-selected-border-color: #2564EB;
-  --ddoc-selection-selected-bg: #056CF00C;
+  --ddoc-selection-border-color-default: #d6d3d1;
+  --ddoc-selection-selected-border-color: #2564eb;
+  --ddoc-selection-selected-bg: #056cf00c;
   --ddoc-selection-padding: 9px 15px;
 }
 
@@ -26,7 +26,8 @@ a {
 }
 
 .anchor {
-  @apply hidden float-left leading-none text-stone-600 ml-[-24px] p-1 pr-1 pt-1 top-0 bottom-0;
+  @apply hidden float-left leading-none text-stone-600 ml-[-24px] p-1 pr-1 pt-1
+    top-0 bottom-0;
 }
 
 .anchorable {
@@ -88,7 +89,8 @@ a {
 }
 
 .namespaceSection {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10 md:gap-x-8 md:gap-y-8;
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10
+    md:gap-x-8 md:gap-y-8;
 
   .namespaceItem {
     @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4;
@@ -142,7 +144,8 @@ a {
   @apply inline-flex justify-end shrink-0;
 
   div {
-    @apply rounded-full size-5 font-medium text-xs leading-5 text-center align-middle shrink-0 select-none font-mono;
+    @apply rounded-full size-5 font-medium text-xs leading-5 text-center
+      align-middle shrink-0 select-none font-mono;
   }
 
   > * + * {
@@ -152,7 +155,8 @@ a {
 
 .example details {
   summary {
-    @apply list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6 cursor-pointer;
+    @apply list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6
+      cursor-pointer;
 
     > div:first-child {
       @apply text-stone-600 select-none;
@@ -186,7 +190,8 @@ a {
           @apply flex items-center gap-2;
 
           > span {
-            @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis -my-0.5 -ml-1 py-0.5 pl-1 rounded;
+            @apply block w-full overflow-hidden whitespace-nowrap text-ellipsis
+              -my-0.5 -ml-1 py-0.5 pl-1 rounded;
           }
         }
       }
@@ -218,7 +223,7 @@ a {
       }
 
       ul {
-        @apply ml-3.5 space-y-2 text-gray-1 text-[.8rem] leading-none;
+        @apply ml-3.5 space-y-2 text-gray-1 text-[0.8rem] leading-none;
 
         li {
           @apply mt-1 !important;
@@ -231,7 +236,8 @@ a {
     }
 
     a {
-      @apply hover:underline block overflow-hidden whitespace-nowrap text-ellipsis;
+      @apply hover:underline block overflow-hidden whitespace-nowrap
+        text-ellipsis;
     }
   }
 }
@@ -242,17 +248,20 @@ a {
 
     details {
       > summary {
-        @apply flex gap-1 select-none cursor-pointer rounded border border-gray-300 py-2 px-3;
+        @apply flex gap-1 select-none cursor-pointer rounded border
+          border-gray-300 py-2 px-3;
       }
 
       > div {
         @apply md:relative;
 
         > div {
-          @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-48 bg-white md:rounded border max-md:border-x-0 border-gray-300;
+          @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-48
+            bg-white md:rounded border max-md:border-x-0 border-gray-300;
 
           label {
-            @apply flex items-center gap-2 cursor-pointer select-none px-2 py-1 leading-normal rounded-sm hover:bg-gray-50;
+            @apply flex items-center gap-2 cursor-pointer select-none px-2 py-1
+              leading-normal rounded-sm hover:bg-gray-50;
           }
         }
       }
@@ -306,15 +315,18 @@ a {
       @apply ml-1 mr-3;
 
       a {
-        @apply hover:underline block overflow-hidden whitespace-nowrap text-ellipsis py-1.5 px-3.5;
+        @apply hover:underline block overflow-hidden whitespace-nowrap
+          text-ellipsis py-1.5 px-3.5;
       }
     }
   }
 }
 
 .contextLink {
-  @apply text-contextLink/80 underline decoration-[1.5px] decoration-contextLink/50 underline-offset-[0.15em] hover:text-contextLink hover:decoration-contextLink;
-  text-decoration-skip-ink: auto
+  @apply text-contextLink/80 underline decoration-[1.5px]
+    decoration-contextLink/50 underline-offset-[0.15em] hover:text-contextLink
+    hover:decoration-contextLink;
+  text-decoration-skip-ink: auto;
 }
 
 .breadcrumbs {
@@ -330,7 +342,8 @@ a {
 }
 
 .context_button {
-  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200 leading-[0];
+  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200
+    leading-[0];
 }
 
 .see {
@@ -359,7 +372,8 @@ a {
 }
 
 .markdown {
-  @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm md:max-w-screen-md lg:max-w-[75ch];
+  @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm
+    md:max-w-screen-md lg:max-w-[75ch];
 
   a:not(.no_color) {
     @apply link;
@@ -418,7 +432,8 @@ a {
   }
 
   pre {
-    @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5 border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
+    @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5
+      border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
 
     & > code:first-child {
       @apply overflow-x-auto px-6 py-4 block;
@@ -518,135 +533,120 @@ a {
   }
 
   /*!
-  * GitHub Light v0.5.0
-  * Copyright (c) 2012 - 2017 GitHub, Inc.
-  * Licensed under MIT (https://github.com/primer/github-syntax-theme-generator/blob/master/LICENSE)
-  */
+   * GitHub Light v0.5.0
+   * Copyright (c) 2012 - 2017 GitHub, Inc.
+   * Licensed under MIT (https://github.com/primer/github-syntax-theme-generator/blob/master/LICENSE)
+   */
 
-  .pl-c /* comment, punctuation.definition.comment, string.comment */
-  {
-    color: #6A737D;
+  .pl-c /* comment, punctuation.definition.comment, string.comment */ {
+    color: #6a737d;
   }
 
-  .pl-c1 /* constant, entity.name.constant, variable.other.constant, variable.language, support, meta.property-name, support.constant, support.variable, meta.module-reference, markup.raw, meta.diff.header, meta.output */,
-  .pl-s .pl-v /* string variable */
-  {
-    color: #005CC5;
+  .pl-c1
+  /* constant, entity.name.constant, variable.other.constant, variable.language, support, meta.property-name, support.constant, support.variable, meta.module-reference, markup.raw, meta.diff.header, meta.output */,
+  .pl-s .pl-v /* string variable */ {
+    color: #005cc5;
   }
 
   .pl-e /* entity */,
-  .pl-en /* entity.name */
-  {
-    color: #6F42C1;
+  .pl-en /* entity.name */ {
+    color: #6f42c1;
   }
 
-  .pl-smi /* variable.parameter.function, storage.modifier.package, storage.modifier.import, storage.type.java, variable.other */,
-  .pl-s .pl-s1 /* string source */
-  {
-    color: #24292E;
+  .pl-smi
+  /* variable.parameter.function, storage.modifier.package, storage.modifier.import, storage.type.java, variable.other */,
+  .pl-s .pl-s1 /* string source */ {
+    color: #24292e;
   }
 
-  .pl-ent /* entity.name.tag, markup.quote */
-  {
-    color: #22863A;
+  .pl-ent /* entity.name.tag, markup.quote */ {
+    color: #22863a;
   }
 
-  .pl-k /* keyword, storage, storage.type */
-  {
-    color: #D73A49;
+  .pl-k /* keyword, storage, storage.type */ {
+    color: #d73a49;
   }
 
   .pl-s /* string */,
-  .pl-pds /* punctuation.definition.string, source.regexp, string.regexp.character-class */,
+  .pl-pds
+  /* punctuation.definition.string, source.regexp, string.regexp.character-class */,
   .pl-s .pl-pse .pl-s1 /* string punctuation.section.embedded source */,
   .pl-sr /* string.regexp */,
   .pl-sr .pl-cce /* string.regexp constant.character.escape */,
   .pl-sr .pl-sre /* string.regexp source.ruby.embedded */,
-  .pl-sr .pl-sra /* string.regexp string.regexp.arbitrary-repitition */
-  {
-    color: #032F62;
+  .pl-sr .pl-sra /* string.regexp string.regexp.arbitrary-repitition */ {
+    color: #032f62;
   }
 
   .pl-v /* variable */,
-  .pl-smw /* sublimelinter.mark.warning */
-  {
-    color: #E36209;
+  .pl-smw /* sublimelinter.mark.warning */ {
+    color: #e36209;
   }
 
   .pl-bu /* invalid.broken, invalid.deprecated, invalid.unimplemented, message.error, brackethighlighter.unmatched, sublimelinter.mark.error */
   {
-    color: #B31D28;
+    color: #b31d28;
   }
 
-  .pl-ii /* invalid.illegal */
-  {
-    color: #FAFBFC;
-    background-color: #B31D28;
+  .pl-ii /* invalid.illegal */ {
+    color: #fafbfc;
+    background-color: #b31d28;
   }
 
-  .pl-c2 /* carriage-return */
-  {
-    color: #FAFBFC;
-    background-color: #D73A49;
+  .pl-c2 /* carriage-return */ {
+    color: #fafbfc;
+    background-color: #d73a49;
   }
 
-  .pl-c2::before /* carriage-return */
-  {
+  .pl-c2::before /* carriage-return */ {
     content: "^M";
   }
 
-  .pl-sr .pl-cce /* string.regexp constant.character.escape */
-  {
+  .pl-sr .pl-cce /* string.regexp constant.character.escape */ {
     font-weight: bold;
-    color: #22863A;
+    color: #22863a;
   }
 
-  .pl-ml /* markup.list */
-  {
-    color: #735C0F;
+  .pl-ml /* markup.list */ {
+    color: #735c0f;
   }
 
   .pl-mh /* markup.heading */,
   .pl-mh .pl-en /* markup.heading entity.name */,
-  .pl-ms /* meta.separator */
-  {
+  .pl-ms /* meta.separator */ {
     font-weight: bold;
-    color: #005CC5;
+    color: #005cc5;
   }
 
-  .pl-mi /* markup.italic */
-  {
+  .pl-mi /* markup.italic */ {
     font-style: italic;
-    color: #24292E;
+    color: #24292e;
   }
 
-  .pl-mb /* markup.bold */
-  {
+  .pl-mb /* markup.bold */ {
     font-weight: bold;
-    color: #24292E;
+    color: #24292e;
   }
 
   .pl-md /* markup.deleted, meta.diff.header.from-file, punctuation.definition.deleted */
   {
-    color: #B31D28;
-    background-color: #FFEEF0;
+    color: #b31d28;
+    background-color: #ffeef0;
   }
 
   .pl-mi1 /* markup.inserted, meta.diff.header.to-file, punctuation.definition.inserted */
   {
-    color: #22863A;
-    background-color: #F0FFF4;
+    color: #22863a;
+    background-color: #f0fff4;
   }
 
-  .pl-mc /* markup.changed, punctuation.definition.changed */
-  {
-    color: #E36209;
-    background-color: #FFEBDA;
+  .pl-mc /* markup.changed, punctuation.definition.changed */ {
+    color: #e36209;
+    background-color: #ffebda;
   }
 
-  .pl-mi2 /* markup.ignored, markup.untracked */
-  {
-    color: #F6F8FA;
-    background-color: #005CC5;
+  .pl-mi2 /* markup.ignored, markup.untracked */ {
+    color: #f6f8fa;
+    background-color: #005cc5;
   }
 }
