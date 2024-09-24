@@ -110,13 +110,21 @@ impl Diagnostic for DocDiagnostic {
   }
 
   fn snippet(&self) -> Option<DiagnosticSnippet<'_>> {
+    let start_byte_index = self.location.byte_index;
+    let start_char_len = &self.text_info.text()[start_byte_index..]
+      .chars()
+      .next()
+      .map(|ch| ch.len_utf8())
+      .unwrap_or(1);
     Some(DiagnosticSnippet {
       source: Cow::Borrowed(&self.text_info),
       highlights: vec![DiagnosticSnippetHighlight {
         style: DiagnosticSnippetHighlightStyle::Error,
         range: DiagnosticSourceRange {
-          start: DiagnosticSourcePos::ByteIndex(self.location.byte_index),
-          end: DiagnosticSourcePos::ByteIndex(self.location.byte_index + 1),
+          start: DiagnosticSourcePos::ByteIndex(start_byte_index),
+          end: DiagnosticSourcePos::ByteIndex(
+            start_byte_index + start_char_len,
+          ),
         },
         description: None,
       }],
