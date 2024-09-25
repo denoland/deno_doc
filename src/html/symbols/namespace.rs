@@ -4,7 +4,6 @@ use crate::html::DocNodeWithContext;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
-use std::collections::HashSet;
 
 pub fn render_namespace(
   ctx: &RenderContext,
@@ -55,7 +54,7 @@ fn get_namespace_section_render_ctx(
 pub struct NamespaceNodeCtx {
   pub id: String,
   pub anchor: AnchorCtx,
-  pub tags: HashSet<Tag>,
+  pub tags: IndexSet<Tag>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
   pub name: String,

@@ -582,7 +582,7 @@ impl Tag {
     }
   }
 
-  pub fn from_js_doc(js_doc: &JsDoc) -> HashSet<Tag> {
+  pub fn from_js_doc(js_doc: &JsDoc) -> IndexSet<Tag> {
     js_doc
       .tags
       .iter()
@@ -601,7 +601,7 @@ pub struct DocEntryCtx {
   name_href: Option<String>,
   content: String,
   anchor: AnchorCtx,
-  tags: HashSet<Tag>,
+  tags: IndexSet<Tag>,
   js_doc: Option<String>,
   source_href: Option<String>,
 }
@@ -616,7 +616,7 @@ impl DocEntryCtx {
     name: Option<String>,
     name_href: Option<String>,
     content: &str,
-    tags: HashSet<Tag>,
+    tags: IndexSet<Tag>,
     jsdoc: Option<&str>,
     location: &crate::Location,
   ) -> Self {
