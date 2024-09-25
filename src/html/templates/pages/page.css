@@ -19,7 +19,7 @@
 
   &:not(:has(#categoryPanel)),
   &:has(#categoryPanel) > div:not(#categoryPanel) {
-    @apply pt-1;
+    @apply pt-1 px-6;
   }
 
   & > div:not(#categoryPanel) {

@@ -315,14 +315,17 @@ impl HeadingToCAdapter {
     let mut toc_content = vec!["<ul>".to_string()];
     let mut current_level = toc.iter().map(|entry| entry.level).min().unwrap();
 
+    let mut level_diff = 0;
     for entry in toc {
       match current_level.cmp(&entry.level) {
         Ordering::Equal => {}
         Ordering::Less => {
+          level_diff += 1;
           toc_content.push(r#"<li><ul>"#.to_string());
           current_level = entry.level;
         }
         Ordering::Greater => {
+          level_diff -= 1;
           toc_content.push("</ul></li>".to_string());
           current_level = entry.level;
         }
@@ -330,8 +333,14 @@ impl HeadingToCAdapter {
 
       toc_content.push(format!(
         r##"<li><a href="#{}" title="{}">{}</a></li>"##,
-        entry.anchor, entry.content, entry.content
+        entry.anchor,
+        html_escape::encode_double_quoted_attribute(&entry.content),
+        entry.content
       ));
+    }
+
+    for _ in 0..level_diff {
+      toc_content.push("</ul></li>".to_string());
     }
 
     toc_content.push(String::from("</ul>"));

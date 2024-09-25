@@ -775,6 +775,7 @@ pub fn generate(
     }
   }
 
+  // Category pages
   if ctx.file_mode == FileMode::SingleDts {
     let categories =
       partition::partition_nodes_by_category(&all_doc_nodes, true);

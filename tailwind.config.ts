@@ -63,6 +63,9 @@ export default {
       margin: {
         "indent": "2ch",
       },
+      maxWidth: {
+        "prose": "75ch",
+      },
     },
   },
   darkMode: "class",

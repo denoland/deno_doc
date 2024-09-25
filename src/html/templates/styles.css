@@ -73,13 +73,13 @@ a {
 }
 
 .section {
-  @apply space-y-2 mb-2 scroll-mt-16;
+  @apply space-y-2 mb-2 scroll-mt-16 max-w-prose;
 
   > div:first-child {
     @apply space-y-2;
 
     > h2 {
-      @apply text-xl leading-6 font-semibold py-1;
+      @apply text-xl leading-6 font-semibold py-1 mb-0;
     }
 
     > .markdown_summary {
@@ -89,11 +89,10 @@ a {
 }
 
 .namespaceSection {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10
-    md:gap-x-8 md:gap-y-8;
+  @apply space-y-4 mt-4 max-w-prose;
 
   .namespaceItem {
-    @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4;
+    @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4 min-h-0;
 
     .docNodeKindIcon {
       @apply w-auto flex-col justify-start;
@@ -111,14 +110,29 @@ a {
     }
 
     .namespaceItemContent {
-      @apply space-y-1.5;
+      a {
+        @apply underline decoration-stone-300;
+
+        &:hover {
+          @apply no-underline;
+        }
+      }
 
       > a {
         @apply block leading-tight break-all font-medium;
       }
 
-      > div {
-        @apply text-sm leading-5 text-stone-600;
+      .namespaceItemContentDoc {
+        @apply mt-2 text-sm leading-5 text-stone-600;
+      }
+
+      .namespaceItemContentSubItems {
+        @apply mt-1.5 flex flex-wrap gap-y-1 text-sm;
+
+        > li:not(:last-child):after {
+          content: "|";
+          @apply mx-2 text-gray-300 select-none;
+        }
       }
     }
   }
