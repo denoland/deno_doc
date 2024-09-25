@@ -9,6 +9,7 @@ use crate::html::util::*;
 use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
+use indexmap::IndexSet;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::ops::Deref;
@@ -191,9 +192,9 @@ fn render_single_function(
       ) || default.is_some()
         || optional
       {
-        HashSet::from([Tag::Optional])
+        IndexSet::from([Tag::Optional])
       } else {
-        HashSet::new()
+        IndexSet::new()
       };
 
       let param_doc = param_docs
@@ -301,7 +302,7 @@ fn render_function_return_type(
     None,
     None,
     &render_type_def(render_ctx, return_type),
-    HashSet::new(),
+    IndexSet::new(),
     return_type_doc,
     &doc_node.location,
   ))

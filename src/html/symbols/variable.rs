@@ -6,7 +6,6 @@ use crate::html::symbols::interface::render_properties;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
-use std::collections::HashSet;
 
 pub(crate) fn render_variable(
   ctx: &RenderContext,
@@ -55,7 +54,7 @@ pub(crate) fn render_variable(
         None,
         None,
         &render_type_def(ctx, ts_type),
-        HashSet::new(),
+        Default::default(),
         None,
         &doc_node.location,
       )]),
