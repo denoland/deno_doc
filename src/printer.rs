@@ -273,8 +273,9 @@ impl<'a> DocPrinter<'a> {
       JsDocTag::Internal => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("internal"))
       }
-      JsDocTag::Module => {
-        writeln!(w, "{}@{}", Indent(indent), colors::magenta("module"))
+      JsDocTag::Module { name } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("module"))?;
+        self.format_jsdoc_tag_maybe_doc(w, name, indent)
       }
       JsDocTag::Param {
         name,

@@ -26,6 +26,8 @@ Defined in file:///mod.ts:2:1
   This module provides simple examples of a class, an interface, and a function.
 
   @module
+      MyModule
+
 
 Defined in file:///mod.ts:20:1
 
@@ -60,7 +62,8 @@ interface B
       "doc": "This module provides simple examples of a class, an interface, and a function.",
       "tags": [
         {
-          "kind": "module"
+          "kind": "module",
+          "name": "MyModule"
         }
       ]
     },

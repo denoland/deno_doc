@@ -1,6 +1,8 @@
+use super::DocNodeWithContext;
+use super::FileMode;
 use super::RenderContext;
 use super::UrlResolveKind;
-use super::{DocNodeWithContext, FileMode};
+use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use serde::Serialize;
 
@@ -111,11 +113,32 @@ pub fn usage_to_md(
 
       usage_statement
     } else {
-      // when the imported symbol is a namespace import, we try to guess at an
-      // intelligent camelized name for the import based on the package name.
-      let import_symbol = "mod";
+      let module_import_symbol = ctx
+        .get_current_resolve()
+        .get_file()
+        .and_then(|file| {
+          ctx
+            .ctx
+            .doc_nodes
+            .get(file)
+            .and_then(|nodes| {
+              nodes
+                .iter()
+                .find(|node| node.kind() == DocNodeKind::ModuleDoc)
+            })
+            .and_then(|node| {
+              node.js_doc.tags.iter().find_map(|tag| {
+                if let JsDocTag::Module { name } = tag {
+                  name.as_ref().map(|name| name.to_string())
+                } else {
+                  None
+                }
+              })
+            })
+        })
+        .unwrap_or_else(|| "mod".to_string());
 
-      format!(r#"import * as {import_symbol} from "{url}";"#)
+      format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
 
   format!("```typescript\n{usage}\n```")
