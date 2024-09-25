@@ -8,6 +8,7 @@ use crate::html::RenderContext;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
+use crate::node::DocNodeDef;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
@@ -66,10 +67,8 @@ pub fn compute_namespaced_symbols(
 
     let name_path: Rc<[String]> = doc_node.sub_qualifier().into();
 
-    match doc_node.kind() {
-      DocNodeKind::Class => {
-        let class_def = doc_node.class_def().unwrap();
-
+    match &doc_node.def {
+      DocNodeDef::Class { class_def } => {
         namespaced_symbols.extend(class_def.methods.iter().map(|method| {
           let mut method_path = doc_node.ns_qualifiers.to_vec();
           method_path.extend(
@@ -100,9 +99,7 @@ pub fn compute_namespaced_symbols(
           },
         ));
       }
-      DocNodeKind::Interface => {
-        let interface_def = doc_node.interface_def().unwrap();
-
+      DocNodeDef::Interface { interface_def } => {
         namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
           let mut method_path = doc_node.ns_qualifiers.to_vec();
           method_path.extend(
@@ -125,9 +122,7 @@ pub fn compute_namespaced_symbols(
           },
         ));
       }
-      DocNodeKind::TypeAlias => {
-        let type_alias_def = doc_node.type_alias_def().unwrap();
-
+      DocNodeDef::TypeAlias { type_alias_def } => {
         if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
         {
           namespaced_symbols.extend(type_literal.methods.iter().map(
@@ -159,10 +154,8 @@ pub fn compute_namespaced_symbols(
           ));
         }
       }
-      DocNodeKind::Variable => {
-        let variable = doc_node.variable_def().unwrap();
-
-        if let Some(type_literal) = variable
+      DocNodeDef::Variable { variable_def } => {
+        if let Some(type_literal) = variable_def
           .ts_type
           .as_ref()
           .and_then(|ts_type| ts_type.type_literal.as_ref())
@@ -201,8 +194,7 @@ pub fn compute_namespaced_symbols(
 
     namespaced_symbols.insert(name_path.to_vec());
 
-    if doc_node.kind() == DocNodeKind::Namespace {
-      let namespace_def = doc_node.namespace_def().unwrap();
+    if let DocNodeDef::Namespace { namespace_def } = &doc_node.def {
       namespaced_symbols.extend(compute_namespaced_symbols(
         &namespace_def
           .elements

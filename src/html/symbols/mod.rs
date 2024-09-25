@@ -7,6 +7,7 @@ use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
+use crate::node::DocNodeDef;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -189,10 +190,8 @@ impl DocBlockSubtitleCtx {
   pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
 
   fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
-    match doc_node.kind() {
-      DocNodeKind::Class => {
-        let class_def = doc_node.class_def().unwrap();
-
+    match &doc_node.def {
+      DocNodeDef::Class { class_def } => {
         let current_type_params = class_def
           .type_params
           .iter()
@@ -230,9 +229,7 @@ impl DocBlockSubtitleCtx {
           extends: class_extends,
         })
       }
-      DocNodeKind::Interface => {
-        let interface_def = doc_node.interface_def().unwrap();
-
+      DocNodeDef::Interface { interface_def } => {
         if interface_def.extends.is_empty() {
           return None;
         }

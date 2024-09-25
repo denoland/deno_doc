@@ -70,8 +70,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">x</a>
 
-	      <div><span class="italic">No documentation available</span></div>
-      </div>
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div></div>
 </section>
 <section class="section" id="Variables">
@@ -102,9 +101,8 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">default</a>
 
-	      <div><div class="markdown_summary"><p>The default export item.</p>
-</div></div>
-      </div>
+	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
+</div></div></div>
     </div></div>
 </section>
 </div>
@@ -152,7 +150,7 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
 </a></nav><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li><li><a href="#variables" title="Variables">Variables</a></li><li><ul><li><a href="#namespace_default" title="default">default</a></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li><li><a href="#variables" title="Variables">Variables</a></li><li><ul><li><a href="#namespace_default" title="default">default</a></li></ul></li></ul></nav></div>
   </div><div id="searchResults"></div></div>
 </div>
 </div>

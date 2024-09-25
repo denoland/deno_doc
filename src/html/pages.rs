@@ -23,6 +23,7 @@ use super::STYLESHEET_FILENAME;
 
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
+use crate::node::DocNodeDef;
 use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -505,11 +506,9 @@ pub fn generate_symbol_pages_for_module(
       .iter()
       .any(|node| node.kind() == DocNodeKind::Class);
     for doc_node in doc_nodes {
-      match doc_node.kind() {
-        DocNodeKind::Class => {
-          let class = doc_node.class_def().unwrap();
-
-          let method_nodes = class
+      match &doc_node.def {
+        DocNodeDef::Class { class_def } => {
+          let method_nodes = class_def
             .methods
             .iter()
             .map(|method| {
@@ -530,7 +529,7 @@ pub fn generate_symbol_pages_for_module(
           drilldown_partitions
             .extend(partition::partition_nodes_by_name(&method_nodes, false));
 
-          let property_nodes = class
+          let property_nodes = class_def
             .properties
             .iter()
             .map(|property| {
@@ -545,9 +544,8 @@ pub fn generate_symbol_pages_for_module(
             super::partition::partition_nodes_by_name(&property_nodes, false),
           );
         }
-        DocNodeKind::Interface => {
-          let interface = doc_node.interface_def().unwrap();
-          let method_nodes = interface
+        DocNodeDef::Interface { interface_def } => {
+          let method_nodes = interface_def
             .methods
             .iter()
             .filter_map(|method| {
@@ -566,7 +564,7 @@ pub fn generate_symbol_pages_for_module(
             .extend(partition::partition_nodes_by_name(&method_nodes, false));
 
           let property_nodes =
-            interface
+            interface_def
               .properties
               .iter()
               .filter_map(|property| {
@@ -584,11 +582,9 @@ pub fn generate_symbol_pages_for_module(
           drilldown_partitions
             .extend(partition::partition_nodes_by_name(&property_nodes, false));
         }
-        DocNodeKind::TypeAlias => {
-          let type_alias = doc_node.type_alias_def().unwrap();
-
+        DocNodeDef::TypeAlias { type_alias_def } => {
           if let Some(ts_type_literal) =
-            type_alias.ts_type.type_literal.as_ref()
+            type_alias_def.ts_type.type_literal.as_ref()
           {
             let method_nodes = ts_type_literal
               .methods
@@ -629,10 +625,8 @@ pub fn generate_symbol_pages_for_module(
             ));
           }
         }
-        DocNodeKind::Variable => {
-          let variable = doc_node.variable_def().unwrap();
-
-          if let Some(ts_type_literal) = variable
+        DocNodeDef::Variable { variable_def } => {
+          if let Some(ts_type_literal) = variable_def
             .ts_type
             .as_ref()
             .and_then(|ts_type| ts_type.type_literal.as_ref())

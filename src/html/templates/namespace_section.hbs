@@ -8,13 +8,21 @@
 			    {{~this.name~}}
 		    </a>
 
-	      <div>
+	      <div class="namespaceItemContentDoc">
 		      {{~#if this.docs~}}
 			      {{{~this.docs~}}} {{! markdown rendering }}
 		      {{~else~}}
 			      <span class="italic">No documentation available</span>
 		      {{~/if~}}
 	      </div>
+
+        {{~#if this.subitems~}}
+          <ul class="namespaceItemContentSubItems">
+            {{~#each this.subitems~}}
+              <li><a href="{{this.href}}">{{this.title}}</a></li>
+            {{~/each~}}
+          </ul>
+        {{~/if~}}
       </div>
     </div>
   {{~/each~}}

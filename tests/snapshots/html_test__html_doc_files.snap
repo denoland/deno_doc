@@ -69,20 +69,17 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
 
-	      <div><span class="italic">No documentation available</span></div>
-      </div>
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">Foo</a>
 
-	      <div><span class="italic">No documentation available</span></div>
-      </div>
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
 
-	      <div><span class="italic">No documentation available</span></div>
-      </div>
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div></div>
 </section>
 </div>

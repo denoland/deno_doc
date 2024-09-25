@@ -4,7 +4,7 @@ use crate::html::util::NamespacedSymbols;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
-use crate::DocNodeKind;
+use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -340,8 +340,7 @@ fn get_current_imports(
   let mut imports = HashMap::new();
 
   for doc_node in doc_nodes {
-    if doc_node.kind() == DocNodeKind::Import {
-      let import_def = doc_node.import_def().unwrap();
+    if let DocNodeDef::Import { import_def } = &doc_node.def {
       // TODO: handle import aliasing
       if import_def.imported.as_deref() == Some(doc_node.get_name()) {
         imports.insert(doc_node.get_name().to_string(), import_def.src.clone());

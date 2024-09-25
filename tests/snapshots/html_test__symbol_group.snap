@@ -363,7 +363,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -512,7 +512,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_quotgtltimg-srcx-onerroralert1gt\" title=\"\"&gt;&lt;img src=x onerror=alert(1)&gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_quotgtltimg-srcx-onerroralert1gt\" title=\"&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -717,7 +717,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1201,7 +1201,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
