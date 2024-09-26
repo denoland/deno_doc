@@ -4,7 +4,12 @@ use super::RenderContext;
 use super::UrlResolveKind;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
+use regex::Regex;
 use serde::Serialize;
+
+lazy_static! {
+  static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
+}
 
 fn render_css_for_usage(name: &str) -> String {
   format!(
@@ -113,10 +118,8 @@ pub fn usage_to_md(
 
       usage_statement
     } else {
-      let module_import_symbol = ctx
-        .get_current_resolve()
-        .get_file()
-        .and_then(|file| {
+      let maybe_idenfitier =
+        if let Some(file) = ctx.get_current_resolve().get_file() {
           ctx
             .ctx
             .doc_nodes
@@ -135,8 +138,12 @@ pub fn usage_to_md(
                 }
               })
             })
-        })
-        .unwrap_or_else(|| "mod".to_string());
+        } else {
+          ctx.ctx.package_name.clone()
+        };
+      let module_import_symbol = maybe_idenfitier
+        .as_ref()
+        .map_or_else(|| "mod".into(), |x| IDENTIFIER_RE.replace_all(x, "_"));
 
       format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
