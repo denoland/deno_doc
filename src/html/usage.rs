@@ -141,9 +141,10 @@ pub fn usage_to_md(
         } else {
           ctx.ctx.package_name.clone()
         };
-      let module_import_symbol = maybe_idenfitier
-        .as_ref()
-        .map_or_else(|| "mod".into(), |x| IDENTIFIER_RE.replace_all(x, "_"));
+      let module_import_symbol = maybe_idenfitier.as_ref().map_or_else(
+        || "mod".into(),
+        |identifier| IDENTIFIER_RE.replace_all(identifier, "_"),
+      );
 
       format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
