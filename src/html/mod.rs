@@ -251,7 +251,6 @@ pub struct GenerateOptions {
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub composable_output: bool,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
   pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
@@ -676,8 +675,6 @@ pub fn generate(
     (true, _) => FileMode::Dts,
   };
 
-  let composable_output = options.composable_output;
-
   let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
   let ctx =
     GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)?;
@@ -715,31 +712,10 @@ pub fn generate(
       uses_categories,
     );
 
-    if composable_output {
-      files.insert(
-        "./breadcrumbs.html".to_string(),
-        ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
-      );
-
-      if index.module_doc.is_some() || index.overview.is_some() {
-        let mut out = String::new();
-
-        if let Some(module_doc) = index.module_doc {
-          out.push_str(&ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc));
-        }
-
-        if let Some(all_symbols) = index.overview {
-          out.push_str(&ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols));
-        }
-
-        files.insert("./content.html".to_string(), out);
-      }
-    } else {
-      files.insert(
-        "./index.html".to_string(),
-        ctx.render(pages::IndexCtx::TEMPLATE, &index),
-      );
-    }
+    files.insert(
+      "./index.html".to_string(),
+      ctx.render(pages::IndexCtx::TEMPLATE, &index),
+    );
   }
 
   let all_doc_nodes = ctx
@@ -756,23 +732,10 @@ pub fn generate(
 
     let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
 
-    if composable_output {
-      files.insert(
-        "./all_symbols/content.html".to_string(),
-        ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols.content),
-      );
-
-      files.insert(
-        "./all_symbols/breadcrumbs.html".to_string(),
-        ctx
-          .render(util::BreadcrumbsCtx::TEMPLATE, &all_symbols.breadcrumbs_ctx),
-      );
-    } else {
-      files.insert(
-        "./all_symbols.html".to_string(),
-        ctx.render(pages::AllSymbolsCtx::TEMPLATE, &all_symbols),
-      );
-    }
+    files.insert(
+      "./all_symbols.html".to_string(),
+      ctx.render(pages::AllSymbolsCtx::TEMPLATE, &all_symbols),
+    );
   }
 
   // Category pages
@@ -838,38 +801,22 @@ pub fn generate(
               ctx.disable_search,
             );
 
-            if composable_output {
-              let dir_name =
-                format!("{}/~/{}", short_path.path, symbol_group_ctx.name);
+            let file_name =
+              format!("{}/~/{}.html", short_path.path, symbol_group_ctx.name);
 
-              vec![
-                (
-                  format!("{dir_name}/breadcrumbs.html"),
-                  ctx.render(util::BreadcrumbsCtx::TEMPLATE, &breadcrumbs_ctx),
-                ),
-                (
-                  format!("{dir_name}/content.html"),
-                  ctx.render(SymbolGroupCtx::TEMPLATE, &symbol_group_ctx),
-                ),
-              ]
-            } else {
-              let file_name =
-                format!("{}/~/{}.html", short_path.path, symbol_group_ctx.name);
+            let page_ctx = pages::SymbolPageCtx {
+              html_head_ctx,
+              symbol_group_ctx,
+              breadcrumbs_ctx,
+              toc_ctx,
+              disable_search: ctx.disable_search,
+              categories_panel,
+            };
 
-              let page_ctx = pages::SymbolPageCtx {
-                html_head_ctx,
-                symbol_group_ctx,
-                breadcrumbs_ctx,
-                toc_ctx,
-                disable_search: ctx.disable_search,
-                categories_panel,
-              };
+            let symbol_page =
+              ctx.render(pages::SymbolPageCtx::TEMPLATE, &page_ctx);
 
-              let symbol_page =
-                ctx.render(pages::SymbolPageCtx::TEMPLATE, &page_ctx);
-
-              vec![(file_name, symbol_page)]
-            }
+            vec![(file_name, symbol_page)]
           }
           SymbolPage::Redirect {
             current_symbol,
@@ -877,19 +824,10 @@ pub fn generate(
           } => {
             let redirect = serde_json::json!({ "path": href });
 
-            if composable_output {
-              let file_name = format!(
-                "{}/~/{}/redirect.json",
-                short_path.path, current_symbol
-              );
+            let file_name =
+              format!("{}/~/{}.html", short_path.path, current_symbol);
 
-              vec![(file_name, serde_json::to_string(&redirect).unwrap())]
-            } else {
-              let file_name =
-                format!("{}/~/{}.html", short_path.path, current_symbol);
-
-              vec![(file_name, ctx.render("pages/redirect", &redirect))]
-            }
+            vec![(file_name, ctx.render("pages/redirect", &redirect))]
           }
         }
       }));
@@ -902,35 +840,10 @@ pub fn generate(
           false,
         );
 
-        if composable_output {
-          files.insert(
-            format!("{}/breadcrumbs.html", short_path.path),
-            ctx.render(util::BreadcrumbsCtx::TEMPLATE, &index.breadcrumbs_ctx),
-          );
-
-          if index.module_doc.is_some() || index.overview.is_some() {
-            let mut out = String::new();
-
-            if let Some(module_doc) = index.module_doc {
-              out.push_str(
-                &ctx.render(jsdoc::ModuleDocCtx::TEMPLATE, &module_doc),
-              );
-            }
-
-            if let Some(all_symbols) = index.overview {
-              out.push_str(
-                &ctx.render(SymbolContentCtx::TEMPLATE, &all_symbols),
-              );
-            }
-
-            files.insert(format!("{}/content.html", short_path.path), out);
-          }
-        } else {
-          files.insert(
-            format!("{}/index.html", short_path.path),
-            ctx.render(pages::IndexCtx::TEMPLATE, &index),
-          );
-        }
+        files.insert(
+          format!("{}/index.html", short_path.path),
+          ctx.render(pages::IndexCtx::TEMPLATE, &index),
+        );
       }
     }
   }
@@ -942,12 +855,10 @@ pub fn generate(
   );
   files.insert(SCRIPT_FILENAME.into(), SCRIPT_JS.into());
 
-  if !composable_output {
-    files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
-    files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
-    files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
-    files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
-  }
+  files.insert(PAGE_STYLESHEET_FILENAME.into(), PAGE_STYLESHEET.into());
+  files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
+  files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
+  files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
 
   Ok(files)
 }

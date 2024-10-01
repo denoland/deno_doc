@@ -438,7 +438,6 @@ mod test {
         href_resolver: Rc::new(TestResolver()),
         usage_composer: None,
         rewrite_map: None,
-        composable_output: false,
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,

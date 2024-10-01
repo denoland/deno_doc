@@ -233,7 +233,6 @@ fn generate_docs_directory(
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    composable_output: false,
     category_docs: None,
     disable_search: false,
     symbol_redirect_map: None,
