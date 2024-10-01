@@ -1,3 +1,7 @@
+/**
+ * @module bar
+ */
+
 export function x(_n = 0) {}
 
 /** The default export item.

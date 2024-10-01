@@ -91,7 +91,11 @@ pub(crate) fn module_js_doc_for_source(
     })
   }) {
     let js_doc = parse_js_doc(js_doc_comment);
-    if js_doc.tags.contains(&JsDocTag::Module) {
+    if js_doc
+      .tags
+      .iter()
+      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+    {
       if js_doc.tags.contains(&JsDocTag::Ignore) {
         return Some(None);
       }

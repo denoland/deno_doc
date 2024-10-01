@@ -1,8 +1,15 @@
+use super::DocNodeWithContext;
+use super::FileMode;
 use super::RenderContext;
 use super::UrlResolveKind;
-use super::{DocNodeWithContext, FileMode};
+use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
+use regex::Regex;
 use serde::Serialize;
+
+lazy_static! {
+  static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
+}
 
 fn render_css_for_usage(name: &str) -> String {
   format!(
@@ -111,11 +118,35 @@ pub fn usage_to_md(
 
       usage_statement
     } else {
-      // when the imported symbol is a namespace import, we try to guess at an
-      // intelligent camelized name for the import based on the package name.
-      let import_symbol = "mod";
+      let maybe_idenfitier =
+        if let Some(file) = ctx.get_current_resolve().get_file() {
+          ctx
+            .ctx
+            .doc_nodes
+            .get(file)
+            .and_then(|nodes| {
+              nodes
+                .iter()
+                .find(|node| node.kind() == DocNodeKind::ModuleDoc)
+            })
+            .and_then(|node| {
+              node.js_doc.tags.iter().find_map(|tag| {
+                if let JsDocTag::Module { name } = tag {
+                  name.as_ref().map(|name| name.to_string())
+                } else {
+                  None
+                }
+              })
+            })
+        } else {
+          ctx.ctx.package_name.clone()
+        };
+      let module_import_symbol = maybe_idenfitier.as_ref().map_or_else(
+        || "mod".into(),
+        |identifier| IDENTIFIER_RE.replace_all(identifier, "_"),
+      );
 
-      format!(r#"import * as {import_symbol} from "{url}";"#)
+      format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
 
   format!("```typescript\n{usage}\n```")

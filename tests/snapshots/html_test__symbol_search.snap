@@ -195,9 +195,9 @@ expression: search_index
       "doc": "The default export item.\n\nThis item reproduces the issue reported in {@link https://github.com/jsr-io/jsr/issues/459}",
       "location": {
         "filename": "foo",
-        "line": 7,
+        "line": 11,
         "col": 6,
-        "byteIndex": 167
+        "byteIndex": 191
       },
       "url": "./foo/~/default.html",
       "category": "",
@@ -213,9 +213,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "foo",
-        "line": 1,
+        "line": 5,
         "col": 0,
-        "byteIndex": 0
+        "byteIndex": 24
       },
       "url": "./foo/~/x.html",
       "category": "",
