@@ -40,7 +40,7 @@ expression: "files.get(\"./~/Hello.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="content"><main class="symbolGroup" id="symbol_Hello"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Hello"><article>
       <div>
         <div>
           <div class="text-2xl leading-none break-all">
@@ -113,7 +113,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
           <h3>Document Navigation</h3><ul><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_world" title="world">world</a></li></ul></li></ul></nav></div>
-  </div><div id="searchResults"></div></div>
+  </div></div>
 </div>
 </div>
 </body>

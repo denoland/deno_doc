@@ -1,7 +1,7 @@
 use crate::html::render_context::RenderContext;
 use crate::html::util::*;
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
-use crate::node::DocNodeDef;
 use deno_ast::swc::ast::MethodKind;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -122,177 +122,45 @@ impl NamespaceNodeCtx {
     );
 
     for node in &nodes {
-      match &node.def {
-        DocNodeDef::Class { class_def } => {
-          subitems.extend(
-            class_def
-              .methods
-              .iter()
-              .filter(|method| !method.name.starts_with('['))
-              .map(|method| NamespaceNodeSubItemCtx {
-                title: method.name.to_string(),
-                href: format!(
-                  "{href}#{}",
-                  if matches!(
-                    method.kind,
-                    MethodKind::Getter | MethodKind::Setter
-                  ) {
-                    name_to_id("accessor", &method.name.to_lowercase())
+      if let Some(drilldown_symbols) = node.get_drilldown_symbols() {
+        subitems.extend(
+          drilldown_symbols
+            .into_iter()
+            .filter(|symbol| {
+              !symbol.original_name.as_ref().unwrap().starts_with('[')
+            })
+            .map(|symbol| {
+              let id = match symbol.kind_with_drilldown {
+                DocNodeKindWithDrilldown::Property => name_to_id(
+                  "property",
+                  &symbol.original_name.as_ref().unwrap().to_lowercase(),
+                ),
+                DocNodeKindWithDrilldown::Method(kind) => {
+                  if matches!(kind, MethodKind::Getter | MethodKind::Setter) {
+                    name_to_id(
+                      "accessor",
+                      &symbol.original_name.as_ref().unwrap().to_lowercase(),
+                    )
                   } else {
                     name_to_id(
                       "method",
-                      &format!("{}_0", method.name.to_lowercase()),
+                      &format!(
+                        "{}_0",
+                        symbol.original_name.as_ref().unwrap().to_lowercase()
+                      ),
                     )
                   }
-                ),
-              }),
-          );
-          subitems.extend(
-            class_def
-              .properties
-              .iter()
-              .filter(|property| !property.name.starts_with('['))
-              .map(|property| NamespaceNodeSubItemCtx {
-                title: property.name.to_string(),
-                href: format!(
-                  "{href}#{}",
-                  name_to_id("property", &property.name.to_lowercase())
-                ),
-              }),
-          );
-        }
-        DocNodeDef::Interface { interface_def } => {
-          subitems.extend(
-            interface_def
-              .methods
-              .iter()
-              .filter(|method| !method.name.starts_with('['))
-              .map(|method| NamespaceNodeSubItemCtx {
-                title: method.name.to_string(),
-                href: format!(
-                  "{href}#{}",
-                  if matches!(
-                    method.kind,
-                    MethodKind::Getter | MethodKind::Setter
-                  ) {
-                    name_to_id("accessor", &method.name.to_lowercase())
-                  } else {
-                    name_to_id(
-                      "method",
-                      &format!("{}_0", method.name.to_lowercase()),
-                    )
-                  }
-                ),
-              }),
-          );
-          subitems.extend(
-            interface_def
-              .properties
-              .iter()
-              .filter(|property| !property.name.starts_with('['))
-              .map(|property| NamespaceNodeSubItemCtx {
-                title: property.name.to_string(),
-                href: format!(
-                  "{href}#{}",
-                  name_to_id("property", &property.name.to_lowercase())
-                ),
-              }),
-          );
-        }
-        DocNodeDef::Variable { variable_def } => {
-          if let Some(type_literal) = variable_def
-            .ts_type
-            .as_ref()
-            .and_then(|ts_type| ts_type.type_literal.as_ref())
-          {
-            subitems.extend(
-              type_literal
-                .methods
-                .iter()
-                .filter(|method| !method.name.starts_with('['))
-                .map(|method| NamespaceNodeSubItemCtx {
-                  title: method.name.to_string(),
-                  href: format!(
-                    "{href}#{}",
-                    if matches!(
-                      method.kind,
-                      MethodKind::Getter | MethodKind::Setter
-                    ) {
-                      name_to_id("accessor", &method.name.to_lowercase())
-                    } else {
-                      name_to_id(
-                        "method",
-                        &format!("{}_0", method.name.to_lowercase()),
-                      )
-                    }
-                  ),
-                }),
-            );
+                }
+                DocNodeKindWithDrilldown::Other(_) => unreachable!(),
+              };
 
-            subitems.extend(
-              type_literal
-                .properties
-                .iter()
-                .filter(|property| !property.name.starts_with('['))
-                .map(|property| NamespaceNodeSubItemCtx {
-                  title: property.name.to_string(),
-                  href: format!(
-                    "{href}#{}",
-                    name_to_id("property", &property.name.to_lowercase())
-                  ),
-                }),
-            );
-          }
-        }
-        DocNodeDef::TypeAlias { type_alias_def } => {
-          if let Some(type_literal) =
-            type_alias_def.ts_type.type_literal.as_ref()
-          {
-            subitems.extend(
-              type_literal
-                .methods
-                .iter()
-                .filter(|method| !method.name.starts_with('['))
-                .map(|method| NamespaceNodeSubItemCtx {
-                  title: method.name.to_string(),
-                  href: format!(
-                    "{href}#{}",
-                    if matches!(
-                      method.kind,
-                      MethodKind::Getter | MethodKind::Setter
-                    ) {
-                      name_to_id("accessor", &method.name.to_lowercase())
-                    } else {
-                      name_to_id(
-                        "method",
-                        &format!("{}_0", method.name.to_lowercase()),
-                      )
-                    }
-                  ),
-                }),
-            );
-
-            subitems.extend(
-              type_literal
-                .properties
-                .iter()
-                .filter(|property| !property.name.starts_with('['))
-                .map(|property| NamespaceNodeSubItemCtx {
-                  title: property.name.to_string(),
-                  href: format!(
-                    "{href}#{}",
-                    name_to_id("property", &property.name.to_lowercase())
-                  ),
-                }),
-            );
-          }
-        }
-        DocNodeDef::Function { .. } => {}
-        DocNodeDef::Enum { .. } => {}
-        DocNodeDef::Namespace { .. } => {}
-        DocNodeDef::Import { .. } => {}
-        DocNodeDef::ModuleDoc => {}
-      };
+              NamespaceNodeSubItemCtx {
+                title: symbol.original_name.as_ref().unwrap().to_string(),
+                href: format!("{href}#{id}"),
+              }
+            }),
+        );
+      }
     }
 
     subitems.sort();

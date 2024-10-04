@@ -364,10 +364,10 @@ impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
   fn from(kind: DocNodeKindWithDrilldown) -> Self {
     let (char, kind, title, title_lowercase, title_plural) = match kind {
       DocNodeKindWithDrilldown::Property => {
-        (' ', "Property", "Property", "property", "Properties")
+        ('p', "Property", "Property", "property", "Properties")
       }
-      DocNodeKindWithDrilldown::Method => {
-        (' ', "Method", "Method", "method", "Methods")
+      DocNodeKindWithDrilldown::Method(_) => {
+        ('m', "Method", "Method", "method", "Methods")
       }
       DocNodeKindWithDrilldown::Other(DocNodeKind::Function) => {
         ('f', "Function", "Function", "function", "Functions")

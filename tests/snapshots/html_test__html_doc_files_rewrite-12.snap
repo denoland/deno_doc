@@ -40,7 +40,7 @@ expression: "files.get(\"./~/Foobar.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="content"><main class="symbolGroup" id="symbol_Foobar"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foobar"><article>
       <div>
         <div>
           <div class="text-2xl leading-none break-all">
@@ -98,7 +98,7 @@ See</h2></div><ul class="see"><li><div class="markdown"><p><a href="https://exam
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
           <h3>Document Navigation</h3><ul><li><a href="#see" title="See">See</a></li></ul></nav></div>
-  </div><div id="searchResults"></div></div>
+  </div></div>
 </div>
 </div>
 </body>

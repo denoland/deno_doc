@@ -1,8 +1,8 @@
+use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use crate::js_doc::JsDocTag;
 use crate::node::Location;
-use crate::DocNodeKind;
 use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use serde_json::json;
@@ -10,7 +10,7 @@ use serde_json::json;
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchIndexNode {
-  kind: Vec<DocNodeKind>,
+  kind: Vec<DocNodeKindCtx>,
   name: Box<str>,
   file: Box<str>,
   doc: Box<str>,
@@ -25,8 +25,11 @@ fn doc_nodes_into_search_index_node(
   ctx: &GenerateCtx,
   doc_nodes: Vec<DocNodeWithContext>,
   name: String,
-) -> SearchIndexNode {
-  let kinds = doc_nodes.iter().map(|node| node.kind()).collect();
+) -> Vec<SearchIndexNode> {
+  let kinds = doc_nodes
+    .iter()
+    .map(|node| node.kind_with_drilldown.into())
+    .collect();
   let deprecated =
     super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
@@ -65,7 +68,7 @@ fn doc_nodes_into_search_index_node(
     })
     .unwrap_or_default();
 
-  SearchIndexNode {
+  let mut out = vec![SearchIndexNode {
     kind: kinds,
     name: html_escape::encode_text(&name).into(),
     file: html_escape::encode_double_quoted_attribute(
@@ -78,7 +81,21 @@ fn doc_nodes_into_search_index_node(
     category,
     declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
-  }
+  }];
+
+  out.extend(
+    doc_nodes
+      .iter()
+      .filter_map(|node| node.get_drilldown_symbols())
+      .flatten()
+      .flat_map(|drilldown_node| {
+        let name = drilldown_node.get_qualified_name();
+
+        doc_nodes_into_search_index_node(ctx, vec![drilldown_node], name)
+      }),
+  );
+
+  out
 }
 
 pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
@@ -92,7 +109,9 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
 
   let mut doc_nodes = partitions
     .into_iter()
-    .map(|(name, nodes)| doc_nodes_into_search_index_node(ctx, nodes, name))
+    .flat_map(|(name, nodes)| {
+      doc_nodes_into_search_index_node(ctx, nodes, name)
+    })
     .collect::<Vec<_>>();
 
   doc_nodes.sort_by(|a, b| a.file.cmp(&b.file));
