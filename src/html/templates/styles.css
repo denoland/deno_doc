@@ -110,7 +110,7 @@ a {
     }
 
     .namespaceItemContent {
-      a {
+      > a, .namespaceItemContentSubItems a {
         @apply underline decoration-stone-300;
 
         &:hover {
@@ -373,6 +373,12 @@ a {
   @apply ml-1 pl-2.5 border-l-2 border-stone-300/40;
 }
 
+.markdown_summary, .markdown {
+  a:not(.no_color) {
+    @apply link;
+  }
+}
+
 .markdown_summary {
   @apply inline text-stone-600;
 
@@ -388,10 +394,6 @@ a {
 .markdown {
   @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm
     md:max-w-screen-md lg:max-w-[75ch];
-
-  a:not(.no_color) {
-    @apply link;
-  }
 
   h1 {
     @apply text-xl md:text-2xl lg:text-3xl border-b border-stone-300 pb-1;

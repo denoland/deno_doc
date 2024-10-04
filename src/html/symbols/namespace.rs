@@ -8,13 +8,14 @@ use indexmap::IndexSet;
 use serde::Serialize;
 use std::cmp::Ordering;
 
-pub fn render_namespace(
-  ctx: &RenderContext,
-  partitions: impl Iterator<Item = (SectionHeaderCtx, Vec<DocNodeWithContext>)>,
+pub fn render_namespace<'a>(
+  partitions: impl Iterator<
+    Item = (RenderContext<'a>, SectionHeaderCtx, Vec<DocNodeWithContext>),
+  >,
 ) -> Vec<SectionCtx> {
   partitions
-    .map(|(header, doc_nodes)| {
-      get_namespace_section_render_ctx(ctx, header, doc_nodes)
+    .map(|(ctx, header, doc_nodes)| {
+      get_namespace_section_render_ctx(&ctx, header, doc_nodes)
     })
     .collect()
 }

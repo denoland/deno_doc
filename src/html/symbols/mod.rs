@@ -326,10 +326,12 @@ impl SymbolInnerCtx {
           let partitions =
             super::partition::partition_nodes_by_kind(&namespace_nodes, false);
 
-          namespace::render_namespace(
-            &ctx.with_namespace(ns_qualifiers),
-            partitions.into_iter().map(|(title, nodes)| {
+          let ctx = ctx.with_namespace(ns_qualifiers);
+
+          namespace::render_namespace(partitions.into_iter().map(
+            |(title, nodes)| {
               (
+                ctx.clone(),
                 crate::html::util::SectionHeaderCtx {
                   title: title.clone(),
                   anchor: AnchorCtx { id: title },
@@ -338,8 +340,8 @@ impl SymbolInnerCtx {
                 },
                 nodes,
               )
-            }),
-          )
+            },
+          ))
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       });

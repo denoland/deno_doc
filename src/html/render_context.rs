@@ -99,31 +99,37 @@ impl<'ctx> RenderContext<'ctx> {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);
 
-        if self.scoped_symbols.contains(&current_parts) {
-          return Some(self.ctx.resolve_path(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: self.get_current_resolve().get_file().unwrap(),
-              symbol: &current_parts.join("."),
-            },
-          ));
+        if let Some(origin) = self.scoped_symbols.get(&current_parts) {
+          return Some(
+            self.ctx.resolve_path(
+              self.get_current_resolve(),
+              UrlResolveKind::Symbol {
+                file: self
+                  .get_current_resolve()
+                  .get_file()
+                  .or_else(|| origin.as_ref().map(|origin| &**origin))
+                  .unwrap(),
+                symbol: &current_parts.join("."),
+              },
+            ),
+          );
         }
 
         parts.pop();
       }
     }
 
-    if self.scoped_symbols.contains(&target_symbol_parts) {
+    if let Some(origin) = self.scoped_symbols.get(&target_symbol_parts) {
       return Some(
         self.ctx.resolve_path(
           self.get_current_resolve(),
           UrlResolveKind::Symbol {
-            file: &self
+            file: self
               .get_current_resolve()
               .get_file()
-              .cloned()
+              .or_else(|| origin.as_ref().map(|origin| &**origin))
               .unwrap_or_else(|| {
-                (**self.ctx.main_entrypoint.as_ref().unwrap()).clone()
+                &(**self.ctx.main_entrypoint.as_ref().unwrap())
               }),
             symbol: target_symbol,
           },
