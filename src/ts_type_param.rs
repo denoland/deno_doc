@@ -55,7 +55,7 @@ impl TsTypeParamDef {
   }
 }
 
-pub fn maybe_type_param_decl_to_type_param_defs(
+pub(crate) fn maybe_type_param_decl_to_type_param_defs(
   parsed_source: &ParsedSource,
   maybe_type_param_decl: Option<&TsTypeParamDecl>,
 ) -> Box<[TsTypeParamDef]> {
