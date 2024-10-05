@@ -352,10 +352,9 @@ impl GenerateCtx {
             DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
-              drilldown_parent_kind: None,
               kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind()),
               inner: Rc::new(node),
-              original_name: None,
+              drilldown_name: None,
               parent: None,
             }
           })
@@ -576,10 +575,9 @@ impl Ord for DocNodeKindWithDrilldown {
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<[String]>,
-  pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Rc<DocNode>,
-  pub original_name: Option<Box<str>>,
+  pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
 }
 
@@ -588,10 +586,9 @@ impl DocNodeWithContext {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
-      drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind()),
       inner: doc_node,
-      original_name: None,
+      drilldown_name: None,
       parent: Some(Box::new(self.clone())),
     }
   }
@@ -618,7 +615,6 @@ impl DocNodeWithContext {
     method_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(method_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind());
     new_node.kind_with_drilldown =
       DocNodeKindWithDrilldown::Method(method_kind);
     new_node
@@ -639,8 +635,7 @@ impl DocNodeWithContext {
     property_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(property_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind());
-    new_node.original_name = Some(original_name);
+    new_node.drilldown_name = Some(original_name);
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
     new_node
   }

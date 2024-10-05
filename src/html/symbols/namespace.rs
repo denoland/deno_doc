@@ -127,26 +127,26 @@ impl NamespaceNodeCtx {
           drilldown_symbols
             .into_iter()
             .filter(|symbol| {
-              !symbol.original_name.as_ref().unwrap().starts_with('[')
+              !symbol.drilldown_name.as_ref().unwrap().starts_with('[')
             })
             .map(|symbol| {
               let id = match symbol.kind_with_drilldown {
                 DocNodeKindWithDrilldown::Property => name_to_id(
                   "property",
-                  &symbol.original_name.as_ref().unwrap().to_lowercase(),
+                  &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
                 ),
                 DocNodeKindWithDrilldown::Method(kind) => {
                   if matches!(kind, MethodKind::Getter | MethodKind::Setter) {
                     name_to_id(
                       "accessor",
-                      &symbol.original_name.as_ref().unwrap().to_lowercase(),
+                      &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
                     )
                   } else {
                     name_to_id(
                       "method",
                       &format!(
                         "{}_0",
-                        symbol.original_name.as_ref().unwrap().to_lowercase()
+                        symbol.drilldown_name.as_ref().unwrap().to_lowercase()
                       ),
                     )
                   }
@@ -155,7 +155,7 @@ impl NamespaceNodeCtx {
               };
 
               NamespaceNodeSubItemCtx {
-                title: symbol.original_name.as_ref().unwrap().to_string(),
+                title: symbol.drilldown_name.as_ref().unwrap().to_string(),
                 href: format!("{href}#{id}"),
               }
             }),

@@ -52,10 +52,7 @@ pub fn usage_to_md(
         parts.clone().next().unwrap().into()
       };
 
-      let usage_symbol = if doc_nodes
-        .iter()
-        .all(|node| node.drilldown_parent_kind.is_some())
-      {
+      let usage_symbol = if doc_nodes.iter().all(|node| node.parent.is_some()) {
         None
       } else {
         let last = parts.next_back();
@@ -89,7 +86,10 @@ pub fn usage_to_md(
 
       let is_type = doc_nodes.iter().all(|doc_node| {
         matches!(
-          doc_node.drilldown_parent_kind.unwrap_or(doc_node.kind()),
+          doc_node
+            .parent
+            .as_ref()
+            .map_or_else(|| doc_node.kind(), |parent| parent.kind()),
           DocNodeKind::TypeAlias | DocNodeKind::Interface
         )
       });
