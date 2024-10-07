@@ -331,9 +331,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 76,
+        "line": 79,
         "col": 0,
-        "byteIndex": 1257
+        "byteIndex": 1286
       },
       "url": "././~/d.html",
       "category": "",

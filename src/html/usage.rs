@@ -42,9 +42,14 @@ pub fn usage_to_md(
       let is_default = top_node.is_default.is_some_and(|is_default| is_default)
         || &*top_node.name == "default";
 
-      let import_symbol = if is_default {
+      let import_symbol: Box<str> = if is_default {
         if top_node.is_default.is_some_and(|is_default| is_default) {
-          top_node.name.clone()
+          let default_name = top_node.get_name();
+          if default_name == "default" {
+            get_identifier_for_file(ctx).into()
+          } else {
+            default_name.into()
+          }
         } else {
           "module".into()
         }
@@ -118,38 +123,43 @@ pub fn usage_to_md(
 
       usage_statement
     } else {
-      let maybe_idenfitier =
-        if let Some(file) = ctx.get_current_resolve().get_file() {
-          ctx
-            .ctx
-            .doc_nodes
-            .get(file)
-            .and_then(|nodes| {
-              nodes
-                .iter()
-                .find(|node| node.kind() == DocNodeKind::ModuleDoc)
-            })
-            .and_then(|node| {
-              node.js_doc.tags.iter().find_map(|tag| {
-                if let JsDocTag::Module { name } = tag {
-                  name.as_ref().map(|name| name.to_string())
-                } else {
-                  None
-                }
-              })
-            })
-        } else {
-          ctx.ctx.package_name.clone()
-        };
-      let module_import_symbol = maybe_idenfitier.as_ref().map_or_else(
-        || "mod".into(),
-        |identifier| IDENTIFIER_RE.replace_all(identifier, "_"),
-      );
+      let module_import_symbol = get_identifier_for_file(ctx);
 
       format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
 
   format!("```typescript\n{usage}\n```")
+}
+
+fn get_identifier_for_file(ctx: &RenderContext) -> String {
+  let maybe_idenfitier =
+    if let Some(file) = ctx.get_current_resolve().get_file() {
+      ctx
+        .ctx
+        .doc_nodes
+        .get(file)
+        .and_then(|nodes| {
+          nodes
+            .iter()
+            .find(|node| node.kind() == DocNodeKind::ModuleDoc)
+        })
+        .and_then(|node| {
+          node.js_doc.tags.iter().find_map(|tag| {
+            if let JsDocTag::Module { name } = tag {
+              name.as_ref().map(|name| name.to_string())
+            } else {
+              None
+            }
+          })
+        })
+    } else {
+      ctx.ctx.package_name.clone()
+    };
+
+  maybe_idenfitier.as_ref().map_or_else(
+    || "mod".to_string(),
+    |identifier| IDENTIFIER_RE.replace_all(identifier, "_").to_string(),
+  )
 }
 
 #[derive(Clone, Debug, Serialize)]
