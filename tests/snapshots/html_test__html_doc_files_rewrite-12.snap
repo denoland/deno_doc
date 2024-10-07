@@ -88,8 +88,8 @@ See</h2></div><ul class="see"><li><div class="markdown"><p><a href="https://exam
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code>import default from ".";
-</code><button class="context_button" data-copy="import default from &quot;.&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code>import Foobar from ".";
+</code><button class="context_button" data-copy="import Foobar from &quot;.&quot;;
 "><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"></rect>
 <rect x="6" y="6" width="7" height="7" fill="none"></rect>
