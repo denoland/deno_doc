@@ -17,7 +17,6 @@ use regex::Regex;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::rc::Rc;
 
 lazy_static! {
@@ -39,7 +38,9 @@ pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
 /// ["Deno", "errors"]
 /// ["Deno", "errors", "HttpError"]
 #[derive(Clone, Debug)]
-pub(crate) struct NamespacedSymbols(Rc<HashSet<Vec<String>>>);
+pub(crate) struct NamespacedSymbols(
+  Rc<HashMap<Vec<String>, Option<Rc<ShortPath>>>>,
+);
 
 impl NamespacedSymbols {
   pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
@@ -47,15 +48,16 @@ impl NamespacedSymbols {
     Self(Rc::new(symbols))
   }
 
-  pub(crate) fn contains(&self, path: &[String]) -> bool {
-    self.0.contains(path)
+  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Rc<ShortPath>>> {
+    self.0.get(path)
   }
 }
 
 pub fn compute_namespaced_symbols(
   doc_nodes: &[DocNodeWithContext],
-) -> HashSet<Vec<String>> {
-  let mut namespaced_symbols = HashSet::<Vec<String>>::new();
+) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
+  let mut namespaced_symbols =
+    HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
 
   for doc_node in doc_nodes {
     if doc_node.kind() == DocNodeKind::ModuleDoc
@@ -80,7 +82,7 @@ pub fn compute_namespaced_symbols(
             .split('.')
             .map(|part| part.to_string()),
           );
-          method_path
+          (method_path, Some(doc_node.origin.clone()))
         }));
 
         namespaced_symbols.extend(class_def.properties.iter().map(
@@ -95,7 +97,7 @@ pub fn compute_namespaced_symbols(
               .split('.')
               .map(|part| part.to_string()),
             );
-            method_path
+            (method_path, Some(doc_node.origin.clone()))
           },
         ));
       }
@@ -107,7 +109,7 @@ pub fn compute_namespaced_symbols(
               .split('.')
               .map(|part| part.to_string()),
           );
-          method_path
+          (method_path, Some(doc_node.origin.clone()))
         }));
 
         namespaced_symbols.extend(interface_def.properties.iter().map(
@@ -118,7 +120,7 @@ pub fn compute_namespaced_symbols(
                 .split('.')
                 .map(|part| part.to_string()),
             );
-            method_path
+            (method_path, Some(doc_node.origin.clone()))
           },
         ));
       }
@@ -133,7 +135,7 @@ pub fn compute_namespaced_symbols(
                   .split('.')
                   .map(|part| part.to_string()),
               );
-              method_path
+              (method_path, Some(doc_node.origin.clone()))
             },
           ));
 
@@ -149,7 +151,7 @@ pub fn compute_namespaced_symbols(
                 .split('.')
                 .map(|part| part.to_string()),
               );
-              method_path
+              (method_path, Some(doc_node.origin.clone()))
             },
           ));
         }
@@ -168,7 +170,7 @@ pub fn compute_namespaced_symbols(
                   .split('.')
                   .map(|part| part.to_string()),
               );
-              method_path
+              (method_path, Some(doc_node.origin.clone()))
             },
           ));
 
@@ -184,7 +186,7 @@ pub fn compute_namespaced_symbols(
                 .split('.')
                 .map(|part| part.to_string()),
               );
-              method_path
+              (method_path, Some(doc_node.origin.clone()))
             },
           ));
         }
@@ -192,7 +194,8 @@ pub fn compute_namespaced_symbols(
       _ => {}
     }
 
-    namespaced_symbols.insert(name_path.to_vec());
+    namespaced_symbols
+      .insert(name_path.to_vec(), Some(doc_node.origin.clone()));
 
     if let DocNodeDef::Namespace { namespace_def } = &doc_node.def {
       namespaced_symbols.extend(compute_namespaced_symbols(

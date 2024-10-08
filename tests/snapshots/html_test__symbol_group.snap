@@ -406,7 +406,7 @@ expression: files
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": "<div class=\"markdown\"><p>some Foo docs</p>\n</div>",
+                "docs": "<div class=\"markdown\"><p>some Foo docs <a href=\"../././~/Bar.html\" rel=\"nofollow\"><code>Bar</code></a></p>\n</div>",
                 "sections": [
                   {
                     "header": {

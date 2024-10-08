@@ -24,8 +24,6 @@ pub(crate) fn render_type_alias(
 
   let id = name_to_id("typeAlias", name);
 
-  // TODO: tags
-
   let mut sections = vec![];
 
   if let Some(type_params) = crate::html::types::render_type_params(

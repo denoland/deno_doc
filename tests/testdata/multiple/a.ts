@@ -20,7 +20,7 @@
  */
 
 /**
- * some Foo docs
+ * some Foo docs {@linkcode Bar}
  */
 export class Foo {
   static bar: "string";

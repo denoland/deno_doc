@@ -45,7 +45,7 @@ expression: "files.get(\"./~/Foo.html\").unwrap()"
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-Class">class</span>&nbsp;<span class="font-bold">Foo</span>
-          </div><div class="symbolSubtitle"></div></div></div><div><div class="space-y-7" id=""><div class="markdown"><p>some Foo docs</p>
+          </div><div class="symbolSubtitle"></div></div></div><div><div class="space-y-7" id=""><div class="markdown"><p>some Foo docs <a href="../././~/Bar.html" rel="nofollow"><code>Bar</code></a></p>
 </div><section class="section" id="properties">
   <div>
 	  <h2 class="anchorable mb-1"><a href="#properties" class="anchor" aria-label="Anchor" tabIndex="-1"><svg

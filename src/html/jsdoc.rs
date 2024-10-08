@@ -701,9 +701,9 @@ impl ModuleDocCtx {
         super::partition::partition_nodes_by_kind(module_doc_nodes, true);
 
       sections.extend(super::namespace::render_namespace(
-        render_ctx,
         partitions_by_kind.into_iter().map(|(title, nodes)| {
           (
+            render_ctx.clone(),
             SectionHeaderCtx {
               title: title.clone(),
               anchor: AnchorCtx { id: title },

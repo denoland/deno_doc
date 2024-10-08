@@ -11,8 +11,6 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 
-// TODO: overrides
-
 pub(crate) fn render_class(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,

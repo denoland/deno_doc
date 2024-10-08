@@ -367,13 +367,13 @@ impl IndexCtx {
       RenderContext::new(ctx, all_doc_nodes, UrlResolveKind::Category(name));
 
     let sections = super::namespace::render_namespace(
-      &render_ctx,
       partitions.into_iter().map(|(title, nodes)| {
         let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
           category_docs.get(&title).cloned().flatten()
         });
 
         (
+          render_ctx.clone(),
           SectionHeaderCtx {
             anchor: AnchorCtx { id: title.clone() },
             title,
@@ -440,16 +440,15 @@ impl AllSymbolsCtx {
     ctx: &GenerateCtx,
     partitions: partition::Partitions<Rc<ShortPath>>,
   ) -> Self {
-    // TODO(@crowlKats): handle doc_nodes in all symbols page for each symbol
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
 
     let sections = super::namespace::render_namespace(
-      &render_ctx,
       partitions.into_iter().map(|(path, nodes)| {
-        (
-          SectionHeaderCtx::new_for_namespace(&render_ctx, &path),
-          nodes,
-        )
+        let render_ctx =
+          RenderContext::new(ctx, &nodes, UrlResolveKind::AllSymbols);
+        let header = SectionHeaderCtx::new_for_namespace(&render_ctx, &path);
+
+        (render_ctx, header, nodes)
       }),
     );
 

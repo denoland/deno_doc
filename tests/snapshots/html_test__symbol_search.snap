@@ -21,7 +21,7 @@ expression: search_index
         "filename": "default",
         "line": 62,
         "col": 0,
-        "byteIndex": 1037
+        "byteIndex": 1053
       },
       "url": "././~/A.html",
       "category": "",
@@ -45,7 +45,7 @@ expression: search_index
         "filename": "default",
         "line": 65,
         "col": 0,
-        "byteIndex": 1066
+        "byteIndex": 1082
       },
       "url": "././~/B.html",
       "category": "",
@@ -69,7 +69,7 @@ expression: search_index
         "filename": "default",
         "line": 38,
         "col": 0,
-        "byteIndex": 711
+        "byteIndex": 727
       },
       "url": "././~/Bar.html",
       "category": "",
@@ -93,7 +93,7 @@ expression: search_index
         "filename": "default",
         "line": 58,
         "col": 0,
-        "byteIndex": 998
+        "byteIndex": 1014
       },
       "url": "././~/Baz.html",
       "category": "",
@@ -117,7 +117,7 @@ expression: search_index
         "filename": "default",
         "line": 59,
         "col": 2,
-        "byteIndex": 1020
+        "byteIndex": 1036
       },
       "url": "././~/Baz.foo.html",
       "category": "",
@@ -136,12 +136,12 @@ expression: search_index
       ],
       "name": "Foo",
       "file": ".",
-      "doc": "some Foo docs",
+      "doc": "some Foo docs {@linkcode Bar}",
       "location": {
         "filename": "default",
         "line": 25,
         "col": 0,
-        "byteIndex": 488
+        "byteIndex": 504
       },
       "url": "././~/Foo.html",
       "category": "",
@@ -165,7 +165,7 @@ expression: search_index
         "filename": "default",
         "line": 26,
         "col": 2,
-        "byteIndex": 509
+        "byteIndex": 525
       },
       "url": "././~/Foo.bar.html",
       "category": "",
@@ -189,7 +189,7 @@ expression: search_index
         "filename": "default",
         "line": 27,
         "col": 2,
-        "byteIndex": 533
+        "byteIndex": 549
       },
       "url": "././~/Foo.prototype.foo.html",
       "category": "",
@@ -213,7 +213,7 @@ expression: search_index
         "filename": "default",
         "line": 28,
         "col": 2,
-        "byteIndex": 547
+        "byteIndex": 563
       },
       "url": "././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
       "category": "",
@@ -237,7 +237,7 @@ expression: search_index
         "filename": "default",
         "line": 51,
         "col": 0,
-        "byteIndex": 918
+        "byteIndex": 934
       },
       "url": "././~/Foobar.html",
       "category": "",
@@ -261,7 +261,7 @@ expression: search_index
         "filename": "default",
         "line": 54,
         "col": 0,
-        "byteIndex": 951
+        "byteIndex": 967
       },
       "url": "././~/Hello.html",
       "category": "",
@@ -285,7 +285,7 @@ expression: search_index
         "filename": "default",
         "line": 55,
         "col": 2,
-        "byteIndex": 978
+        "byteIndex": 994
       },
       "url": "././~/Hello.world.html",
       "category": "",
@@ -309,7 +309,7 @@ expression: search_index
         "filename": "default",
         "line": 74,
         "col": 13,
-        "byteIndex": 1229
+        "byteIndex": 1245
       },
       "url": "././~/c.html",
       "category": "",
@@ -333,7 +333,7 @@ expression: search_index
         "filename": "default",
         "line": 79,
         "col": 0,
-        "byteIndex": 1286
+        "byteIndex": 1302
       },
       "url": "././~/d.html",
       "category": "",
@@ -371,7 +371,7 @@ expression: search_index
         "filename": "default",
         "line": 70,
         "col": 0,
-        "byteIndex": 1108
+        "byteIndex": 1124
       },
       "url": "././~/qaz.html",
       "category": "",
