@@ -18,8 +18,7 @@ pub mod partition;
 mod render_context;
 mod search;
 mod symbols;
-#[cfg(feature = "tree-sitter")]
-mod tree_sitter;
+pub mod tree_sitter;
 mod types;
 mod usage;
 pub mod util;
@@ -793,14 +792,6 @@ pub fn setup_highlighter(
   show_line_numbers: bool,
 ) -> comrak_adapters::HighlightAdapter {
   comrak_adapters::HighlightAdapter {
-    #[cfg(feature = "syntect")]
-    syntax_set: syntect::dumps::from_uncompressed_data(include_bytes!(
-      "./default_newlines.packdump"
-    ))
-    .unwrap(),
-    #[cfg(feature = "syntect")]
-    theme_set: syntect::highlighting::ThemeSet::load_defaults(),
-    #[cfg(feature = "tree-sitter")]
     language_cb: tree_sitter::tree_sitter_language_cb,
     show_line_numbers,
   }

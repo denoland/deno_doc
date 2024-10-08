@@ -26,8 +26,10 @@ lazy_static! {
     regex::Regex::new(r"(^\.{0,2}\/)|(^[A-Za-z]+:\S)").unwrap();
   static ref MODULE_LINK_RE: regex::Regex =
     regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
+}
 
-  #[cfg(feature = "ammonia")]
+#[cfg(feature = "ammonia")]
+lazy_static! {
   static ref AMMONIA: ammonia::Builder<'static> = {
     let mut ammonia_builder = ammonia::Builder::default();
 
@@ -78,19 +80,17 @@ lazy_static! {
         ],
       )
       .link_rel(Some("nofollow"))
-      .url_relative(
-      ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator())));
+      .url_relative(ammonia::UrlRelative::Custom(Box::new(
+        AmmoniaRelativeUrlEvaluator(),
+      )));
 
-    #[cfg(feature = "syntect")]
-    ammonia_builder.add_tag_attributes("span", ["style"]);
-
-    #[cfg(feature = "tree-sitter")]
     ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
 
     ammonia_builder
   };
 }
 
+#[cfg(feature = "ammonia")]
 thread_local! {
   static CURRENT_FILE: RefCell<Option<Option<ShortPath>>> = const { RefCell::new(None) };
   static URL_REWRITER: RefCell<Option<Option<URLRewriter>>> = const { RefCell::new(None) };
