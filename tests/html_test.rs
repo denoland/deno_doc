@@ -182,7 +182,6 @@ async fn html_doc_files() {
     ]
   );
 
-  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -272,7 +271,6 @@ async fn html_doc_files_rewrite() {
     ]
   );
 
-  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -386,7 +384,6 @@ async fn symbol_group() {
     }
   }
 
-  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
   insta::assert_json_snapshot!(files);
 }
 
@@ -485,6 +482,5 @@ async fn module_doc() {
     module_docs.push(module_doc);
   }
 
-  #[cfg(all(not(feature = "syntect"), not(feature = "tree-sitter")))]
-  insta::assert_json_snapshot!(module_docs); // no syntax
+  insta::assert_json_snapshot!(module_docs);
 }

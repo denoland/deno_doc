@@ -91,7 +91,7 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">Foo</a>
 
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <a href="./././~/Bar.html" rel="nofollow"><code>Bar</code></a></p>
+	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <a href="./././~/Bar.html"><code>Bar</code></a></p>
 </div></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&amp;quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">bar</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_foo">foo</a></li></ul></div>
     </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">

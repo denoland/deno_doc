@@ -66,19 +66,9 @@ jobs:
       - name: Build (Rust)
         run: cargo build --locked --all-targets
 
-      - name: Test (no highlighter)
+      - name: Test
         run: |
           cargo test --locked --all-targets
-          deno test --allow-read --allow-net --allow-env --allow-write
-
-      - name: Test (syntect)
-        run: |
-          cargo test --locked --all-targets --features=syntect
-          deno test --allow-read --allow-net --allow-env --allow-write
-
-      - name: Test (tree-sitter)
-        run: |
-          cargo test --locked --all-targets --features=tree-sitter
           deno test --allow-read --allow-net --allow-env --allow-write
 
       - name: Publish
