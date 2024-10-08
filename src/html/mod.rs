@@ -1,3 +1,6 @@
+use crate::node::DocNodeDef;
+use crate::DocNode;
+use deno_ast::swc::ast::MethodKind;
 use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
@@ -6,9 +9,6 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
-
-use crate::node::DocNodeDef;
-use crate::DocNode;
 
 pub mod comrak_adapters;
 pub mod jsdoc;
@@ -352,9 +352,9 @@ impl GenerateCtx {
             DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
-              drilldown_parent_kind: None,
               kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind()),
               inner: Rc::new(node),
+              drilldown_name: None,
               parent: None,
             }
           })
@@ -512,11 +512,60 @@ impl PartialOrd for ShortPath {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum DocNodeKindWithDrilldown {
   Property,
-  Method,
+  Method(MethodKind),
   Other(crate::DocNodeKind),
+}
+
+impl PartialOrd for DocNodeKindWithDrilldown {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
+impl Ord for DocNodeKindWithDrilldown {
+  fn cmp(&self, other: &Self) -> Ordering {
+    match (self, other) {
+      (
+        DocNodeKindWithDrilldown::Other(other1),
+        DocNodeKindWithDrilldown::Other(other2),
+      ) => other1.cmp(other2),
+      (
+        DocNodeKindWithDrilldown::Property,
+        DocNodeKindWithDrilldown::Other(_),
+      ) => Ordering::Less,
+      (
+        DocNodeKindWithDrilldown::Property,
+        DocNodeKindWithDrilldown::Method(_),
+      ) => Ordering::Less,
+      (
+        DocNodeKindWithDrilldown::Property,
+        DocNodeKindWithDrilldown::Property,
+      ) => Ordering::Equal,
+      (
+        DocNodeKindWithDrilldown::Method(_),
+        DocNodeKindWithDrilldown::Other(_),
+      ) => Ordering::Less,
+      (
+        DocNodeKindWithDrilldown::Method(_),
+        DocNodeKindWithDrilldown::Method(_),
+      ) => Ordering::Equal,
+      (
+        DocNodeKindWithDrilldown::Method(_),
+        DocNodeKindWithDrilldown::Property,
+      ) => Ordering::Greater,
+      (
+        DocNodeKindWithDrilldown::Other(_),
+        DocNodeKindWithDrilldown::Property,
+      ) => Ordering::Greater,
+      (
+        DocNodeKindWithDrilldown::Other(_),
+        DocNodeKindWithDrilldown::Method(_),
+      ) => Ordering::Greater,
+    }
+  }
 }
 
 /// A wrapper around [`DocNode`] with additional fields to track information
@@ -526,9 +575,9 @@ pub enum DocNodeKindWithDrilldown {
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<[String]>,
-  pub drilldown_parent_kind: Option<crate::DocNodeKind>,
   pub kind_with_drilldown: DocNodeKindWithDrilldown,
   pub inner: Rc<DocNode>,
+  pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
 }
 
@@ -537,9 +586,9 @@ impl DocNodeWithContext {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
-      drilldown_parent_kind: None,
       kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind()),
       inner: doc_node,
+      drilldown_name: None,
       parent: Some(Box::new(self.clone())),
     }
   }
@@ -558,6 +607,7 @@ impl DocNodeWithContext {
     &self,
     mut method_doc_node: DocNode,
     is_static: bool,
+    method_kind: MethodKind,
   ) -> Self {
     method_doc_node.name =
       qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static)
@@ -565,8 +615,8 @@ impl DocNodeWithContext {
     method_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(method_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind());
-    new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Method;
+    new_node.kind_with_drilldown =
+      DocNodeKindWithDrilldown::Method(method_kind);
     new_node
   }
 
@@ -575,6 +625,7 @@ impl DocNodeWithContext {
     mut property_doc_node: DocNode,
     is_static: bool,
   ) -> Self {
+    let original_name = property_doc_node.name.clone();
     property_doc_node.name = qualify_drilldown_name(
       self.get_name(),
       &property_doc_node.name,
@@ -584,7 +635,7 @@ impl DocNodeWithContext {
     property_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(property_doc_node));
-    new_node.drilldown_parent_kind = Some(self.kind());
+    new_node.drilldown_name = Some(original_name);
     new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
     new_node
   }
@@ -616,6 +667,116 @@ impl DocNodeWithContext {
     match &self.parent {
       Some(parent_node) => parent_node.get_topmost_ancestor(),
       None => self,
+    }
+  }
+
+  fn get_drilldown_symbols(&self) -> Option<Vec<DocNodeWithContext>> {
+    match &self.inner.def {
+      DocNodeDef::Class { class_def } => {
+        let mut drilldown = Vec::with_capacity(
+          class_def.methods.len() + class_def.properties.len(),
+        );
+
+        drilldown.extend(class_def.methods.iter().map(|method| {
+          self.create_child_method(
+            DocNode::function(
+              method.name.clone(),
+              false,
+              method.location.clone(),
+              self.declaration_kind,
+              method.js_doc.clone(),
+              method.function_def.clone(),
+            ),
+            method.is_static,
+            method.kind,
+          )
+        }));
+
+        drilldown.extend(class_def.properties.iter().map(|property| {
+          self.create_child_property(
+            DocNode::from(property.clone()),
+            property.is_static,
+          )
+        }));
+
+        Some(drilldown)
+      }
+      DocNodeDef::Interface { interface_def } => {
+        let mut drilldown = Vec::with_capacity(
+          interface_def.methods.len() + interface_def.properties.len(),
+        );
+
+        drilldown.extend(interface_def.methods.iter().map(|method| {
+          self.create_child_method(
+            DocNode::from(method.clone()),
+            true,
+            method.kind,
+          )
+        }));
+
+        drilldown.extend(interface_def.properties.iter().map(|property| {
+          self.create_child_property(DocNode::from(property.clone()), true)
+        }));
+
+        Some(drilldown)
+      }
+      DocNodeDef::TypeAlias { type_alias_def } => {
+        if let Some(ts_type_literal) =
+          type_alias_def.ts_type.type_literal.as_ref()
+        {
+          let mut drilldown = Vec::with_capacity(
+            ts_type_literal.methods.len() + ts_type_literal.properties.len(),
+          );
+
+          drilldown.extend(ts_type_literal.methods.iter().map(|method| {
+            self.create_child_method(
+              DocNode::from(method.clone()),
+              true,
+              method.kind,
+            )
+          }));
+
+          drilldown.extend(ts_type_literal.properties.iter().map(|property| {
+            self.create_child_property(DocNode::from(property.clone()), true)
+          }));
+
+          Some(drilldown)
+        } else {
+          None
+        }
+      }
+      DocNodeDef::Variable { variable_def } => {
+        if let Some(ts_type_literal) = variable_def
+          .ts_type
+          .as_ref()
+          .and_then(|ts_type| ts_type.type_literal.as_ref())
+        {
+          let mut drilldown = Vec::with_capacity(
+            ts_type_literal.methods.len() + ts_type_literal.properties.len(),
+          );
+
+          drilldown.extend(ts_type_literal.methods.iter().map(|method| {
+            self.create_child_method(
+              DocNode::from(method.clone()),
+              true,
+              method.kind,
+            )
+          }));
+
+          drilldown.extend(ts_type_literal.properties.iter().map(|property| {
+            self.create_child_property(DocNode::from(property.clone()), true)
+          }));
+
+          Some(drilldown)
+        } else {
+          None
+        }
+      }
+      DocNodeDef::Function { .. } => None,
+      DocNodeDef::Enum { .. } => None,
+      DocNodeDef::Namespace { .. } => None,
+      DocNodeDef::Import { .. } => None,
+      DocNodeDef::ModuleDoc => None,
     }
   }
 }

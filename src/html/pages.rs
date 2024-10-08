@@ -23,8 +23,6 @@ use super::STYLESHEET_FILENAME;
 
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
-use crate::DocNode;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
 use serde::Serialize;
@@ -502,163 +500,12 @@ pub fn generate_symbol_pages_for_module(
 
   let mut drilldown_partitions = IndexMap::new();
   for doc_nodes in name_partitions.values() {
-    let has_class = doc_nodes
-      .iter()
-      .any(|node| node.kind() == DocNodeKind::Class);
     for doc_node in doc_nodes {
-      match &doc_node.def {
-        DocNodeDef::Class { class_def } => {
-          let method_nodes = class_def
-            .methods
-            .iter()
-            .map(|method| {
-              doc_node.create_child_method(
-                DocNode::function(
-                  method.name.clone(),
-                  false,
-                  method.location.clone(),
-                  doc_node.declaration_kind,
-                  method.js_doc.clone(),
-                  method.function_def.clone(),
-                ),
-                method.is_static,
-              )
-            })
-            .collect::<Vec<_>>();
-
-          drilldown_partitions
-            .extend(partition::partition_nodes_by_name(&method_nodes, false));
-
-          let property_nodes = class_def
-            .properties
-            .iter()
-            .map(|property| {
-              doc_node.create_child_property(
-                DocNode::from(property.clone()),
-                property.is_static,
-              )
-            })
-            .collect::<Vec<_>>();
-
-          drilldown_partitions.extend(
-            super::partition::partition_nodes_by_name(&property_nodes, false),
-          );
-        }
-        DocNodeDef::Interface { interface_def } => {
-          let method_nodes = interface_def
-            .methods
-            .iter()
-            .filter_map(|method| {
-              if has_class && method.name == "prototype" {
-                None
-              } else {
-                Some(
-                  doc_node
-                    .create_child_method(DocNode::from(method.clone()), true),
-                )
-              }
-            })
-            .collect::<Vec<_>>();
-
-          drilldown_partitions
-            .extend(partition::partition_nodes_by_name(&method_nodes, false));
-
-          let property_nodes =
-            interface_def
-              .properties
-              .iter()
-              .filter_map(|property| {
-                if has_class && property.name == "prototype" {
-                  None
-                } else {
-                  Some(doc_node.create_child_property(
-                    DocNode::from(property.clone()),
-                    true,
-                  ))
-                }
-              })
-              .collect::<Vec<_>>();
-
-          drilldown_partitions
-            .extend(partition::partition_nodes_by_name(&property_nodes, false));
-        }
-        DocNodeDef::TypeAlias { type_alias_def } => {
-          if let Some(ts_type_literal) =
-            type_alias_def.ts_type.type_literal.as_ref()
-          {
-            let method_nodes = ts_type_literal
-              .methods
-              .iter()
-              .filter_map(|method| {
-                if has_class && method.name == "prototype" {
-                  None
-                } else {
-                  Some(
-                    doc_node
-                      .create_child_method(DocNode::from(method.clone()), true),
-                  )
-                }
-              })
-              .collect::<Vec<_>>();
-
-            drilldown_partitions
-              .extend(partition::partition_nodes_by_name(&method_nodes, false));
-
-            let property_nodes = ts_type_literal
-              .properties
-              .iter()
-              .filter_map(|property| {
-                if has_class && property.name == "prototype" {
-                  None
-                } else {
-                  Some(doc_node.create_child_property(
-                    DocNode::from(property.clone()),
-                    true,
-                  ))
-                }
-              })
-              .collect::<Vec<_>>();
-
-            drilldown_partitions.extend(partition::partition_nodes_by_name(
-              &property_nodes,
-              false,
-            ));
-          }
-        }
-        DocNodeDef::Variable { variable_def } => {
-          if let Some(ts_type_literal) = variable_def
-            .ts_type
-            .as_ref()
-            .and_then(|ts_type| ts_type.type_literal.as_ref())
-          {
-            let method_nodes = ts_type_literal
-              .methods
-              .iter()
-              .map(|method| {
-                doc_node
-                  .create_child_method(DocNode::from(method.clone()), true)
-              })
-              .collect::<Vec<_>>();
-
-            drilldown_partitions
-              .extend(partition::partition_nodes_by_name(&method_nodes, false));
-
-            let property_nodes = ts_type_literal
-              .properties
-              .iter()
-              .map(|property| {
-                doc_node
-                  .create_child_property(DocNode::from(property.clone()), true)
-              })
-              .collect::<Vec<_>>();
-
-            drilldown_partitions.extend(partition::partition_nodes_by_name(
-              &property_nodes,
-              false,
-            ));
-          }
-        }
-        _ => {}
+      if let Some(drilldown_symbols) = doc_node.get_drilldown_symbols() {
+        drilldown_partitions.extend(partition::partition_nodes_by_name(
+          &drilldown_symbols,
+          false,
+        ))
       }
     }
   }

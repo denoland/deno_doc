@@ -48,7 +48,7 @@ expression: "files.get(\"foo/~/x.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="content"><main class="symbolGroup" id="symbol_x"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_x"><article>
       <div>
         <div>
           <div class="text-2xl leading-none break-all">
@@ -178,7 +178,7 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
           <h3>Document Navigation</h3><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_x_0_parameters__n" title="_n">_n</a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li></ul></nav></div>
-  </div><div id="searchResults"></div></div>
+  </div></div>
 </div>
 </div>
 </body>

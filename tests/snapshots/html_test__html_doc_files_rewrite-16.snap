@@ -40,7 +40,7 @@ expression: "files.get(\"foo/index.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="content">
+<div id="searchResults"></div><div id="content">
     <main><section >
   <div class="space-y-2 flex-1 "><div class="space-y-7" id="module_doc"><section class="section" id="Functions">
   <div>
@@ -151,7 +151,7 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 </svg>
 </a></nav><nav class="documentNavigation">
           <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li><li><a href="#variables" title="Variables">Variables</a></li><li><ul><li><a href="#namespace_default" title="default">default</a></li></ul></li></ul></nav></div>
-  </div><div id="searchResults"></div></div>
+  </div></div>
 </div>
 </div>
 </body>

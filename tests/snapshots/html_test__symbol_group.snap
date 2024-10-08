@@ -1252,7 +1252,7 @@ expression: files
         {
           "kind": {
             "kind": "Property",
-            "char": " ",
+            "char": "p",
             "title": "Property",
             "title_lowercase": "property",
             "title_plural": "Properties"
@@ -1362,7 +1362,7 @@ expression: files
         {
           "kind": {
             "kind": "Property",
-            "char": " ",
+            "char": "p",
             "title": "Property",
             "title_lowercase": "property",
             "title_plural": "Properties"
@@ -1472,7 +1472,7 @@ expression: files
         {
           "kind": {
             "kind": "Property",
-            "char": " ",
+            "char": "p",
             "title": "Property",
             "title_lowercase": "property",
             "title_plural": "Properties"
@@ -1588,7 +1588,7 @@ expression: files
         {
           "kind": {
             "kind": "Property",
-            "char": " ",
+            "char": "p",
             "title": "Property",
             "title_lowercase": "property",
             "title_plural": "Properties"
@@ -1704,7 +1704,7 @@ expression: files
         {
           "kind": {
             "kind": "Property",
-            "char": " ",
+            "char": "p",
             "title": "Property",
             "title_lowercase": "property",
             "title_plural": "Properties"
