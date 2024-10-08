@@ -65,8 +65,9 @@ pub fn tree_sitter_language_javascript() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_javascript::language(),
+      "javascript",
       tree_sitter_javascript::HIGHLIGHT_QUERY,
-      tree_sitter_javascript::INJECTION_QUERY,
+      tree_sitter_javascript::INJECTIONS_QUERY,
       tree_sitter_javascript::LOCALS_QUERY,
     )
     .expect("failed to initialize tree_sitter_javascript highlighter");
@@ -80,13 +81,14 @@ pub fn tree_sitter_language_jsx() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_javascript::language(),
+      "jsx",
       format!(
         "{} {}",
         tree_sitter_javascript::HIGHLIGHT_QUERY,
         tree_sitter_javascript::JSX_HIGHLIGHT_QUERY
       )
       .leak(),
-      tree_sitter_javascript::INJECTION_QUERY,
+      tree_sitter_javascript::INJECTIONS_QUERY,
       tree_sitter_javascript::LOCALS_QUERY,
     )
     .expect("failed to initialize tree_sitter_javascript highlighter");
@@ -100,13 +102,14 @@ pub fn tree_sitter_language_typescript() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_typescript::language_typescript(),
+      "typescript",
       format!(
         "{} {}",
         tree_sitter_javascript::HIGHLIGHT_QUERY,
-        tree_sitter_typescript::HIGHLIGHT_QUERY
+        tree_sitter_typescript::HIGHLIGHTS_QUERY
       )
       .leak(),
-      tree_sitter_javascript::INJECTION_QUERY,
+      tree_sitter_javascript::INJECTIONS_QUERY,
       format!(
         "{} {}",
         tree_sitter_javascript::LOCALS_QUERY,
@@ -125,14 +128,15 @@ pub fn tree_sitter_language_tsx() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_typescript::language_tsx(),
+      "tsx",
       format!(
         "{} {} {}",
         tree_sitter_javascript::HIGHLIGHT_QUERY,
         tree_sitter_javascript::JSX_HIGHLIGHT_QUERY,
-        tree_sitter_typescript::HIGHLIGHT_QUERY,
+        tree_sitter_typescript::HIGHLIGHTS_QUERY,
       )
       .leak(),
-      tree_sitter_javascript::INJECTION_QUERY,
+      tree_sitter_javascript::INJECTIONS_QUERY,
       format!(
         "{} {}",
         tree_sitter_javascript::LOCALS_QUERY,
@@ -151,7 +155,8 @@ fn tree_sitter_language_json() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_json::language(),
-      tree_sitter_json::HIGHLIGHT_QUERY,
+      "json",
+      tree_sitter_json::HIGHLIGHTS_QUERY,
       "",
       "",
     )
@@ -166,6 +171,7 @@ fn tree_sitter_language_css() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_css::language(),
+      "css",
       tree_sitter_css::HIGHLIGHTS_QUERY,
       "",
       "",
@@ -181,6 +187,7 @@ fn tree_sitter_language_markdown() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_md::language(),
+      "markdown",
       tree_sitter_md::HIGHLIGHT_QUERY_BLOCK,
       tree_sitter_md::INJECTION_QUERY_BLOCK,
       "",
@@ -196,6 +203,7 @@ fn tree_sitter_language_xml() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_xml::language_xml(),
+      "xml",
       tree_sitter_xml::XML_HIGHLIGHT_QUERY,
       "",
       "",
@@ -211,6 +219,7 @@ fn tree_sitter_language_dtd() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_xml::language_dtd(),
+      "dtd",
       tree_sitter_xml::DTD_HIGHLIGHT_QUERY,
       "",
       "",
@@ -226,6 +235,7 @@ fn tree_sitter_language_regex() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_regex::language(),
+      "regex",
       tree_sitter_regex::HIGHLIGHTS_QUERY,
       "",
       "",
@@ -241,7 +251,8 @@ fn tree_sitter_language_rust() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_rust::language(),
-      tree_sitter_rust::HIGHLIGHT_QUERY,
+      "rust",
+      tree_sitter_rust::HIGHLIGHTS_QUERY,
       tree_sitter_rust::INJECTIONS_QUERY,
       "",
     )
@@ -256,6 +267,7 @@ fn tree_sitter_language_html() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_html::language(),
+      "html",
       tree_sitter_html::HIGHLIGHTS_QUERY,
       tree_sitter_html::INJECTIONS_QUERY,
       "",
@@ -271,6 +283,7 @@ fn tree_sitter_language_bash() -> &'static HighlightConfiguration {
   CONFIG.get_or_init(|| {
     let mut config = HighlightConfiguration::new(
       tree_sitter_bash::language(),
+      "bash",
       tree_sitter_bash::HIGHLIGHT_QUERY,
       "",
       "",
