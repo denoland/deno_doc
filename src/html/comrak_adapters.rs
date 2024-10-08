@@ -1,4 +1,4 @@
-// Copied and modified from https://github.com/kivikakk/comrak/blob/main/src/plugins/syntect.rs
+#![allow(clippy::print_stderr)]
 
 use comrak::adapters::HeadingAdapter;
 use comrak::adapters::HeadingMeta;
@@ -103,7 +103,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
                 .unwrap();
 
               output.write_all(html.as_bytes())?;
-              return self.write_button(output, &code);
+              return self.write_button(output, code);
             }
             Err(err) => {
               eprintln!("Error rendering code: {}", err);
@@ -116,7 +116,7 @@ impl SyntaxHighlighterAdapter for HighlightAdapter {
       }
     }
     comrak::html::escape(output, source)?;
-    self.write_button(output, &code)
+    self.write_button(output, code)
   }
 
   fn write_pre_tag(
