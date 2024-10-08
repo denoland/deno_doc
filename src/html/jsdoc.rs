@@ -26,6 +26,74 @@ lazy_static! {
     regex::Regex::new(r"(^\.{0,2}\/)|(^[A-Za-z]+:\S)").unwrap();
   static ref MODULE_LINK_RE: regex::Regex =
     regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
+
+  #[cfg(feature = "ammonia")]
+  static ref AMMONIA: ammonia::Builder<'static> = {
+    let mut ammonia_builder = ammonia::Builder::default();
+
+    ammonia_builder
+      .add_tags(["video", "button", "svg", "path", "rect"])
+      .add_generic_attributes(["id", "align"])
+      .add_tag_attributes("button", ["data-copy"])
+      .add_tag_attributes(
+        "svg",
+        [
+          "width",
+          "height",
+          "viewBox",
+          "fill",
+          "xmlns",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
+      )
+      .add_tag_attributes(
+        "path",
+        [
+          "d",
+          "fill",
+          "fill-rule",
+          "clip-rule",
+          "stroke",
+          "stroke-width",
+          "stroke-linecap",
+          "stroke-linejoin",
+        ],
+      )
+      .add_tag_attributes("rect", ["x", "y", "width", "height", "fill"])
+      .add_tag_attributes("video", ["src", "controls"])
+      .add_allowed_classes("pre", ["highlight"])
+      .add_allowed_classes("button", ["context_button"])
+      .add_allowed_classes(
+        "div",
+        [
+          "alert",
+          "alert-note",
+          "alert-tip",
+          "alert-important",
+          "alert-warning",
+          "alert-caution",
+        ],
+      )
+      .link_rel(Some("nofollow"))
+      .url_relative(
+      ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator())));
+
+    #[cfg(feature = "syntect")]
+    ammonia_builder.add_tag_attributes("span", ["style"]);
+
+    #[cfg(feature = "tree-sitter")]
+    ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
+
+    ammonia_builder
+  };
+}
+
+thread_local! {
+  static CURRENT_FILE: RefCell<Option<Option<ShortPath>>> = const { RefCell::new(None) };
+  static URL_REWRITER: RefCell<Option<Option<URLRewriter>>> = const { RefCell::new(None) };
 }
 
 fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
@@ -84,9 +152,17 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
             short_path.as_resolve_kind(),
           );
           if title.is_empty() {
-            title = short_path.display_name();
+            title = short_path.display_name().to_string();
           }
         }
+      } else if let Some((external_link, external_title)) =
+        ctx.ctx.href_resolver.resolve_external_jsdoc_module(
+          module_link,
+          symbol_match.map(|symbol_match| symbol_match.as_str()),
+        )
+      {
+        link = external_link;
+        title = external_title;
       }
 
       link
@@ -129,10 +205,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
   })
 }
 
-fn split_markdown_title(
-  md: &str,
-  prefer_title: bool,
-) -> (Option<&str>, Option<&str>) {
+fn split_markdown_title(md: &str) -> (Option<&str>, Option<&str>) {
   let newline = md.find("\n\n").unwrap_or(usize::MAX);
   let codeblock = md.find("```").unwrap_or(usize::MAX);
 
@@ -140,22 +213,29 @@ fn split_markdown_title(
 
   match md.split_at(index) {
     ("", body) => (None, Some(body)),
-    (title, "") if prefer_title => (Some(title), None),
-    (title, "") if !prefer_title => (None, Some(title)),
+    (title, "") => (None, Some(title)),
     (title, body) => (Some(title), Some(body)),
   }
 }
 
 #[cfg(feature = "ammonia")]
-struct AmmoniaRelativeUrlEvaluator {
-  current_file: Option<ShortPath>,
-  url_rewriter: URLRewriter,
-}
+struct AmmoniaRelativeUrlEvaluator();
 
 #[cfg(feature = "ammonia")]
-impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
+impl<'b> ammonia::UrlRelativeEvaluate<'b> for AmmoniaRelativeUrlEvaluator {
   fn evaluate<'a>(&self, url: &'a str) -> Option<Cow<'a, str>> {
-    Some((self.url_rewriter)(self.current_file.as_ref(), url).into())
+    URL_REWRITER.with(|url_rewriter| {
+      if let Some(url_rewriter) = url_rewriter.borrow().as_ref().unwrap() {
+        CURRENT_FILE.with(|current_file| {
+          Some(
+            url_rewriter(current_file.borrow().as_ref().unwrap().as_ref(), url)
+              .into(),
+          )
+        })
+      } else {
+        Some(Cow::Borrowed(url))
+      }
+    })
   }
 }
 
@@ -179,12 +259,27 @@ fn match_node_value<'a>(
         if paragraph_child.data.borrow().value == NodeValue::Paragraph {
           let alert = paragraph_child.first_child().and_then(|text_child| {
             if let NodeValue::Text(text) = &text_child.data.borrow().value {
-              match text.as_str() {
-                "[!NOTE]" => Some(Alert::Note),
-                "[!TIP]" => Some(Alert::Tip),
-                "[!IMPORTANT]" => Some(Alert::Important),
-                "[!WARNING]" => Some(Alert::Warning),
-                "[!CAUTION]" => Some(Alert::Caution),
+              match text
+                .split_once(' ')
+                .map_or((text.as_str(), None), |(kind, title)| {
+                  (kind, Some(title))
+                }) {
+                ("[!NOTE]", title) => {
+                  Some((Alert::Note, title.unwrap_or("Note").to_string()))
+                }
+                ("[!TIP]", title) => {
+                  Some((Alert::Tip, title.unwrap_or("Tip").to_string()))
+                }
+                ("[!IMPORTANT]", title) => Some((
+                  Alert::Important,
+                  title.unwrap_or("Important").to_string(),
+                )),
+                ("[!WARNING]", title) => {
+                  Some((Alert::Warning, title.unwrap_or("Warning").to_string()))
+                }
+                ("[!CAUTION]", title) => {
+                  Some((Alert::Caution, title.unwrap_or("Caution").to_string()))
+                }
                 _ => None,
               }
             } else {
@@ -192,7 +287,7 @@ fn match_node_value<'a>(
             }
           });
 
-          if let Some(alert) = alert {
+          if let Some((alert, title)) = alert {
             let start_col = node.data.borrow().sourcepos.start;
 
             let document = arena.alloc(AstNode::new(RefCell::new(Ast::new(
@@ -217,22 +312,22 @@ fn match_node_value<'a>(
 
             let alert_title = match alert {
               Alert::Note => format!(
-                "{}Note",
+                "{}{title}",
                 include_str!("./templates/icons/info-circle.svg")
               ),
               Alert::Tip => {
-                format!("{}Tip", include_str!("./templates/icons/bulb.svg"))
+                format!("{}{title}", include_str!("./templates/icons/bulb.svg"))
               }
               Alert::Important => format!(
-                "{}Important",
+                "{}{title}",
                 include_str!("./templates/icons/warning-message.svg")
               ),
               Alert::Warning => format!(
-                "{}Warning",
+                "{}{title}",
                 include_str!("./templates/icons/warning-triangle.svg")
               ),
               Alert::Caution => format!(
-                "{}Caution",
+                "{}{title}",
                 include_str!("./templates/icons/warning-octagon.svg")
               ),
             };
@@ -294,6 +389,34 @@ fn walk_node<'a>(
   }
 }
 
+fn walk_node_title<'a>(node: &'a AstNode<'a>) {
+  for child in node.children() {
+    if matches!(
+      child.data.borrow().value,
+      NodeValue::Document
+        | NodeValue::Paragraph
+        | NodeValue::Heading(_)
+        | NodeValue::Text(_)
+        | NodeValue::Code(_)
+        | NodeValue::HtmlInline(_)
+        | NodeValue::Emph
+        | NodeValue::Strong
+        | NodeValue::Strikethrough
+        | NodeValue::Superscript
+        | NodeValue::Link(_)
+        | NodeValue::Math(_)
+        | NodeValue::Escaped
+        | NodeValue::WikiLink(_)
+        | NodeValue::Underline
+    ) {
+      walk_node_title(child);
+    } else {
+      // delete the node
+      child.detach();
+    }
+  }
+}
+
 fn render_node<'a>(
   node: &'a AstNode<'a>,
   options: &comrak::Options,
@@ -305,8 +428,7 @@ fn render_node<'a>(
 }
 
 pub struct MarkdownToHTMLOptions {
-  pub summary: bool,
-  pub summary_prefer_title: bool,
+  pub title_only: bool,
   pub no_toc: bool,
 }
 
@@ -374,128 +496,61 @@ pub fn markdown_to_html(
   }
 
   let mut plugins = comrak::Plugins::default();
-  plugins.render.codefence_syntax_highlighter =
-    Some(&render_ctx.ctx.highlight_adapter);
-  if !render_options.no_toc {
-    plugins.render.heading_adapter = Some(&render_ctx.toc);
+
+  if !render_options.title_only {
+    plugins.render.codefence_syntax_highlighter =
+      Some(&render_ctx.ctx.highlight_adapter);
+    if !render_options.no_toc {
+      plugins.render.heading_adapter = Some(&render_ctx.toc);
+    }
   }
 
   let md = parse_links(md, render_ctx);
 
-  let md = if render_options.summary {
-    let (title, _body) =
-      split_markdown_title(&md, render_options.summary_prefer_title);
-    title.unwrap_or_default()
-  } else {
-    md.as_ref()
-  };
-
-  if md.is_empty() {
-    return None;
-  }
-
-  let class_name = if render_options.summary {
+  let class_name = if render_options.title_only {
     "markdown_summary"
   } else {
     "markdown"
   };
 
-  let mut html = {
+  let html = {
     let arena = Arena::new();
-    let root = comrak::parse_document(&arena, md, &options);
+    let root = comrak::parse_document(&arena, &md, &options);
 
-    walk_node(&arena, root, &options, &plugins);
+    if render_options.title_only {
+      walk_node_title(root);
 
-    render_node(root, &options, &plugins)
+      if let Some(child) = root.first_child() {
+        render_node(child, &options, &plugins)
+      } else {
+        return None;
+      }
+    } else {
+      walk_node(&arena, root, &options, &plugins);
+      render_node(root, &options, &plugins)
+    }
   };
 
   #[cfg(feature = "ammonia")]
   {
-    let mut ammonia_builder = ammonia::Builder::default();
+    CURRENT_FILE
+      .set(Some(render_ctx.get_current_resolve().get_file().cloned()));
+    URL_REWRITER.set(Some(render_ctx.ctx.url_rewriter.clone()));
 
-    ammonia_builder
-      .add_tags(["video", "button", "svg", "path", "rect"])
-      .add_generic_attributes(["id", "align"])
-      .add_tag_attributes("button", ["data-copy"])
-      .add_tag_attributes(
-        "svg",
-        [
-          "width",
-          "height",
-          "viewBox",
-          "fill",
-          "xmlns",
-          "stroke",
-          "stroke-width",
-          "stroke-linecap",
-          "stroke-linejoin",
-        ],
-      )
-      .add_tag_attributes(
-        "path",
-        [
-          "d",
-          "fill",
-          "fill-rule",
-          "clip-rule",
-          "stroke",
-          "stroke-width",
-          "stroke-linecap",
-          "stroke-linejoin",
-        ],
-      )
-      .add_tag_attributes("rect", ["x", "y", "width", "height", "fill"])
-      .add_tag_attributes("video", ["src", "controls"])
-      .add_allowed_classes("pre", ["highlight"])
-      .add_allowed_classes("button", ["context_button"])
-      .add_allowed_classes(
-        "div",
-        [
-          "alert",
-          "alert-note",
-          "alert-tip",
-          "alert-important",
-          "alert-warning",
-          "alert-caution",
-        ],
-      )
-      .link_rel(Some("nofollow"))
-      .url_relative(render_ctx.ctx.url_rewriter.as_ref().map_or(
-        ammonia::UrlRelative::PassThrough,
-        |url_rewriter| {
-          ammonia::UrlRelative::Custom(Box::new(AmmoniaRelativeUrlEvaluator {
-            current_file: render_ctx.get_current_resolve().get_file().cloned(),
-            url_rewriter: url_rewriter.clone(),
-          }))
-        },
-      ));
+    let html = Some(format!(
+      r#"<div class="{class_name}">{}</div>"#,
+      AMMONIA.clean(&html)
+    ));
 
-    #[cfg(feature = "syntect")]
-    ammonia_builder.add_tag_attributes("span", ["style"]);
+    CURRENT_FILE.set(None);
+    URL_REWRITER.set(None);
 
-    #[cfg(feature = "tree-sitter")]
-    ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
-
-    html = ammonia_builder.clean(&html).to_string();
+    html
   }
-
-  Some(format!(r#"<div class="{class_name}">{html}</div>"#))
-}
-
-pub(crate) fn render_markdown_summary(
-  render_ctx: &RenderContext,
-  md: &str,
-) -> String {
-  markdown_to_html(
-    render_ctx,
-    md,
-    MarkdownToHTMLOptions {
-      summary: true,
-      summary_prefer_title: true,
-      no_toc: false,
-    },
-  )
-  .unwrap_or_default()
+  #[cfg(not(feature = "ammonia"))]
+  {
+    Some(format!(r#"<div class="{class_name}">{html}</div>"#))
+  }
 }
 
 pub(crate) fn render_markdown(
@@ -507,8 +562,7 @@ pub(crate) fn render_markdown(
     render_ctx,
     md,
     MarkdownToHTMLOptions {
-      summary: false,
-      summary_prefer_title: false,
+      title_only: false,
       no_toc,
     },
   )
@@ -525,8 +579,7 @@ pub(crate) fn jsdoc_body_to_html(
       ctx,
       doc,
       MarkdownToHTMLOptions {
-        summary,
-        summary_prefer_title: true,
+        title_only: summary,
         no_toc: false,
       },
     )
@@ -581,14 +634,14 @@ impl ExampleCtx {
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
     let id = name_to_id("example", &i.to_string());
 
-    let (maybe_title, body) = split_markdown_title(example, false);
+    let (maybe_title, body) = split_markdown_title(example);
     let title = if let Some(title) = maybe_title {
       title.to_string()
     } else {
       format!("Example {}", i + 1)
     };
 
-    let markdown_title = render_markdown_summary(render_ctx, &title);
+    let markdown_title = render_markdown(render_ctx, &title, false);
     let markdown_body =
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
@@ -618,7 +671,7 @@ impl ModuleDocCtx {
 
     let (deprecated, html) = if let Some(node) = module_doc_nodes
       .iter()
-      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+      .find(|n| n.kind() == DocNodeKind::ModuleDoc)
     {
       let deprecated = node.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {
@@ -649,20 +702,17 @@ impl ModuleDocCtx {
 
       sections.extend(super::namespace::render_namespace(
         render_ctx,
-        partitions_by_kind
-          .into_iter()
-          .map(|(title, nodes)| {
-            (
-              SectionHeaderCtx {
-                title: title.clone(),
-                anchor: AnchorCtx { id: title },
-                href: None,
-                doc: None,
-              },
-              nodes,
-            )
-          })
-          .collect(),
+        partitions_by_kind.into_iter().map(|(title, nodes)| {
+          (
+            SectionHeaderCtx {
+              title: title.clone(),
+              anchor: AnchorCtx { id: title },
+              href: None,
+              doc: None,
+            },
+            nodes,
+          )
+        }),
       ));
     }
 
@@ -721,10 +771,18 @@ mod test {
     fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
       current_resolve
         .get_file()
-        .map(|current_file| current_file.display_name())
+        .map(|current_file| current_file.display_name().to_string())
     }
 
     fn resolve_source(&self, _location: &Location) -> Option<String> {
+      None
+    }
+
+    fn resolve_external_jsdoc_module(
+      &self,
+      _module: &str,
+      _symbol: Option<&str>,
+    ) -> Option<(String, String)> {
       None
     }
   }
@@ -738,7 +796,6 @@ mod test {
         href_resolver: std::rc::Rc::new(EmptyResolver {}),
         usage_composer: None,
         rewrite_map: None,
-        composable_output: false,
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,
@@ -751,7 +808,7 @@ mod test {
           ModuleSpecifier::parse("file:///a.ts").unwrap(),
           vec![
             DocNode::interface(
-              "foo".to_string(),
+              "foo".into(),
               false,
               Location::default(),
               DeclarationKind::Export,
@@ -764,11 +821,11 @@ mod test {
                 properties: vec![],
                 call_signatures: vec![],
                 index_signatures: vec![],
-                type_params: vec![],
+                type_params: Box::new([]),
               },
             ),
             DocNode::interface(
-              "bar".to_string(),
+              "bar".into(),
               false,
               Location::default(),
               DeclarationKind::Export,
@@ -781,7 +838,7 @@ mod test {
                 properties: vec![],
                 call_signatures: vec![],
                 index_signatures: vec![],
-                type_params: vec![],
+                type_params: Box::new([]),
               },
             ),
           ],
@@ -789,7 +846,7 @@ mod test {
         (
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
           vec![DocNode::interface(
-            "baz".to_string(),
+            "baz".into(),
             false,
             Location::default(),
             DeclarationKind::Export,
@@ -802,7 +859,7 @@ mod test {
               properties: vec![],
               call_signatures: vec![],
               index_signatures: vec![],
-              type_params: vec![],
+              type_params: Box::new([]),
             },
           )],
         ),
@@ -895,7 +952,6 @@ mod test {
         href_resolver: std::rc::Rc::new(EmptyResolver {}),
         usage_composer: None,
         rewrite_map: None,
-        composable_output: false,
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,

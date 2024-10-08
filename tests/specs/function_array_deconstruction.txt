@@ -17,7 +17,6 @@ function f([a, b, ...c]): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "f",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ function f([a, b, ...c]): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

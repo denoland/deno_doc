@@ -77,6 +77,14 @@ impl HrefResolver for EmptyResolver {
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
     None
   }
+
+  fn resolve_external_jsdoc_module(
+    &self,
+    _module: &str,
+    _symbol: Option<&str>,
+  ) -> Option<(String, String)> {
+    None
+  }
 }
 
 async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
@@ -141,7 +149,6 @@ async fn html_doc_files() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: None,
-      composable_output: false,
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
@@ -200,10 +207,9 @@ async fn html_doc_files_rewrite() {
     .join("testdata")
     .join("multiple");
   let mut rewrite_map = IndexMap::new();
-  rewrite_map.insert(
-    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
-    ".".to_string(),
-  );
+  let main_specifier =
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap();
+  rewrite_map.insert(main_specifier.clone(), ".".to_string());
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
@@ -212,11 +218,10 @@ async fn html_doc_files_rewrite() {
   let files = generate(
     GenerateOptions {
       package_name: None,
-      main_entrypoint: None,
+      main_entrypoint: Some(main_specifier),
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      composable_output: false,
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
@@ -324,7 +329,6 @@ async fn symbol_group() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      composable_output: false,
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
@@ -361,7 +365,7 @@ async fn symbol_group() {
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
               &root,
-              &symbol_group_ctx.name,
+              Some(&symbol_group_ctx.name),
               ctx.package_name.as_ref(),
               Some(short_path),
               false,
@@ -415,7 +419,6 @@ async fn symbol_search() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      composable_output: false,
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
@@ -461,7 +464,6 @@ async fn module_doc() {
       href_resolver: Rc::new(EmptyResolver {}),
       usage_composer: None,
       rewrite_map: Some(rewrite_map),
-      composable_output: false,
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,

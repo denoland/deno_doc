@@ -51,7 +51,6 @@ class PublicType2
 # output.json
 [
   {
-    "kind": "function",
     "name": "myFunction",
     "isDefault": false,
     "location": {
@@ -61,6 +60,7 @@ class PublicType2
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,
@@ -71,7 +71,6 @@ class PublicType2
     }
   },
   {
-    "kind": "class",
     "name": "PublicType",
     "isDefault": false,
     "location": {
@@ -81,6 +80,7 @@ class PublicType2
       "byteIndex": 58
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -117,7 +117,6 @@ class PublicType2
     }
   },
   {
-    "kind": "function",
     "name": "myFunction2",
     "isDefault": false,
     "location": {
@@ -127,6 +126,7 @@ class PublicType2
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": null,
@@ -137,7 +137,6 @@ class PublicType2
     }
   },
   {
-    "kind": "class",
     "name": "PublicType2",
     "isDefault": false,
     "location": {
@@ -147,6 +146,7 @@ class PublicType2
       "byteIndex": 59
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

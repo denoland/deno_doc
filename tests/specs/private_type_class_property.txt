@@ -105,7 +105,6 @@ private namespace MyNamespace3
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "PrivatePropThroughNamespaceRef",
     "isDefault": false,
     "location": {
@@ -115,6 +114,7 @@ private namespace MyNamespace3
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "MyNamespace.Export.someProp",
@@ -125,7 +125,6 @@ private namespace MyNamespace3
     }
   },
   {
-    "kind": "namespace",
     "name": "MyNamespace",
     "isDefault": false,
     "location": {
@@ -135,10 +134,10 @@ private namespace MyNamespace3
       "byteIndex": 82
     },
     "declarationKind": "private",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "class",
           "name": "Export",
           "isDefault": false,
           "location": {
@@ -148,6 +147,7 @@ private namespace MyNamespace3
             "byteIndex": 259
           },
           "declarationKind": "export",
+          "kind": "class",
           "classDef": {
             "isAbstract": false,
             "constructors": [],
@@ -184,7 +184,6 @@ private namespace MyNamespace3
     }
   },
   {
-    "kind": "namespace",
     "name": "MyNamespace2",
     "isDefault": false,
     "location": {
@@ -194,10 +193,10 @@ private namespace MyNamespace3
       "byteIndex": 156
     },
     "declarationKind": "private",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "class",
           "name": "MyClass",
           "isDefault": false,
           "location": {
@@ -207,6 +206,7 @@ private namespace MyNamespace3
             "byteIndex": 259
           },
           "declarationKind": "export",
+          "kind": "class",
           "classDef": {
             "isAbstract": false,
             "constructors": [],
@@ -243,7 +243,6 @@ private namespace MyNamespace3
     }
   },
   {
-    "kind": "namespace",
     "name": "MyNamespace3",
     "isDefault": false,
     "location": {
@@ -253,10 +252,10 @@ private namespace MyNamespace3
       "byteIndex": 232
     },
     "declarationKind": "private",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "class",
           "name": "MyClass",
           "isDefault": false,
           "location": {
@@ -266,6 +265,7 @@ private namespace MyNamespace3
             "byteIndex": 259
           },
           "declarationKind": "export",
+          "kind": "class",
           "classDef": {
             "isAbstract": false,
             "constructors": [],

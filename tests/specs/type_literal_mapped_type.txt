@@ -17,7 +17,6 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "T",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "",

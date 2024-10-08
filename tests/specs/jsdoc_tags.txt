@@ -44,7 +44,6 @@ function a(b, c, d): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "a",
     "isDefault": false,
     "location": {
@@ -97,6 +96,7 @@ function a(b, c, d): void
         }
       ]
     },
+    "kind": "function",
     "functionDef": {
       "params": [
         {

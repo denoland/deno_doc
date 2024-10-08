@@ -4,7 +4,7 @@ use crate::html::util::NamespacedSymbols;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
-use crate::DocNodeKind;
+use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -12,21 +12,21 @@ use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
-  pub ctx: &'ctx GenerateCtx<'ctx>,
+  pub ctx: &'ctx GenerateCtx,
   scoped_symbols: NamespacedSymbols,
   current_imports: Rc<HashMap<String, String>>,
   current_type_params: Rc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Rc<Vec<String>>,
+  namespace_parts: Rc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
-  category: Option<&'ctx str>,
+  pub category: Option<&'ctx str>,
   pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
 }
 
 impl<'ctx> RenderContext<'ctx> {
   pub fn new(
-    ctx: &'ctx GenerateCtx<'ctx>,
+    ctx: &'ctx GenerateCtx,
     doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {
@@ -36,7 +36,7 @@ impl<'ctx> RenderContext<'ctx> {
       current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,
-      namespace_parts: Rc::new(vec![]),
+      namespace_parts: Rc::new([]),
       category: None,
       toc: Default::default(),
     }
@@ -52,7 +52,7 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
-  pub fn with_namespace(&self, namespace_parts: Rc<Vec<String>>) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Rc<[String]>) -> Self {
     Self {
       namespace_parts,
       ..self.clone()
@@ -93,7 +93,8 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      let mut parts = (*self.namespace_parts).clone();
+      // TODO: clean this up to not clone and to_vec
+      let mut parts = self.namespace_parts.to_vec();
       while !parts.is_empty() {
         let mut current_parts = parts.clone();
         current_parts.extend_from_slice(&target_symbol_parts);
@@ -226,7 +227,7 @@ impl<'ctx> RenderContext<'ctx> {
               is_first_symbol: false,
             },
             BreadcrumbCtx {
-              name: file.display_name(),
+              name: file.display_name().to_string(),
               href: "".to_string(),
               is_symbol: false,
               is_first_symbol: false,
@@ -246,7 +247,7 @@ impl<'ctx> RenderContext<'ctx> {
 
         if !file.is_main {
           parts.push(BreadcrumbCtx {
-            name: file.display_name(),
+            name: file.display_name().to_string(),
             href: self
               .ctx
               .resolve_path(self.current_resolve, UrlResolveKind::File(file)),
@@ -339,8 +340,7 @@ fn get_current_imports(
   let mut imports = HashMap::new();
 
   for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::Import {
-      let import_def = doc_node.import_def.as_ref().unwrap();
+    if let DocNodeDef::Import { import_def } = &doc_node.def {
       // TODO: handle import aliasing
       if import_def.imported.as_deref() == Some(doc_node.get_name()) {
         imports.insert(doc_node.get_name().to_string(), import_def.src.clone());
@@ -395,7 +395,15 @@ mod test {
     }
 
     fn resolve_source(&self, location: &Location) -> Option<String> {
-      Some(location.filename.clone())
+      Some(location.filename.clone().into_string())
+    }
+
+    fn resolve_external_jsdoc_module(
+      &self,
+      _module: &str,
+      _symbol: Option<&str>,
+    ) -> Option<(String, String)> {
+      None
     }
   }
 
@@ -404,28 +412,22 @@ mod test {
     let doc_nodes_by_url = indexmap::IndexMap::from([(
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
       vec![DocNode {
-        kind: DocNodeKind::Import,
-        name: "foo".to_string(),
+        name: "foo".into(),
         is_default: None,
         location: Location {
-          filename: "a".to_string(),
+          filename: "a".into(),
           line: 0,
           col: 0,
           byte_index: 0,
         },
         declaration_kind: DeclarationKind::Private,
         js_doc: Default::default(),
-        function_def: None,
-        variable_def: None,
-        enum_def: None,
-        class_def: None,
-        type_alias_def: None,
-        namespace_def: None,
-        interface_def: None,
-        import_def: Some(ImportDef {
-          src: "b".to_string(),
-          imported: Some("foo".to_string()),
-        }),
+        def: crate::node::DocNodeDef::Import {
+          import_def: ImportDef {
+            src: "b".to_string(),
+            imported: Some("foo".to_string()),
+          },
+        },
       }],
     )]);
 
@@ -436,7 +438,6 @@ mod test {
         href_resolver: Rc::new(TestResolver()),
         usage_composer: None,
         rewrite_map: None,
-        composable_output: false,
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,

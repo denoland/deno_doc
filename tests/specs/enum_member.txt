@@ -25,7 +25,6 @@ enum Enum
 # output.json
 [
   {
-    "kind": "enum",
     "name": "Enum",
     "isDefault": false,
     "location": {
@@ -35,6 +34,7 @@ enum Enum
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "enum",
     "enumDef": {
       "members": [
         {

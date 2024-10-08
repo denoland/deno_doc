@@ -14,8 +14,8 @@ path = "lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-anyhow = "1.0.43"
-deno_graph = { workspace = true, features = ["wasm_executor"] }
+anyhow = "1.0.86"
+deno_graph = { workspace = true }
 deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
 serde.workspace = true
@@ -27,4 +27,4 @@ wasm-bindgen = "=0.2.92"
 wasm-bindgen-futures = "=0.4.42"
 
 [dev-dependencies]
-pretty_assertions = "1.0.0"
+pretty_assertions = "1.4.0"

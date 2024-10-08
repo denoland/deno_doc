@@ -26,7 +26,6 @@ function foo(a: number)
 # output.json
 [
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -36,6 +35,7 @@ function foo(a: number)
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

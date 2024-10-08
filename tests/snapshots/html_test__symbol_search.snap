@@ -13,9 +13,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 45,
+        "line": 62,
         "col": 0,
-        "byteIndex": 741
+        "byteIndex": 1037
       },
       "url": "././~/A.html",
       "category": "",
@@ -31,9 +31,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 48,
+        "line": 65,
         "col": 0,
-        "byteIndex": 770
+        "byteIndex": 1066
       },
       "url": "././~/B.html",
       "category": "",
@@ -46,12 +46,12 @@ expression: search_index
       ],
       "name": "Bar",
       "file": ".",
-      "doc": "",
+      "doc": "> Some quote in bar docs\n> This quote part is ignored\n> when getting the title of this doc\n\nBar docs",
       "location": {
         "filename": "default",
-        "line": 31,
+        "line": 38,
         "col": 0,
-        "byteIndex": 588
+        "byteIndex": 711
       },
       "url": "././~/Bar.html",
       "category": "",
@@ -67,9 +67,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 41,
+        "line": 58,
         "col": 0,
-        "byteIndex": 702
+        "byteIndex": 998
       },
       "url": "././~/Baz.html",
       "category": "",
@@ -100,12 +100,12 @@ expression: search_index
       ],
       "name": "Foobar",
       "file": ".",
-      "doc": "",
+      "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs\n",
       "location": {
         "filename": "default",
-        "line": 34,
+        "line": 51,
         "col": 0,
-        "byteIndex": 622
+        "byteIndex": 918
       },
       "url": "././~/Foobar.html",
       "category": "",
@@ -121,9 +121,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 37,
+        "line": 54,
         "col": 0,
-        "byteIndex": 655
+        "byteIndex": 951
       },
       "url": "././~/Hello.html",
       "category": "",
@@ -139,9 +139,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 57,
+        "line": 74,
         "col": 13,
-        "byteIndex": 933
+        "byteIndex": 1229
       },
       "url": "././~/c.html",
       "category": "",
@@ -157,9 +157,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 59,
+        "line": 79,
         "col": 0,
-        "byteIndex": 961
+        "byteIndex": 1286
       },
       "url": "././~/d.html",
       "category": "",
@@ -177,9 +177,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 53,
+        "line": 70,
         "col": 0,
-        "byteIndex": 812
+        "byteIndex": 1108
       },
       "url": "././~/qaz.html",
       "category": "",
@@ -195,9 +195,9 @@ expression: search_index
       "doc": "The default export item.\n\nThis item reproduces the issue reported in {@link https://github.com/jsr-io/jsr/issues/459}",
       "location": {
         "filename": "foo",
-        "line": 7,
+        "line": 11,
         "col": 6,
-        "byteIndex": 167
+        "byteIndex": 191
       },
       "url": "./foo/~/default.html",
       "category": "",
@@ -213,9 +213,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "foo",
-        "line": 1,
+        "line": 5,
         "col": 0,
-        "byteIndex": 0
+        "byteIndex": 24
       },
       "url": "./foo/~/x.html",
       "category": "",

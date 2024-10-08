@@ -1,7 +1,6 @@
 use super::parameters::render_params;
 use super::render_context::RenderContext;
 use super::util::*;
-use std::collections::HashSet;
 
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -559,7 +558,7 @@ pub(crate) fn render_type_params(
     .iter()
     .filter_map(|tag| {
       if let JsDocTag::Template { name, doc } = tag {
-        doc.as_ref().map(|doc| (name.as_str(), doc.as_str()))
+        doc.as_ref().map(|doc| (&**name, &**doc))
       } else {
         None
       }
@@ -597,7 +596,7 @@ pub(crate) fn render_type_params(
       Some(html_escape::encode_text(&type_param.name).into_owned()),
       None,
       &format!("{constraint}{default}"),
-      HashSet::new(),
+      Default::default(),
       type_param_docs.get(type_param.name.as_str()).cloned(),
       location,
     );

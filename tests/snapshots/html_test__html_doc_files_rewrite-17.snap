@@ -5,7 +5,7 @@ expression: "files.get(\"foo/~/x.html\").unwrap()"
 <!DOCTYPE html>
 <html>
 <head>
-  <title>x - documentation</title>
+  <title>x - foo - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content="foo">

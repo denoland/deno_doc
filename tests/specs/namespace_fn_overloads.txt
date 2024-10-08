@@ -38,7 +38,6 @@ namespace Namespace
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "Namespace",
     "isDefault": false,
     "location": {
@@ -48,10 +47,10 @@ namespace Namespace
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "function",
           "name": "a",
           "isDefault": false,
           "location": {
@@ -61,6 +60,7 @@ namespace Namespace
             "byteIndex": 31
           },
           "declarationKind": "export",
+          "kind": "function",
           "functionDef": {
             "params": [
               {
@@ -85,7 +85,6 @@ namespace Namespace
           }
         },
         {
-          "kind": "function",
           "name": "a",
           "isDefault": false,
           "location": {
@@ -95,6 +94,7 @@ namespace Namespace
             "byteIndex": 71
           },
           "declarationKind": "export",
+          "kind": "function",
           "functionDef": {
             "params": [
               {
@@ -119,7 +119,6 @@ namespace Namespace
           }
         },
         {
-          "kind": "function",
           "name": "a",
           "isDefault": false,
           "location": {
@@ -129,6 +128,7 @@ namespace Namespace
             "byteIndex": 111
           },
           "declarationKind": "export",
+          "kind": "function",
           "functionDef": {
             "params": [
               {

@@ -21,6 +21,8 @@ Defined in file:///mod.ts:1:1
 
 
   @module
+      foo
+
 
 Defined in file:///mod.ts:12:1
 
@@ -35,7 +37,6 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
 # output.json
 [
   {
-    "kind": "moduleDoc",
     "name": "",
     "location": {
       "filename": "file:///mod.ts",
@@ -47,13 +48,14 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
     "jsDoc": {
       "tags": [
         {
-          "kind": "module"
+          "kind": "module",
+          "name": "foo"
         }
       ]
-    }
+    },
+    "kind": "moduleDoc"
   },
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -66,6 +68,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
     "jsDoc": {
       "doc": "Hello there, this is a multiline JSdoc.\n\nIt has many lines\n\nOr not that many?"
     },
+    "kind": "function",
     "functionDef": {
       "params": [
         {

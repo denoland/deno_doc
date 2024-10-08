@@ -150,9 +150,9 @@ async fn run() -> anyhow::Result<()> {
     doc_nodes.extend(nodes);
   }
 
-  doc_nodes.retain(|doc_node| doc_node.kind != DocNodeKind::Import);
+  doc_nodes.retain(|doc_node| doc_node.kind() != DocNodeKind::Import);
   if let Some(filter) = maybe_filter {
-    doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter.to_string());
+    doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter);
   }
 
   let result = DocPrinter::new(&doc_nodes, true, false);
@@ -201,7 +201,15 @@ impl HrefResolver for EmptyResolver {
   }
 
   fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
-    Some(location.filename.clone())
+    Some(location.filename.to_string())
+  }
+
+  fn resolve_external_jsdoc_module(
+    &self,
+    _module: &str,
+    _symbol: Option<&str>,
+  ) -> Option<(String, String)> {
+    None
   }
 }
 
@@ -225,7 +233,6 @@ fn generate_docs_directory(
     href_resolver: Rc::new(EmptyResolver()),
     usage_composer: None,
     rewrite_map: Some(index_map),
-    composable_output: false,
     category_docs: None,
     disable_search: false,
     symbol_redirect_map: None,

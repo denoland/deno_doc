@@ -1,14 +1,16 @@
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
-use crate::html::util::AnchorCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::util::{AnchorCtx, SectionContentCtx};
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
+use crate::node::DocNodeDef;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Serialize;
 use std::collections::HashSet;
 
@@ -24,7 +26,7 @@ pub mod variable;
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   usage: Option<UsagesCtx>,
-  tags: HashSet<Tag>,
+  tags: IndexSet<Tag>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
   deprecated: Option<String>,
@@ -49,7 +51,7 @@ impl SymbolGroupCtx {
       IndexMap::<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.kind == DocNodeKind::Import {
+      if doc_node.kind() == DocNodeKind::Import {
         continue;
       }
 
@@ -67,7 +69,7 @@ impl SymbolGroupCtx {
         let all_deprecated =
           super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
-        let mut tags = HashSet::new();
+        let mut tags = indexmap::IndexSet::new();
 
         if doc_nodes.iter().any(|node| {
           node
@@ -79,7 +81,7 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Unstable);
         }
 
-        let permissions = doc_nodes
+        let mut permissions = doc_nodes
           .iter()
           .flat_map(|node| {
             node
@@ -101,10 +103,11 @@ impl SymbolGroupCtx {
               })
               .flatten()
           })
-          .collect::<Vec<_>>();
+          .collect::<indexmap::IndexSet<_>>();
 
         if !permissions.is_empty() {
-          tags.insert(Tag::Permissions(permissions));
+          permissions.sort();
+          tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
         if doc_nodes[0].is_internal() {
@@ -112,7 +115,7 @@ impl SymbolGroupCtx {
         }
 
         let deprecated = if all_deprecated
-          && !(doc_nodes[0].kind == DocNodeKind::Function
+          && !(doc_nodes[0].kind() == DocNodeKind::Function
             && doc_nodes.len() == 1)
         {
           doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
@@ -187,10 +190,8 @@ impl DocBlockSubtitleCtx {
   pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
 
   fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
-    match doc_node.kind {
-      DocNodeKind::Class => {
-        let class_def = doc_node.class_def.as_ref().unwrap();
-
+    match &doc_node.def {
+      DocNodeDef::Class { class_def } => {
         let current_type_params = class_def
           .type_params
           .iter()
@@ -228,9 +229,7 @@ impl DocBlockSubtitleCtx {
           extends: class_extends,
         })
       }
-      DocNodeKind::Interface => {
-        let interface_def = doc_node.interface_def.as_ref().unwrap();
-
+      DocNodeDef::Interface { interface_def } => {
         if interface_def.extends.is_empty() {
           return None;
         }
@@ -287,7 +286,7 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if doc_node.kind != DocNodeKind::Function {
+      if doc_node.kind() != DocNodeKind::Function {
         if let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
         {
@@ -295,7 +294,7 @@ impl SymbolInnerCtx {
         }
       }
 
-      sections.extend(match doc_node.kind {
+      sections.extend(match doc_node.kind() {
         DocNodeKind::Function => {
           functions.push(doc_node);
           continue;
@@ -312,8 +311,9 @@ impl SymbolInnerCtx {
         }
 
         DocNodeKind::Namespace => {
-          let namespace_def = doc_node.namespace_def.as_ref().unwrap();
-          let ns_qualifiers = std::rc::Rc::new(doc_node.sub_qualifier());
+          let namespace_def = doc_node.namespace_def().unwrap();
+          let ns_qualifiers: std::rc::Rc<[String]> =
+            doc_node.sub_qualifier().into();
           let namespace_nodes = namespace_def
             .elements
             .iter()
@@ -328,24 +328,42 @@ impl SymbolInnerCtx {
 
           namespace::render_namespace(
             &ctx.with_namespace(ns_qualifiers),
-            partitions
-              .into_iter()
-              .map(|(title, nodes)| {
-                (
-                  crate::html::util::SectionHeaderCtx {
-                    title: title.clone(),
-                    anchor: AnchorCtx { id: title },
-                    href: None,
-                    doc: None,
-                  },
-                  nodes,
-                )
-              })
-              .collect(),
+            partitions.into_iter().map(|(title, nodes)| {
+              (
+                crate::html::util::SectionHeaderCtx {
+                  title: title.clone(),
+                  anchor: AnchorCtx { id: title },
+                  href: None,
+                  doc: None,
+                },
+                nodes,
+              )
+            }),
           )
         }
         DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
       });
+
+      let references = doc_node
+        .js_doc
+        .tags
+        .iter()
+        .filter_map(|tag| {
+          if let JsDocTag::See { doc } = tag {
+            Some(generate_see(ctx, doc))
+          } else {
+            None
+          }
+        })
+        .collect::<Vec<_>>();
+
+      if !references.is_empty() {
+        sections.push(SectionCtx::new(
+          ctx,
+          "See",
+          SectionContentCtx::See(references),
+        ));
+      }
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
         id: String::new(),
@@ -362,4 +380,14 @@ impl SymbolInnerCtx {
 
     content_parts
   }
+}
+
+fn generate_see(ctx: &RenderContext, doc: &str) -> String {
+  let doc = if let Some(href) = ctx.lookup_symbol_href(doc) {
+    format!("[{doc}]({href})")
+  } else {
+    doc.to_string()
+  };
+
+  crate::html::jsdoc::render_markdown(ctx, &doc, true)
 }

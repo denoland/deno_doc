@@ -185,7 +185,6 @@ const tpl: `foobar`
 # output.json
 [
   {
-    "kind": "variable",
     "name": "s",
     "isDefault": false,
     "location": {
@@ -195,6 +194,7 @@ const tpl: `foobar`
       "byteIndex": 13
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "hello",
@@ -208,7 +208,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "n",
     "isDefault": false,
     "location": {
@@ -218,6 +217,7 @@ const tpl: `foobar`
       "byteIndex": 39
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "123",
@@ -231,7 +231,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "b",
     "isDefault": false,
     "location": {
@@ -241,6 +240,7 @@ const tpl: `foobar`
       "byteIndex": 61
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "false",
@@ -254,7 +254,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "bi",
     "isDefault": false,
     "location": {
@@ -264,6 +263,7 @@ const tpl: `foobar`
       "byteIndex": 85
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "100",
@@ -277,7 +277,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "re",
     "isDefault": false,
     "location": {
@@ -287,6 +286,7 @@ const tpl: `foobar`
       "byteIndex": 109
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "hello",
@@ -300,7 +300,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "tpl",
     "isDefault": false,
     "location": {
@@ -310,6 +309,7 @@ const tpl: `foobar`
       "byteIndex": 136
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "foobar",
@@ -332,7 +332,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "d",
     "isDefault": false,
     "location": {
@@ -342,6 +341,7 @@ const tpl: `foobar`
       "byteIndex": 165
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Date",
@@ -355,7 +355,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "s2",
     "isDefault": false,
     "location": {
@@ -365,6 +364,7 @@ const tpl: `foobar`
       "byteIndex": 194
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "String",
@@ -375,7 +375,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "n2",
     "isDefault": false,
     "location": {
@@ -385,6 +384,7 @@ const tpl: `foobar`
       "byteIndex": 227
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Number",
@@ -395,7 +395,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "bi2",
     "isDefault": false,
     "location": {
@@ -405,6 +404,7 @@ const tpl: `foobar`
       "byteIndex": 258
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "BigInt",
@@ -415,7 +415,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "sym",
     "isDefault": false,
     "location": {
@@ -425,6 +424,7 @@ const tpl: `foobar`
       "byteIndex": 290
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Symbol",
@@ -435,7 +435,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "m",
     "isDefault": false,
     "location": {
@@ -445,6 +444,7 @@ const tpl: `foobar`
       "byteIndex": 326
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "Map",
@@ -469,7 +469,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "fn1",
     "isDefault": false,
     "location": {
@@ -479,6 +478,7 @@ const tpl: `foobar`
       "byteIndex": 370
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -509,7 +509,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "fn2",
     "isDefault": false,
     "location": {
@@ -519,6 +518,7 @@ const tpl: `foobar`
       "byteIndex": 414
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "",
@@ -549,7 +549,6 @@ const tpl: `foobar`
     }
   },
   {
-    "kind": "variable",
     "name": "s3",
     "isDefault": false,
     "location": {
@@ -559,6 +558,7 @@ const tpl: `foobar`
       "byteIndex": 463
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "string",

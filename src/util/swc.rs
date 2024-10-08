@@ -91,7 +91,11 @@ pub(crate) fn module_js_doc_for_source(
     })
   }) {
     let js_doc = parse_js_doc(js_doc_comment);
-    if js_doc.tags.contains(&JsDocTag::Module) {
+    if js_doc
+      .tags
+      .iter()
+      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+    {
       if js_doc.tags.contains(&JsDocTag::Ignore) {
         return Some(None);
       }
@@ -119,7 +123,7 @@ pub fn get_text_info_location(
     text_info.line_and_column_display_with_indent_width(pos, 4);
   let byte_index = pos.as_byte_index(text_info.range().start);
   Location {
-    filename: specifier.to_string(),
+    filename: specifier.into(),
     // todo(#150): make 0-indexed
     line: line_and_column_index.line_number,
     col: line_and_column_index.column_number - 1,

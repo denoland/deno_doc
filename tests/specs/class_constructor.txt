@@ -58,7 +58,6 @@ class Class3
 # output.json
 [
   {
-    "kind": "class",
     "name": "Class",
     "isDefault": false,
     "location": {
@@ -68,6 +67,7 @@ class Class3
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [
@@ -109,7 +109,6 @@ class Class3
     }
   },
   {
-    "kind": "class",
     "name": "Class2",
     "isDefault": false,
     "location": {
@@ -122,6 +121,7 @@ class Class3
     "jsDoc": {
       "doc": "doc2"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [
@@ -148,7 +148,6 @@ class Class3
     }
   },
   {
-    "kind": "class",
     "name": "Class3",
     "isDefault": false,
     "location": {
@@ -161,6 +160,7 @@ class Class3
     "jsDoc": {
       "doc": "doc3"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [

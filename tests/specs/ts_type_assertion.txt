@@ -17,7 +17,6 @@ function foo(bar: any): asserts bar
 # output.json
 [
   {
-    "kind": "function",
     "name": "foo",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ function foo(bar: any): asserts bar
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [
         {

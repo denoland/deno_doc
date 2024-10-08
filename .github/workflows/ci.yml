@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -49,7 +49,11 @@ jobs:
           cargo fmt -- --check
           deno fmt --check
 
+      - name: Build (Wasm)
+        run: deno task build
+
       - name: Lint
+        if: contains(matrix.os, 'ubuntu')
         run: |
           cargo clippy --all-targets --locked -- -D clippy::all
           deno lint
@@ -59,8 +63,8 @@ jobs:
           deno task tailwind
           git diff --exit-code
 
-      - name: Build
-        run: deno task build && cargo build --locked --all-targets
+      - name: Build (Rust)
+        run: cargo build --locked --all-targets
 
       - name: Test (no highlighter)
         run: |

@@ -17,7 +17,6 @@ type A = number
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "A",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ type A = number
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "number",

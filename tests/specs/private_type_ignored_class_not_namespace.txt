@@ -27,7 +27,6 @@ private namespace MyNamespace
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "PrivateProp",
     "isDefault": false,
     "location": {
@@ -40,6 +39,7 @@ private namespace MyNamespace
     "jsDoc": {
       "doc": "Comment"
     },
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "MyNamespace.MyInternal",
@@ -50,7 +50,6 @@ private namespace MyNamespace
     }
   },
   {
-    "kind": "namespace",
     "name": "MyNamespace",
     "isDefault": false,
     "location": {
@@ -60,10 +59,10 @@ private namespace MyNamespace
       "byteIndex": 163
     },
     "declarationKind": "private",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "class",
           "name": "MyInternal",
           "isDefault": false,
           "location": {
@@ -80,6 +79,7 @@ private namespace MyNamespace
               }
             ]
           },
+          "kind": "class",
           "classDef": {
             "isAbstract": false,
             "constructors": [],

@@ -30,7 +30,6 @@ interface Generic<T>
 # output.json
 [
   {
-    "kind": "interface",
     "name": "Generic",
     "isDefault": false,
     "location": {
@@ -40,6 +39,7 @@ interface Generic<T>
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -55,7 +55,6 @@ interface Generic<T>
     }
   },
   {
-    "kind": "function",
     "name": "f",
     "isDefault": false,
     "location": {
@@ -65,6 +64,7 @@ interface Generic<T>
       "byteIndex": 31
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

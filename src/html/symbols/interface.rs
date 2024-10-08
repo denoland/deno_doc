@@ -11,7 +11,7 @@ pub(crate) fn render_interface(
   doc_node: &DocNodeWithContext,
   name: &str,
 ) -> Vec<SectionCtx> {
-  let interface_def = doc_node.interface_def.as_ref().unwrap();
+  let interface_def = doc_node.interface_def().unwrap();
 
   let current_type_params = interface_def
     .type_params

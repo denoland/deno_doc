@@ -1,0 +1,224 @@
+# mod.ts
+/**
+ * A is a class
+ *
+ * @example
+ * ```ts
+ * const bar = "foo";
+ * console.log(bar);
+ * ```
+ */
+export class A {}
+/**
+ * B is an interface
+ *
+ * @example
+ * ```ts
+ * # const bar = "foo";
+ * console.log(bar);
+ * ```
+ */
+export interface B {}
+/**
+ * C is a function
+ *
+ * @example
+ * ```ts
+ * class Bar {
+ *   #foo = "something";
+ * }
+ * console.log(bar);
+ * ```
+ */
+export function C() {}
+/**
+ * D
+ *
+ * @example
+ * ```ts
+ * const bar = "foo";
+ * # console.log(bar); ```
+ */
+export interface D {}
+
+# output.txt
+Defined in file:///mod.ts:32:1
+
+function C(): void
+  C is a function
+
+  @example
+      ```ts
+      class Bar {
+        #foo = "something";
+      }
+      console.log(bar);
+      ```
+
+
+Defined in file:///mod.ts:10:1
+
+class A
+  A is a class
+
+  @example
+      ```ts
+      const bar = "foo";
+      console.log(bar);
+      ```
+
+
+
+Defined in file:///mod.ts:20:1
+
+interface B
+  B is an interface
+
+  @example
+      ```ts
+      console.log(bar);
+      ```
+
+
+
+Defined in file:///mod.ts:41:1
+
+interface D
+  D
+
+  @example
+      ```ts
+      const bar = "foo";
+      ```
+
+
+
+
+# output.json
+[
+  {
+    "name": "A",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 10,
+      "col": 0,
+      "byteIndex": 98
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "A is a class\n",
+      "tags": [
+        {
+          "kind": "example",
+          "doc": "```ts\nconst bar = \"foo\";\nconsole.log(bar);\n```"
+        }
+      ]
+    },
+    "kind": "class",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "name": "B",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 20,
+      "col": 0,
+      "byteIndex": 221
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "B is an interface\n",
+      "tags": [
+        {
+          "kind": "example",
+          "doc": "```ts\nconsole.log(bar);\n```"
+        }
+      ]
+    },
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [],
+      "constructors": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "name": "C",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 32,
+      "col": 0,
+      "byteIndex": 367
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "C is a function\n",
+      "tags": [
+        {
+          "kind": "example",
+          "doc": "```ts\nclass Bar {\n  #foo = \"something\";\n}\nconsole.log(bar);\n```"
+        }
+      ]
+    },
+    "kind": "function",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "name": "D",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 41,
+      "col": 0,
+      "byteIndex": 476
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "D\n",
+      "tags": [
+        {
+          "kind": "example",
+          "doc": "```ts\nconst bar = \"foo\";\n```"
+        }
+      ]
+    },
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [],
+      "constructors": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  }
+]

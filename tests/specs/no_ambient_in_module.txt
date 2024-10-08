@@ -18,7 +18,6 @@ function bar(): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "bar",
     "isDefault": false,
     "location": {
@@ -28,6 +27,7 @@ function bar(): void
       "byteIndex": 32
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

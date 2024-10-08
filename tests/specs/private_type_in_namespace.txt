@@ -66,7 +66,6 @@ private namespace Test
 # output.json
 [
   {
-    "kind": "interface",
     "name": "Output",
     "isDefault": false,
     "location": {
@@ -76,6 +75,7 @@ private namespace Test
       "byteIndex": 44
     },
     "declarationKind": "export",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],
@@ -109,7 +109,6 @@ private namespace Test
     }
   },
   {
-    "kind": "namespace",
     "name": "Test",
     "isDefault": false,
     "location": {
@@ -119,10 +118,10 @@ private namespace Test
       "byteIndex": 0
     },
     "declarationKind": "private",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "class",
           "name": "Other",
           "isDefault": false,
           "location": {
@@ -132,6 +131,7 @@ private namespace Test
             "byteIndex": 19
           },
           "declarationKind": "export",
+          "kind": "class",
           "classDef": {
             "isAbstract": false,
             "constructors": [],

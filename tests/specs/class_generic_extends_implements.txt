@@ -18,7 +18,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
 # output.json
 [
   {
-    "kind": "class",
     "name": "Class",
     "isDefault": false,
     "location": {
@@ -28,6 +27,7 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

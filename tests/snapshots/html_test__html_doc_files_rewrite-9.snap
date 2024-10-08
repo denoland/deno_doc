@@ -9,20 +9,20 @@ expression: "files.get(\"./~/Foo.prototype.\\\"><img src=x onerror=alert(1)>.htm
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
-  <link rel="stylesheet" href="..&#x2F;..&#x2F;styles.css">
-  <link rel="stylesheet" href="..&#x2F;..&#x2F;page.css">
-  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;..&#x2F;reset.css">
+  <link rel="stylesheet" href="..&#x2F;styles.css">
+  <link rel="stylesheet" href="..&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;reset.css">
 
-    <script src="..&#x2F;..&#x2F;search_index.js" defer></script>
-    <script src="..&#x2F;..&#x2F;script.js" defer></script>
-    <script src="..&#x2F;..&#x2F;fuse.js" defer></script>
-    <script src="..&#x2F;..&#x2F;search.js" defer></script>
+    <script src="..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;script.js" defer></script>
+    <script src="..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;search.js" defer></script>
 </head>
 <body>
 <div class="ddoc">
 <div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -30,15 +30,7 @@ expression: "files.get(\"./~/Foo.prototype.\\\"><img src=x onerror=alert(1)>.htm
 	xmlns="http://www.w3.org/2000/svg">
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
-</span><li><a href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;index.html" class="contextLink">.</a></li><span class="text-[#0F172A]"><svg
-	width="16"
-	height="16"
-	viewBox="0 0 16 16"
-	fill="none"
-	xmlns="http://www.w3.org/2000/svg">
-	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
-</svg>
-</span><ul><li><a href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><span>.</span><li><a href="..&#x2F;..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><span>.</span><li>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</li></ul></ul>
+</span><ul><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><span>.</span><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><span>.</span><li>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</li></ul></ul>
 </div>
 
       <input

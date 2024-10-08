@@ -1,8 +1,15 @@
+use super::DocNodeWithContext;
+use super::FileMode;
 use super::RenderContext;
 use super::UrlResolveKind;
-use super::{DocNodeWithContext, FileMode};
+use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
+use regex::Regex;
 use serde::Serialize;
+
+lazy_static! {
+  static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
+}
 
 fn render_css_for_usage(name: &str) -> String {
   format!(
@@ -28,21 +35,26 @@ pub fn usage_to_md(
 ) -> String {
   let usage =
     if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
-      let mut parts = symbol.split('.').collect::<Vec<&str>>();
+      let mut parts = symbol.split('.');
 
       let top_node = doc_nodes[0].get_topmost_ancestor();
 
       let is_default = top_node.is_default.is_some_and(|is_default| is_default)
-        || top_node.name == "default";
+        || &*top_node.name == "default";
 
-      let import_symbol = if is_default {
+      let import_symbol: Box<str> = if is_default {
         if top_node.is_default.is_some_and(|is_default| is_default) {
-          top_node.name.clone()
+          let default_name = top_node.get_name();
+          if default_name == "default" {
+            get_identifier_for_file(ctx).into()
+          } else {
+            default_name.into()
+          }
         } else {
-          "module".to_string()
+          "module".into()
         }
       } else {
-        parts[0].to_string()
+        parts.clone().next().unwrap().into()
       };
 
       let usage_symbol = if doc_nodes
@@ -50,26 +62,39 @@ pub fn usage_to_md(
         .all(|node| node.drilldown_parent_kind.is_some())
       {
         None
-      } else if parts.len() > 1 {
-        parts.pop().map(|usage_symbol| {
-          (
-            usage_symbol,
-            // if it is namespaces within namespaces, we simply re-join them together
-            // instead of trying to figure out some sort of nested restructuring
-            if is_default {
-              import_symbol.clone()
-            } else {
-              parts.join(".")
-            },
-          )
-        })
       } else {
-        None
+        let last = parts.next_back();
+        if let Some(usage_symbol) = last {
+          if usage_symbol == symbol {
+            None
+          } else {
+            Some((
+              usage_symbol,
+              // if it is namespaces within namespaces, we simply re-join them together
+              // instead of trying to figure out some sort of nested restructuring
+              if is_default {
+                import_symbol.clone()
+              } else {
+                let capacity = symbol.len() - usage_symbol.len() - 1;
+                let mut joined = String::with_capacity(capacity);
+                for part in parts {
+                  if !joined.is_empty() {
+                    joined.push('.');
+                  }
+                  joined.push_str(part);
+                }
+                joined.into_boxed_str()
+              },
+            ))
+          }
+        } else {
+          None
+        }
       };
 
       let is_type = doc_nodes.iter().all(|doc_node| {
         matches!(
-          doc_node.drilldown_parent_kind.unwrap_or(doc_node.kind),
+          doc_node.drilldown_parent_kind.unwrap_or(doc_node.kind()),
           DocNodeKind::TypeAlias | DocNodeKind::Interface
         )
       });
@@ -98,14 +123,43 @@ pub fn usage_to_md(
 
       usage_statement
     } else {
-      // when the imported symbol is a namespace import, we try to guess at an
-      // intelligent camelized name for the import based on the package name.
-      let import_symbol = "mod";
+      let module_import_symbol = get_identifier_for_file(ctx);
 
-      format!(r#"import * as {import_symbol} from "{url}";"#)
+      format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
 
   format!("```typescript\n{usage}\n```")
+}
+
+fn get_identifier_for_file(ctx: &RenderContext) -> String {
+  let maybe_idenfitier =
+    if let Some(file) = ctx.get_current_resolve().get_file() {
+      ctx
+        .ctx
+        .doc_nodes
+        .get(file)
+        .and_then(|nodes| {
+          nodes
+            .iter()
+            .find(|node| node.kind() == DocNodeKind::ModuleDoc)
+        })
+        .and_then(|node| {
+          node.js_doc.tags.iter().find_map(|tag| {
+            if let JsDocTag::Module { name } = tag {
+              name.as_ref().map(|name| name.to_string())
+            } else {
+              None
+            }
+          })
+        })
+    } else {
+      ctx.ctx.package_name.clone()
+    };
+
+  maybe_idenfitier.as_ref().map_or_else(
+    || "mod".to_string(),
+    |identifier| IDENTIFIER_RE.replace_all(identifier, "_").to_string(),
+  )
 }
 
 #[derive(Clone, Debug, Serialize)]

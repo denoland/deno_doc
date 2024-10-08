@@ -1,17 +1,18 @@
 use crate::html::render_context::RenderContext;
 use crate::html::util::*;
 use crate::html::DocNodeWithContext;
+use crate::node::DocNodeDef;
+use deno_ast::swc::ast::MethodKind;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
-use std::collections::HashSet;
+use std::cmp::Ordering;
 
 pub fn render_namespace(
   ctx: &RenderContext,
-  partitions: IndexMap<SectionHeaderCtx, Vec<DocNodeWithContext>>,
+  partitions: impl Iterator<Item = (SectionHeaderCtx, Vec<DocNodeWithContext>)>,
 ) -> Vec<SectionCtx> {
   partitions
-    .into_iter()
     .map(|(header, doc_nodes)| {
       get_namespace_section_render_ctx(ctx, header, doc_nodes)
     })
@@ -53,15 +54,48 @@ fn get_namespace_section_render_ctx(
 }
 
 #[derive(Debug, Serialize, Clone)]
+pub struct NamespaceNodeSubItemCtx {
+  title: String,
+  href: String,
+}
+
+impl std::hash::Hash for NamespaceNodeSubItemCtx {
+  fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    self.title.hash(state)
+  }
+}
+
+impl PartialOrd for NamespaceNodeSubItemCtx {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.title.cmp(&other.title))
+  }
+}
+
+impl Ord for NamespaceNodeSubItemCtx {
+  fn cmp(&self, other: &Self) -> Ordering {
+    self.title.cmp(&other.title)
+  }
+}
+
+impl PartialEq for NamespaceNodeSubItemCtx {
+  fn eq(&self, other: &Self) -> bool {
+    self.title.eq(&other.title)
+  }
+}
+
+impl Eq for NamespaceNodeSubItemCtx {}
+
+#[derive(Debug, Serialize, Clone)]
 pub struct NamespaceNodeCtx {
   pub id: String,
   pub anchor: AnchorCtx,
-  pub tags: HashSet<Tag>,
+  pub tags: IndexSet<Tag>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
   pub name: String,
   pub docs: Option<String>,
   pub deprecated: bool,
+  pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
 }
 
 impl NamespaceNodeCtx {
@@ -77,6 +111,192 @@ impl NamespaceNodeCtx {
 
     let tags = Tag::from_js_doc(&nodes[0].js_doc);
 
+    let mut subitems = IndexSet::new();
+
+    let href = ctx.ctx.resolve_path(
+      ctx.get_current_resolve(),
+      UrlResolveKind::Symbol {
+        file: &nodes[0].origin,
+        symbol: &name,
+      },
+    );
+
+    for node in &nodes {
+      match &node.def {
+        DocNodeDef::Class { class_def } => {
+          subitems.extend(
+            class_def
+              .methods
+              .iter()
+              .filter(|method| !method.name.starts_with('['))
+              .map(|method| NamespaceNodeSubItemCtx {
+                title: method.name.to_string(),
+                href: format!(
+                  "{href}#{}",
+                  if matches!(
+                    method.kind,
+                    MethodKind::Getter | MethodKind::Setter
+                  ) {
+                    name_to_id("accessor", &method.name.to_lowercase())
+                  } else {
+                    name_to_id(
+                      "method",
+                      &format!("{}_0", method.name.to_lowercase()),
+                    )
+                  }
+                ),
+              }),
+          );
+          subitems.extend(
+            class_def
+              .properties
+              .iter()
+              .filter(|property| !property.name.starts_with('['))
+              .map(|property| NamespaceNodeSubItemCtx {
+                title: property.name.to_string(),
+                href: format!(
+                  "{href}#{}",
+                  name_to_id("property", &property.name.to_lowercase())
+                ),
+              }),
+          );
+        }
+        DocNodeDef::Interface { interface_def } => {
+          subitems.extend(
+            interface_def
+              .methods
+              .iter()
+              .filter(|method| !method.name.starts_with('['))
+              .map(|method| NamespaceNodeSubItemCtx {
+                title: method.name.to_string(),
+                href: format!(
+                  "{href}#{}",
+                  if matches!(
+                    method.kind,
+                    MethodKind::Getter | MethodKind::Setter
+                  ) {
+                    name_to_id("accessor", &method.name.to_lowercase())
+                  } else {
+                    name_to_id(
+                      "method",
+                      &format!("{}_0", method.name.to_lowercase()),
+                    )
+                  }
+                ),
+              }),
+          );
+          subitems.extend(
+            interface_def
+              .properties
+              .iter()
+              .filter(|property| !property.name.starts_with('['))
+              .map(|property| NamespaceNodeSubItemCtx {
+                title: property.name.to_string(),
+                href: format!(
+                  "{href}#{}",
+                  name_to_id("property", &property.name.to_lowercase())
+                ),
+              }),
+          );
+        }
+        DocNodeDef::Variable { variable_def } => {
+          if let Some(type_literal) = variable_def
+            .ts_type
+            .as_ref()
+            .and_then(|ts_type| ts_type.type_literal.as_ref())
+          {
+            subitems.extend(
+              type_literal
+                .methods
+                .iter()
+                .filter(|method| !method.name.starts_with('['))
+                .map(|method| NamespaceNodeSubItemCtx {
+                  title: method.name.to_string(),
+                  href: format!(
+                    "{href}#{}",
+                    if matches!(
+                      method.kind,
+                      MethodKind::Getter | MethodKind::Setter
+                    ) {
+                      name_to_id("accessor", &method.name.to_lowercase())
+                    } else {
+                      name_to_id(
+                        "method",
+                        &format!("{}_0", method.name.to_lowercase()),
+                      )
+                    }
+                  ),
+                }),
+            );
+
+            subitems.extend(
+              type_literal
+                .properties
+                .iter()
+                .filter(|property| !property.name.starts_with('['))
+                .map(|property| NamespaceNodeSubItemCtx {
+                  title: property.name.to_string(),
+                  href: format!(
+                    "{href}#{}",
+                    name_to_id("property", &property.name.to_lowercase())
+                  ),
+                }),
+            );
+          }
+        }
+        DocNodeDef::TypeAlias { type_alias_def } => {
+          if let Some(type_literal) =
+            type_alias_def.ts_type.type_literal.as_ref()
+          {
+            subitems.extend(
+              type_literal
+                .methods
+                .iter()
+                .filter(|method| !method.name.starts_with('['))
+                .map(|method| NamespaceNodeSubItemCtx {
+                  title: method.name.to_string(),
+                  href: format!(
+                    "{href}#{}",
+                    if matches!(
+                      method.kind,
+                      MethodKind::Getter | MethodKind::Setter
+                    ) {
+                      name_to_id("accessor", &method.name.to_lowercase())
+                    } else {
+                      name_to_id(
+                        "method",
+                        &format!("{}_0", method.name.to_lowercase()),
+                      )
+                    }
+                  ),
+                }),
+            );
+
+            subitems.extend(
+              type_literal
+                .properties
+                .iter()
+                .filter(|property| !property.name.starts_with('['))
+                .map(|property| NamespaceNodeSubItemCtx {
+                  title: property.name.to_string(),
+                  href: format!(
+                    "{href}#{}",
+                    name_to_id("property", &property.name.to_lowercase())
+                  ),
+                }),
+            );
+          }
+        }
+        DocNodeDef::Function { .. } => {}
+        DocNodeDef::Enum { .. } => {}
+        DocNodeDef::Namespace { .. } => {}
+        DocNodeDef::Import { .. } => {}
+        DocNodeDef::ModuleDoc => {}
+      };
+    }
+
+    subitems.sort();
+
     NamespaceNodeCtx {
       id: id.clone(),
       anchor: AnchorCtx { id },
@@ -85,16 +305,11 @@ impl NamespaceNodeCtx {
         .iter()
         .map(|node| node.kind_with_drilldown.into())
         .collect(),
-      href: ctx.ctx.resolve_path(
-        ctx.get_current_resolve(),
-        UrlResolveKind::Symbol {
-          file: &nodes[0].origin,
-          symbol: &name,
-        },
-      ),
+      href,
       name,
       docs,
       deprecated: all_deprecated(&nodes.iter().collect::<Vec<_>>()),
+      subitems,
     }
   }
 }

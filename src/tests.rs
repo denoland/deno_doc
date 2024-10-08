@@ -577,67 +577,54 @@ export namespace Deno {
     .unwrap();
 
   // Namespace
-  let found =
-    find_nodes_by_name_recursively(entries.clone(), "Deno".to_string());
+  let found = find_nodes_by_name_recursively(entries.clone(), "Deno");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "Deno".to_string());
+  assert_eq!(found[0].name, "Deno".into());
 
   // Overloaded functions
-  let found =
-    find_nodes_by_name_recursively(entries.clone(), "Deno.test".to_string());
+  let found = find_nodes_by_name_recursively(entries.clone(), "Deno.test");
   assert_eq!(found.len(), 3);
-  assert_eq!(found[0].name, "test".to_string());
-  assert_eq!(found[1].name, "test".to_string());
-  assert_eq!(found[2].name, "test".to_string());
+  assert_eq!(found[0].name, "test".into());
+  assert_eq!(found[1].name, "test".into());
+  assert_eq!(found[2].name, "test".into());
 
   // Nested namespace
-  let found =
-    find_nodes_by_name_recursively(entries.clone(), "Deno.Inner.a".to_string());
+  let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Inner.a");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "a".to_string());
+  assert_eq!(found[0].name, "a".into());
 
   // Interface property
-  let found = find_nodes_by_name_recursively(
-    entries.clone(),
-    "Deno.Conn.rid".to_string(),
-  );
+  let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.rid");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "rid".to_string());
-  assert_eq!(found[0].kind, DocNodeKind::Variable);
+  assert_eq!(found[0].name, "rid".into());
+  assert_eq!(found[0].kind(), DocNodeKind::Variable);
 
   // Interface method
-  let found = find_nodes_by_name_recursively(
-    entries.clone(),
-    "Deno.Conn.closeWrite".to_string(),
-  );
+  let found =
+    find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.closeWrite");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "closeWrite".to_string());
-  assert_eq!(found[0].kind, DocNodeKind::Function);
+  assert_eq!(found[0].name, "closeWrite".into());
+  assert_eq!(found[0].kind(), DocNodeKind::Function);
 
   // Class property
-  let found = find_nodes_by_name_recursively(
-    entries.clone(),
-    "Deno.Process.pid".to_string(),
-  );
+  let found =
+    find_nodes_by_name_recursively(entries.clone(), "Deno.Process.pid");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "pid".to_string());
-  assert_eq!(found[0].kind, DocNodeKind::Variable);
+  assert_eq!(found[0].name, "pid".into());
+  assert_eq!(found[0].kind(), DocNodeKind::Variable);
 
   // Class method
-  let found = find_nodes_by_name_recursively(
-    entries.clone(),
-    "Deno.Process.output".to_string(),
-  );
+  let found =
+    find_nodes_by_name_recursively(entries.clone(), "Deno.Process.output");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "output".to_string());
-  assert_eq!(found[0].kind, DocNodeKind::Function);
+  assert_eq!(found[0].name, "output".into());
+  assert_eq!(found[0].kind(), DocNodeKind::Function);
 
   // No match
-  let found =
-    find_nodes_by_name_recursively(entries.clone(), "Deno.test.a".to_string());
+  let found = find_nodes_by_name_recursively(entries.clone(), "Deno.test.a");
   assert_eq!(found.len(), 0);
 
-  let found = find_nodes_by_name_recursively(entries, "a.b.c".to_string());
+  let found = find_nodes_by_name_recursively(entries, "a.b.c");
   assert_eq!(found.len(), 0);
 }
 

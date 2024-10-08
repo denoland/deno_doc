@@ -37,7 +37,6 @@ class C extends B
 # output.json
 [
   {
-    "kind": "class",
     "name": "C",
     "isDefault": false,
     "location": {
@@ -47,6 +46,7 @@ class C extends B
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],

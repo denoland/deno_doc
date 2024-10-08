@@ -242,7 +242,7 @@ impl TsTypeDef {
         .params
         .iter()
         .map(|ts_type| TsTypeDef::new(parsed_source, ts_type))
-        .collect::<Vec<_>>();
+        .collect::<Box<[_]>>();
 
       Some(ts_type_defs)
     } else {
@@ -271,7 +271,7 @@ impl TsTypeDef {
         .params
         .iter()
         .map(|ts_type| TsTypeDef::new(parsed_source, ts_type))
-        .collect::<Vec<_>>();
+        .collect::<Box<[_]>>();
 
       Some(ts_type_defs)
     } else {
@@ -399,7 +399,7 @@ impl TsTypeDef {
               computed: ts_getter_sig.computed,
               optional: false,
               return_type: maybe_return_type,
-              type_params: vec![],
+              type_params: Box::new([]),
             };
             methods.push(method_def);
           }
@@ -424,7 +424,7 @@ impl TsTypeDef {
               computed: ts_setter_sig.computed,
               optional: false,
               return_type: None,
-              type_params: vec![],
+              type_params: Box::new([]),
             };
             methods.push(method_def);
           }
@@ -758,7 +758,7 @@ fn ts_entity_name_to_name(entity_name: &TsEntityName) -> String {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
-  pub type_params: Option<Vec<TsTypeDef>>,
+  pub type_params: Option<Box<[TsTypeDef]>>,
   pub type_name: String,
 }
 
@@ -803,7 +803,7 @@ pub struct TsFnOrConstructorDef {
   pub constructor: bool,
   pub ts_type: TsTypeDef,
   pub params: Vec<ParamDef>,
-  pub type_params: Vec<TsTypeParamDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
 }
 
 impl TsFnOrConstructorDef {
@@ -924,7 +924,7 @@ pub struct ConstructorDef {
   pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
   pub return_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
   pub location: Location,
 }
 
@@ -953,13 +953,13 @@ pub struct MethodDef {
   pub computed: bool,
   pub optional: bool,
   pub return_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
 }
 
 impl From<MethodDef> for DocNode {
   fn from(def: MethodDef) -> DocNode {
     DocNode::function(
-      def.name,
+      def.name.into_boxed_str(),
       false,
       def.location,
       DeclarationKind::Private,
@@ -972,7 +972,7 @@ impl From<MethodDef> for DocNode {
         is_async: false,
         is_generator: false,
         type_params: def.type_params,
-        decorators: vec![],
+        decorators: Box::new([]),
       },
     )
   }
@@ -1008,13 +1008,13 @@ pub struct PropertyDef {
   pub computed: bool,
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
 }
 
 impl From<PropertyDef> for DocNode {
   fn from(def: PropertyDef) -> DocNode {
     DocNode::variable(
-      def.name,
+      def.name.into_boxed_str(),
       false,
       def.location,
       DeclarationKind::Private,
@@ -1052,7 +1052,7 @@ pub struct CallSignatureDef {
   pub location: Location,
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
-  pub type_params: Vec<TsTypeParamDef>,
+  pub type_params: Box<[TsTypeParamDef]>,
 }
 
 impl Display for CallSignatureDef {
@@ -1426,7 +1426,7 @@ impl TsTypeDef {
   }
 }
 
-pub fn infer_ts_type_from_expr(
+pub(crate) fn infer_ts_type_from_expr(
   parsed_source: &ParsedSource,
   expr: &Expr,
   is_const: bool,
@@ -1591,7 +1591,7 @@ pub fn infer_ts_type_from_expr(
   }
 }
 
-pub fn infer_simple_ts_type_from_init(
+pub(crate) fn infer_simple_ts_type_from_init(
   parsed_source: &ParsedSource,
   init: Option<&Expr>,
   is_const: bool,
@@ -1813,7 +1813,7 @@ fn infer_ts_type_from_obj_inner(
             computed: false,
             optional: false,
             ts_type: None,
-            type_params: vec![],
+            type_params: Box::new([]),
           });
         }
         Prop::KeyValue(kv) => {
@@ -1826,7 +1826,7 @@ fn infer_ts_type_from_obj_inner(
             computed: kv.key.is_computed(),
             optional: false,
             ts_type: infer_ts_type_from_expr(parsed_source, &kv.value, false),
-            type_params: vec![],
+            type_params: Box::new([]),
           });
         }
         Prop::Assign(_) => unreachable!("This is invalid for object literal!"),
@@ -1846,7 +1846,7 @@ fn infer_ts_type_from_obj_inner(
             computed,
             optional: false,
             return_type,
-            type_params: vec![],
+            type_params: Box::new([]),
           });
         }
         Prop::Setter(setter) => {
@@ -1862,7 +1862,7 @@ fn infer_ts_type_from_obj_inner(
             computed,
             optional: false,
             return_type: None,
-            type_params: vec![],
+            type_params: Box::new([]),
           });
         }
         Prop::Method(method) => {
@@ -2141,17 +2141,17 @@ impl Display for TsTypeDef {
   }
 }
 
-pub fn maybe_type_param_instantiation_to_type_defs(
+pub(crate) fn maybe_type_param_instantiation_to_type_defs(
   parsed_source: &ParsedSource,
   maybe_type_param_instantiation: Option<&TsTypeParamInstantiation>,
-) -> Vec<TsTypeDef> {
+) -> Box<[TsTypeDef]> {
   if let Some(type_param_instantiation) = maybe_type_param_instantiation {
     type_param_instantiation
       .params
       .iter()
       .map(|type_param| TsTypeDef::new(parsed_source, type_param))
-      .collect::<Vec<TsTypeDef>>()
+      .collect::<Box<[TsTypeDef]>>()
   } else {
-    vec![]
+    Box::new([])
   }
 }

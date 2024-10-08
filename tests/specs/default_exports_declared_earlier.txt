@@ -18,7 +18,6 @@ function default(): void
 # output.json
 [
   {
-    "kind": "function",
     "name": "default",
     "isDefault": true,
     "location": {
@@ -28,6 +27,7 @@ function default(): void
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "params": [],
       "returnType": {

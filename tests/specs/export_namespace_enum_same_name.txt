@@ -49,7 +49,6 @@ namespace RootNs
 # output.json
 [
   {
-    "kind": "namespace",
     "name": "RootNs",
     "isDefault": false,
     "location": {
@@ -59,10 +58,10 @@ namespace RootNs
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "namespace",
     "namespaceDef": {
       "elements": [
         {
-          "kind": "namespace",
           "name": "NestedNs",
           "isDefault": false,
           "location": {
@@ -72,10 +71,10 @@ namespace RootNs
             "byteIndex": 28
           },
           "declarationKind": "export",
+          "kind": "namespace",
           "namespaceDef": {
             "elements": [
               {
-                "kind": "enum",
                 "name": "Foo",
                 "isDefault": false,
                 "location": {
@@ -85,6 +84,7 @@ namespace RootNs
                   "byteIndex": 60
                 },
                 "declarationKind": "export",
+                "kind": "enum",
                 "enumDef": {
                   "members": []
                 }
@@ -93,7 +93,6 @@ namespace RootNs
           }
         },
         {
-          "kind": "enum",
           "name": "Foo",
           "isDefault": false,
           "location": {
@@ -103,6 +102,7 @@ namespace RootNs
             "byteIndex": 91
           },
           "declarationKind": "export",
+          "kind": "enum",
           "enumDef": {
             "members": []
           }

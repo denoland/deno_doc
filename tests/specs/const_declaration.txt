@@ -17,7 +17,6 @@ const Const: 0
 # output.json
 [
   {
-    "kind": "variable",
     "name": "Const",
     "isDefault": false,
     "location": {
@@ -27,6 +26,7 @@ const Const: 0
       "byteIndex": 13
     },
     "declarationKind": "export",
+    "kind": "variable",
     "variableDef": {
       "tsType": {
         "repr": "0",

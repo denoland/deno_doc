@@ -19,7 +19,6 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "MappedTypeWithNewProperties",
     "isDefault": false,
     "location": {
@@ -29,6 +28,7 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "",

@@ -57,7 +57,6 @@ private interface YesDiagnostic
 # output.json
 [
   {
-    "kind": "class",
     "name": "MyClass",
     "isDefault": false,
     "location": {
@@ -70,6 +69,7 @@ private interface YesDiagnostic
     "jsDoc": {
       "doc": "Comment"
     },
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -142,7 +142,6 @@ private interface YesDiagnostic
     }
   },
   {
-    "kind": "interface",
     "name": "YesDiagnostic",
     "isDefault": false,
     "location": {
@@ -152,6 +151,7 @@ private interface YesDiagnostic
       "byteIndex": 133
     },
     "declarationKind": "private",
+    "kind": "interface",
     "interfaceDef": {
       "extends": [],
       "constructors": [],

@@ -219,7 +219,7 @@ expression: files
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": null,
+                "docs": "<div class=\"markdown\"><blockquote>\n<p>Some quote in bar docs\nThis quote part is ignored\nwhen getting the title of this doc</p>\n</blockquote>\n<p>Bar docs</p>\n</div>",
                 "sections": []
               }
             }
@@ -363,7 +363,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -512,7 +512,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_quotgtltimg-srcx-onerroralert1gt\" title=\"\"&gt;&lt;img src=x onerror=alert(1)&gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_quotgtltimg-srcx-onerroralert1gt\" title=\"&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -556,8 +556,25 @@ expression: files
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": null,
-                "sections": []
+                "docs": "<div class=\"markdown\"><pre class=\"highlight\"><code>// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n</code><button class=\"context_button\" data-copy=\"// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n<p>Foobar docs</p>\n</div>",
+                "sections": [
+                  {
+                    "header": {
+                      "title": "See",
+                      "anchor": {
+                        "id": "see"
+                      },
+                      "href": null,
+                      "doc": null
+                    },
+                    "content": {
+                      "kind": "see",
+                      "content": [
+                        "<div class=\"markdown\"><p><a href=\"https://example.com\" rel=\"nofollow\">https://example.com</a></p>\n</div>"
+                      ]
+                    }
+                  }
+                ]
               }
             }
           ],
@@ -587,7 +604,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import default from \".\";\n</code><button class=\"context_button\" data-copy=\"import default from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import Foobar from \".\";\n</code><button class=\"context_button\" data-copy=\"import Foobar from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -595,7 +612,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": null
+      "document_navigation": "<ul><li><a href=\"#see\" title=\"See\">See</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -700,7 +717,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -955,6 +972,33 @@ expression: files
                               }
                             ]
                           }
+                        },
+                        {
+                          "header": {
+                            "title": "Throws",
+                            "anchor": {
+                              "id": "throws"
+                            },
+                            "href": null,
+                            "doc": null
+                          },
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_d_0_throws_0",
+                                "name": null,
+                                "name_href": null,
+                                "content": "Foo",
+                                "anchor": {
+                                  "id": "function_d_0_throws_0"
+                                },
+                                "tags": [],
+                                "js_doc": "<div class=\"markdown\"><p>bar</p>\n</div>",
+                                "source_href": null
+                              }
+                            ]
+                          }
                         }
                       ]
                     }
@@ -997,7 +1041,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameters_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameters_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameters_baz\" title=\"baz\">baz</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameters_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameters_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameters_baz\" title=\"baz\">baz</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1184,7 +1228,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>"
+      "document_navigation": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul></li></ul>"
     },
     "disable_search": false,
     "categories_panel": null
@@ -1848,7 +1892,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import default from \"foo\";\n</code><button class=\"context_button\" data-copy=\"import default from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code>import bar from \"foo\";\n</code><button class=\"context_button\" data-copy=\"import bar from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }

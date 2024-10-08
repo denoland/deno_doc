@@ -9,8 +9,10 @@ use crate::html::util::*;
 use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
+use indexmap::IndexSet;
 use serde::Serialize;
 use std::collections::HashSet;
+use std::ops::Deref;
 
 #[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
@@ -40,14 +42,14 @@ impl FunctionCtx {
       .iter()
       .enumerate()
       .filter(|(i, doc_node)| {
-        let function_def = doc_node.function_def.as_ref().unwrap();
+        let function_def = doc_node.function_def().unwrap();
 
         !(function_def.has_body && *i != 0)
       })
       .count();
 
     for (i, doc_node) in doc_nodes.into_iter().enumerate() {
-      let function_def = doc_node.function_def.as_ref().unwrap();
+      let function_def = doc_node.function_def().unwrap();
 
       if function_def.has_body && i != 0 {
         continue;
@@ -70,11 +72,9 @@ impl FunctionCtx {
         name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
 
       if overloads_count > 1 {
-        ctx.toc.add_entry(
-          0,
-          format!("Overload {}", i + 1),
-          overload_id.clone(),
-        );
+        ctx
+          .toc
+          .add_entry(0, &format!("Overload {}", i + 1), &overload_id);
       }
 
       functions_content.push(OverloadRenderCtx {
@@ -117,7 +117,7 @@ fn render_single_function(
   doc_node: &DocNodeWithContext,
   overload_id: &str,
 ) -> SymbolContentCtx {
-  let function_def = doc_node.function_def.as_ref().unwrap();
+  let function_def = doc_node.function_def().unwrap();
 
   let current_type_params = function_def
     .type_params
@@ -126,29 +126,28 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let param_docs =
-    doc_node
-      .js_doc
-      .tags
-      .iter()
-      .filter_map(|tag| {
-        if let JsDocTag::Param {
-          name,
-          doc,
-          optional,
-          default,
-          ..
-        } = tag
-        {
-          Some((name.as_str(), (doc, *optional, default)))
-        } else {
-          None
-        }
-      })
-      .collect::<std::collections::HashMap<
-        &str,
-        (&Option<String>, bool, &Option<String>),
-      >>();
+  let param_docs = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Param {
+        name,
+        doc,
+        optional,
+        default,
+        ..
+      } = tag
+      {
+        Some((name.deref(), (doc, *optional, default)))
+      } else {
+        None
+      }
+    })
+    .collect::<std::collections::HashMap<
+      &str,
+      (&Option<Box<str>>, bool, &Option<Box<str>>),
+    >>();
 
   let params = function_def
     .params
@@ -168,7 +167,7 @@ fn render_single_function(
 
       let ts_type =
         if let ParamPatternDef::Assign { left, right } = &param.pattern {
-          default = default.or(Some(right.to_string()));
+          default = default.or(Some(right.deref().into()));
           left.ts_type.as_ref()
         } else {
           param.ts_type.as_ref()
@@ -179,7 +178,7 @@ fn render_single_function(
         .unwrap_or_default();
 
       if let Some(default) = &default {
-        if default != "[UNSUPPORTED]" {
+        if default.deref() != "[UNSUPPORTED]" {
           ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
         }
       }
@@ -193,9 +192,9 @@ fn render_single_function(
       ) || default.is_some()
         || optional
       {
-        HashSet::from([Tag::Optional])
+        IndexSet::from([Tag::Optional])
       } else {
-        HashSet::new()
+        IndexSet::new()
       };
 
       let param_doc = param_docs
@@ -251,6 +250,54 @@ fn render_single_function(
     ),
   ));
 
+  let throws = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Throws { type_ref, doc } = tag {
+        if type_ref.is_some() || doc.is_some() {
+          return Some((type_ref, doc));
+        }
+      }
+
+      None
+    })
+    .enumerate()
+    .map(|(i, (type_ref, doc))| {
+      render_function_throws(ctx, doc_node, type_ref, doc, overload_id, i)
+    })
+    .collect::<Vec<_>>();
+
+  if !throws.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Throws",
+      SectionContentCtx::DocEntry(throws),
+    ));
+  }
+
+  let references = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::See { doc } = tag {
+        Some(super::generate_see(ctx, doc))
+      } else {
+        None
+      }
+    })
+    .collect::<Vec<_>>();
+
+  if !references.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "See",
+      SectionContentCtx::See(references),
+    ));
+  }
+
   SymbolContentCtx {
     id: String::new(),
     sections,
@@ -282,8 +329,33 @@ fn render_function_return_type(
     None,
     None,
     &render_type_def(render_ctx, return_type),
-    HashSet::new(),
+    IndexSet::new(),
     return_type_doc,
     &doc_node.location,
   ))
+}
+
+fn render_function_throws(
+  render_ctx: &RenderContext,
+  doc_node: &DocNodeWithContext,
+  type_ref: &Option<Box<str>>,
+  doc: &Option<Box<str>>,
+  overload_id: &str,
+  throws_id: usize,
+) -> DocEntryCtx {
+  let id = name_to_id(overload_id, &format!("throws_{throws_id}"));
+
+  DocEntryCtx::new(
+    render_ctx,
+    &id,
+    None,
+    None,
+    type_ref
+      .as_ref()
+      .map(|doc| doc.as_ref())
+      .unwrap_or_default(),
+    IndexSet::new(),
+    doc.as_ref().map(|doc| doc.as_ref()),
+    &doc_node.location,
+  )
 }

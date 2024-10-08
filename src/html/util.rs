@@ -8,12 +8,14 @@ use crate::html::RenderContext;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
+use crate::node::DocNodeDef;
 use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
 use regex::Regex;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
@@ -53,24 +55,22 @@ impl NamespacedSymbols {
 pub fn compute_namespaced_symbols(
   doc_nodes: &[DocNodeWithContext],
 ) -> HashSet<Vec<String>> {
-  let mut namespaced_symbols = HashSet::new();
+  let mut namespaced_symbols = HashSet::<Vec<String>>::new();
 
   for doc_node in doc_nodes {
-    if doc_node.kind == DocNodeKind::ModuleDoc
-      || doc_node.kind == DocNodeKind::Import
+    if doc_node.kind() == DocNodeKind::ModuleDoc
+      || doc_node.kind() == DocNodeKind::Import
     {
       continue;
     }
     // TODO: handle export aliasing
 
-    let name_path = Rc::new(doc_node.sub_qualifier());
+    let name_path: Rc<[String]> = doc_node.sub_qualifier().into();
 
-    match doc_node.kind {
-      DocNodeKind::Class => {
-        let class_def = doc_node.class_def.as_ref().unwrap();
-
+    match &doc_node.def {
+      DocNodeDef::Class { class_def } => {
         namespaced_symbols.extend(class_def.methods.iter().map(|method| {
-          let mut method_path = (*doc_node.ns_qualifiers).clone();
+          let mut method_path = doc_node.ns_qualifiers.to_vec();
           method_path.extend(
             qualify_drilldown_name(
               doc_node.get_name(),
@@ -85,7 +85,7 @@ pub fn compute_namespaced_symbols(
 
         namespaced_symbols.extend(class_def.properties.iter().map(
           |property| {
-            let mut method_path = (*doc_node.ns_qualifiers).clone();
+            let mut method_path = doc_node.ns_qualifiers.to_vec();
             method_path.extend(
               qualify_drilldown_name(
                 doc_node.get_name(),
@@ -99,11 +99,9 @@ pub fn compute_namespaced_symbols(
           },
         ));
       }
-      DocNodeKind::Interface => {
-        let interface_def = doc_node.interface_def.as_ref().unwrap();
-
+      DocNodeDef::Interface { interface_def } => {
         namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
-          let mut method_path = (*doc_node.ns_qualifiers).clone();
+          let mut method_path = doc_node.ns_qualifiers.to_vec();
           method_path.extend(
             qualify_drilldown_name(doc_node.get_name(), &method.name, true)
               .split('.')
@@ -114,7 +112,7 @@ pub fn compute_namespaced_symbols(
 
         namespaced_symbols.extend(interface_def.properties.iter().map(
           |property| {
-            let mut method_path = (*doc_node.ns_qualifiers).clone();
+            let mut method_path = doc_node.ns_qualifiers.to_vec();
             method_path.extend(
               qualify_drilldown_name(doc_node.get_name(), &property.name, true)
                 .split('.')
@@ -124,14 +122,12 @@ pub fn compute_namespaced_symbols(
           },
         ));
       }
-      DocNodeKind::TypeAlias => {
-        let type_alias_def = doc_node.type_alias_def.as_ref().unwrap();
-
+      DocNodeDef::TypeAlias { type_alias_def } => {
         if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
         {
           namespaced_symbols.extend(type_literal.methods.iter().map(
             |method| {
-              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              let mut method_path = doc_node.ns_qualifiers.to_vec();
               method_path.extend(
                 qualify_drilldown_name(doc_node.get_name(), &method.name, true)
                   .split('.')
@@ -143,7 +139,7 @@ pub fn compute_namespaced_symbols(
 
           namespaced_symbols.extend(type_literal.properties.iter().map(
             |property| {
-              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              let mut method_path = doc_node.ns_qualifiers.to_vec();
               method_path.extend(
                 qualify_drilldown_name(
                   doc_node.get_name(),
@@ -158,17 +154,15 @@ pub fn compute_namespaced_symbols(
           ));
         }
       }
-      DocNodeKind::Variable => {
-        let variable = doc_node.variable_def.as_ref().unwrap();
-
-        if let Some(type_literal) = variable
+      DocNodeDef::Variable { variable_def } => {
+        if let Some(type_literal) = variable_def
           .ts_type
           .as_ref()
           .and_then(|ts_type| ts_type.type_literal.as_ref())
         {
           namespaced_symbols.extend(type_literal.methods.iter().map(
             |method| {
-              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              let mut method_path = doc_node.ns_qualifiers.to_vec();
               method_path.extend(
                 qualify_drilldown_name(doc_node.get_name(), &method.name, true)
                   .split('.')
@@ -180,7 +174,7 @@ pub fn compute_namespaced_symbols(
 
           namespaced_symbols.extend(type_literal.properties.iter().map(
             |property| {
-              let mut method_path = (*doc_node.ns_qualifiers).clone();
+              let mut method_path = doc_node.ns_qualifiers.to_vec();
               method_path.extend(
                 qualify_drilldown_name(
                   doc_node.get_name(),
@@ -198,10 +192,9 @@ pub fn compute_namespaced_symbols(
       _ => {}
     }
 
-    namespaced_symbols.insert((*name_path).clone());
+    namespaced_symbols.insert(name_path.to_vec());
 
-    if doc_node.kind == DocNodeKind::Namespace {
-      let namespace_def = doc_node.namespace_def.as_ref().unwrap();
+    if let DocNodeDef::Namespace { namespace_def } = &doc_node.def {
       namespaced_symbols.extend(compute_namespaced_symbols(
         &namespace_def
           .elements
@@ -315,6 +308,14 @@ pub trait HrefResolver {
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
+
+  /// Resolve external JSDoc module links.
+  /// Returns a tuple with link and title.
+  fn resolve_external_jsdoc_module(
+    &self,
+    module: &str,
+    symbol: Option<&str>,
+  ) -> Option<(String, String)>;
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -332,6 +333,22 @@ pub struct BreadcrumbsCtx {
 
 impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
+
+  pub fn to_strings(&self) -> Vec<Cow<str>> {
+    let mut title_parts = vec![];
+    let mut symbol_parts = vec![];
+
+    for breadcrumb in self.parts.iter() {
+      if breadcrumb.is_symbol {
+        symbol_parts.push(breadcrumb.name.as_str());
+      } else {
+        title_parts.push(Cow::Borrowed(breadcrumb.name.as_str()));
+      }
+    }
+    title_parts.push(Cow::Owned(symbol_parts.join(".")));
+
+    title_parts
+  }
 }
 
 #[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
@@ -405,6 +422,7 @@ pub enum SectionContentCtx {
   Example(Vec<super::jsdoc::ExampleCtx>),
   IndexSignature(Vec<super::symbols::class::IndexSignatureCtx>),
   NamespaceSection(Vec<super::namespace::NamespaceNodeCtx>),
+  See(Vec<String>),
   Empty,
 }
 
@@ -425,15 +443,14 @@ impl SectionHeaderCtx {
 
     let doc = module_doc_nodes
       .iter()
-      .find(|n| n.kind == DocNodeKind::ModuleDoc)
+      .find(|n| n.kind() == DocNodeKind::ModuleDoc)
       .and_then(|node| node.js_doc.doc.as_ref())
       .and_then(|doc| {
         markdown_to_html(
           render_ctx,
           doc,
           MarkdownToHTMLOptions {
-            summary: true,
-            summary_prefer_title: true,
+            title_only: true,
             no_toc: false,
           },
         )
@@ -442,8 +459,10 @@ impl SectionHeaderCtx {
     let title = path.display_name();
 
     SectionHeaderCtx {
-      title: title.clone(),
-      anchor: AnchorCtx { id: title },
+      title: title.to_string(),
+      anchor: AnchorCtx {
+        id: title.to_string(),
+      },
       href: Some(render_ctx.ctx.resolve_path(
         render_ctx.get_current_resolve(),
         path.as_resolve_kind(),
@@ -467,11 +486,8 @@ impl SectionCtx {
     title: &str,
     mut content: SectionContentCtx,
   ) -> Self {
-    let anchor = render_context.toc.add_entry(
-      1,
-      title.to_owned(),
-      render_context.toc.anchorize(title.to_owned()),
-    );
+    let anchor = render_context.toc.anchorize(title);
+    render_context.toc.add_entry(1, title, &anchor);
 
     match &mut content {
       SectionContentCtx::DocEntry(entries) => {
@@ -480,39 +496,40 @@ impl SectionCtx {
             continue;
           };
 
-          let anchor = render_context.toc.anchorize(entry.id.to_owned());
+          let anchor = render_context.toc.anchorize(&entry.id);
+
+          render_context.toc.add_entry(2, name, &anchor);
 
           entry.id = anchor.clone();
-          entry.anchor.id = anchor.clone();
-
-          render_context.toc.add_entry(2, name.clone(), anchor);
+          entry.anchor.id = anchor;
         }
       }
       SectionContentCtx::Example(examples) => {
         for example in examples {
-          let anchor = render_context.toc.anchorize(example.id.to_owned());
-
-          example.id = anchor.clone();
-          example.anchor.id = anchor.clone();
+          let anchor = render_context.toc.anchorize(&example.id);
 
           render_context.toc.add_entry(
             2,
-            super::jsdoc::strip(render_context, &example.title),
-            anchor,
+            &super::jsdoc::strip(render_context, &example.title),
+            &anchor,
           );
+
+          example.id = anchor.clone();
+          example.anchor.id = anchor;
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          let anchor = render_context.toc.anchorize(node.id.to_owned());
+          let anchor = render_context.toc.anchorize(&node.id);
+
+          render_context.toc.add_entry(2, &node.name, &anchor);
 
           node.id = anchor.clone();
-          node.anchor.id = anchor.clone();
-
-          render_context.toc.add_entry(2, node.name.clone(), anchor);
+          node.anchor.id = anchor;
         }
       }
+      SectionContentCtx::See(_) => {}
       SectionContentCtx::Empty => {}
     }
 
@@ -540,8 +557,8 @@ pub enum Tag {
   Private,
   Optional,
   Unstable,
-  Permissions(Vec<String>),
-  Other(String),
+  Permissions(Box<[Box<str>]>),
+  Other(Box<str>),
 }
 
 impl Tag {
@@ -557,7 +574,7 @@ impl Tag {
     }
   }
 
-  pub fn from_js_doc(js_doc: &JsDoc) -> HashSet<Tag> {
+  pub fn from_js_doc(js_doc: &JsDoc) -> IndexSet<Tag> {
     js_doc
       .tags
       .iter()
@@ -576,7 +593,7 @@ pub struct DocEntryCtx {
   name_href: Option<String>,
   content: String,
   anchor: AnchorCtx,
-  tags: HashSet<Tag>,
+  tags: IndexSet<Tag>,
   js_doc: Option<String>,
   source_href: Option<String>,
 }
@@ -591,7 +608,7 @@ impl DocEntryCtx {
     name: Option<String>,
     name_href: Option<String>,
     content: &str,
-    tags: HashSet<Tag>,
+    tags: IndexSet<Tag>,
     jsdoc: Option<&str>,
     location: &crate::Location,
   ) -> Self {

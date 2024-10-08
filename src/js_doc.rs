@@ -5,26 +5,36 @@ use serde::Deserialize;
 use serde::Serialize;
 
 lazy_static! {
-  static ref JS_DOC_TAG_MAYBE_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated)(?:\s+(.+))?").unwrap();
-  static ref JS_DOC_TAG_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(category|see|example|tags|since)(?:\s+(.+))").unwrap();
-  static ref JS_DOC_TAG_NAMED_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_RE: Regex = Regex::new(r"(?s)^\s*@(\S+)").unwrap();
+  /// @tag
+  static ref JS_DOC_TAG_WITHOUT_VALUE_RE: Regex = Regex::new(r"^\s*@(constructor|class|ignore|internal|public|private|protected|readonly|experimental)").unwrap();
+  /// @tag maybe_value
+  static ref JS_DOC_TAG_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated|module)(?:\s+(.+))?").unwrap();
+  /// @tag value
+  static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since)(?:\s+(.+))").unwrap();
+  /// @tag name maybe_value
+  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  /// @tag {type} name maybe_value
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
-  static ref JS_DOC_TAG_ONLY_RE: Regex = Regex::new(r"^\s*@(constructor|class|ignore|internal|module|public|private|protected|readonly|experimental)").unwrap();
+  /// @tag {type} name maybe_value
+  /// @tag {type} [name] maybe_value
+  /// @tag {type} [name=default] maybe_value
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
     r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?P<doc>.+))?"
   )
   .unwrap();
-  static ref JS_DOC_TAG_RE: Regex = Regex::new(r"(?s)^\s*@(\S+)").unwrap();
-  static ref JS_DOC_TAG_OPTIONAL_TYPE_AND_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
-  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
+  /// @tag {maybe_type} maybe_value
+  static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
+  /// @tag {maybe_type} value
+  static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq)]
 pub struct JsDoc {
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub doc: Option<String>,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub tags: Vec<JsDocTag>,
+  pub doc: Option<Box<str>>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
+  pub tags: Box<[JsDocTag]>,
 }
 
 impl JsDoc {
@@ -33,46 +43,88 @@ impl JsDoc {
   }
 }
 
+fn handle_codeblock<'a>(
+  line: &'a str,
+  is_codeblock: &mut bool,
+) -> Option<&'a str> {
+  if *is_codeblock && line.starts_with("# ") {
+    if line.contains("```") {
+      *is_codeblock = !*is_codeblock;
+      Some("```")
+    } else {
+      None
+    }
+  } else {
+    if line.contains("```") {
+      *is_codeblock = !*is_codeblock;
+    }
+    Some(line)
+  }
+}
+
 impl From<String> for JsDoc {
   fn from(value: String) -> Self {
     let mut tags = Vec::new();
-    let mut doc_lines = Vec::new();
+    let mut doc_lines: Option<String> = None;
     let mut is_tag = false;
-    let mut current_tag: Vec<&str> = Vec::new();
+    let mut is_codeblock = false;
+    let mut tag_is_codeblock = false;
+    let mut current_tag: Option<String> = None;
     let mut current_tag_name = "";
     for line in value.lines() {
       let caps = JS_DOC_TAG_RE.captures(line);
       if is_tag || caps.is_some() {
         if !is_tag {
           is_tag = true;
-          assert!(current_tag.is_empty());
+          assert!(current_tag.is_none());
         }
-        if caps.is_some() && !current_tag.is_empty() {
-          tags.push(current_tag.join("\n").into());
-          current_tag.clear();
+        if caps.is_some() {
+          tag_is_codeblock = false;
+          let current_tag = std::mem::take(&mut current_tag);
+          if let Some(current_tag) = current_tag {
+            tags.push(current_tag.into());
+          }
         }
         if let Some(caps) = caps {
           current_tag_name = caps.get(1).unwrap().as_str();
         }
-        // certain tags, we want to preserve any leading whitespace
-        if matches!(current_tag_name, "example") {
-          current_tag.push(line.trim_end());
-        } else {
-          current_tag.push(line.trim());
+        if let Some(line) = handle_codeblock(line, &mut tag_is_codeblock) {
+          let current_tag = if let Some(current_tag) = &mut current_tag {
+            current_tag.push('\n');
+            current_tag
+          } else {
+            current_tag = Some(String::new());
+            current_tag.as_mut().unwrap()
+          };
+
+          // certain tags, we want to preserve any leading whitespace
+          if matches!(current_tag_name, "example") {
+            current_tag.push_str(line.trim_end());
+          } else {
+            current_tag.push_str(line.trim());
+          }
+        }
+      } else if let Some(doc_lines) = &mut doc_lines {
+        if let Some(line) = handle_codeblock(line, &mut is_codeblock) {
+          doc_lines.push('\n');
+          doc_lines.push_str(line);
         }
       } else {
-        doc_lines.push(line);
+        doc_lines = Some(String::new());
+        doc_lines.as_mut().unwrap().push_str(line);
+        if line.contains("```") {
+          is_codeblock = !is_codeblock;
+        }
       }
     }
-    if !current_tag.is_empty() {
-      tags.push(current_tag.join("\n").into());
+    if let Some(current_tag) = current_tag {
+      tags.push(current_tag.into());
     }
-    let doc = if doc_lines.is_empty() {
-      None
-    } else {
-      Some(doc_lines.join("\n"))
-    };
-    Self { doc, tags }
+    let doc = doc_lines.map(|doc_lines| doc_lines.into_boxed_str());
+    Self {
+      doc,
+      tags: tags.into_boxed_slice(),
+    }
   }
 }
 
@@ -81,68 +133,73 @@ impl From<String> for JsDoc {
 pub enum JsDocTag {
   /// `@callback Predicate comment`
   Callback {
-    name: String,
+    name: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@category comment`
+  /// `@group comment`
   Category {
     #[serde(default)]
-    doc: String,
+    doc: Box<str>,
   },
   /// `@constructor` or `@class`
   Constructor,
   /// `@default {value} comment`
   Default {
-    value: String,
+    value: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@deprecated comment`
   Deprecated {
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@enum {type} comment`
   Enum {
     #[serde(rename = "type")]
-    type_ref: String,
+    type_ref: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@example comment`
   Example {
     #[serde(default)]
-    doc: String,
+    doc: Box<str>,
   },
   /// `@experimental`
   Experimental,
   /// `@extends {type} comment`
   Extends {
     #[serde(rename = "type")]
-    type_ref: String,
+    type_ref: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@ignore`
   Ignore,
   /// `@internal`
   Internal,
   /// `@module`
-  Module,
+  /// `@module name`
+  Module {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    name: Option<Box<str>>,
+  },
   /// `@param`, `@arg` or `argument`, in format of `@param {type} name comment`
   /// or `@param {type} [name=default] comment`
   /// or `@param {type} [name] comment`
   Param {
-    name: String,
+    name: Box<str>,
     #[serde(rename = "type", skip_serializing_if = "Option::is_none", default)]
-    type_ref: Option<String>,
+    type_ref: Option<Box<str>>,
     #[serde(skip_serializing_if = "core::ops::Not::not", default)]
     optional: bool,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    default: Option<String>,
+    default: Option<Box<str>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@public`
   Public,
@@ -150,11 +207,11 @@ pub enum JsDocTag {
   Private,
   /// `@property {type} name comment` or `@prop {type} name comment`
   Property {
-    name: String,
+    name: Box<str>,
     #[serde(rename = "type", default)]
-    type_ref: String,
+    type_ref: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@protected`
   Protected,
@@ -163,94 +220,97 @@ pub enum JsDocTag {
   /// `@return {type} comment` or `@returns {type} comment`
   Return {
     #[serde(rename = "type", skip_serializing_if = "Option::is_none", default)]
-    type_ref: Option<String>,
+    type_ref: Option<Box<str>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@tags allow-read, allow-write`
   Tags {
-    tags: Vec<String>,
+    tags: Box<[Box<str>]>,
   },
   /// `@template T comment`
   /// `@typeparam T comment`
   /// `@typeParam T comment`
   Template {
-    name: String,
+    name: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@this {type} comment`
   This {
     #[serde(rename = "type")]
-    type_ref: String,
+    type_ref: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@throws {type} comment` or `@exception {type} comment`
   Throws {
     #[serde(rename = "type")]
-    type_ref: Option<String>,
+    type_ref: Option<Box<str>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@typedef {type} name comment`
   TypeDef {
-    name: String,
+    name: Box<str>,
     #[serde(rename = "type")]
-    type_ref: String,
+    type_ref: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@type {type} comment`
   #[serde(rename = "type")]
   TypeRef {
     #[serde(rename = "type")]
-    type_ref: String,
+    type_ref: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    doc: Option<String>,
+    doc: Option<Box<str>>,
   },
   /// `@see comment`
   See {
-    doc: String,
+    doc: Box<str>,
   },
   /// `@since version`
   Since {
-    doc: String,
+    doc: Box<str>,
   },
   Unsupported {
-    value: String,
+    value: Box<str>,
   },
 }
 
 impl From<String> for JsDocTag {
   fn from(value: String) -> Self {
-    if let Some(caps) = JS_DOC_TAG_ONLY_RE.captures(&value) {
+    if let Some(caps) = JS_DOC_TAG_WITHOUT_VALUE_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
       match kind {
         "constructor" | "class" => Self::Constructor,
         "experimental" => Self::Experimental,
         "ignore" => Self::Ignore,
         "internal" => Self::Internal,
-        "module" => Self::Module,
         "public" => Self::Public,
         "private" => Self::Private,
         "protected" => Self::Protected,
         "readonly" => Self::ReadOnly,
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_NAMED_RE.captures(&value) {
+    } else if let Some(caps) =
+      JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE.captures(&value)
+    {
       let kind = caps.get(1).unwrap().as_str();
-      let name = caps.get(2).unwrap().as_str().to_string();
-      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      let name = caps.get(2).unwrap().as_str().into();
+      let doc = caps.get(3).map(|m| m.as_str().into());
       match kind {
         "callback" => Self::Callback { name, doc },
         "template" | "typeparam" | "typeParam" => Self::Template { name, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_TYPED_RE.captures(&value) {
+    } else if let Some(caps) =
+      JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
+    {
       let kind = caps.get(1).unwrap().as_str();
-      let type_ref = caps.get(2).unwrap().as_str().to_string();
-      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      let type_ref = caps.get(2).unwrap().as_str().into();
+      let doc = caps.get(3).map(|m| m.as_str().into());
       match kind {
         "enum" => Self::Enum { type_ref, doc },
         "extends" | "augments" => Self::Extends { type_ref, doc },
@@ -264,9 +324,9 @@ impl From<String> for JsDocTag {
       }
     } else if let Some(caps) = JS_DOC_TAG_NAMED_TYPED_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
-      let type_ref = caps.get(2).unwrap().as_str().to_string();
-      let name = caps.get(3).unwrap().as_str().to_string();
-      let doc = caps.get(4).map(|m| m.as_str().to_string());
+      let type_ref = caps.get(2).unwrap().as_str().into();
+      let name = caps.get(3).unwrap().as_str().into();
+      let doc = caps.get(4).map(|m| m.as_str().into());
       match kind {
         "prop" | "property" => Self::Property {
           name,
@@ -280,21 +340,22 @@ impl From<String> for JsDocTag {
         },
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_MAYBE_DOC_RE.captures(&value) {
+    } else if let Some(caps) = JS_DOC_TAG_WITH_MAYBE_VALUE_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
-      let doc = caps.get(2).map(|m| m.as_str().to_string());
+      let doc = caps.get(2).map(|m| m.as_str().into());
       match kind {
         "deprecated" => Self::Deprecated { doc },
+        "module" => Self::Module { name: doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_DOC_RE.captures(&value) {
+    } else if let Some(caps) = JS_DOC_TAG_WITH_VALUE_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
-      let doc = caps.get(2).unwrap().as_str().to_string();
+      let doc = caps.get(2).unwrap().as_str().into();
       match kind {
-        "category" => Self::Category { doc },
+        "category" | "group" => Self::Category { doc },
         "example" => Self::Example { doc },
         "tags" => Self::Tags {
-          tags: doc.split(',').map(|i| i.trim().to_string()).collect(),
+          tags: doc.split(',').map(|i| i.trim().into()).collect(),
         },
         "see" => Self::See { doc },
         "since" => Self::Since { doc },
@@ -307,10 +368,10 @@ impl From<String> for JsDocTag {
         .or(name_with_maybe_default)
         .unwrap()
         .as_str()
-        .to_string();
-      let type_ref = caps.name("type").map(|m| m.as_str().to_string());
-      let default = caps.name("default").map(|m| m.as_str().to_string());
-      let doc = caps.name("doc").map(|m| m.as_str().to_string());
+        .into();
+      let type_ref = caps.name("type").map(|m| m.as_str().into());
+      let default = caps.name("default").map(|m| m.as_str().into());
+      let doc = caps.name("doc").map(|m| m.as_str().into());
       Self::Param {
         name,
         type_ref,
@@ -319,18 +380,20 @@ impl From<String> for JsDocTag {
         doc,
       }
     } else if let Some(caps) =
-      JS_DOC_TAG_OPTIONAL_TYPE_AND_DOC_RE.captures(&value)
+      JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
     {
       let kind = caps.get(1).unwrap().as_str();
-      let type_ref = caps.get(2).map(|m| m.as_str().to_string());
-      let doc = caps.get(3).map(|m| m.as_str().to_string());
+      let type_ref = caps.get(2).map(|m| m.as_str().into());
+      let doc = caps.get(3).map(|m| m.as_str().into());
       match kind {
         "return" | "returns" => Self::Return { type_ref, doc },
         "throws" | "exception" => Self::Throws { type_ref, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else {
-      Self::Unsupported { value }
+      Self::Unsupported {
+        value: value.into(),
+      }
     }
   }
 }
@@ -358,10 +421,6 @@ mod tests {
     assert_eq!(
       serde_json::to_value(JsDoc::from("@ignore more".to_string())).unwrap(),
       json!({ "tags": [ { "kind": "ignore" } ] }),
-    );
-    assert_eq!(
-      serde_json::to_value(JsDoc::from("@module more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "module" } ] }),
     );
     assert_eq!(
       serde_json::to_value(JsDoc::from("@public more".to_string())).unwrap(),
@@ -610,6 +669,26 @@ if (true) {
         }]
       })
     );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@module".to_string())).unwrap(),
+      json!({
+        "tags": [{
+          "kind": "module",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@module maybe doc\n\nnew paragraph".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "module",
+          "name": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
   }
 
   #[test]
@@ -617,6 +696,18 @@ if (true) {
     assert_eq!(
       serde_json::to_value(JsDoc::from(
         "@category Functional Components".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "category",
+          "doc": "Functional Components",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@group Functional Components".to_string()
       ))
       .unwrap(),
       json!({
@@ -928,7 +1019,7 @@ multi-line
   fn test_js_doc_tag_serialization() {
     assert_eq!(
       serde_json::to_value(JsDocTag::Callback {
-        name: "Predicate".to_string(),
+        name: "Predicate".into(),
         doc: None,
       })
       .unwrap(),
@@ -945,7 +1036,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Default {
-        value: "true".to_string(),
+        value: "true".into(),
         doc: None,
       })
       .unwrap(),
@@ -956,7 +1047,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Deprecated {
-        doc: Some("comment".to_string()),
+        doc: Some("comment".into()),
       })
       .unwrap(),
       json!({
@@ -966,7 +1057,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Enum {
-        type_ref: "number".to_string(),
+        type_ref: "number".into(),
         doc: None,
       })
       .unwrap(),
@@ -977,7 +1068,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Extends {
-        type_ref: "OtherType<T>".to_string(),
+        type_ref: "OtherType<T>".into(),
         doc: None,
       })
       .unwrap(),
@@ -988,11 +1079,11 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Param {
-        name: "arg".to_string(),
-        type_ref: Some("number".to_string()),
+        name: "arg".into(),
+        type_ref: Some("number".into()),
         optional: false,
-        default: Some("1".to_string()),
-        doc: Some("comment".to_string()),
+        default: Some("1".into()),
+        doc: Some("comment".into()),
       })
       .unwrap(),
       json!({
@@ -1005,11 +1096,11 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Param {
-        name: "arg".to_string(),
+        name: "arg".into(),
         type_ref: None,
         optional: false,
         default: None,
-        doc: Some("comment".to_string()),
+        doc: Some("comment".into()),
       })
       .unwrap(),
       json!({
@@ -1028,8 +1119,8 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Property {
-        name: "prop".to_string(),
-        type_ref: "string".to_string(),
+        name: "prop".into(),
+        type_ref: "string".into(),
         doc: None,
       })
       .unwrap(),
@@ -1049,8 +1140,8 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Return {
-        type_ref: Some("string".to_string()),
-        doc: Some("comment".to_string()),
+        type_ref: Some("string".into()),
+        doc: Some("comment".into()),
       })
       .unwrap(),
       json!({
@@ -1061,7 +1152,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Template {
-        name: "T".to_string(),
+        name: "T".into(),
         doc: None,
       })
       .unwrap(),
@@ -1072,7 +1163,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::This {
-        type_ref: "Record<string, unknown>".to_string(),
+        type_ref: "Record<string, unknown>".into(),
         doc: None,
       })
       .unwrap(),
@@ -1083,8 +1174,8 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::TypeDef {
-        name: "Interface".to_string(),
-        type_ref: "object".to_string(),
+        name: "Interface".into(),
+        type_ref: "object".into(),
         doc: None,
       })
       .unwrap(),
@@ -1096,7 +1187,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::TypeRef {
-        type_ref: "Map<string, string>".to_string(),
+        type_ref: "Map<string, string>".into(),
         doc: None,
       })
       .unwrap(),
@@ -1107,7 +1198,7 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Unsupported {
-        value: "unsupported".to_string()
+        value: "unsupported".into()
       })
       .unwrap(),
       json!({

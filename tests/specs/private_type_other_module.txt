@@ -96,7 +96,6 @@ Defined in file:///mod.ts:1:1
 # output.json
 [
   {
-    "kind": "class",
     "name": "MyClass",
     "isDefault": false,
     "location": {
@@ -106,6 +105,7 @@ Defined in file:///mod.ts:1:1
       "byteIndex": 64
     },
     "declarationKind": "export",
+    "kind": "class",
     "classDef": {
       "isAbstract": false,
       "constructors": [],
@@ -164,7 +164,6 @@ Defined in file:///mod.ts:1:1
     }
   },
   {
-    "kind": "import",
     "name": "MyNamespace",
     "location": {
       "filename": "file:///mod.ts",
@@ -173,13 +172,13 @@ Defined in file:///mod.ts:1:1
       "byteIndex": 0
     },
     "declarationKind": "private",
+    "kind": "import",
     "importDef": {
       "src": "file:///diagnostic.ts",
       "imported": "MyNamespace"
     }
   },
   {
-    "kind": "import",
     "name": "YesDiagnostic2",
     "location": {
       "filename": "file:///mod.ts",
@@ -188,6 +187,7 @@ Defined in file:///mod.ts:1:1
       "byteIndex": 0
     },
     "declarationKind": "private",
+    "kind": "import",
     "importDef": {
       "src": "file:///diagnostic.ts",
       "imported": "YesDiagnostic2"

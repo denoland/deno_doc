@@ -23,7 +23,6 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
 # output.json
 [
   {
-    "kind": "typeAlias",
     "name": "A",
     "isDefault": false,
     "location": {
@@ -33,6 +32,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "typeAlias",
     "typeAliasDef": {
       "tsType": {
         "repr": "",

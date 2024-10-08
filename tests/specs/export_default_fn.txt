@@ -30,7 +30,6 @@ function default(a: number)
 # output.json
 [
   {
-    "kind": "function",
     "name": "default",
     "isDefault": true,
     "location": {
@@ -40,6 +39,7 @@ function default(a: number)
       "byteIndex": 0
     },
     "declarationKind": "export",
+    "kind": "function",
     "functionDef": {
       "defName": "foo",
       "params": [

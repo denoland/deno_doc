@@ -181,6 +181,7 @@ async fn inner_doc(
         &import_map_specifier,
         LoadOptions {
           is_dynamic: false,
+          was_dynamic_root: false,
           cache_setting: CacheSetting::Use,
           maybe_checksum: None,
         },

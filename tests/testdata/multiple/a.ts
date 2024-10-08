@@ -28,9 +28,26 @@ export class Foo {
   '"><img src=x onerror=alert(1)>' = 0;
 }
 
+/**
+ * > Some quote in bar docs
+ * > This quote part is ignored
+ * > when getting the title of this doc
+ *
+ * Bar docs
+ */
 export class Bar extends Foo {
 }
 
+/**
+ * ```ts
+ * // This code block is ignored when getting the title of this doc
+ * const foobar = new Foobar();
+ * ```
+ *
+ * Foobar docs
+ *
+ * @see https://example.com
+ */
 export default class Foobar {
 }
 
@@ -56,6 +73,9 @@ export function qaz(a: string | number) {}
 
 export const c = (): string => "hello";
 
+/**
+ * @throws {Foo} bar
+ */
 export function d(
   foo: number = 1,
   bar: string = "bar",
