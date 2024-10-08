@@ -14,13 +14,19 @@ lazy_static! {
   static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
   static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  /// @tag {type} name maybe_value
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  /// @tag {type} name maybe_value
+  /// @tag {type} [name] maybe_value
+  /// @tag {type} [name=default] maybe_value
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
     r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?P<doc>.+))?"
   )
   .unwrap();
-  static ref JS_DOC_TAG_OPTIONAL_TYPE_AND_DOC_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
-  static ref JS_DOC_TAG_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
+  /// @tag {maybe_type} maybe_value
+  static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
+  /// @tag {maybe_type} value
+  static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq)]
@@ -299,7 +305,9 @@ impl From<String> for JsDocTag {
         "template" | "typeparam" | "typeParam" => Self::Template { name, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_TYPED_RE.captures(&value) {
+    } else if let Some(caps) =
+      JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
+    {
       let kind = caps.get(1).unwrap().as_str();
       let type_ref = caps.get(2).unwrap().as_str().into();
       let doc = caps.get(3).map(|m| m.as_str().into());
@@ -372,7 +380,7 @@ impl From<String> for JsDocTag {
         doc,
       }
     } else if let Some(caps) =
-      JS_DOC_TAG_OPTIONAL_TYPE_AND_DOC_RE.captures(&value)
+      JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
     {
       let kind = caps.get(1).unwrap().as_str();
       let type_ref = caps.get(2).map(|m| m.as_str().into());

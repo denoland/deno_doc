@@ -1,7 +1,7 @@
 const Fuse = window.Fuse;
 
 const searchInput = document.querySelector("#searchbar");
-const mainContentTags = document.getElementsByTagName("main");
+const contentDiv = document.querySelector("#content");
 const searchResultsDiv = document.querySelector("#searchResults");
 const currentFile =
   document.querySelector("meta[name='doc-current-file']").attributes
@@ -98,16 +98,12 @@ function updateCurrentLocation(val) {
 }
 
 function showPage() {
-  for (const mainTag of mainContentTags) {
-    mainTag.style.display = "block";
-  }
+  contentDiv.style.display = "flex";
   searchResultsDiv.style.display = "none";
 }
 
 function showSearchResults() {
-  for (const mainTag of mainContentTags) {
-    mainTag.style.display = "none";
-  }
+  contentDiv.style.display = "none";
   searchResultsDiv.style.display = "block";
 }
 
@@ -121,8 +117,7 @@ function renderResults(results) {
 
   for (const result of results) {
     const kind = result.kind.map((kind) => {
-      const [rustKind, title, symbol] = docNodeKindToStringVariants(kind);
-      return `<div class="text-${rustKind} bg-${rustKind}/15" title="${title}">${symbol}</div>`;
+      return `<div class="text-${kind.kind} bg-${kind.kind}/15" title="${kind.title}">${kind.char}</div>`;
     }).join("");
 
     html += `<li class="block">
@@ -144,25 +139,4 @@ function renderResults(results) {
 
 function searchInIndex(val) {
   return fuse.search(val).map((result) => result.item);
-}
-
-function docNodeKindToStringVariants(kind) {
-  switch (kind) {
-    case "function":
-      return ["Function", "Function", "f"];
-    case "variable":
-      return ["Variable", "Variable", "v"];
-    case "class":
-      return ["Class", "Class", "c"];
-    case "enum":
-      return ["Enum", "Enum", "E"];
-    case "interface":
-      return ["Interface", "Interface", "I"];
-    case "typeAlias":
-      return ["TypeAlias", "Type Alias", "T"];
-    case "namespace":
-      return ["Namespace", "Namespace", "N"];
-    default:
-      return [];
-  }
 }

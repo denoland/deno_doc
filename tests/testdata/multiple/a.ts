@@ -73,6 +73,9 @@ export function qaz(a: string | number) {}
 
 export const c = (): string => "hello";
 
+/**
+ * @throws {Foo} bar
+ */
 export function d(
   foo: number = 1,
   bar: string = "bar",

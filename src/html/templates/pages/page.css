@@ -74,7 +74,3 @@
     }
   }
 }
-
-#searchResults {
-  @apply absolute bg-white inset-0 hidden;
-}

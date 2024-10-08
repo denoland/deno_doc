@@ -250,6 +250,33 @@ fn render_single_function(
     ),
   ));
 
+  let throws = doc_node
+    .js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Throws { type_ref, doc } = tag {
+        if type_ref.is_some() || doc.is_some() {
+          return Some((type_ref, doc));
+        }
+      }
+
+      None
+    })
+    .enumerate()
+    .map(|(i, (type_ref, doc))| {
+      render_function_throws(ctx, doc_node, type_ref, doc, overload_id, i)
+    })
+    .collect::<Vec<_>>();
+
+  if !throws.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Throws",
+      SectionContentCtx::DocEntry(throws),
+    ));
+  }
+
   let references = doc_node
     .js_doc
     .tags
@@ -306,4 +333,29 @@ fn render_function_return_type(
     return_type_doc,
     &doc_node.location,
   ))
+}
+
+fn render_function_throws(
+  render_ctx: &RenderContext,
+  doc_node: &DocNodeWithContext,
+  type_ref: &Option<Box<str>>,
+  doc: &Option<Box<str>>,
+  overload_id: &str,
+  throws_id: usize,
+) -> DocEntryCtx {
+  let id = name_to_id(overload_id, &format!("throws_{throws_id}"));
+
+  DocEntryCtx::new(
+    render_ctx,
+    &id,
+    None,
+    None,
+    type_ref
+      .as_ref()
+      .map(|doc| doc.as_ref())
+      .unwrap_or_default(),
+    IndexSet::new(),
+    doc.as_ref().map(|doc| doc.as_ref()),
+    &doc_node.location,
+  )
 }

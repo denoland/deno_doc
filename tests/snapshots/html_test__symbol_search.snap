@@ -6,7 +6,13 @@ expression: search_index
   "nodes": [
     {
       "kind": [
-        "class"
+        {
+          "kind": "Class",
+          "char": "c",
+          "title": "Class",
+          "title_lowercase": "class",
+          "title_plural": "Classes"
+        }
       ],
       "name": "A",
       "file": ".",
@@ -24,7 +30,13 @@ expression: search_index
     },
     {
       "kind": [
-        "class"
+        {
+          "kind": "Class",
+          "char": "c",
+          "title": "Class",
+          "title_lowercase": "class",
+          "title_plural": "Classes"
+        }
       ],
       "name": "B",
       "file": ".",
@@ -42,7 +54,13 @@ expression: search_index
     },
     {
       "kind": [
-        "class"
+        {
+          "kind": "Class",
+          "char": "c",
+          "title": "Class",
+          "title_lowercase": "class",
+          "title_plural": "Classes"
+        }
       ],
       "name": "Bar",
       "file": ".",
@@ -60,7 +78,13 @@ expression: search_index
     },
     {
       "kind": [
-        "typeAlias"
+        {
+          "kind": "TypeAlias",
+          "char": "T",
+          "title": "Type Alias",
+          "title_lowercase": "type alias",
+          "title_plural": "Type Aliases"
+        }
       ],
       "name": "Baz",
       "file": ".",
@@ -78,7 +102,37 @@ expression: search_index
     },
     {
       "kind": [
-        "class"
+        {
+          "kind": "Property",
+          "char": "p",
+          "title": "Property",
+          "title_lowercase": "property",
+          "title_plural": "Properties"
+        }
+      ],
+      "name": "Baz.foo",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 59,
+        "col": 2,
+        "byteIndex": 1036
+      },
+      "url": "././~/Baz.foo.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "kind": "Class",
+          "char": "c",
+          "title": "Class",
+          "title_lowercase": "class",
+          "title_plural": "Classes"
+        }
       ],
       "name": "Foo",
       "file": ".",
@@ -96,7 +150,85 @@ expression: search_index
     },
     {
       "kind": [
-        "class"
+        {
+          "kind": "Property",
+          "char": "p",
+          "title": "Property",
+          "title_lowercase": "property",
+          "title_plural": "Properties"
+        }
+      ],
+      "name": "Foo.bar",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 26,
+        "col": 2,
+        "byteIndex": 525
+      },
+      "url": "././~/Foo.bar.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "kind": "Property",
+          "char": "p",
+          "title": "Property",
+          "title_lowercase": "property",
+          "title_plural": "Properties"
+        }
+      ],
+      "name": "Foo.prototype.foo",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 27,
+        "col": 2,
+        "byteIndex": 549
+      },
+      "url": "././~/Foo.prototype.foo.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "kind": "Property",
+          "char": "p",
+          "title": "Property",
+          "title_lowercase": "property",
+          "title_plural": "Properties"
+        }
+      ],
+      "name": "Foo.prototype.\"&gt;&lt;img src=x onerror=alert(1)&gt;",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 28,
+        "col": 2,
+        "byteIndex": 563
+      },
+      "url": "././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "kind": "Class",
+          "char": "c",
+          "title": "Class",
+          "title_lowercase": "class",
+          "title_plural": "Classes"
+        }
       ],
       "name": "Foobar",
       "file": ".",
@@ -114,7 +246,13 @@ expression: search_index
     },
     {
       "kind": [
-        "interface"
+        {
+          "kind": "Interface",
+          "char": "I",
+          "title": "Interface",
+          "title_lowercase": "interface",
+          "title_plural": "Interfaces"
+        }
       ],
       "name": "Hello",
       "file": ".",
@@ -132,7 +270,37 @@ expression: search_index
     },
     {
       "kind": [
-        "function"
+        {
+          "kind": "Property",
+          "char": "p",
+          "title": "Property",
+          "title_lowercase": "property",
+          "title_plural": "Properties"
+        }
+      ],
+      "name": "Hello.world",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 55,
+        "col": 2,
+        "byteIndex": 994
+      },
+      "url": "././~/Hello.world.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "kind": "Function",
+          "char": "f",
+          "title": "Function",
+          "title_lowercase": "function",
+          "title_plural": "Functions"
+        }
       ],
       "name": "c",
       "file": ".",
@@ -150,16 +318,22 @@ expression: search_index
     },
     {
       "kind": [
-        "function"
+        {
+          "kind": "Function",
+          "char": "f",
+          "title": "Function",
+          "title_lowercase": "function",
+          "title_plural": "Functions"
+        }
       ],
       "name": "d",
       "file": ".",
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 76,
+        "line": 79,
         "col": 0,
-        "byteIndex": 1273
+        "byteIndex": 1302
       },
       "url": "././~/d.html",
       "category": "",
@@ -168,9 +342,27 @@ expression: search_index
     },
     {
       "kind": [
-        "function",
-        "function",
-        "function"
+        {
+          "kind": "Function",
+          "char": "f",
+          "title": "Function",
+          "title_lowercase": "function",
+          "title_plural": "Functions"
+        },
+        {
+          "kind": "Function",
+          "char": "f",
+          "title": "Function",
+          "title_lowercase": "function",
+          "title_plural": "Functions"
+        },
+        {
+          "kind": "Function",
+          "char": "f",
+          "title": "Function",
+          "title_lowercase": "function",
+          "title_plural": "Functions"
+        }
       ],
       "name": "qaz",
       "file": ".",
@@ -188,7 +380,13 @@ expression: search_index
     },
     {
       "kind": [
-        "variable"
+        {
+          "kind": "Variable",
+          "char": "v",
+          "title": "Variable",
+          "title_lowercase": "variable",
+          "title_plural": "Variables"
+        }
       ],
       "name": "default",
       "file": "foo",
@@ -206,7 +404,13 @@ expression: search_index
     },
     {
       "kind": [
-        "function"
+        {
+          "kind": "Function",
+          "char": "f",
+          "title": "Function",
+          "title_lowercase": "function",
+          "title_plural": "Functions"
+        }
       ],
       "name": "x",
       "file": "foo",

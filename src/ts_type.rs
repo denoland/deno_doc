@@ -1426,7 +1426,7 @@ impl TsTypeDef {
   }
 }
 
-pub fn infer_ts_type_from_expr(
+pub(crate) fn infer_ts_type_from_expr(
   parsed_source: &ParsedSource,
   expr: &Expr,
   is_const: bool,
@@ -1591,7 +1591,7 @@ pub fn infer_ts_type_from_expr(
   }
 }
 
-pub fn infer_simple_ts_type_from_init(
+pub(crate) fn infer_simple_ts_type_from_init(
   parsed_source: &ParsedSource,
   init: Option<&Expr>,
   is_const: bool,
@@ -2141,7 +2141,7 @@ impl Display for TsTypeDef {
   }
 }
 
-pub fn maybe_type_param_instantiation_to_type_defs(
+pub(crate) fn maybe_type_param_instantiation_to_type_defs(
   parsed_source: &ParsedSource,
   maybe_type_param_instantiation: Option<&TsTypeParamInstantiation>,
 ) -> Box<[TsTypeDef]> {

@@ -222,7 +222,7 @@ fn split_markdown_title(md: &str) -> (Option<&str>, Option<&str>) {
 struct AmmoniaRelativeUrlEvaluator();
 
 #[cfg(feature = "ammonia")]
-impl ammonia::UrlRelativeEvaluate for AmmoniaRelativeUrlEvaluator {
+impl<'b> ammonia::UrlRelativeEvaluate<'b> for AmmoniaRelativeUrlEvaluator {
   fn evaluate<'a>(&self, url: &'a str) -> Option<Cow<'a, str>> {
     URL_REWRITER.with(|url_rewriter| {
       if let Some(url_rewriter) = url_rewriter.borrow().as_ref().unwrap() {

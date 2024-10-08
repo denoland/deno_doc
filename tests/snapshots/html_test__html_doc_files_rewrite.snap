@@ -40,7 +40,7 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="content">
+<div id="searchResults"></div><div id="content">
     <main><div class="space-y-7" id=""><section class="section" id="default">
   <div>
 	  <h2 class="anchorable mb-1"><a href="#default" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
@@ -149,7 +149,8 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
     </div></div>
 </section>
 </div>
-</main><div id="searchResults"></div></div>
+</main>
+  </div>
 </div>
 </div>
 </body>
