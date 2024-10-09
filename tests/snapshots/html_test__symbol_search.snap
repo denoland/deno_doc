@@ -19,9 +19,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 62,
+        "line": 63,
         "col": 0,
-        "byteIndex": 1053
+        "byteIndex": 1065
       },
       "url": "././~/A.html",
       "category": "",
@@ -43,9 +43,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 65,
+        "line": 66,
         "col": 0,
-        "byteIndex": 1082
+        "byteIndex": 1094
       },
       "url": "././~/B.html",
       "category": "",
@@ -67,9 +67,9 @@ expression: search_index
       "doc": "> Some quote in bar docs\n> This quote part is ignored\n> when getting the title of this doc\n\nBar docs",
       "location": {
         "filename": "default",
-        "line": 38,
+        "line": 39,
         "col": 0,
-        "byteIndex": 727
+        "byteIndex": 739
       },
       "url": "././~/Bar.html",
       "category": "",
@@ -91,9 +91,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 58,
+        "line": 59,
         "col": 0,
-        "byteIndex": 1014
+        "byteIndex": 1026
       },
       "url": "././~/Baz.html",
       "category": "",
@@ -115,9 +115,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 59,
+        "line": 60,
         "col": 2,
-        "byteIndex": 1036
+        "byteIndex": 1048
       },
       "url": "././~/Baz.foo.html",
       "category": "",
@@ -144,6 +144,30 @@ expression: search_index
         "byteIndex": 504
       },
       "url": "././~/Foo.html",
+      "category": "",
+      "declarationKind": "export",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "kind": "Method",
+          "char": "m",
+          "title": "Method",
+          "title_lowercase": "method",
+          "title_plural": "Methods"
+        }
+      ],
+      "name": "Foo.prototype.test",
+      "file": ".",
+      "doc": "",
+      "location": {
+        "filename": "default",
+        "line": 29,
+        "col": 2,
+        "byteIndex": 603
+      },
+      "url": "././~/Foo.prototype.test.html",
       "category": "",
       "declarationKind": "export",
       "deprecated": false
@@ -235,9 +259,9 @@ expression: search_index
       "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs\n",
       "location": {
         "filename": "default",
-        "line": 51,
+        "line": 52,
         "col": 0,
-        "byteIndex": 934
+        "byteIndex": 946
       },
       "url": "././~/Foobar.html",
       "category": "",
@@ -259,9 +283,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 54,
+        "line": 55,
         "col": 0,
-        "byteIndex": 967
+        "byteIndex": 979
       },
       "url": "././~/Hello.html",
       "category": "",
@@ -283,9 +307,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 55,
+        "line": 56,
         "col": 2,
-        "byteIndex": 994
+        "byteIndex": 1006
       },
       "url": "././~/Hello.world.html",
       "category": "",
@@ -307,9 +331,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 74,
+        "line": 75,
         "col": 13,
-        "byteIndex": 1245
+        "byteIndex": 1257
       },
       "url": "././~/c.html",
       "category": "",
@@ -331,9 +355,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 79,
+        "line": 80,
         "col": 0,
-        "byteIndex": 1302
+        "byteIndex": 1314
       },
       "url": "././~/d.html",
       "category": "",
@@ -369,9 +393,9 @@ expression: search_index
       "doc": "",
       "location": {
         "filename": "default",
-        "line": 70,
+        "line": 71,
         "col": 0,
-        "byteIndex": 1124
+        "byteIndex": 1136
       },
       "url": "././~/qaz.html",
       "category": "",

@@ -608,12 +608,14 @@ impl DocNodeWithContext {
     is_static: bool,
     method_kind: MethodKind,
   ) -> Self {
+    let original_name = method_doc_node.name.clone();
     method_doc_node.name =
       qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static)
         .into_boxed_str();
     method_doc_node.declaration_kind = self.declaration_kind;
 
     let mut new_node = self.create_child(Rc::new(method_doc_node));
+    new_node.drilldown_name = Some(original_name);
     new_node.kind_with_drilldown =
       DocNodeKindWithDrilldown::Method(method_kind);
     new_node
