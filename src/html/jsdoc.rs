@@ -84,6 +84,10 @@ lazy_static! {
         AmmoniaRelativeUrlEvaluator(),
       )));
 
+    #[cfg(feature = "syntect")]
+    ammonia_builder.add_tag_attributes("span", ["style"]);
+
+    #[cfg(feature = "tree-sitter")]
     ammonia_builder.add_allowed_classes("span", super::tree_sitter::CLASSES);
 
     ammonia_builder

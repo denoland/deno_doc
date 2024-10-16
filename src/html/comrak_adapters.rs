@@ -1,4 +1,16 @@
+// Copied and modified from https://github.com/kivikakk/comrak/blob/main/src/plugins/syntect.rs
+
+//! Adapter for the Syntect syntax highlighter plugin.
+
 #![allow(clippy::print_stderr)]
+
+#[cfg(any(
+  not(any(feature = "syntect", feature = "tree-sitter")),
+  all(feature = "syntect", feature = "tree-sitter")
+))]
+compile_error!(
+  "Either feature \"syntect\" or \"tree-sitter\" must be enabled, not both or neither."
+);
 
 use comrak::adapters::HeadingAdapter;
 use comrak::adapters::HeadingMeta;
@@ -11,7 +23,13 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 #[derive(Debug)]
+/// Syntect syntax highlighter plugin.
 pub struct HighlightAdapter {
+  #[cfg(feature = "syntect")]
+  pub syntax_set: syntect::parsing::SyntaxSet,
+  #[cfg(feature = "syntect")]
+  pub theme_set: syntect::highlighting::ThemeSet,
+  #[cfg(feature = "tree-sitter")]
   pub language_cb:
     fn(&str) -> Option<&'static tree_sitter_highlight::HighlightConfiguration>,
   pub show_line_numbers: bool,
@@ -76,6 +94,54 @@ impl HighlightAdapter {
 }
 
 impl SyntaxHighlighterAdapter for HighlightAdapter {
+  #[cfg(all(feature = "syntect", not(feature = "tree-sitter")))]
+  fn write_highlighted(
+    &self,
+    output: &mut dyn Write,
+    lang: Option<&str>,
+    code: &str,
+  ) -> std::io::Result<()> {
+    let lang = match lang {
+      Some(l) if !l.is_empty() => l,
+      _ => "Plain Text",
+    };
+
+    let syntax =
+      self
+        .syntax_set
+        .find_syntax_by_token(lang)
+        .unwrap_or_else(|| {
+          self
+            .syntax_set
+            .find_syntax_by_first_line(code)
+            .unwrap_or_else(|| self.syntax_set.find_syntax_plain_text())
+        });
+
+    let theme = &self.theme_set.themes["InspiredGitHub"];
+    let mut highlighter = syntect::easy::HighlightLines::new(syntax, theme);
+
+    match self.highlight_html(
+      syntect::util::LinesWithEndings::from(code),
+      |lines, line| {
+        let regions = highlighter.highlight_line(line, &self.syntax_set)?;
+
+        syntect::html::append_highlighted_html_for_styled_line(
+          &regions,
+          syntect::html::IncludeBackground::No,
+          lines,
+        )?;
+
+        Ok(())
+      },
+    ) {
+      Ok(highlighted_code) => output.write_all(highlighted_code.as_bytes())?,
+      Err(_) => output.write_all(code.as_bytes())?,
+    }
+
+    self.write_button(output, code)
+  }
+
+  #[cfg(all(feature = "tree-sitter", not(feature = "syntect")))]
   fn write_highlighted(
     &self,
     output: &mut dyn Write,

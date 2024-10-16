@@ -182,6 +182,7 @@ async fn html_doc_files() {
     ]
   );
 
+  #[cfg(feature = "tree-sitter")]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -272,6 +273,7 @@ async fn html_doc_files_rewrite() {
     ]
   );
 
+  #[cfg(feature = "tree-sitter")]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -385,6 +387,7 @@ async fn symbol_group() {
     }
   }
 
+  #[cfg(feature = "tree-sitter")]
   insta::assert_json_snapshot!(files);
 }
 
@@ -483,5 +486,6 @@ async fn module_doc() {
     module_docs.push(module_doc);
   }
 
+  #[cfg(feature = "tree-sitter")]
   insta::assert_json_snapshot!(module_docs);
 }
