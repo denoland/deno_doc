@@ -34,7 +34,9 @@ fn doc_nodes_into_search_index_node(
     super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
   let mut location = doc_nodes[0].location.clone();
-  let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
+  let Ok(location_url) = ModuleSpecifier::parse(&location.filename) else {
+    return vec![];
+  };
   location.filename = if let Some(short_path) = ctx
     .doc_nodes
     .keys()
