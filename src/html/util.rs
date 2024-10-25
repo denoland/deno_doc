@@ -673,7 +673,12 @@ impl TopSymbolsCtx {
       .ctx
       .doc_nodes
       .values()
-      .flat_map(|nodes| super::partition::partition_nodes_by_name(nodes, true))
+      .flat_map(|nodes| {
+        super::partition::partition_nodes_by_name(
+          nodes.iter().map(Cow::Borrowed),
+          true,
+        )
+      })
       .filter(|(_name, node)| !node[0].is_internal())
       .collect::<Vec<_>>();
 

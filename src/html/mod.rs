@@ -5,6 +5,7 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
+use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -672,77 +673,70 @@ impl DocNodeWithContext {
     }
   }
 
-  fn get_drilldown_symbols(&self) -> Option<Vec<DocNodeWithContext>> {
+  fn get_drilldown_symbols<'a>(
+    &'a self,
+  ) -> Option<Box<dyn Iterator<Item = DocNodeWithContext> + 'a>> {
     match &self.inner.def {
-      DocNodeDef::Class { class_def } => {
-        let mut drilldown = Vec::with_capacity(
-          class_def.methods.len() + class_def.properties.len(),
-        );
-
-        drilldown.extend(class_def.methods.iter().map(|method| {
-          self.create_child_method(
-            DocNode::function(
-              method.name.clone(),
-              false,
-              method.location.clone(),
-              self.declaration_kind,
-              method.js_doc.clone(),
-              method.function_def.clone(),
-            ),
-            method.is_static,
-            method.kind,
-          )
-        }));
-
-        drilldown.extend(class_def.properties.iter().map(|property| {
-          self.create_child_property(
-            DocNode::from(property.clone()),
-            property.is_static,
-          )
-        }));
-
-        Some(drilldown)
-      }
-      DocNodeDef::Interface { interface_def } => {
-        let mut drilldown = Vec::with_capacity(
-          interface_def.methods.len() + interface_def.properties.len(),
-        );
-
-        drilldown.extend(interface_def.methods.iter().map(|method| {
-          self.create_child_method(
-            DocNode::from(method.clone()),
-            true,
-            method.kind,
-          )
-        }));
-
-        drilldown.extend(interface_def.properties.iter().map(|property| {
-          self.create_child_property(DocNode::from(property.clone()), true)
-        }));
-
-        Some(drilldown)
-      }
-      DocNodeDef::TypeAlias { type_alias_def } => {
-        if let Some(ts_type_literal) =
-          type_alias_def.ts_type.type_literal.as_ref()
-        {
-          let mut drilldown = Vec::with_capacity(
-            ts_type_literal.methods.len() + ts_type_literal.properties.len(),
-          );
-
-          drilldown.extend(ts_type_literal.methods.iter().map(|method| {
+      DocNodeDef::Class { class_def } => Some(Box::new(
+        class_def
+          .methods
+          .iter()
+          .map(|method| {
+            self.create_child_method(
+              DocNode::function(
+                method.name.clone(),
+                false,
+                method.location.clone(),
+                self.declaration_kind,
+                method.js_doc.clone(),
+                method.function_def.clone(),
+              ),
+              method.is_static,
+              method.kind,
+            )
+          })
+          .chain(class_def.properties.iter().map(|property| {
+            self.create_child_property(
+              DocNode::from(property.clone()),
+              property.is_static,
+            )
+          })),
+      )),
+      DocNodeDef::Interface { interface_def } => Some(Box::new(
+        interface_def
+          .methods
+          .iter()
+          .map(|method| {
             self.create_child_method(
               DocNode::from(method.clone()),
               true,
               method.kind,
             )
-          }));
-
-          drilldown.extend(ts_type_literal.properties.iter().map(|property| {
+          })
+          .chain(interface_def.properties.iter().map(|property| {
             self.create_child_property(DocNode::from(property.clone()), true)
-          }));
-
-          Some(drilldown)
+          })),
+      )),
+      DocNodeDef::TypeAlias { type_alias_def } => {
+        if let Some(ts_type_literal) =
+          type_alias_def.ts_type.type_literal.as_ref()
+        {
+          Some(Box::new(
+            ts_type_literal
+              .methods
+              .iter()
+              .map(|method| {
+                self.create_child_method(
+                  DocNode::from(method.clone()),
+                  true,
+                  method.kind,
+                )
+              })
+              .chain(ts_type_literal.properties.iter().map(|property| {
+                self
+                  .create_child_property(DocNode::from(property.clone()), true)
+              })),
+          ))
         } else {
           None
         }
@@ -753,23 +747,22 @@ impl DocNodeWithContext {
           .as_ref()
           .and_then(|ts_type| ts_type.type_literal.as_ref())
         {
-          let mut drilldown = Vec::with_capacity(
-            ts_type_literal.methods.len() + ts_type_literal.properties.len(),
-          );
-
-          drilldown.extend(ts_type_literal.methods.iter().map(|method| {
-            self.create_child_method(
-              DocNode::from(method.clone()),
-              true,
-              method.kind,
-            )
-          }));
-
-          drilldown.extend(ts_type_literal.properties.iter().map(|property| {
-            self.create_child_property(DocNode::from(property.clone()), true)
-          }));
-
-          Some(drilldown)
+          Some(Box::new(
+            ts_type_literal
+              .methods
+              .iter()
+              .map(|method| {
+                self.create_child_method(
+                  DocNode::from(method.clone()),
+                  true,
+                  method.kind,
+                )
+              })
+              .chain(ts_type_literal.properties.iter().map(|property| {
+                self
+                  .create_child_property(DocNode::from(property.clone()), true)
+              })),
+          ))
         } else {
           None
         }
@@ -849,14 +842,14 @@ pub fn generate(
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
         let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
         let categories = partition::partition_nodes_by_category(
-          nodes,
+          nodes.iter().map(Cow::Borrowed),
           ctx.file_mode == FileMode::SingleDts,
         );
 
         if categories.len() == 1 && categories.contains_key("Uncategorized") {
           (
             partition::partition_nodes_by_kind(
-              nodes,
+              nodes.iter().map(Cow::Borrowed),
               ctx.file_mode == FileMode::SingleDts,
             ),
             false,
@@ -890,8 +883,10 @@ pub fn generate(
 
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind =
-      partition::partition_nodes_by_entrypoint(&all_doc_nodes, true);
+    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
+      all_doc_nodes.iter().map(Cow::Borrowed),
+      true,
+    );
 
     let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
 
@@ -903,12 +898,17 @@ pub fn generate(
 
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
-    let categories =
-      partition::partition_nodes_by_category(&all_doc_nodes, true);
+    let categories = partition::partition_nodes_by_category(
+      all_doc_nodes.iter().map(Cow::Borrowed),
+      true,
+    );
 
     if categories.len() != 1 {
       for (category, nodes) in &categories {
-        let partitions = partition::partition_nodes_by_kind(nodes, false);
+        let partitions = partition::partition_nodes_by_kind(
+          nodes.iter().map(Cow::Borrowed),
+          false,
+        );
 
         let index = pages::IndexCtx::new_category(
           &ctx,
@@ -928,7 +928,7 @@ pub fn generate(
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
       let doc_nodes_by_kind = partition::partition_nodes_by_kind(
-        doc_nodes,
+        doc_nodes.iter().map(Cow::Borrowed),
         ctx.file_mode == FileMode::SingleDts,
       );
 

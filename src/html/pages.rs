@@ -11,6 +11,7 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use std::borrow::Cow;
 use std::rc::Rc;
 
 use super::FUSE_FILENAME;
@@ -92,7 +93,12 @@ impl CategoriesPanelCtx {
           .ctx
           .doc_nodes
           .values()
-          .flat_map(|nodes| partition::partition_nodes_by_name(nodes, true))
+          .flat_map(|nodes| {
+            partition::partition_nodes_by_name(
+              nodes.iter().map(Cow::Borrowed),
+              true,
+            )
+          })
           .filter(|(_name, node)| !node[0].is_internal())
           .count();
 
@@ -128,13 +134,18 @@ impl CategoriesPanelCtx {
           .ctx
           .doc_nodes
           .values()
-          .flat_map(|nodes| partition::partition_nodes_by_name(nodes, true))
+          .flat_map(|nodes| {
+            partition::partition_nodes_by_name(
+              nodes.iter().map(Cow::Borrowed),
+              true,
+            )
+          })
           .filter(|(_name, node)| !node[0].is_internal())
           .count();
 
         let (_, nodes) = ctx.ctx.doc_nodes.first().unwrap();
         let partitions = partition::partition_nodes_by_category(
-          nodes,
+          nodes.iter().map(Cow::Borrowed),
           ctx.ctx.file_mode == FileMode::SingleDts,
         );
 
@@ -494,15 +505,17 @@ pub fn generate_symbol_pages_for_module(
   short_path: &ShortPath,
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
-  let mut name_partitions =
-    partition::partition_nodes_by_name(module_doc_nodes, true);
+  let mut name_partitions = partition::partition_nodes_by_name(
+    module_doc_nodes.iter().map(Cow::Borrowed),
+    true,
+  );
 
   let mut drilldown_partitions = IndexMap::new();
   for doc_nodes in name_partitions.values() {
     for doc_node in doc_nodes {
       if let Some(drilldown_symbols) = doc_node.get_drilldown_symbols() {
         drilldown_partitions.extend(partition::partition_nodes_by_name(
-          &drilldown_symbols,
+          drilldown_symbols.map(Cow::Owned),
           false,
         ))
       }
