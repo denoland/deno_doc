@@ -12,6 +12,7 @@ use crate::DocNodeKind;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
+use std::borrow::Cow;
 use std::collections::HashSet;
 
 pub mod class;
@@ -323,8 +324,10 @@ impl SymbolInnerCtx {
             })
             .collect::<Vec<_>>();
 
-          let partitions =
-            super::partition::partition_nodes_by_kind(&namespace_nodes, false);
+          let partitions = super::partition::partition_nodes_by_kind(
+            namespace_nodes.iter().map(Cow::Borrowed),
+            false,
+          );
 
           let ctx = ctx.with_namespace(ns_qualifiers);
 
