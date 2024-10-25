@@ -26,7 +26,7 @@ struct SearchIndexNode {
   deprecated: bool,
 }
 
-fn is_empty(s: &Box<str>) -> bool {
+fn is_empty(s: &str) -> bool {
   s.is_empty()
 }
 
