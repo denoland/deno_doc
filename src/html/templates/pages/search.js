@@ -128,7 +128,6 @@ function renderResults(results) {
       </div>
       <span class="text-sm leading-none">${result.name}</span>
     </div>
-    <div class="text-xs italic text-stone-400 overflow-hidden whitespace-nowrap text-ellipsis">${result.location.filename}:${result.location.line}</div>
 </a>
 </li>`;
   }

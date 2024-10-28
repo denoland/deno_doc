@@ -701,8 +701,10 @@ impl ModuleDocCtx {
     };
 
     if !short_path.is_main {
-      let partitions_by_kind =
-        super::partition::partition_nodes_by_kind(module_doc_nodes, true);
+      let partitions_by_kind = super::partition::partition_nodes_by_kind(
+        module_doc_nodes.iter().map(Cow::Borrowed),
+        true,
+      );
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {

@@ -2,23 +2,32 @@ use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use crate::js_doc::JsDocTag;
-use crate::node::Location;
-use deno_ast::ModuleSpecifier;
 use serde::Serialize;
 use serde_json::json;
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+struct SlimKindCtx {
+  char: char,
+  pub kind: &'static str,
+  pub title: &'static str,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct SearchIndexNode {
-  kind: Vec<DocNodeKindCtx>,
+  kind: Vec<SlimKindCtx>,
   name: Box<str>,
   file: Box<str>,
   doc: Box<str>,
-  location: Location,
   url: Box<str>,
+  #[serde(skip_serializing_if = "is_empty", default)]
   category: Box<str>,
-  declaration_kind: crate::node::DeclarationKind,
   deprecated: bool,
+}
+
+fn is_empty(s: &str) -> bool {
+  s.is_empty()
 }
 
 fn doc_nodes_into_search_index_node(
@@ -28,22 +37,17 @@ fn doc_nodes_into_search_index_node(
 ) -> Vec<SearchIndexNode> {
   let kinds = doc_nodes
     .iter()
-    .map(|node| node.kind_with_drilldown.into())
+    .map(|node| {
+      let kind = DocNodeKindCtx::from(node.kind_with_drilldown);
+      SlimKindCtx {
+        char: kind.char,
+        kind: kind.kind,
+        title: kind.title,
+      }
+    })
     .collect();
   let deprecated =
     super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
-
-  let mut location = doc_nodes[0].location.clone();
-  let location_url = ModuleSpecifier::parse(&location.filename).unwrap();
-  location.filename = if let Some(short_path) = ctx
-    .doc_nodes
-    .keys()
-    .find(|short_path| short_path.specifier == location_url)
-  {
-    html_escape::encode_text(&short_path.display_name()).into()
-  } else {
-    "".into()
-  };
 
   let doc = doc_nodes[0].js_doc.doc.clone().unwrap_or_default();
 
@@ -76,10 +80,8 @@ fn doc_nodes_into_search_index_node(
     )
     .into(),
     doc,
-    location,
     url: abs_url.into_boxed_str(),
     category,
-    declaration_kind: doc_nodes[0].declaration_kind,
     deprecated,
   }];
 
@@ -103,9 +105,8 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
     .doc_nodes
     .values()
     .flatten()
-    .cloned()
-    .collect::<Vec<_>>();
-  let partitions = super::partition::partition_nodes_by_name(&doc_nodes, true);
+    .map(std::borrow::Cow::Borrowed);
+  let partitions = super::partition::partition_nodes_by_name(doc_nodes, true);
 
   let mut doc_nodes = partitions
     .into_iter()
