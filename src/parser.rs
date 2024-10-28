@@ -1,5 +1,49 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use std::borrow::Cow;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::error::Error;
+use std::fmt;
+use std::rc::Rc;
+
+use deno_ast::swc::ast::ClassDecl;
+use deno_ast::swc::ast::Decl;
+use deno_ast::swc::ast::DefaultDecl;
+use deno_ast::swc::ast::ExportDecl;
+use deno_ast::swc::ast::ExportDefaultDecl;
+use deno_ast::swc::ast::ExportDefaultExpr;
+use deno_ast::swc::ast::ExportSpecifier;
+use deno_ast::swc::ast::FnDecl;
+use deno_ast::swc::ast::Ident;
+use deno_ast::swc::ast::ImportSpecifier;
+use deno_ast::swc::ast::ModuleDecl;
+use deno_ast::swc::ast::TsEnumDecl;
+use deno_ast::swc::ast::TsInterfaceDecl;
+use deno_ast::swc::ast::TsModuleDecl;
+use deno_ast::swc::ast::TsModuleName;
+use deno_ast::swc::ast::TsTypeAliasDecl;
+use deno_ast::swc::ast::VarDecl;
+use deno_ast::swc::ast::VarDeclKind;
+use deno_ast::swc::ast::VarDeclarator;
+use deno_ast::ModuleItemRef;
+use deno_ast::ParsedSource;
+use deno_ast::SourceRange;
+use deno_ast::SourceRanged;
+use deno_ast::SourceRangedForSpanned;
+use deno_graph::symbols::EsModuleInfo;
+use deno_graph::symbols::ExpandoPropertyRef;
+use deno_graph::symbols::ExportDeclRef;
+use deno_graph::symbols::ModuleInfoRef;
+use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolNodeRef;
+use deno_graph::symbols::UniqueSymbolId;
+use deno_graph::EsParser;
+use deno_graph::Module;
+use deno_graph::ModuleGraph;
+use deno_graph::ModuleSpecifier;
+
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
@@ -26,50 +70,6 @@ use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
 use crate::ReexportKind;
-
-use deno_ast::swc::ast::ClassDecl;
-use deno_ast::swc::ast::Decl;
-use deno_ast::swc::ast::DefaultDecl;
-use deno_ast::swc::ast::ExportDecl;
-use deno_ast::swc::ast::ExportDefaultDecl;
-use deno_ast::swc::ast::ExportDefaultExpr;
-use deno_ast::swc::ast::ExportSpecifier;
-use deno_ast::swc::ast::FnDecl;
-use deno_ast::swc::ast::Ident;
-use deno_ast::swc::ast::ImportSpecifier;
-use deno_ast::swc::ast::ModuleDecl;
-use deno_ast::swc::ast::ModuleItem;
-use deno_ast::swc::ast::TsEnumDecl;
-use deno_ast::swc::ast::TsInterfaceDecl;
-use deno_ast::swc::ast::TsModuleDecl;
-use deno_ast::swc::ast::TsModuleName;
-use deno_ast::swc::ast::TsTypeAliasDecl;
-use deno_ast::swc::ast::VarDecl;
-use deno_ast::swc::ast::VarDeclKind;
-use deno_ast::swc::ast::VarDeclarator;
-use deno_ast::ParsedSource;
-use deno_ast::SourceRange;
-use deno_ast::SourceRanged;
-use deno_ast::SourceRangedForSpanned;
-use deno_graph::symbols::EsModuleInfo;
-use deno_graph::symbols::ExpandoPropertyRef;
-use deno_graph::symbols::ExportDeclRef;
-use deno_graph::symbols::ModuleInfoRef;
-use deno_graph::symbols::Symbol;
-use deno_graph::symbols::SymbolNodeRef;
-use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::Module;
-use deno_graph::ModuleGraph;
-use deno_graph::ModuleParser;
-use deno_graph::ModuleSpecifier;
-
-use std::borrow::Cow;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::error::Error;
-use std::fmt;
-use std::rc::Rc;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -132,7 +132,7 @@ pub struct DocParser<'a> {
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    parser: &'a dyn ModuleParser,
+    parser: &'a dyn EsParser,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
     let root_symbol =
@@ -317,11 +317,8 @@ impl<'a> DocParser<'a> {
     let referrer = module_info.specifier();
     let mut imports = vec![];
 
-    for node in &parsed_source.module().body {
-      if let deno_ast::swc::ast::ModuleItem::ModuleDecl(ModuleDecl::Import(
-        import_decl,
-      )) = node
-      {
+    for node in parsed_source.program_ref().body() {
+      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
         if let Some(js_doc) =
           js_doc_for_range(parsed_source, &import_decl.range())
         {
@@ -781,14 +778,14 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  fn get_imports_for_module_body(
+  fn get_imports_for_module_body<'item>(
     &self,
-    module_body: &[ModuleItem],
+    module_body: impl Iterator<Item = ModuleItemRef<'item>>,
   ) -> HashMap<String, Import> {
     let mut imports = HashMap::new();
 
-    for node in module_body.iter() {
-      if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
+    for node in module_body {
+      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
         for specifier in &import_decl.specifiers {
           let import = match specifier {
             ImportSpecifier::Named(named_specifier) => Import {
@@ -835,9 +832,9 @@ impl<'a> DocParser<'a> {
     let Some(module_info) = module_info.esm() else {
       return Vec::new();
     };
-    let module_body = &module_info.source().module().body;
+    let program = module_info.source().program_ref();
 
-    let imports = self.get_imports_for_module_body(module_body);
+    let imports = self.get_imports_for_module_body(program.body());
 
     let mut reexports: Vec<node::Reexport> = vec![];
 
@@ -853,8 +850,8 @@ impl<'a> DocParser<'a> {
       }))
     }
 
-    for node in module_body.iter() {
-      if let deno_ast::swc::ast::ModuleItem::ModuleDecl(module_decl) = node {
+    for node in program.body() {
+      if let ModuleItemRef::ModuleDecl(module_decl) = node {
         let r = match module_decl {
           ModuleDecl::ExportNamed(named_export) => {
             if let Some(src) = &named_export.src {
@@ -1425,10 +1422,10 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
 }
 
 fn module_has_import(module_info: &EsModuleInfo) -> bool {
-  module_info.source().module().body.iter().any(|m| {
+  module_info.source().program_ref().body().any(|m| {
     matches!(
       m,
-      ModuleItem::ModuleDecl(
+      ModuleItemRef::ModuleDecl(
         ModuleDecl::Import(_) | ModuleDecl::TsImportEquals(_)
       )
     )

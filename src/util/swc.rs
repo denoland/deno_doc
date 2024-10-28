@@ -71,9 +71,8 @@ pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
 ) -> Option<Option<(JsDoc, SourceRange)>> {
   let shebang_length = parsed_source
-    .module()
-    .shebang
-    .as_ref()
+    .program_ref()
+    .shebang()
     .map_or(0, |shebang| shebang.len());
   let pos_leading_comment =
     parsed_source.comments().leading_map().keys().min()?;
