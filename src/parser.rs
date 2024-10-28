@@ -39,9 +39,9 @@ use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
+use deno_graph::EsParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
-use deno_graph::ModuleParser;
 use deno_graph::ModuleSpecifier;
 
 use crate::diagnostics::DiagnosticsCollector;
@@ -132,7 +132,7 @@ pub struct DocParser<'a> {
 impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
-    parser: &'a dyn ModuleParser,
+    parser: &'a dyn EsParser,
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
     let root_symbol =
