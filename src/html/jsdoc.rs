@@ -40,6 +40,7 @@ lazy_static! {
       .add_tag_attributes(
         "svg",
         [
+          "class",
           "width",
           "height",
           "viewBox",

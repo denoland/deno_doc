@@ -204,6 +204,10 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/icons/arrow.svg"),
   )?;
   reg.register_template_string(
+    "icons/check",
+    include_str!("./templates/icons/check.svg"),
+  )?;
+  reg.register_template_string(
     "icons/copy",
     include_str!("./templates/icons/copy.svg"),
   )?;
