@@ -321,7 +321,7 @@ a {
       svg.copy {
         @apply hidden;
       }
-      
+
       svg.check {
         @apply block;
       }
