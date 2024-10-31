@@ -231,7 +231,7 @@ impl<'a> DocParser<'a> {
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
     match module {
-      Module::Js(_) | Module::Json(_) => {
+      Module::Js(_) | Module::Json(_) | Module::Wasm(_) => {
         let module_info = self.get_module_info(module.specifier())?;
         let module_doc_nodes =
           self.get_doc_nodes_for_module_info(module_info)?;
