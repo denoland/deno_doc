@@ -89,7 +89,8 @@ impl HighlightAdapter {
       html_escape::encode_double_quoted_attribute(source),
       include_str!("./templates/icons/copy.svg"),
       include_str!("./templates/icons/check.svg")
-    )
+    )?;
+    write!(output, "<code>")
   }
 }
 

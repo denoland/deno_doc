@@ -249,7 +249,7 @@ Static Properties</h2></div><div class="space-y-8"><div class="anchorable docEnt
 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
 <path d="M5 12l5 5l10 -10"></path>
 </svg>
-</button></pre>
+</button><code></code></pre>
 </div></div><nav class="documentNavigation">
           <h3>Document Navigation</h3><ul><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_quotgtltimg-srcx-onerroralert1gt" title="&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href="#property_foo" title="foo">foo</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#method_test_0" title="test">test</a></li></ul></li><li><a href="#static-properties" title="Static Properties">Static Properties</a></li><li><ul><li><a href="#property_bar" title="bar">bar</a></li></ul></li></ul></nav></div>
   </div></div>

@@ -58,7 +58,7 @@ const foobar = new Foobar();
 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
 <path d="M5 12l5 5l10 -10"></path>
 </svg>
-</button></pre>
+</button><code></code></pre>
 <p>Foobar docs</p>
 </div><section class="section" id="see">
   <div>
@@ -103,7 +103,7 @@ See</h2></div><ul class="see"><li><div class="markdown"><p><a href="https://exam
 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
 <path d="M5 12l5 5l10 -10"></path>
 </svg>
-</button></pre>
+</button><code></code></pre>
 </div></div><nav class="documentNavigation">
           <h3>Document Navigation</h3><ul><li><a href="#see" title="See">See</a></li></ul></nav></div>
   </div></div>
