@@ -34,7 +34,8 @@ expression: "files.get(\"./index.html\").unwrap()"
 </nav>
 <div id="searchResults"></div><div id="content">
     <main><section >
-  <div class="space-y-2 flex-1 "><div class="space-y-7" id="module_doc"><div class="markdown"><p>Some docs</p>
+  <div class="space-y-2 flex-1 "><div class="space-y-7" id="module_doc"><div class="markdown"><p>Some docs
+with a line break</p>
 <div class="alert alert-note"><div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
   <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>

@@ -167,19 +167,8 @@ a {
   }
 }
 
-.example details {
-  summary {
-    @apply list-none flex items-center gap-2 py-2 rounded-lg w-full leading-6
-      cursor-pointer;
-
-    > div:first-child {
-      @apply text-stone-600 select-none;
-    }
-  }
-
-  &[open] summary > div:first-child {
-    @apply rotate-90;
-  }
+.example-header {
+  @apply font-bold text-lg mb-3;
 }
 
 .toc {

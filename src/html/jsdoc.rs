@@ -1,6 +1,5 @@
 use super::render_context::RenderContext;
 use super::util::*;
-#[cfg(feature = "ammonia")]
 use crate::html::comrak_adapters::URLRewriter;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
@@ -28,7 +27,6 @@ lazy_static! {
     regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
 }
 
-#[cfg(feature = "ammonia")]
 lazy_static! {
   static ref AMMONIA: ammonia::Builder<'static> = {
     let mut ammonia_builder = ammonia::Builder::default();
@@ -94,7 +92,6 @@ lazy_static! {
   };
 }
 
-#[cfg(feature = "ammonia")]
 thread_local! {
   static CURRENT_FILE: RefCell<Option<Option<ShortPath>>> = const { RefCell::new(None) };
   static URL_REWRITER: RefCell<Option<Option<URLRewriter>>> = const { RefCell::new(None) };
@@ -222,10 +219,8 @@ fn split_markdown_title(md: &str) -> (Option<&str>, Option<&str>) {
   }
 }
 
-#[cfg(feature = "ammonia")]
 struct AmmoniaRelativeUrlEvaluator();
 
-#[cfg(feature = "ammonia")]
 impl<'b> ammonia::UrlRelativeEvaluate<'b> for AmmoniaRelativeUrlEvaluator {
   fn evaluate<'a>(&self, url: &'a str) -> Option<Cow<'a, str>> {
     URL_REWRITER.with(|url_rewriter| {
@@ -412,6 +407,7 @@ fn walk_node_title<'a>(node: &'a AstNode<'a>) {
         | NodeValue::Escaped
         | NodeValue::WikiLink(_)
         | NodeValue::Underline
+        | NodeValue::SoftBreak
     ) {
       walk_node_title(child);
     } else {
@@ -490,14 +486,7 @@ pub fn markdown_to_html(
   options.extension.table = true;
   options.extension.tagfilter = true;
   options.extension.tasklist = true;
-  #[cfg(not(feature = "ammonia"))]
-  {
-    options.render.escape = true;
-  }
-  #[cfg(feature = "ammonia")]
-  {
-    options.render.unsafe_ = true; // its fine because we run ammonia afterwards
-  }
+  options.render.unsafe_ = true; // its fine because we run ammonia afterwards
 
   let mut plugins = comrak::Plugins::default();
 
@@ -535,26 +524,18 @@ pub fn markdown_to_html(
     }
   };
 
-  #[cfg(feature = "ammonia")]
-  {
-    CURRENT_FILE
-      .set(Some(render_ctx.get_current_resolve().get_file().cloned()));
-    URL_REWRITER.set(Some(render_ctx.ctx.url_rewriter.clone()));
+  CURRENT_FILE.set(Some(render_ctx.get_current_resolve().get_file().cloned()));
+  URL_REWRITER.set(Some(render_ctx.ctx.url_rewriter.clone()));
 
-    let html = Some(format!(
-      r#"<div class="{class_name}">{}</div>"#,
-      AMMONIA.clean(&html)
-    ));
+  let html = Some(format!(
+    r#"<div class="{class_name}">{}</div>"#,
+    AMMONIA.clean(&html)
+  ));
 
-    CURRENT_FILE.set(None);
-    URL_REWRITER.set(None);
+  CURRENT_FILE.set(None);
+  URL_REWRITER.set(None);
 
-    html
-  }
-  #[cfg(not(feature = "ammonia"))]
-  {
-    Some(format!(r#"<div class="{class_name}">{html}</div>"#))
-  }
+  html
 }
 
 pub(crate) fn render_markdown(

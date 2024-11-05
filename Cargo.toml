@@ -75,9 +75,9 @@ pretty_assertions = "1.4.0"
 insta = { version = "1.39.0", features = ["json"] }
 
 [features]
-default = ["html", "rust", "ammonia", "tree-sitter"]
+default = ["html", "rust", "tree-sitter"]
 rust = []
-html = ["html-escape", "comrak", "handlebars"]
+html = ["html-escape", "comrak", "handlebars", "ammonia"]
 tree-sitter = [
   "tree-sitter-highlight",
   "tree-sitter-javascript",

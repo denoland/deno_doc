@@ -65,7 +65,8 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;" class="contextLink">default</a></h2><div class="markdown_summary"><p>Some docs</p>
+<a href=".&#x2F;" class="contextLink">default</a></h2><div class="markdown_summary"><p>Some docs
+with a line break</p>
 </div></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
