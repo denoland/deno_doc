@@ -1,5 +1,6 @@
 /**
  * Some docs
+ * with a line break
  *
  * > [!NOTE]
  * > Useful information that users should know, even when skimming content.
@@ -21,6 +22,30 @@
 
 /**
  * some Foo docs {@linkcode Bar}
+ *
+ * @example test
+ *
+ * hello
+ *
+ * bar
+ *
+ * ```ts
+ * foo
+ * ```
+ *
+ * baz
+ *
+ * @example test 2
+ *
+ * hello
+ *
+ * bar
+ *
+ * ```ts
+ * foo
+ * ```
+ *
+ * baz
  */
 export class Foo {
   static bar: "string";

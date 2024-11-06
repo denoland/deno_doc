@@ -268,7 +268,6 @@ pub struct GenerateCtx {
   pub common_ancestor: Option<PathBuf>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
   pub highlight_adapter: comrak_adapters::HighlightAdapter,
-  #[cfg(feature = "ammonia")]
   pub url_rewriter: Option<comrak_adapters::URLRewriter>,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<UsageComposer>,
@@ -374,7 +373,6 @@ impl GenerateCtx {
       common_ancestor,
       doc_nodes,
       highlight_adapter: setup_highlighter(false),
-      #[cfg(feature = "ammonia")]
       url_rewriter: None,
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,

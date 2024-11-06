@@ -84,7 +84,7 @@ expression: search_index
       ],
       "name": "Foo",
       "file": ".",
-      "doc": "some Foo docs {@linkcode Bar}",
+      "doc": "some Foo docs {@linkcode Bar}\n",
       "url": "././~/Foo.html",
       "deprecated": false
     },

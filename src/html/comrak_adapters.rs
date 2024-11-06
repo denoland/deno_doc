@@ -369,6 +369,5 @@ impl HeadingAdapter for HeadingToCAdapter {
   }
 }
 
-#[cfg(feature = "ammonia")]
 pub type URLRewriter =
   Arc<dyn (Fn(Option<&crate::html::ShortPath>, &str) -> String) + Send + Sync>;
