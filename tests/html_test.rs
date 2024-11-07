@@ -175,6 +175,7 @@ async fn html_doc_files() {
       default_symbol_map: None,
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
     },
     get_files("single").await,
   )
@@ -249,6 +250,7 @@ async fn html_doc_files_rewrite() {
       default_symbol_map: None,
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
     },
     get_files("multiple").await,
   )
@@ -358,6 +360,7 @@ async fn symbol_group() {
       default_symbol_map: None,
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
     },
     None,
     Default::default(),
@@ -389,11 +392,10 @@ async fn symbol_group() {
             );
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
+              &ctx,
               &root,
               Some(&symbol_group_ctx.name),
-              ctx.package_name.as_ref(),
               Some(short_path),
-              false,
             );
 
             Some(pages::SymbolPageCtx {
@@ -449,6 +451,7 @@ async fn symbol_search() {
       default_symbol_map: None,
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
     },
     None,
     Default::default(),
@@ -496,6 +499,7 @@ async fn module_doc() {
       default_symbol_map: None,
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
     },
     None,
     FileMode::Single,

@@ -263,6 +263,7 @@ fn generate_docs_directory(
       None, None, None,
     ),
     markdown_stripper: Rc::new(deno_doc::html::comrak::strip),
+    head_inject: None,
   };
   let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 

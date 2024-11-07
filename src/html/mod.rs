@@ -228,6 +228,8 @@ lazy_static! {
   pub static ref HANDLEBARS: Handlebars<'static> = setup_hbs().unwrap();
 }
 
+pub type HeadInject = Rc<dyn Fn(&str) -> String>;
+
 #[derive(Clone)]
 pub struct GenerateOptions {
   /// The name that is shown is the top-left corner, eg. "deno_std".
@@ -245,6 +247,7 @@ pub struct GenerateOptions {
   pub default_symbol_map: Option<IndexMap<String, String>>,
   pub markdown_renderer: jsdoc::MarkdownRenderer,
   pub markdown_stripper: jsdoc::MarkdownStripper,
+  pub head_inject: Option<HeadInject>,
 }
 
 #[non_exhaustive]
@@ -263,6 +266,7 @@ pub struct GenerateCtx {
   pub default_symbol_map: Option<IndexMap<String, String>>,
   pub markdown_renderer: jsdoc::MarkdownRenderer,
   pub markdown_stripper: jsdoc::MarkdownStripper,
+  pub head_inject: Option<HeadInject>,
 }
 
 impl GenerateCtx {
@@ -368,6 +372,7 @@ impl GenerateCtx {
       default_symbol_map: options.default_symbol_map,
       markdown_renderer: options.markdown_renderer,
       markdown_stripper: options.markdown_stripper,
+      head_inject: options.head_inject,
     })
   }
 
@@ -927,11 +932,10 @@ pub fn generate(
             title_parts.pop();
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
+              &ctx,
               &root,
               Some(&title_parts.join(" - ")),
-              ctx.package_name.as_ref(),
               Some(short_path),
-              ctx.disable_search,
             );
 
             let file_name =

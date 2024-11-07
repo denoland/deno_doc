@@ -14,6 +14,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -101,6 +102,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -188,6 +190,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -275,6 +278,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -379,6 +383,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -589,6 +594,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -689,6 +695,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -793,6 +800,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -910,6 +918,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1117,6 +1126,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1304,6 +1314,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1414,6 +1425,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1524,6 +1536,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1640,6 +1653,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1756,6 +1770,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1885,6 +1900,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1995,6 +2011,7 @@ expression: files
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
       "url_search": "../../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -2105,6 +2122,7 @@ expression: files
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
       "url_search": "../../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {

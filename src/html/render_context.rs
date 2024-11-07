@@ -601,6 +601,7 @@ mod test {
           None, None, None,
         ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
+        head_inject: None,
       },
       None,
       Default::default(),
