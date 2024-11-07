@@ -21,7 +21,7 @@ thread_local! {
 }
 
 lazy_static! {
-  static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
+  static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z1-9$_]").unwrap();
 }
 
 fn render_css_for_usage(name: &str) -> String {
