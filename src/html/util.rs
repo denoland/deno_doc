@@ -227,7 +227,7 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
@@ -305,9 +305,6 @@ pub trait HrefResolver {
   /// Resolver for symbols from non-relative imports
   fn resolve_import_href(&self, symbol: &[String], src: &str)
     -> Option<String>;
-
-  /// Resolve the URL used in "usage" blocks.
-  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;

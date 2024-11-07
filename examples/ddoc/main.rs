@@ -3,8 +3,10 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
-use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
+use deno_doc::html::{
+  DocNodeWithContext, HrefResolver, UsageComposer, UsageComposerEntry,
+};
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -171,7 +173,7 @@ fn main() {
   block_on(future);
 }
 
-struct EmptyResolver();
+struct EmptyResolver;
 
 impl HrefResolver for EmptyResolver {
   fn resolve_path(
@@ -194,12 +196,6 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
-    current_resolve
-      .get_file()
-      .map(|current_file| current_file.specifier.to_string())
-  }
-
   fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
     Some(location.filename.to_string())
   }
@@ -210,6 +206,32 @@ impl HrefResolver for EmptyResolver {
     _symbol: Option<&str>,
   ) -> Option<(String, String)> {
     None
+  }
+}
+
+impl UsageComposer for EmptyResolver {
+  fn is_single_mode(&self) -> bool {
+    true
+  }
+
+  fn compose(
+    &self,
+    nodes: &[DocNodeWithContext],
+    current_resolve: UrlResolveKind,
+    usage_to_md: deno_doc::html::UsageToMd,
+  ) -> IndexMap<UsageComposerEntry, String> {
+    current_resolve
+      .get_file()
+      .map(|current_file| {
+        IndexMap::from([(
+          UsageComposerEntry {
+            name: "".to_string(),
+            icon: None,
+          },
+          usage_to_md(nodes, current_file.specifier.as_str()),
+        )])
+      })
+      .unwrap_or_default()
   }
 }
 
@@ -230,13 +252,17 @@ fn generate_docs_directory(
   let options = deno_doc::html::GenerateOptions {
     package_name,
     main_entrypoint,
-    href_resolver: Rc::new(EmptyResolver()),
-    usage_composer: None,
+    href_resolver: Rc::new(EmptyResolver),
+    usage_composer: Rc::new(EmptyResolver),
     rewrite_map: Some(index_map),
     category_docs: None,
     disable_search: false,
     symbol_redirect_map: None,
     default_symbol_map: None,
+    markdown_renderer: deno_doc::html::comrak::create_renderer(
+      None, None, None,
+    ),
+    markdown_stripper: Rc::new(deno_doc::html::comrak::strip),
   };
   let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 

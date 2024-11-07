@@ -6,9 +6,12 @@ use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
@@ -21,7 +24,7 @@ pub struct RenderContext<'ctx> {
   namespace_parts: Rc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
   pub category: Option<&'ctx str>,
-  pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
+  pub toc: HeadingToCAdapter,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -302,6 +305,129 @@ impl<'ctx> RenderContext<'ctx> {
     };
 
     BreadcrumbsCtx { parts }
+  }
+}
+
+#[derive(Debug)]
+pub struct ToCEntry {
+  pub level: u8,
+  pub content: String,
+  pub anchor: String,
+}
+
+#[derive(Default)]
+pub struct Anchorizer {
+  map: HashMap<String, i32>,
+  itoa_buffer: itoa::Buffer,
+}
+
+impl Anchorizer {
+  /// Returns a String that has been converted into an anchor using the GFM algorithm.
+  /// This replaces comrak's implementation to improve the performance.
+  /// @see https://docs.rs/comrak/latest/comrak/struct.Anchorizer.html#method.anchorize
+  pub fn anchorize(&mut self, s: &str) -> String {
+    let mut s = REJECTED_CHARS
+      .replace_all(&s.to_lowercase(), "")
+      .replace(' ', "-");
+
+    if let Some(count) = self.map.get_mut(&s) {
+      let a = self.itoa_buffer.format(*count);
+      s.push('-');
+      s.push_str(a);
+
+      *count += 1;
+    } else {
+      self.map.insert(s.clone(), 1);
+    }
+
+    s
+  }
+}
+
+#[derive(Clone)]
+pub struct HeadingToCAdapter {
+  pub toc: Arc<Mutex<Vec<ToCEntry>>>,
+  pub offset: Arc<Mutex<u8>>,
+  pub anchorizer: Arc<Mutex<Anchorizer>>,
+}
+
+impl Default for HeadingToCAdapter {
+  fn default() -> Self {
+    Self {
+      toc: Arc::new(Mutex::new(vec![])),
+      anchorizer: Arc::new(Mutex::new(Default::default())),
+      offset: Arc::new(Mutex::new(0)),
+    }
+  }
+}
+
+lazy_static! {
+  static ref REJECTED_CHARS: regex::Regex =
+    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap();
+}
+
+impl HeadingToCAdapter {
+  pub fn anchorize(&self, content: &str) -> String {
+    let mut anchorizer = self.anchorizer.lock().unwrap();
+    anchorizer.anchorize(content)
+  }
+
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
+    let mut toc = self.toc.lock().unwrap();
+    let mut offset = self.offset.lock().unwrap();
+
+    *offset = level;
+
+    if toc.last().map_or(true, |toc| toc.content != content) {
+      toc.push(ToCEntry {
+        level,
+        content: content.to_owned(),
+        anchor: anchor.to_owned(),
+      });
+    }
+  }
+
+  pub fn render(self) -> Option<String> {
+    let toc = Arc::into_inner(self.toc).unwrap().into_inner().unwrap();
+
+    if toc.is_empty() {
+      return None;
+    }
+
+    let mut toc_content = vec!["<ul>".to_string()];
+    let mut current_level = toc.iter().map(|entry| entry.level).min().unwrap();
+
+    let mut level_diff = 0;
+    for entry in toc {
+      match current_level.cmp(&entry.level) {
+        Ordering::Equal => {}
+        Ordering::Less => {
+          level_diff += 1;
+          toc_content.push(r#"<li><ul>"#.to_string());
+          current_level = entry.level;
+        }
+        Ordering::Greater => {
+          level_diff -= 1;
+          toc_content.push("</ul></li>".to_string());
+          current_level = entry.level;
+        }
+      }
+
+      toc_content.push(format!(
+        r##"<li><a href="#{}" title="{}">{}</a></li>"##,
+        entry.anchor,
+        html_escape::encode_double_quoted_attribute(&entry.content),
+        entry.content
+      ));
+    }
+
+    for _ in 0..level_diff {
+      toc_content.push("</ul></li>".to_string());
+    }
+
+    toc_content.push(String::from("</ul>"));
+
+    Some(toc_content.join(""))
   }
 }
 
