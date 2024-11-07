@@ -11,6 +11,9 @@ use std::io::Write;
 use std::rc::Rc;
 use std::sync::Arc;
 
+pub const COMRAK_STYLESHEET: &str = include_str!("./templates/comrak.gen.css");
+pub const COMRAK_STYLESHEET_FILENAME: &str = "comrak.css";
+
 pub type URLRewriter =
   Arc<dyn (Fn(Option<&ShortPath>, &str) -> String) + Send + Sync>;
 

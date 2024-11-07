@@ -996,6 +996,11 @@ pub fn generate(
   files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+  #[cfg(feature = "comrak")]
+  files.insert(
+    comrak::COMRAK_STYLESHEET_FILENAME.into(),
+    comrak::COMRAK_STYLESHEET.into(),
+  );
 
   Ok(files)
 }
