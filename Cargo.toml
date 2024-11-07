@@ -55,7 +55,7 @@ pretty_assertions = "1.4.0"
 insta = { version = "1.39.0", features = ["json"] }
 
 [features]
-default = ["rust", "html"]
+default = ["rust", "html", "comrak"]
 rust = []
 html = ["html-escape", "handlebars"]
 comrak = ["dep:comrak", "ammonia"]
