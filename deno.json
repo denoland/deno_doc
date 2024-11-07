@@ -4,7 +4,7 @@
     "test": "deno test -A",
     "tailwind": "deno run -A build_css.ts",
     "gen_html": "deno task tailwind && cargo run --example ddoc --features=html,comrak -- --name=Test --html ./tests/testdata/multiple/* --output generated_docs/",
-    "test:update": "UPDATE=1 cargo test --locked --all-targets && cargo insta test --accept"
+    "test:update": "UPDATE=1 cargo test --locked --all-targets --features=comrak && cargo insta test --accept"
   },
   "workspace": ["js"],
   "exclude": [

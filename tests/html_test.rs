@@ -45,7 +45,7 @@ impl Loader for SourceFileLoader {
   }
 }
 
-struct EmptyResolver {}
+struct EmptyResolver;
 
 impl HrefResolver for EmptyResolver {
   fn resolve_path(
@@ -68,12 +68,6 @@ impl HrefResolver for EmptyResolver {
     None
   }
 
-  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
-    current_resolve
-      .get_file()
-      .map(|current_file| current_file.path.to_string())
-  }
-
   fn resolve_source(&self, _location: &deno_doc::Location) -> Option<String> {
     None
   }
@@ -84,6 +78,32 @@ impl HrefResolver for EmptyResolver {
     _symbol: Option<&str>,
   ) -> Option<(String, String)> {
     None
+  }
+}
+
+impl UsageComposer for EmptyResolver {
+  fn is_single_mode(&self) -> bool {
+    true
+  }
+
+  fn compose(
+    &self,
+    doc_nodes: &[DocNodeWithContext],
+    current_resolve: UrlResolveKind,
+    usage_to_md: UsageToMd,
+  ) -> IndexMap<UsageComposerEntry, String> {
+    current_resolve
+      .get_file()
+      .map(|current_file| {
+        IndexMap::from([(
+          UsageComposerEntry {
+            name: "".to_string(),
+            icon: None,
+          },
+          usage_to_md(doc_nodes, current_file.path.as_str()),
+        )])
+      })
+      .unwrap_or_default()
   }
 }
 
@@ -146,13 +166,15 @@ async fn html_doc_files() {
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
-      href_resolver: Rc::new(EmptyResolver {}),
-      usage_composer: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
       rewrite_map: None,
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
       default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
     },
     get_files("single").await,
   )
@@ -182,7 +204,6 @@ async fn html_doc_files() {
     ]
   );
 
-  #[cfg(feature = "tree-sitter")]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -219,13 +240,15 @@ async fn html_doc_files_rewrite() {
     GenerateOptions {
       package_name: None,
       main_entrypoint: Some(main_specifier),
-      href_resolver: Rc::new(EmptyResolver {}),
-      usage_composer: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
       rewrite_map: Some(rewrite_map),
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
       default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
     },
     get_files("multiple").await,
   )
@@ -273,7 +296,6 @@ async fn html_doc_files_rewrite() {
     ]
   );
 
-  #[cfg(feature = "tree-sitter")]
   {
     insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
     insta::assert_snapshot!(files.get("./index.html").unwrap());
@@ -327,13 +349,15 @@ async fn symbol_group() {
       main_entrypoint: Some(
         ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
       ),
-      href_resolver: Rc::new(EmptyResolver {}),
-      usage_composer: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
       rewrite_map: Some(rewrite_map),
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
       default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
     },
     None,
     Default::default(),
@@ -387,7 +411,6 @@ async fn symbol_group() {
     }
   }
 
-  #[cfg(feature = "tree-sitter")]
   insta::assert_json_snapshot!(files);
 }
 
@@ -417,13 +440,15 @@ async fn symbol_search() {
       main_entrypoint: Some(
         ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
       ),
-      href_resolver: Rc::new(EmptyResolver {}),
-      usage_composer: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
       rewrite_map: Some(rewrite_map),
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
       default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
     },
     None,
     Default::default(),
@@ -462,13 +487,15 @@ async fn module_doc() {
       main_entrypoint: Some(
         ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
       ),
-      href_resolver: Rc::new(EmptyResolver {}),
-      usage_composer: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
       rewrite_map: Some(rewrite_map),
       category_docs: None,
       disable_search: false,
       symbol_redirect_map: None,
       default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
     },
     None,
     FileMode::Single,
@@ -486,6 +513,5 @@ async fn module_doc() {
     module_docs.push(module_doc);
   }
 
-  #[cfg(feature = "tree-sitter")]
   insta::assert_json_snapshot!(module_docs);
 }

@@ -322,11 +322,13 @@ pub fn strip(md: &str) -> String {
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
+pub type AmmoniaHook = Rc<dyn Fn(&mut ammonia::Builder)>;
+
 pub fn create_renderer(
   syntax_highlighter: Option<
     Rc<dyn comrak::adapters::SyntaxHighlighterAdapter>,
   >,
-  ammonia_hook: Option<Rc<dyn Fn(&mut ammonia::Builder)>>,
+  ammonia_hook: Option<AmmoniaHook>,
   url_rewriter: Option<URLRewriter>,
 ) -> super::jsdoc::MarkdownRenderer {
   let renderer = move |md: &str,

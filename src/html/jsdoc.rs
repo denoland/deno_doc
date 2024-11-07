@@ -153,8 +153,6 @@ pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   (render_ctx.ctx.markdown_stripper)(&md)
 }
 
-  walk_node(&arena, root, &options, &Default::default());
-
 pub type Anchorizer =
   std::sync::Arc<dyn Fn(String, u8) -> String + Send + Sync>;
 
@@ -485,7 +483,9 @@ mod test {
         disable_search: false,
         symbol_redirect_map: None,
         default_symbol_map: None,
-        markdown_renderer: crate::html::comrak::create_renderer(None, None),
+        markdown_renderer: crate::html::comrak::create_renderer(
+          None, None, None,
+        ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
       },
       Default::default(),
@@ -643,7 +643,9 @@ mod test {
         disable_search: false,
         symbol_redirect_map: None,
         default_symbol_map: None,
-        markdown_renderer: crate::html::comrak::create_renderer(None, None),
+        markdown_renderer: crate::html::comrak::create_renderer(
+          None, None, None,
+        ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
       },
       Default::default(),

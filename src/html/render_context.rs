@@ -486,14 +486,17 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
+  use crate::html::{
+    GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
+  };
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
+  use indexmap::IndexMap;
 
-  struct TestResolver();
+  struct TestResolver;
 
   impl HrefResolver for TestResolver {
     fn resolve_path(
@@ -520,12 +523,6 @@ mod test {
       Some(format!("{src}/{}", symbol.join(".")))
     }
 
-    fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
-      current_resolve
-        .get_file()
-        .map(|current_file| current_file.specifier.to_string())
-    }
-
     fn resolve_source(&self, location: &Location) -> Option<String> {
       Some(location.filename.clone().into_string())
     }
@@ -536,6 +533,32 @@ mod test {
       _symbol: Option<&str>,
     ) -> Option<(String, String)> {
       None
+    }
+  }
+
+  impl UsageComposer for TestResolver {
+    fn is_single_mode(&self) -> bool {
+      true
+    }
+
+    fn compose(
+      &self,
+      doc_nodes: &[DocNodeWithContext],
+      current_resolve: UrlResolveKind,
+      usage_to_md: UsageToMd,
+    ) -> IndexMap<UsageComposerEntry, String> {
+      current_resolve
+        .get_file()
+        .map(|current_file| {
+          IndexMap::from([(
+            UsageComposerEntry {
+              name: "".to_string(),
+              icon: None,
+            },
+            usage_to_md(doc_nodes, current_file.specifier.as_str()),
+          )])
+        })
+        .unwrap_or_default()
     }
   }
 
@@ -567,13 +590,17 @@ mod test {
       GenerateOptions {
         package_name: None,
         main_entrypoint: None,
-        href_resolver: Rc::new(TestResolver()),
-        usage_composer: None,
+        href_resolver: Rc::new(TestResolver),
+        usage_composer: Rc::new(TestResolver),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,
         default_symbol_map: None,
+        markdown_renderer: crate::html::comrak::create_renderer(
+          None, None, None,
+        ),
+        markdown_stripper: Rc::new(crate::html::comrak::strip),
       },
       None,
       Default::default(),

@@ -575,17 +575,13 @@ dependencies = [
  "indexmap 2.6.0",
  "insta",
  "itoa",
- "js-sys",
  "lazy_static",
- "percent-encoding",
  "pretty_assertions",
  "regex",
  "serde",
  "serde_json",
  "termcolor",
  "tokio",
- "url",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -597,7 +593,6 @@ dependencies = [
  "deno_doc",
  "deno_graph",
  "import_map",
- "indexmap 2.6.0",
  "js-sys",
  "pretty_assertions",
  "serde",
