@@ -1,4 +1,5 @@
 use crate::html::ShortPath;
+use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::Ast;
 use comrak::nodes::AstNode;
 use comrak::nodes::NodeHtmlBlock;
@@ -6,6 +7,7 @@ use comrak::nodes::NodeValue;
 use comrak::Arena;
 use std::borrow::Cow;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::io::BufWriter;
 use std::io::Write;
 use std::rc::Rc;
@@ -329,9 +331,7 @@ pub fn strip(md: &str) -> String {
 pub type AmmoniaHook = Box<dyn FnOnce(&mut ammonia::Builder)>;
 
 pub fn create_renderer(
-  syntax_highlighter: Option<
-    Rc<dyn comrak::adapters::SyntaxHighlighterAdapter>,
-  >,
+  syntax_highlighter: Option<Arc<dyn SyntaxHighlighterAdapter>>,
   ammonia_hook: Option<AmmoniaHook>,
   url_rewriter: Option<URLRewriter>,
 ) -> super::jsdoc::MarkdownRenderer {
@@ -358,10 +358,11 @@ pub fn create_renderer(
         -> Option<String> {
     let mut plugins = comrak::Plugins::default();
     let heading_adapter = ComrakHeadingAdapter(anchorizer);
+    let highlight_adapter =
+      ComrakHighlightWrapperAdapter(syntax_highlighter.clone());
 
     if !title_only {
-      plugins.render.codefence_syntax_highlighter =
-        syntax_highlighter.as_deref();
+      plugins.render.codefence_syntax_highlighter = Some(&highlight_adapter);
       plugins.render.heading_adapter = Some(&heading_adapter);
     }
 
@@ -427,5 +428,57 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
   ) -> std::io::Result<()> {
     writeln!(output, "</h{}>", heading.level)?;
     Ok(())
+  }
+}
+
+struct ComrakHighlightWrapperAdapter(Option<Arc<dyn SyntaxHighlighterAdapter>>);
+
+impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
+  fn write_highlighted(
+    &self,
+    output: &mut dyn Write,
+    lang: Option<&str>,
+    code: &str,
+  ) -> std::io::Result<()> {
+    if let Some(adapter) = &self.0 {
+      adapter.write_highlighted(output, lang, code)?;
+    } else {
+      comrak::html::escape(output, code.as_bytes())?;
+    }
+
+    write!(output, "</code>")?;
+    write!(
+      output,
+      r#"<button class="context_button" data-copy="{}">{}{}</button>"#,
+      html_escape::encode_double_quoted_attribute(code),
+      include_str!("./templates/icons/copy.svg"),
+      include_str!("./templates/icons/check.svg"),
+    )?;
+    write!(output, "<code>")
+  }
+
+  fn write_pre_tag(
+    &self,
+    output: &mut dyn Write,
+    mut attributes: HashMap<String, String>,
+  ) -> std::io::Result<()> {
+    attributes.insert("class".to_string(), "highlight".to_string());
+    if let Some(adapter) = &self.0 {
+      adapter.write_pre_tag(output, attributes)
+    } else {
+      comrak::html::write_opening_tag(output, "pre", attributes)
+    }
+  }
+
+  fn write_code_tag(
+    &self,
+    output: &mut dyn Write,
+    attributes: HashMap<String, String>,
+  ) -> std::io::Result<()> {
+    if let Some(adapter) = &self.0 {
+      adapter.write_code_tag(output, attributes)
+    } else {
+      comrak::html::write_opening_tag(output, "code", attributes)
+    }
   }
 }

@@ -69,7 +69,6 @@
   }
 
   /* Inline code */
-
   :not(pre) > code {
     @apply font-mono text-sm py-0.5 px-1.5 rounded-md bg-stone-200;
   }
@@ -179,5 +178,19 @@
 
   .context_button {
     @apply absolute top-3 right-4 opacity-60 hover:opacity-100;
+
+    svg.check {
+      @apply hidden;
+    }
+
+    &.copied {
+      svg.copy {
+        @apply hidden;
+      }
+
+      svg.check {
+        @apply block;
+      }
+    }
   }
 }

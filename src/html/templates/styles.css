@@ -302,20 +302,6 @@ a {
       svg rect {
         @apply fill-white;
       }
-
-      svg.check {
-        @apply hidden;
-      }
-    }
-
-    .context_button.copied {
-      svg.copy {
-        @apply hidden;
-      }
-
-      svg.check {
-        @apply block;
-      }
     }
 
     &:hover .context_button {
