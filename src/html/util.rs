@@ -306,9 +306,6 @@ pub trait HrefResolver {
   fn resolve_import_href(&self, symbol: &[String], src: &str)
     -> Option<String>;
 
-  /// Resolve the URL used in "usage" blocks.
-  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String>;
-
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
 

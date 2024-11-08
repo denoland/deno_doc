@@ -14,6 +14,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -76,7 +77,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">A</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { A } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { A } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -101,6 +102,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -163,7 +165,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">B</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { B } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { B } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -188,6 +190,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -250,7 +253,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">Bar</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { Bar } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { Bar } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -275,6 +278,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -355,7 +359,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-k\">type</span> <span class=\"pl-smi\">Baz</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { type Baz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { type Baz } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -379,6 +383,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -427,7 +432,7 @@ expression: files
                           "id": "example_0",
                           "title": "test",
                           "markdown_title": "<div class=\"markdown\"><p>test</p>\n</div>",
-                          "markdown_body": "<div class=\"markdown\"><p>hello</p>\n<p>bar</p>\n<pre class=\"highlight\"><code>foo\n</code><button class=\"context_button\" data-copy=\"foo\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n<p>baz</p>\n</div>"
+                          "markdown_body": "<div class=\"markdown\"><p>hello</p>\n<p>bar</p>\n<pre><code>foo\n</code></pre>\n<p>baz</p>\n</div>"
                         },
                         {
                           "anchor": {
@@ -436,7 +441,7 @@ expression: files
                           "id": "example_1",
                           "title": "test 2",
                           "markdown_title": "<div class=\"markdown\"><p>test 2</p>\n</div>",
-                          "markdown_body": "<div class=\"markdown\"><p>hello</p>\n<p>bar</p>\n<pre class=\"highlight\"><code>foo\n</code><button class=\"context_button\" data-copy=\"foo\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n<p>baz</p>\n</div>"
+                          "markdown_body": "<div class=\"markdown\"><p>hello</p>\n<p>bar</p>\n<pre><code>foo\n</code></pre>\n<p>baz</p>\n</div>"
                         }
                       ]
                     }
@@ -564,7 +569,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { Foo } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -589,6 +594,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -616,7 +622,7 @@ expression: files
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-c\">// This code block is ignored when getting the title of this doc</span>\n<span class=\"pl-k\">const</span> foobar <span class=\"pl-c1\">=</span> <span class=\"pl-k\">new</span> <span class=\"pl-smi\">Foobar</span>();\n</code><button class=\"context_button\" data-copy=\"// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n<p>Foobar docs</p>\n</div>",
+                "docs": "<div class=\"markdown\"><pre><code>// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n</code></pre>\n<p>Foobar docs</p>\n</div>",
                 "sections": [
                   {
                     "header": {
@@ -664,7 +670,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> <span class=\"pl-smi\">Foobar</span> <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import Foobar from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import Foobar from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -689,6 +695,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -769,7 +776,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-k\">type</span> <span class=\"pl-smi\">Hello</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { type Hello } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { type Hello } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -793,6 +800,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -886,7 +894,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { c } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { c } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { c } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -910,6 +918,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1093,7 +1102,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { d } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { d } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { d } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1117,6 +1126,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1280,7 +1290,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { qaz } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { qaz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { qaz } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1304,6 +1314,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1390,7 +1401,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-k\">type</span> <span class=\"pl-smi\">Baz</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { type Baz } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { type Baz } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1414,6 +1425,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1500,7 +1512,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { Foo } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1524,6 +1536,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1616,7 +1629,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { Foo } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1640,6 +1653,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1732,7 +1746,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { Foo } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1756,6 +1770,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1861,7 +1876,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-smi\">Foo</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { Foo } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { Foo } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1885,6 +1900,7 @@ expression: files
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
       "url_search": "../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -1971,7 +1987,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { <span class=\"pl-k\">type</span> <span class=\"pl-smi\">Hello</span> } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\".\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { type Hello } from &quot;.&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { type Hello } from \".\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -1995,6 +2011,7 @@ expression: files
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
       "url_search": "../../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -2081,7 +2098,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> bar <span class=\"pl-k\">from</span> <span class=\"pl-s\">\"foo\"</span>;\n</code><button class=\"context_button\" data-copy=\"import bar from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import bar from \"foo\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }
@@ -2105,6 +2122,7 @@ expression: files
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
       "url_search": "../../search.js",
+      "head_inject": null,
       "disable_search": false
     },
     "symbol_group_ctx": {
@@ -2235,7 +2253,7 @@ expression: files
         "usages": [
           {
             "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code><span class=\"pl-k\">import</span> { x } <span class=\"pl-k\">from</span> <span class=\"pl-s\">\"foo\"</span>;\n</code><button class=\"context_button\" data-copy=\"import { x } from &quot;foo&quot;;\n\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\"></rect>\n<path d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\" fill=\"#232323\"></path>\n</svg>\n</button><code></code></pre>\n</div>",
+            "content": "<div class=\"markdown\"><pre><code>import { x } from \"foo\";\n</code></pre>\n</div>",
             "icon": null,
             "additional_css": ""
           }

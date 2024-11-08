@@ -6,9 +6,12 @@ use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
@@ -21,7 +24,7 @@ pub struct RenderContext<'ctx> {
   namespace_parts: Rc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
   pub category: Option<&'ctx str>,
-  pub toc: crate::html::comrak_adapters::HeadingToCAdapter,
+  pub toc: HeadingToCAdapter,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -305,6 +308,129 @@ impl<'ctx> RenderContext<'ctx> {
   }
 }
 
+#[derive(Debug)]
+pub struct ToCEntry {
+  pub level: u8,
+  pub content: String,
+  pub anchor: String,
+}
+
+#[derive(Default)]
+pub struct Anchorizer {
+  map: HashMap<String, i32>,
+  itoa_buffer: itoa::Buffer,
+}
+
+impl Anchorizer {
+  /// Returns a String that has been converted into an anchor using the GFM algorithm.
+  /// This replaces comrak's implementation to improve the performance.
+  /// @see https://docs.rs/comrak/latest/comrak/struct.Anchorizer.html#method.anchorize
+  pub fn anchorize(&mut self, s: &str) -> String {
+    let mut s = REJECTED_CHARS
+      .replace_all(&s.to_lowercase(), "")
+      .replace(' ', "-");
+
+    if let Some(count) = self.map.get_mut(&s) {
+      let a = self.itoa_buffer.format(*count);
+      s.push('-');
+      s.push_str(a);
+
+      *count += 1;
+    } else {
+      self.map.insert(s.clone(), 1);
+    }
+
+    s
+  }
+}
+
+#[derive(Clone)]
+pub struct HeadingToCAdapter {
+  pub toc: Arc<Mutex<Vec<ToCEntry>>>,
+  pub offset: Arc<Mutex<u8>>,
+  pub anchorizer: Arc<Mutex<Anchorizer>>,
+}
+
+impl Default for HeadingToCAdapter {
+  fn default() -> Self {
+    Self {
+      toc: Arc::new(Mutex::new(vec![])),
+      anchorizer: Arc::new(Mutex::new(Default::default())),
+      offset: Arc::new(Mutex::new(0)),
+    }
+  }
+}
+
+lazy_static! {
+  static ref REJECTED_CHARS: regex::Regex =
+    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap();
+}
+
+impl HeadingToCAdapter {
+  pub fn anchorize(&self, content: &str) -> String {
+    let mut anchorizer = self.anchorizer.lock().unwrap();
+    anchorizer.anchorize(content)
+  }
+
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
+    let mut toc = self.toc.lock().unwrap();
+    let mut offset = self.offset.lock().unwrap();
+
+    *offset = level;
+
+    if toc.last().map_or(true, |toc| toc.content != content) {
+      toc.push(ToCEntry {
+        level,
+        content: content.to_owned(),
+        anchor: anchor.to_owned(),
+      });
+    }
+  }
+
+  pub fn render(self) -> Option<String> {
+    let toc = Arc::into_inner(self.toc).unwrap().into_inner().unwrap();
+
+    if toc.is_empty() {
+      return None;
+    }
+
+    let mut toc_content = vec!["<ul>".to_string()];
+    let mut current_level = toc.iter().map(|entry| entry.level).min().unwrap();
+
+    let mut level_diff = 0;
+    for entry in toc {
+      match current_level.cmp(&entry.level) {
+        Ordering::Equal => {}
+        Ordering::Less => {
+          level_diff += 1;
+          toc_content.push(r#"<li><ul>"#.to_string());
+          current_level = entry.level;
+        }
+        Ordering::Greater => {
+          level_diff -= 1;
+          toc_content.push("</ul></li>".to_string());
+          current_level = entry.level;
+        }
+      }
+
+      toc_content.push(format!(
+        r##"<li><a href="#{}" title="{}">{}</a></li>"##,
+        entry.anchor,
+        html_escape::encode_double_quoted_attribute(&entry.content),
+        entry.content
+      ));
+    }
+
+    for _ in 0..level_diff {
+      toc_content.push("</ul></li>".to_string());
+    }
+
+    toc_content.push(String::from("</ul>"));
+
+    Some(toc_content.join(""))
+  }
+}
+
 fn split_with_brackets(s: &str) -> Vec<String> {
   let mut result = Vec::new();
   let mut current = String::new();
@@ -360,14 +486,17 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
+  use crate::html::{
+    GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
+  };
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
   use crate::DocNode;
   use crate::Location;
+  use indexmap::IndexMap;
 
-  struct TestResolver();
+  struct TestResolver;
 
   impl HrefResolver for TestResolver {
     fn resolve_path(
@@ -394,12 +523,6 @@ mod test {
       Some(format!("{src}/{}", symbol.join(".")))
     }
 
-    fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String> {
-      current_resolve
-        .get_file()
-        .map(|current_file| current_file.specifier.to_string())
-    }
-
     fn resolve_source(&self, location: &Location) -> Option<String> {
       Some(location.filename.clone().into_string())
     }
@@ -410,6 +533,32 @@ mod test {
       _symbol: Option<&str>,
     ) -> Option<(String, String)> {
       None
+    }
+  }
+
+  impl UsageComposer for TestResolver {
+    fn is_single_mode(&self) -> bool {
+      true
+    }
+
+    fn compose(
+      &self,
+      doc_nodes: &[DocNodeWithContext],
+      current_resolve: UrlResolveKind,
+      usage_to_md: UsageToMd,
+    ) -> IndexMap<UsageComposerEntry, String> {
+      current_resolve
+        .get_file()
+        .map(|current_file| {
+          IndexMap::from([(
+            UsageComposerEntry {
+              name: "".to_string(),
+              icon: None,
+            },
+            usage_to_md(doc_nodes, current_file.specifier.as_str()),
+          )])
+        })
+        .unwrap_or_default()
     }
   }
 
@@ -441,13 +590,18 @@ mod test {
       GenerateOptions {
         package_name: None,
         main_entrypoint: None,
-        href_resolver: Rc::new(TestResolver()),
-        usage_composer: None,
+        href_resolver: Rc::new(TestResolver),
+        usage_composer: Rc::new(TestResolver),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
         symbol_redirect_map: None,
         default_symbol_map: None,
+        markdown_renderer: crate::html::comrak::create_renderer(
+          None, None, None,
+        ),
+        markdown_stripper: Rc::new(crate::html::comrak::strip),
+        head_inject: None,
       },
       None,
       Default::default(),
