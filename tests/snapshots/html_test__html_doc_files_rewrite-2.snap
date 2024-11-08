@@ -11,13 +11,10 @@ expression: "files.get(\"./index.html\").unwrap()"
   <meta name="doc-current-file" content="">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="page.css">
-  <link id="ddocResetStylesheet" rel="stylesheet" href="reset.css">
-
-    <script src="search_index.js" defer></script>
+  <link id="ddocResetStylesheet" rel="stylesheet" href="reset.css"><script src="search_index.js" defer></script>
     <script src="script.js" defer></script>
     <script src="fuse.js" defer></script>
-    <script src="search.js" defer></script>
-</head>
+    <script src="search.js" defer></script></head>
 <body>
 <div class="ddoc">
 <div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">

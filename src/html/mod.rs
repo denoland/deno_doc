@@ -11,7 +11,6 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-pub mod comrak_adapters;
 pub mod jsdoc;
 pub mod pages;
 mod parameters;
@@ -19,11 +18,12 @@ pub mod partition;
 mod render_context;
 mod search;
 mod symbols;
-#[cfg(feature = "tree-sitter")]
-pub mod tree_sitter;
 mod types;
 mod usage;
 pub mod util;
+
+#[cfg(feature = "comrak")]
+pub mod comrak;
 
 use crate::html::pages::SymbolPage;
 use crate::js_doc::JsDocTag;
@@ -33,7 +33,9 @@ pub use search::generate_search_index;
 pub use symbols::namespace;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
-pub use usage::usage_to_md;
+pub use usage::UsageComposer;
+pub use usage::UsageComposerEntry;
+pub use usage::UsageToMd;
 pub use util::compute_namespaced_symbols;
 pub use util::href_path_resolve;
 pub use util::qualify_drilldown_name;
@@ -45,6 +47,9 @@ pub use util::ToCCtx;
 pub use util::TopSymbolCtx;
 pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
+
+pub const COPY_BUTTON: &str = include_str!("./templates/icons/copy.svg");
+pub const CHECK_BUTTON: &str = include_str!("./templates/icons/check.svg");
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -203,14 +208,8 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     "icons/arrow",
     include_str!("./templates/icons/arrow.svg"),
   )?;
-  reg.register_template_string(
-    "icons/check",
-    include_str!("./templates/icons/check.svg"),
-  )?;
-  reg.register_template_string(
-    "icons/copy",
-    include_str!("./templates/icons/copy.svg"),
-  )?;
+  reg.register_template_string("icons/check", CHECK_BUTTON)?;
+  reg.register_template_string("icons/copy", COPY_BUTTON)?;
   reg.register_template_string(
     "icons/link",
     include_str!("./templates/icons/link.svg"),
@@ -231,19 +230,7 @@ lazy_static! {
   pub static ref HANDLEBARS: Handlebars<'static> = setup_hbs().unwrap();
 }
 
-pub type UsageComposer = Rc<
-  dyn Fn(
-    &RenderContext,
-    &[DocNodeWithContext],
-    String,
-  ) -> IndexMap<UsageComposerEntry, String>,
->;
-
-#[derive(Eq, PartialEq, Hash)]
-pub struct UsageComposerEntry {
-  pub name: String,
-  pub icon: Option<std::borrow::Cow<'static, str>>,
-}
+pub type HeadInject = Rc<dyn Fn(&str) -> String>;
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -254,12 +241,15 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Option<UsageComposer>,
+  pub usage_composer: Rc<dyn UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
   pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
   pub default_symbol_map: Option<IndexMap<String, String>>,
+  pub markdown_renderer: jsdoc::MarkdownRenderer,
+  pub markdown_stripper: jsdoc::MarkdownStripper,
+  pub head_inject: Option<HeadInject>,
 }
 
 #[non_exhaustive]
@@ -267,10 +257,8 @@ pub struct GenerateCtx {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
-  pub highlight_adapter: comrak_adapters::HighlightAdapter,
-  pub url_rewriter: Option<comrak_adapters::URLRewriter>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Option<UsageComposer>,
+  pub usage_composer: Rc<dyn UsageComposer>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
@@ -278,6 +266,9 @@ pub struct GenerateCtx {
   pub disable_search: bool,
   pub symbol_redirect_map: Option<IndexMap<String, IndexMap<String, String>>>,
   pub default_symbol_map: Option<IndexMap<String, String>>,
+  pub markdown_renderer: jsdoc::MarkdownRenderer,
+  pub markdown_stripper: jsdoc::MarkdownStripper,
+  pub head_inject: Option<HeadInject>,
 }
 
 impl GenerateCtx {
@@ -372,8 +363,6 @@ impl GenerateCtx {
       package_name: options.package_name,
       common_ancestor,
       doc_nodes,
-      highlight_adapter: setup_highlighter(false),
-      url_rewriter: None,
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,
       rewrite_map: options.rewrite_map,
@@ -383,6 +372,9 @@ impl GenerateCtx {
       disable_search: options.disable_search,
       symbol_redirect_map: options.symbol_redirect_map,
       default_symbol_map: options.default_symbol_map,
+      markdown_renderer: options.markdown_renderer,
+      markdown_stripper: options.markdown_stripper,
+      head_inject: options.head_inject,
     })
   }
 
@@ -786,23 +778,6 @@ impl core::ops::Deref for DocNodeWithContext {
   }
 }
 
-pub fn setup_highlighter(
-  show_line_numbers: bool,
-) -> comrak_adapters::HighlightAdapter {
-  comrak_adapters::HighlightAdapter {
-    #[cfg(feature = "syntect")]
-    syntax_set: syntect::dumps::from_uncompressed_data(include_bytes!(
-      "./default_newlines.packdump"
-    ))
-    .unwrap(),
-    #[cfg(feature = "syntect")]
-    theme_set: syntect::highlighting::ThemeSet::load_defaults(),
-    #[cfg(feature = "tree-sitter")]
-    language_cb: tree_sitter::tree_sitter_language_cb,
-    show_line_numbers,
-  }
-}
-
 #[derive(Default, Debug, Eq, PartialEq)]
 pub enum FileMode {
   #[default]
@@ -959,11 +934,10 @@ pub fn generate(
             title_parts.pop();
 
             let html_head_ctx = pages::HtmlHeadCtx::new(
+              &ctx,
               &root,
               Some(&title_parts.join(" - ")),
-              ctx.package_name.as_ref(),
               Some(short_path),
-              ctx.disable_search,
             );
 
             let file_name =
@@ -1024,6 +998,11 @@ pub fn generate(
   files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+  #[cfg(feature = "comrak")]
+  files.insert(
+    comrak::COMRAK_STYLESHEET_FILENAME.into(),
+    comrak::COMRAK_STYLESHEET.into(),
+  );
 
   Ok(files)
 }

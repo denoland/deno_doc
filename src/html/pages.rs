@@ -39,6 +39,7 @@ pub struct HtmlHeadCtx {
   script_js: String,
   fuse_js: String,
   url_search: String,
+  head_inject: Option<String>,
   disable_search: bool,
 }
 
@@ -46,17 +47,18 @@ impl HtmlHeadCtx {
   pub const TEMPLATE: &'static str = "pages/html_head";
 
   pub fn new(
+    ctx: &GenerateCtx,
     root: &str,
     page: Option<&str>,
-    package_name: Option<&String>,
     current_file: Option<&ShortPath>,
-    disable_search: bool,
   ) -> Self {
     Self {
       title: format!(
         "{}{}documentation",
         page.map(|page| format!("{page} - ")).unwrap_or_default(),
-        package_name
+        ctx
+          .package_name
+          .as_ref()
           .map(|package_name| format!("{package_name} "))
           .unwrap_or_default()
       ),
@@ -71,7 +73,8 @@ impl HtmlHeadCtx {
       script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
       url_search: format!("{root}{SEARCH_FILENAME}"),
-      disable_search,
+      head_inject: ctx.head_inject.clone().map(|head_inject| head_inject(root)),
+      disable_search: ctx.disable_search,
     }
   }
 }
@@ -232,6 +235,7 @@ impl IndexCtx {
       ctx.resolve_path(render_ctx.get_current_resolve(), UrlResolveKind::Root);
 
     let html_head_ctx = HtmlHeadCtx::new(
+      ctx,
       &root,
       short_path.as_ref().and_then(|short_path| {
         if short_path.is_main {
@@ -240,9 +244,7 @@ impl IndexCtx {
           Some(short_path.display_name())
         }
       }),
-      ctx.package_name.as_ref(),
       None,
-      ctx.disable_search,
     );
 
     let overview = match ctx.file_mode {
@@ -399,13 +401,7 @@ impl IndexCtx {
     let root =
       ctx.resolve_path(UrlResolveKind::Category(name), UrlResolveKind::Root);
 
-    let html_head_ctx = HtmlHeadCtx::new(
-      &root,
-      Some(name),
-      ctx.package_name.as_ref(),
-      None,
-      ctx.disable_search,
-    );
+    let html_head_ctx = HtmlHeadCtx::new(ctx, &root, Some(name), None);
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
@@ -463,13 +459,7 @@ impl AllSymbolsCtx {
       }),
     );
 
-    let html_head_ctx = HtmlHeadCtx::new(
-      "./",
-      Some("All Symbols"),
-      ctx.package_name.as_ref(),
-      None,
-      ctx.disable_search,
-    );
+    let html_head_ctx = HtmlHeadCtx::new(ctx, "./", Some("All Symbols"), None);
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, None);
 

@@ -33,10 +33,22 @@ const reset =
   await $`deno run -A npm:tailwindcss@3.4.3 --input src/html/templates/pages/reset.css`
     .bytes();
 const resetFinal = transform({
-  filename: "./page.css",
+  filename: "./reset.css",
   code: reset,
   minify: true,
   targets: browserslistToTargets(browsers),
   analyzeDependencies: false,
 });
 await Deno.writeFile("src/html/templates/pages/reset.gen.css", resetFinal.code);
+
+const comrak =
+  await $`deno run -A npm:tailwindcss@3.4.3 --input src/html/templates/comrak.css`
+    .bytes();
+const comrakFinal = transform({
+  filename: "./comrak.css",
+  code: comrak,
+  minify: true,
+  targets: browserslistToTargets(browsers),
+  analyzeDependencies: false,
+});
+await Deno.writeFile("src/html/templates/comrak.gen.css", comrakFinal.code);

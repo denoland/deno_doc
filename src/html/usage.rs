@@ -4,8 +4,10 @@ use super::RenderContext;
 use super::UrlResolveKind;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
+use indexmap::IndexMap;
 use regex::Regex;
 use serde::Serialize;
+use std::borrow::Cow;
 
 lazy_static! {
   static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
@@ -28,7 +30,7 @@ fn render_css_for_usage(name: &str) -> String {
   )
 }
 
-pub fn usage_to_md(
+fn usage_to_md(
   ctx: &RenderContext,
   doc_nodes: &[DocNodeWithContext],
   url: &str,
@@ -162,6 +164,12 @@ fn get_identifier_for_file(ctx: &RenderContext) -> String {
   )
 }
 
+#[cfg(not(feature = "rust"))]
+pub type UsageToMd<'a> = &'a js_sys::Function;
+
+#[cfg(feature = "rust")]
+pub type UsageToMd<'a> = &'a dyn Fn(&[DocNodeWithContext], &str) -> String;
+
 #[derive(Clone, Debug, Serialize)]
 struct UsageCtx {
   name: String,
@@ -183,52 +191,61 @@ impl UsagesCtx {
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
   ) -> Option<Self> {
-    if ctx.ctx.usage_composer.is_none()
-      && ctx.ctx.file_mode == FileMode::SingleDts
-    {
+    let is_single_mode = ctx.ctx.usage_composer.is_single_mode();
+
+    if is_single_mode && ctx.ctx.file_mode == FileMode::SingleDts {
       return None;
     }
 
-    let url = ctx
-      .ctx
-      .href_resolver
-      .resolve_usage(ctx.get_current_resolve())?;
+    let usage_ctx = ctx.clone();
+    let usage_to_md_closure = move |nodes: &[DocNodeWithContext], url: &str| {
+      usage_to_md(&usage_ctx, nodes, url)
+    };
 
-    if let Some(usage_composer) = &ctx.ctx.usage_composer {
-      let usages = usage_composer(ctx, doc_nodes, url);
+    let usages = ctx.ctx.usage_composer.compose(
+      doc_nodes,
+      ctx.get_current_resolve(),
+      &usage_to_md_closure,
+    );
 
+    if usages.is_empty() {
+      None
+    } else {
       let usages = usages
         .into_iter()
         .map(|(entry, content)| UsageCtx {
-          additional_css: render_css_for_usage(&entry.name),
+          additional_css: if is_single_mode {
+            String::new()
+          } else {
+            render_css_for_usage(&entry.name)
+          },
           name: entry.name,
           icon: entry.icon,
           content: crate::html::jsdoc::render_markdown(ctx, &content, true),
         })
         .collect::<Vec<_>>();
 
-      if usages.is_empty() {
-        None
-      } else {
-        Some(UsagesCtx {
-          usages,
-          composed: true,
-        })
-      }
-    } else {
-      let import_statement = usage_to_md(ctx, doc_nodes, &url);
-      let rendered_import_statement =
-        crate::html::jsdoc::render_markdown(ctx, &import_statement, true);
-
       Some(UsagesCtx {
-        usages: vec![UsageCtx {
-          name: "".to_string(),
-          content: rendered_import_statement,
-          icon: None,
-          additional_css: "".to_string(),
-        }],
-        composed: false,
+        usages,
+        composed: !is_single_mode,
       })
     }
   }
+}
+
+#[derive(Eq, PartialEq, Hash)]
+pub struct UsageComposerEntry {
+  pub name: String,
+  pub icon: Option<Cow<'static, str>>,
+}
+
+pub trait UsageComposer {
+  fn is_single_mode(&self) -> bool;
+
+  fn compose(
+    &self,
+    doc_nodes: &[DocNodeWithContext],
+    current_resolve: UrlResolveKind,
+    usage_to_md: UsageToMd,
+  ) -> IndexMap<UsageComposerEntry, String>;
 }

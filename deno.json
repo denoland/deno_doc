@@ -3,7 +3,7 @@
     "build": "cp LICENSE js/LICENSE && deno run -A jsr:@deno/wasmbuild@0.17.1 --project deno_doc_wasm --out js",
     "test": "deno test -A",
     "tailwind": "deno run -A build_css.ts",
-    "gen_html": "deno task tailwind && cargo run --example ddoc --features=html -- --name=Test --html ./tests/testdata/multiple/* --output generated_docs/",
+    "gen_html": "deno task tailwind && cargo run --example ddoc -- --name=Test --html ./tests/testdata/multiple/* --output generated_docs/",
     "test:update": "UPDATE=1 cargo test --locked --all-targets && cargo insta test --accept"
   },
   "workspace": ["js"],

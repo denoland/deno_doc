@@ -1,0 +1,183 @@
+.link {
+  @apply text-blue-600 transition duration-75;
+}
+
+.link:hover {
+  @apply text-blue-400;
+}
+
+.markdown_summary, .markdown {
+  a:not(.no_color) {
+    @apply link;
+  }
+}
+
+.markdown_summary {
+  @apply inline text-stone-600;
+
+  p {
+    @apply inline-block line-clamp-4;
+  }
+
+  :not(pre) > code {
+    @apply font-mono text-sm py-0.5 px-1.5 rounded bg-stone-200;
+  }
+}
+
+.markdown {
+  @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm
+    md:max-w-screen-md lg:max-w-[75ch];
+
+  h1 {
+    @apply text-xl md:text-2xl lg:text-3xl border-b border-stone-300 pb-1;
+  }
+
+  h2 {
+    @apply text-lg md:text-xl lg:text-2xl border-b border-stone-300 pb-1;
+  }
+
+  h3 {
+    @apply font-bold md:text-lg md:font-normal lg:text-xl lg:font-normal;
+  }
+
+  h4 {
+    @apply font-semibold md:font-bold lg:text-lg lg:font-normal;
+  }
+
+  h5 {
+    @apply italic md:font-semibold lg:font-bold;
+  }
+
+  h6 {
+    @apply md:italic lg:font-semibold;
+  }
+
+  hr {
+    @apply m-2 border-stone-500;
+  }
+
+  ol, ul {
+    @apply list-outside ml-4;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  /* Inline code */
+
+  :not(pre) > code {
+    @apply font-mono text-sm py-0.5 px-1.5 rounded-md bg-stone-200;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    & > code {
+      font-size: inherit !important;
+    }
+  }
+
+  pre {
+    @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5
+      border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
+
+    & > code:first-child {
+      @apply overflow-x-auto px-6 py-4 block;
+    }
+  }
+
+  p {
+    @apply my-1 mx-0;
+  }
+
+  table {
+    @apply block table-auto overflow-auto w-max max-w-full;
+  }
+
+  td {
+    @apply p-2;
+  }
+
+  th {
+    @apply font-bold text-center py-1.5;
+  }
+
+  th, td {
+    @apply border-1.5 border-slate-300;
+  }
+
+  tr:nth-child(2n) {
+    @apply bg-slate-50;
+  }
+
+  img {
+    display: inline-block;
+  }
+
+  .alert {
+    @apply py-4 px-6 border-2 space-y-2 rounded-lg;
+
+    div:first-child {
+      @apply font-medium flex items-center gap-1.5;
+
+      svg {
+        @apply size-5;
+      }
+    }
+  }
+
+  .alert-note {
+    @apply border-blue-600 bg-blue-600/5;
+
+    div:first-child {
+      @apply text-blue-600 stroke-blue-600;
+    }
+  }
+
+  .alert-tip {
+    @apply border-green-600 bg-green-600/5;
+
+    div:first-child {
+      @apply text-green-600 stroke-green-600;
+    }
+  }
+
+  .alert-important {
+    @apply border-purple-600 bg-purple-600/5;
+
+    div:first-child {
+      @apply text-purple-600 stroke-purple-600;
+    }
+  }
+
+  .alert-warning {
+    @apply border-yellow-600 bg-yellow-600/5;
+
+    div:first-child {
+      @apply text-yellow-600 stroke-yellow-600;
+    }
+  }
+
+  .alert-caution {
+    @apply border-red-600 bg-red-600/5;
+
+    div:first-child {
+      @apply text-red-600 stroke-red-600;
+    }
+  }
+}
+
+.markdown .highlight {
+  @apply relative;
+
+  .lineNumbers {
+    @apply border-r-2 border-stone-300 pr-1 text-right flex-none;
+  }
+
+  .context_button {
+    @apply absolute top-3 right-4 opacity-60 hover:opacity-100;
+  }
+}
