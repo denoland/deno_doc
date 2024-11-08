@@ -22,7 +22,7 @@ name = "deno_doc"
 
 [[example]]
 name = "ddoc"
-required-features = ["html", "comrak"]
+required-features = ["comrak"]
 
 [dependencies]
 anyhow = "1.0.86"
