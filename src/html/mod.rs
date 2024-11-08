@@ -48,8 +48,6 @@ pub use util::TopSymbolCtx;
 pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
 
-pub const COPY_BUTTON: &str = include_str!("./templates/icons/copy.svg");
-
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
 
@@ -207,7 +205,14 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     "icons/arrow",
     include_str!("./templates/icons/arrow.svg"),
   )?;
-  reg.register_template_string("icons/copy", COPY_BUTTON)?;
+  reg.register_template_string(
+    "icons/copy",
+    include_str!("./templates/icons/copy.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/check",
+    include_str!("./templates/icons/check.svg"),
+  )?;
   reg.register_template_string(
     "icons/link",
     include_str!("./templates/icons/link.svg"),
