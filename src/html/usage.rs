@@ -34,6 +34,7 @@ fn usage_to_md(
   ctx: &RenderContext,
   doc_nodes: &[DocNodeWithContext],
   url: &str,
+  custom_file_identifier: Option<&str>,
 ) -> String {
   let usage =
     if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
@@ -48,7 +49,7 @@ fn usage_to_md(
         if top_node.is_default.is_some_and(|is_default| is_default) {
           let default_name = top_node.get_name();
           if default_name == "default" {
-            get_identifier_for_file(ctx).into()
+            get_identifier_for_file(ctx, custom_file_identifier).into()
           } else {
             default_name.into()
           }
@@ -125,7 +126,8 @@ fn usage_to_md(
 
       usage_statement
     } else {
-      let module_import_symbol = get_identifier_for_file(ctx);
+      let module_import_symbol =
+        get_identifier_for_file(ctx, custom_file_identifier);
 
       format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
@@ -133,8 +135,11 @@ fn usage_to_md(
   format!("```typescript\n{usage}\n```")
 }
 
-fn get_identifier_for_file(ctx: &RenderContext) -> String {
-  let maybe_idenfitier =
+fn get_identifier_for_file(
+  ctx: &RenderContext,
+  custom_file_identifier: Option<&str>,
+) -> String {
+  let maybe_identifier =
     if let Some(file) = ctx.get_current_resolve().get_file() {
       ctx
         .ctx
@@ -154,27 +159,26 @@ fn get_identifier_for_file(ctx: &RenderContext) -> String {
             }
           })
         })
+    } else if let Some(context_name) = custom_file_identifier {
+      Some(context_name.to_string())
     } else {
       ctx.ctx.package_name.clone()
     };
 
-  maybe_idenfitier.as_ref().map_or_else(
+  maybe_identifier.as_ref().map_or_else(
     || "mod".to_string(),
     |identifier| IDENTIFIER_RE.replace_all(identifier, "_").to_string(),
   )
 }
 
-#[cfg(not(feature = "rust"))]
-pub type UsageToMd<'a> = &'a js_sys::Function;
-
-#[cfg(feature = "rust")]
-pub type UsageToMd<'a> = &'a dyn Fn(&[DocNodeWithContext], &str) -> String;
+pub type UsageToMd<'a> =
+  &'a dyn Fn(&[DocNodeWithContext], &str, Option<&str>) -> String;
 
 #[derive(Clone, Debug, Serialize)]
 struct UsageCtx {
   name: String,
   content: String,
-  icon: Option<std::borrow::Cow<'static, str>>,
+  icon: Option<Cow<'static, str>>,
   additional_css: String,
 }
 
@@ -198,9 +202,12 @@ impl UsagesCtx {
     }
 
     let usage_ctx = ctx.clone();
-    let usage_to_md_closure = move |nodes: &[DocNodeWithContext], url: &str| {
-      usage_to_md(&usage_ctx, nodes, url)
-    };
+    let usage_to_md_closure =
+      move |nodes: &[DocNodeWithContext],
+            url: &str,
+            custom_file_identifier: Option<&str>| {
+        usage_to_md(&usage_ctx, nodes, url, custom_file_identifier)
+      };
 
     let usages = ctx.ctx.usage_composer.compose(
       doc_nodes,
