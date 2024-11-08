@@ -334,21 +334,27 @@ pub fn create_renderer(
   ammonia_hook: Option<AmmoniaHook>,
   url_rewriter: Option<URLRewriter>,
 ) -> super::jsdoc::MarkdownRenderer {
+  let mut options = comrak::Options::default();
+  options.extension.autolink = true;
+  options.extension.description_lists = true;
+  options.extension.strikethrough = true;
+  options.extension.superscript = true;
+  options.extension.table = true;
+  options.extension.tagfilter = true;
+  options.extension.tasklist = true;
+  options.render.unsafe_ = true; // its fine because we run ammonia afterwards
+
+  let mut ammonia = create_ammonia();
+
+  if let Some(ammonia_hook) = ammonia_hook.clone() {
+    ammonia_hook(&mut ammonia);
+  }
+
   let renderer = move |md: &str,
                        title_only: bool,
                        file_path: Option<ShortPath>,
                        anchorizer: super::jsdoc::Anchorizer|
         -> Option<String> {
-    let mut options = comrak::Options::default();
-    options.extension.autolink = true;
-    options.extension.description_lists = true;
-    options.extension.strikethrough = true;
-    options.extension.superscript = true;
-    options.extension.table = true;
-    options.extension.tagfilter = true;
-    options.extension.tasklist = true;
-    options.render.unsafe_ = true; // its fine because we run ammonia afterwards
-
     let mut plugins = comrak::Plugins::default();
     let heading_adapter = ComrakHeadingAdapter(anchorizer);
 
@@ -384,12 +390,6 @@ pub fn create_renderer(
 
     CURRENT_FILE.set(Some(file_path));
     URL_REWRITER.set(Some(url_rewriter.clone()));
-
-    let mut ammonia = create_ammonia();
-
-    if let Some(ammonia_hook) = ammonia_hook.clone() {
-      ammonia_hook(&mut ammonia);
-    }
 
     let html = format!(
       r#"<div class="{class_name}">{}</div>"#,
