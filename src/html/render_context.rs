@@ -555,7 +555,7 @@ mod test {
               name: "".to_string(),
               icon: None,
             },
-            usage_to_md(doc_nodes, current_file.specifier.as_str()),
+            usage_to_md(doc_nodes, current_file.specifier.as_str(), None),
           )])
         })
         .unwrap_or_default()

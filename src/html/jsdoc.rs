@@ -453,7 +453,7 @@ mod test {
               name: "".to_string(),
               icon: None,
             },
-            usage_to_md(nodes, current_file.display_name()),
+            usage_to_md(nodes, current_file.display_name(), None),
           )])
         })
         .unwrap_or_default()
