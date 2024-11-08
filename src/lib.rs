@@ -21,6 +21,7 @@ mod diagnostics;
 mod display;
 pub mod r#enum;
 pub mod function;
+pub mod html;
 pub mod interface;
 pub mod js_doc;
 pub mod node;
@@ -53,12 +54,6 @@ cfg_if! {
 pub use parser::DocError;
 pub use parser::DocParser;
 pub use parser::DocParserOptions;
-
-cfg_if! {
-  if #[cfg(feature = "html")] {
-    pub mod html;
-  }
-}
 
 #[cfg(test)]
 mod tests;

@@ -227,7 +227,7 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize)]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,

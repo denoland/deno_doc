@@ -2,6 +2,9 @@
 
 use anyhow::anyhow;
 use anyhow::Context;
+use deno_doc::html::{
+  DocNodeWithContext, UrlResolveKind, UsageComposerEntry, UsageToMd,
+};
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
@@ -18,7 +21,9 @@ use deno_graph::ModuleSpecifier;
 use deno_graph::Range;
 use import_map::ImportMap;
 use import_map::ImportMapOptions;
+use indexmap::IndexMap;
 use serde::Serialize;
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
@@ -242,4 +247,303 @@ async fn inner_doc(
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
   Ok(entries.serialize(&serializer).unwrap())
+}
+
+#[allow(clippy::too_many_arguments)]
+#[wasm_bindgen]
+pub fn generate_html(
+  package_name: Option<String>,
+  main_entrypoint: Option<String>,
+
+  usage_composer_single_mode: bool,
+  usage_composer_compose: js_sys::Function,
+
+  rewrite_map: JsValue,
+  category_docs: JsValue,
+  disable_search: bool,
+  symbol_redirect_map: JsValue,
+  default_symbol_map: JsValue,
+
+  resolve_path: js_sys::Function,
+  resolve_global_symbol: js_sys::Function,
+  resolve_import_href: js_sys::Function,
+  resolve_source: js_sys::Function,
+  resolve_external_jsdoc_module: js_sys::Function,
+
+  markdown_renderer: js_sys::Function,
+  markdown_stripper: js_sys::Function,
+
+  doc_nodes_by_url: JsValue,
+) -> Result<JsValue, JsValue> {
+  console_error_panic_hook::set_once();
+
+  generate_html_inner(
+    package_name,
+    main_entrypoint,
+    usage_composer_single_mode,
+    usage_composer_compose,
+    rewrite_map,
+    category_docs,
+    disable_search,
+    symbol_redirect_map,
+    default_symbol_map,
+    resolve_path,
+    resolve_global_symbol,
+    resolve_import_href,
+    resolve_source,
+    resolve_external_jsdoc_module,
+    markdown_renderer,
+    markdown_stripper,
+    doc_nodes_by_url,
+  )
+  .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
+}
+
+struct JsHrefResolver {
+  resolve_path: js_sys::Function,
+  resolve_global_symbol: js_sys::Function,
+  resolve_import_href: js_sys::Function,
+  resolve_source: js_sys::Function,
+  resolve_external_jsdoc_module: js_sys::Function,
+}
+
+impl deno_doc::html::HrefResolver for JsHrefResolver {
+  fn resolve_path(
+    &self,
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+  ) -> String {
+    let this = JsValue::null();
+
+    let current = serde_wasm_bindgen::to_value(&current).unwrap();
+    let target = serde_wasm_bindgen::to_value(&target).unwrap();
+
+    let global_symbol = self
+      .resolve_path
+      .call2(&this, &current, &target)
+      .expect("resolve_path errored");
+
+    serde_wasm_bindgen::from_value(global_symbol)
+      .expect("resolve_path returned an invalid value")
+  }
+
+  fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
+    let this = JsValue::null();
+
+    let symbol = serde_wasm_bindgen::to_value(&symbol).unwrap();
+
+    let global_symbol = self
+      .resolve_global_symbol
+      .call1(&this, &symbol)
+      .expect("resolve_global_symbol errored");
+
+    serde_wasm_bindgen::from_value(global_symbol)
+      .expect("resolve_global_symbol returned an invalid value")
+  }
+
+  fn resolve_import_href(
+    &self,
+    symbol: &[String],
+    src: &str,
+  ) -> Option<String> {
+    let this = JsValue::null();
+
+    let symbol = serde_wasm_bindgen::to_value(&symbol).unwrap();
+    let src = serde_wasm_bindgen::to_value(&src).unwrap();
+
+    let global_symbol = self
+      .resolve_import_href
+      .call2(&this, &symbol, &src)
+      .expect("resolve_import_href errored");
+
+    serde_wasm_bindgen::from_value(global_symbol)
+      .expect("resolve_import_href returned an invalid value")
+  }
+
+  fn resolve_source(&self, location: &deno_doc::Location) -> Option<String> {
+    let this = JsValue::null();
+
+    let location = serde_wasm_bindgen::to_value(&location).unwrap();
+
+    let global_symbol = self
+      .resolve_source
+      .call1(&this, &location)
+      .expect("resolve_source errored");
+
+    serde_wasm_bindgen::from_value(global_symbol)
+      .expect("resolve_source returned an invalid value")
+  }
+
+  fn resolve_external_jsdoc_module(
+    &self,
+    module: &str,
+    symbol: Option<&str>,
+  ) -> Option<(String, String)> {
+    let this = JsValue::null();
+
+    let module = serde_wasm_bindgen::to_value(&module).unwrap();
+    let symbol = serde_wasm_bindgen::to_value(&symbol).unwrap();
+
+    let global_symbol = self
+      .resolve_external_jsdoc_module
+      .call2(&this, &module, &symbol)
+      .expect("resolve_external_jsdoc_module errored");
+
+    serde_wasm_bindgen::from_value(global_symbol)
+      .expect("resolve_external_jsdoc_module returned an invalid value")
+  }
+}
+
+struct JsUsageComposer {
+  single_mode: bool,
+  compose: js_sys::Function,
+}
+
+impl deno_doc::html::UsageComposer for JsUsageComposer {
+  fn is_single_mode(&self) -> bool {
+    self.single_mode
+  }
+
+  fn compose(
+    &self,
+    doc_nodes: &[DocNodeWithContext],
+    current_resolve: UrlResolveKind,
+    usage_to_md: UsageToMd,
+  ) -> IndexMap<UsageComposerEntry, String> {
+    let this = JsValue::null();
+
+    let doc_nodes = serde_wasm_bindgen::to_value(&doc_nodes).unwrap();
+    let current_resolve =
+      serde_wasm_bindgen::to_value(&current_resolve).unwrap();
+
+    let global_symbol = self
+      .compose
+      .call3(&this, &doc_nodes, &current_resolve, &usage_to_md)
+      .expect("compose errored");
+
+    serde_wasm_bindgen::from_value(global_symbol)
+      .expect("compose returned an invalid value")
+  }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn generate_html_inner(
+  package_name: Option<String>,
+  main_entrypoint: Option<String>,
+
+  usage_composer_single_mode: bool,
+  usage_composer_compose: js_sys::Function,
+
+  rewrite_map: JsValue,
+  category_docs: JsValue,
+  disable_search: bool,
+  symbol_redirect_map: JsValue,
+  default_symbol_map: JsValue,
+
+  resolve_path: js_sys::Function,
+  resolve_global_symbol: js_sys::Function,
+  resolve_import_href: js_sys::Function,
+  resolve_source: js_sys::Function,
+  resolve_external_jsdoc_module: js_sys::Function,
+
+  markdown_renderer: js_sys::Function,
+  markdown_stripper: js_sys::Function,
+
+  doc_nodes_by_url: JsValue,
+) -> Result<JsValue, anyhow::Error> {
+  let main_entrypoint = main_entrypoint
+    .map(|s| ModuleSpecifier::parse(&s))
+    .transpose()?;
+
+  let rewrite_map = serde_wasm_bindgen::from_value::<
+    Option<IndexMap<ModuleSpecifier, String>>,
+  >(rewrite_map)
+  .map_err(|err| anyhow!("{}", err))?;
+
+  let category_docs = serde_wasm_bindgen::from_value::<
+    Option<IndexMap<String, Option<String>>>,
+  >(category_docs)
+  .map_err(|err| anyhow!("{}", err))?;
+
+  let symbol_redirect_map = serde_wasm_bindgen::from_value::<
+    Option<IndexMap<String, IndexMap<String, String>>>,
+  >(symbol_redirect_map)
+  .map_err(|err| anyhow!("{}", err))?;
+
+  let default_symbol_map = serde_wasm_bindgen::from_value::<
+    Option<IndexMap<String, String>>,
+  >(default_symbol_map)
+  .map_err(|err| anyhow!("{}", err))?;
+
+  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>> =
+    serde_wasm_bindgen::from_value(doc_nodes_by_url)
+      .map_err(|err| anyhow!("{}", err))?;
+
+  let markdown_renderer = Rc::new(
+    move |md: &str,
+          title_only: bool,
+          file_path: Option<deno_doc::html::ShortPath>,
+          anchorizer: deno_doc::html::jsdoc::Anchorizer| {
+      let this = JsValue::null();
+      let md = serde_wasm_bindgen::to_value(md).unwrap();
+      let title_only = serde_wasm_bindgen::to_value(&title_only).unwrap();
+      let file_path = serde_wasm_bindgen::to_value(&file_path).unwrap();
+
+      let html = markdown_renderer
+        .apply(
+          &this,
+          &js_sys::Array::of4(&md, &title_only, &file_path, &anchorizer),
+        )
+        .expect("markdown_renderer errored");
+
+      serde_wasm_bindgen::from_value(html)
+        .expect("markdown_renderer returned an invalid value")
+    },
+  );
+
+  let markdown_stripper = Rc::new(move |md: &str| {
+    let this = JsValue::null();
+    let md = serde_wasm_bindgen::to_value(md).unwrap();
+
+    let stripped = markdown_stripper
+      .call1(&this, &md)
+      .expect("markdown_stripper errored");
+
+    serde_wasm_bindgen::from_value(stripped)
+      .expect("markdown_stripper returned an invalid value")
+  });
+
+  let files = deno_doc::html::generate(
+    deno_doc::html::GenerateOptions {
+      package_name,
+      main_entrypoint,
+      href_resolver: Rc::new(JsHrefResolver {
+        resolve_path,
+        resolve_global_symbol,
+        resolve_import_href,
+        resolve_source,
+        resolve_external_jsdoc_module,
+      }),
+      usage_composer: Rc::new(JsUsageComposer {
+        single_mode: usage_composer_single_mode,
+        compose: usage_composer_compose,
+      }),
+      rewrite_map,
+      category_docs,
+      disable_search,
+      symbol_redirect_map,
+      default_symbol_map,
+      markdown_renderer,
+      markdown_stripper,
+      head_inject: None,
+    },
+    doc_nodes_by_url,
+  )?;
+
+  let serializer =
+    serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+
+  files
+    .serialize(&serializer)
+    .map_err(|err| anyhow!("{}", err))
 }

@@ -153,6 +153,9 @@ pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   (render_ctx.ctx.markdown_stripper)(&md)
 }
 
+#[cfg(not(feature = "rust"))]
+pub type Anchorizer<'a> = &'a js_sys::Function;
+#[cfg(feature = "rust")]
 pub type Anchorizer =
   std::sync::Arc<dyn Fn(String, u8) -> String + Send + Sync>;
 
@@ -185,7 +188,17 @@ pub fn markdown_to_html(
     anchor
   };
 
+  #[cfg(not(target_arch = "wasm32"))]
   let anchorizer = std::sync::Arc::new(anchorizer);
+
+  #[cfg(target_arch = "wasm32")]
+  let anchorizer = wasm_bindgen::prelude::Closure::wrap(
+    Box::new(anchorizer) as Box<dyn Fn(String, u8) -> String>
+  );
+  #[cfg(target_arch = "wasm32")]
+  let anchorizer = &wasm_bindgen::JsCast::unchecked_ref::<js_sys::Function>(
+    anchorizer.as_ref(),
+  );
 
   let md = parse_links(md, render_ctx);
 

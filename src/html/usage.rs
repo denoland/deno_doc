@@ -171,6 +171,9 @@ fn get_identifier_for_file(
   )
 }
 
+#[cfg(not(feature = "rust"))]
+pub type UsageToMd<'a> = &'a js_sys::Function;
+#[cfg(feature = "rust")]
 pub type UsageToMd<'a> =
   &'a dyn Fn(&[DocNodeWithContext], &str, Option<&str>) -> String;
 
@@ -202,12 +205,33 @@ impl UsagesCtx {
     }
 
     let usage_ctx = ctx.clone();
+
+    #[cfg(not(target_arch = "wasm32"))]
     let usage_to_md_closure =
       move |nodes: &[DocNodeWithContext],
             url: &str,
             custom_file_identifier: Option<&str>| {
         usage_to_md(&usage_ctx, nodes, url, custom_file_identifier)
       };
+
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure =
+      move |nodes: Vec<DocNodeWithContext>,
+            url: String,
+            custom_file_identifier: Option<String>| {
+        usage_to_md(&usage_ctx, &nodes, &url, custom_file_identifier.as_deref())
+      };
+
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure =
+      wasm_bindgen::prelude::Closure::wrap(Box::new(usage_to_md_closure)
+        as Box<
+          dyn Fn(Vec<DocNodeWithContext>, String, Option<String>) -> String,
+        >);
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure = &wasm_bindgen::JsCast::unchecked_ref::<
+      js_sys::Function,
+    >(usage_to_md_closure.as_ref());
 
     let usages = ctx.ctx.usage_composer.compose(
       doc_nodes,
@@ -240,7 +264,7 @@ impl UsagesCtx {
   }
 }
 
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, serde::Deserialize)]
 pub struct UsageComposerEntry {
   pub name: String,
   pub icon: Option<Cow<'static, str>>,

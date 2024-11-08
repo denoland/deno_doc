@@ -5,6 +5,7 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -69,6 +70,60 @@ const FUSE_FILENAME: &str = "fuse.js";
 
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
+
+#[cfg(target_arch = "wasm32")]
+trait WasmToFilePath {
+  fn to_file_path(&self) -> Result<PathBuf, ()>;
+}
+
+#[cfg(target_arch = "wasm32")]
+impl WasmToFilePath for url::Url {
+  fn to_file_path(&self) -> Result<PathBuf, ()> {
+    if let Some(segments) = self.path_segments() {
+      let host = match self.host() {
+        None | Some(url::Host::Domain("localhost")) => None,
+        Some(_) if cfg!(windows) && self.scheme() == "file" => self.host(),
+        _ => return Err(()),
+      };
+
+      if host.is_some() {
+        return Err(());
+      }
+
+      let mut bytes = if cfg!(target_os = "redox") {
+        b"file:".to_vec()
+      } else {
+        Vec::new()
+      };
+
+      for segment in segments {
+        bytes.push(b'/');
+        bytes.extend(percent_encoding::percent_decode(segment.as_bytes()));
+      }
+
+      // A windows drive letter must end with a slash.
+      if bytes.len() > 2
+        && bytes[bytes.len() - 2].is_ascii_alphabetic()
+        && matches!(bytes[bytes.len() - 1], b':' | b'|')
+      {
+        bytes.push(b'/');
+      }
+
+      let os_str = std::ffi::OsStr::new(
+        std::str::from_utf8(&bytes).expect("Invalid UTF-8 sequence"),
+      );
+      let path = PathBuf::from(os_str);
+
+      debug_assert!(
+        path.is_absolute(),
+        "to_file_path() failed to produce an absolute Path"
+      );
+
+      return Ok(path);
+    }
+    Err(())
+  }
+}
 
 fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   let mut reg = Handlebars::new();
@@ -408,7 +463,8 @@ impl GenerateCtx {
   }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ShortPath {
   pub path: String,
   pub specifier: ModuleSpecifier,
@@ -510,7 +566,7 @@ impl PartialOrd for ShortPath {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize)]
 pub enum DocNodeKindWithDrilldown {
   Property,
   Method(MethodKind),
@@ -569,7 +625,8 @@ impl Ord for DocNodeKindWithDrilldown {
 /// A wrapper around [`DocNode`] with additional fields to track information
 /// about the inner [`DocNode`].
 /// This is cheap to clone since all fields are [`Rc`]s.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<[String]>,

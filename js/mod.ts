@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
-import type { DocNode } from "./types.d.ts";
+import type { DocNode, Location } from "./types.d.ts";
 import { createCache } from "jsr:@deno/cache-dir@0.11";
 import type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.82";
 
@@ -122,5 +122,124 @@ export async function doc(
     resolve,
     importMap,
     printImportMapDiagnostics,
+  );
+}
+
+export interface ShortPath {
+  path: string;
+  specifier: string;
+  isMain: boolean;
+}
+
+export interface UrlResolveKindRoot {
+  kind: "root";
+}
+
+export interface UrlResolveKindAllSymbols {
+  kind: "allSymbols";
+}
+
+export interface UrlResolveKindCategory {
+  kind: "category";
+  category: string;
+}
+
+export interface UrlResolveKindFile {
+  kind: "file";
+  file: ShortPath;
+}
+
+export interface UrlResolveKindSymbol {
+  kind: "symbol";
+  file: ShortPath;
+  symbol: string;
+}
+
+export type UrlResolveKind =
+  | UrlResolveKindRoot
+  | UrlResolveKindAllSymbols
+  | UrlResolveKindCategory
+  | UrlResolveKindFile
+  | UrlResolveKindSymbol;
+
+interface HrefResolver {
+  resolvePath(current: UrlResolveKind, target: UrlResolveKind): string;
+  /** Resolver for global symbols, like the Deno namespace or other built-ins */
+  resolveGlobalSymbol(symbol: string[]): string | undefined;
+  /** Resolver for symbols from non-relative imports */
+  resolveImportHref(symbol: string[], src: string): string | undefined;
+  /** Resolve the URL used in source code link buttons. */
+  resolveSource(location: Location): string | undefined;
+  /**
+   * Resolve external JSDoc module links.
+   * Returns a tuple with link and title.
+   */
+  resolveExternalJsdocModule(
+    module: string,
+    symbol?: string,
+  ): { link: string; title: string } | undefined;
+}
+
+export interface UsageComposerEntry {
+  name: string;
+  icon?: string;
+}
+
+export type UsageToMd = (
+  _,
+  url: string,
+  customFileIdentifier: string | undefined,
+) => string;
+
+export interface UsageComposer {
+  singleMode: boolean;
+  compose(
+    current_resolve: UrlResolveKind,
+    usageToMd: UsageToMd,
+  ): Map<UsageComposerEntry, string>;
+}
+
+interface GenerateOptions {
+  packageName?: string;
+  mainEntrypoint?: string;
+  usageComposer: UsageComposer;
+  hrefResolver: HrefResolver;
+  rewriteMap?: Record<string, string>;
+  categoryDocs?: Record<string, string | undefined>;
+  disableSearch: boolean;
+  symbolRedirectMap?: Record<string, Record<string, string>>;
+  defaultRedirectMap?: Record<string, string>;
+  markdownRenderer(
+    md: string,
+    titleOnly: string,
+    filePath: ShortPath | undefined,
+    anchorizer: (content: string, depthLevel: number) => string,
+  ): string | undefined;
+  markdownStripper(md: string): string;
+}
+
+export async function generateHtml(
+  options: GenerateOptions,
+  docNodesByUrl: Record<string, Array<DocNode>>,
+): Promise<Record<string, string>> {
+  const wasm = await instantiate();
+  return wasm.generate_html(
+    options.packageName,
+    options.mainEntrypoint,
+    options.usageComposer.singleMode,
+    options.usageComposer.compose,
+    options.rewriteMap,
+    options.categoryDocs,
+    options.disableSearch,
+    options.symbolRedirectMap,
+    options.defaultRedirectMap,
+    options.hrefResolver.resolvePath,
+    options.hrefResolver.resolveGlobalSymbol,
+    options.hrefResolver.resolveImportHref,
+    options.hrefResolver.resolveSource,
+    options.hrefResolver.resolveExternalJsdocModule,
+    options.markdownRenderer,
+    options.markdownStripper,
+    docNodesByUrl,
   );
 }
