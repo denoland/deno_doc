@@ -216,9 +216,12 @@ impl UsagesCtx {
 
     #[cfg(target_arch = "wasm32")]
     let usage_to_md_closure =
-      move |nodes: Vec<DocNodeWithContext>,
+      move |nodes: wasm_bindgen::JsValue,
             url: String,
             custom_file_identifier: Option<String>| {
+        let nodes =
+          serde_wasm_bindgen::from_value::<Vec<DocNodeWithContext>>(nodes)
+            .unwrap();
         usage_to_md(&usage_ctx, &nodes, &url, custom_file_identifier.as_deref())
       };
 
@@ -226,7 +229,7 @@ impl UsagesCtx {
     let usage_to_md_closure =
       wasm_bindgen::prelude::Closure::wrap(Box::new(usage_to_md_closure)
         as Box<
-          dyn Fn(Vec<DocNodeWithContext>, String, Option<String>) -> String,
+          dyn Fn(wasm_bindgen::JsValue, String, Option<String>) -> String,
         >);
     #[cfg(target_arch = "wasm32")]
     let usage_to_md_closure = &wasm_bindgen::JsCast::unchecked_ref::<

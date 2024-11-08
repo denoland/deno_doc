@@ -5,6 +5,7 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
+use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cmp::Ordering;
@@ -463,7 +464,7 @@ impl GenerateCtx {
   }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ShortPath {
   pub path: String,
@@ -566,7 +567,7 @@ impl PartialOrd for ShortPath {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
 pub enum DocNodeKindWithDrilldown {
   Property,
   Method(MethodKind),
@@ -625,7 +626,7 @@ impl Ord for DocNodeKindWithDrilldown {
 /// A wrapper around [`DocNode`] with additional fields to track information
 /// about the inner [`DocNode`].
 /// This is cheap to clone since all fields are [`Rc`]s.
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
