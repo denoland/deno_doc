@@ -325,7 +325,7 @@ pub fn strip(md: &str) -> String {
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-pub type AmmoniaHook = Rc<dyn Fn(&mut ammonia::Builder)>;
+pub type AmmoniaHook = Box<dyn FnOnce(&mut ammonia::Builder)>;
 
 pub fn create_renderer(
   syntax_highlighter: Option<
@@ -346,7 +346,7 @@ pub fn create_renderer(
 
   let mut ammonia = create_ammonia();
 
-  if let Some(ammonia_hook) = ammonia_hook.clone() {
+  if let Some(ammonia_hook) = ammonia_hook {
     ammonia_hook(&mut ammonia);
   }
 
@@ -363,12 +363,6 @@ pub fn create_renderer(
         syntax_highlighter.as_deref();
       plugins.render.heading_adapter = Some(&heading_adapter);
     }
-
-    let class_name = if title_only {
-      "markdown_summary"
-    } else {
-      "markdown"
-    };
 
     let html = {
       let arena = Arena::new();
@@ -390,6 +384,12 @@ pub fn create_renderer(
 
     CURRENT_FILE.set(Some(file_path));
     URL_REWRITER.set(Some(url_rewriter.clone()));
+
+    let class_name = if title_only {
+      "markdown_summary"
+    } else {
+      "markdown"
+    };
 
     let html = format!(
       r#"<div class="{class_name}">{}</div>"#,

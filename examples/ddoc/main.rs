@@ -263,7 +263,12 @@ fn generate_docs_directory(
       None, None, None,
     ),
     markdown_stripper: Rc::new(deno_doc::html::comrak::strip),
-    head_inject: None,
+    head_inject: Some(Rc::new(|root| {
+      format!(
+        r#"<link rel="stylesheet" href="{root}{}">"#,
+        deno_doc::html::comrak::COMRAK_STYLESHEET_FILENAME
+      )
+    })),
   };
   let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
 

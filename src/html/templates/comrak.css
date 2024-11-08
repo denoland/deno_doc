@@ -26,7 +26,7 @@
 
 .markdown {
   @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm
-  md:max-w-screen-md lg:max-w-[75ch];
+    md:max-w-screen-md lg:max-w-[75ch];
 
   h1 {
     @apply text-xl md:text-2xl lg:text-3xl border-b border-stone-300 pb-1;
@@ -82,7 +82,7 @@
 
   pre {
     @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5
-    border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
+      border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0;
 
     & > code:first-child {
       @apply overflow-x-auto px-6 py-4 block;

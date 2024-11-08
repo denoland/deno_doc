@@ -185,17 +185,7 @@ pub fn markdown_to_html(
     anchor
   };
 
-  #[cfg(not(target_arch = "wasm32"))]
   let anchorizer = std::sync::Arc::new(anchorizer);
-
-  #[cfg(target_arch = "wasm32")]
-  let anchorizer = wasm_bindgen::prelude::Closure::wrap(
-    Box::new(anchorizer) as Box<dyn Fn(String, u8) -> String>
-  );
-  #[cfg(target_arch = "wasm32")]
-  let anchorizer = &wasm_bindgen::JsCast::unchecked_ref::<js_sys::Function>(
-    anchorizer.as_ref(),
-  );
 
   let md = parse_links(md, render_ctx);
 
