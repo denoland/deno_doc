@@ -163,18 +163,18 @@ export type UrlResolveKind =
   | UrlResolveKindSymbol;
 
 interface HrefResolver {
-  resolvePath(current: UrlResolveKind, target: UrlResolveKind): string;
+  resolvePath?(current: UrlResolveKind, target: UrlResolveKind): string;
   /** Resolver for global symbols, like the Deno namespace or other built-ins */
-  resolveGlobalSymbol(symbol: string[]): string | undefined;
+  resolveGlobalSymbol?(symbol: string[]): string | undefined;
   /** Resolver for symbols from non-relative imports */
-  resolveImportHref(symbol: string[], src: string): string | undefined;
+  resolveImportHref?(symbol: string[], src: string): string | undefined;
   /** Resolve the URL used in source code link buttons. */
-  resolveSource(location: Location): string | undefined;
+  resolveSource?(location: Location): string | undefined;
   /**
    * Resolve external JSDoc module links.
    * Returns a tuple with link and title.
    */
-  resolveExternalJsdocModule(
+  resolveExternalJsdocModule?(
     module: string,
     symbol?: string,
   ): { link: string; title: string } | undefined;
@@ -186,7 +186,6 @@ export interface UsageComposerEntry {
 }
 
 export type UsageToMd = (
-  _,
   url: string,
   customFileIdentifier: string | undefined,
 ) => string;
@@ -194,7 +193,7 @@ export type UsageToMd = (
 export interface UsageComposer {
   singleMode: boolean;
   compose(
-    current_resolve: UrlResolveKind,
+    currentResolve: UrlResolveKind,
     usageToMd: UsageToMd,
   ): Map<UsageComposerEntry, string>;
 }
@@ -203,15 +202,16 @@ interface GenerateOptions {
   packageName?: string;
   mainEntrypoint?: string;
   usageComposer: UsageComposer;
-  hrefResolver: HrefResolver;
+  hrefResolver?: HrefResolver;
   rewriteMap?: Record<string, string>;
   categoryDocs?: Record<string, string | undefined>;
-  disableSearch: boolean;
+  disableSearch?: boolean;
   symbolRedirectMap?: Record<string, Record<string, string>>;
   defaultRedirectMap?: Record<string, string>;
+  headInject?(root: string): string;
   markdownRenderer(
     md: string,
-    titleOnly: string,
+    titleOnly: boolean,
     filePath: ShortPath | undefined,
     anchorizer: (content: string, depthLevel: number) => string,
   ): string | undefined;
@@ -230,16 +230,17 @@ export async function generateHtml(
     options.usageComposer.compose,
     options.rewriteMap,
     options.categoryDocs,
-    options.disableSearch,
+    options.disableSearch ?? false,
     options.symbolRedirectMap,
     options.defaultRedirectMap,
-    options.hrefResolver.resolvePath,
-    options.hrefResolver.resolveGlobalSymbol,
-    options.hrefResolver.resolveImportHref,
-    options.hrefResolver.resolveSource,
-    options.hrefResolver.resolveExternalJsdocModule,
+    options.hrefResolver?.resolvePath,
+    options.hrefResolver?.resolveGlobalSymbol || (() => undefined),
+    options.hrefResolver?.resolveImportHref || (() => undefined),
+    options.hrefResolver?.resolveSource || (() => undefined),
+    options.hrefResolver?.resolveExternalJsdocModule || (() => undefined),
     options.markdownRenderer,
     options.markdownStripper,
+    options.headInject,
     docNodesByUrl,
   );
 }

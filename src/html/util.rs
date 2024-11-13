@@ -227,7 +227,8 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,

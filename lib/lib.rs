@@ -2,9 +2,9 @@
 
 use anyhow::anyhow;
 use anyhow::Context;
-use deno_doc::html::{
-  DocNodeWithContext, UrlResolveKind, UsageComposerEntry, UsageToMd,
-};
+use deno_doc::html::UrlResolveKind;
+use deno_doc::html::UsageComposerEntry;
+use deno_doc::html::UsageToMd;
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadFuture;
@@ -264,7 +264,7 @@ pub fn generate_html(
   symbol_redirect_map: JsValue,
   default_symbol_map: JsValue,
 
-  resolve_path: js_sys::Function,
+  resolve_path: Option<js_sys::Function>,
   resolve_global_symbol: js_sys::Function,
   resolve_import_href: js_sys::Function,
   resolve_source: js_sys::Function,
@@ -272,6 +272,7 @@ pub fn generate_html(
 
   markdown_renderer: js_sys::Function,
   markdown_stripper: js_sys::Function,
+  head_inject: Option<js_sys::Function>,
 
   doc_nodes_by_url: JsValue,
 ) -> Result<JsValue, JsValue> {
@@ -294,13 +295,14 @@ pub fn generate_html(
     resolve_external_jsdoc_module,
     markdown_renderer,
     markdown_stripper,
+    head_inject,
     doc_nodes_by_url,
   )
   .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
 }
 
 struct JsHrefResolver {
-  resolve_path: js_sys::Function,
+  resolve_path: Option<js_sys::Function>,
   resolve_global_symbol: js_sys::Function,
   resolve_import_href: js_sys::Function,
   resolve_source: js_sys::Function,
@@ -313,18 +315,21 @@ impl deno_doc::html::HrefResolver for JsHrefResolver {
     current: UrlResolveKind,
     target: UrlResolveKind,
   ) -> String {
-    let this = JsValue::null();
+    if let Some(resolve_path) = &self.resolve_path {
+      let this = JsValue::null();
 
-    let current = serde_wasm_bindgen::to_value(&current).unwrap();
-    let target = serde_wasm_bindgen::to_value(&target).unwrap();
+      let current = serde_wasm_bindgen::to_value(&current).unwrap();
+      let target = serde_wasm_bindgen::to_value(&target).unwrap();
 
-    let global_symbol = self
-      .resolve_path
-      .call2(&this, &current, &target)
-      .expect("resolve_path errored");
+      let global_symbol = resolve_path
+        .call2(&this, &current, &target)
+        .expect("resolve_path errored");
 
-    serde_wasm_bindgen::from_value(global_symbol)
-      .expect("resolve_path returned an invalid value")
+      serde_wasm_bindgen::from_value(global_symbol)
+        .expect("resolve_path returned an invalid value")
+    } else {
+      deno_doc::html::href_path_resolve(current, target)
+    }
   }
 
   fn resolve_global_symbol(&self, symbol: &[String]) -> Option<String> {
@@ -406,19 +411,17 @@ impl deno_doc::html::UsageComposer for JsUsageComposer {
 
   fn compose(
     &self,
-    doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind,
     usage_to_md: UsageToMd,
   ) -> IndexMap<UsageComposerEntry, String> {
     let this = JsValue::null();
 
-    let doc_nodes = serde_wasm_bindgen::to_value(&doc_nodes).unwrap();
     let current_resolve =
       serde_wasm_bindgen::to_value(&current_resolve).unwrap();
 
     let global_symbol = self
       .compose
-      .call3(&this, &doc_nodes, &current_resolve, &usage_to_md)
+      .call2(&this, &current_resolve, &usage_to_md)
       .expect("compose errored");
 
     serde_wasm_bindgen::from_value(global_symbol)
@@ -440,7 +443,7 @@ fn generate_html_inner(
   symbol_redirect_map: JsValue,
   default_symbol_map: JsValue,
 
-  resolve_path: js_sys::Function,
+  resolve_path: Option<js_sys::Function>,
   resolve_global_symbol: js_sys::Function,
   resolve_import_href: js_sys::Function,
   resolve_source: js_sys::Function,
@@ -448,36 +451,38 @@ fn generate_html_inner(
 
   markdown_renderer: js_sys::Function,
   markdown_stripper: js_sys::Function,
+  head_inject: Option<js_sys::Function>,
 
   doc_nodes_by_url: JsValue,
 ) -> Result<JsValue, anyhow::Error> {
   let main_entrypoint = main_entrypoint
     .map(|s| ModuleSpecifier::parse(&s))
-    .transpose()?;
+    .transpose()
+    .map_err(|e| anyhow::Error::from(e).context("mainEntrypoint"))?;
 
   let rewrite_map = serde_wasm_bindgen::from_value::<
     Option<IndexMap<ModuleSpecifier, String>>,
   >(rewrite_map)
-  .map_err(|err| anyhow!("{}", err))?;
+  .map_err(|err| anyhow!("rewriteMap: {}", err))?;
 
   let category_docs = serde_wasm_bindgen::from_value::<
     Option<IndexMap<String, Option<String>>>,
   >(category_docs)
-  .map_err(|err| anyhow!("{}", err))?;
+  .map_err(|err| anyhow!("categoryDocs: {}", err))?;
 
   let symbol_redirect_map = serde_wasm_bindgen::from_value::<
     Option<IndexMap<String, IndexMap<String, String>>>,
   >(symbol_redirect_map)
-  .map_err(|err| anyhow!("{}", err))?;
+  .map_err(|err| anyhow!("symbolRedirectMap: {}", err))?;
 
   let default_symbol_map = serde_wasm_bindgen::from_value::<
     Option<IndexMap<String, String>>,
   >(default_symbol_map)
-  .map_err(|err| anyhow!("{}", err))?;
+  .map_err(|err| anyhow!("defaultSymbolMap: {}", err))?;
 
   let doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>> =
     serde_wasm_bindgen::from_value(doc_nodes_by_url)
-      .map_err(|err| anyhow!("{}", err))?;
+      .map_err(|err| anyhow!("docNodesByUrl: {}", err))?;
 
   let markdown_renderer = Rc::new(
     move |md: &str,
@@ -513,6 +518,25 @@ fn generate_html_inner(
       .expect("markdown_stripper returned an invalid value")
   });
 
+  let head_inject: Option<Rc<dyn Fn(&str) -> String + 'static>> =
+    if let Some(head_inject) = head_inject {
+      let head_inject = Rc::new(move |root: &str| {
+        let this = JsValue::null();
+        let root = serde_wasm_bindgen::to_value(root).unwrap();
+
+        let inject = head_inject
+          .call1(&this, &root)
+          .expect("head_inject errored");
+
+        serde_wasm_bindgen::from_value::<String>(inject)
+          .expect("head_inject returned an invalid value")
+      });
+
+      Some(head_inject)
+    } else {
+      None
+    };
+
   let files = deno_doc::html::generate(
     deno_doc::html::GenerateOptions {
       package_name,
@@ -535,7 +559,7 @@ fn generate_html_inner(
       default_symbol_map,
       markdown_renderer,
       markdown_stripper,
-      head_inject: None,
+      head_inject,
     },
     doc_nodes_by_url,
   )?;
