@@ -392,7 +392,6 @@ impl ModuleDocCtx {
 mod test {
   use crate::html::href_path_resolve;
   use crate::html::jsdoc::parse_links;
-  use crate::html::DocNodeWithContext;
   use crate::html::GenerateCtx;
   use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
