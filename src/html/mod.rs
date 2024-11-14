@@ -72,60 +72,6 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-#[cfg(target_arch = "wasm32")]
-trait WasmToFilePath {
-  fn to_file_path(&self) -> Result<PathBuf, ()>;
-}
-
-#[cfg(target_arch = "wasm32")]
-impl WasmToFilePath for url::Url {
-  fn to_file_path(&self) -> Result<PathBuf, ()> {
-    if let Some(segments) = self.path_segments() {
-      let host = match self.host() {
-        None | Some(url::Host::Domain("localhost")) => None,
-        Some(_) if cfg!(windows) && self.scheme() == "file" => self.host(),
-        _ => return Err(()),
-      };
-
-      if host.is_some() {
-        return Err(());
-      }
-
-      let mut bytes = if cfg!(target_os = "redox") {
-        b"file:".to_vec()
-      } else {
-        Vec::new()
-      };
-
-      for segment in segments {
-        bytes.push(b'/');
-        bytes.extend(percent_encoding::percent_decode(segment.as_bytes()));
-      }
-
-      // A windows drive letter must end with a slash.
-      if bytes.len() > 2
-        && bytes[bytes.len() - 2].is_ascii_alphabetic()
-        && matches!(bytes[bytes.len() - 1], b':' | b'|')
-      {
-        bytes.push(b'/');
-      }
-
-      let os_str = std::ffi::OsStr::new(
-        std::str::from_utf8(&bytes).expect("Invalid UTF-8 sequence"),
-      );
-      let path = PathBuf::from(os_str);
-
-      debug_assert!(
-        path.is_absolute(),
-        "to_file_path() failed to produce an absolute Path"
-      );
-
-      return Ok(path);
-    }
-    Err(())
-  }
-}
-
 fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   let mut reg = Handlebars::new();
   reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
@@ -497,7 +443,7 @@ impl ShortPath {
       };
     }
 
-    let Ok(url_file_path) = specifier.to_file_path() else {
+    let Ok(url_file_path) = deno_path_util::url_to_file_path(&specifier) else {
       return ShortPath {
         path: specifier.to_string(),
         specifier,
@@ -1075,7 +1021,7 @@ pub fn find_common_ancestor<'a>(
   let paths: Vec<PathBuf> = urls
     .filter_map(|url| {
       if url.scheme() == "file" {
-        url.to_file_path().ok()
+        deno_path_util::url_to_file_path(url).ok()
       } else {
         None
       }

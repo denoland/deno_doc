@@ -201,7 +201,7 @@ export interface UsageComposer {
 interface GenerateOptions {
   packageName?: string;
   mainEntrypoint?: string;
-  usageComposer: UsageComposer;
+  usageComposer?: UsageComposer;
   hrefResolver?: HrefResolver;
   rewriteMap?: Record<string, string>;
   categoryDocs?: Record<string, string | undefined>;
@@ -218,16 +218,35 @@ interface GenerateOptions {
   markdownStripper(md: string): string;
 }
 
+const defaultUsageComposer: UsageComposer = {
+  singleMode: true,
+  compose(currentResolve, usageToMd) {
+    if ("file" in currentResolve) {
+      return new Map([[
+        { name: "" },
+        usageToMd(currentResolve.file.specifier, undefined),
+      ]]);
+    } else {
+      return new Map();
+    }
+  },
+};
+
+
 export async function generateHtml(
   options: GenerateOptions,
   docNodesByUrl: Record<string, Array<DocNode>>,
 ): Promise<Record<string, string>> {
+  const {
+    usageComposer = defaultUsageComposer,
+  } = options;
+
   const wasm = await instantiate();
   return wasm.generate_html(
     options.packageName,
     options.mainEntrypoint,
-    options.usageComposer.singleMode,
-    options.usageComposer.compose,
+    usageComposer.singleMode,
+    usageComposer.compose,
     options.rewriteMap,
     options.categoryDocs,
     options.disableSearch ?? false,

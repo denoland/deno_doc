@@ -567,6 +567,7 @@ dependencies = [
  "criterion",
  "deno_ast",
  "deno_graph",
+ "deno_path_util",
  "file_test_runner",
  "futures",
  "handlebars",
@@ -643,6 +644,17 @@ checksum = "7fcf552fbdedbe81c89705349d7d2485c7051382b000dfddbdbf7fc25931cf83"
 dependencies = [
  "data-url",
  "serde",
+ "url",
+]
+
+[[package]]
+name = "deno_path_util"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff25f6e08e7a0214bbacdd6f7195c7f1ebcd850c87a624e4ff06326b68b42d99"
+dependencies = [
+ "percent-encoding",
+ "thiserror",
  "url",
 ]
 
