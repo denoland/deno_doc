@@ -131,7 +131,7 @@ Deno.test({
       "https://deno.land/std@0.104.0/fmt/colors.ts",
     );
 
-    const files = await generateHtml({
+    const files = await generateHtml({ ["file:///colors.ts"]: entries }, {
       markdownRenderer(
         md,
         _titleOnly,
@@ -143,7 +143,7 @@ Deno.test({
       markdownStripper(md: string) {
         return md;
       },
-    }, { ["file:///colors.ts"]: entries });
+    });
 
     assertEquals(Object.keys(files).length, 61);
   },
