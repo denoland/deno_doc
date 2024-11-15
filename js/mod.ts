@@ -167,7 +167,11 @@ export type UrlResolveKind =
 
 export interface HrefResolver {
   /** Resolver for how files should link to each other. */
-  resolvePath?(current: UrlResolveKind, target: UrlResolveKind, defaultResolve: () => string): string;
+  resolvePath?(
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+    defaultResolve: () => string,
+  ): string;
   /** Resolver for global symbols, like the Deno namespace or other built-ins */
   resolveGlobalSymbol?(symbol: string[]): string | undefined;
   /** Resolver for symbols from non-relative imports */
