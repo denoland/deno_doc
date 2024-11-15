@@ -9,6 +9,17 @@ use regex::Regex;
 use serde::Serialize;
 use std::borrow::Cow;
 
+#[cfg(target_arch = "wasm32")]
+use std::cell::RefCell;
+#[cfg(target_arch = "wasm32")]
+use std::ffi::c_void;
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+  static RENDER_CONTEXT: RefCell<*const c_void> = const { RefCell::new(std::ptr::null()) };
+  static DOC_NODES: RefCell<(*const c_void, usize)> = const { RefCell::new((std::ptr::null(), 0)) };
+}
+
 lazy_static! {
   static ref IDENTIFIER_RE: Regex =
     Regex::new(r"^[0-9]|[^a-zA-Z0-9$_]").unwrap();
@@ -172,8 +183,10 @@ fn get_identifier_for_file(
   )
 }
 
-pub type UsageToMd<'a> =
-  &'a dyn Fn(&[DocNodeWithContext], &str, Option<&str>) -> String;
+#[cfg(not(feature = "rust"))]
+pub type UsageToMd<'a> = &'a js_sys::Function;
+#[cfg(feature = "rust")]
+pub type UsageToMd<'a> = &'a dyn Fn(&str, Option<&str>) -> String;
 
 #[derive(Clone, Debug, Serialize)]
 struct UsageCtx {
@@ -202,19 +215,92 @@ impl UsagesCtx {
       return None;
     }
 
-    let usage_ctx = ctx.clone();
+    #[cfg(not(target_arch = "wasm32"))]
     let usage_to_md_closure =
-      move |nodes: &[DocNodeWithContext],
-            url: &str,
-            custom_file_identifier: Option<&str>| {
-        usage_to_md(&usage_ctx, nodes, url, custom_file_identifier)
+      move |url: &str, custom_file_identifier: Option<&str>| {
+        usage_to_md(ctx, doc_nodes, url, custom_file_identifier)
       };
 
-    let usages = ctx.ctx.usage_composer.compose(
-      doc_nodes,
-      ctx.get_current_resolve(),
-      &usage_to_md_closure,
-    );
+    #[cfg(target_arch = "wasm32")]
+    {
+      let ctx_ptr = ctx as *const RenderContext as *const c_void;
+      RENDER_CONTEXT.set(ctx_ptr);
+      let nodes_ptr = doc_nodes as *const [DocNodeWithContext] as *const c_void;
+      DOC_NODES.set((nodes_ptr, doc_nodes.len()));
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure =
+      move |url: String, custom_file_identifier: Option<String>| {
+        RENDER_CONTEXT.with(|ctx| {
+          let render_ctx_ptr = *ctx.borrow() as *const RenderContext;
+          // SAFETY: this pointer is valid until destroyed, which is done
+          //  after compose is called
+          let render_ctx = unsafe { &*render_ctx_ptr };
+
+          let usage = DOC_NODES.with(|nodes| {
+            let (nodes_ptr, nodes_ptr_len) = *nodes.borrow();
+            // SAFETY: the pointers are valid until destroyed, which is done
+            //  after compose is called
+            let doc_nodes = unsafe {
+              std::slice::from_raw_parts(
+                nodes_ptr as *const DocNodeWithContext,
+                nodes_ptr_len,
+              )
+            };
+
+            let usage = usage_to_md(
+              &render_ctx,
+              doc_nodes,
+              &url,
+              custom_file_identifier.as_deref(),
+            );
+
+            *nodes.borrow_mut() = (
+              doc_nodes as *const [DocNodeWithContext] as *const c_void,
+              doc_nodes.len(),
+            );
+
+            usage
+          });
+
+          *ctx.borrow_mut() =
+            render_ctx as *const RenderContext as *const c_void;
+          usage
+        })
+      };
+
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure =
+      wasm_bindgen::prelude::Closure::wrap(Box::new(usage_to_md_closure)
+        as Box<dyn Fn(String, Option<String>) -> String>);
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure = &wasm_bindgen::JsCast::unchecked_ref::<
+      js_sys::Function,
+    >(usage_to_md_closure.as_ref());
+
+    let usages = ctx
+      .ctx
+      .usage_composer
+      .compose(ctx.get_current_resolve(), &usage_to_md_closure);
+
+    #[cfg(target_arch = "wasm32")]
+    {
+      let render_ctx =
+        RENDER_CONTEXT.replace(std::ptr::null()) as *const RenderContext;
+      // SAFETY: take the pointer and drop it
+      let _ = unsafe { &*render_ctx };
+
+      let (doc_nodes_ptr, doc_nodes_ptr_len) =
+        DOC_NODES.replace((std::ptr::null(), 0));
+      // SAFETY: take the pointer and drop it
+      let _ = unsafe {
+        std::slice::from_raw_parts(
+          doc_nodes_ptr as *const DocNodeWithContext,
+          doc_nodes_ptr_len,
+        )
+      };
+    };
 
     if usages.is_empty() {
       None
@@ -241,7 +327,7 @@ impl UsagesCtx {
   }
 }
 
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, serde::Deserialize)]
 pub struct UsageComposerEntry {
   pub name: String,
   pub icon: Option<Cow<'static, str>>,
@@ -252,7 +338,6 @@ pub trait UsageComposer {
 
   fn compose(
     &self,
-    doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind,
     usage_to_md: UsageToMd,
   ) -> IndexMap<UsageComposerEntry, String>;

@@ -6,6 +6,7 @@ use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use serde::Serialize;
 use std::borrow::Cow;
+use std::rc::Rc;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -153,12 +154,14 @@ pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   (render_ctx.ctx.markdown_stripper)(&md)
 }
 
+#[cfg(not(feature = "rust"))]
+pub type Anchorizer<'a> = &'a js_sys::Function;
+#[cfg(feature = "rust")]
 pub type Anchorizer =
   std::sync::Arc<dyn Fn(String, u8) -> String + Send + Sync>;
 
-pub type MarkdownRenderer = std::rc::Rc<
-  dyn (Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>),
->;
+pub type MarkdownRenderer =
+  Rc<dyn (Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>)>;
 
 pub fn markdown_to_html(
   render_ctx: &RenderContext,
@@ -185,7 +188,17 @@ pub fn markdown_to_html(
     anchor
   };
 
+  #[cfg(not(target_arch = "wasm32"))]
   let anchorizer = std::sync::Arc::new(anchorizer);
+
+  #[cfg(target_arch = "wasm32")]
+  let anchorizer = wasm_bindgen::prelude::Closure::wrap(
+    Box::new(anchorizer) as Box<dyn Fn(String, u8) -> String>
+  );
+  #[cfg(target_arch = "wasm32")]
+  let anchorizer = wasm_bindgen::JsCast::unchecked_ref::<js_sys::Function>(
+    anchorizer.as_ref(),
+  );
 
   let md = parse_links(md, render_ctx);
 
@@ -379,7 +392,6 @@ impl ModuleDocCtx {
 mod test {
   use crate::html::href_path_resolve;
   use crate::html::jsdoc::parse_links;
-  use crate::html::DocNodeWithContext;
   use crate::html::GenerateCtx;
   use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
@@ -441,7 +453,6 @@ mod test {
 
     fn compose(
       &self,
-      nodes: &[DocNodeWithContext],
       current_resolve: UrlResolveKind,
       usage_to_md: UsageToMd,
     ) -> IndexMap<UsageComposerEntry, String> {
@@ -453,7 +464,7 @@ mod test {
               name: "".to_string(),
               icon: None,
             },
-            usage_to_md(nodes, current_file.display_name(), None),
+            usage_to_md(current_file.display_name(), None),
           )])
         })
         .unwrap_or_default()
