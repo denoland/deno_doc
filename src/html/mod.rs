@@ -5,6 +5,8 @@ use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
 use indexmap::IndexMap;
+use serde::Deserialize;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -408,7 +410,8 @@ impl GenerateCtx {
   }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ShortPath {
   pub path: String,
   pub specifier: ModuleSpecifier,
@@ -440,7 +443,7 @@ impl ShortPath {
       };
     }
 
-    let Ok(url_file_path) = specifier.to_file_path() else {
+    let Ok(url_file_path) = deno_path_util::url_to_file_path(&specifier) else {
       return ShortPath {
         path: specifier.to_string(),
         specifier,
@@ -510,7 +513,7 @@ impl PartialOrd for ShortPath {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
 pub enum DocNodeKindWithDrilldown {
   Property,
   Method(MethodKind),
@@ -569,7 +572,8 @@ impl Ord for DocNodeKindWithDrilldown {
 /// A wrapper around [`DocNode`] with additional fields to track information
 /// about the inner [`DocNode`].
 /// This is cheap to clone since all fields are [`Rc`]s.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<[String]>,
@@ -1017,7 +1021,7 @@ pub fn find_common_ancestor<'a>(
   let paths: Vec<PathBuf> = urls
     .filter_map(|url| {
       if url.scheme() == "file" {
-        url.to_file_path().ok()
+        deno_path_util::url_to_file_path(url).ok()
       } else {
         None
       }

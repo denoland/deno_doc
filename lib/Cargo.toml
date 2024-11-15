@@ -19,6 +19,7 @@ deno_graph = { workspace = true }
 deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
 serde.workspace = true
+indexmap = "2.6.0"
 
 console_error_panic_hook = "0.1.7"
 js-sys = "=0.3.69"

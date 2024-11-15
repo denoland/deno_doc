@@ -88,7 +88,6 @@ impl UsageComposer for EmptyResolver {
 
   fn compose(
     &self,
-    doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind,
     usage_to_md: UsageToMd,
   ) -> IndexMap<UsageComposerEntry, String> {
@@ -100,7 +99,7 @@ impl UsageComposer for EmptyResolver {
             name: "".to_string(),
             icon: None,
           },
-          usage_to_md(doc_nodes, current_file.path.as_str(), None),
+          usage_to_md(current_file.path.as_str(), None),
         )])
       })
       .unwrap_or_default()

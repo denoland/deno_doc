@@ -3,10 +3,10 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
+use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
-use deno_doc::html::{
-  DocNodeWithContext, HrefResolver, UsageComposer, UsageComposerEntry,
-};
+use deno_doc::html::UsageComposer;
+use deno_doc::html::UsageComposerEntry;
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -216,7 +216,6 @@ impl UsageComposer for EmptyResolver {
 
   fn compose(
     &self,
-    nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind,
     usage_to_md: deno_doc::html::UsageToMd,
   ) -> IndexMap<UsageComposerEntry, String> {
@@ -228,7 +227,7 @@ impl UsageComposer for EmptyResolver {
             name: "".to_string(),
             icon: None,
           },
-          usage_to_md(nodes, current_file.specifier.as_str(), None),
+          usage_to_md(current_file.specifier.as_str(), None),
         )])
       })
       .unwrap_or_default()
