@@ -276,6 +276,7 @@ interface GenerateOptions {
     filePath: ShortPath | undefined,
     anchorizer: (content: string, depthLevel: number) => string,
   ): string | undefined;
+  /** Function to strip markdown. */
   markdownStripper(md: string): string;
 }
 
