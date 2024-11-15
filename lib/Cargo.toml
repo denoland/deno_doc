@@ -13,9 +13,6 @@ name = "deno_doc_wasm"
 path = "lib.rs"
 crate-type = ["cdylib"]
 
-[profile.release]
-debug = true
-
 [dependencies]
 anyhow = "1.0.86"
 deno_graph = { workspace = true }
