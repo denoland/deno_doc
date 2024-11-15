@@ -23,6 +23,7 @@ use import_map::ImportMap;
 use import_map::ImportMapOptions;
 use indexmap::IndexMap;
 use serde::Serialize;
+use std::ffi::c_void;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
@@ -35,6 +36,11 @@ extern "C" {
 
 macro_rules! console_warn {
   ($($t:tt)*) => (warn(&format_args!($($t)*).to_string()))
+}
+
+thread_local! {
+  static CURRENT: std::cell::RefCell<*const c_void> = const { std::cell::RefCell::new(std::ptr::null()) };
+  static TARGET: std::cell::RefCell<*const c_void> = const { std::cell::RefCell::new(std::ptr::null()) };
 }
 
 struct JsLoader {
@@ -318,12 +324,70 @@ impl deno_doc::html::HrefResolver for JsHrefResolver {
     if let Some(resolve_path) = &self.resolve_path {
       let this = JsValue::null();
 
+      let new_current = current.clone();
+      let new_target = target.clone();
+
+      {
+        let current_ptr =
+          &new_current as *const UrlResolveKind as *const c_void;
+        CURRENT.set(current_ptr);
+        let target = &new_target as *const UrlResolveKind as *const c_void;
+        TARGET.set(target);
+      }
+
+      let default_closure = Box::new(move || {
+        CURRENT.with(|current| {
+          let current_ptr = *current.borrow() as *const UrlResolveKind;
+          assert!(!current_ptr.is_null());
+          // SAFETY: this pointer is valid until destroyed, which is done
+          //  after compose is called
+          let current_val = unsafe { &*current_ptr };
+
+          let path = TARGET.with(|target| {
+            let target_ptr = *target.borrow() as *const UrlResolveKind;
+            assert!(!target_ptr.is_null());
+            // SAFETY: this pointer is valid until destroyed, which is done
+            //  after compose is called
+            let target_val = unsafe { &*target_ptr };
+
+            let path =
+              deno_doc::html::href_path_resolve(*current_val, *target_val);
+
+            *target.borrow_mut() =
+              target_val as *const UrlResolveKind as *const c_void;
+
+            path
+          });
+
+          *current.borrow_mut() =
+            current_val as *const UrlResolveKind as *const c_void;
+
+          path
+        })
+      });
+
+      let default_closure =
+        Closure::wrap(Box::new(default_closure) as Box<dyn Fn() -> String>);
+      let default_closure =
+        JsCast::unchecked_ref::<js_sys::Function>(default_closure.as_ref());
+
       let current = serde_wasm_bindgen::to_value(&current).unwrap();
       let target = serde_wasm_bindgen::to_value(&target).unwrap();
 
       let global_symbol = resolve_path
-        .call2(&this, &current, &target)
+        .call3(&this, &current, &target, default_closure)
         .expect("resolve_path errored");
+
+      {
+        let current =
+          CURRENT.replace(std::ptr::null()) as *const UrlResolveKind;
+        // SAFETY: take the pointer and drop it
+        let _ = unsafe { &*current };
+
+        let target = TARGET.replace(std::ptr::null()) as *const UrlResolveKind;
+        // SAFETY: take the pointer and drop it
+        let _ = unsafe { &*target };
+      }
 
       serde_wasm_bindgen::from_value(global_symbol)
         .expect("resolve_path returned an invalid value")

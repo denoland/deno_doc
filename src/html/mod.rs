@@ -493,7 +493,7 @@ impl ShortPath {
     if self.is_main {
       UrlResolveKind::Root
     } else {
-      UrlResolveKind::File(self)
+      UrlResolveKind::File { file: self }
     }
   }
 }
