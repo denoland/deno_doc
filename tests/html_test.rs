@@ -511,8 +511,11 @@ async fn module_doc() {
   let mut module_docs = vec![];
 
   for (short_path, doc_nodes) in &ctx.doc_nodes {
-    let render_ctx =
-      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(short_path));
+    let render_ctx = RenderContext::new(
+      &ctx,
+      doc_nodes,
+      UrlResolveKind::File { file: short_path },
+    );
     let module_doc = jsdoc::ModuleDocCtx::new(&render_ctx, short_path);
 
     module_docs.push(module_doc);
