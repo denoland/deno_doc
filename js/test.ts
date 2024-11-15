@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 import { assert, assertEquals, assertRejects } from "jsr:@std/assert@0.223";
-import { doc, generateHtml, ShortPath } from "./mod.ts";
+import { doc, generateHtml } from "./mod.ts";
 
 Deno.test({
   name: "doc()",
