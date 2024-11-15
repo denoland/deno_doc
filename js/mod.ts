@@ -126,8 +126,11 @@ export async function doc(
 }
 
 export interface ShortPath {
+  /** Name identifier for the path. */
   path: string;
+  /** URL for the path. */
   specifier: string;
+  /** Whether the path is the main entrypoint. */
   isMain: boolean;
 }
 
@@ -163,6 +166,7 @@ export type UrlResolveKind =
   | UrlResolveKindSymbol;
 
 interface HrefResolver {
+  /** Resolver for how files should link to eachother. */
   resolvePath?(current: UrlResolveKind, target: UrlResolveKind): string;
   /** Resolver for global symbols, like the Deno namespace or other built-ins */
   resolveGlobalSymbol?(symbol: string[]): string | undefined;
@@ -181,7 +185,9 @@ interface HrefResolver {
 }
 
 export interface UsageComposerEntry {
+  /** Name for the entry. Can be left blank in singleMode. */
   name: string;
+  /** Icon for the entry. */
   icon?: string;
 }
 
@@ -191,7 +197,15 @@ export type UsageToMd = (
 ) => string;
 
 export interface UsageComposer {
+  /** Whether the usage should only display a single item and not have a dropdown. */
   singleMode: boolean;
+
+  /**
+   * Composer to generate usage.
+   *
+   * @param currentResolve The current resolve.
+   * @param usageToMd Callback to generate a usage import block.
+   */
   compose(
     currentResolve: UrlResolveKind,
     usageToMd: UsageToMd,
@@ -199,16 +213,63 @@ export interface UsageComposer {
 }
 
 interface GenerateOptions {
+  /** The name of the package to use in the breadcrumbs. */
   packageName?: string;
+  /** The main entrypoint if one is present. */
   mainEntrypoint?: string;
+  /** Composer for generating the usage of a symbol of module. */
   usageComposer?: UsageComposer;
+  /** Resolver for how links should be resolved. */
   hrefResolver?: HrefResolver;
+  /** Map for remapping module names to a custom value. */
   rewriteMap?: Record<string, string>;
+  /**
+   * Map of categories to their markdown description.
+   * Only usable in category mode (single d.ts file with categories declared).
+   */
   categoryDocs?: Record<string, string | undefined>;
+  /** Whether to disable search. */
   disableSearch?: boolean;
+  /**
+   * Map of modules, where the value is a map of symbols with value of a link to
+   * where this symbol should redirect to.
+   */
   symbolRedirectMap?: Record<string, Record<string, string>>;
+  /**
+   * Map of modules, where the value is a link to where the default symbol
+   * should redirect to.
+   */
   defaultRedirectMap?: Record<string, string>;
+  /**
+   * Hook to inject content in the `head` tag.
+   *
+   * @param root the path to the root of the output.
+   */
   headInject?(root: string): string;
+  /**
+   * Function to render markdown.
+   *
+   * @param md The raw markdown that needs to be rendered.
+   * @param titleOnly Whether only the title should be rendered. Recommended syntax to keep is:
+   * - paragraph
+   * - heading
+   * - text
+   * - code
+   * - html inline
+   * - emph
+   * - strong
+   * - strikethrough
+   * - superscript
+   * - link
+   * - math
+   * - escaped
+   * - wiki link
+   * - underline
+   * - soft break
+   * @param filePath The filepath where the rendering is happening.
+   * @param anchorizer Anchorizer used to generate slugs and the sidebar.
+   * @return The rendered markdown.
+   */
   markdownRenderer(
     md: string,
     titleOnly: boolean,
@@ -232,7 +293,11 @@ const defaultUsageComposer: UsageComposer = {
   },
 };
 
-
+/**
+ * Generate HTML files for provided {@linkcode DocNode}s.
+ * @param options Options for the generation.
+ * @param docNodesByUrl DocNodes keyed by their absolute URL.
+ */
 export async function generateHtml(
   options: GenerateOptions,
   docNodesByUrl: Record<string, Array<DocNode>>,
