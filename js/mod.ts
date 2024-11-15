@@ -165,9 +165,13 @@ export type UrlResolveKind =
   | UrlResolveKindFile
   | UrlResolveKindSymbol;
 
-interface HrefResolver {
-  /** Resolver for how files should link to eachother. */
-  resolvePath?(current: UrlResolveKind, target: UrlResolveKind): string;
+export interface HrefResolver {
+  /** Resolver for how files should link to each other. */
+  resolvePath?(
+    current: UrlResolveKind,
+    target: UrlResolveKind,
+    defaultResolve: () => string,
+  ): string;
   /** Resolver for global symbols, like the Deno namespace or other built-ins */
   resolveGlobalSymbol?(symbol: string[]): string | undefined;
   /** Resolver for symbols from non-relative imports */
@@ -212,7 +216,7 @@ export interface UsageComposer {
   ): Map<UsageComposerEntry, string>;
 }
 
-interface GenerateOptions {
+export interface GenerateOptions {
   /** The name of the package to use in the breadcrumbs. */
   packageName?: string;
   /** The main entrypoint if one is present. */
@@ -236,10 +240,9 @@ interface GenerateOptions {
    */
   symbolRedirectMap?: Record<string, Record<string, string>>;
   /**
-   * Map of modules, where the value is a link to where the default symbol
-   * should redirect to.
+   * Map of modules, where the value is what the name of the default symbol should be.
    */
-  defaultRedirectMap?: Record<string, string>;
+  defaultSymbolMap?: Record<string, string>;
   /**
    * Hook to inject content in the `head` tag.
    *
@@ -300,8 +303,8 @@ const defaultUsageComposer: UsageComposer = {
  * @param docNodesByUrl DocNodes keyed by their absolute URL.
  */
 export async function generateHtml(
-  options: GenerateOptions,
   docNodesByUrl: Record<string, Array<DocNode>>,
+  options: GenerateOptions,
 ): Promise<Record<string, string>> {
   const {
     usageComposer = defaultUsageComposer,
@@ -317,7 +320,7 @@ export async function generateHtml(
     options.categoryDocs,
     options.disableSearch ?? false,
     options.symbolRedirectMap,
-    options.defaultRedirectMap,
+    options.defaultSymbolMap,
     options.hrefResolver?.resolvePath,
     options.hrefResolver?.resolveGlobalSymbol || (() => undefined),
     options.hrefResolver?.resolveImportHref || (() => undefined),

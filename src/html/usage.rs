@@ -233,12 +233,14 @@ impl UsagesCtx {
       move |url: String, custom_file_identifier: Option<String>| {
         RENDER_CONTEXT.with(|ctx| {
           let render_ctx_ptr = *ctx.borrow() as *const RenderContext;
+          assert!(!render_ctx_ptr.is_null());
           // SAFETY: this pointer is valid until destroyed, which is done
           //  after compose is called
           let render_ctx = unsafe { &*render_ctx_ptr };
 
           let usage = DOC_NODES.with(|nodes| {
             let (nodes_ptr, nodes_ptr_len) = *nodes.borrow();
+            assert!(!nodes_ptr.is_null());
             // SAFETY: the pointers are valid until destroyed, which is done
             //  after compose is called
             let doc_nodes = unsafe {
