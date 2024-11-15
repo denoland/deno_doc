@@ -199,7 +199,7 @@ impl<'ctx> RenderContext<'ctx> {
           },
         ]
       }
-      UrlResolveKind::Category(category) => {
+      UrlResolveKind::Category { category } => {
         vec![
           BreadcrumbCtx {
             name: index_name,
@@ -217,7 +217,7 @@ impl<'ctx> RenderContext<'ctx> {
           },
         ]
       }
-      UrlResolveKind::File(file) => {
+      UrlResolveKind::File { file } => {
         if file.is_main {
           vec![BreadcrumbCtx {
             name: index_name,
@@ -257,9 +257,10 @@ impl<'ctx> RenderContext<'ctx> {
         if !file.is_main {
           parts.push(BreadcrumbCtx {
             name: file.display_name().to_string(),
-            href: self
-              .ctx
-              .resolve_path(self.current_resolve, UrlResolveKind::File(file)),
+            href: self.ctx.resolve_path(
+              self.current_resolve,
+              UrlResolveKind::File { file },
+            ),
             is_symbol: false,
             is_first_symbol: false,
           });
@@ -268,7 +269,7 @@ impl<'ctx> RenderContext<'ctx> {
             name: category.to_string(),
             href: self.ctx.resolve_path(
               self.current_resolve,
-              UrlResolveKind::Category(category),
+              UrlResolveKind::Category { category },
             ),
             is_symbol: false,
             is_first_symbol: false,
@@ -618,8 +619,11 @@ mod test {
     let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
 
-    let render_ctx =
-      RenderContext::new(&ctx, doc_nodes, UrlResolveKind::File(short_path));
+    let render_ctx = RenderContext::new(
+      &ctx,
+      doc_nodes,
+      UrlResolveKind::File { file: short_path },
+    );
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
   }
 }

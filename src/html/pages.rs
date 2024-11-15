@@ -113,7 +113,7 @@ impl CategoriesPanelCtx {
             name: short_path.display_name().to_string(),
             href: ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
-              UrlResolveKind::File(short_path),
+              UrlResolveKind::File { file: short_path },
             ),
             active: current_path.is_some_and(|current_path| {
               current_path == short_path.display_name()
@@ -157,7 +157,7 @@ impl CategoriesPanelCtx {
           .map(|title| CategoriesPanelCategoryCtx {
             href: ctx.ctx.resolve_path(
               ctx.get_current_resolve(),
-              UrlResolveKind::Category(&title),
+              UrlResolveKind::Category { category: &title },
             ),
             active: current_path
               .is_some_and(|current_path| current_path == title),
@@ -320,7 +320,7 @@ impl IndexCtx {
               header: SectionHeaderCtx {
                 href: Some(render_ctx.ctx.resolve_path(
                   render_ctx.get_current_resolve(),
-                  UrlResolveKind::Category(&title),
+                  UrlResolveKind::Category { category: &title },
                 )),
                 title,
                 anchor: AnchorCtx { id: anchor },
@@ -376,8 +376,11 @@ impl IndexCtx {
     partitions: partition::Partitions<String>,
     all_doc_nodes: &[DocNodeWithContext],
   ) -> Self {
-    let render_ctx =
-      RenderContext::new(ctx, all_doc_nodes, UrlResolveKind::Category(name));
+    let render_ctx = RenderContext::new(
+      ctx,
+      all_doc_nodes,
+      UrlResolveKind::Category { category: name },
+    );
 
     let sections = super::namespace::render_namespace(
       partitions.into_iter().map(|(title, nodes)| {
@@ -398,8 +401,10 @@ impl IndexCtx {
       }),
     );
 
-    let root =
-      ctx.resolve_path(UrlResolveKind::Category(name), UrlResolveKind::Root);
+    let root = ctx.resolve_path(
+      UrlResolveKind::Category { category: name },
+      UrlResolveKind::Root,
+    );
 
     let html_head_ctx = HtmlHeadCtx::new(ctx, &root, Some(name), None);
 
@@ -515,8 +520,11 @@ pub fn generate_symbol_pages_for_module(
 
   let mut generated_pages = Vec::with_capacity(name_partitions.values().len());
 
-  let render_ctx =
-    RenderContext::new(ctx, module_doc_nodes, UrlResolveKind::File(short_path));
+  let render_ctx = RenderContext::new(
+    ctx,
+    module_doc_nodes,
+    UrlResolveKind::File { file: short_path },
+  );
 
   for (name, doc_nodes) in name_partitions {
     let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx, categories_panel) =
