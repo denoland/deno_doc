@@ -431,7 +431,9 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
   }
 }
 
-struct ComrakHighlightWrapperAdapter(Option<Arc<dyn SyntaxHighlighterAdapter>>);
+pub struct ComrakHighlightWrapperAdapter(
+  Option<Arc<dyn SyntaxHighlighterAdapter>>,
+);
 
 impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
   fn write_highlighted(
