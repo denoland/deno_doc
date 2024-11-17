@@ -432,7 +432,7 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
 }
 
 pub struct ComrakHighlightWrapperAdapter(
-  Option<Arc<dyn SyntaxHighlighterAdapter>>,
+  pub Option<Arc<dyn SyntaxHighlighterAdapter>>,
 );
 
 impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
