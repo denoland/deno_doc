@@ -522,9 +522,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.43.0"
+version = "0.43.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6a41d70fa043b4117c6fea30fdcf2dfee7053363a3cdb45011673ebdb3300d5"
+checksum = "48d00b724e06d2081a141ec1155756a0b465d413d8e2a7515221f61d482eb2ee"
 dependencies = [
  "base64",
  "deno_media_type",
@@ -610,9 +610,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.84.0"
+version = "0.85.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9d6c7edec696810563d8002e4330e87b63ecbdd48996a18a94946b9a0f4db50"
+checksum = "9d097305aba3f119781fe82b4d5a85a1ad10c586a388ee4d754e5bf82901cc5c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -634,6 +634,7 @@ dependencies = [
  "sha2",
  "thiserror",
  "url",
+ "wasm_dep_analyzer",
 ]
 
 [[package]]
@@ -2637,6 +2638,15 @@ name = "wasm-bindgen-shared"
 version = "0.2.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af190c94f2773fdb3729c55b007a722abb5384da03bc0986df4c289bf5567e96"
+
+[[package]]
+name = "wasm_dep_analyzer"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f270206a91783fd90625c8bb0d8fbd459d0b1d1bf209b656f713f01ae7c04b8"
+dependencies = [
+ "thiserror",
+]
 
 [[package]]
 name = "web-sys"
