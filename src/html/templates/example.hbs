@@ -1,13 +1,10 @@
-<div class="anchorable example">
+<div class="anchorable">
   {{~> anchor anchor ~}}
 
-  <details id="{{id}}" open>
-    <summary>
-      <div>&#x25B6;</div>
-      {{{~markdown_title~}}} {{! markdown rendering }}
-    </summary>
-    <div>
-      {{{~markdown_body~}}} {{! markdown rendering }}
-    </div>
-  </details>
+  <h3 class="example-header">
+    {{{~markdown_title~}}} {{! markdown rendering }}
+  </h3>
+  <div>
+    {{{~markdown_body~}}} {{! markdown rendering }}
+  </div>
 </div>

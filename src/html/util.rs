@@ -227,12 +227,17 @@ impl NamespacedGlobalSymbols {
 }
 
 /// Different current and target locations
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
 pub enum UrlResolveKind<'a> {
   Root,
   AllSymbols,
-  Category(&'a str),
-  File(&'a ShortPath),
+  Category {
+    category: &'a str,
+  },
+  File {
+    file: &'a ShortPath,
+  },
   Symbol {
     file: &'a ShortPath,
     symbol: &'a str,
@@ -244,8 +249,8 @@ impl UrlResolveKind<'_> {
     match self {
       UrlResolveKind::Root => None,
       UrlResolveKind::AllSymbols => None,
-      UrlResolveKind::Category(_) => None,
-      UrlResolveKind::File(file) => Some(file),
+      UrlResolveKind::Category { .. } => None,
+      UrlResolveKind::File { file } => Some(file),
       UrlResolveKind::Symbol { file, .. } => Some(file),
     }
   }
@@ -256,7 +261,7 @@ pub fn href_path_resolve(
   target: UrlResolveKind,
 ) -> String {
   let backs = match current {
-    UrlResolveKind::File(file) => "../".repeat(if file.is_main {
+    UrlResolveKind::File { file } => "../".repeat(if file.is_main {
       1
     } else {
       file.path.split('/').count()
@@ -268,12 +273,12 @@ pub fn href_path_resolve(
     }),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
-    UrlResolveKind::Category(_) => String::from("./"),
+    UrlResolveKind::Category { .. } => String::from("./"),
   };
 
   match target {
     UrlResolveKind::Root => backs,
-    UrlResolveKind::File(target_file) if target_file.is_main => backs,
+    UrlResolveKind::File { file: target_file } if target_file.is_main => backs,
     UrlResolveKind::AllSymbols => format!("{backs}./all_symbols.html"),
     UrlResolveKind::Symbol {
       file: target_file,
@@ -282,10 +287,10 @@ pub fn href_path_resolve(
     } => {
       format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
     }
-    UrlResolveKind::File(target_file) => {
+    UrlResolveKind::File { file: target_file } => {
       format!("{backs}./{}/index.html", target_file.path)
     }
-    UrlResolveKind::Category(category) => {
+    UrlResolveKind::Category { category } => {
       format!("{backs}./{}.html", slugify(category))
     }
   }
@@ -305,9 +310,6 @@ pub trait HrefResolver {
   /// Resolver for symbols from non-relative imports
   fn resolve_import_href(&self, symbol: &[String], src: &str)
     -> Option<String>;
-
-  /// Resolve the URL used in "usage" blocks.
-  fn resolve_usage(&self, current_resolve: UrlResolveKind) -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;

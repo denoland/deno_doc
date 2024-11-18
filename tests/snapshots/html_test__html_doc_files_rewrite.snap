@@ -11,13 +11,10 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   <meta name="doc-current-file" content="">
   <link rel="stylesheet" href=".&#x2F;styles.css">
   <link rel="stylesheet" href=".&#x2F;page.css">
-  <link id="ddocResetStylesheet" rel="stylesheet" href=".&#x2F;reset.css">
-
-    <script src=".&#x2F;search_index.js" defer></script>
+  <link id="ddocResetStylesheet" rel="stylesheet" href=".&#x2F;reset.css"><script src=".&#x2F;search_index.js" defer></script>
     <script src=".&#x2F;script.js" defer></script>
     <script src=".&#x2F;fuse.js" defer></script>
-    <script src=".&#x2F;search.js" defer></script>
-</head>
+    <script src=".&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
 <div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
@@ -65,7 +62,8 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;" class="contextLink">default</a></h2><div class="markdown_summary"><p>Some docs</p>
+<a href=".&#x2F;" class="contextLink">default</a></h2><div class="markdown_summary"><p>Some docs
+with a line break</p>
 </div></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>

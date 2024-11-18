@@ -13,6 +13,8 @@ document.addEventListener("click", (e) => {
   );
   if (target) {
     navigator?.clipboard?.writeText(target.dataset["copy"]);
+    target.classList.add("copied");
+    setTimeout(() => target.classList.remove("copied"), 1000);
   }
 });
 

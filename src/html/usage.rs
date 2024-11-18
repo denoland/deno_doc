@@ -4,8 +4,21 @@ use super::RenderContext;
 use super::UrlResolveKind;
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
+use indexmap::IndexMap;
 use regex::Regex;
 use serde::Serialize;
+use std::borrow::Cow;
+
+#[cfg(target_arch = "wasm32")]
+use std::cell::RefCell;
+#[cfg(target_arch = "wasm32")]
+use std::ffi::c_void;
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+  static RENDER_CONTEXT: RefCell<*const c_void> = const { RefCell::new(std::ptr::null()) };
+  static DOC_NODES: RefCell<(*const c_void, usize)> = const { RefCell::new((std::ptr::null(), 0)) };
+}
 
 lazy_static! {
   static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
@@ -28,10 +41,11 @@ fn render_css_for_usage(name: &str) -> String {
   )
 }
 
-pub fn usage_to_md(
+fn usage_to_md(
   ctx: &RenderContext,
   doc_nodes: &[DocNodeWithContext],
   url: &str,
+  custom_file_identifier: Option<&str>,
 ) -> String {
   let usage =
     if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
@@ -46,7 +60,7 @@ pub fn usage_to_md(
         if top_node.is_default.is_some_and(|is_default| is_default) {
           let default_name = top_node.get_name();
           if default_name == "default" {
-            get_identifier_for_file(ctx).into()
+            get_identifier_for_file(ctx, custom_file_identifier).into()
           } else {
             default_name.into()
           }
@@ -123,7 +137,8 @@ pub fn usage_to_md(
 
       usage_statement
     } else {
-      let module_import_symbol = get_identifier_for_file(ctx);
+      let module_import_symbol =
+        get_identifier_for_file(ctx, custom_file_identifier);
 
       format!(r#"import * as {module_import_symbol} from "{url}";"#)
     };
@@ -131,8 +146,11 @@ pub fn usage_to_md(
   format!("```typescript\n{usage}\n```")
 }
 
-fn get_identifier_for_file(ctx: &RenderContext) -> String {
-  let maybe_idenfitier =
+fn get_identifier_for_file(
+  ctx: &RenderContext,
+  custom_file_identifier: Option<&str>,
+) -> String {
+  let maybe_identifier =
     if let Some(file) = ctx.get_current_resolve().get_file() {
       ctx
         .ctx
@@ -152,21 +170,28 @@ fn get_identifier_for_file(ctx: &RenderContext) -> String {
             }
           })
         })
+    } else if let Some(context_name) = custom_file_identifier {
+      Some(context_name.to_string())
     } else {
       ctx.ctx.package_name.clone()
     };
 
-  maybe_idenfitier.as_ref().map_or_else(
+  maybe_identifier.as_ref().map_or_else(
     || "mod".to_string(),
     |identifier| IDENTIFIER_RE.replace_all(identifier, "_").to_string(),
   )
 }
 
+#[cfg(not(feature = "rust"))]
+pub type UsageToMd<'a> = &'a js_sys::Function;
+#[cfg(feature = "rust")]
+pub type UsageToMd<'a> = &'a dyn Fn(&str, Option<&str>) -> String;
+
 #[derive(Clone, Debug, Serialize)]
 struct UsageCtx {
   name: String,
   content: String,
-  icon: Option<std::borrow::Cow<'static, str>>,
+  icon: Option<Cow<'static, str>>,
   additional_css: String,
 }
 
@@ -183,52 +208,138 @@ impl UsagesCtx {
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
   ) -> Option<Self> {
-    if ctx.ctx.usage_composer.is_none()
-      && ctx.ctx.file_mode == FileMode::SingleDts
-    {
+    let is_single_mode = ctx.ctx.usage_composer.is_single_mode();
+
+    if is_single_mode && ctx.ctx.file_mode == FileMode::SingleDts {
       return None;
     }
 
-    let url = ctx
+    #[cfg(not(target_arch = "wasm32"))]
+    let usage_to_md_closure =
+      move |url: &str, custom_file_identifier: Option<&str>| {
+        usage_to_md(ctx, doc_nodes, url, custom_file_identifier)
+      };
+
+    #[cfg(target_arch = "wasm32")]
+    {
+      let ctx_ptr = ctx as *const RenderContext as *const c_void;
+      RENDER_CONTEXT.set(ctx_ptr);
+      let nodes_ptr = doc_nodes as *const [DocNodeWithContext] as *const c_void;
+      DOC_NODES.set((nodes_ptr, doc_nodes.len()));
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure =
+      move |url: String, custom_file_identifier: Option<String>| {
+        RENDER_CONTEXT.with(|ctx| {
+          let render_ctx_ptr = *ctx.borrow() as *const RenderContext;
+          assert!(!render_ctx_ptr.is_null());
+          // SAFETY: this pointer is valid until destroyed, which is done
+          //  after compose is called
+          let render_ctx = unsafe { &*render_ctx_ptr };
+
+          let usage = DOC_NODES.with(|nodes| {
+            let (nodes_ptr, nodes_ptr_len) = *nodes.borrow();
+            assert!(!nodes_ptr.is_null());
+            // SAFETY: the pointers are valid until destroyed, which is done
+            //  after compose is called
+            let doc_nodes = unsafe {
+              std::slice::from_raw_parts(
+                nodes_ptr as *const DocNodeWithContext,
+                nodes_ptr_len,
+              )
+            };
+
+            let usage = usage_to_md(
+              &render_ctx,
+              doc_nodes,
+              &url,
+              custom_file_identifier.as_deref(),
+            );
+
+            *nodes.borrow_mut() = (
+              doc_nodes as *const [DocNodeWithContext] as *const c_void,
+              doc_nodes.len(),
+            );
+
+            usage
+          });
+
+          *ctx.borrow_mut() =
+            render_ctx as *const RenderContext as *const c_void;
+          usage
+        })
+      };
+
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure =
+      wasm_bindgen::prelude::Closure::wrap(Box::new(usage_to_md_closure)
+        as Box<dyn Fn(String, Option<String>) -> String>);
+    #[cfg(target_arch = "wasm32")]
+    let usage_to_md_closure = &wasm_bindgen::JsCast::unchecked_ref::<
+      js_sys::Function,
+    >(usage_to_md_closure.as_ref());
+
+    let usages = ctx
       .ctx
-      .href_resolver
-      .resolve_usage(ctx.get_current_resolve())?;
+      .usage_composer
+      .compose(ctx.get_current_resolve(), &usage_to_md_closure);
 
-    if let Some(usage_composer) = &ctx.ctx.usage_composer {
-      let usages = usage_composer(ctx, doc_nodes, url);
+    #[cfg(target_arch = "wasm32")]
+    {
+      let render_ctx =
+        RENDER_CONTEXT.replace(std::ptr::null()) as *const RenderContext;
+      // SAFETY: take the pointer and drop it
+      let _ = unsafe { &*render_ctx };
 
+      let (doc_nodes_ptr, doc_nodes_ptr_len) =
+        DOC_NODES.replace((std::ptr::null(), 0));
+      // SAFETY: take the pointer and drop it
+      let _ = unsafe {
+        std::slice::from_raw_parts(
+          doc_nodes_ptr as *const DocNodeWithContext,
+          doc_nodes_ptr_len,
+        )
+      };
+    };
+
+    if usages.is_empty() {
+      None
+    } else {
       let usages = usages
         .into_iter()
         .map(|(entry, content)| UsageCtx {
-          additional_css: render_css_for_usage(&entry.name),
+          additional_css: if is_single_mode {
+            String::new()
+          } else {
+            render_css_for_usage(&entry.name)
+          },
           name: entry.name,
           icon: entry.icon,
           content: crate::html::jsdoc::render_markdown(ctx, &content, true),
         })
         .collect::<Vec<_>>();
 
-      if usages.is_empty() {
-        None
-      } else {
-        Some(UsagesCtx {
-          usages,
-          composed: true,
-        })
-      }
-    } else {
-      let import_statement = usage_to_md(ctx, doc_nodes, &url);
-      let rendered_import_statement =
-        crate::html::jsdoc::render_markdown(ctx, &import_statement, true);
-
       Some(UsagesCtx {
-        usages: vec![UsageCtx {
-          name: "".to_string(),
-          content: rendered_import_statement,
-          icon: None,
-          additional_css: "".to_string(),
-        }],
-        composed: false,
+        usages,
+        composed: !is_single_mode,
       })
     }
   }
+}
+
+#[derive(Eq, PartialEq, Hash, serde::Deserialize)]
+pub struct UsageComposerEntry {
+  pub name: String,
+  pub icon: Option<Cow<'static, str>>,
+}
+
+pub trait UsageComposer {
+  fn is_single_mode(&self) -> bool;
+
+  fn compose(
+    &self,
+    current_resolve: UrlResolveKind,
+    usage_to_md: UsageToMd,
+  ) -> IndexMap<UsageComposerEntry, String>;
 }
