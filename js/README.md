@@ -5,7 +5,7 @@ and exposes an interface which is available via the `mod.ts` and can be imported
 like this:
 
 ```ts
-import { doc } from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
+import { doc } from "jsr:@deno/doc@{VERSION}";
 ```
 
 Where `{VERSION}` should be substituted with the specific version you want to
@@ -21,7 +21,7 @@ A minimal example of using `doc()` and printing out some information about a
 function:
 
 ```ts
-import { doc } from "https://deno.land/x/deno_doc@{VERSION}/mod.ts";
+import { doc } from "jsr:@deno/doc@{VERSION}";
 
 const colorsDoc = await doc("https://deno.land/std/fmt/colors.ts");
 
