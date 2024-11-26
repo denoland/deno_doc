@@ -103,7 +103,7 @@ impl Resolver for ImportMapResolver {
     &self,
     specifier: &str,
     referrer_range: &Range,
-    _mode: deno_graph::source::ResolutionMode,
+    _kind: deno_graph::source::ResolutionKind,
   ) -> Result<ModuleSpecifier, ResolveError> {
     self
       .0
@@ -128,7 +128,7 @@ impl Resolver for JsResolver {
     &self,
     specifier: &str,
     referrer_range: &Range,
-    _mode: deno_graph::source::ResolutionMode,
+    _kind: deno_graph::source::ResolutionKind,
   ) -> Result<ModuleSpecifier, ResolveError> {
     use ResolveError::*;
     let this = JsValue::null();
