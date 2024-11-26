@@ -22,5 +22,14 @@
       "src/html",
       "tests/testdata"
     ]
+  },
+  "imports": {
+    "@david/dax": "jsr:@david/dax@0.40.1",
+    "@deno/cache-dir": "jsr:@deno/cache-dir@^0.11.1",
+    "@deno/graph": "jsr:@deno/graph@^0.82.3",
+    "@std/assert": "jsr:@std/assert@^0.223.0",
+    "browserslist": "npm:browserslist@4.23.0",
+    "lightningcss": "npm:lightningcss@^1.28.2",
+    "tailwindcss": "npm:tailwindcss@3.4.3"
   }
 }
