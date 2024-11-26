@@ -606,8 +606,7 @@ mod test {
       None,
       Default::default(),
       doc_nodes_by_url,
-    )
-    .unwrap();
+    );
 
     let (short_path, doc_nodes) = ctx.doc_nodes.first().unwrap();
 

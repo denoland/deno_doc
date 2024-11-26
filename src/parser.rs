@@ -134,7 +134,7 @@ impl<'a> DocParser<'a> {
     graph: &'a ModuleGraph,
     parser: &'a dyn EsParser,
     options: DocParserOptions,
-  ) -> Result<Self, anyhow::Error> {
+  ) -> Result<Self, DocError> {
     let root_symbol =
       Rc::new(deno_graph::symbols::RootSymbol::new(graph, parser));
     let visibility = SymbolVisibility::build(graph, &root_symbol)?;

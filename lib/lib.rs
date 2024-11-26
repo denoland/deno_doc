@@ -7,6 +7,7 @@ use deno_doc::html::UsageComposerEntry;
 use deno_doc::html::UsageToMd;
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
+use deno_graph::source::LoadError;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
@@ -59,6 +60,11 @@ impl Loader for JsLoader {
     specifier: &ModuleSpecifier,
     options: LoadOptions,
   ) -> LoadFuture {
+    #[derive(Debug, thiserror::Error, deno_error::JsError)]
+    #[class(generic)]
+    #[error("load rejected or errored")]
+    struct Reject;
+
     #[derive(Serialize)]
     #[serde(rename_all = "camelCase")]
     struct JsLoadOptions {
@@ -83,7 +89,7 @@ impl Loader for JsLoader {
       };
       response
         .map(|value| serde_wasm_bindgen::from_value(value).unwrap())
-        .map_err(|_| anyhow!("load rejected or errored"))
+        .map_err(|_| LoadError::Other(std::sync::Arc::new(Reject)))
     };
     Box::pin(f)
   }
@@ -108,7 +114,7 @@ impl Resolver for ImportMapResolver {
     self
       .0
       .resolve(specifier, &referrer_range.specifier)
-      .map_err(|err| ResolveError::Other(err.into()))
+      .map_err(|err| ResolveError::Other(Box::new(err)))
   }
 }
 
@@ -130,19 +136,27 @@ impl Resolver for JsResolver {
     referrer_range: &Range,
     _mode: deno_graph::source::ResolutionMode,
   ) -> Result<ModuleSpecifier, ResolveError> {
-    use ResolveError::*;
+    #[derive(Debug, thiserror::Error, deno_error::JsError)]
+    #[class(generic)]
+    #[error("JavaScript resolve() function threw.")]
+    struct Reject;
+
+    #[derive(Debug, thiserror::Error, deno_error::JsError)]
+    #[class(generic)]
+    #[error("{0}")]
+    struct WasmBindgen(String);
+
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier);
     let arg1 = JsValue::from(referrer_range.specifier.to_string());
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
-      Err(_) => {
-        return Err(Other(anyhow!("JavaScript resolve() function threw.")))
-      }
+      Err(_) => return Err(ResolveError::Other(Box::new(Reject))),
     };
     let value: String = serde_wasm_bindgen::from_value(value)
-      .map_err(|err| anyhow!("{}", err))?;
-    ModuleSpecifier::parse(&value).map_err(|err| Other(err.into()))
+      .map_err(|err| Box::new(WasmBindgen(err.to_string())))?;
+    ModuleSpecifier::parse(&value)
+      .map_err(|err| ResolveError::Other(Box::new(err)))
   }
 }
 
@@ -154,7 +168,7 @@ pub async fn doc(
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
   print_import_map_diagnostics: bool,
-) -> anyhow::Result<JsValue, JsValue> {
+) -> Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
   inner_doc(
     root_specifier,

@@ -11,9 +11,9 @@ use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
-use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::source::{LoadError, LoadFuture};
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
@@ -43,7 +43,7 @@ impl Loader for SourceFileLoader {
             content: content.into(),
           })
         })
-        .map_err(|err| err.into())
+        .map_err(|err| LoadError::Other(std::sync::Arc::new(err)))
     } else {
       Ok(None)
     };

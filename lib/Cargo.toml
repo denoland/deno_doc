@@ -14,12 +14,14 @@ path = "lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-anyhow = "1.0.86"
+anyhow = "1.0.93"
 deno_graph = { workspace = true }
+deno_error.workspace = true
 deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
+thiserror.workspace = true
 serde.workspace = true
-indexmap = "2.6.0"
+indexmap.workspace = true
 
 console_error_panic_hook = "0.1.7"
 js-sys = "=0.3.69"

@@ -5,6 +5,7 @@
 #![deny(clippy::disallowed_types)]
 #![deny(clippy::print_stderr)]
 #![deny(clippy::print_stdout)]
+#![deny(clippy::unnecessary_wraps)]
 
 #[macro_use]
 extern crate cfg_if;

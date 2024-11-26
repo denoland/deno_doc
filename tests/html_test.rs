@@ -37,7 +37,7 @@ impl Loader for SourceFileLoader {
             content: content.into(),
           })
         })
-        .map_err(|err| err.into())
+        .map_err(|err| std::sync::Arc::new(err).into())
     } else {
       Ok(None)
     };
@@ -366,8 +366,7 @@ async fn symbol_group() {
     None,
     Default::default(),
     doc_nodes_by_url,
-  )
-  .unwrap();
+  );
 
   let mut files = vec![];
 
@@ -457,8 +456,7 @@ async fn symbol_search() {
     None,
     Default::default(),
     doc_nodes_by_url,
-  )
-  .unwrap();
+  );
 
   let search_index = generate_search_index(&ctx);
 
@@ -505,8 +503,7 @@ async fn module_doc() {
     None,
     FileMode::Single,
     doc_nodes_by_url,
-  )
-  .unwrap();
+  );
 
   let mut module_docs = vec![];
 

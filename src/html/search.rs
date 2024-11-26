@@ -126,7 +126,7 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
 
 pub(crate) fn get_search_index_file(
   ctx: &GenerateCtx,
-) -> Result<String, anyhow::Error> {
+) -> Result<String, serde_json::Error> {
   let search_index = generate_search_index(ctx);
   let search_index_str = serde_json::to_string(&search_index)?;
 

@@ -553,8 +553,7 @@ mod test {
           )],
         ),
       ]),
-    )
-    .unwrap();
+    );
 
     let (a_short_path, nodes) = ctx.doc_nodes.first().unwrap();
 

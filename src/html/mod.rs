@@ -72,7 +72,7 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
-fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
+fn setup_hbs() -> Result<Handlebars<'static>, handlebars::TemplateError> {
   let mut reg = Handlebars::new();
   reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
   reg.set_strict_mode(true);
@@ -282,7 +282,7 @@ impl GenerateCtx {
     common_ancestor: Option<PathBuf>,
     file_mode: FileMode,
     doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
-  ) -> Result<Self, anyhow::Error> {
+  ) -> Self {
     let mut main_entrypoint = None;
 
     let doc_nodes = doc_nodes_by_url
@@ -364,7 +364,7 @@ impl GenerateCtx {
       })
       .collect::<IndexMap<_, _>>();
 
-    Ok(Self {
+    Self {
       package_name: options.package_name,
       common_ancestor,
       doc_nodes,
@@ -380,7 +380,7 @@ impl GenerateCtx {
       markdown_renderer: options.markdown_renderer,
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
-    })
+    }
   }
 
   pub fn render<T: serde::Serialize>(
@@ -797,7 +797,7 @@ pub enum FileMode {
 pub fn generate(
   mut options: GenerateOptions,
   doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
-) -> Result<HashMap<String, String>, anyhow::Error> {
+) -> Result<HashMap<String, String>, serde_json::Error> {
   if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
     options.main_entrypoint =
       Some(doc_nodes_by_url.keys().next().unwrap().clone());
@@ -817,7 +817,7 @@ pub fn generate(
 
   let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
   let ctx =
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)?;
+    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url);
   let mut files = HashMap::new();
 
   // Index page
