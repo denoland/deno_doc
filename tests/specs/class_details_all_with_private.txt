@@ -1,4 +1,4 @@
-{ "private": true }
+{"private":true}
 # mod.ts
 export class Class {
   private pri() {}

@@ -54,7 +54,10 @@ fn run_test(test: &CollectedTest) {
         loader.add_source(file.url(), source);
       }
     })
-    .set_private(spec.private);
+    .set_private(spec.options.private);
+  if let Some(entrypoint) = &spec.options.entrypoint {
+    builder.set_entrypoint(entrypoint);
+  }
 
   let rt = tokio::runtime::Builder::new_current_thread()
     .enable_all()
@@ -109,7 +112,7 @@ fn run_test(test: &CollectedTest) {
 }
 
 pub struct Spec {
-  pub private: bool,
+  pub options: SpecOptions,
   pub files: Vec<SpecFile>,
   pub output_json_file: SpecFile,
   pub output_doc_file: SpecFile,
@@ -119,8 +122,9 @@ pub struct Spec {
 impl Spec {
   pub fn emit(&self) -> String {
     let mut text = String::new();
-    if self.private {
-      text.push_str("{ \"private\": true }\n");
+    if self.options != Default::default() {
+      text.push_str(&serde_json::to_string(&self.options).unwrap());
+      text.push_str("\n")
     }
     for file in &self.files {
       text.push_str(&file.emit());
@@ -138,9 +142,12 @@ impl Spec {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct SpecOptions {
+#[derive(Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SpecOptions {
+  #[serde(default, skip_serializing_if = "std::ops::Not::not")]
   pub private: bool,
+  #[serde(default, skip_serializing_if = "Option::is_none")]
+  pub entrypoint: Option<String>,
 }
 
 #[derive(Debug)]
@@ -176,10 +183,10 @@ impl SpecFile {
 fn parse_spec(text: String) -> Spec {
   let mut files = Vec::new();
   let mut current_file = None;
-  let mut options: Option<SpecOptions> = None;
+  let mut options: SpecOptions = Default::default();
   for (i, line) in text.split('\n').enumerate() {
     if i == 0 && line.starts_with('{') {
-      options = Some(serde_json::from_str(line).unwrap());
+      options = serde_json::from_str(line).unwrap();
       continue;
     }
     if let Some(specifier) = line.strip_prefix("# ") {
@@ -217,7 +224,7 @@ fn parse_spec(text: String) -> Spec {
   );
   let diagnostics = take_text_file(&mut files, "diagnostics");
   Spec {
-    private: options.map(|o| o.private).unwrap_or(false),
+    options,
     files,
     output_json_file,
     output_doc_file,

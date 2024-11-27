@@ -44,6 +44,15 @@ impl TestBuilder {
     self
   }
 
+  pub fn set_entrypoint(&mut self, entry_point: &str) -> &mut Self {
+    self.entry_point = if entry_point.starts_with("file://") {
+      entry_point.to_string()
+    } else {
+      format!("file:///{}", entry_point)
+    };
+    self
+  }
+
   pub async fn build(&mut self) -> BuildResult {
     let analyzer = CapturingModuleAnalyzer::default();
     let mut graph = deno_graph::ModuleGraph::new(GraphKind::TypesOnly);
