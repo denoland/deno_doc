@@ -7,21 +7,12 @@
     "test:update": "UPDATE=1 cargo test --locked --all-targets && cargo insta test --accept"
   },
   "workspace": ["js"],
-  "exclude": [
-    "target",
-    "benches/fixtures"
-  ],
+  "exclude": ["target", "benches/fixtures"],
   "fmt": {
-    "exclude": [
-      "**/*.gen.css",
-      "generated_docs"
-    ]
+    "exclude": ["**/*.gen.css", "generated_docs"]
   },
   "lint": {
-    "exclude": [
-      "src/html",
-      "tests/testdata"
-    ]
+    "exclude": ["src/html", "tests/testdata"]
   },
   "imports": {
     "@david/dax": "jsr:@david/dax@0.40.1",
@@ -29,7 +20,7 @@
     "@deno/graph": "jsr:@deno/graph@^0.82.3",
     "@std/assert": "jsr:@std/assert@^0.223.0",
     "browserslist": "npm:browserslist@4.23.0",
-    "lightningcss": "npm:lightningcss@^1.28.2",
+    "lightningcss": "npm:lightningcss@^1.26.0",
     "tailwindcss": "npm:tailwindcss@3.4.3"
   }
 }
