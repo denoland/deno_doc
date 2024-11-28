@@ -70,6 +70,40 @@ cargo insta review
 
 See [the insta docs](https://insta.rs/docs/quickstart/) for more details.
 
+### HTML Internal structure
+
+Most of the HTML generated, except if its in very small fragments (ie a single
+element or two) is located in `src/html/templates`. This is also where scripts,
+CSS and icons live. The `page` directory in it is an extension to that which
+only relates to generation of a full-fledged documentation page (like
+`deno doc`), and is not used when just generating fragments (like
+https://jsr.io).
+
+Rendering of a symbol is done in the `src/html/symbols` directory, in the
+corresponding file depending on the type of the symbol. Namespace is a special
+case as in it is used for things besides namespaces, for example the "all
+symbols" page.
+
+A collection of symbols that refer to the same symbol identifier (like lets say
+having a class and namespace with the same name of `MySymbol`), are called a
+"symbol group".
+
+The markdown rendering is pluggable and a default renderer is available via the
+`comrak` feature which enables a default markdown renderer using the crate with
+the same name.
+
+A internal struct is `ShortPath`, which is a wrapper around a `Url` instance
+with some additional information, including the display value and if it is the
+main entrypoint. In addition to this struct, we have another wrapper struct
+named `DocNodeWithContext`, which contains a `DocNode` and information related
+to it, like a resolved identifier for representing its name in a namespace, and
+also data related to "property drilldown".
+
+Property drilldown is what we call being able to view properties, methods and
+other accessors on classes, interfaces and applicable variables and type
+aliases. It however does not refer to an item in a namespace, as those have
+their unique handling.
+
 ## Contributing
 
 - If you are going to work on an issue, mention so in the issue comments
