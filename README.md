@@ -36,8 +36,27 @@ $ deno task build
 $ deno task test
 ```
 
+### HTML generation
+
+If you want to work on the HTML generation aspect of deno_doc, these things will
+help you:
+
+`deno task tailwind`: this regenerates the transpiled tailwind from the css
+files and mentions of classes across the codebases, be it in rust files or js
+files. This needs to always be run to do any updates to the styling.
+
+`deno task gen_html`: This generates a `generated_docs` directory which is the
+HTML output based on the provided files.
+
+`deno task debug`: this calls the above tailwind task, and then the gen_html
+task with all the files from `tests/testdata/multiple` passed.
+
+We recommend to use these tasks above to develop features or debug things,
+rather than recompiling a dependent on this system, as it is much faster
+iteration and easier to debug.
+
 We use [insta](https://github.com/mitsuhiko/insta) testing tool for taking
-snapshots of the html output. If you change the rednering of html output, or
+snapshots of the html output. If you change the rendering of html output, or
 change the fixture files for html testing, you need to update snapshot using
 [cargo-insta](https://insta.rs/docs/quickstart/) command.
 
