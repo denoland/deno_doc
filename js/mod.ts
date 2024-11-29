@@ -2,10 +2,10 @@
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode, Location } from "./types.d.ts";
-import { createCache } from "jsr:@deno/cache-dir@0.11";
-import type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.82";
+import { createCache } from "@deno/cache-dir";
+import type { CacheSetting, LoadResponse } from "@deno/graph";
 
-export type { CacheSetting, LoadResponse } from "jsr:@deno/graph@0.82";
+export type { CacheSetting, LoadResponse } from "@deno/graph";
 export * from "./types.d.ts";
 
 const encoder = new TextEncoder();
