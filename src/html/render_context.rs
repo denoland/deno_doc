@@ -35,7 +35,7 @@ impl<'ctx> RenderContext<'ctx> {
   ) -> Self {
     Self {
       ctx,
-      scoped_symbols: NamespacedSymbols::new(doc_nodes),
+      scoped_symbols: NamespacedSymbols::new(ctx, doc_nodes),
       current_imports: Rc::new(get_current_imports(doc_nodes)),
       current_type_params: Default::default(),
       current_resolve,

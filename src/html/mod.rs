@@ -408,6 +408,22 @@ impl GenerateCtx {
 
     self.href_resolver.resolve_path(current, target)
   }
+
+  pub fn resolve_reference(
+    &self,
+    reference: &crate::Location,
+  ) -> Vec<DocNodeWithContext> {
+    self
+      .doc_nodes
+      .iter()
+      .flat_map(|(_, nodes)| {
+        nodes
+          .iter()
+          .filter(|node| &node.location == reference)
+          .cloned()
+      })
+      .collect::<Vec<_>>()
+  }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
@@ -773,6 +789,7 @@ impl DocNodeWithContext {
       DocNodeDef::Namespace { .. } => None,
       DocNodeDef::Import { .. } => None,
       DocNodeDef::ModuleDoc => None,
+      DocNodeDef::Reference { .. } => None,
     }
   }
 }
@@ -826,6 +843,7 @@ pub fn generate(
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
         let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
         let categories = partition::partition_nodes_by_category(
+          &ctx,
           nodes.iter().map(Cow::Borrowed),
           ctx.file_mode == FileMode::SingleDts,
         );
@@ -833,6 +851,7 @@ pub fn generate(
         if categories.len() == 1 && categories.contains_key("Uncategorized") {
           (
             partition::partition_nodes_by_kind(
+              &ctx,
               nodes.iter().map(Cow::Borrowed),
               ctx.file_mode == FileMode::SingleDts,
             ),
@@ -868,6 +887,7 @@ pub fn generate(
   // All symbols (list of all symbols in all files)
   {
     let partitions_by_kind = partition::partition_nodes_by_entrypoint(
+      &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
       true,
     );
@@ -883,6 +903,7 @@ pub fn generate(
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
     let categories = partition::partition_nodes_by_category(
+      &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
       true,
     );
@@ -890,6 +911,7 @@ pub fn generate(
     if categories.len() != 1 {
       for (category, nodes) in &categories {
         let partitions = partition::partition_nodes_by_kind(
+          &ctx,
           nodes.iter().map(Cow::Borrowed),
           false,
         );
@@ -912,6 +934,7 @@ pub fn generate(
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
       let doc_nodes_by_kind = partition::partition_nodes_by_kind(
+        &ctx,
         doc_nodes.iter().map(Cow::Borrowed),
         ctx.file_mode == FileMode::SingleDts,
       );

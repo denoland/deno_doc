@@ -2,7 +2,6 @@
 
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
@@ -14,10 +13,8 @@ use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportDecl;
 use deno_ast::swc::ast::ExportDefaultDecl;
 use deno_ast::swc::ast::ExportDefaultExpr;
-use deno_ast::swc::ast::ExportSpecifier;
 use deno_ast::swc::ast::FnDecl;
 use deno_ast::swc::ast::Ident;
-use deno_ast::swc::ast::ImportSpecifier;
 use deno_ast::swc::ast::ModuleDecl;
 use deno_ast::swc::ast::TsEnumDecl;
 use deno_ast::swc::ast::TsInterfaceDecl;
@@ -37,12 +34,14 @@ use deno_graph::symbols::ExpandoPropertyRef;
 use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::Symbol;
+use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use deno_graph::EsParser;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use indexmap::IndexMap;
 
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
@@ -50,8 +49,9 @@ use crate::js_doc::JsDoc;
 use crate::node;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
-use crate::node::ModuleDoc;
+use crate::node::DocNodeDef;
 use crate::node::NamespaceDef;
+use crate::node::ReferenceDef;
 use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
@@ -69,7 +69,6 @@ use crate::visibility::SymbolVisibility;
 use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
-use crate::ReexportKind;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -98,18 +97,6 @@ impl From<deno_ast::ParseDiagnostic> for DocError {
   }
 }
 
-#[derive(Debug, Clone)]
-enum ImportKind {
-  Namespace(String),
-  Named(String, Option<String>),
-}
-
-#[derive(Debug, Clone)]
-struct Import {
-  src: String,
-  kind: ImportKind,
-}
-
 #[derive(Default, Clone)]
 pub struct DocParserOptions {
   /// Whether diagnostics should be collected.
@@ -126,6 +113,7 @@ pub struct DocParser<'a> {
   private: bool,
   root_symbol: Rc<deno_graph::symbols::RootSymbol<'a>>,
   visibility: SymbolVisibility,
+  specifiers: &'a [ModuleSpecifier],
   diagnostics: Option<RefCell<DiagnosticsCollector<'a>>>,
 }
 
@@ -133,6 +121,7 @@ impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
     parser: &'a dyn EsParser,
+    specifiers: &'a [ModuleSpecifier],
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
     let root_symbol =
@@ -149,6 +138,7 @@ impl<'a> DocParser<'a> {
       private: options.private,
       root_symbol,
       visibility,
+      specifiers,
       diagnostics,
     })
   }
@@ -166,23 +156,6 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  /// Parses a module into a list of exported items,
-  /// as well as a list of reexported items which need to be fetched from other modules.
-  pub fn parse_module(
-    &self,
-    specifier: &ModuleSpecifier,
-  ) -> Result<ModuleDoc, DocError> {
-    let module_info = self.get_module_info(specifier)?;
-    let definitions = self.get_doc_nodes_for_module_info(module_info)?;
-    self.collect_diagnostics_for_nodes(&definitions);
-    let reexports = self.get_reexports_for_module(module_info);
-    let module_doc = ModuleDoc {
-      definitions,
-      reexports,
-    };
-    Ok(module_doc)
-  }
-
   fn get_module_info(
     &self,
     specifier: &ModuleSpecifier,
@@ -190,33 +163,117 @@ impl<'a> DocParser<'a> {
     get_module_info(&self.root_symbol, specifier)
   }
 
-  /// Fetches `file_name` and returns a list of exported items (no reexports).
-  #[cfg(feature = "rust")]
   pub fn parse(
     &self,
-    specifier: &ModuleSpecifier,
-  ) -> Result<Vec<DocNode>, DocError> {
-    let module_info = self.get_module_info(specifier)?;
-    let doc_nodes = self.get_doc_nodes_for_module_info(module_info)?;
-    self.collect_diagnostics_for_nodes(&doc_nodes);
-    Ok(doc_nodes)
+  ) -> Result<IndexMap<ModuleSpecifier, Vec<DocNode>>, DocError> {
+    let mut doc_nodes_by_url = self
+      .specifiers
+      .iter()
+      .map(|specifier| {
+        Ok((
+          specifier.clone(),
+          self.parse_with_reexports_inner(specifier, HashSet::new())?,
+        ))
+      })
+      .collect::<Result<IndexMap<_, _>, DocError>>()?;
+
+    for (specifier, nodes) in doc_nodes_by_url.iter_mut() {
+      self.resolve_reference_for_nodes(specifier, nodes)?;
+    }
+
+    Ok(doc_nodes_by_url)
   }
 
-  /// Fetches `file_name`, parses it, and resolves its reexports.
-  pub fn parse_with_reexports(
+  fn resolve_reference_for_nodes(
     &self,
     specifier: &ModuleSpecifier,
-  ) -> Result<Vec<DocNode>, DocError> {
-    let doc_nodes =
-      self.parse_with_reexports_inner(specifier, HashSet::new())?;
-    self.collect_diagnostics_for_nodes(&doc_nodes);
-    Ok(doc_nodes)
+    nodes: &mut Vec<DocNode>,
+  ) -> Result<(), DocError> {
+    let mut i = 0;
+    while i < nodes.len() {
+      match &mut nodes[i].def {
+        DocNodeDef::Namespace { namespace_def } => {
+          let mut nodes = namespace_def
+            .elements
+            .iter()
+            .map(|node| Rc::unwrap_or_clone(node.clone()))
+            .collect::<Vec<_>>();
+
+          self.resolve_reference_for_nodes(specifier, &mut nodes)?;
+
+          namespace_def.elements = nodes.into_iter().map(Rc::new).collect();
+        }
+        DocNodeDef::Reference { reference_def } => {
+          if let Some(new_nodes) =
+            self.resolve_reference(specifier, reference_def)?
+          {
+            nodes.splice(i..=i, new_nodes);
+            continue;
+          }
+        }
+
+        _ => {}
+      }
+
+      i += 1;
+    }
+    Ok(())
   }
 
-  fn collect_diagnostics_for_nodes(&self, nodes: &[DocNode]) {
-    if let Some(diagnostics) = &self.diagnostics {
-      let mut diagnostics = diagnostics.borrow_mut();
-      diagnostics.analyze_doc_nodes(nodes);
+  fn resolve_reference(
+    &self,
+    specifier: &ModuleSpecifier,
+    reference_def: &ReferenceDef,
+  ) -> Result<Option<Vec<DocNode>>, DocError> {
+    let module = resolve_deno_graph_module(self.graph, specifier)?;
+
+    match module {
+      Module::Js(_) | Module::Json(_) | Module::Wasm(_) => {
+        let module_info = self.get_module_info(module.specifier())?;
+        let exports = module_info.exports(&self.root_symbol);
+        for (export_name, export) in exports.resolved {
+          let export = export.as_resolved_export();
+          let export_symbol = export.module.symbol(export.symbol_id).unwrap();
+          let definitions = self
+            .root_symbol
+            .go_to_definitions(export.module, export_symbol)
+            .collect::<Vec<_>>();
+
+          if let Some(first_def) = definitions.first() {
+            use deno_graph::symbols::DefinitionKind;
+            match first_def.kind {
+              DefinitionKind::ExportStar(_) => {}
+              DefinitionKind::Definition => {
+                if first_def.module.specifier() != module_info.specifier() {
+                  for definition in &definitions {
+                    if definition_location(definition) == reference_def.target {
+                      let decl = definition.symbol_decl;
+                      let mut maybe_docs = self.docs_for_maybe_node(
+                        definition.module,
+                        definition.symbol,
+                        decl.maybe_node(),
+                        first_def.module.specifier(),
+                        Some(decl),
+                      );
+                      if !maybe_docs.is_empty() {
+                        for doc_node in &mut maybe_docs {
+                          doc_node.name = export_name.as_str().into();
+                          doc_node.declaration_kind = DeclarationKind::Export;
+                        }
+
+                        return Ok(Some(maybe_docs));
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        Ok(None)
+      }
+      Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(None),
     }
   }
 
@@ -250,6 +307,7 @@ impl<'a> DocParser<'a> {
             match first_def.kind {
               DefinitionKind::ExportStar(file_dep) => {
                 debug_assert_eq!(definitions.len(), 1);
+                let def_location = definition_location(first_def);
                 let specifier = self.resolve_dependency(
                   &file_dep.specifier,
                   first_def.module.specifier(),
@@ -267,37 +325,29 @@ impl<'a> DocParser<'a> {
                   elements: doc_nodes
                     .into_iter()
                     .filter(|dn| !matches!(dn.kind(), DocNodeKind::ModuleDoc))
-                    .map(Rc::new)
+                    .map(|mut node| {
+                      node.def = DocNodeDef::Reference {
+                        reference_def: ReferenceDef {
+                          target: node.location,
+                        },
+                      };
+                      node.location = def_location.clone();
+
+                      Rc::new(node)
+                    })
                     .collect(),
                 };
                 let ns_doc_node = DocNode::namespace(
                   export_name.into_boxed_str(),
                   false,
-                  definition_location(first_def),
+                  def_location,
                   DeclarationKind::Export,
                   js_doc,
                   ns_def,
                 );
                 flattened_docs.push(ns_doc_node);
               }
-              DefinitionKind::Definition => {
-                if first_def.module.specifier() != module_info.specifier() {
-                  for definition in definitions {
-                    let decl = definition.symbol_decl;
-                    let maybe_docs = self.docs_for_maybe_node(
-                      definition.module,
-                      definition.symbol,
-                      decl.maybe_node(),
-                    );
-                    for mut doc_node in maybe_docs {
-                      doc_node.name = export_name.as_str().into();
-                      doc_node.declaration_kind = DeclarationKind::Export;
-
-                      flattened_docs.push(doc_node);
-                    }
-                  }
-                }
-              }
+              DefinitionKind::Definition => {}
             }
           }
         }
@@ -594,14 +644,13 @@ impl<'a> DocParser<'a> {
         .go_to_definitions(ModuleInfoRef::Esm(module_info), export_symbol);
       for definition in definitions {
         handled_symbols.insert(definition.symbol.unique_id());
-        if definition.module.specifier() != module_info.specifier() {
-          continue;
-        }
 
         let maybe_docs = self.docs_for_maybe_node(
           definition.module,
           definition.symbol,
           definition.symbol_decl.maybe_node(),
+          module_info.specifier(),
+          Some(definition.symbol_decl),
         );
         for mut doc_node in maybe_docs {
           doc_node.name = export_name.as_str().into();
@@ -659,8 +708,13 @@ impl<'a> DocParser<'a> {
       .is_none());
     let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
-      let maybe_docs =
-        self.docs_for_maybe_node(module_info, child_symbol, decl.maybe_node());
+      let maybe_docs = self.docs_for_maybe_node(
+        module_info,
+        child_symbol,
+        decl.maybe_node(),
+        module_info.specifier(),
+        None,
+      );
       for mut doc_node in maybe_docs {
         let is_declared = decl
           .maybe_node()
@@ -778,176 +832,31 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  fn get_imports_for_module_body<'item>(
+  fn get_doc_for_reference(
     &self,
-    module_body: impl Iterator<Item = ModuleItemRef<'item>>,
-  ) -> HashMap<String, Import> {
-    let mut imports = HashMap::new();
-
-    for node in module_body {
-      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
-        for specifier in &import_decl.specifiers {
-          let import = match specifier {
-            ImportSpecifier::Named(named_specifier) => Import {
-              kind: ImportKind::Named(
-                named_specifier.local.sym.to_string(),
-                named_specifier
-                  .imported
-                  .as_ref()
-                  .map(module_export_name_value),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-            ImportSpecifier::Default(default_specifier) => Import {
-              kind: ImportKind::Named(
-                default_specifier.local.sym.to_string(),
-                Some("default".to_string()),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-            ImportSpecifier::Namespace(namespace_specifier) => Import {
-              kind: ImportKind::Namespace(
-                namespace_specifier.local.sym.to_string(),
-              ),
-              src: import_decl.src.value.to_string(),
-            },
-          };
-
-          let name = match import.kind.clone() {
-            ImportKind::Named(name, _) | ImportKind::Namespace(name) => name,
-          };
-
-          imports.insert(name, import);
-        }
-      }
+    parsed_source: &ParsedSource,
+    reference_range: &SourceRange,
+    target_range: &SourceRange,
+  ) -> Option<DocNode> {
+    if let Some(js_doc) =
+      js_doc_for_range(parsed_source, &reference_range.range())
+    {
+      let location = /*get_location(parsed_source, reference_range.start())*/ Location {
+        filename: String::from("todo").into_boxed_str(),
+        line: 0,
+        col: 0,
+        byte_index: 0,
+      };
+      let target = get_location(parsed_source, target_range.start());
+      Some(DocNode::reference(
+        "default".into(),
+        location,
+        js_doc,
+        ReferenceDef { target },
+      ))
+    } else {
+      None
     }
-
-    imports
-  }
-
-  pub fn get_reexports_for_module(
-    &self,
-    module_info: ModuleInfoRef,
-  ) -> Vec<node::Reexport> {
-    let Some(module_info) = module_info.esm() else {
-      return Vec::new();
-    };
-    let program = module_info.source().program_ref();
-
-    let imports = self.get_imports_for_module_body(program.body());
-
-    let mut reexports: Vec<node::Reexport> = vec![];
-
-    if self.private {
-      reexports.extend(imports.values().cloned().map(|import| node::Reexport {
-        src: import.src,
-        kind: match import.kind {
-          ImportKind::Named(orig, exported) => {
-            ReexportKind::Named(orig, exported)
-          }
-          ImportKind::Namespace(name) => ReexportKind::Namespace(name),
-        },
-      }))
-    }
-
-    for node in program.body() {
-      if let ModuleItemRef::ModuleDecl(module_decl) = node {
-        let r = match module_decl {
-          ModuleDecl::ExportNamed(named_export) => {
-            if let Some(src) = &named_export.src {
-              let src_str = src.value.to_string();
-              named_export
-                .specifiers
-                .iter()
-                .map(|export_specifier| match export_specifier {
-                  ExportSpecifier::Namespace(ns_export) => node::Reexport {
-                    kind: node::ReexportKind::Namespace(
-                      module_export_name_value(&ns_export.name),
-                    ),
-                    src: src_str.to_string(),
-                  },
-                  ExportSpecifier::Default(specifier) => node::Reexport {
-                    kind: node::ReexportKind::Named(
-                      "default".to_string(),
-                      Some(specifier.exported.sym.to_string()),
-                    ),
-                    src: src_str.to_string(),
-                  },
-                  ExportSpecifier::Named(named_export) => {
-                    let export_name =
-                      module_export_name_value(&named_export.orig);
-                    let maybe_alias = named_export
-                      .exported
-                      .as_ref()
-                      .map(module_export_name_value);
-                    let kind =
-                      node::ReexportKind::Named(export_name, maybe_alias);
-                    node::Reexport {
-                      kind,
-                      src: src_str.to_string(),
-                    }
-                  }
-                })
-                .collect::<Vec<node::Reexport>>()
-            } else {
-              named_export
-                .specifiers
-                .iter()
-                .filter_map(|specifier| {
-                  if let ExportSpecifier::Named(specifier) = specifier {
-                    if let Some(import) =
-                      imports.get(&module_export_name_value(&specifier.orig))
-                    {
-                      // If it has the same name as the original import and private values are exported,
-                      // don't export this again and document the same value twice.
-                      if self.private && specifier.exported.is_none() {
-                        return None;
-                      }
-
-                      let name = module_export_name_value(
-                        specifier.exported.as_ref().unwrap_or(&specifier.orig),
-                      );
-                      Some(node::Reexport {
-                        src: import.src.clone(),
-                        kind: match &import.kind {
-                          ImportKind::Named(orig, maybe_export) => {
-                            ReexportKind::Named(
-                              maybe_export
-                                .clone()
-                                .unwrap_or_else(|| orig.clone()),
-                              Some(name),
-                            )
-                          }
-                          ImportKind::Namespace(_) => {
-                            ReexportKind::Namespace(name)
-                          }
-                        },
-                      })
-                    } else {
-                      None
-                    }
-                  } else {
-                    None
-                  }
-                })
-                .collect()
-            }
-          }
-          ModuleDecl::ExportAll(export_all) => {
-            let reexport = node::Reexport {
-              kind: node::ReexportKind::All,
-              src: export_all.src.value.to_string(),
-            };
-            vec![reexport]
-          }
-          _ => vec![],
-        };
-
-        reexports.extend(r);
-      }
-    }
-
-    reexports
   }
 
   fn get_doc_nodes_for_module_info(
@@ -1003,14 +912,13 @@ impl<'a> DocParser<'a> {
         .root_symbol
         .go_to_definitions(export.module, export_symbol);
       for definition in definitions {
-        if definition.module.specifier() != module_info.specifier() {
-          continue;
-        }
         handled_symbols.insert(definition.symbol.unique_id());
         let maybe_docs = self.docs_for_maybe_node(
           definition.module,
           definition.symbol,
           definition.symbol_decl.maybe_node(),
+          module_info.specifier(),
+          Some(definition.symbol_decl),
         );
         for mut doc_node in maybe_docs {
           doc_node.name = export_name.as_str().into();
@@ -1049,6 +957,8 @@ impl<'a> DocParser<'a> {
     module_info: ModuleInfoRef,
     symbol: &Symbol,
     maybe_node: Option<SymbolNodeRef<'_>>,
+    original_specifier: &ModuleSpecifier,
+    decl: Option<&SymbolDecl>,
   ) -> Vec<DocNode> {
     let mut docs = Vec::with_capacity(2);
     let maybe_doc = match module_info {
@@ -1058,7 +968,17 @@ impl<'a> DocParser<'a> {
       ),
       ModuleInfoRef::Esm(module_info) => {
         if let Some(node) = maybe_node {
-          self.get_doc_for_symbol_node_ref(module_info, symbol, node)
+          if module_info.specifier() == original_specifier {
+            self.get_doc_for_symbol_node_ref(module_info, symbol, node)
+          } else if let Some(decl) = decl {
+            self.get_doc_for_reference(
+              module_info.source(),
+              &decl.range, // TODO: get original range
+              &decl.range,
+            )
+          } else {
+            None
+          }
         } else {
           None
         }
@@ -1107,6 +1027,8 @@ impl<'a> DocParser<'a> {
           module_info,
           symbol,
           Some(SymbolNodeRef::ExpandoProperty(n)),
+          module_info.specifier(),
+          None,
         );
         for doc in &mut docs {
           doc.name = name.as_str().into();

@@ -318,13 +318,20 @@ impl SymbolInnerCtx {
           let namespace_nodes = namespace_def
             .elements
             .iter()
-            .map(|element| {
-              doc_node
-                .create_namespace_child(element.clone(), ns_qualifiers.clone())
+            .flat_map(|element| {
+              if let Some(reference_def) = element.reference_def() {
+                ctx.ctx.resolve_reference(&reference_def.target)
+              } else {
+                vec![doc_node.create_namespace_child(
+                  element.clone(),
+                  ns_qualifiers.clone(),
+                )]
+              }
             })
             .collect::<Vec<_>>();
 
           let partitions = super::partition::partition_nodes_by_kind(
+            ctx.ctx,
             namespace_nodes.iter().map(Cow::Borrowed),
             false,
           );
@@ -346,7 +353,9 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
+        DocNodeKind::ModuleDoc
+        | DocNodeKind::Import
+        | DocNodeKind::Reference => unreachable!(),
       });
 
       let references = doc_node

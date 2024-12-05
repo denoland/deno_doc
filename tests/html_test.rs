@@ -138,25 +138,18 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
     )
     .await;
 
-  let parser = DocParser::new(
+  DocParser::new(
     &graph,
     &analyzer,
+    &source_files,
     DocParserOptions {
       diagnostics: false,
       private: false,
     },
   )
-  .unwrap();
-
-  let mut source_files = source_files.clone();
-  source_files.sort();
-  let mut doc_nodes_by_url = IndexMap::with_capacity(source_files.len());
-  for source_file in source_files {
-    let nodes = parser.parse_with_reexports(&source_file).unwrap();
-    doc_nodes_by_url.insert(source_file, nodes);
-  }
-
-  doc_nodes_by_url
+  .unwrap()
+  .parse()
+  .unwrap()
 }
 
 #[tokio::test]

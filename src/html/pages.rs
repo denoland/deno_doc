@@ -98,6 +98,7 @@ impl CategoriesPanelCtx {
           .values()
           .flat_map(|nodes| {
             partition::partition_nodes_by_name(
+              ctx.ctx,
               nodes.iter().map(Cow::Borrowed),
               true,
             )
@@ -139,6 +140,7 @@ impl CategoriesPanelCtx {
           .values()
           .flat_map(|nodes| {
             partition::partition_nodes_by_name(
+              ctx.ctx,
               nodes.iter().map(Cow::Borrowed),
               true,
             )
@@ -148,6 +150,7 @@ impl CategoriesPanelCtx {
 
         let (_, nodes) = ctx.ctx.doc_nodes.first().unwrap();
         let partitions = partition::partition_nodes_by_category(
+          ctx.ctx,
           nodes.iter().map(Cow::Borrowed),
           ctx.ctx.file_mode == FileMode::SingleDts,
         );
@@ -501,6 +504,7 @@ pub fn generate_symbol_pages_for_module(
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions = partition::partition_nodes_by_name(
+    &ctx,
     module_doc_nodes.iter().map(Cow::Borrowed),
     true,
   );
@@ -510,6 +514,7 @@ pub fn generate_symbol_pages_for_module(
     for doc_node in doc_nodes {
       if let Some(drilldown_symbols) = doc_node.get_drilldown_symbols() {
         drilldown_partitions.extend(partition::partition_nodes_by_name(
+          &ctx,
           drilldown_symbols.map(Cow::Owned),
           false,
         ))
