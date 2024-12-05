@@ -177,8 +177,14 @@ impl<'a> DocParser<'a> {
       })
       .collect::<Result<IndexMap<_, _>, DocError>>()?;
 
+    let mut all_locations = doc_nodes_by_url
+      .values()
+      .flatten()
+      .map(|node| node.location.clone())
+      .collect::<HashSet<_>>();
+
     for (specifier, nodes) in doc_nodes_by_url.iter_mut() {
-      self.resolve_reference_for_nodes(specifier, nodes)?;
+      self.resolve_reference_for_nodes(specifier, nodes, &mut all_locations)?;
     }
 
     Ok(doc_nodes_by_url)
@@ -188,6 +194,7 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
     nodes: &mut Vec<DocNode>,
+    all_locations: &mut HashSet<Location>,
   ) -> Result<(), DocError> {
     let mut i = 0;
     while i < nodes.len() {
@@ -199,16 +206,27 @@ impl<'a> DocParser<'a> {
             .map(|node| Rc::unwrap_or_clone(node.clone()))
             .collect::<Vec<_>>();
 
-          self.resolve_reference_for_nodes(specifier, &mut nodes)?;
+          self.resolve_reference_for_nodes(
+            specifier,
+            &mut nodes,
+            all_locations,
+          )?;
 
           namespace_def.elements = nodes.into_iter().map(Rc::new).collect();
         }
         DocNodeDef::Reference { reference_def } => {
-          if let Some(new_nodes) =
-            self.resolve_reference(specifier, reference_def)?
+          if !all_locations
+            .iter()
+            .any(|location| location == &reference_def.target)
           {
-            nodes.splice(i..=i, new_nodes);
-            continue;
+            if let Some(new_nodes) =
+              self.resolve_reference(specifier, reference_def)?
+            {
+              nodes.splice(i..=i, new_nodes);
+              all_locations
+                .extend(nodes.iter().map(|node| node.location.clone()));
+              continue;
+            }
           }
         }
 
