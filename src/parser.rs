@@ -46,7 +46,6 @@ use indexmap::IndexMap;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
-use crate::node;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::DocNodeDef;
@@ -180,17 +179,40 @@ impl<'a> DocParser<'a> {
     let mut all_locations = doc_nodes_by_url
       .values()
       .flatten()
-      .map(|node| node.location.clone())
+      .flat_map(|node| {
+        fn walk_rc_nodes(nodes: &[Rc<DocNode>]) -> Vec<Location> {
+          nodes
+            .iter()
+            .flat_map(|node| {
+              if let Some(namespace) = node.namespace_def() {
+                walk_rc_nodes(&namespace.elements)
+              } else {
+                vec![node.location.clone()]
+              }
+            })
+            .collect()
+        }
+
+        if let Some(namespace) = node.namespace_def() {
+          walk_rc_nodes(&namespace.elements)
+        } else {
+          vec![node.location.clone()]
+        }
+      })
       .collect::<HashSet<_>>();
 
     for (specifier, nodes) in doc_nodes_by_url.iter_mut() {
-      self.resolve_reference_for_nodes(specifier, nodes, &mut all_locations)?;
+      self.resolve_references_for_nodes(
+        specifier,
+        nodes,
+        &mut all_locations,
+      )?;
     }
 
     Ok(doc_nodes_by_url)
   }
 
-  fn resolve_reference_for_nodes(
+  fn resolve_references_for_nodes(
     &self,
     specifier: &ModuleSpecifier,
     nodes: &mut Vec<DocNode>,
@@ -206,7 +228,7 @@ impl<'a> DocParser<'a> {
             .map(|node| Rc::unwrap_or_clone(node.clone()))
             .collect::<Vec<_>>();
 
-          self.resolve_reference_for_nodes(
+          self.resolve_references_for_nodes(
             specifier,
             &mut nodes,
             all_locations,
@@ -1320,7 +1342,7 @@ fn parse_json_module_doc_node(
       },
       declaration_kind: DeclarationKind::Export,
       js_doc: JsDoc::default(),
-      def: node::DocNodeDef::Variable {
+      def: DocNodeDef::Variable {
         variable_def: VariableDef {
           kind: VarDeclKind::Var,
           ts_type: Some(parse_json_module_type(&value)),
