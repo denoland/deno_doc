@@ -991,7 +991,7 @@ impl<'a> DocParser<'a> {
           } else if let Some(decl) = decl {
             self.get_doc_for_reference(
               module_info.source(),
-              &decl.range, // TODO: get original range
+              &decl.range, // TODO: get original range, not of the redirected/resolved symbol, but where it is reexported
               &decl.range,
             )
           } else {
