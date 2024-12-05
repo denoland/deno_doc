@@ -257,6 +257,8 @@ impl<'a> DocParser<'a> {
             .go_to_definitions(export.module, export_symbol)
             .collect::<Vec<_>>();
 
+          let original_range = &export_symbol.decls().first().unwrap().range;
+
           if let Some(first_def) = definitions.first() {
             use deno_graph::symbols::DefinitionKind;
             match first_def.kind {
@@ -270,8 +272,10 @@ impl<'a> DocParser<'a> {
                         definition.module,
                         definition.symbol,
                         decl.maybe_node(),
+                        first_def.module.esm(),
                         first_def.module.specifier(),
                         Some(decl),
+                        Some(original_range),
                       );
                       if !maybe_docs.is_empty() {
                         for doc_node in &mut maybe_docs {
@@ -660,6 +664,8 @@ impl<'a> DocParser<'a> {
       let definitions = self
         .root_symbol
         .go_to_definitions(ModuleInfoRef::Esm(module_info), export_symbol);
+      let original_range = &export_symbol.decls().first().unwrap().range;
+
       for definition in definitions {
         handled_symbols.insert(definition.symbol.unique_id());
 
@@ -667,8 +673,10 @@ impl<'a> DocParser<'a> {
           definition.module,
           definition.symbol,
           definition.symbol_decl.maybe_node(),
+          Some(module_info),
           module_info.specifier(),
           Some(definition.symbol_decl),
+          Some(original_range),
         );
         for mut doc_node in maybe_docs {
           doc_node.name = export_name.as_str().into();
@@ -730,7 +738,9 @@ impl<'a> DocParser<'a> {
         module_info,
         child_symbol,
         decl.maybe_node(),
+        module_info.esm(),
         module_info.specifier(),
+        None,
         None,
       );
       for mut doc_node in maybe_docs {
@@ -852,19 +862,15 @@ impl<'a> DocParser<'a> {
 
   fn get_doc_for_reference(
     &self,
+    reference_source: &ParsedSource,
     parsed_source: &ParsedSource,
     reference_range: &SourceRange,
     target_range: &SourceRange,
   ) -> Option<DocNode> {
     if let Some(js_doc) =
-      js_doc_for_range(parsed_source, &reference_range.range())
+      js_doc_for_range(reference_source, &reference_range.range())
     {
-      let location = /*get_location(parsed_source, reference_range.start())*/ Location {
-        filename: String::from("todo").into_boxed_str(),
-        line: 0,
-        col: 0,
-        byte_index: 0,
-      };
+      let location = get_location(reference_source, reference_range.start());
       let target = get_location(parsed_source, target_range.start());
       Some(DocNode::reference(
         "default".into(),
@@ -929,14 +935,17 @@ impl<'a> DocParser<'a> {
       let definitions = self
         .root_symbol
         .go_to_definitions(export.module, export_symbol);
+      let original_range = &export_symbol.decls().first().unwrap().range;
       for definition in definitions {
         handled_symbols.insert(definition.symbol.unique_id());
         let maybe_docs = self.docs_for_maybe_node(
           definition.module,
           definition.symbol,
           definition.symbol_decl.maybe_node(),
+          Some(module_info),
           module_info.specifier(),
           Some(definition.symbol_decl),
+          Some(original_range),
         );
         for mut doc_node in maybe_docs {
           doc_node.name = export_name.as_str().into();
@@ -975,8 +984,10 @@ impl<'a> DocParser<'a> {
     module_info: ModuleInfoRef,
     symbol: &Symbol,
     maybe_node: Option<SymbolNodeRef<'_>>,
+    original_module_source: Option<&EsModuleInfo>,
     original_specifier: &ModuleSpecifier,
     decl: Option<&SymbolDecl>,
+    original_range: Option<&SourceRange>,
   ) -> Vec<DocNode> {
     let mut docs = Vec::with_capacity(2);
     let maybe_doc = match module_info {
@@ -990,8 +1001,9 @@ impl<'a> DocParser<'a> {
             self.get_doc_for_symbol_node_ref(module_info, symbol, node)
           } else if let Some(decl) = decl {
             self.get_doc_for_reference(
+              original_module_source.unwrap().source(),
               module_info.source(),
-              &decl.range, // TODO: get original range, not of the redirected/resolved symbol, but where it is reexported
+              original_range.unwrap(),
               &decl.range,
             )
           } else {
@@ -1045,7 +1057,9 @@ impl<'a> DocParser<'a> {
           module_info,
           symbol,
           Some(SymbolNodeRef::ExpandoProperty(n)),
+          module_info.esm(),
           module_info.specifier(),
+          None,
           None,
         );
         for doc in &mut docs {
