@@ -237,10 +237,7 @@ impl<'a> DocParser<'a> {
           namespace_def.elements = nodes.into_iter().map(Rc::new).collect();
         }
         DocNodeDef::Reference { reference_def } => {
-          if !all_locations
-            .iter()
-            .any(|location| location == &reference_def.target)
-          {
+          if !all_locations.contains(&reference_def.target) {
             if let Some(new_nodes) =
               self.resolve_reference(specifier, reference_def)?
             {
