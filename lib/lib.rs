@@ -148,7 +148,7 @@ impl Resolver for JsResolver {
 
 #[wasm_bindgen]
 pub async fn doc(
-  root_specifier: String,
+  root_specifiers: Vec<String>,
   include_all: bool,
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
@@ -157,7 +157,7 @@ pub async fn doc(
 ) -> anyhow::Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
   inner_doc(
-    root_specifier,
+    root_specifiers,
     include_all,
     load,
     maybe_resolve,
@@ -169,14 +169,17 @@ pub async fn doc(
 }
 
 async fn inner_doc(
-  root_specifier: String,
+  root_specifiers: Vec<String>,
   include_all: bool,
   load: js_sys::Function,
   maybe_resolve: Option<js_sys::Function>,
   maybe_import_map: Option<String>,
   print_import_map_diagnostics: bool,
 ) -> Result<JsValue, anyhow::Error> {
-  let root_specifier = ModuleSpecifier::parse(&root_specifier)?;
+  let root_specifiers = root_specifiers
+    .into_iter()
+    .map(|root_specifier| ModuleSpecifier::parse(&root_specifier))
+    .collect::<Result<Vec<_>, _>>()?;
   let mut loader = JsLoader::new(load);
   let maybe_resolver: Option<Box<dyn Resolver>> = if let Some(import_map) =
     maybe_import_map
@@ -232,7 +235,7 @@ async fn inner_doc(
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
-      vec![root_specifier.clone()],
+      root_specifiers.clone(),
       &mut loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -244,12 +247,13 @@ async fn inner_doc(
   let entries = DocParser::new(
     &graph,
     &analyzer,
+    &root_specifiers,
     deno_doc::DocParserOptions {
       diagnostics: false,
       private: include_all,
     },
   )?
-  .parse_with_reexports(&root_specifier)?;
+  .parse()?;
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
   Ok(entries.serialize(&serializer).unwrap())

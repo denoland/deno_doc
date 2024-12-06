@@ -315,7 +315,7 @@ impl<'a> DocParser<'a> {
           }
         }
 
-        Ok(None)
+        unreachable!()
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(None),
     }
