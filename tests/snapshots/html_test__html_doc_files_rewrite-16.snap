@@ -122,6 +122,14 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 </div></div><nav class="topSymbols">
           <h3>Symbols</h3>
           <ul><li>
+                <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default"><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+<span class="hover:bg-Variable/15">default</span>
+                </a>
+              </li><li>
+                <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<span class="hover:bg-Function/15">x</span>
+                </a>
+              </li><li>
                 <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15">Bar</span>
                 </a>
@@ -132,14 +140,6 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
               </li><li>
                 <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15">Foo</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Foobar</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
-<span class="hover:bg-Interface/15">Hello</span>
                 </a>
               </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
               <span class="leading-none">view all 10 symbols</span><svg

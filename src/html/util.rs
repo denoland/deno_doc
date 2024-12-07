@@ -1,11 +1,11 @@
 use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::usage::UsagesCtx;
-use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
+use crate::html::{DocNodeKindWithDrilldown, GenerateCtx};
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -43,8 +43,11 @@ pub(crate) struct NamespacedSymbols(
 );
 
 impl NamespacedSymbols {
-  pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols = compute_namespaced_symbols(doc_nodes);
+  pub(crate) fn new(
+    ctx: &GenerateCtx,
+    doc_nodes: &[DocNodeWithContext],
+  ) -> Self {
+    let symbols = compute_namespaced_symbols(ctx, doc_nodes);
     Self(Rc::new(symbols))
   }
 
@@ -54,6 +57,7 @@ impl NamespacedSymbols {
 }
 
 pub fn compute_namespaced_symbols(
+  ctx: &GenerateCtx,
   doc_nodes: &[DocNodeWithContext],
 ) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
   let mut namespaced_symbols =
@@ -199,11 +203,17 @@ pub fn compute_namespaced_symbols(
 
     if let DocNodeDef::Namespace { namespace_def } = &doc_node.def {
       namespaced_symbols.extend(compute_namespaced_symbols(
+        ctx,
         &namespace_def
           .elements
           .iter()
-          .map(|element| {
-            doc_node.create_namespace_child(element.clone(), name_path.clone())
+          .flat_map(|element| {
+            if let Some(reference_def) = element.reference_def() {
+              ctx.resolve_reference(&reference_def.target)
+            } else {
+              vec![doc_node
+                .create_namespace_child(element.clone(), name_path.clone())]
+            }
           })
           .collect::<Vec<_>>(),
       ))
@@ -396,8 +406,9 @@ impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
       DocNodeKindWithDrilldown::Other(DocNodeKind::ModuleDoc)
-      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import) => {
-        unimplemented!()
+      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import)
+      | DocNodeKindWithDrilldown::Other(DocNodeKind::Reference) => {
+        unreachable!()
       }
     };
 
@@ -677,6 +688,7 @@ impl TopSymbolsCtx {
       .values()
       .flat_map(|nodes| {
         super::partition::partition_nodes_by_name(
+          ctx.ctx,
           nodes.iter().map(Cow::Borrowed),
           true,
         )
