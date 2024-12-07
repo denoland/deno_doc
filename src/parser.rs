@@ -210,6 +210,10 @@ impl<'a> DocParser<'a> {
       )?;
     }
 
+    for (_, doc_nodes) in &doc_nodes_by_url {
+      self.collect_diagnostics_for_nodes(doc_nodes);
+    }
+
     Ok(doc_nodes_by_url)
   }
 
@@ -376,6 +380,13 @@ impl<'a> DocParser<'a> {
         unreachable!()
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(None),
+    }
+  }
+
+  fn collect_diagnostics_for_nodes(&self, nodes: &[DocNode]) {
+    if let Some(diagnostics) = &self.diagnostics {
+      let mut diagnostics = diagnostics.borrow_mut();
+      diagnostics.analyze_doc_nodes(nodes);
     }
   }
 
