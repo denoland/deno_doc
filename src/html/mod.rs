@@ -417,10 +417,40 @@ impl GenerateCtx {
       .doc_nodes
       .iter()
       .flat_map(|(_, nodes)| {
-        nodes
-          .iter()
-          .filter(|node| &node.location == reference)
-          .cloned()
+        nodes.iter().flat_map(|node| {
+          fn walk_ns(
+            parent: &DocNodeWithContext,
+            nodes: &[Rc<DocNode>],
+            reference: &crate::Location,
+          ) -> Vec<DocNodeWithContext> {
+            let mut out = vec![];
+            for node in nodes {
+              let x = parent.create_child(node.clone());
+              if let Some(namespace) = x.namespace_def() {
+                out.extend(walk_ns(&x, &namespace.elements, reference))
+              }
+
+              if &x.location == reference {
+                out.push(x.clone());
+              }
+            }
+            out
+          }
+
+          if let Some(namespace) = node.namespace_def() {
+            let mut nodes = walk_ns(node, &namespace.elements, reference);
+
+            if &node.location == reference {
+              nodes.push(node.clone());
+            }
+
+            nodes
+          } else if &node.location == reference {
+            vec![node.clone()]
+          } else {
+            vec![]
+          }
+        })
       })
       .collect::<Vec<_>>()
   }

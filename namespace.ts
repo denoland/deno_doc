@@ -1,9 +1,8 @@
-import { Completions } from "./resources.ts";
+import { Chat } from "./chat.ts";
 
 export class MyApi {}
-
-MyApi.Completions = Completions;
+MyApi.Chat = Chat;
 
 export declare namespace MyApi {
-  export { Completions as Completions };
+  export { Chat };
 }

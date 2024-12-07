@@ -304,7 +304,6 @@ impl<'a> DocParser<'a> {
           .go_to_definitions(export.module, export_symbol)
           .collect::<Vec<_>>();
 
-        // resolve for ExportStar
         if let Some(first_def) = definitions.first() {
           use deno_graph::symbols::DefinitionKind;
           match first_def.kind {
@@ -322,12 +321,25 @@ impl<'a> DocParser<'a> {
               );
             }
             DefinitionKind::Definition => {
-              for name_path_item in name_path {
-                let (name, id) = export_symbol
+              for (i, name_path_item) in name_path.iter().enumerate() {
+                let Some((name, id)) = export_symbol
                   .exports()
                   .iter()
-                  .find(|(name, _)| &&name_path_item == name)
-                  .unwrap();
+                  .find(|(name, _)| &name_path_item == name)
+                else {
+                  let definitions = self
+                    .root_symbol
+                    .go_to_definitions(export.module, export_symbol)
+                    .collect::<Vec<_>>();
+
+                  return self.resolve_dangling_reference(
+                    definitions.first().unwrap().module.specifier(),
+                    reference_def,
+                    // -1 to include the root
+                    name_path[i - 1..].to_vec(),
+                    false,
+                  );
+                };
 
                 export_name = name;
                 export_symbol = export.module.symbol(*id).unwrap();
@@ -358,7 +370,7 @@ impl<'a> DocParser<'a> {
                       definition.symbol,
                       decl.maybe_node(),
                       module_info.esm(),
-                      module_info.specifier(),
+                      first_def.module.specifier(),
                       Some(decl),
                       Some(original_range),
                     );
