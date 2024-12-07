@@ -1010,7 +1010,7 @@ async fn json_module() {
     {
       "kind": "variable",
       "name": "configFile",
-      "isDefault": true,
+      "isDefault": false,
       "location": {
         "filename": "file:///bar.json",
         "line": 1,
