@@ -357,8 +357,8 @@ impl<'a> DocParser<'a> {
                       definition.module,
                       definition.symbol,
                       decl.maybe_node(),
-                      first_def.module.esm(),
-                      first_def.module.specifier(),
+                      module_info.esm(),
+                      module_info.specifier(),
                       Some(decl),
                       Some(original_range),
                     );
