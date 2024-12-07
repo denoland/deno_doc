@@ -7,14 +7,6 @@ expression: module_docs
     "deprecated": null,
     "sections": {
       "id": "module_doc",
-      "docs": "<div class=\"markdown\"><p>Some docs\nwith a line break</p>\n</div>",
-      "sections": []
-    }
-  },
-  {
-    "deprecated": null,
-    "sections": {
-      "id": "module_doc",
       "docs": null,
       "sections": [
         {
@@ -90,6 +82,14 @@ expression: module_docs
           }
         }
       ]
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": "<div class=\"markdown\"><p>Some docs\nwith a line break</p>\n</div>",
+      "sections": []
     }
   }
 ]
