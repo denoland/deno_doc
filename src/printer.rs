@@ -14,6 +14,7 @@ use crate::{colors, Location};
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
+use std::rc::Rc;
 
 pub struct DocPrinter<'a> {
   doc_nodes: &'a [DocNode],
@@ -78,7 +79,8 @@ impl<'a> DocPrinter<'a> {
       {
         write!(
           w,
-          "{}",
+          "{}{}",
+          Indent(indent),
           colors::italic_gray(&format!(
             "Defined in {}\n\n",
             get_location_string(&node.location),
@@ -95,7 +97,7 @@ impl<'a> DocPrinter<'a> {
         DocNodeKind::Class => self.format_class(w, node)?,
         DocNodeKind::Enum => self.format_enum(w, node)?,
         DocNodeKind::Interface => self.format_interface(w, node)?,
-        DocNodeKind::Namespace => self.format_namespace(w, node)?,
+        DocNodeKind::Namespace => self.format_namespace(w, node, indent)?,
         _ => {}
       }
     }
@@ -503,22 +505,15 @@ impl<'a> DocPrinter<'a> {
     &self,
     w: &mut Formatter<'_>,
     node: &DocNode,
+    indent: i64,
   ) -> FmtResult {
     let elements = &node.namespace_def().unwrap().elements;
-    for node in elements {
-      let has_overloads = if node.kind() == DocNodeKind::Function {
-        elements
-          .iter()
-          .filter(|n| n.kind() == DocNodeKind::Function && n.name == node.name)
-          .count()
-          > 1
-      } else {
-        false
-      };
-      self.format_signature(w, node, 1, has_overloads)?;
-      self.format_jsdoc(w, &node.js_doc, 2)?;
-    }
-    writeln!(w)
+    let elements = elements
+      .into_iter()
+      .map(|element| Rc::unwrap_or_clone(element.clone()))
+      .collect::<Vec<_>>();
+
+    self.format_with_indent(w, &elements, indent + 1)
   }
 
   fn format_class_signature(

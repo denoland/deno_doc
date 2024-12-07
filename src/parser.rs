@@ -205,6 +205,7 @@ impl<'a> DocParser<'a> {
       self.resolve_references_for_nodes(
         specifier,
         nodes,
+        &[],
         &mut all_locations,
       )?;
     }
@@ -216,31 +217,45 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
     nodes: &mut Vec<DocNode>,
+    name_path: &[String],
     all_locations: &mut HashSet<Location>,
   ) -> Result<(), DocError> {
     let mut i = 0;
     while i < nodes.len() {
+      let name = nodes[i].name.to_string();
+
       match &mut nodes[i].def {
         DocNodeDef::Namespace { namespace_def } => {
-          let mut nodes = namespace_def
+          let mut namespace_elements = namespace_def
             .elements
             .iter()
             .map(|node| Rc::unwrap_or_clone(node.clone()))
             .collect::<Vec<_>>();
 
+          let mut name_path = name_path.to_vec();
+          name_path.push(name);
+
           self.resolve_references_for_nodes(
             specifier,
-            &mut nodes,
+            &mut namespace_elements,
+            &name_path,
             all_locations,
           )?;
 
-          namespace_def.elements = nodes.into_iter().map(Rc::new).collect();
+          namespace_def.elements =
+            namespace_elements.into_iter().map(Rc::new).collect();
         }
         DocNodeDef::Reference { reference_def } => {
+          let mut name_path = name_path.to_vec();
+          name_path.push(name);
+
           if !all_locations.contains(&reference_def.target) {
-            if let Some(new_nodes) =
-              self.resolve_reference(specifier, reference_def)?
-            {
+            if let Some(new_nodes) = self.resolve_dangling_reference(
+              specifier,
+              reference_def,
+              name_path,
+              false,
+            )? {
               nodes.splice(i..=i, new_nodes);
               all_locations
                 .extend(nodes.iter().map(|node| node.location.clone()));
@@ -257,10 +272,12 @@ impl<'a> DocParser<'a> {
     Ok(())
   }
 
-  fn resolve_reference(
+  fn resolve_dangling_reference(
     &self,
     specifier: &ModuleSpecifier,
     reference_def: &ReferenceDef,
+    mut name_path: Vec<String>,
+    star: bool,
   ) -> Result<Option<Vec<DocNode>>, DocError> {
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
@@ -268,42 +285,86 @@ impl<'a> DocParser<'a> {
       Module::Js(_) | Module::Json(_) | Module::Wasm(_) => {
         let module_info = self.get_module_info(module.specifier())?;
         let exports = module_info.exports(&self.root_symbol);
-        for (export_name, export) in exports.resolved {
-          let export = export.as_resolved_export();
-          let export_symbol = export.module.symbol(export.symbol_id).unwrap();
-          let definitions = self
-            .root_symbol
-            .go_to_definitions(export.module, export_symbol)
-            .collect::<Vec<_>>();
+        let root_name = name_path.remove(0);
+        let (mut export_name, export) = exports
+          .resolved
+          .iter()
+          .find(|(name, _)| &&root_name == name)
+          .unwrap();
 
-          let original_range = &export_symbol.decls().first().unwrap().range;
+        let export = export.as_resolved_export();
+        let mut export_symbol = export.module.symbol(export.symbol_id).unwrap();
 
-          if let Some(first_def) = definitions.first() {
-            use deno_graph::symbols::DefinitionKind;
-            match first_def.kind {
-              DefinitionKind::ExportStar(_) => {}
-              DefinitionKind::Definition => {
-                if first_def.module.specifier() != module_info.specifier() {
-                  for definition in &definitions {
-                    if definition_location(definition) == reference_def.target {
-                      let decl = definition.symbol_decl;
-                      let mut maybe_docs = self.docs_for_maybe_node(
-                        definition.module,
-                        definition.symbol,
-                        decl.maybe_node(),
-                        first_def.module.esm(),
-                        first_def.module.specifier(),
-                        Some(decl),
-                        Some(original_range),
-                      );
-                      if !maybe_docs.is_empty() {
-                        for doc_node in &mut maybe_docs {
-                          doc_node.name = export_name.as_str().into();
-                          doc_node.declaration_kind = DeclarationKind::Export;
-                        }
+        let mut definitions = self
+          .root_symbol
+          .go_to_definitions(export.module, export_symbol)
+          .collect::<Vec<_>>();
 
-                        return Ok(Some(maybe_docs));
+        // resolve for ExportStar
+        if let Some(first_def) = definitions.first() {
+          use deno_graph::symbols::DefinitionKind;
+          match first_def.kind {
+            DefinitionKind::ExportStar(file_dep) => {
+              debug_assert_eq!(definitions.len(), 1);
+              let specifier = self.resolve_dependency(
+                &file_dep.specifier,
+                first_def.module.specifier(),
+              )?;
+              return self.resolve_dangling_reference(
+                specifier,
+                reference_def,
+                name_path,
+                true,
+              );
+            }
+            DefinitionKind::Definition => {
+              for name_path_item in name_path {
+                let (name, id) = export_symbol
+                  .exports()
+                  .iter()
+                  .find(|(name, _)| &&name_path_item == name)
+                  .unwrap();
+
+                export_name = name;
+                export_symbol = export.module.symbol(*id).unwrap();
+              }
+
+              definitions = self
+                .root_symbol
+                .go_to_definitions(export.module, export_symbol)
+                .collect::<Vec<_>>();
+            }
+          }
+        }
+
+        let original_range = &export_symbol.decls().first().unwrap().range;
+
+        if let Some(first_def) = definitions.first() {
+          use deno_graph::symbols::DefinitionKind;
+          match first_def.kind {
+            DefinitionKind::ExportStar(_) => {}
+            DefinitionKind::Definition => {
+              if star || first_def.module.specifier() != module_info.specifier()
+              {
+                for definition in &definitions {
+                  if definition_location(definition) == reference_def.target {
+                    let decl = definition.symbol_decl;
+                    let mut maybe_docs = self.docs_for_maybe_node(
+                      definition.module,
+                      definition.symbol,
+                      decl.maybe_node(),
+                      first_def.module.esm(),
+                      first_def.module.specifier(),
+                      Some(decl),
+                      Some(original_range),
+                    );
+                    if !maybe_docs.is_empty() {
+                      for doc_node in &mut maybe_docs {
+                        doc_node.name = export_name.as_str().into();
+                        doc_node.declaration_kind = DeclarationKind::Export;
                       }
+
+                      return Ok(Some(maybe_docs));
                     }
                   }
                 }
