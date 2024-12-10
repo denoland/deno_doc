@@ -1,1 +1,1 @@
-export function d(_n = 0) {}
+export function externalFunction(_n = 0) {}

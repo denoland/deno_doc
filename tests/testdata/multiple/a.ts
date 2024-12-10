@@ -1,5 +1,5 @@
 import { x } from "./c.ts";
-import { d } from "./_d.ts";
+import { externalFunction } from "./_d.ts";
 
 /**
  * Some docs
@@ -101,8 +101,12 @@ export function d(
 export class Testing {}
 
 Testing.x = x;
-Testing.d = d;
+Testing.externalFunction = externalFunction;
 
 export declare namespace Testing {
-  export { x, d };
+  export { x, externalFunction };
+
+  export function t(): string;
 }
+
+export { x };
