@@ -504,7 +504,7 @@ pub fn generate_symbol_pages_for_module(
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
   let mut name_partitions = partition::partition_nodes_by_name(
-    &ctx,
+    ctx,
     module_doc_nodes.iter().map(Cow::Borrowed),
     true,
   );
@@ -514,7 +514,7 @@ pub fn generate_symbol_pages_for_module(
     for doc_node in doc_nodes {
       if let Some(drilldown_symbols) = doc_node.get_drilldown_symbols() {
         drilldown_partitions.extend(partition::partition_nodes_by_name(
-          &ctx,
+          ctx,
           drilldown_symbols.map(Cow::Owned),
           false,
         ))

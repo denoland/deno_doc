@@ -1082,6 +1082,7 @@ impl<'a> DocParser<'a> {
     doc_nodes
   }
 
+  #[allow(clippy::too_many_arguments)]
   fn docs_for_maybe_node(
     &self,
     module_info: ModuleInfoRef,
