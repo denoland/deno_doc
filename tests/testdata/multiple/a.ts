@@ -104,7 +104,7 @@ Testing.x = x;
 Testing.externalFunction = externalFunction;
 
 export declare namespace Testing {
-  export { x, externalFunction };
+  export { externalFunction, x };
 
   export function t(): string;
 }
