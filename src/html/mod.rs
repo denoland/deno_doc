@@ -1,5 +1,6 @@
 use crate::node::DocNodeDef;
 use crate::DocNode;
+use crate::DocNodeKind;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
@@ -312,6 +313,7 @@ impl GenerateCtx {
               }
             }
 
+            // TODO: support this in namespaces
             let node = if node
               .variable_def()
               .as_ref()
@@ -356,7 +358,36 @@ impl GenerateCtx {
               inner: Rc::new(node),
               drilldown_name: None,
               parent: None,
+              namespace_children: None,
             }
+          })
+          .map(|mut node| {
+            fn handle_node(node: &mut DocNodeWithContext) {
+              let children = if let Some(ns) = node.namespace_def() {
+                let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+                Some(
+                  ns.elements
+                    .iter()
+                    .map(|subnode| {
+                      let mut child_node = node.create_namespace_child(
+                        subnode.clone(),
+                        subqualifier.clone(),
+                      );
+                      handle_node(&mut child_node);
+                      child_node
+                    })
+                    .collect::<Vec<_>>(),
+                )
+              } else {
+                None
+              };
+
+              node.namespace_children = children;
+            }
+
+            handle_node(&mut node);
+
+            node
           })
           .collect::<Vec<_>>();
 
@@ -409,50 +440,37 @@ impl GenerateCtx {
     self.href_resolver.resolve_path(current, target)
   }
 
-  pub fn resolve_reference(
-    &self,
-    reference: &crate::Location,
-  ) -> Vec<DocNodeWithContext> {
-    self
-      .doc_nodes
-      .iter()
-      .flat_map(|(_, nodes)| {
-        nodes.iter().flat_map(|node| {
-          fn walk_ns(
-            parent: &DocNodeWithContext,
-            nodes: &[Rc<DocNode>],
-            reference: &crate::Location,
-          ) -> Vec<DocNodeWithContext> {
-            let mut out = vec![];
-            for node in nodes {
-              let x = parent.create_child(node.clone());
-              if let Some(namespace) = x.namespace_def() {
-                out.extend(walk_ns(&x, &namespace.elements, reference))
-              }
+  pub fn resolve_reference<'a>(
+    &'a self,
+    reference: &'a crate::Location,
+  ) -> impl Iterator<Item = &'a DocNodeWithContext> + 'a {
+    fn handle_node<'a>(
+      node: &'a DocNodeWithContext,
+      reference: &'a crate::Location,
+    ) -> Box<dyn Iterator<Item = &'a DocNodeWithContext> + 'a> {
+      if node.kind() == DocNodeKind::Namespace {
+        if let Some(children) = &node.namespace_children {
+          // Flatten results from children
+          return Box::new(
+            children
+              .iter()
+              .flat_map(move |child| handle_node(child, reference)),
+          );
+        }
+      }
 
-              if &x.location == reference {
-                out.push(x.clone());
-              }
-            }
-            out
-          }
+      if &node.location == reference {
+        Box::new(std::iter::once(node))
+      } else {
+        Box::new(std::iter::empty())
+      }
+    }
 
-          if let Some(namespace) = node.namespace_def() {
-            let mut nodes = walk_ns(node, &namespace.elements, reference);
-
-            if &node.location == reference {
-              nodes.push(node.clone());
-            }
-
-            nodes
-          } else if &node.location == reference {
-            vec![node.clone()]
-          } else {
-            vec![]
-          }
-        })
-      })
-      .collect::<Vec<_>>()
+    self.doc_nodes.values().flat_map(move |nodes| {
+      nodes
+        .iter()
+        .flat_map(move |node| handle_node(node, reference))
+    })
   }
 }
 
@@ -627,6 +645,7 @@ pub struct DocNodeWithContext {
   pub inner: Rc<DocNode>,
   pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
+  pub namespace_children: Option<Vec<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
@@ -638,6 +657,7 @@ impl DocNodeWithContext {
       inner: doc_node,
       drilldown_name: None,
       parent: Some(Box::new(self.clone())),
+      namespace_children: None,
     }
   }
 

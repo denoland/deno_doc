@@ -1,3 +1,3 @@
-import { Completions } from "./resources.ts";
+import { Completions } from "./chat_completions.ts";
 
 export { Completions };

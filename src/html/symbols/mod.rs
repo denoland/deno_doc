@@ -312,27 +312,25 @@ impl SymbolInnerCtx {
         }
 
         DocNodeKind::Namespace => {
-          let namespace_def = doc_node.namespace_def().unwrap();
-          let ns_qualifiers: std::rc::Rc<[String]> =
-            doc_node.sub_qualifier().into();
-          let namespace_nodes = namespace_def
-            .elements
-            .iter()
-            .flat_map(|element| {
-              if let Some(reference_def) = element.reference_def() {
-                ctx.ctx.resolve_reference(&reference_def.target)
-              } else {
-                vec![doc_node.create_namespace_child(
-                  element.clone(),
-                  ns_qualifiers.clone(),
-                )]
-              }
-            })
-            .collect::<Vec<_>>();
+          let namespace_nodes = doc_node.namespace_children.as_ref().unwrap();
+          let ns_qualifiers = namespace_nodes
+            .first()
+            .map(|node| node.ns_qualifiers.clone())
+            .unwrap_or_else(|| doc_node.sub_qualifier().into());
 
           let partitions = super::partition::partition_nodes_by_kind(
             ctx.ctx,
-            namespace_nodes.iter().map(Cow::Borrowed),
+            namespace_nodes.iter().flat_map(|node| {
+              if let Some(reference_def) = node.reference_def() {
+                ctx
+                  .ctx
+                  .resolve_reference(&reference_def.target)
+                  .map(Cow::Borrowed)
+                  .collect::<Vec<_>>()
+              } else {
+                vec![Cow::Borrowed(node)]
+              }
+            }),
             false,
           );
 

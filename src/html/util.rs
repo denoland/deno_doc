@@ -1,11 +1,12 @@
 use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::usage::UsagesCtx;
+use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
+use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
-use crate::html::{DocNodeKindWithDrilldown, GenerateCtx};
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -47,7 +48,7 @@ impl NamespacedSymbols {
     ctx: &GenerateCtx,
     doc_nodes: &[DocNodeWithContext],
   ) -> Self {
-    let symbols = compute_namespaced_symbols(ctx, doc_nodes);
+    let symbols = compute_namespaced_symbols(ctx, Box::new(doc_nodes.iter()));
     Self(Rc::new(symbols))
   }
 
@@ -56,9 +57,9 @@ impl NamespacedSymbols {
   }
 }
 
-pub fn compute_namespaced_symbols(
-  ctx: &GenerateCtx,
-  doc_nodes: &[DocNodeWithContext],
+pub fn compute_namespaced_symbols<'a>(
+  ctx: &'a GenerateCtx,
+  doc_nodes: Box<dyn Iterator<Item = &'a DocNodeWithContext> + 'a>,
 ) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
   let mut namespaced_symbols =
     HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
@@ -201,22 +202,23 @@ pub fn compute_namespaced_symbols(
     namespaced_symbols
       .insert(name_path.to_vec(), Some(doc_node.origin.clone()));
 
-    if let DocNodeDef::Namespace { namespace_def } = &doc_node.def {
-      namespaced_symbols.extend(compute_namespaced_symbols(
-        ctx,
-        &namespace_def
-          .elements
-          .iter()
-          .flat_map(|element| {
-            if let Some(reference_def) = element.reference_def() {
-              ctx.resolve_reference(&reference_def.target)
-            } else {
-              vec![doc_node
-                .create_namespace_child(element.clone(), name_path.clone())]
-            }
-          })
-          .collect::<Vec<_>>(),
-      ))
+    if doc_node.kind() == DocNodeKind::Namespace {
+      let children = doc_node
+        .namespace_children
+        .as_ref()
+        .unwrap()
+        .iter()
+        .flat_map(|element| {
+          if let Some(reference_def) = element.reference_def() {
+            Box::new(ctx.resolve_reference(&reference_def.target))
+              as Box<dyn Iterator<Item = &DocNodeWithContext>>
+          } else {
+            Box::new(std::iter::once(element)) as _
+          }
+        });
+
+      namespaced_symbols
+        .extend(compute_namespaced_symbols(ctx, Box::new(children)))
     }
   }
 

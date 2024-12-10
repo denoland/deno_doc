@@ -1,3 +1,6 @@
+import { x } from "./c.ts";
+import { d } from "./_d.ts";
+
 /**
  * Some docs
  * with a line break
@@ -93,4 +96,13 @@ export function d(
   baz: { hello?: string } = {},
 ): string {
   return foo + bar;
+}
+
+export class Testing {}
+
+Testing.x = x;
+Testing.d = d;
+
+export declare namespace Testing {
+  export { x, d };
 }

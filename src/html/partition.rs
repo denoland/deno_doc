@@ -33,26 +33,21 @@ where
       }
 
       if flatten_namespaces && node.kind() == DocNodeKind::Namespace {
-        let namespace_def = node.namespace_def().unwrap();
-        let ns_qualifiers: Rc<[String]> = node.sub_qualifier().into();
-
         partitioner_inner(
           ctx,
           partitions,
-          Box::new(namespace_def.elements.iter().flat_map(|element| {
-            if let Some(reference_def) = element.reference_def() {
-              ctx
-                .resolve_reference(&reference_def.target)
-                .into_iter()
-                .map(Cow::Owned)
-                .collect()
-            } else {
-              vec![Cow::Owned(node.create_namespace_child(
-                element.clone(),
-                ns_qualifiers.clone(),
-              ))]
-            }
-          })),
+          Box::new(node.namespace_children.as_ref().unwrap().iter().flat_map(
+            |node| {
+              if let Some(reference_def) = node.reference_def() {
+                ctx
+                  .resolve_reference(&reference_def.target)
+                  .map(Cow::Borrowed)
+                  .collect()
+              } else {
+                vec![Cow::Borrowed(node)]
+              }
+            },
+          )),
           true,
           process,
         );
@@ -62,12 +57,7 @@ where
         partitioner_inner(
           ctx,
           partitions,
-          Box::new(
-            ctx
-              .resolve_reference(&node.location)
-              .into_iter()
-              .map(Cow::Owned),
-          ),
+          Box::new(ctx.resolve_reference(&node.location).map(Cow::Borrowed)),
           false,
           process,
         )

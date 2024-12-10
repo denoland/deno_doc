@@ -4,7 +4,7 @@
     "test": "deno test -A",
     "tailwind": "deno run -A build_css.ts",
     "gen_html": "cargo run --example ddoc -- --name=gen_html --output generated_docs/ --html",
-    "debug": "deno task tailwind && deno task gen_html ./tests/testdata/multiple/*",
+    "debug": "deno task tailwind && deno task gen_html ./tests/testdata/multiple/[!_]*",
     "test:update": "UPDATE=1 cargo test --locked --all-targets && cargo insta test --accept"
   },
   "workspace": ["js"],
