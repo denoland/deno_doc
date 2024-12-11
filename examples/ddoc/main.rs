@@ -3,10 +3,10 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
-use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
+use deno_doc::html::{GenerateCtx, HrefResolver};
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -286,7 +286,8 @@ fn generate_docs_directory(
       )
     })),
   };
-  let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
+  let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url)?;
+  let html = deno_doc::html::generate(ctx)?;
 
   let path = &output_dir_resolved;
   let _ = std::fs::remove_dir_all(path);

@@ -154,7 +154,7 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
 
 #[tokio::test]
 async fn html_doc_files() {
-  let files = generate(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
@@ -172,6 +172,7 @@ async fn html_doc_files() {
     get_files("single").await,
   )
   .unwrap();
+  let files = generate(ctx).unwrap();
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();
@@ -230,7 +231,7 @@ async fn html_doc_files_rewrite() {
     "foo".to_string(),
   );
 
-  let files = generate(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: Some(main_specifier),
@@ -248,6 +249,7 @@ async fn html_doc_files_rewrite() {
     get_files("multiple").await,
   )
   .unwrap();
+  let files = generate(ctx).unwrap();
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();

@@ -322,13 +322,10 @@ impl SymbolInnerCtx {
             ctx.ctx,
             namespace_nodes.iter().flat_map(|node| {
               if let Some(reference_def) = node.reference_def() {
-                ctx
-                  .ctx
-                  .resolve_reference(&reference_def.target)
-                  .map(Cow::Borrowed)
-                  .collect::<Vec<_>>()
+                Box::new(ctx.ctx.resolve_reference(&reference_def.target))
+                  as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
               } else {
-                vec![Cow::Borrowed(node)]
+                Box::new(std::iter::once(Cow::Borrowed(node))) as _
               }
             }),
             false,

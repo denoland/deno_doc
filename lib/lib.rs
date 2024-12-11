@@ -605,7 +605,7 @@ fn generate_html_inner(
       None
     };
 
-  let files = deno_doc::html::generate(
+  let ctx = deno_doc::html::GenerateCtx::create_basic(
     deno_doc::html::GenerateOptions {
       package_name,
       main_entrypoint,
@@ -631,6 +631,7 @@ fn generate_html_inner(
     },
     doc_nodes_by_url,
   )?;
+  let files = deno_doc::html::generate(ctx)?;
 
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);

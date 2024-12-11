@@ -1,6 +1,5 @@
 use crate::node::DocNodeDef;
 use crate::DocNode;
-use crate::DocNodeKind;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
@@ -414,6 +413,32 @@ impl GenerateCtx {
     })
   }
 
+  pub fn create_basic(
+    mut options: GenerateOptions,
+    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ) -> Result<Self, anyhow::Error> {
+    if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
+      options.main_entrypoint =
+        Some(doc_nodes_by_url.keys().next().unwrap().clone());
+    }
+
+    let file_mode = match (
+      doc_nodes_by_url
+        .keys()
+        .all(|specifier| specifier.as_str().ends_with(".d.ts")),
+      doc_nodes_by_url.len(),
+    ) {
+      (false, 1) => FileMode::Single,
+      (false, _) => FileMode::Normal,
+      (true, 1) => FileMode::SingleDts,
+      (true, _) => FileMode::Dts,
+    };
+
+    let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
+
+    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)
+  }
+
   pub fn render<T: serde::Serialize>(
     &self,
     template: &str,
@@ -440,36 +465,56 @@ impl GenerateCtx {
     self.href_resolver.resolve_path(current, target)
   }
 
+  // TODO: don't reference to another node, but redirect to it instead
   pub fn resolve_reference<'a>(
     &'a self,
     reference: &'a crate::Location,
-  ) -> impl Iterator<Item = &'a DocNodeWithContext> + 'a {
+  ) -> impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a {
     fn handle_node<'a>(
       node: &'a DocNodeWithContext,
       reference: &'a crate::Location,
-    ) -> Box<dyn Iterator<Item = &'a DocNodeWithContext> + 'a> {
-      if node.kind() == DocNodeKind::Namespace {
+      depth: usize,
+    ) -> Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a> {
+      if &node.location == reference {
+        let node = if depth > 0 {
+          fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
+            let ns_qualifiers = node.ns_qualifiers.to_vec();
+            node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+
+            if let Some(children) = &mut node.namespace_children {
+              for child in children {
+                strip_qualifiers(child, depth);
+              }
+            }
+          }
+
+          let mut node = node.clone();
+          strip_qualifiers(&mut node, depth);
+          Cow::Owned(node)
+        } else {
+          Cow::Borrowed(node)
+        };
+
+        return Box::new(std::iter::once(node));
+      }
+
+      if node.kind() == crate::DocNodeKind::Namespace {
         if let Some(children) = &node.namespace_children {
-          // Flatten results from children
           return Box::new(
             children
               .iter()
-              .flat_map(move |child| handle_node(child, reference)),
+              .flat_map(move |child| handle_node(child, reference, depth + 1)),
           );
         }
       }
 
-      if &node.location == reference {
-        Box::new(std::iter::once(node))
-      } else {
-        Box::new(std::iter::empty())
-      }
+      Box::new(std::iter::empty())
     }
 
     self.doc_nodes.values().flat_map(move |nodes| {
       nodes
         .iter()
-        .flat_map(move |node| handle_node(node, reference))
+        .flat_map(move |node| handle_node(node, reference, 0))
     })
   }
 }
@@ -862,29 +907,8 @@ pub enum FileMode {
 }
 
 pub fn generate(
-  mut options: GenerateOptions,
-  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ctx: GenerateCtx,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
-  if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
-    options.main_entrypoint =
-      Some(doc_nodes_by_url.keys().next().unwrap().clone());
-  }
-
-  let file_mode = match (
-    doc_nodes_by_url
-      .keys()
-      .all(|specifier| specifier.as_str().ends_with(".d.ts")),
-    doc_nodes_by_url.len(),
-  ) {
-    (false, 1) => FileMode::Single,
-    (false, _) => FileMode::Normal,
-    (true, 1) => FileMode::SingleDts,
-    (true, _) => FileMode::Dts,
-  };
-
-  let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
-  let ctx =
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)?;
   let mut files = HashMap::new();
 
   // Index page

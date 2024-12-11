@@ -36,28 +36,24 @@ where
         partitioner_inner(
           ctx,
           partitions,
-          Box::new(node.namespace_children.as_ref().unwrap().iter().flat_map(
-            |node| {
-              if let Some(reference_def) = node.reference_def() {
-                ctx
-                  .resolve_reference(&reference_def.target)
-                  .map(Cow::Borrowed)
-                  .collect()
-              } else {
-                vec![Cow::Borrowed(node)]
-              }
-            },
-          )),
+          Box::new(
+            node
+              .namespace_children
+              .as_ref()
+              .unwrap()
+              .iter()
+              .map(Cow::Borrowed),
+          ),
           true,
           process,
         );
       }
 
-      if node.kind() == DocNodeKind::Reference {
+      if let Some(reference) = node.reference_def() {
         partitioner_inner(
           ctx,
           partitions,
-          Box::new(ctx.resolve_reference(&node.location).map(Cow::Borrowed)),
+          Box::new(ctx.resolve_reference(&reference.target)),
           false,
           process,
         )

@@ -21,8 +21,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 lazy_static! {
-  static ref TARGET_RE: regex::Regex =
-    regex::Regex::new(r"\s*\* ?|\.").unwrap();
+  static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
 pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
@@ -48,7 +47,10 @@ impl NamespacedSymbols {
     ctx: &GenerateCtx,
     doc_nodes: &[DocNodeWithContext],
   ) -> Self {
-    let symbols = compute_namespaced_symbols(ctx, Box::new(doc_nodes.iter()));
+    let symbols = compute_namespaced_symbols(
+      ctx,
+      Box::new(doc_nodes.iter().map(Cow::Borrowed)),
+    );
     Self(Rc::new(symbols))
   }
 
@@ -59,7 +61,7 @@ impl NamespacedSymbols {
 
 pub fn compute_namespaced_symbols<'a>(
   ctx: &'a GenerateCtx,
-  doc_nodes: Box<dyn Iterator<Item = &'a DocNodeWithContext> + 'a>,
+  doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
 ) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
   let mut namespaced_symbols =
     HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
@@ -211,9 +213,9 @@ pub fn compute_namespaced_symbols<'a>(
         .flat_map(|element| {
           if let Some(reference_def) = element.reference_def() {
             Box::new(ctx.resolve_reference(&reference_def.target))
-              as Box<dyn Iterator<Item = &DocNodeWithContext>>
+              as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
           } else {
-            Box::new(std::iter::once(element)) as _
+            Box::new(std::iter::once(Cow::Borrowed(element))) as _
           }
         });
 
