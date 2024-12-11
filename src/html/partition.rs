@@ -54,7 +54,7 @@ where
           ctx,
           partitions,
           Box::new(ctx.resolve_reference(&reference.target)),
-          false,
+          flatten_namespaces,
           process,
         )
       } else {
