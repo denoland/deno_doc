@@ -465,7 +465,7 @@ impl GenerateCtx {
     self.href_resolver.resolve_path(current, target)
   }
 
-  // TODO: don't reference to another node, but redirect to it instead
+  // TODO(@crowlKats): don't reference to another node, but redirect to it instead
   pub fn resolve_reference<'a>(
     &'a self,
     reference: &'a crate::Location,

@@ -233,16 +233,17 @@ impl<'a> DocParser<'a> {
           let mut namespace_elements = namespace_def
             .elements
             .iter()
-            .map(|node| Rc::unwrap_or_clone(node.clone()))
+            .map(|node| node.as_ref().clone())
             .collect::<Vec<_>>();
 
-          let mut name_path = name_path.to_vec();
-          name_path.push(name);
+          let mut new_name_path = Vec::with_capacity(name_path.len() + 1);
+          new_name_path.extend_from_slice(name_path);
+          new_name_path.push(name);
 
           self.resolve_references_for_nodes(
             specifier,
             &mut namespace_elements,
-            &name_path,
+            &new_name_path,
             all_locations,
           )?;
 
@@ -250,14 +251,15 @@ impl<'a> DocParser<'a> {
             namespace_elements.into_iter().map(Rc::new).collect();
         }
         DocNodeDef::Reference { reference_def } => {
-          let mut name_path = name_path.to_vec();
-          name_path.push(name);
+          let mut new_name_path = Vec::with_capacity(name_path.len() + 1);
+          new_name_path.extend_from_slice(name_path);
+          new_name_path.push(name);
 
           if !all_locations.contains(&reference_def.target) {
             if let Some(new_nodes) = self.resolve_dangling_reference(
               specifier,
               reference_def,
-              name_path,
+              new_name_path,
               false,
             )? {
               nodes.splice(i..=i, new_nodes);
@@ -389,7 +391,9 @@ impl<'a> DocParser<'a> {
           }
         }
 
-        unreachable!()
+        debug_assert!(false, "should not reach here");
+
+        Ok(None)
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(None),
     }
