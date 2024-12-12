@@ -15,8 +15,9 @@ use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use indexmap::IndexMap;
 
-async fn parse_with_reexports() -> Vec<DocNode> {
+async fn parse() -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   let source = std::fs::read_to_string("./benches/fixtures/deno.d.ts").unwrap();
   let sources = vec![(
     "file:///test/fixtures/deno.d.ts",
@@ -41,16 +42,15 @@ async fn parse_with_reexports() -> Vec<DocNode> {
       },
     )
     .await;
-  DocParser::new(&graph, &analyzer, DocParserOptions::default())
+  DocParser::new(&graph, &analyzer, &[root], DocParserOptions::default())
     .unwrap()
-    .parse_with_reexports(&root)
+    .parse()
     .unwrap()
 }
 
 fn doc_parser(c: &mut Criterion) {
-  c.bench_function("parse_with_rexports large", |b| {
-    b.to_async(FuturesExecutor)
-      .iter_with_large_drop(parse_with_reexports)
+  c.bench_function("parse large", |b| {
+    b.to_async(FuturesExecutor).iter_with_large_drop(parse)
   });
 }
 

@@ -70,21 +70,21 @@ export interface DocOptions {
  * ```ts
  * import { doc } from "https://deno.land/x/deno_doc/mod.ts";
  *
- * const entries = await doc("https://deno.land/std/fmt/colors.ts");
+ * const entries = await doc(["https://deno.land/std/fmt/colors.ts"]);
  *
  * for (const entry of entries) {
  *   console.log(`name: ${entry.name} kind: ${entry.kind}`);
  * }
  * ```
  *
- * @param specifier The URL string of the specifier to document
+ * @param specifiers List of the URL strings of the specifiers to document
  * @param options A set of options for generating the documentation
  * @returns A promise that resolves with an array of documentation nodes
  */
 export async function doc(
-  specifier: string,
+  specifiers: string[],
   options: DocOptions = {},
-): Promise<Array<DocNode>> {
+): Promise<Record<string, Array<DocNode>>> {
   const {
     load = createCache().load,
     includeAll = false,
@@ -95,7 +95,7 @@ export async function doc(
 
   const wasm = await instantiate();
   return wasm.doc(
-    specifier,
+    specifiers,
     includeAll,
     (specifier: string, options: {
       isDynamic: boolean;

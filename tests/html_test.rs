@@ -138,30 +138,23 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
     )
     .await;
 
-  let parser = DocParser::new(
+  DocParser::new(
     &graph,
     &analyzer,
+    &source_files,
     DocParserOptions {
       diagnostics: false,
       private: false,
     },
   )
-  .unwrap();
-
-  let mut source_files = source_files.clone();
-  source_files.sort();
-  let mut doc_nodes_by_url = IndexMap::with_capacity(source_files.len());
-  for source_file in source_files {
-    let nodes = parser.parse_with_reexports(&source_file).unwrap();
-    doc_nodes_by_url.insert(source_file, nodes);
-  }
-
-  doc_nodes_by_url
+  .unwrap()
+  .parse()
+  .unwrap()
 }
 
 #[tokio::test]
 async fn html_doc_files() {
-  let files = generate(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
@@ -179,6 +172,7 @@ async fn html_doc_files() {
     get_files("single").await,
   )
   .unwrap();
+  let files = generate(ctx).unwrap();
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();
@@ -237,7 +231,7 @@ async fn html_doc_files_rewrite() {
     "foo".to_string(),
   );
 
-  let files = generate(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: Some(main_specifier),
@@ -255,6 +249,7 @@ async fn html_doc_files_rewrite() {
     get_files("multiple").await,
   )
   .unwrap();
+  let files = generate(ctx).unwrap();
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();

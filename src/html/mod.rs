@@ -312,6 +312,7 @@ impl GenerateCtx {
               }
             }
 
+            // TODO: support this in namespaces
             let node = if node
               .variable_def()
               .as_ref()
@@ -356,7 +357,36 @@ impl GenerateCtx {
               inner: Rc::new(node),
               drilldown_name: None,
               parent: None,
+              namespace_children: None,
             }
+          })
+          .map(|mut node| {
+            fn handle_node(node: &mut DocNodeWithContext) {
+              let children = if let Some(ns) = node.namespace_def() {
+                let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+                Some(
+                  ns.elements
+                    .iter()
+                    .map(|subnode| {
+                      let mut child_node = node.create_namespace_child(
+                        subnode.clone(),
+                        subqualifier.clone(),
+                      );
+                      handle_node(&mut child_node);
+                      child_node
+                    })
+                    .collect::<Vec<_>>(),
+                )
+              } else {
+                None
+              };
+
+              node.namespace_children = children;
+            }
+
+            handle_node(&mut node);
+
+            node
           })
           .collect::<Vec<_>>();
 
@@ -383,6 +413,32 @@ impl GenerateCtx {
     })
   }
 
+  pub fn create_basic(
+    mut options: GenerateOptions,
+    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ) -> Result<Self, anyhow::Error> {
+    if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
+      options.main_entrypoint =
+        Some(doc_nodes_by_url.keys().next().unwrap().clone());
+    }
+
+    let file_mode = match (
+      doc_nodes_by_url
+        .keys()
+        .all(|specifier| specifier.as_str().ends_with(".d.ts")),
+      doc_nodes_by_url.len(),
+    ) {
+      (false, 1) => FileMode::Single,
+      (false, _) => FileMode::Normal,
+      (true, 1) => FileMode::SingleDts,
+      (true, _) => FileMode::Dts,
+    };
+
+    let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
+
+    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)
+  }
+
   pub fn render<T: serde::Serialize>(
     &self,
     template: &str,
@@ -407,6 +463,59 @@ impl GenerateCtx {
     }
 
     self.href_resolver.resolve_path(current, target)
+  }
+
+  // TODO(@crowlKats): don't reference to another node, but redirect to it instead
+  pub fn resolve_reference<'a>(
+    &'a self,
+    reference: &'a crate::Location,
+  ) -> impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a {
+    fn handle_node<'a>(
+      node: &'a DocNodeWithContext,
+      reference: &'a crate::Location,
+      depth: usize,
+    ) -> Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a> {
+      if &node.location == reference {
+        let node = if depth > 0 {
+          fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
+            let ns_qualifiers = node.ns_qualifiers.to_vec();
+            node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+
+            if let Some(children) = &mut node.namespace_children {
+              for child in children {
+                strip_qualifiers(child, depth);
+              }
+            }
+          }
+
+          let mut node = node.clone();
+          strip_qualifiers(&mut node, depth);
+          Cow::Owned(node)
+        } else {
+          Cow::Borrowed(node)
+        };
+
+        return Box::new(std::iter::once(node));
+      }
+
+      if node.kind() == crate::DocNodeKind::Namespace {
+        if let Some(children) = &node.namespace_children {
+          return Box::new(
+            children
+              .iter()
+              .flat_map(move |child| handle_node(child, reference, depth + 1)),
+          );
+        }
+      }
+
+      Box::new(std::iter::empty())
+    }
+
+    self.doc_nodes.values().flat_map(move |nodes| {
+      nodes
+        .iter()
+        .flat_map(move |node| handle_node(node, reference, 0))
+    })
   }
 }
 
@@ -581,6 +690,7 @@ pub struct DocNodeWithContext {
   pub inner: Rc<DocNode>,
   pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
+  pub namespace_children: Option<Vec<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
@@ -592,6 +702,7 @@ impl DocNodeWithContext {
       inner: doc_node,
       drilldown_name: None,
       parent: Some(Box::new(self.clone())),
+      namespace_children: None,
     }
   }
 
@@ -773,6 +884,7 @@ impl DocNodeWithContext {
       DocNodeDef::Namespace { .. } => None,
       DocNodeDef::Import { .. } => None,
       DocNodeDef::ModuleDoc => None,
+      DocNodeDef::Reference { .. } => None,
     }
   }
 }
@@ -795,29 +907,8 @@ pub enum FileMode {
 }
 
 pub fn generate(
-  mut options: GenerateOptions,
-  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+  ctx: GenerateCtx,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
-  if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
-    options.main_entrypoint =
-      Some(doc_nodes_by_url.keys().next().unwrap().clone());
-  }
-
-  let file_mode = match (
-    doc_nodes_by_url
-      .keys()
-      .all(|specifier| specifier.as_str().ends_with(".d.ts")),
-    doc_nodes_by_url.len(),
-  ) {
-    (false, 1) => FileMode::Single,
-    (false, _) => FileMode::Normal,
-    (true, 1) => FileMode::SingleDts,
-    (true, _) => FileMode::Dts,
-  };
-
-  let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
-  let ctx =
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)?;
   let mut files = HashMap::new();
 
   // Index page
@@ -826,6 +917,7 @@ pub fn generate(
       if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
         let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
         let categories = partition::partition_nodes_by_category(
+          &ctx,
           nodes.iter().map(Cow::Borrowed),
           ctx.file_mode == FileMode::SingleDts,
         );
@@ -833,6 +925,7 @@ pub fn generate(
         if categories.len() == 1 && categories.contains_key("Uncategorized") {
           (
             partition::partition_nodes_by_kind(
+              &ctx,
               nodes.iter().map(Cow::Borrowed),
               ctx.file_mode == FileMode::SingleDts,
             ),
@@ -868,6 +961,7 @@ pub fn generate(
   // All symbols (list of all symbols in all files)
   {
     let partitions_by_kind = partition::partition_nodes_by_entrypoint(
+      &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
       true,
     );
@@ -883,6 +977,7 @@ pub fn generate(
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
     let categories = partition::partition_nodes_by_category(
+      &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
       true,
     );
@@ -890,6 +985,7 @@ pub fn generate(
     if categories.len() != 1 {
       for (category, nodes) in &categories {
         let partitions = partition::partition_nodes_by_kind(
+          &ctx,
           nodes.iter().map(Cow::Borrowed),
           false,
         );
@@ -912,6 +1008,7 @@ pub fn generate(
   {
     for (short_path, doc_nodes) in &ctx.doc_nodes {
       let doc_nodes_by_kind = partition::partition_nodes_by_kind(
+        &ctx,
         doc_nodes.iter().map(Cow::Borrowed),
         ctx.file_mode == FileMode::SingleDts,
       );

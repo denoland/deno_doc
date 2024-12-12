@@ -6,9 +6,10 @@ import { doc, generateHtml } from "./mod.ts";
 Deno.test({
   name: "doc()",
   async fn() {
-    const entries = await doc(
-      "https://deno.land/std@0.104.0/fmt/colors.ts",
+    const records = await doc(
+      ["https://deno.land/std@0.104.0/fmt/colors.ts"],
     );
+    const entries = Object.values(records)[0];
     assertEquals(entries.length, 49);
     const fnStripColor = entries.find((n) =>
       n.kind === "function" && n.name === "stripColor"
@@ -32,8 +33,8 @@ Deno.test({
 Deno.test({
   name: "doc() - timings",
   async fn() {
-    const fixture = new URL("../benches/fixtures/deno.d.ts", import.meta.url)
-      .toString();
+    const fixture = [new URL("../benches/fixtures/deno.d.ts", import.meta.url)
+      .toString()];
 
     const start = Date.now();
     await doc(fixture);
@@ -58,7 +59,7 @@ Deno.test({
 Deno.test({
   name: "doc() - with headers",
   async fn() {
-    const entries = await doc("https://example.com/a", {
+    const entries = await doc(["https://example.com/a"], {
       load(specifier) {
         return Promise.resolve({
           kind: "module",
@@ -72,7 +73,7 @@ Deno.test({
         });
       },
     });
-    assertEquals(entries.length, 1);
+    assertEquals(Object.values(entries)[0].length, 1);
   },
 });
 
@@ -81,7 +82,7 @@ Deno.test({
   async fn() {
     await assertRejects(
       async () => {
-        await doc("./bad.ts");
+        await doc(["./bad.ts"]);
       },
       Error,
       "relative URL without a base",
@@ -92,7 +93,7 @@ Deno.test({
 Deno.test({
   name: "doc() - with import map",
   async fn() {
-    const entries = await doc("https://example.com/a.ts", {
+    const records = await doc(["https://example.com/a.ts"], {
       importMap: "https://example.com/import_map.json",
       load(specifier) {
         let content = "";
@@ -118,6 +119,7 @@ Deno.test({
         });
       },
     });
+    const entries = Object.values(records)[0];
     assertEquals(entries.length, 1);
     assertEquals(entries[0].kind, "class");
     assertEquals(entries[0].name, "B");
@@ -128,10 +130,12 @@ Deno.test({
   name: "generateHtml()",
   async fn() {
     const entries = await doc(
-      "https://deno.land/std@0.104.0/fmt/colors.ts",
+      ["https://deno.land/std@0.104.0/fmt/colors.ts"],
     );
 
-    const files = await generateHtml({ ["file:///colors.ts"]: entries }, {
+    const files = await generateHtml({
+      ["file:///colors.ts"]: Object.values(entries)[0],
+    }, {
       markdownRenderer(
         md,
         _titleOnly,
