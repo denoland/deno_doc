@@ -1,11 +1,11 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"./~/Bar.html\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Bar - documentation</title>
+  <title>A - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -27,7 +27,7 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
 	xmlns="http://www.w3.org/2000/svg">
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
-</span><ul><li>Bar</li></ul></ul>
+</span><ul><li>A</li></ul></ul>
 </div>
 
       <input
@@ -37,26 +37,19 @@ expression: "files.get(\"./~/Bar.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Bar"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_A"><article>
       <div>
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Class">class</span>&nbsp;<span class="font-bold">Bar</span>
-          </div><div class="symbolSubtitle"><div>
-    <span class="type"> extends </span><a class="link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html">Foo</a><span> </span>
-  </div></div></div></div><div><div class="space-y-7" id=""><div class="markdown"><blockquote>
-<p>Some quote in bar docs
-This quote part is ignored
-when getting the title of this doc</p>
-</blockquote>
-<p>Bar docs</p>
-</div></div>
+            <span class="text-Class">class</span>&nbsp;<span class="font-bold">A</span>
+          </div><div class="symbolSubtitle"></div><div class="space-x-2 !mt-2"><div class="text-private border border-private/50 bg-private/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none font-bold py-2 px-3">Private</div>
+</div></div></div><div><div class="space-y-7" id=""></div>
 </div>
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { Bar } from &quot;.&quot;;
-</code><button class="context_button" data-copy="import { Bar } from &quot;.&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { A } from &quot;.&quot;;
+</code><button class="context_button" data-copy="import { A } from &quot;.&quot;;
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
