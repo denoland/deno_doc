@@ -65,6 +65,56 @@ error[private-type-ref]: public type 'MyClass.prototype.internal2' references pr
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
+Defined in file:///other.ts:2:14
+
+const Test1: 1
+  Test
+
+Defined in file:///other.ts:20:14
+
+const Test10: 1
+  Test
+
+Defined in file:///other.ts:4:14
+
+const Test2: 1
+  Test
+
+Defined in file:///other.ts:6:14
+
+const Test3: 1
+  Test
+
+Defined in file:///other.ts:8:14
+
+const Test4: 1
+  Test
+
+Defined in file:///other.ts:10:14
+
+const Test5: 1
+  Test
+
+Defined in file:///other.ts:12:14
+
+const Test6: 1
+  Test
+
+Defined in file:///other.ts:14:14
+
+const Test7: 1
+  Test
+
+Defined in file:///other.ts:16:14
+
+const Test8: 1
+  Test
+
+Defined in file:///other.ts:18:14
+
+const Test9: 1
+  Test
+
 Defined in file:///mod.ts:5:1
 
 private class Internal1
@@ -84,46 +134,6 @@ class MyClass
     Test
   internal2: Internal2
     Test
-
-Defined in file:///other.ts:2:14
-
-reference Test1: file:///other.ts:2:14
-
-Defined in file:///other.ts:20:14
-
-reference Test10: file:///other.ts:20:14
-
-Defined in file:///other.ts:4:14
-
-reference Test2: file:///other.ts:4:14
-
-Defined in file:///other.ts:6:14
-
-reference Test3: file:///other.ts:6:14
-
-Defined in file:///other.ts:8:14
-
-reference Test4: file:///other.ts:8:14
-
-Defined in file:///other.ts:10:14
-
-reference Test5: file:///other.ts:10:14
-
-Defined in file:///other.ts:12:14
-
-reference Test6: file:///other.ts:12:14
-
-Defined in file:///other.ts:14:14
-
-reference Test7: file:///other.ts:14:14
-
-Defined in file:///other.ts:16:14
-
-reference Test8: file:///other.ts:16:14
-
-Defined in file:///other.ts:18:14
-
-reference Test9: file:///other.ts:18:14
 
 
 # output.json
@@ -215,14 +225,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 25
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 2,
-        "col": 13,
-        "byteIndex": 25
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -235,14 +251,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 61
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 4,
-        "col": 13,
-        "byteIndex": 61
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -255,14 +277,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 97
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 6,
-        "col": 13,
-        "byteIndex": 97
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -275,14 +303,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 133
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 8,
-        "col": 13,
-        "byteIndex": 133
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -295,14 +329,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 169
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 10,
-        "col": 13,
-        "byteIndex": 169
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -315,14 +355,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 205
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 12,
-        "col": 13,
-        "byteIndex": 205
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -335,14 +381,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 241
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 14,
-        "col": 13,
-        "byteIndex": 241
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -355,14 +407,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 277
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 16,
-        "col": 13,
-        "byteIndex": 277
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -375,14 +433,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 313
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 18,
-        "col": 13,
-        "byteIndex": 313
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {
@@ -395,14 +459,20 @@ reference Test9: file:///other.ts:18:14
       "byteIndex": 349
     },
     "declarationKind": "export",
-    "kind": "reference",
-    "reference_def": {
-      "target": {
-        "filename": "file:///other.ts",
-        "line": 20,
-        "col": 13,
-        "byteIndex": 349
-      }
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "1",
+        "kind": "literal",
+        "literal": {
+          "kind": "number",
+          "number": 1.0
+        }
+      },
+      "kind": "const"
     }
   },
   {

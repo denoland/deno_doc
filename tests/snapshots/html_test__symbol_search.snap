@@ -189,6 +189,39 @@ expression: search_index
     {
       "kind": [
         {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        },
+        {
+          "char": "N",
+          "kind": "Namespace",
+          "title": "Namespace"
+        }
+      ],
+      "name": "Testing",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Testing.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "Testing.t",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Testing.t.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
           "char": "f",
           "kind": "Function",
           "title": "Function"
@@ -241,6 +274,25 @@ expression: search_index
     {
       "kind": [
         {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        },
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "externalFunction",
+      "file": "/Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/_d.ts",
+      "doc": "",
+      "url": ".//Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/_d.ts/~/externalFunction.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
           "char": "v",
           "kind": "Variable",
           "title": "Variable"
@@ -254,6 +306,21 @@ expression: search_index
     },
     {
       "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        },
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        },
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        },
         {
           "char": "f",
           "kind": "Function",

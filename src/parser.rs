@@ -1050,7 +1050,7 @@ impl<'a> DocParser<'a> {
           definition.symbol,
           definition.symbol_decl.maybe_node(),
           export.module.esm(),
-          module_info.specifier(),
+          export.module.specifier(),
           Some(definition.symbol_decl),
           Some(original_range),
         );

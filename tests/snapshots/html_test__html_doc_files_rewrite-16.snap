@@ -130,19 +130,19 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 <span class="hover:bg-Function/15">x</span>
                 </a>
               </li><li>
+                <a href="..&#x2F;.&#x2F;c.ts&#x2F;~&#x2F;x.html" title="x"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<span class="hover:bg-Function/15">x</span>
+                </a>
+              </li><li>
+                <a href="..&#x2F;.&#x2F;_d.ts&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<span class="hover:bg-Function/15">externalFunction</span>
+                </a>
+              </li><li>
                 <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15">Bar</span>
                 </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz"><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
-<span class="hover:bg-TypeAlias/15">Baz</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Foo</span>
-                </a>
               </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
-              <span class="leading-none">view all 10 symbols</span><svg
+              <span class="leading-none">view all 16 symbols</span><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
