@@ -1,6 +1,6 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"./index.html\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 <!DOCTYPE html>
 <html>
@@ -46,11 +46,11 @@ expression: "files.get(\"./index.html\").unwrap()"
 <span class="hover:bg-Function/15">x</span>
                 </a>
               </li><li>
-                <a href=".&#x2F;c.ts&#x2F;~&#x2F;x.html" title="x"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+                <a href=".&#x2F;c&#x2F;~&#x2F;x.html" title="x"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
 <span class="hover:bg-Function/15">x</span>
                 </a>
               </li><li>
-                <a href=".&#x2F;_d.ts&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+                <a href=".&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
 <span class="hover:bg-Function/15">externalFunction</span>
                 </a>
               </li><li>

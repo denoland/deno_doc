@@ -285,9 +285,9 @@ expression: search_index
         }
       ],
       "name": "externalFunction",
-      "file": "/Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/_d.ts",
+      "file": "_d",
       "doc": "",
-      "url": ".//Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/_d.ts/~/externalFunction.html",
+      "url": "./_d/~/externalFunction.html",
       "deprecated": false
     },
     {

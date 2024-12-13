@@ -221,6 +221,14 @@ async fn html_doc_files_rewrite() {
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
   );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
+  );
 
   let ctx = GenerateCtx::create_basic(
     GenerateOptions {
@@ -276,11 +284,11 @@ async fn html_doc_files_rewrite() {
       "./~/externalFunction.html",
       "./~/qaz.html",
       "./~/x.html",
-      "_d.ts/index.html",
-      "_d.ts/~/externalFunction.html",
-      "c.ts/index.html",
-      "c.ts/~/x.html",
+      "c/index.html",
+      "c/~/x.html",
       "comrak.css",
+      "d/index.html",
+      "d/~/externalFunction.html",
       "foo/index.html",
       "foo/~/default.html",
       "foo/~/x.html",
@@ -319,6 +327,14 @@ async fn symbol_group() {
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
   );
 
   let ctx = GenerateCtx::new(
@@ -411,6 +427,14 @@ async fn symbol_search() {
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
   );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "_d".to_string(),
+  );
 
   let ctx = GenerateCtx::new(
     GenerateOptions {
@@ -458,6 +482,14 @@ async fn module_doc() {
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
   );
 
   let ctx = GenerateCtx::new(

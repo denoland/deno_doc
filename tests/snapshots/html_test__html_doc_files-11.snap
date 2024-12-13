@@ -1,6 +1,6 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"search.js\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 const Fuse = window.Fuse;
 

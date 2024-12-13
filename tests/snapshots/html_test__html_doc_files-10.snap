@@ -1,6 +1,6 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"script.js\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 function findParent(el, find) {
   do {

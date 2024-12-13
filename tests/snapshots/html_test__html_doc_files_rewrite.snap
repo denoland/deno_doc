@@ -1,6 +1,6 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"./all_symbols.html\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 <!DOCTYPE html>
 <html>
@@ -117,9 +117,9 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div></div>
 </section>
-<section class="section" id="_d.ts">
+<section class="section" id="c">
   <div>
-	  <h2 class="anchorable mb-1"><a href="#_d.ts" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+	  <h2 class="anchorable mb-1"><a href="#c" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -141,16 +141,16 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;_d.ts&#x2F;index.html" class="contextLink">_d.ts</a></h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<a href=".&#x2F;.&#x2F;c&#x2F;index.html" class="contextLink">c</a></h2></div><div class="namespaceSection"><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;_d.ts&#x2F;~&#x2F;externalFunction.html" title="externalFunction">externalFunction</a>
+		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;x.html" title="x">x</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div></div>
 </section>
-<section class="section" id="c.ts">
+<section class="section" id="d">
   <div>
-	  <h2 class="anchorable mb-1"><a href="#c.ts" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+	  <h2 class="anchorable mb-1"><a href="#d" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -172,9 +172,9 @@ expression: "files.get(\"./all_symbols.html\").unwrap()"
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;c.ts&#x2F;index.html" class="contextLink">c.ts</a></h2></div><div class="namespaceSection"><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<a href=".&#x2F;.&#x2F;d&#x2F;index.html" class="contextLink">d</a></h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;c.ts&#x2F;~&#x2F;x.html" title="x">x</a>
+		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction">externalFunction</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div></div>

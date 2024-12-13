@@ -1,6 +1,6 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"fuse.js\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 // deno-fmt-ignore-file
 // deno-lint-ignore-file
