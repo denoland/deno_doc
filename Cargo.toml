@@ -36,7 +36,7 @@ regex = "1.10.6"
 serde.workspace = true
 serde_json = { version = "1.0.122", features = ["preserve_order"] }
 termcolor = "1.4.1"
-itoa = "1.0.11"
+itoa = "1.0.14"
 deno_path_util = "0.2.1"
 
 html-escape = { version = "0.2.13" }
