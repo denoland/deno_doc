@@ -312,7 +312,7 @@ impl GenerateCtx {
               }
             }
 
-            // TODO: support this in namespaces
+            // TODO(@crowlKats): support this in namespaces
             let node = if node
               .variable_def()
               .as_ref()
@@ -468,6 +468,7 @@ impl GenerateCtx {
   // TODO(@crowlKats): don't reference to another node, but redirect to it instead
   pub fn resolve_reference<'a>(
     &'a self,
+    new_parent: Option<&'a DocNodeWithContext>,
     reference: &'a crate::Location,
   ) -> impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a {
     fn handle_node<'a>(
@@ -511,11 +512,28 @@ impl GenerateCtx {
       Box::new(std::iter::empty())
     }
 
-    self.doc_nodes.values().flat_map(move |nodes| {
-      nodes
-        .iter()
-        .flat_map(move |node| handle_node(node, reference, 0))
-    })
+    self
+      .doc_nodes
+      .values()
+      .flat_map(move |nodes| {
+        nodes
+          .iter()
+          .flat_map(move |node| handle_node(node, reference, 0))
+      })
+      .map(move |node| {
+        if let Some(parent) = new_parent {
+          let mut node = node.into_owned();
+          let mut ns_qualifiers = Vec::with_capacity(
+            parent.ns_qualifiers.len() + node.ns_qualifiers.len(),
+          );
+          ns_qualifiers.extend(parent.sub_qualifier());
+          ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
+          node.ns_qualifiers = ns_qualifiers.into();
+          Cow::Owned(node)
+        } else {
+          node
+        }
+      })
   }
 }
 

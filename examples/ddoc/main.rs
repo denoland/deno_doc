@@ -122,31 +122,6 @@ async fn run() -> anyhow::Result<()> {
     )
     .await;
 
-  if html {
-    let mut source_files = source_files.clone();
-    source_files.sort();
-
-    let parser = DocParser::new(
-      &graph,
-      &analyzer,
-      &source_files,
-      DocParserOptions {
-        diagnostics: false,
-        private,
-      },
-    )?;
-
-    let doc_nodes_by_url = parser.parse()?;
-
-    generate_docs_directory(
-      name,
-      output_dir,
-      main_entrypoint,
-      doc_nodes_by_url,
-    )?;
-    return Ok(());
-  }
-
   let mut source_files = source_files.clone();
   source_files.sort();
 
@@ -159,6 +134,17 @@ async fn run() -> anyhow::Result<()> {
       private,
     },
   )?;
+  let doc_nodes_by_url = parser.parse()?;
+
+  if html {
+    generate_docs_directory(
+      name,
+      output_dir,
+      main_entrypoint,
+      doc_nodes_by_url,
+    )?;
+    return Ok(());
+  }
 
   let mut doc_nodes =
     parser.parse()?.into_values().flatten().collect::<Vec<_>>();

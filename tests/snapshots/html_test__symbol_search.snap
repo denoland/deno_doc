@@ -277,7 +277,16 @@ expression: search_index
           "char": "f",
           "kind": "Function",
           "title": "Function"
-        },
+        }
+      ],
+      "name": "Testing.externalFunction",
+      "file": "_d",
+      "doc": "",
+      "url": "./_d/~/Testing.externalFunction.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
         {
           "char": "f",
           "kind": "Function",
@@ -288,6 +297,20 @@ expression: search_index
       "file": "_d",
       "doc": "",
       "url": "./_d/~/externalFunction.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "Testing.x",
+      "file": "c",
+      "doc": "",
+      "url": "./c/~/Testing.x.html",
       "deprecated": false
     },
     {
@@ -306,11 +329,6 @@ expression: search_index
     },
     {
       "kind": [
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        },
         {
           "char": "f",
           "kind": "Function",

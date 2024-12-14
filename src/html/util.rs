@@ -212,8 +212,9 @@ pub fn compute_namespaced_symbols<'a>(
         .iter()
         .flat_map(|element| {
           if let Some(reference_def) = element.reference_def() {
-            Box::new(ctx.resolve_reference(&reference_def.target))
-              as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
+            Box::new(
+              ctx.resolve_reference(Some(&doc_node), &reference_def.target),
+            ) as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
           } else {
             Box::new(std::iter::once(Cow::Borrowed(element))) as _
           }

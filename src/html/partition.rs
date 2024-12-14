@@ -21,6 +21,7 @@ where
   fn partitioner_inner<'a, T, F>(
     ctx: &GenerateCtx,
     partitions: &mut Partitions<T>,
+    parent_node: Option<&DocNodeWithContext>,
     doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
     flatten_namespaces: bool,
     process: &F,
@@ -36,6 +37,7 @@ where
         partitioner_inner(
           ctx,
           partitions,
+          Some(&node),
           Box::new(
             node
               .namespace_children
@@ -53,7 +55,8 @@ where
         partitioner_inner(
           ctx,
           partitions,
-          Box::new(ctx.resolve_reference(&reference.target)),
+          parent_node,
+          Box::new(ctx.resolve_reference(parent_node, &reference.target)),
           flatten_namespaces,
           process,
         )
@@ -68,6 +71,7 @@ where
   partitioner_inner(
     ctx,
     &mut partitions,
+    None,
     Box::new(doc_nodes),
     flatten_namespaces,
     process,
