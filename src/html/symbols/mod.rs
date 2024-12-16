@@ -312,20 +312,26 @@ impl SymbolInnerCtx {
         }
 
         DocNodeKind::Namespace => {
-          let namespace_def = doc_node.namespace_def().unwrap();
-          let ns_qualifiers: std::rc::Rc<[String]> =
-            doc_node.sub_qualifier().into();
-          let namespace_nodes = namespace_def
-            .elements
-            .iter()
-            .map(|element| {
-              doc_node
-                .create_namespace_child(element.clone(), ns_qualifiers.clone())
-            })
-            .collect::<Vec<_>>();
+          let namespace_nodes = doc_node.namespace_children.as_ref().unwrap();
+          let ns_qualifiers = namespace_nodes
+            .first()
+            .map(|node| node.ns_qualifiers.clone())
+            .unwrap_or_else(|| doc_node.sub_qualifier().into());
 
           let partitions = super::partition::partition_nodes_by_kind(
-            namespace_nodes.iter().map(Cow::Borrowed),
+            ctx.ctx,
+            namespace_nodes.iter().flat_map(|node| {
+              if let Some(reference_def) = node.reference_def() {
+                Box::new(
+                  ctx
+                    .ctx
+                    .resolve_reference(Some(doc_node), &reference_def.target),
+                )
+                  as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
+              } else {
+                Box::new(std::iter::once(Cow::Borrowed(node))) as _
+              }
+            }),
             false,
           );
 
@@ -346,7 +352,9 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeKind::ModuleDoc | DocNodeKind::Import => unreachable!(),
+        DocNodeKind::ModuleDoc
+        | DocNodeKind::Import
+        | DocNodeKind::Reference => unreachable!(),
       });
 
       let references = doc_node

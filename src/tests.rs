@@ -78,10 +78,14 @@ async fn content_type_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&root)
-    .unwrap();
+  let entries =
+    DocParser::new(&graph, &analyzer, &[root], DocParserOptions::default())
+      .unwrap()
+      .parse()
+      .unwrap()
+      .into_values()
+      .next()
+      .unwrap();
   assert_eq!(entries.len(), 1);
 }
 
@@ -125,10 +129,14 @@ async fn types_header_handling() {
       },
     )
     .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&root)
-    .unwrap();
+  let entries =
+    DocParser::new(&graph, &analyzer, &[root], DocParserOptions::default())
+      .unwrap()
+      .parse()
+      .unwrap()
+      .into_values()
+      .next()
+      .unwrap();
   assert_eq!(
     serde_json::to_value(&entries).unwrap(),
     json!([{
@@ -209,10 +217,18 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -344,10 +360,18 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -418,10 +442,18 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -476,10 +508,18 @@ export * as b from "./mod_doc.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let actual = serde_json::to_value(&entries).unwrap();
   let expected = json!([
@@ -571,10 +611,18 @@ export namespace Deno {
     vec![("file:///test.ts", None, source_code)],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   // Namespace
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno");
@@ -645,10 +693,18 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -708,10 +764,18 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -772,10 +836,18 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
@@ -838,13 +910,17 @@ async fn exports_imported_earlier_private() {
   let entries = DocParser::new(
     &graph,
     &analyzer,
+    &[specifier],
     DocParserOptions {
       private: true,
       ..Default::default()
     },
   )
   .unwrap()
-  .parse_with_reexports(&specifier)
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
   .unwrap();
 
   let expected_json = json!([
@@ -900,9 +976,9 @@ async fn variable_syntax() {
   .await;
 
   // This just needs to not throw a syntax error
-  DocParser::new(&graph, &analyzer, DocParserOptions::default())
+  DocParser::new(&graph, &analyzer, &[specifier], DocParserOptions::default())
     .unwrap()
-    .parse_with_reexports(&specifier)
+    .parse()
     .unwrap();
 }
 
@@ -917,16 +993,24 @@ async fn json_module() {
   )
   .await;
 
-  let entries = DocParser::new(&graph, &analyzer, DocParserOptions::default())
-    .unwrap()
-    .parse_with_reexports(&specifier)
-    .unwrap();
+  let entries = DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+  .into_values()
+  .next()
+  .unwrap();
 
   let expected_json = json!([
     {
       "kind": "variable",
       "name": "configFile",
-      "isDefault": true,
+      "isDefault": false,
       "location": {
         "filename": "file:///bar.json",
         "line": 1,

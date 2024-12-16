@@ -1,3 +1,6 @@
+import { x } from "./c.ts";
+import { externalFunction } from "./_d.ts";
+
 /**
  * Some docs
  * with a line break
@@ -94,3 +97,16 @@ export function d(
 ): string {
   return foo + bar;
 }
+
+export class Testing {}
+
+Testing.x = x;
+Testing.externalFunction = externalFunction;
+
+export declare namespace Testing {
+  export { externalFunction, x };
+
+  export function t(): string;
+}
+
+export { x };

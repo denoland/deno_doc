@@ -3,10 +3,10 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
-use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
+use deno_doc::html::{GenerateCtx, HrefResolver};
 use deno_doc::DocNodeKind;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
@@ -59,6 +59,7 @@ async fn run() -> anyhow::Result<()> {
         .requires_all(&["output"]),
     )
     .arg(Arg::with_name("name").long("name").takes_value(true))
+    .arg(Arg::with_name("json").long("json").conflicts_with("html"))
     .arg(
       Arg::with_name("main_entrypoint")
         .long("main_entrypoint")
@@ -75,6 +76,7 @@ async fn run() -> anyhow::Result<()> {
     .get_matches();
   let source_files = matches.values_of("source_files").unwrap();
   let html = matches.is_present("html");
+  let json = matches.is_present("json");
   let name = if html {
     matches.value_of("name").map(|name| name.to_string())
   } else {
@@ -120,23 +122,21 @@ async fn run() -> anyhow::Result<()> {
     )
     .await;
 
+  let mut source_files = source_files.clone();
+  source_files.sort();
+
   let parser = DocParser::new(
     &graph,
     &analyzer,
+    &source_files,
     DocParserOptions {
       diagnostics: false,
       private,
     },
   )?;
+  let doc_nodes_by_url = parser.parse()?;
 
   if html {
-    let mut source_files = source_files.clone();
-    source_files.sort();
-    let mut doc_nodes_by_url = IndexMap::with_capacity(source_files.len());
-    for source_file in source_files {
-      let nodes = parser.parse_with_reexports(&source_file)?;
-      doc_nodes_by_url.insert(source_file, nodes);
-    }
     generate_docs_directory(
       name,
       output_dir,
@@ -146,19 +146,22 @@ async fn run() -> anyhow::Result<()> {
     return Ok(());
   }
 
-  let mut doc_nodes = Vec::with_capacity(1024);
-  for source_file in source_files {
-    let nodes = parser.parse_with_reexports(&source_file)?;
-    doc_nodes.extend(nodes);
-  }
+  let mut doc_nodes =
+    parser.parse()?.into_values().flatten().collect::<Vec<_>>();
 
   doc_nodes.retain(|doc_node| doc_node.kind() != DocNodeKind::Import);
   if let Some(filter) = maybe_filter {
     doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter);
   }
 
-  let result = DocPrinter::new(&doc_nodes, true, false);
-  println!("{}", result);
+  if json {
+    serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes)?;
+    println!();
+  } else {
+    let result = DocPrinter::new(&doc_nodes, true, false);
+    println!("{}", result);
+  }
+
   Ok(())
 }
 
@@ -269,7 +272,8 @@ fn generate_docs_directory(
       )
     })),
   };
-  let html = deno_doc::html::generate(options, doc_nodes_by_url)?;
+  let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url)?;
+  let html = deno_doc::html::generate(ctx)?;
 
   let path = &output_dir_resolved;
   let _ = std::fs::remove_dir_all(path);

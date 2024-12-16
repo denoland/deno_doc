@@ -139,6 +139,83 @@ class MyClass
 # output.json
 [
   {
+    "name": "MyClass",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 9,
+      "col": 0,
+      "byteIndex": 166
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Test"
+    },
+    "kind": "class",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [
+        {
+          "jsDoc": {
+            "doc": "Test"
+          },
+          "tsType": {
+            "repr": "Internal1",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Internal1"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "internal",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 2,
+            "byteIndex": 205
+          }
+        },
+        {
+          "jsDoc": {
+            "doc": "Test"
+          },
+          "tsType": {
+            "repr": "Internal2",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Internal2"
+            }
+          },
+          "readonly": false,
+          "accessibility": null,
+          "optional": false,
+          "isAbstract": false,
+          "isStatic": false,
+          "name": "internal2",
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 2,
+            "byteIndex": 242
+          }
+        }
+      ],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
     "name": "Test1",
     "isDefault": false,
     "location": {
@@ -396,83 +473,6 @@ class MyClass
         }
       },
       "kind": "const"
-    }
-  },
-  {
-    "name": "MyClass",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 9,
-      "col": 0,
-      "byteIndex": 166
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Test"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "jsDoc": {
-            "doc": "Test"
-          },
-          "tsType": {
-            "repr": "Internal1",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Internal1"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "internal",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 11,
-            "col": 2,
-            "byteIndex": 205
-          }
-        },
-        {
-          "jsDoc": {
-            "doc": "Test"
-          },
-          "tsType": {
-            "repr": "Internal2",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Internal2"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "internal2",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 13,
-            "col": 2,
-            "byteIndex": 242
-          }
-        }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
     }
   },
   {

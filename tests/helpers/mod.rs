@@ -60,16 +60,19 @@ impl TestBuilder {
       )
       .await;
     graph.valid().unwrap();
+    let entrypoints = &[entry_point_url];
     let parser = DocParser::new(
       &graph,
       &analyzer,
+      entrypoints,
       DocParserOptions {
         private: self.private,
         diagnostics: true,
       },
     )
     .unwrap();
-    let entries = parser.parse_with_reexports(&entry_point_url).unwrap();
+
+    let entries = parser.parse().unwrap().into_values().next().unwrap();
 
     let doc = DocPrinter::new(&entries, false, self.private).to_string();
     let diagnostics = parser.take_diagnostics();

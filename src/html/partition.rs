@@ -1,5 +1,5 @@
-use super::DocNodeWithContext;
 use super::ShortPath;
+use super::{DocNodeWithContext, GenerateCtx};
 use crate::js_doc::JsDocTag;
 use crate::DocNodeKind;
 use indexmap::IndexMap;
@@ -10,6 +10,7 @@ use std::rc::Rc;
 pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
 fn create_partitioner<'a, T, F>(
+  ctx: &GenerateCtx,
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
   process: &F,
@@ -18,7 +19,9 @@ where
   F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
 {
   fn partitioner_inner<'a, T, F>(
+    ctx: &GenerateCtx,
     partitions: &mut Partitions<T>,
+    parent_node: Option<&DocNodeWithContext>,
     doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
     flatten_namespaces: bool,
     process: &F,
@@ -31,30 +34,44 @@ where
       }
 
       if flatten_namespaces && node.kind() == DocNodeKind::Namespace {
-        let namespace_def = node.namespace_def().unwrap();
-        let ns_qualifiers: Rc<[String]> = node.sub_qualifier().into();
-
         partitioner_inner(
+          ctx,
           partitions,
-          Box::new(namespace_def.elements.iter().map(|element| {
-            Cow::Owned(
-              node
-                .create_namespace_child(element.clone(), ns_qualifiers.clone()),
-            )
-          })),
+          Some(&node),
+          Box::new(
+            node
+              .namespace_children
+              .as_ref()
+              .unwrap()
+              .iter()
+              .map(Cow::Borrowed),
+          ),
           true,
           process,
         );
       }
 
-      process(partitions, &node);
+      if let Some(reference) = node.reference_def() {
+        partitioner_inner(
+          ctx,
+          partitions,
+          parent_node,
+          Box::new(ctx.resolve_reference(parent_node, &reference.target)),
+          flatten_namespaces,
+          process,
+        )
+      } else {
+        process(partitions, &node);
+      }
     }
   }
 
   let mut partitions = IndexMap::default();
 
   partitioner_inner(
+    ctx,
     &mut partitions,
+    None,
     Box::new(doc_nodes),
     flatten_namespaces,
     process,
@@ -64,16 +81,21 @@ where
 }
 
 pub fn partition_nodes_by_name<'a>(
+  ctx: &GenerateCtx,
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
-  let mut partitions =
-    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
+  let mut partitions = create_partitioner(
+    ctx,
+    doc_nodes,
+    flatten_namespaces,
+    &|partitions, node| {
       partitions
         .entry(node.get_qualified_name())
         .or_default()
         .push(node.clone());
-    });
+    },
+  );
 
   for val in partitions.values_mut() {
     val.sort_by_key(|n| n.kind());
@@ -85,11 +107,15 @@ pub fn partition_nodes_by_name<'a>(
 }
 
 pub fn partition_nodes_by_kind<'a>(
+  ctx: &GenerateCtx,
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
-  let mut partitions =
-    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
+  let mut partitions = create_partitioner(
+    ctx,
+    doc_nodes,
+    flatten_namespaces,
+    &|partitions, node| {
       let maybe_nodes = partitions.values_mut().find(|nodes| {
         nodes
           .iter()
@@ -102,7 +128,8 @@ pub fn partition_nodes_by_kind<'a>(
         let entry = partitions.entry(node.kind_with_drilldown).or_default();
         entry.push(node.clone());
       }
-    });
+    },
+  );
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(compare_node);
@@ -120,11 +147,15 @@ pub fn partition_nodes_by_kind<'a>(
 }
 
 pub fn partition_nodes_by_category<'a>(
+  ctx: &GenerateCtx,
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
-  let mut partitions =
-    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
+  let mut partitions = create_partitioner(
+    ctx,
+    doc_nodes,
+    flatten_namespaces,
+    &|partitions, node| {
       let category = node
         .js_doc
         .tags
@@ -146,7 +177,8 @@ pub fn partition_nodes_by_category<'a>(
       }) {
         entry.push(node.clone());
       }
-    });
+    },
+  );
 
   for (_kind, nodes) in partitions.iter_mut() {
     nodes.sort_by(compare_node);
@@ -168,15 +200,20 @@ pub fn partition_nodes_by_category<'a>(
 }
 
 pub fn partition_nodes_by_entrypoint<'a>(
+  ctx: &GenerateCtx,
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<Rc<ShortPath>> {
-  let mut partitions =
-    create_partitioner(doc_nodes, flatten_namespaces, &|partitions, node| {
+  let mut partitions = create_partitioner(
+    ctx,
+    doc_nodes,
+    flatten_namespaces,
+    &|partitions, node| {
       let entry = partitions.entry(node.origin.clone()).or_default();
 
       entry.push(node.clone());
-    });
+    },
+  );
 
   for (_file, nodes) in partitions.iter_mut() {
     nodes.sort_by(compare_node);

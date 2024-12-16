@@ -189,6 +189,39 @@ expression: search_index
     {
       "kind": [
         {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        },
+        {
+          "char": "N",
+          "kind": "Namespace",
+          "title": "Namespace"
+        }
+      ],
+      "name": "Testing",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Testing.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "Testing.t",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Testing.t.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
           "char": "f",
           "kind": "Function",
           "title": "Function"
@@ -241,15 +274,15 @@ expression: search_index
     {
       "kind": [
         {
-          "char": "v",
-          "kind": "Variable",
-          "title": "Variable"
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
         }
       ],
-      "name": "default",
-      "file": "foo",
-      "doc": "The default export item.\n\nThis item reproduces the issue reported in {@link https://github.com/jsr-io/jsr/issues/459}",
-      "url": "./foo/~/default.html",
+      "name": "Testing.externalFunction",
+      "file": "_d",
+      "doc": "",
+      "url": "./_d/~/Testing.externalFunction.html",
       "deprecated": false
     },
     {
@@ -260,10 +293,62 @@ expression: search_index
           "title": "Function"
         }
       ],
-      "name": "x",
-      "file": "foo",
+      "name": "externalFunction",
+      "file": "_d",
       "doc": "",
-      "url": "./foo/~/x.html",
+      "url": "./_d/~/externalFunction.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "Testing.x",
+      "file": "c",
+      "doc": "",
+      "url": "./c/~/Testing.x.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        },
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        },
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "x",
+      "file": "c",
+      "doc": "",
+      "url": "./c/~/x.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "default",
+      "file": "foo",
+      "doc": "The default export item.\n\nThis item reproduces the issue reported in {@link https://github.com/jsr-io/jsr/issues/459}",
+      "url": "./foo/~/default.html",
       "deprecated": false
     }
   ]

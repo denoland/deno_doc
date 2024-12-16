@@ -1,6 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::colors;
 use crate::display::display_abstract;
 use crate::display::display_async;
 use crate::display::display_generator;
@@ -10,6 +9,7 @@ use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::DocNodeKind;
+use crate::{colors, Location};
 
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -80,13 +80,8 @@ impl<'a> DocPrinter<'a> {
           w,
           "{}",
           colors::italic_gray(&format!(
-            "Defined in {}:{}:{}\n\n",
-            node.location.filename,
-            node.location.line,
-            // todo(#150): for some reason the column is 0-indexed and the line
-            // is 1-indexed. Display them both as 1-indexed so that vscode goes
-            // to the correct column when clicking this.
-            node.location.col + 1
+            "Defined in {}\n\n",
+            get_location_string(&node.location),
           ))
         )?;
       }
@@ -123,6 +118,7 @@ impl<'a> DocPrinter<'a> {
       DocNodeKind::TypeAlias => 6,
       DocNodeKind::Namespace => 7,
       DocNodeKind::Import => 8,
+      DocNodeKind::Reference => 9,
     }
   }
 
@@ -151,6 +147,9 @@ impl<'a> DocPrinter<'a> {
         self.format_namespace_signature(w, node, indent)
       }
       DocNodeKind::Import => Ok(()),
+      DocNodeKind::Reference => {
+        self.format_reference_signature(w, node, indent)
+      }
     }
   }
 
@@ -717,6 +716,25 @@ impl<'a> DocPrinter<'a> {
     )
   }
 
+  fn format_reference_signature(
+    &self,
+    w: &mut Formatter<'_>,
+    node: &DocNode,
+    indent: i64,
+  ) -> FmtResult {
+    let reference_def = node.reference_def().unwrap();
+
+    writeln!(
+      w,
+      "{}{}{} {}: {}",
+      Indent(indent),
+      fmt_visibility(node.declaration_kind),
+      colors::magenta("reference"),
+      colors::bold(&node.name),
+      colors::italic_gray(get_location_string(&reference_def.target)),
+    )
+  }
+
   fn format_variable_signature(
     &self,
     w: &mut Formatter<'_>,
@@ -755,6 +773,18 @@ fn fmt_visibility(decl_kind: DeclarationKind) -> impl std::fmt::Display {
   } else {
     ""
   })
+}
+
+fn get_location_string(location: &Location) -> String {
+  format!(
+    "{}:{}:{}",
+    location.filename,
+    location.line,
+    // todo(#150): for some reason the column is 0-indexed and the line
+    // is 1-indexed. Display them both as 1-indexed so that vscode goes
+    // to the correct column when clicking this.
+    location.col + 1
+  )
 }
 
 struct Indent(pub i64);
