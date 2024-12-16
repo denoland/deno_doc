@@ -116,13 +116,14 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   )
   .unwrap();
 
-  let source_files: Vec<ModuleSpecifier> = files
+  let mut source_files: Vec<ModuleSpecifier> = files
     .into_iter()
     .map(|entry| {
       let entry = entry.unwrap();
       ModuleSpecifier::from_file_path(entry.path()).unwrap()
     })
     .collect();
+  source_files.sort();
 
   let loader = SourceFileLoader {};
   let analyzer = CapturingModuleAnalyzer::default();
@@ -138,30 +139,23 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
     )
     .await;
 
-  let parser = DocParser::new(
+  DocParser::new(
     &graph,
     &analyzer,
+    &source_files,
     DocParserOptions {
       diagnostics: false,
       private: false,
     },
   )
-  .unwrap();
-
-  let mut source_files = source_files.clone();
-  source_files.sort();
-  let mut doc_nodes_by_url = IndexMap::with_capacity(source_files.len());
-  for source_file in source_files {
-    let nodes = parser.parse_with_reexports(&source_file).unwrap();
-    doc_nodes_by_url.insert(source_file, nodes);
-  }
-
-  doc_nodes_by_url
+  .unwrap()
+  .parse()
+  .unwrap()
 }
 
 #[tokio::test]
 async fn html_doc_files() {
-  let files = generate(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
@@ -179,6 +173,7 @@ async fn html_doc_files() {
     get_files("single").await,
   )
   .unwrap();
+  let files = generate(ctx).unwrap();
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();
@@ -205,19 +200,10 @@ async fn html_doc_files() {
     ]
   );
 
-  {
-    insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
-    insta::assert_snapshot!(files.get("./index.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Bar.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Bar.prototype.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foo.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foo.prototype.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
-    insta::assert_snapshot!(files.get("fuse.js").unwrap());
-    insta::assert_snapshot!(files.get("script.js").unwrap());
-    insta::assert_snapshot!(files.get("search.js").unwrap());
-    insta::assert_snapshot!(files.get("search_index.js").unwrap());
+  for file_name in file_names {
+    if !file_name.ends_with(".css") {
+      insta::assert_snapshot!(files.get(file_name).unwrap());
+    }
   }
 }
 
@@ -236,8 +222,16 @@ async fn html_doc_files_rewrite() {
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
   );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
+  );
 
-  let files = generate(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: Some(main_specifier),
@@ -255,6 +249,7 @@ async fn html_doc_files_rewrite() {
     get_files("multiple").await,
   )
   .unwrap();
+  let files = generate(ctx).unwrap();
 
   let mut file_names = files.keys().collect::<Vec<_>>();
   file_names.sort();
@@ -282,10 +277,20 @@ async fn html_doc_files_rewrite() {
       "./~/Foobar.prototype.html",
       "./~/Hello.html",
       "./~/Hello.world.html",
+      "./~/Testing.externalFunction.html",
+      "./~/Testing.html",
+      "./~/Testing.prototype.html",
+      "./~/Testing.t.html",
+      "./~/Testing.x.html",
       "./~/c.html",
       "./~/d.html",
       "./~/qaz.html",
+      "./~/x.html",
+      "c/index.html",
+      "c/~/x.html",
       "comrak.css",
+      "d/index.html",
+      "d/~/externalFunction.html",
       "foo/index.html",
       "foo/~/default.html",
       "foo/~/x.html",
@@ -299,30 +304,10 @@ async fn html_doc_files_rewrite() {
     ]
   );
 
-  {
-    insta::assert_snapshot!(files.get("./all_symbols.html").unwrap());
-    insta::assert_snapshot!(files.get("./index.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Bar.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Bar.prototype.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Baz.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Baz.foo.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foo.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foo.bar.html").unwrap());
-    insta::assert_snapshot!(files
-      .get("./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html")
-      .unwrap());
-    insta::assert_snapshot!(files.get("./~/Foo.prototype.foo.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foo.prototype.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foobar.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Foobar.prototype.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Hello.html").unwrap());
-    insta::assert_snapshot!(files.get("./~/Hello.world.html").unwrap());
-    insta::assert_snapshot!(files.get("foo/index.html").unwrap());
-    insta::assert_snapshot!(files.get("foo/~/x.html").unwrap());
-    insta::assert_snapshot!(files.get("fuse.js").unwrap());
-    insta::assert_snapshot!(files.get("script.js").unwrap());
-    insta::assert_snapshot!(files.get("search.js").unwrap());
-    insta::assert_snapshot!(files.get("search_index.js").unwrap());
+  for file_name in file_names {
+    if !file_name.ends_with(".css") {
+      insta::assert_snapshot!(files.get(file_name).unwrap());
+    }
   }
 }
 
@@ -344,6 +329,14 @@ async fn symbol_group() {
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
   );
 
   let ctx = GenerateCtx::new(
@@ -436,6 +429,14 @@ async fn symbol_search() {
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
   );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "_d".to_string(),
+  );
 
   let ctx = GenerateCtx::new(
     GenerateOptions {
@@ -483,6 +484,14 @@ async fn module_doc() {
   rewrite_map.insert(
     ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
     "foo".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
   );
 
   let ctx = GenerateCtx::new(

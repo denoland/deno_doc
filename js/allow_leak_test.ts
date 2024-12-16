@@ -10,7 +10,7 @@ Deno.test({
   async fn() {
     await assertRejects(
       async () => {
-        await doc("https://deno.land/x/bad.ts");
+        await doc(["https://deno.land/x/bad.ts"]);
       },
       Error,
       `Module not found "https://deno.land/x/bad.ts".`,

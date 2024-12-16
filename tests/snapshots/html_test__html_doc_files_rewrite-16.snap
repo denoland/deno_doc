@@ -1,14 +1,14 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"foo/index.html\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 <!DOCTYPE html>
 <html>
 <head>
-  <title>foo - documentation</title>
+  <title>Foo.prototype.test - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="doc-current-file" content="">
+  <meta name="doc-current-file" content=".">
   <link rel="stylesheet" href="..&#x2F;styles.css">
   <link rel="stylesheet" href="..&#x2F;page.css">
   <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;reset.css"><script src="..&#x2F;search_index.js" defer></script>
@@ -27,7 +27,7 @@ expression: "files.get(\"foo/index.html\").unwrap()"
 	xmlns="http://www.w3.org/2000/svg">
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
-</span><li>foo</li></ul>
+</span><ul><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><span>.</span><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><span>.</span><li>test</li></ul></ul>
 </div>
 
       <input
@@ -37,11 +37,13 @@ expression: "files.get(\"foo/index.html\").unwrap()"
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="searchResults"></div><div id="content">
-    <main><section >
-  <div class="space-y-2 flex-1 "><div class="space-y-7" id="module_doc"><section class="section" id="Functions">
-  <div>
-	  <h2 class="anchorable mb-1"><a href="#Functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo.prototype.test"><article>
+      <div>
+        <div>
+          <div class="text-2xl leading-none break-all">
+            <span class="text-Method">method</span>&nbsp;<span class="font-bold">Foo.prototype.test</span>
+          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_Foo_prototype_test_0">
+      <code class="anchorable text-base break-words"><a href="#function_Foo_prototype_test_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -63,16 +65,10 @@ expression: "files.get(\"foo/index.html\").unwrap()"
   </defs>
 </svg>
 </a>
-Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">x</a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div></div>
-</section>
-<section class="section" id="Variables">
+<span class="font-bold">Foo.prototype.test</span><span class="font-medium">()<span>: <span>void</span></span> </span>
+      </code><div class="space-y-7" id=""><section class="section" id="return-type">
   <div>
-	  <h2 class="anchorable mb-1"><a href="#Variables" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+	  <h2 class="anchorable mb-1"><a href="#return-type" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -94,21 +90,21 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
   </defs>
 </svg>
 </a>
-Variables</h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">default</a>
+Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_Foo_prototype_test_0_return">
 
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
-</div></div></div>
-    </div></div>
-</section>
+  <div class="docEntryHeader">
+    <div><code><span class="font-medium text-stone-500"><span>void</span></span>
+      </code>
+    </div></div></div>
+</div></section>
 </div>
+</div></div>
 </div>
-</section>
-</main><div class="toc">
+    </article></main>
+<div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import * as bar from &quot;foo&quot;;
-</code><button class="context_button" data-copy="import * as bar from &quot;foo&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { Foo } from &quot;.&quot;;
+</code><button class="context_button" data-copy="import { Foo } from &quot;.&quot;;
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
@@ -119,39 +115,8 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 <path d="M5 12l5 5l10 -10" />
 </svg>
 </button><code></code></pre>
-</div></div><nav class="topSymbols">
-          <h3>Symbols</h3>
-          <ul><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Bar</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz"><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
-<span class="hover:bg-TypeAlias/15">Baz</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Foo</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Foobar</span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
-<span class="hover:bg-Interface/15">Hello</span>
-                </a>
-              </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
-              <span class="leading-none">view all 10 symbols</span><svg
-	width="16"
-	height="16"
-	viewBox="0 0 16 16"
-	fill="none"
-	xmlns="http://www.w3.org/2000/svg">
-	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
-</svg>
-</a></nav><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li><li><a href="#variables" title="Variables">Variables</a></li><li><ul><li><a href="#namespace_default" title="default">default</a></li></ul></li></ul></nav></div>
+</div></div><nav class="documentNavigation">
+          <h3>Document Navigation</h3><ul><li><a href="#return-type" title="Return Type">Return Type</a></li></ul></nav></div>
   </div></div>
 </div>
 </div>

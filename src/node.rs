@@ -34,6 +34,7 @@ pub enum DocNodeKind {
   Interface,
   ModuleDoc,
   Namespace,
+  Reference,
   TypeAlias,
   Variable,
 }
@@ -74,36 +75,15 @@ impl PartialOrd for Location {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub enum ReexportKind {
-  /// export * from "./path/to/module.js";
-  All,
-  /// export * as someNamespace from "./path/to/module.js";
-  Namespace(String),
-  /// (identifier, optional alias)
-  /// export { foo } from "./path/to/module.js";
-  /// export { foo as bar } from "./path/to/module.js";
-  Named(String, Option<String>),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct Reexport {
-  pub kind: ReexportKind,
-  pub src: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ModuleDoc {
-  pub definitions: Vec<DocNode>,
-  pub reexports: Vec<Reexport>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct ImportDef {
   pub src: String,
   pub imported: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ReferenceDef {
+  pub target: Location,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
@@ -164,6 +144,9 @@ pub enum DocNodeDef {
     import_def: ImportDef,
   },
   ModuleDoc,
+  Reference {
+    reference_def: ReferenceDef,
+  },
 }
 
 impl Default for DocNode {
@@ -337,6 +320,22 @@ impl DocNode {
     }
   }
 
+  pub fn reference(
+    name: Box<str>,
+    location: Location,
+    js_doc: JsDoc,
+    reference_def: ReferenceDef,
+  ) -> Self {
+    Self {
+      name,
+      is_default: None,
+      declaration_kind: DeclarationKind::Private,
+      location,
+      js_doc,
+      def: DocNodeDef::Reference { reference_def },
+    }
+  }
+
   pub fn get_name(&self) -> &str {
     let default_name = match &self.def {
       DocNodeDef::Class { class_def } => class_def.def_name.as_deref(),
@@ -349,7 +348,8 @@ impl DocNode {
       | DocNodeDef::ModuleDoc { .. }
       | DocNodeDef::Namespace { .. }
       | DocNodeDef::TypeAlias { .. }
-      | DocNodeDef::Variable { .. } => None,
+      | DocNodeDef::Variable { .. }
+      | DocNodeDef::Reference { .. } => None,
     };
 
     default_name.unwrap_or(&self.name)
@@ -366,6 +366,7 @@ impl DocNode {
       DocNodeDef::Interface { .. } => DocNodeKind::Interface,
       DocNodeDef::Import { .. } => DocNodeKind::Import,
       DocNodeDef::ModuleDoc => DocNodeKind::ModuleDoc,
+      DocNodeDef::Reference { .. } => DocNodeKind::Reference,
     }
   }
 
@@ -421,6 +422,13 @@ impl DocNode {
   pub fn import_def(&self) -> Option<&ImportDef> {
     match &self.def {
       DocNodeDef::Import { import_def } => Some(import_def),
+      _ => None,
+    }
+  }
+
+  pub fn reference_def(&self) -> Option<&ReferenceDef> {
+    match &self.def {
+      DocNodeDef::Reference { reference_def } => Some(reference_def),
       _ => None,
     }
   }

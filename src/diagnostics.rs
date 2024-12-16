@@ -403,7 +403,9 @@ impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
         | DocNodeKind::Namespace
         | DocNodeKind::TypeAlias
         | DocNodeKind::Variable => true,
-        DocNodeKind::Import | DocNodeKind::ModuleDoc => false,
+        DocNodeKind::Import
+        | DocNodeKind::ModuleDoc
+        | DocNodeKind::Reference => false,
       }
     }
 

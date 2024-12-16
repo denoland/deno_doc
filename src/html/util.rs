@@ -4,6 +4,7 @@ use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
+use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
@@ -20,8 +21,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 lazy_static! {
-  static ref TARGET_RE: regex::Regex =
-    regex::Regex::new(r"\s*\* ?|\.").unwrap();
+  static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
 pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
@@ -43,8 +43,14 @@ pub(crate) struct NamespacedSymbols(
 );
 
 impl NamespacedSymbols {
-  pub(crate) fn new(doc_nodes: &[DocNodeWithContext]) -> Self {
-    let symbols = compute_namespaced_symbols(doc_nodes);
+  pub(crate) fn new(
+    ctx: &GenerateCtx,
+    doc_nodes: &[DocNodeWithContext],
+  ) -> Self {
+    let symbols = compute_namespaced_symbols(
+      ctx,
+      Box::new(doc_nodes.iter().map(Cow::Borrowed)),
+    );
     Self(Rc::new(symbols))
   }
 
@@ -53,8 +59,9 @@ impl NamespacedSymbols {
   }
 }
 
-pub fn compute_namespaced_symbols(
-  doc_nodes: &[DocNodeWithContext],
+pub fn compute_namespaced_symbols<'a>(
+  ctx: &'a GenerateCtx,
+  doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
 ) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
   let mut namespaced_symbols =
     HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
@@ -197,16 +204,24 @@ pub fn compute_namespaced_symbols(
     namespaced_symbols
       .insert(name_path.to_vec(), Some(doc_node.origin.clone()));
 
-    if let DocNodeDef::Namespace { namespace_def } = &doc_node.def {
-      namespaced_symbols.extend(compute_namespaced_symbols(
-        &namespace_def
-          .elements
-          .iter()
-          .map(|element| {
-            doc_node.create_namespace_child(element.clone(), name_path.clone())
-          })
-          .collect::<Vec<_>>(),
-      ))
+    if doc_node.kind() == DocNodeKind::Namespace {
+      let children = doc_node
+        .namespace_children
+        .as_ref()
+        .unwrap()
+        .iter()
+        .flat_map(|element| {
+          if let Some(reference_def) = element.reference_def() {
+            Box::new(
+              ctx.resolve_reference(Some(&doc_node), &reference_def.target),
+            ) as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
+          } else {
+            Box::new(std::iter::once(Cow::Borrowed(element))) as _
+          }
+        });
+
+      namespaced_symbols
+        .extend(compute_namespaced_symbols(ctx, Box::new(children)))
     }
   }
 
@@ -396,8 +411,9 @@ impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
       DocNodeKindWithDrilldown::Other(DocNodeKind::ModuleDoc)
-      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import) => {
-        unimplemented!()
+      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import)
+      | DocNodeKindWithDrilldown::Other(DocNodeKind::Reference) => {
+        unreachable!()
       }
     };
 
@@ -677,6 +693,7 @@ impl TopSymbolsCtx {
       .values()
       .flat_map(|nodes| {
         super::partition::partition_nodes_by_name(
+          ctx.ctx,
           nodes.iter().map(Cow::Borrowed),
           true,
         )

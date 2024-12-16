@@ -106,7 +106,8 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
     .values()
     .flatten()
     .map(std::borrow::Cow::Borrowed);
-  let partitions = super::partition::partition_nodes_by_name(doc_nodes, true);
+  let partitions =
+    super::partition::partition_nodes_by_name(ctx, doc_nodes, true);
 
   let mut doc_nodes = partitions
     .into_iter()

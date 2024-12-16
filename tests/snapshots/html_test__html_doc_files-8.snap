@@ -1,5 +1,5 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"./~/Foobar.prototype.html\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 <meta http-equiv="refresh" content="0; url=..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html">

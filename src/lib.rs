@@ -39,7 +39,6 @@ pub use node::DocNodeKind;
 pub use node::Location;
 
 use node::ImportDef;
-use node::ReexportKind;
 use params::ParamDef;
 
 cfg_if! {

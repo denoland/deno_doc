@@ -1,6 +1,6 @@
 ---
 source: tests/html_test.rs
-expression: "files.get(\"./index.html\").unwrap()"
+expression: files.get(file_name).unwrap()
 ---
 <!DOCTYPE html>
 <html>
@@ -31,15 +31,17 @@ expression: "files.get(\"./index.html\").unwrap()"
 </nav>
 <div id="searchResults"></div><div id="content">
     <main><section >
-  <div class="space-y-2 flex-1 "><div class="space-y-7" id="module_doc"><div class="markdown"><p>Some docs
-with a line break</p>
-</div></div>
+  <div class="space-y-2 flex-1 "><div class="space-y-7" id="module_doc"></div>
 </div>
 </section>
 </main><div class="toc">
     <div><nav class="topSymbols">
           <h3>Symbols</h3>
           <ul><li>
+                <a href=".&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<span class="hover:bg-Function/15">externalFunction</span>
+                </a>
+              </li><li>
                 <a href=".&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15">Bar</span>
                 </a>
@@ -55,12 +57,8 @@ with a line break</p>
                 <a href=".&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15">Foobar</span>
                 </a>
-              </li><li>
-                <a href=".&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
-<span class="hover:bg-Interface/15">Hello</span>
-                </a>
               </li></ul><a class="flex items-center gap-0.5" href=".&#x2F;all_symbols.html">
-              <span class="leading-none">view all 10 symbols</span><svg
+              <span class="leading-none">view all 17 symbols</span><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"

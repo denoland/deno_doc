@@ -7,7 +7,52 @@ expression: module_docs
     "deprecated": null,
     "sections": {
       "id": "module_doc",
-      "docs": "<div class=\"markdown\"><p>Some docs\nwith a line break</p>\n</div>",
+      "docs": null,
+      "sections": [
+        {
+          "header": {
+            "title": "Functions",
+            "anchor": {
+              "id": "Functions"
+            },
+            "href": null,
+            "doc": null
+          },
+          "content": {
+            "kind": "namespace_section",
+            "content": [
+              {
+                "id": "namespace_externalfunction",
+                "anchor": {
+                  "id": "namespace_externalfunction"
+                },
+                "tags": [],
+                "doc_node_kind_ctx": [
+                  {
+                    "kind": "Function",
+                    "char": "f",
+                    "title": "Function",
+                    "title_lowercase": "function",
+                    "title_plural": "Functions"
+                  }
+                ],
+                "href": ".././d/~/externalFunction.html",
+                "name": "externalFunction",
+                "docs": null,
+                "deprecated": false,
+                "subitems": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
       "sections": []
     }
   },
@@ -83,6 +128,51 @@ expression: module_docs
                 "href": ".././foo/~/default.html",
                 "name": "default",
                 "docs": "<div class=\"markdown_summary\"><p>The default export item.</p>\n</div>",
+                "deprecated": false,
+                "subitems": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
+      "sections": [
+        {
+          "header": {
+            "title": "Functions",
+            "anchor": {
+              "id": "Functions"
+            },
+            "href": null,
+            "doc": null
+          },
+          "content": {
+            "kind": "namespace_section",
+            "content": [
+              {
+                "id": "namespace_x",
+                "anchor": {
+                  "id": "namespace_x"
+                },
+                "tags": [],
+                "doc_node_kind_ctx": [
+                  {
+                    "kind": "Function",
+                    "char": "f",
+                    "title": "Function",
+                    "title_lowercase": "function",
+                    "title_plural": "Functions"
+                  }
+                ],
+                "href": ".././c/~/x.html",
+                "name": "x",
+                "docs": null,
                 "deprecated": false,
                 "subitems": []
               }
