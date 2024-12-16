@@ -116,13 +116,14 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   )
   .unwrap();
 
-  let source_files: Vec<ModuleSpecifier> = files
+  let mut source_files: Vec<ModuleSpecifier> = files
     .into_iter()
     .map(|entry| {
       let entry = entry.unwrap();
       ModuleSpecifier::from_file_path(entry.path()).unwrap()
     })
     .collect();
+  source_files.sort();
 
   let loader = SourceFileLoader {};
   let analyzer = CapturingModuleAnalyzer::default();

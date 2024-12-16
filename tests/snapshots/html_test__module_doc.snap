@@ -22,6 +22,59 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
+                "id": "namespace_externalfunction",
+                "anchor": {
+                  "id": "namespace_externalfunction"
+                },
+                "tags": [],
+                "doc_node_kind_ctx": [
+                  {
+                    "kind": "Function",
+                    "char": "f",
+                    "title": "Function",
+                    "title_lowercase": "function",
+                    "title_plural": "Functions"
+                  }
+                ],
+                "href": ".././d/~/externalFunction.html",
+                "name": "externalFunction",
+                "docs": null,
+                "deprecated": false,
+                "subitems": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
+      "sections": []
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
+      "sections": [
+        {
+          "header": {
+            "title": "Functions",
+            "anchor": {
+              "id": "Functions"
+            },
+            "href": null,
+            "doc": null
+          },
+          "content": {
+            "kind": "namespace_section",
+            "content": [
+              {
                 "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
@@ -127,59 +180,6 @@ expression: module_docs
           }
         }
       ]
-    }
-  },
-  {
-    "deprecated": null,
-    "sections": {
-      "id": "module_doc",
-      "docs": null,
-      "sections": [
-        {
-          "header": {
-            "title": "Functions",
-            "anchor": {
-              "id": "Functions"
-            },
-            "href": null,
-            "doc": null
-          },
-          "content": {
-            "kind": "namespace_section",
-            "content": [
-              {
-                "id": "namespace_externalfunction",
-                "anchor": {
-                  "id": "namespace_externalfunction"
-                },
-                "tags": [],
-                "doc_node_kind_ctx": [
-                  {
-                    "kind": "Function",
-                    "char": "f",
-                    "title": "Function",
-                    "title_lowercase": "function",
-                    "title_plural": "Functions"
-                  }
-                ],
-                "href": ".././d/~/externalFunction.html",
-                "name": "externalFunction",
-                "docs": null,
-                "deprecated": false,
-                "subitems": []
-              }
-            ]
-          }
-        }
-      ]
-    }
-  },
-  {
-    "deprecated": null,
-    "sections": {
-      "id": "module_doc",
-      "docs": null,
-      "sections": []
     }
   }
 ]

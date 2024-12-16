@@ -316,20 +316,6 @@ expression: search_index
     {
       "kind": [
         {
-          "char": "v",
-          "kind": "Variable",
-          "title": "Variable"
-        }
-      ],
-      "name": "default",
-      "file": "foo",
-      "doc": "The default export item.\n\nThis item reproduces the issue reported in {@link https://github.com/jsr-io/jsr/issues/459}",
-      "url": "./foo/~/default.html",
-      "deprecated": false
-    },
-    {
-      "kind": [
-        {
           "char": "f",
           "kind": "Function",
           "title": "Function"
@@ -346,9 +332,23 @@ expression: search_index
         }
       ],
       "name": "x",
-      "file": "foo",
+      "file": "c",
       "doc": "",
-      "url": "./foo/~/x.html",
+      "url": "./c/~/x.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "default",
+      "file": "foo",
+      "doc": "The default export item.\n\nThis item reproduces the issue reported in {@link https://github.com/jsr-io/jsr/issues/459}",
+      "url": "./foo/~/default.html",
       "deprecated": false
     }
   ]
