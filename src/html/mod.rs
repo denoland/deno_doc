@@ -527,8 +527,24 @@ impl GenerateCtx {
             parent.ns_qualifiers.len() + node.ns_qualifiers.len(),
           );
           ns_qualifiers.extend(parent.sub_qualifier());
-          ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
-          node.ns_qualifiers = ns_qualifiers.into();
+
+          fn handle_node(
+            node: &mut DocNodeWithContext,
+            ns_qualifiers: Vec<String>,
+          ) {
+            if let Some(children) = &mut node.namespace_children {
+              for node in children {
+                handle_node(node, ns_qualifiers.clone());
+              }
+            }
+
+            let mut new_ns_qualifiers = ns_qualifiers;
+            new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
+            node.ns_qualifiers = new_ns_qualifiers.into();
+          }
+
+          handle_node(&mut node, ns_qualifiers);
+
           Cow::Owned(node)
         } else {
           node
