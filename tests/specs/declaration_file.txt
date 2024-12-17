@@ -1,0 +1,1973 @@
+{"entrypoint":"mod.d.ts"}
+# mod.d.ts
+/** @category WebSockets */
+interface CloseEventInit extends EventInit {
+  code?: number;
+  reason?: string;
+  wasClean?: boolean;
+}
+
+/** @category WebSockets */
+interface CloseEvent extends Event {
+  /**
+   * Returns the WebSocket connection close code provided by the server.
+   */
+  readonly code: number;
+  /**
+   * Returns the WebSocket connection close reason provided by the server.
+   */
+  readonly reason: string;
+  /**
+   * Returns true if the connection closed cleanly; false otherwise.
+   */
+  readonly wasClean: boolean;
+}
+
+/** @category WebSockets */
+declare var CloseEvent: {
+  readonly prototype: CloseEvent;
+  new (type: string, eventInitDict?: CloseEventInit): CloseEvent;
+};
+
+/** @category WebSockets */
+interface WebSocketEventMap {
+  close: CloseEvent;
+  error: Event;
+  message: MessageEvent;
+  open: Event;
+}
+
+/**
+ * Provides the API for creating and managing a WebSocket connection to a
+ * server, as well as for sending and receiving data on the connection.
+ *
+ * If you are looking to create a WebSocket server, please take a look at
+ * `Deno.upgradeWebSocket()`.
+ *
+ * @tags allow-net
+ * @category WebSockets
+ */
+interface WebSocket extends EventTarget {
+  /**
+   * Returns a string that indicates how binary data from the WebSocket object is exposed to scripts:
+   *
+   * Can be set, to change how binary data is returned. The default is "blob".
+   */
+  binaryType: BinaryType;
+  /**
+   * Returns the number of bytes of application data (UTF-8 text and binary data) that have been queued using send() but not yet been transmitted to the network.
+   *
+   * If the WebSocket connection is closed, this attribute's value will only increase with each call to the send() method. (The number does not reset to zero once the connection closes.)
+   */
+  readonly bufferedAmount: number;
+  /**
+   * Returns the extensions selected by the server, if any.
+   */
+  readonly extensions: string;
+  onclose: ((this: WebSocket, ev: CloseEvent) => any) | null;
+  onerror: ((this: WebSocket, ev: Event | ErrorEvent) => any) | null;
+  onmessage: ((this: WebSocket, ev: MessageEvent) => any) | null;
+  onopen: ((this: WebSocket, ev: Event) => any) | null;
+  /**
+   * Returns the subprotocol selected by the server, if any. It can be used in conjunction with the array form of the constructor's second argument to perform subprotocol negotiation.
+   */
+  readonly protocol: string;
+  /**
+   * Returns the state of the WebSocket object's connection. It can have the values described below.
+   */
+  readonly readyState: number;
+  /**
+   * Returns the URL that was used to establish the WebSocket connection.
+   */
+  readonly url: string;
+  /**
+   * Closes the WebSocket connection, optionally using code as the WebSocket connection close code and reason as the WebSocket connection close reason.
+   */
+  close(code?: number, reason?: string): void;
+  /**
+   * Transmits data using the WebSocket connection. data can be a string, a Blob, an ArrayBuffer, or an ArrayBufferView.
+   */
+  send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void;
+  readonly CLOSED: number;
+  readonly CLOSING: number;
+  readonly CONNECTING: number;
+  readonly OPEN: number;
+  addEventListener<K extends keyof WebSocketEventMap>(
+    type: K,
+    listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  removeEventListener<K extends keyof WebSocketEventMap>(
+    type: K,
+    listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions,
+  ): void;
+}
+
+/** @category WebSockets */
+declare var WebSocket: {
+  readonly prototype: WebSocket;
+  new (url: string | URL, protocols?: string | string[]): WebSocket;
+  readonly CLOSED: number;
+  readonly CLOSING: number;
+  readonly CONNECTING: number;
+  readonly OPEN: number;
+};
+
+/** @category WebSockets */
+type BinaryType = "arraybuffer" | "blob";
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.d.ts:25:13
+   | 
+25 | declare var CloseEvent: {
+   |             ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+   --> /mod.d.ts:116:13
+    | 
+116 | declare var WebSocket: {
+    |             ^
+
+# output.txt
+Defined in file:///mod.d.ts:25:13
+
+var CloseEvent: { readonly prototype: CloseEvent; }
+
+  @category
+      WebSockets
+
+
+Defined in file:///mod.d.ts:116:13
+
+var WebSocket: { readonly prototype: WebSocket; readonly CLOSED: number; readonly CLOSING: number; readonly CONNECTING: number; readonly OPEN: number; }
+
+  @category
+      WebSockets
+
+
+Defined in file:///mod.d.ts:9:1
+
+private interface CloseEvent extends Event
+
+  @category
+      WebSockets
+
+
+  readonly code: number
+    Returns the WebSocket connection close code provided by the server.
+  readonly reason: string
+    Returns the WebSocket connection close reason provided by the server.
+  readonly wasClean: boolean
+    Returns true if the connection closed cleanly; false otherwise.
+
+Defined in file:///mod.d.ts:2:1
+
+private interface CloseEventInit extends EventInit
+
+  @category
+      WebSockets
+
+
+  code?: number
+  reason?: string
+  wasClean?: boolean
+
+Defined in file:///mod.d.ts:48:1
+
+private interface WebSocket extends EventTarget
+  Provides the API for creating and managing a WebSocket connection to a
+  server, as well as for sending and receiving data on the connection.
+  
+  If you are looking to create a WebSocket server, please take a look at
+  `Deno.upgradeWebSocket()`.
+
+  @tags allow-net
+  @category
+      WebSockets
+
+
+  binaryType: BinaryType
+    Returns a string that indicates how binary data from the WebSocket object is exposed to scripts:
+    
+    Can be set, to change how binary data is returned. The default is "blob".
+  readonly bufferedAmount: number
+    Returns the number of bytes of application data (UTF-8 text and binary data) that have been queued using send() but not yet been transmitted to the network.
+    
+    If the WebSocket connection is closed, this attribute's value will only increase with each call to the send() method. (The number does not reset to zero once the connection closes.)
+  readonly extensions: string
+    Returns the extensions selected by the server, if any.
+  onclose: ((this: WebSocket, ev: CloseEvent) => any) | null
+  onerror: ((this: WebSocket, ev: Event | ErrorEvent) => any) | null
+  onmessage: ((this: WebSocket, ev: MessageEvent) => any) | null
+  onopen: ((this: WebSocket, ev: Event) => any) | null
+  readonly protocol: string
+    Returns the subprotocol selected by the server, if any. It can be used in conjunction with the array form of the constructor's second argument to perform subprotocol negotiation.
+  readonly readyState: number
+    Returns the state of the WebSocket object's connection. It can have the values described below.
+  readonly url: string
+    Returns the URL that was used to establish the WebSocket connection.
+  readonly CLOSED: number
+  readonly CLOSING: number
+  readonly CONNECTING: number
+  readonly OPEN: number
+  close(code?: number, reason?: string): void
+    Closes the WebSocket connection, optionally using code as the WebSocket connection close code and reason as the WebSocket connection close reason.
+  send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void
+    Transmits data using the WebSocket connection. data can be a string, a Blob, an ArrayBuffer, or an ArrayBufferView.
+  addEventListener(type: K, listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void
+  removeEventListener(type: K, listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any, options?: boolean | EventListenerOptions): void
+  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void
+
+Defined in file:///mod.d.ts:31:1
+
+private interface WebSocketEventMap
+
+  @category
+      WebSockets
+
+
+  close: CloseEvent
+  error: Event
+  message: MessageEvent
+  open: Event
+
+Defined in file:///mod.d.ts:126:1
+
+private type BinaryType = "arraybuffer" | "blob"
+
+  @category
+      WebSockets
+
+
+
+# output.json
+[
+  {
+    "name": "CloseEventInit",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 2,
+      "col": 0,
+      "byteIndex": 28
+    },
+    "declarationKind": "private",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [
+        {
+          "repr": "EventInit",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "EventInit"
+          }
+        }
+      ],
+      "constructors": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "code",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 3,
+            "col": 2,
+            "byteIndex": 75
+          },
+          "params": [],
+          "computed": false,
+          "optional": true,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "reason",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 4,
+            "col": 2,
+            "byteIndex": 92
+          },
+          "params": [],
+          "computed": false,
+          "optional": true,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "wasClean",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 5,
+            "col": 2,
+            "byteIndex": 111
+          },
+          "params": [],
+          "computed": false,
+          "optional": true,
+          "tsType": {
+            "repr": "boolean",
+            "kind": "keyword",
+            "keyword": "boolean"
+          },
+          "typeParams": []
+        }
+      ],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "name": "CloseEvent",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 9,
+      "col": 0,
+      "byteIndex": 162
+    },
+    "declarationKind": "private",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [
+        {
+          "repr": "Event",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "Event"
+          }
+        }
+      ],
+      "constructors": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "code",
+          "jsDoc": {
+            "doc": "Returns the WebSocket connection close code provided by the server."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 13,
+            "col": 2,
+            "byteIndex": 286
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "reason",
+          "jsDoc": {
+            "doc": "Returns the WebSocket connection close reason provided by the server."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 17,
+            "col": 2,
+            "byteIndex": 398
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "wasClean",
+          "jsDoc": {
+            "doc": "Returns true if the connection closed cleanly; false otherwise."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 21,
+            "col": 2,
+            "byteIndex": 506
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "boolean",
+            "kind": "keyword",
+            "keyword": "boolean"
+          },
+          "typeParams": []
+        }
+      ],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "name": "CloseEvent",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 25,
+      "col": 12,
+      "byteIndex": 577
+    },
+    "declarationKind": "declare",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "constructors": [
+            {
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "type",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                },
+                {
+                  "kind": "identifier",
+                  "name": "eventInitDict",
+                  "optional": true,
+                  "tsType": {
+                    "repr": "CloseEventInit",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "CloseEventInit"
+                    }
+                  }
+                }
+              ],
+              "returnType": {
+                "repr": "CloseEvent",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "CloseEvent"
+                }
+              },
+              "typeParams": [],
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 27,
+                "col": 2,
+                "byteIndex": 627
+              }
+            }
+          ],
+          "methods": [],
+          "properties": [
+            {
+              "name": "prototype",
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 26,
+                "col": 2,
+                "byteIndex": 593
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "CloseEvent",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "CloseEvent"
+                }
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": []
+        }
+      },
+      "kind": "var"
+    }
+  },
+  {
+    "name": "WebSocketEventMap",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 31,
+      "col": 0,
+      "byteIndex": 723
+    },
+    "declarationKind": "private",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [],
+      "constructors": [],
+      "methods": [],
+      "properties": [
+        {
+          "name": "close",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 32,
+            "col": 2,
+            "byteIndex": 755
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "CloseEvent",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "CloseEvent"
+            }
+          },
+          "typeParams": []
+        },
+        {
+          "name": "error",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 33,
+            "col": 2,
+            "byteIndex": 776
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "Event",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Event"
+            }
+          },
+          "typeParams": []
+        },
+        {
+          "name": "message",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 34,
+            "col": 2,
+            "byteIndex": 792
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "MessageEvent",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "MessageEvent"
+            }
+          },
+          "typeParams": []
+        },
+        {
+          "name": "open",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 35,
+            "col": 2,
+            "byteIndex": 817
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "Event",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "Event"
+            }
+          },
+          "typeParams": []
+        }
+      ],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "name": "WebSocket",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 48,
+      "col": 0,
+      "byteIndex": 1140
+    },
+    "declarationKind": "private",
+    "jsDoc": {
+      "doc": "Provides the API for creating and managing a WebSocket connection to a\nserver, as well as for sending and receiving data on the connection.\n\nIf you are looking to create a WebSocket server, please take a look at\n`Deno.upgradeWebSocket()`.\n",
+      "tags": [
+        {
+          "kind": "tags",
+          "tags": [
+            "allow-net"
+          ]
+        },
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [
+        {
+          "repr": "EventTarget",
+          "kind": "typeRef",
+          "typeRef": {
+            "typeParams": null,
+            "typeName": "EventTarget"
+          }
+        }
+      ],
+      "constructors": [],
+      "methods": [
+        {
+          "name": "close",
+          "jsDoc": {
+            "doc": "Closes the WebSocket connection, optionally using code as the WebSocket connection close code and reason as the WebSocket connection close reason."
+          },
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 84,
+            "col": 2,
+            "byteIndex": 2809
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "code",
+              "optional": true,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "reason",
+              "optional": true,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "optional": false,
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "send",
+          "jsDoc": {
+            "doc": "Transmits data using the WebSocket connection. data can be a string, a Blob, an ArrayBuffer, or an ArrayBufferView."
+          },
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 88,
+            "col": 2,
+            "byteIndex": 2989
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "data",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  {
+                    "repr": "ArrayBufferLike",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "ArrayBufferLike"
+                    }
+                  },
+                  {
+                    "repr": "Blob",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Blob"
+                    }
+                  },
+                  {
+                    "repr": "ArrayBufferView",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "ArrayBufferView"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "optional": false,
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "addEventListener",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 93,
+            "col": 2,
+            "byteIndex": 3171
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "type",
+              "optional": false,
+              "tsType": {
+                "repr": "K",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "K"
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "listener",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "fnOrConstructor",
+                "fnOrConstructor": {
+                  "constructor": false,
+                  "tsType": {
+                    "repr": "any",
+                    "kind": "keyword",
+                    "keyword": "any"
+                  },
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "this",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "WebSocket",
+                        "kind": "typeRef",
+                        "typeRef": {
+                          "typeParams": null,
+                          "typeName": "WebSocket"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "identifier",
+                      "name": "ev",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "",
+                        "kind": "indexedAccess",
+                        "indexedAccess": {
+                          "readonly": false,
+                          "objType": {
+                            "repr": "WebSocketEventMap",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "WebSocketEventMap"
+                            }
+                          },
+                          "indexType": {
+                            "repr": "K",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "K"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "typeParams": []
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "options",
+              "optional": true,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "keyword": "boolean"
+                  },
+                  {
+                    "repr": "AddEventListenerOptions",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "optional": false,
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "typeParams": [
+            {
+              "name": "K",
+              "constraint": {
+                "repr": "",
+                "kind": "typeOperator",
+                "typeOperator": {
+                  "operator": "keyof",
+                  "tsType": {
+                    "repr": "WebSocketEventMap",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "WebSocketEventMap"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "addEventListener",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 98,
+            "col": 2,
+            "byteIndex": 3365
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "type",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "listener",
+              "optional": false,
+              "tsType": {
+                "repr": "EventListenerOrEventListenerObject",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "options",
+              "optional": true,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "keyword": "boolean"
+                  },
+                  {
+                    "repr": "AddEventListenerOptions",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "optional": false,
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "removeEventListener",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 103,
+            "col": 2,
+            "byteIndex": 3513
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "type",
+              "optional": false,
+              "tsType": {
+                "repr": "K",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "K"
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "listener",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "fnOrConstructor",
+                "fnOrConstructor": {
+                  "constructor": false,
+                  "tsType": {
+                    "repr": "any",
+                    "kind": "keyword",
+                    "keyword": "any"
+                  },
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "this",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "WebSocket",
+                        "kind": "typeRef",
+                        "typeRef": {
+                          "typeParams": null,
+                          "typeName": "WebSocket"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "identifier",
+                      "name": "ev",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "",
+                        "kind": "indexedAccess",
+                        "indexedAccess": {
+                          "readonly": false,
+                          "objType": {
+                            "repr": "WebSocketEventMap",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "WebSocketEventMap"
+                            }
+                          },
+                          "indexType": {
+                            "repr": "K",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "K"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "typeParams": []
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "options",
+              "optional": true,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "keyword": "boolean"
+                  },
+                  {
+                    "repr": "EventListenerOptions",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "optional": false,
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "typeParams": [
+            {
+              "name": "K",
+              "constraint": {
+                "repr": "",
+                "kind": "typeOperator",
+                "typeOperator": {
+                  "operator": "keyof",
+                  "tsType": {
+                    "repr": "WebSocketEventMap",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "WebSocketEventMap"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "removeEventListener",
+          "kind": "method",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 108,
+            "col": 2,
+            "byteIndex": 3707
+          },
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "type",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "listener",
+              "optional": false,
+              "tsType": {
+                "repr": "EventListenerOrEventListenerObject",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "options",
+              "optional": true,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "keyword": "boolean"
+                  },
+                  {
+                    "repr": "EventListenerOptions",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "optional": false,
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "typeParams": []
+        }
+      ],
+      "properties": [
+        {
+          "name": "binaryType",
+          "jsDoc": {
+            "doc": "Returns a string that indicates how binary data from the WebSocket object is exposed to scripts:\n\nCan be set, to change how binary data is returned. The default is \"blob\"."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 54,
+            "col": 2,
+            "byteIndex": 1382
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "BinaryType",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "BinaryType"
+            }
+          },
+          "typeParams": []
+        },
+        {
+          "name": "bufferedAmount",
+          "jsDoc": {
+            "doc": "Returns the number of bytes of application data (UTF-8 text and binary data) that have been queued using send() but not yet been transmitted to the network.\n\nIf the WebSocket connection is closed, this attribute's value will only increase with each call to the send() method. (The number does not reset to zero once the connection closes.)"
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 60,
+            "col": 2,
+            "byteIndex": 1774
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "extensions",
+          "jsDoc": {
+            "doc": "Returns the extensions selected by the server, if any."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 64,
+            "col": 2,
+            "byteIndex": 1881
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "onclose",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 65,
+            "col": 2,
+            "byteIndex": 1912
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "",
+                "kind": "parenthesized",
+                "parenthesized": {
+                  "repr": "",
+                  "kind": "fnOrConstructor",
+                  "fnOrConstructor": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "any",
+                      "kind": "keyword",
+                      "keyword": "any"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "this",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "WebSocket",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "WebSocket"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "identifier",
+                        "name": "ev",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "CloseEvent",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "CloseEvent"
+                          }
+                        }
+                      }
+                    ],
+                    "typeParams": []
+                  }
+                }
+              },
+              {
+                "repr": "null",
+                "kind": "keyword",
+                "keyword": "null"
+              }
+            ]
+          },
+          "typeParams": []
+        },
+        {
+          "name": "onerror",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 66,
+            "col": 2,
+            "byteIndex": 1974
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "",
+                "kind": "parenthesized",
+                "parenthesized": {
+                  "repr": "",
+                  "kind": "fnOrConstructor",
+                  "fnOrConstructor": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "any",
+                      "kind": "keyword",
+                      "keyword": "any"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "this",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "WebSocket",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "WebSocket"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "identifier",
+                        "name": "ev",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "",
+                          "kind": "union",
+                          "union": [
+                            {
+                              "repr": "Event",
+                              "kind": "typeRef",
+                              "typeRef": {
+                                "typeParams": null,
+                                "typeName": "Event"
+                              }
+                            },
+                            {
+                              "repr": "ErrorEvent",
+                              "kind": "typeRef",
+                              "typeRef": {
+                                "typeParams": null,
+                                "typeName": "ErrorEvent"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "typeParams": []
+                  }
+                }
+              },
+              {
+                "repr": "null",
+                "kind": "keyword",
+                "keyword": "null"
+              }
+            ]
+          },
+          "typeParams": []
+        },
+        {
+          "name": "onmessage",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 67,
+            "col": 2,
+            "byteIndex": 2044
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "",
+                "kind": "parenthesized",
+                "parenthesized": {
+                  "repr": "",
+                  "kind": "fnOrConstructor",
+                  "fnOrConstructor": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "any",
+                      "kind": "keyword",
+                      "keyword": "any"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "this",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "WebSocket",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "WebSocket"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "identifier",
+                        "name": "ev",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "MessageEvent",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "MessageEvent"
+                          }
+                        }
+                      }
+                    ],
+                    "typeParams": []
+                  }
+                }
+              },
+              {
+                "repr": "null",
+                "kind": "keyword",
+                "keyword": "null"
+              }
+            ]
+          },
+          "typeParams": []
+        },
+        {
+          "name": "onopen",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 68,
+            "col": 2,
+            "byteIndex": 2110
+          },
+          "params": [],
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "",
+                "kind": "parenthesized",
+                "parenthesized": {
+                  "repr": "",
+                  "kind": "fnOrConstructor",
+                  "fnOrConstructor": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "any",
+                      "kind": "keyword",
+                      "keyword": "any"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "this",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "WebSocket",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "WebSocket"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "identifier",
+                        "name": "ev",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "Event",
+                          "kind": "typeRef",
+                          "typeRef": {
+                            "typeParams": null,
+                            "typeName": "Event"
+                          }
+                        }
+                      }
+                    ],
+                    "typeParams": []
+                  }
+                }
+              },
+              {
+                "repr": "null",
+                "kind": "keyword",
+                "keyword": "null"
+              }
+            ]
+          },
+          "typeParams": []
+        },
+        {
+          "name": "protocol",
+          "jsDoc": {
+            "doc": "Returns the subprotocol selected by the server, if any. It can be used in conjunction with the array form of the constructor's second argument to perform subprotocol negotiation."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 72,
+            "col": 2,
+            "byteIndex": 2362
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "readyState",
+          "jsDoc": {
+            "doc": "Returns the state of the WebSocket object's connection. It can have the values described below."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 76,
+            "col": 2,
+            "byteIndex": 2504
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "url",
+          "jsDoc": {
+            "doc": "Returns the URL that was used to establish the WebSocket connection."
+          },
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 80,
+            "col": 2,
+            "byteIndex": 2621
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "CLOSED",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 89,
+            "col": 2,
+            "byteIndex": 3060
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "CLOSING",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 90,
+            "col": 2,
+            "byteIndex": 3087
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "CONNECTING",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 91,
+            "col": 2,
+            "byteIndex": 3115
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        },
+        {
+          "name": "OPEN",
+          "location": {
+            "filename": "file:///mod.d.ts",
+            "line": 92,
+            "col": 2,
+            "byteIndex": 3146
+          },
+          "params": [],
+          "readonly": true,
+          "computed": false,
+          "optional": false,
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "typeParams": []
+        }
+      ],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "name": "WebSocket",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 116,
+      "col": 12,
+      "byteIndex": 3896
+    },
+    "declarationKind": "declare",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "variable",
+    "variableDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "typeLiteral",
+        "typeLiteral": {
+          "constructors": [
+            {
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "url",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "union",
+                    "union": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      },
+                      {
+                        "repr": "URL",
+                        "kind": "typeRef",
+                        "typeRef": {
+                          "typeParams": null,
+                          "typeName": "URL"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "identifier",
+                  "name": "protocols",
+                  "optional": true,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "union",
+                    "union": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      },
+                      {
+                        "repr": "",
+                        "kind": "array",
+                        "array": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "returnType": {
+                "repr": "WebSocket",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "WebSocket"
+                }
+              },
+              "typeParams": [],
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 118,
+                "col": 2,
+                "byteIndex": 3944
+              }
+            }
+          ],
+          "methods": [],
+          "properties": [
+            {
+              "name": "prototype",
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 117,
+                "col": 2,
+                "byteIndex": 3911
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "WebSocket",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "WebSocket"
+                }
+              },
+              "typeParams": []
+            },
+            {
+              "name": "CLOSED",
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 119,
+                "col": 2,
+                "byteIndex": 4013
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "CLOSING",
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 120,
+                "col": 2,
+                "byteIndex": 4040
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "CONNECTING",
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 121,
+                "col": 2,
+                "byteIndex": 4068
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "OPEN",
+              "location": {
+                "filename": "file:///mod.d.ts",
+                "line": 122,
+                "col": 2,
+                "byteIndex": 4099
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": []
+        }
+      },
+      "kind": "var"
+    }
+  },
+  {
+    "name": "BinaryType",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.d.ts",
+      "line": 126,
+      "col": 0,
+      "byteIndex": 4154
+    },
+    "declarationKind": "private",
+    "jsDoc": {
+      "tags": [
+        {
+          "kind": "category",
+          "doc": "WebSockets"
+        }
+      ]
+    },
+    "kind": "typeAlias",
+    "typeAliasDef": {
+      "tsType": {
+        "repr": "",
+        "kind": "union",
+        "union": [
+          {
+            "repr": "arraybuffer",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "arraybuffer"
+            }
+          },
+          {
+            "repr": "blob",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "blob"
+            }
+          }
+        ]
+      },
+      "typeParams": []
+    }
+  }
+]
