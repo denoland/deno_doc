@@ -41,7 +41,7 @@ export class Foo<T> {
 
   static bar: "string";
   protected protectedProperty = false;
-  readonly readonlyProperty= false;
+  readonly readonlyProperty = false;
   foo?: A = A;
   '"><img src=x onerror=alert(1)>' = 0;
   [Symbol.iterator]() {}
@@ -119,13 +119,13 @@ export interface Hello<T extends string, E extends T, R = number> {
    */
   readonly test?: "test";
   ["ab"]: string;
-  new<T extends string, E extends T, R = number>(): Hello<T, E, R>;
+  new <T extends string, E extends T, R = number>(): Hello<T, E, R>;
   optionalMethod?(): [string?];
   ["computedMethod"]?(a: T extends () => infer R ? R : any): void;
 
   x: {
     [foo: string]: number;
-  }
+  };
 }
 
 export interface EmptyInterface {}
@@ -192,7 +192,6 @@ export function functionWithOptionalParameters(
   [qaz]?: string[],
   { qux }?: { qux: number },
 ) {
-
 }
 
 export enum Enum {
