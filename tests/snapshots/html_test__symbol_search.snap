@@ -26,6 +26,62 @@ expression: search_index
           "title": "Class"
         }
       ],
+      "name": "AbstractClass",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "AbstractClass.prototype.method",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.prototype.method.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "AbstractClass.prototype.getter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.prototype.getter.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "AbstractClass.prototype.foo",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.prototype.foo.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        }
+      ],
       "name": "B",
       "file": ".",
       "doc": "",
@@ -63,6 +119,20 @@ expression: search_index
     {
       "kind": [
         {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Baz.bar",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Baz.bar.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
           "char": "p",
           "kind": "Property",
           "title": "Property"
@@ -72,6 +142,48 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/Baz.foo.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "I",
+          "kind": "Interface",
+          "title": "Interface"
+        }
+      ],
+      "name": "EmptyInterface",
+      "file": ".",
+      "doc": "",
+      "url": "././~/EmptyInterface.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "E",
+          "kind": "Enum",
+          "title": "Enum"
+        }
+      ],
+      "name": "Enum",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Enum.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "E",
+          "kind": "Enum",
+          "title": "Enum"
+        }
+      ],
+      "name": "Enum2",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Enum2.html",
       "deprecated": false
     },
     {
@@ -96,10 +208,150 @@ expression: search_index
           "title": "Method"
         }
       ],
+      "name": "Foo.prototype.[Symbol.iterator]",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.[Symbol.iterator].html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.getter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.getter.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.setter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.setter.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.getterAndSetter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.getterAndSetter.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.getterAndSetter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.getterAndSetter.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.staticSetter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.staticSetter.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
       "name": "Foo.prototype.test",
       "file": ".",
       "doc": "",
       "url": "././~/Foo.prototype.test.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.staticMethod",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.staticMethod.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.methodWithOverloads",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.methodWithOverloads.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.methodWithOverloads",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.methodWithOverloads.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Foo.prototype.methodWithOverloads",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.methodWithOverloads.html",
       "deprecated": false
     },
     {
@@ -114,6 +366,34 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/Foo.bar.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "Foo.prototype.protectedProperty",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.protectedProperty.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "Foo.prototype.readonlyProperty",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Foo.prototype.readonlyProperty.html",
       "deprecated": false
     },
     {
@@ -154,7 +434,7 @@ expression: search_index
       ],
       "name": "Foobar",
       "file": ".",
-      "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs\n",
+      "doc": "```ts\n// This code block is ignored when getting the title of this doc\nconst foobar = new Foobar();\n```\n\nFoobar docs\n\n# heading\n\ncontent\n\n## sub heading\n",
       "url": "././~/Foobar.html",
       "deprecated": false
     },
@@ -175,6 +455,34 @@ expression: search_index
     {
       "kind": [
         {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Hello.optionalMethod",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Hello.optionalMethod.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Hello.computedMethod",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Hello.computedMethod.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
           "char": "p",
           "kind": "Property",
           "title": "Property"
@@ -184,6 +492,62 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/Hello.world.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "Hello.test",
+      "file": ".",
+      "doc": "Some docs",
+      "url": "././~/Hello.test.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "Hello.ab",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Hello.ab.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "Hello.x",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Hello.x.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "I",
+          "kind": "Interface",
+          "title": "Interface"
+        }
+      ],
+      "name": "InterfaceWithIndexSignature",
+      "file": ".",
+      "doc": "",
+      "url": "././~/InterfaceWithIndexSignature.html",
       "deprecated": false
     },
     {
@@ -222,6 +586,62 @@ expression: search_index
     {
       "kind": [
         {
+          "char": "T",
+          "kind": "TypeAlias",
+          "title": "Type Alias"
+        }
+      ],
+      "name": "TypeAlias",
+      "file": ".",
+      "doc": "",
+      "url": "././~/TypeAlias.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "anotherVariable",
+      "file": ".",
+      "doc": "",
+      "url": "././~/anotherVariable.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "anotherVariable.bar",
+      "file": ".",
+      "doc": "",
+      "url": "././~/anotherVariable.bar.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "anotherVariable.foo",
+      "file": ".",
+      "doc": "",
+      "url": "././~/anotherVariable.foo.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
           "char": "f",
           "kind": "Function",
           "title": "Function"
@@ -253,6 +673,20 @@ expression: search_index
           "char": "f",
           "kind": "Function",
           "title": "Function"
+        }
+      ],
+      "name": "functionWithOptionalParameters",
+      "file": ".",
+      "doc": "",
+      "url": "././~/functionWithOptionalParameters.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
         },
         {
           "char": "f",
@@ -267,8 +701,22 @@ expression: search_index
       ],
       "name": "qaz",
       "file": ".",
-      "doc": "",
+      "doc": "content\n",
       "url": "././~/qaz.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "someVariable",
+      "file": ".",
+      "doc": "",
+      "url": "././~/someVariable.html",
       "deprecated": false
     },
     {

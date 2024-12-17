@@ -225,7 +225,7 @@ pub(crate) fn render_methods(
     .iter()
     .enumerate()
     .map(|(i, method)| {
-      let id = name_to_id("call_signature", &format!("{}_{i}", method.name));
+      let id = name_to_id("methods", &format!("{}_{i}", method.name));
 
       let name = if method.name == "new" {
         "<span>new</span>".to_string()
