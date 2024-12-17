@@ -29,6 +29,7 @@ anyhow = "1.0.86"
 cfg-if = "1.0.0"
 deno_ast.workspace = true
 deno_graph.workspace = true
+deno_terminal = "0.2.0"
 indexmap = "2.3.0"
 import_map.workspace = true
 lazy_static = "1.5.0"

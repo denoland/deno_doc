@@ -549,6 +549,7 @@ dependencies = [
  "deno_ast",
  "deno_graph",
  "deno_path_util",
+ "deno_terminal 0.2.0",
  "file_test_runner",
  "futures",
  "handlebars",

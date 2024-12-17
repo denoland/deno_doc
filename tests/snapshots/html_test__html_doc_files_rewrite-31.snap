@@ -5,21 +5,21 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>x - c - documentation</title>
+  <title>Foo.prototype.setter - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="doc-current-file" content="c">
-  <link rel="stylesheet" href="..&#x2F;..&#x2F;styles.css">
-  <link rel="stylesheet" href="..&#x2F;..&#x2F;page.css">
-  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;..&#x2F;reset.css"><script src="..&#x2F;..&#x2F;search_index.js" defer></script>
-    <script src="..&#x2F;..&#x2F;script.js" defer></script>
-    <script src="..&#x2F;..&#x2F;fuse.js" defer></script>
-    <script src="..&#x2F;..&#x2F;search.js" defer></script></head>
+  <meta name="doc-current-file" content=".">
+  <link rel="stylesheet" href="..&#x2F;styles.css">
+  <link rel="stylesheet" href="..&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;reset.css"><script src="..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;script.js" defer></script>
+    <script src="..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
 <div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -27,15 +27,7 @@ expression: files.get(file_name).unwrap()
 	xmlns="http://www.w3.org/2000/svg">
 	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
 </svg>
-</span><li><a href="..&#x2F;..&#x2F;.&#x2F;c&#x2F;index.html" class="contextLink">c</a></li><span class="text-[#0F172A]"><svg
-	width="16"
-	height="16"
-	viewBox="0 0 16 16"
-	fill="none"
-	xmlns="http://www.w3.org/2000/svg">
-	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
-</svg>
-</span><ul><li>x</li></ul></ul>
+</span><ul><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><span>.</span><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><span>.</span><li>setter</li></ul></ul>
 </div>
 
       <input
@@ -45,13 +37,13 @@ expression: files.get(file_name).unwrap()
         class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_x"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo.prototype.setter"><article>
       <div>
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Function">function</span>&nbsp;<span class="font-bold">x</span>
-          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_x_0">
-      <code class="anchorable text-base break-words"><a href="#function_x_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+            <span class="text-Method">method</span>&nbsp;<span class="font-bold">Foo.prototype.setter</span>
+          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_Foo_prototype_setter_0">
+      <code class="anchorable text-base break-words"><a href="#function_Foo_prototype_setter_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -73,7 +65,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">x</span><span class="font-medium">(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span> </span>
+<span class="font-bold">Foo.prototype.setter</span><span class="font-medium">(<span><span>s<span>: <span>string</span></span></span></span>)<span>: <span>void</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section" id="parameters">
   <div>
 	  <h2 class="anchorable mb-1"><a href="#parameters" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
@@ -98,11 +90,10 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="function_x_0_parameters__n">
+Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="function_foo_prototype_setter_0_parameters_s">
 
   <div class="docEntryHeader">
-    <div><div class="space-x-1 mb-1"><div class="text-optional border border-optional/50 bg-optional/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none text-sm py-1 px-2">optional</div>
-</div><code><a href="#function_x_0_parameters__n" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#function_foo_prototype_setter_0_parameters_s" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -124,7 +115,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">_n</span><span class="font-medium text-stone-500"><span>: <span>number</span></span><span><span class="font-normal"> = </span>0</span></span>
+<span class="font-bold font-lg">s</span><span class="font-medium text-stone-500"><span>: <span>string</span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -152,7 +143,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_x_0_return">
+Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_Foo_prototype_setter_0_return">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500"><span>void</span></span>
@@ -165,8 +156,8 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { x } from &quot;c&quot;;
-</code><button class="context_button" data-copy="import { x } from &quot;c&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { Foo } from &quot;.&quot;;
+</code><button class="context_button" data-copy="import { Foo } from &quot;.&quot;;
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
@@ -178,7 +169,7 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_x_0_parameters__n" title="_n">_n</a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_foo_prototype_setter_0_parameters_s" title="s">s</a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li></ul></nav></div>
   </div></div>
 </div>
 </div>

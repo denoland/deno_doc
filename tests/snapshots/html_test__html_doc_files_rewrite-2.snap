@@ -42,6 +42,10 @@ expression: files.get(file_name).unwrap()
 <span class="hover:bg-Function/15">externalFunction</span>
                 </a>
               </li><li>
+                <a href=".&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15">AbstractClass</span>
+                </a>
+              </li><li>
                 <a href=".&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15">Bar</span>
                 </a>
@@ -50,15 +54,11 @@ expression: files.get(file_name).unwrap()
 <span class="hover:bg-TypeAlias/15">Baz</span>
                 </a>
               </li><li>
-                <a href=".&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Foo</span>
-                </a>
-              </li><li>
-                <a href=".&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Foobar</span>
+                <a href=".&#x2F;.&#x2F;~&#x2F;EmptyInterface.html" title="EmptyInterface"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+<span class="hover:bg-Interface/15">EmptyInterface</span>
                 </a>
               </li></ul><a class="flex items-center gap-0.5" href=".&#x2F;all_symbols.html">
-              <span class="leading-none">view all 17 symbols</span><svg
+              <span class="leading-none">view all 26 symbols</span><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"

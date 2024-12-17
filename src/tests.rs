@@ -482,7 +482,7 @@ async fn deep_reexports() {
 
   assert!(DocPrinter::new(&entries, false, false)
     .to_string()
-    .contains("const foo"))
+    .contains("const foo"));
 }
 
 #[tokio::test]

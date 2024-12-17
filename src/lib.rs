@@ -15,7 +15,6 @@ extern crate lazy_static;
 extern crate serde_json;
 
 pub mod class;
-mod colors;
 mod decorators;
 mod diagnostics;
 mod display;

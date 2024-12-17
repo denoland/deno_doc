@@ -1,6 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::colors;
 use crate::node::Location;
 use crate::util::swc::get_location;
 
@@ -8,6 +7,7 @@ use deno_ast::swc::ast::Decorator;
 use deno_ast::swc::ast::Expr;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_terminal::colors;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
