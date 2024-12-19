@@ -1,6 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::colors;
 use crate::display::display_computed;
 use crate::display::display_optional;
 use crate::display::display_readonly;
@@ -26,6 +25,7 @@ use crate::variable::VariableDef;
 use deno_ast::swc::ast::*;
 use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_terminal::colors;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;

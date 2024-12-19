@@ -379,7 +379,7 @@ fn render_class_method(
     tags.insert(Tag::Abstract);
   }
   if method.optional {
-    tags.insert(Tag::Abstract);
+    tags.insert(Tag::Optional);
   }
 
   Some(DocEntryCtx::new(
