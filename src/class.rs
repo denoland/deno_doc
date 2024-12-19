@@ -32,7 +32,7 @@ use crate::ParamDef;
 
 cfg_if! {
   if #[cfg(feature = "rust")] {
-    use crate::colors;
+    use deno_terminal::colors;
     use crate::display::display_abstract;
     use crate::display::display_accessibility;
     use crate::display::display_async;

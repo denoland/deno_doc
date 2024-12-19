@@ -1,5 +1,5 @@
 ---
 source: tests/html_test.rs
-expression: files.get(file_name).unwrap()
+expression: files.get(name).unwrap()
 ---
-<meta http-equiv="refresh" content="0; url=..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html">
+<meta http-equiv="refresh" content="0; url=..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html">

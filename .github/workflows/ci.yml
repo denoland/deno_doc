@@ -71,6 +71,22 @@ jobs:
           cargo test --locked --all-targets
           deno test --allow-read --allow-net --allow-env --allow-write
 
+      - name: Install cargo-llvm-cov
+        if: contains(matrix.os, 'ubuntu')
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Generate code coverage
+        if: contains(matrix.os, 'ubuntu')
+        run: cargo llvm-cov --lcov --output-path lcov.info
+
+      - name: Upload coverage to Codecov
+        if: contains(matrix.os, 'ubuntu')
+        uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Publish
         if: |
           contains(matrix.os, 'ubuntu') &&

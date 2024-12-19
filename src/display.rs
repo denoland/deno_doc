@@ -1,5 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-use crate::colors;
+
+use deno_terminal::colors;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result;

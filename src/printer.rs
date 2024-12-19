@@ -9,11 +9,18 @@ use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::DocNodeKind;
-use crate::{colors, Location};
+use crate::Location;
+
+use deno_terminal::colors;
+use deno_terminal::colors::Style;
 
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
+
+fn italic_cyan<'a, S: Display + 'a>(s: S) -> Style<Style<S>> {
+  colors::italic(colors::cyan(s))
+}
 
 pub struct DocPrinter<'a> {
   doc_nodes: &'a [DocNode],
@@ -44,9 +51,7 @@ impl<'a> DocPrinter<'a> {
     doc_nodes: &[DocNode],
     indent: i64,
   ) -> FmtResult {
-    if self.use_color {
-      colors::enable_color();
-    }
+    colors::set_use_color(self.use_color);
 
     let mut sorted = Vec::from(doc_nodes);
     sorted.sort_unstable_by(|a, b| {
@@ -101,7 +106,7 @@ impl<'a> DocPrinter<'a> {
     }
 
     if self.use_color {
-      colors::disable_color();
+      colors::set_use_color(false);
     }
 
     Ok(())
@@ -231,7 +236,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("default"),
-          colors::italic_cyan(value)
+          italic_cyan(value),
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -245,7 +250,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("enum"),
-          colors::italic_cyan(type_ref)
+          italic_cyan(type_ref),
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -262,7 +267,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("extends"),
-          colors::italic_cyan(type_ref)
+          italic_cyan(type_ref)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -285,12 +290,12 @@ impl<'a> DocPrinter<'a> {
       } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("param"))?;
         if let Some(type_ref) = type_ref {
-          write!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+          write!(w, " {{{}}}", italic_cyan(type_ref))?;
         }
         if *optional {
           write!(w, " [?]")?;
         } else if let Some(default) = default {
-          write!(w, " [{}]", colors::italic_cyan(default))?;
+          write!(w, " [{}]", italic_cyan(default))?;
         }
         writeln!(w, " {}", colors::bold(name))?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
@@ -311,7 +316,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}} {}",
           Indent(indent),
           colors::magenta("property"),
-          colors::italic_cyan(type_ref),
+          italic_cyan(type_ref),
           colors::bold(name)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
@@ -325,7 +330,7 @@ impl<'a> DocPrinter<'a> {
       JsDocTag::Return { type_ref, doc } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
         if let Some(type_ref) = type_ref {
-          writeln!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+          writeln!(w, " {{{}}}", italic_cyan(type_ref))?;
         } else {
           writeln!(w)?;
         }
@@ -356,7 +361,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("this"),
-          colors::italic_cyan(type_ref)
+          italic_cyan(type_ref)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -370,7 +375,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}} {}",
           Indent(indent),
           colors::magenta("typedef"),
-          colors::italic_cyan(type_ref),
+          italic_cyan(type_ref),
           colors::bold(name)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
@@ -381,7 +386,7 @@ impl<'a> DocPrinter<'a> {
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("typeref"),
-          colors::italic_cyan(type_ref)
+          italic_cyan(type_ref)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -407,7 +412,7 @@ impl<'a> DocPrinter<'a> {
       JsDocTag::Throws { type_ref, doc } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
         if let Some(type_ref) = type_ref {
-          writeln!(w, " {{{}}}", colors::italic_cyan(type_ref))?;
+          writeln!(w, " {{{}}}", italic_cyan(type_ref))?;
         } else {
           writeln!(w)?;
         }
