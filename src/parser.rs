@@ -292,7 +292,7 @@ impl<'a> DocParser<'a> {
         let module_info = self.get_module_info(module.specifier())?;
         let exports = module_info.exports(&self.root_symbol);
         if name_path.is_empty() {
-          return Ok(None);
+          return Ok(Some(vec![]));
         }
         let root_name = name_path.remove(0);
         let Some((mut export_name, export)) = exports
@@ -300,7 +300,7 @@ impl<'a> DocParser<'a> {
           .iter()
           .find(|(name, _)| &&root_name == name)
         else {
-          return Ok(None);
+          return Ok(Some(vec![]));
         };
 
         let export = export.as_resolved_export();
