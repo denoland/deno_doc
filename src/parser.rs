@@ -291,12 +291,17 @@ impl<'a> DocParser<'a> {
       Module::Js(_) | Module::Json(_) | Module::Wasm(_) => {
         let module_info = self.get_module_info(module.specifier())?;
         let exports = module_info.exports(&self.root_symbol);
+        if name_path.is_empty() {
+          return Ok(Some(vec![]));
+        }
         let root_name = name_path.remove(0);
-        let (mut export_name, export) = exports
+        let Some((mut export_name, export)) = exports
           .resolved
           .iter()
           .find(|(name, _)| &&root_name == name)
-          .unwrap();
+        else {
+          return Ok(Some(vec![]));
+        };
 
         let export = export.as_resolved_export();
         let mut export_symbol = export.module.symbol(export.symbol_id).unwrap();
@@ -393,7 +398,7 @@ impl<'a> DocParser<'a> {
 
         debug_assert!(false, "should not reach here");
 
-        Ok(None)
+        Ok(Some(vec![]))
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(None),
     }
