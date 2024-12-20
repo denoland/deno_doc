@@ -71,6 +71,20 @@ jobs:
           cargo test --locked --all-targets
           deno test --allow-read --allow-net --allow-env --allow-write
 
+      - name: Publish
+        if: |
+          contains(matrix.os, 'ubuntu') &&
+          github.repository == 'denoland/deno_doc' &&
+          startsWith(github.ref, 'refs/tags/')
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish
+
+      - name: Publish to JSR
+        if: contains(matrix.os, 'ubuntu')
+        run: cd js && deno run -A jsr:@david/publish-on-tag@0.1.3 --allow-dirty
+
       - name: Install cargo-llvm-cov
         if: contains(matrix.os, 'ubuntu')
         uses: taiki-e/install-action@cargo-llvm-cov
@@ -86,17 +100,3 @@ jobs:
           files: lcov.info
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Publish
-        if: |
-          contains(matrix.os, 'ubuntu') &&
-          github.repository == 'denoland/deno_doc' &&
-          startsWith(github.ref, 'refs/tags/')
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          cargo publish
-
-      - name: Publish to JSR
-        if: contains(matrix.os, 'ubuntu')
-        run: cd js && deno run -A jsr:@david/publish-on-tag@0.1.3 --allow-dirty
