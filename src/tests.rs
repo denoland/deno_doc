@@ -627,45 +627,45 @@ export namespace Deno {
   // Namespace
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "Deno".into());
+  assert_eq!(found[0].name.as_ref(), "Deno");
 
   // Overloaded functions
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.test");
   assert_eq!(found.len(), 3);
-  assert_eq!(found[0].name, "test".into());
-  assert_eq!(found[1].name, "test".into());
-  assert_eq!(found[2].name, "test".into());
+  assert_eq!(found[0].name.as_ref(), "test");
+  assert_eq!(found[1].name.as_ref(), "test");
+  assert_eq!(found[2].name.as_ref(), "test");
 
   // Nested namespace
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Inner.a");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "a".into());
+  assert_eq!(found[0].name.as_ref(), "a");
 
   // Interface property
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.rid");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "rid".into());
+  assert_eq!(found[0].name.as_ref(), "rid");
   assert_eq!(found[0].kind(), DocNodeKind::Variable);
 
   // Interface method
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.closeWrite");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "closeWrite".into());
+  assert_eq!(found[0].name.as_ref(), "closeWrite");
   assert_eq!(found[0].kind(), DocNodeKind::Function);
 
   // Class property
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Process.pid");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "pid".into());
+  assert_eq!(found[0].name.as_ref(), "pid");
   assert_eq!(found[0].kind(), DocNodeKind::Variable);
 
   // Class method
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Process.output");
   assert_eq!(found.len(), 1);
-  assert_eq!(found[0].name, "output".into());
+  assert_eq!(found[0].name.as_ref(), "output");
   assert_eq!(found[0].kind(), DocNodeKind::Function);
 
   // No match
