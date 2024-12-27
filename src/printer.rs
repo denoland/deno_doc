@@ -28,7 +28,7 @@ pub struct DocPrinter<'a> {
   private: bool,
 }
 
-impl<'a> DocPrinter<'a> {
+impl DocPrinter<'_> {
   pub fn new(
     doc_nodes: &[DocNode],
     use_color: bool,
@@ -766,7 +766,7 @@ impl<'a> DocPrinter<'a> {
   }
 }
 
-impl<'a> Display for DocPrinter<'a> {
+impl Display for DocPrinter<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     self.format(f)
   }

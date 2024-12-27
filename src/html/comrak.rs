@@ -94,7 +94,7 @@ pub fn strip(md: &str) -> String {
         output.write_all(literal.as_bytes()).unwrap();
       }
       NodeValue::LineBreak | NodeValue::SoftBreak => {
-        output.write_all(&[b' ']).unwrap()
+        output.write_all(b" ").unwrap()
       }
       _ => {
         for n in node.children() {
