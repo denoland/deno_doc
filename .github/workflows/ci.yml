@@ -93,10 +93,10 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: cargo llvm-cov --lcov --output-path lcov.info
 
-      - name: Upload coverage to Codecov
-        if: contains(matrix.os, 'ubuntu')
-        uses: codecov/codecov-action@v3
-        with:
-          files: lcov.info
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # - name: Upload coverage to Codecov
+      #   if: contains(matrix.os, 'ubuntu')
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     files: lcov.info
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
