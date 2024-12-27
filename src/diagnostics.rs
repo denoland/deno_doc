@@ -363,7 +363,7 @@ struct DiagnosticDocNodeVisitor<'a, 'b> {
   diagnostics: &'a mut DiagnosticsCollector<'b>,
 }
 
-impl<'a, 'b> DiagnosticDocNodeVisitor<'a, 'b> {
+impl DiagnosticDocNodeVisitor<'_, '_> {
   pub fn visit_doc_nodes<'c, I>(&'c mut self, doc_nodes: I)
   where
     I: Iterator<Item = &'c DocNode>,
