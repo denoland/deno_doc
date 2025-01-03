@@ -342,7 +342,7 @@ export async function generateHtml(
 export async function generateHtmlAsJSON(
   docNodesByUrl: Record<string, Array<DocNode>>,
   options: GenerateOptions,
-// deno-lint-ignore no-explicit-any
+  // deno-lint-ignore no-explicit-any
 ): Promise<Record<string, any>> {
   const {
     usageComposer = defaultUsageComposer,
