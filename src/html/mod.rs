@@ -1145,6 +1145,190 @@ pub fn generate(
   Ok(files)
 }
 
+pub fn generate_json(
+  ctx: GenerateCtx,
+) -> Result<HashMap<String, serde_json::Value>, anyhow::Error> {
+  let mut files = HashMap::new();
+
+  // Index page
+  {
+    let (partitions_for_entrypoint_nodes, uses_categories) =
+      if let Some(entrypoint) = ctx.main_entrypoint.as_ref() {
+        let nodes = ctx.doc_nodes.get(entrypoint).unwrap();
+        let categories = partition::partition_nodes_by_category(
+          &ctx,
+          nodes.iter().map(Cow::Borrowed),
+          ctx.file_mode == FileMode::SingleDts,
+        );
+
+        if categories.len() == 1 && categories.contains_key("Uncategorized") {
+          (
+            partition::partition_nodes_by_kind(
+              &ctx,
+              nodes.iter().map(Cow::Borrowed),
+              ctx.file_mode == FileMode::SingleDts,
+            ),
+            false,
+          )
+        } else {
+          (categories, true)
+        }
+      } else {
+        Default::default()
+      };
+
+    let index = pages::IndexCtx::new(
+      &ctx,
+      ctx.main_entrypoint.clone(),
+      partitions_for_entrypoint_nodes,
+      uses_categories,
+    );
+
+    files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+  }
+
+  let all_doc_nodes = ctx
+    .doc_nodes
+    .values()
+    .flatten()
+    .cloned()
+    .collect::<Vec<DocNodeWithContext>>();
+
+  // All symbols (list of all symbols in all files)
+  {
+    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
+      &ctx,
+      all_doc_nodes.iter().map(Cow::Borrowed),
+      true,
+    );
+
+    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+
+    files.insert(
+      "./all_symbols.json".to_string(),
+      serde_json::to_value(all_symbols)?,
+    );
+  }
+
+  // Category pages
+  if ctx.file_mode == FileMode::SingleDts {
+    let categories = partition::partition_nodes_by_category(
+      &ctx,
+      all_doc_nodes.iter().map(Cow::Borrowed),
+      true,
+    );
+
+    if categories.len() != 1 {
+      for (category, nodes) in &categories {
+        let partitions = partition::partition_nodes_by_kind(
+          &ctx,
+          nodes.iter().map(Cow::Borrowed),
+          false,
+        );
+
+        let index = pages::IndexCtx::new_category(
+          &ctx,
+          category,
+          partitions,
+          &all_doc_nodes,
+        );
+        files.insert(
+          format!("{}.json", util::slugify(category)),
+          serde_json::to_value(index)?,
+        );
+      }
+    }
+  }
+
+  // Pages for all discovered symbols
+  {
+    for (short_path, doc_nodes) in &ctx.doc_nodes {
+      let doc_nodes_by_kind = partition::partition_nodes_by_kind(
+        &ctx,
+        doc_nodes.iter().map(Cow::Borrowed),
+        ctx.file_mode == FileMode::SingleDts,
+      );
+
+      let symbol_pages =
+        generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
+
+      files.extend(symbol_pages.into_iter().flat_map(|symbol_page| {
+        match symbol_page {
+          SymbolPage::Symbol {
+            breadcrumbs_ctx,
+            symbol_group_ctx,
+            toc_ctx,
+            categories_panel,
+          } => {
+            let root = ctx.resolve_path(
+              UrlResolveKind::Symbol {
+                file: short_path,
+                symbol: &symbol_group_ctx.name,
+              },
+              UrlResolveKind::Root,
+            );
+
+            let mut title_parts = breadcrumbs_ctx.to_strings();
+            title_parts.reverse();
+            // contains the package name, which we already render in the head
+            title_parts.pop();
+
+            let html_head_ctx = pages::HtmlHeadCtx::new(
+              &ctx,
+              &root,
+              Some(&title_parts.join(" - ")),
+              Some(short_path),
+            );
+
+            let file_name =
+              format!("{}/~/{}.json", short_path.path, symbol_group_ctx.name);
+
+            let page_ctx = pages::SymbolPageCtx {
+              html_head_ctx,
+              symbol_group_ctx,
+              breadcrumbs_ctx,
+              toc_ctx,
+              disable_search: ctx.disable_search,
+              categories_panel,
+            };
+
+            vec![(file_name, serde_json::to_value(page_ctx).unwrap())]
+          }
+          SymbolPage::Redirect {
+            current_symbol,
+            href,
+          } => {
+            let redirect = serde_json::json!({ "path": href });
+
+            let file_name =
+              format!("{}/~/{}.json", short_path.path, current_symbol);
+
+            vec![(file_name, redirect)]
+          }
+        }
+      }));
+
+      if !short_path.is_main {
+        let index = pages::IndexCtx::new(
+          &ctx,
+          Some(short_path.clone()),
+          doc_nodes_by_kind,
+          false,
+        );
+
+        files.insert(
+          format!("{}/index.json", short_path.path),
+          serde_json::to_value(index)?,
+        );
+      }
+    }
+  }
+
+  files.insert("search.json".into(), generate_search_index(&ctx));
+
+  Ok(files)
+}
+
 pub fn find_common_ancestor<'a>(
   urls: impl Iterator<Item = &'a ModuleSpecifier>,
   single_file_is_common_ancestor: bool,
