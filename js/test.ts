@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 import { assert, assertEquals, assertRejects } from "jsr:@std/assert@0.223";
-import { doc, generateHtml } from "./mod.ts";
+import { doc, generateHtml, generateHtmlAsJSON } from "./mod.ts";
 
 Deno.test({
   name: "doc()",
@@ -150,5 +150,32 @@ Deno.test({
     });
 
     assertEquals(Object.keys(files).length, 61);
+  },
+});
+
+Deno.test({
+  name: "generateHtmlAsJSON()",
+  async fn() {
+    const entries = await doc(
+      ["https://deno.land/std@0.104.0/fmt/colors.ts"],
+    );
+
+    const files = await generateHtmlAsJSON({
+      ["file:///colors.ts"]: Object.values(entries)[0],
+    }, {
+      markdownRenderer(
+        md,
+        _titleOnly,
+        _filePath,
+        _anchorizer,
+      ) {
+        return md;
+      },
+      markdownStripper(md: string) {
+        return md;
+      },
+    });
+
+    assertEquals(Object.keys(files).length, 55);
   },
 });

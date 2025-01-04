@@ -285,6 +285,8 @@ pub fn generate_html(
   head_inject: Option<js_sys::Function>,
 
   doc_nodes_by_url: JsValue,
+
+  json: bool,
 ) -> Result<JsValue, JsValue> {
   console_error_panic_hook::set_once();
 
@@ -307,6 +309,7 @@ pub fn generate_html(
     markdown_stripper,
     head_inject,
     doc_nodes_by_url,
+    json,
   )
   .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
 }
@@ -522,6 +525,8 @@ fn generate_html_inner(
   head_inject: Option<js_sys::Function>,
 
   doc_nodes_by_url: JsValue,
+
+  json: bool,
 ) -> Result<JsValue, anyhow::Error> {
   let main_entrypoint = main_entrypoint
     .map(|s| ModuleSpecifier::parse(&s))
@@ -631,12 +636,24 @@ fn generate_html_inner(
     },
     doc_nodes_by_url,
   )?;
-  let files = deno_doc::html::generate(ctx)?;
 
-  let serializer =
-    serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+  if json {
+    let files = deno_doc::html::generate_json(ctx)?;
 
-  files
-    .serialize(&serializer)
-    .map_err(|err| anyhow!("{}", err))
+    let serializer =
+      serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+
+    files
+      .serialize(&serializer)
+      .map_err(|err| anyhow!("{}", err))
+  } else {
+    let files = deno_doc::html::generate(ctx)?;
+
+    let serializer =
+      serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
+
+    files
+      .serialize(&serializer)
+      .map_err(|err| anyhow!("{}", err))
+  }
 }
