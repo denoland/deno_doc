@@ -611,6 +611,7 @@ dependencies = [
  "anyhow",
  "console_error_panic_hook",
  "deno_doc",
+ "deno_error",
  "deno_graph",
  "import_map",
  "indexmap 2.6.0",
