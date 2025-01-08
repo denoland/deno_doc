@@ -6,6 +6,7 @@ use deno_doc::html::*;
 use deno_doc::DocNode;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
+use deno_graph::source::LoadError;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
@@ -18,6 +19,7 @@ use futures::future;
 use indexmap::IndexMap;
 use std::fs;
 use std::rc::Rc;
+use std::sync::Arc;
 
 struct SourceFileLoader {}
 
@@ -37,7 +39,7 @@ impl Loader for SourceFileLoader {
             content: content.into(),
           })
         })
-        .map_err(|err| err.into())
+        .map_err(|err| LoadError::Other(Arc::new(err)))
     } else {
       Ok(None)
     };

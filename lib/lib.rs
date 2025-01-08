@@ -7,6 +7,7 @@ use deno_doc::html::UsageComposerEntry;
 use deno_doc::html::UsageToMd;
 use deno_doc::DocParser;
 use deno_graph::source::CacheSetting;
+use deno_graph::source::LoadError;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
@@ -25,6 +26,7 @@ use indexmap::IndexMap;
 use serde::Serialize;
 use std::ffi::c_void;
 use std::rc::Rc;
+use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
@@ -83,7 +85,11 @@ impl Loader for JsLoader {
       };
       response
         .map(|value| serde_wasm_bindgen::from_value(value).unwrap())
-        .map_err(|_| anyhow!("load rejected or errored"))
+        .map_err(|_| {
+          LoadError::Other(Arc::new(deno_error::JsErrorBox::generic(
+            "load rejected or errored",
+          )))
+        })
     };
     Box::pin(f)
   }
@@ -108,7 +114,7 @@ impl Resolver for ImportMapResolver {
     self
       .0
       .resolve(specifier, &referrer_range.specifier)
-      .map_err(|err| ResolveError::Other(err.into()))
+      .map_err(|err| ResolveError::ImportMap(err))
   }
 }
 
@@ -137,12 +143,15 @@ impl Resolver for JsResolver {
     let value = match self.resolve.call2(&this, &arg0, &arg1) {
       Ok(value) => value,
       Err(_) => {
-        return Err(Other(anyhow!("JavaScript resolve() function threw.")))
+        return Err(Other(deno_error::JsErrorBox::generic(
+          "JavaScript resolve() function threw.",
+        )))
       }
     };
     let value: String = serde_wasm_bindgen::from_value(value)
-      .map_err(|err| anyhow!("{}", err))?;
-    ModuleSpecifier::parse(&value).map_err(|err| Other(err.into()))
+      .map_err(|err| deno_error::JsErrorBox::generic(err.to_string()))?;
+    ModuleSpecifier::parse(&value)
+      .map_err(|err| Other(deno_error::JsErrorBox::from_err(err)))
   }
 }
 
