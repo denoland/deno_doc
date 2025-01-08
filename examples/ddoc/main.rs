@@ -43,7 +43,9 @@ impl Loader for SourceFileLoader {
             content: content.into(),
           })
         })
-        .map_err(|err| err.into())
+        .map_err(|err| {
+          deno_graph::source::LoadError::Other(std::sync::Arc::new(err))
+        })
     } else {
       Ok(None)
     };
