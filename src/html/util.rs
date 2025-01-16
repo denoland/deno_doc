@@ -1,5 +1,6 @@
 use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
+use crate::html::render_context::ToCEntry;
 use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKindWithDrilldown;
 use crate::html::DocNodeWithContext;
@@ -740,7 +741,8 @@ impl TopSymbolsCtx {
 pub struct ToCCtx {
   pub usages: Option<UsagesCtx>,
   pub top_symbols: Option<TopSymbolsCtx>,
-  pub document_navigation: Option<String>,
+  pub document_navigation_str: Option<String>,
+  pub dcument_navigation: Vec<ToCEntry>,
 }
 
 impl ToCCtx {
@@ -757,7 +759,8 @@ impl ToCCtx {
       return Self {
         usages: None,
         top_symbols: None,
-        document_navigation: None,
+        document_navigation_str: None,
+        dcument_navigation: vec![],
       };
     }
 
@@ -775,7 +778,11 @@ impl ToCCtx {
       } else {
         None
       },
-      document_navigation: ctx.toc.render(),
+      document_navigation_str: ctx.toc.render(),
+      dcument_navigation: std::sync::Arc::into_inner(ctx.toc.toc)
+        .unwrap()
+        .into_inner()
+        .unwrap(),
     }
   }
 }
