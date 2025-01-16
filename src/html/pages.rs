@@ -489,7 +489,7 @@ pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,
     symbol_group_ctx: SymbolGroupCtx,
-    toc_ctx: util::ToCCtx,
+    toc_ctx: Box<util::ToCCtx>,
     categories_panel: Option<CategoriesPanelCtx>,
   },
   Redirect {
@@ -538,7 +538,7 @@ pub fn generate_symbol_pages_for_module(
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
       symbol_group_ctx,
-      toc_ctx,
+      toc_ctx: Box::new(toc_ctx),
       categories_panel,
     });
 
@@ -571,7 +571,7 @@ pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
-  pub toc_ctx: util::ToCCtx,
+  pub toc_ctx: Box<util::ToCCtx>,
   pub disable_search: bool,
   pub categories_panel: Option<CategoriesPanelCtx>,
 }

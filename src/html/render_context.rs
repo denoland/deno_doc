@@ -6,6 +6,7 @@ use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
+use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -309,7 +310,7 @@ impl<'ctx> RenderContext<'ctx> {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ToCEntry {
   pub level: u8,
   pub content: String,
@@ -388,8 +389,8 @@ impl HeadingToCAdapter {
     }
   }
 
-  pub fn render(self) -> Option<String> {
-    let toc = Arc::into_inner(self.toc).unwrap().into_inner().unwrap();
+  pub fn render(&self) -> Option<String> {
+    let toc = self.toc.lock().unwrap();
 
     if toc.is_empty() {
       return None;
@@ -399,7 +400,7 @@ impl HeadingToCAdapter {
     let mut current_level = toc.iter().map(|entry| entry.level).min().unwrap();
 
     let mut level_diff = 0;
-    for entry in toc {
+    for entry in toc.iter() {
       match current_level.cmp(&entry.level) {
         Ordering::Equal => {}
         Ordering::Less => {
