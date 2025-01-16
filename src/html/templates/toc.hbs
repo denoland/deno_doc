@@ -1,4 +1,4 @@
-{{~#if (or usages (or top_symbols document_navigation))~}}
+{{~#if (or usages (or top_symbols document_navigation_str))~}}
   <div class="toc">
     <div>
       {{~#if usages~}}
@@ -27,10 +27,10 @@
         </nav>
       {{~/if~}}
 
-      {{~#if document_navigation~}}
+      {{~#if document_navigation_str~}}
         <nav class="documentNavigation">
           <h3>Document Navigation</h3>
-          {{{~document_navigation~}}} {{! table of contents }}
+          {{{~document_navigation_str~}}} {{! table of contents }}
         </nav>
       {{~/if~}}
     </div>
