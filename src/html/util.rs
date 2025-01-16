@@ -742,7 +742,7 @@ pub struct ToCCtx {
   pub usages: Option<UsagesCtx>,
   pub top_symbols: Option<TopSymbolsCtx>,
   pub document_navigation_str: Option<String>,
-  pub dcument_navigation: Vec<ToCEntry>,
+  pub document_navigation: Vec<ToCEntry>,
 }
 
 impl ToCCtx {
@@ -760,7 +760,7 @@ impl ToCCtx {
         usages: None,
         top_symbols: None,
         document_navigation_str: None,
-        dcument_navigation: vec![],
+        document_navigation: vec![],
       };
     }
 
@@ -779,7 +779,7 @@ impl ToCCtx {
         None
       },
       document_navigation_str: ctx.toc.render(),
-      dcument_navigation: std::sync::Arc::into_inner(ctx.toc.toc)
+      document_navigation: std::sync::Arc::into_inner(ctx.toc.toc)
         .unwrap()
         .into_inner()
         .unwrap(),
