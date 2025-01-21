@@ -1,0 +1,98 @@
+# mod.ts
+import type { Foo } from "./foo.ts";
+export function Foo() {}
+
+# foo.ts
+export interface Foo {}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /foo.ts:1:1
+  | 
+1 | export interface Foo {}
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:2:1
+  | 
+2 | export function Foo() {}
+  | ^
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+function Foo(): void
+
+Defined in file:///foo.ts:1:1
+
+interface Foo
+
+
+Defined in file:///mod.ts:1:1
+
+
+
+# output.json
+[
+  {
+    "name": "Foo",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///foo.ts",
+      "line": 1,
+      "col": 0,
+      "byteIndex": 0
+    },
+    "declarationKind": "export",
+    "kind": "interface",
+    "interfaceDef": {
+      "extends": [],
+      "constructors": [],
+      "methods": [],
+      "properties": [],
+      "callSignatures": [],
+      "indexSignatures": [],
+      "typeParams": []
+    }
+  },
+  {
+    "name": "Foo",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0,
+      "byteIndex": 37
+    },
+    "declarationKind": "export",
+    "kind": "function",
+    "functionDef": {
+      "params": [],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  },
+  {
+    "name": "Foo",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0,
+      "byteIndex": 0
+    },
+    "declarationKind": "private",
+    "kind": "import",
+    "importDef": {
+      "src": "file:///foo.ts",
+      "imported": "Foo"
+    }
+  }
+]

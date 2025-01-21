@@ -362,7 +362,10 @@ impl<'a> DocParser<'a> {
 
         let original_range = &export_symbol.decls().first().unwrap().range;
 
-        if let Some(first_def) = definitions.first() {
+        if let Some(first_def) = definitions
+          .iter()
+          .find(|def| definition_location(def) == reference_def.target)
+        {
           use deno_graph::symbols::DefinitionKind;
           match first_def.kind {
             DefinitionKind::ExportStar(_) => {}
