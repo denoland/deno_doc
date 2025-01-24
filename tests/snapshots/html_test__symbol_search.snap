@@ -792,11 +792,6 @@ expression: search_index
           "char": "v",
           "kind": "Variable",
           "title": "Variable"
-        },
-        {
-          "char": "v",
-          "kind": "Variable",
-          "title": "Variable"
         }
       ],
       "name": "default",
