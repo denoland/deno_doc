@@ -4,6 +4,7 @@ expression: files
 ---
 [
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "externalFunction - documentation",
       "current_file": "d",
@@ -176,6 +177,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "A - documentation",
       "current_file": ".",
@@ -265,6 +267,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "AbstractClass - documentation",
       "current_file": ".",
@@ -461,6 +464,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "B - documentation",
       "current_file": ".",
@@ -550,6 +554,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Bar - documentation",
       "current_file": ".",
@@ -639,6 +644,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Baz - documentation",
       "current_file": ".",
@@ -830,6 +836,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "EmptyInterface - documentation",
       "current_file": ".",
@@ -908,6 +915,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Enum - documentation",
       "current_file": ".",
@@ -1042,6 +1050,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Enum2 - documentation",
       "current_file": ".",
@@ -1176,6 +1185,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo - documentation",
       "current_file": ".",
@@ -1762,6 +1772,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foobar - documentation",
       "current_file": ".",
@@ -1880,6 +1891,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello - documentation",
       "current_file": ".",
@@ -2220,6 +2232,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "InterfaceWithIndexSignature - documentation",
       "current_file": ".",
@@ -2330,6 +2343,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Testing - documentation",
       "current_file": ".",
@@ -2539,6 +2553,7 @@ expression: files
   },
   null,
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Testing.externalFunction - documentation",
       "current_file": ".",
@@ -2711,6 +2726,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Testing.t - documentation",
       "current_file": ".",
@@ -2842,6 +2858,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Testing.x - documentation",
       "current_file": ".",
@@ -3014,6 +3031,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "TypeAlias - documentation",
       "current_file": ".",
@@ -3126,6 +3144,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "anotherVariable - documentation",
       "current_file": ".",
@@ -3280,6 +3299,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "c - documentation",
       "current_file": ".",
@@ -3405,6 +3425,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "d - documentation",
       "current_file": ".",
@@ -3764,6 +3785,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "functionWithOptionalParameters - documentation",
       "current_file": ".",
@@ -4067,6 +4089,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "qaz - documentation",
       "current_file": ".",
@@ -4297,6 +4320,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "someVariable - documentation",
       "current_file": ".",
@@ -4375,6 +4399,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "x - documentation",
       "current_file": ".",
@@ -4541,6 +4566,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "AbstractClass.prototype.foo - documentation",
       "current_file": ".",
@@ -4665,6 +4691,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "AbstractClass.prototype.getter - documentation",
       "current_file": ".",
@@ -4802,6 +4829,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "AbstractClass.prototype.method - documentation",
       "current_file": ".",
@@ -4976,6 +5004,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Baz.bar - documentation",
       "current_file": ".",
@@ -5107,6 +5136,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Baz.foo - documentation",
       "current_file": ".",
@@ -5225,6 +5255,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.bar - documentation",
       "current_file": ".",
@@ -5343,6 +5374,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.\"><img src=x onerror=alert(1)> - documentation",
       "current_file": ".",
@@ -5467,6 +5499,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.[Symbol.iterator] - documentation",
       "current_file": ".",
@@ -5604,6 +5637,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.foo - documentation",
       "current_file": ".",
@@ -5728,6 +5762,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.getter - documentation",
       "current_file": ".",
@@ -5852,6 +5887,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.getterAndSetter - documentation",
       "current_file": ".",
@@ -6083,6 +6119,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.methodWithOverloads - documentation",
       "current_file": ".",
@@ -6351,6 +6388,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.protectedProperty - documentation",
       "current_file": ".",
@@ -6475,6 +6513,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.readonlyProperty - documentation",
       "current_file": ".",
@@ -6599,6 +6638,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.setter - documentation",
       "current_file": ".",
@@ -6773,6 +6813,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.prototype.test - documentation",
       "current_file": ".",
@@ -6910,6 +6951,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.staticMethod - documentation",
       "current_file": ".",
@@ -7041,6 +7083,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Foo.staticSetter - documentation",
       "current_file": ".",
@@ -7209,6 +7252,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello.ab - documentation",
       "current_file": ".",
@@ -7327,6 +7371,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello.computedMethod - documentation",
       "current_file": ".",
@@ -7495,6 +7540,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello.optionalMethod - documentation",
       "current_file": ".",
@@ -7626,6 +7672,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello.test - documentation",
       "current_file": ".",
@@ -7744,6 +7791,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello.world - documentation",
       "current_file": ".",
@@ -7862,6 +7910,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "Hello.x - documentation",
       "current_file": ".",
@@ -7978,6 +8027,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "anotherVariable.bar - documentation",
       "current_file": ".",
@@ -8109,6 +8159,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "anotherVariable.foo - documentation",
       "current_file": ".",
@@ -8227,6 +8278,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "default - documentation",
       "current_file": "foo",
@@ -8345,6 +8397,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "x - documentation",
       "current_file": "foo",
@@ -8517,6 +8570,7 @@ expression: files
     "categories_panel": null
   },
   {
+    "kind": "SymbolPageCtx",
     "html_head_ctx": {
       "title": "x - documentation",
       "current_file": "c",

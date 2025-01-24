@@ -2,11 +2,13 @@
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
 import type { DocNode, Location } from "./types.d.ts";
+import type { Page } from "./html_types.d.ts";
 import { createCache } from "@deno/cache-dir";
 import type { CacheSetting, LoadResponse } from "@deno/graph";
 
 export type { CacheSetting, LoadResponse } from "@deno/graph";
 export * from "./types.d.ts";
+export * from "./html_types.d.ts";
 
 const encoder = new TextEncoder();
 
@@ -342,8 +344,7 @@ export async function generateHtml(
 export async function generateHtmlAsJSON(
   docNodesByUrl: Record<string, Array<DocNode>>,
   options: GenerateOptions,
-  // deno-lint-ignore no-explicit-any
-): Promise<Record<string, any>> {
+): Promise<Record<string, Page>> {
   const {
     usageComposer = defaultUsageComposer,
   } = options;

@@ -119,6 +119,7 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
   doc_nodes.sort_by(|a, b| a.file.cmp(&b.file));
 
   let search_index = json!({
+    "kind": "search",
     "nodes": doc_nodes
   });
 
