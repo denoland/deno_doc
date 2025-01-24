@@ -4,7 +4,7 @@
   "exports": {
     ".": "./mod.ts",
     "./types": "./types.d.ts",
-    "./html-types": "./html.d.ts"
+    "./html-types": "./html_types.d.ts"
   },
   "exclude": [
     "!**"
