@@ -1099,7 +1099,8 @@ pub fn generate(
             current_symbol,
             href,
           } => {
-            let redirect = serde_json::json!({ "path": href });
+            let redirect =
+              serde_json::json!({ "kind": "redirect", "path": href });
 
             let file_name =
               format!("{}/~/{}.html", short_path.path, current_symbol);
