@@ -26,7 +26,7 @@ export interface CategoriesPanelCategoryCtx {
   active: boolean;
 }
 
-export type Page = IndexCtx | AllSymbolsCtx | SymbolPageCtx | Redirect;
+export type Page = IndexCtx | AllSymbolsCtx | SymbolPageCtx | Redirect | Search;
 
 export interface PageBase {
   kind: "IndexCtx" | "AllSymbolsCtx" | "SymbolPageCtx";
@@ -58,6 +58,27 @@ export interface SymbolPageCtx extends PageBase {
 export interface Redirect {
   kind: "redirect";
   path: string;
+}
+
+export interface Search {
+  kind: "search";
+  path: SearchIndexNode[];
+}
+
+export interface SlimKindCtx {
+  char: string;
+  kind: string;
+  title: string;
+}
+
+export interface SearchIndexNode {
+  kind: SlimKindCtx[];
+  name: string;
+  file: string;
+  doc: string;
+  url: string;
+  category?: string;
+  deprecated: boolean;
 }
 
 export interface ToCCtx {

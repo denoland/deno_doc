@@ -181,5 +181,50 @@ expression: module_docs
         }
       ]
     }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
+      "sections": [
+        {
+          "header": {
+            "title": "Variables",
+            "anchor": {
+              "id": "Variables"
+            },
+            "href": null,
+            "doc": null
+          },
+          "content": {
+            "kind": "namespace_section",
+            "content": [
+              {
+                "id": "namespace_default",
+                "anchor": {
+                  "id": "namespace_default"
+                },
+                "tags": [],
+                "doc_node_kind_ctx": [
+                  {
+                    "kind": "Variable",
+                    "char": "v",
+                    "title": "Variable",
+                    "title_lowercase": "variable",
+                    "title_plural": "Variables"
+                  }
+                ],
+                "href": "../../../../../../../../../../.././/Users/crowlkats/projects/deno/denoland/deno_doc/tests/testdata/multiple/raw.json/~/default.html",
+                "name": "default",
+                "docs": null,
+                "deprecated": false,
+                "subitems": []
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

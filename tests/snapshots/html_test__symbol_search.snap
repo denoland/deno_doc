@@ -3,6 +3,7 @@ source: tests/html_test.rs
 expression: search_index
 ---
 {
+  "kind": "search",
   "nodes": [
     {
       "kind": [
@@ -787,6 +788,11 @@ expression: search_index
     },
     {
       "kind": [
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        },
         {
           "char": "v",
           "kind": "Variable",
