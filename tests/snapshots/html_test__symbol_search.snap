@@ -3,6 +3,7 @@ source: tests/html_test.rs
 expression: search_index
 ---
 {
+  "kind": "search",
   "nodes": [
     {
       "kind": [

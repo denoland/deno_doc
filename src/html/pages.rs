@@ -194,6 +194,7 @@ pub struct CategoriesPanelCategoryCtx {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(tag = "kind")]
 pub struct IndexCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub module_doc: Option<super::jsdoc::ModuleDocCtx>,
@@ -440,6 +441,7 @@ impl IndexCtx {
 }
 
 #[derive(Serialize)]
+#[serde(tag = "kind")]
 pub struct AllSymbolsCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub content: SymbolContentCtx,
@@ -567,6 +569,7 @@ pub fn generate_symbol_pages_for_module(
 }
 
 #[derive(Debug, Serialize)]
+#[serde(tag = "kind")]
 pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
   pub symbol_group_ctx: SymbolGroupCtx,
