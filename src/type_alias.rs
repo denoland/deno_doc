@@ -2,7 +2,7 @@
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
-use deno_ast::ParsedSource;
+use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -14,13 +14,13 @@ pub struct TypeAliasDef {
 }
 
 pub fn get_doc_for_ts_type_alias_decl(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   type_alias_decl: &deno_ast::swc::ast::TsTypeAliasDecl,
 ) -> (String, TypeAliasDef) {
   let alias_name = type_alias_decl.id.sym.to_string();
-  let ts_type = TsTypeDef::new(parsed_source, &type_alias_decl.type_ann);
+  let ts_type = TsTypeDef::new(module_info, &type_alias_decl.type_ann);
   let type_params = maybe_type_param_decl_to_type_param_defs(
-    parsed_source,
+    module_info,
     type_alias_decl.type_params.as_deref(),
   );
   let type_alias_def = TypeAliasDef {
