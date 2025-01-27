@@ -10,7 +10,7 @@ use crate::util::swc::is_false;
 use crate::ParamDef;
 use deno_ast::swc::ast::ReturnStmt;
 use deno_ast::swc::ast::Stmt;
-use deno_ast::ParsedSource;
+use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -32,20 +32,20 @@ pub struct FunctionDef {
 }
 
 pub fn function_to_function_def(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   function: &deno_ast::swc::ast::Function,
   def_name: Option<String>,
 ) -> FunctionDef {
   let params = function
     .params
     .iter()
-    .map(|param| param_to_param_def(parsed_source, param))
+    .map(|param| param_to_param_def(module_info, param))
     .collect();
 
   let maybe_return_type = match function
     .return_type
     .as_deref()
-    .map(|return_type| TsTypeDef::new(parsed_source, &return_type.type_ann))
+    .map(|return_type| TsTypeDef::new(module_info, &return_type.type_ann))
   {
     Some(return_type) => Some(return_type),
     None
@@ -71,13 +71,13 @@ pub fn function_to_function_def(
   };
 
   let type_params = maybe_type_param_decl_to_type_param_defs(
-    parsed_source,
+    module_info,
     function.type_params.as_deref(),
   );
 
   let has_body = function.body.is_some();
 
-  let decorators = decorators_to_defs(parsed_source, &function.decorators);
+  let decorators = decorators_to_defs(module_info, &function.decorators);
 
   FunctionDef {
     def_name,
@@ -92,11 +92,11 @@ pub fn function_to_function_def(
 }
 
 pub fn get_doc_for_fn_decl(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   fn_decl: &deno_ast::swc::ast::FnDecl,
 ) -> (String, FunctionDef) {
   let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(parsed_source, &fn_decl.function, None);
+  let fn_def = function_to_function_def(module_info, &fn_decl.function, None);
   (name, fn_def)
 }
 
