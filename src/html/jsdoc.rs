@@ -366,12 +366,12 @@ impl ModuleDocCtx {
         partitions_by_kind.into_iter().map(|(title, nodes)| {
           (
             render_ctx.clone(),
-            SectionHeaderCtx {
+            Some(SectionHeaderCtx {
               title: title.clone(),
               anchor: AnchorCtx { id: title },
               href: None,
               doc: None,
-            },
+            }),
             nodes,
           )
         }),

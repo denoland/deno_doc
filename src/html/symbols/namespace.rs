@@ -10,7 +10,11 @@ use std::cmp::Ordering;
 
 pub fn render_namespace<'a>(
   partitions: impl Iterator<
-    Item = (RenderContext<'a>, SectionHeaderCtx, Vec<DocNodeWithContext>),
+    Item = (
+      RenderContext<'a>,
+      Option<SectionHeaderCtx>,
+      Vec<DocNodeWithContext>,
+    ),
   >,
 ) -> Vec<SectionCtx> {
   partitions
@@ -22,7 +26,7 @@ pub fn render_namespace<'a>(
 
 fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
-  header: SectionHeaderCtx,
+  header: Option<SectionHeaderCtx>,
   doc_nodes: Vec<DocNodeWithContext>,
 ) -> SectionCtx {
   let mut grouped_nodes = IndexMap::new();
@@ -37,7 +41,7 @@ fn get_namespace_section_render_ctx(
   let nodes = grouped_nodes
     .into_iter()
     .filter_map(|(name, nodes)| {
-      if nodes[0].is_internal() {
+      if nodes[0].is_internal(&ctx.ctx) {
         None
       } else {
         Some(NamespaceNodeCtx::new(ctx, name, nodes))
@@ -47,7 +51,10 @@ fn get_namespace_section_render_ctx(
 
   let mut section = SectionCtx::new(
     ctx,
-    &header.title,
+    header
+      .as_ref()
+      .map(|header| header.title.as_str())
+      .unwrap_or_default(),
     SectionContentCtx::NamespaceSection(nodes),
   );
   section.header = header;

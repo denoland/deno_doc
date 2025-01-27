@@ -151,6 +151,39 @@ expression: search_index
           "char": "I",
           "kind": "Interface",
           "title": "Interface"
+        },
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "CompoundType",
+      "file": ".",
+      "doc": "",
+      "url": "././~/CompoundType.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "CompoundType.bufferedAmount",
+      "file": ".",
+      "doc": "",
+      "url": "././~/CompoundType.bufferedAmount.html",
+      "deprecated": false
+    },
+    {
+      "kind": [
+        {
+          "char": "I",
+          "kind": "Interface",
+          "title": "Interface"
         }
       ],
       "name": "EmptyInterface",

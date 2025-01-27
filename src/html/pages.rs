@@ -12,6 +12,7 @@ use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
 use std::borrow::Cow;
+use std::cmp::Ordering;
 use std::rc::Rc;
 
 use super::FUSE_FILENAME;
@@ -103,7 +104,7 @@ impl CategoriesPanelCtx {
               true,
             )
           })
-          .filter(|(_name, node)| !node[0].is_internal())
+          .filter(|(_name, node)| !node[0].is_internal(&ctx.ctx))
           .count();
 
         let mut categories = ctx
@@ -145,7 +146,7 @@ impl CategoriesPanelCtx {
               true,
             )
           })
-          .filter(|(_name, node)| !node[0].is_internal())
+          .filter(|(_name, node)| !node[0].is_internal(&ctx.ctx))
           .count();
 
         let (_, nodes) = ctx.ctx.doc_nodes.first().unwrap();
@@ -274,7 +275,7 @@ impl IndexCtx {
             render_ctx.toc.add_entry(1, title, &anchor);
 
             util::SectionCtx {
-              header: SectionHeaderCtx {
+              header: Some(SectionHeaderCtx {
                 href: Some(ctx.resolve_path(
                   UrlResolveKind::Root,
                   short_path.as_resolve_kind(),
@@ -282,13 +283,18 @@ impl IndexCtx {
                 title: title.to_string(),
                 anchor: AnchorCtx { id: anchor },
                 doc,
-              },
+              }),
               content: util::SectionContentCtx::Empty,
             }
           })
           .collect::<Vec<_>>();
 
-        sections.sort_by(|a, b| a.header.title.cmp(&b.header.title));
+        sections.sort_by(|a, b| match (&a.header, &b.header) {
+          (Some(x), Some(y)) => x.title.cmp(&y.title),
+          (None, Some(_)) => Ordering::Less,
+          (Some(_), None) => Ordering::Greater,
+          (None, None) => Ordering::Equal,
+        });
 
         Some(SymbolContentCtx {
           id: String::new(),
@@ -321,7 +327,7 @@ impl IndexCtx {
               });
 
             util::SectionCtx {
-              header: SectionHeaderCtx {
+              header: Some(SectionHeaderCtx {
                 href: Some(render_ctx.ctx.resolve_path(
                   render_ctx.get_current_resolve(),
                   UrlResolveKind::Category { category: &title },
@@ -329,7 +335,7 @@ impl IndexCtx {
                 title,
                 anchor: AnchorCtx { id: anchor },
                 doc,
-              },
+              }),
               content: util::SectionContentCtx::Empty,
             }
           })
@@ -394,12 +400,12 @@ impl IndexCtx {
 
         (
           render_ctx.clone(),
-          SectionHeaderCtx {
+          Some(SectionHeaderCtx {
             anchor: AnchorCtx { id: title.clone() },
             title,
             href: None,
             doc,
-          },
+          }),
           nodes,
         )
       }),
@@ -463,7 +469,7 @@ impl AllSymbolsCtx {
       partitions.into_iter().map(|(path, nodes)| {
         let render_ctx =
           RenderContext::new(ctx, &nodes, UrlResolveKind::AllSymbols);
-        let header = SectionHeaderCtx::new_for_namespace(&render_ctx, &path);
+        let header = SectionHeaderCtx::new_for_all_symbols(&render_ctx, &path);
 
         (render_ctx, header, nodes)
       }),
