@@ -111,7 +111,7 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
-        if doc_nodes[0].is_internal(&ctx.ctx) {
+        if doc_nodes[0].is_internal(ctx.ctx) {
           tags.insert(Tag::Private);
         }
 

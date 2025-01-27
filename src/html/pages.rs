@@ -104,7 +104,7 @@ impl CategoriesPanelCtx {
               true,
             )
           })
-          .filter(|(_name, node)| !node[0].is_internal(&ctx.ctx))
+          .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
         let mut categories = ctx
@@ -146,7 +146,7 @@ impl CategoriesPanelCtx {
               true,
             )
           })
-          .filter(|(_name, node)| !node[0].is_internal(&ctx.ctx))
+          .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
         let (_, nodes) = ctx.ctx.doc_nodes.first().unwrap();
