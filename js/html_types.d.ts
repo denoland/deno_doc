@@ -149,7 +149,7 @@ export interface SymbolContentCtx {
 }
 
 export interface SectionCtx {
-  header: SectionHeaderCtx;
+  header: SectionHeaderCtx | null;
   content: SectionContentCtx;
 }
 

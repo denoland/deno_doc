@@ -219,3 +219,9 @@ export declare namespace Testing {
 }
 
 export { x };
+
+export interface CompoundType {
+  readonly bufferedAmount: number;
+}
+
+export const CompoundType = {};
