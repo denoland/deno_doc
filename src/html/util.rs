@@ -457,10 +457,14 @@ pub struct SectionHeaderCtx {
 }
 
 impl SectionHeaderCtx {
-  pub fn new_for_namespace(
+  pub fn new_for_all_symbols(
     render_ctx: &RenderContext,
     path: &ShortPath,
-  ) -> Self {
+  ) -> Option<Self> {
+    if render_ctx.ctx.file_mode == FileMode::SingleDts {
+      return None;
+    }
+
     let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
 
     let doc = module_doc_nodes
@@ -480,7 +484,7 @@ impl SectionHeaderCtx {
 
     let title = path.display_name();
 
-    SectionHeaderCtx {
+    Some(SectionHeaderCtx {
       title: title.to_string(),
       anchor: AnchorCtx {
         id: title.to_string(),
@@ -490,13 +494,13 @@ impl SectionHeaderCtx {
         path.as_resolve_kind(),
       )),
       doc,
-    }
+    })
   }
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct SectionCtx {
-  pub header: SectionHeaderCtx,
+  pub header: Option<SectionHeaderCtx>,
   pub content: SectionContentCtx,
 }
 
@@ -508,8 +512,19 @@ impl SectionCtx {
     title: &str,
     mut content: SectionContentCtx,
   ) -> Self {
-    let anchor = render_context.toc.anchorize(title);
-    render_context.toc.add_entry(1, title, &anchor);
+    let header = if !title.is_empty() {
+      let anchor = render_context.toc.anchorize(title);
+      render_context.toc.add_entry(1, title, &anchor);
+
+      Some(SectionHeaderCtx {
+        title: title.to_string(),
+        anchor: AnchorCtx { id: anchor },
+        href: None,
+        doc: None,
+      })
+    } else {
+      None
+    };
 
     match &mut content {
       SectionContentCtx::DocEntry(entries) => {
@@ -555,15 +570,7 @@ impl SectionCtx {
       SectionContentCtx::Empty => {}
     }
 
-    Self {
-      header: SectionHeaderCtx {
-        title: title.to_string(),
-        anchor: AnchorCtx { id: anchor },
-        href: None,
-        doc: None,
-      },
-      content,
-    }
+    Self { header, content }
   }
 }
 
@@ -699,7 +706,7 @@ impl TopSymbolsCtx {
           true,
         )
       })
-      .filter(|(_name, node)| !node[0].is_internal())
+      .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
       .collect::<Vec<_>>();
 
     if partitions.is_empty() {

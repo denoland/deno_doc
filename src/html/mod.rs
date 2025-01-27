@@ -803,8 +803,9 @@ impl DocNodeWithContext {
     ns_qualifiers
   }
 
-  pub fn is_internal(&self) -> bool {
-    self.inner.declaration_kind == crate::node::DeclarationKind::Private
+  pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
+    (self.inner.declaration_kind == crate::node::DeclarationKind::Private
+      && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts))
       || self
         .js_doc
         .tags

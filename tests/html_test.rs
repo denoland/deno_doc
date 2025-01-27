@@ -156,7 +156,62 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
 }
 
 #[tokio::test]
-async fn html_doc_files() {
+async fn html_doc_dts() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
+    },
+    get_files("dts").await,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  let mut file_names = files.keys().collect::<Vec<_>>();
+  file_names.sort();
+
+  assert_eq!(
+    file_names,
+    [
+      "./all_symbols.html",
+      "./index.html",
+      "./~/ResponseInit.html",
+      "./~/ResponseInit.status.html",
+      "./~/ResponseInit.statusText.html",
+      "./~/WebSocket.OPEN.html",
+      "./~/WebSocket.bufferedAmount.html",
+      "./~/WebSocket.html",
+      "./~/WebSocket.prototype.html",
+      "comrak.css",
+      "fuse.js",
+      "page.css",
+      "reset.css",
+      "script.js",
+      "search.js",
+      "search_index.js",
+      "styles.css"
+    ]
+  );
+
+  for file_name in file_names {
+    if !file_name.ends_with(".css") {
+      insta::assert_snapshot!(files.get(file_name).unwrap());
+    }
+  }
+}
+
+#[tokio::test]
+async fn html_doc_files_single() {
   let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
@@ -210,7 +265,7 @@ async fn html_doc_files() {
 }
 
 #[tokio::test]
-async fn html_doc_files_rewrite() {
+async fn html_doc_files_multiple() {
   let multiple_dir = std::env::current_dir()
     .unwrap()
     .join("tests")
@@ -275,6 +330,8 @@ async fn html_doc_files_rewrite() {
       "./~/Baz.bar.html",
       "./~/Baz.foo.html",
       "./~/Baz.html",
+      "./~/CompoundType.bufferedAmount.html",
+      "./~/CompoundType.html",
       "./~/EmptyInterface.html",
       "./~/Enum.html",
       "./~/Enum2.html",

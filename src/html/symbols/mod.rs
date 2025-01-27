@@ -111,7 +111,7 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
-        if doc_nodes[0].is_internal() {
+        if doc_nodes[0].is_internal(ctx.ctx) {
           tags.insert(Tag::Private);
         }
 
@@ -341,12 +341,12 @@ impl SymbolInnerCtx {
             |(title, nodes)| {
               (
                 ctx.clone(),
-                crate::html::util::SectionHeaderCtx {
+                Some(crate::html::util::SectionHeaderCtx {
                   title: title.clone(),
                   anchor: AnchorCtx { id: title },
                   href: None,
                   doc: None,
-                },
+                }),
                 nodes,
               )
             },

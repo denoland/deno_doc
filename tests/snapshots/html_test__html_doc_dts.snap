@@ -1,0 +1,74 @@
+---
+source: tests/html_test.rs
+expression: files.get(file_name).unwrap()
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Symbols - documentation</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="doc-current-file" content="">
+  <link rel="stylesheet" href=".&#x2F;styles.css">
+  <link rel="stylesheet" href=".&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href=".&#x2F;reset.css"><script src=".&#x2F;search_index.js" defer></script>
+    <script src=".&#x2F;script.js" defer></script>
+    <script src=".&#x2F;fuse.js" defer></script>
+    <script src=".&#x2F;search.js" defer></script></head>
+<body>
+<div class="ddoc">
+  <div id="categoryPanel">
+    <ul><li><a href=".&#x2F;.&#x2F;uncategorized.html" title="Uncategorized">Uncategorized</a></li><li>
+        <a class="!flex items-center gap-0.5" href=".&#x2F;.&#x2F;all_symbols.html">
+          <span class="leading-none">view all 2 symbols</span><svg
+	width="16"
+	height="16"
+	viewBox="0 0 16 16"
+	fill="none"
+	xmlns="http://www.w3.org/2000/svg">
+	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
+</svg>
+</a>
+      </li>
+    </ul>
+  </div>
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+  <div class="h-full">
+    <div><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+	width="16"
+	height="16"
+	viewBox="0 0 16 16"
+	fill="none"
+	xmlns="http://www.w3.org/2000/svg">
+	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
+</svg>
+</span><li>all symbols</li></ul>
+</div>
+
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+  </div>
+</nav>
+<div id="searchResults"></div><div id="content">
+    <main><div class="space-y-7" id=""><section class="section" ><div class="namespaceSection"><div id="namespace_responseinit" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html" title="ResponseInit">ResponseInit</a>
+
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html#property_status">status</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html#property_statustext">statusText</a></li></ul></div>
+    </div><div id="namespace_websocket" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html" title="WebSocket">WebSocket</a>
+
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html#property_open">OPEN</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html#property_bufferedamount">bufferedAmount</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html#property_prototype">prototype</a></li></ul></div>
+    </div></div>
+</section>
+</div>
+</main>
+  </div>
+</div>
+</div>
+</body>
+</html>

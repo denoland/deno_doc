@@ -1,19 +1,21 @@
-<section class="section" id="{{header.anchor.id}}">
-  <div>
-	  <h2 class="anchorable mb-1">
-      {{~> anchor header.anchor ~}}
+<section class="section" {{#if header}} id="{{header.anchor.id}}"{{/if}}>
+  {{~#if header~}}
+    <div>
+      <h2 class="anchorable mb-1">
+        {{~> anchor header.anchor ~}}
 
-		  {{~#if header.href~}}
-			  <a href="{{header.href}}" class="contextLink">{{header.title}}</a>
-		  {{~else~}}
-			  {{header.title}}
-		  {{~/if~}}
-	  </h2>
+        {{~#if header.href~}}
+          <a href="{{header.href}}" class="contextLink">{{header.title}}</a>
+          {{~else~}}
+          {{header.title}}
+        {{~/if~}}
+      </h2>
 
-		{{~#if header.doc~}}
-			{{{header.doc}}} {{! markdown }}
-		{{~/if~}}
-  </div>
+      {{~#if header.doc~}}
+        {{{header.doc}}} {{! markdown }}
+      {{~/if~}}
+    </div>
+  {{~/if~}}
 
   {{~#if (ne content.kind "empty")~}}
     {{~#if (or (eq content.kind "namespace_section") (eq content.kind "see"))~}}
