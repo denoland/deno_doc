@@ -17,4 +17,3 @@ interface ResponseInit {
   status?: number;
   statusText?: string;
 }
-
