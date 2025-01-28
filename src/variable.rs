@@ -2,7 +2,6 @@
 
 use deno_ast::swc::ast::Pat;
 use deno_ast::swc::ast::VarDeclKind;
-use deno_ast::ParsedSource;
 use deno_graph::symbols::EsModuleInfo;
 use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
@@ -41,7 +40,7 @@ pub fn get_docs_for_var_declarator(
     Pat::Invalid(_) | Pat::Expr(_) | Pat::Rest(_) | Pat::Assign(_) => None,
   };
   let maybe_ts_type = maybe_ts_type_ann
-    .map(|def| TsTypeDef::new(module_info.source(), &def.type_ann))
+    .map(|def| TsTypeDef::new(module_info, &def.type_ann))
     .or_else(|| {
       if let Some(ref_name) = ref_name {
         module_info.symbol_from_swc(&ref_name).and_then(|symbol| {
@@ -53,15 +52,12 @@ pub fn get_docs_for_var_declarator(
             {
               if let Pat::Ident(ident) = &var_declarator.name {
                 if let Some(type_ann) = &ident.type_ann {
-                  return Some(TsTypeDef::new(
-                    module_info.source(),
-                    &type_ann.type_ann,
-                  ));
+                  return Some(TsTypeDef::new(module_info, &type_ann.type_ann));
                 }
               }
             }
             let maybe_type_ann = infer_simple_ts_type_from_init(
-              module_info.source(),
+              module_info,
               var_declarator.init.as_deref(),
               var_decl.kind == VarDeclKind::Const,
             );
@@ -77,7 +73,7 @@ pub fn get_docs_for_var_declarator(
     })
     .or_else(|| {
       infer_simple_ts_type_from_init(
-        module_info.source(),
+        module_info,
         var_declarator.init.as_deref(),
         var_decl.kind == VarDeclKind::Const,
       )
@@ -97,14 +93,14 @@ pub fn get_docs_for_var_declarator(
       var_decl.kind,
       maybe_ts_type.as_ref(),
       &mut items,
-      module_info.source(),
+      module_info,
     ),
     Pat::Array(arr) => get_vars_from_array_destructuring(
       arr,
       var_decl.kind,
       maybe_ts_type.as_ref(),
       &mut items,
-      module_info.source(),
+      module_info,
     ),
     Pat::Expr(_) | Pat::Invalid(_) | Pat::Assign(_) | Pat::Rest(_) => {}
   }
@@ -116,14 +112,14 @@ fn get_vars_from_obj_destructuring(
   kind: VarDeclKind,
   maybe_ts_type: Option<&TsTypeDef>,
   items: &mut Vec<(String, VariableDef)>,
-  source: &ParsedSource,
+  module_info: &EsModuleInfo,
 ) {
   let mut reached_rest = false;
   for prop in &obj.props {
     assert!(!reached_rest, "object rest is always last");
     let (name, reassign_name, rest_type_ann) = match prop {
       deno_ast::swc::ast::ObjectPatProp::KeyValue(kv) => (
-        crate::params::prop_name_to_string(source, &kv.key),
+        crate::params::prop_name_to_string(module_info, &kv.key),
         match &*kv.value {
           Pat::Ident(ident) => Some(ident.sym.to_string()),
           Pat::Assign(assign) => {
@@ -183,7 +179,8 @@ fn get_vars_from_obj_destructuring(
         })
       })
     } else {
-      rest_type_ann.map(|type_ann| TsTypeDef::new(source, &type_ann.type_ann))
+      rest_type_ann
+        .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann))
     };
 
     let variable_def = VariableDef { ts_type, kind };
@@ -196,7 +193,7 @@ fn get_vars_from_array_destructuring(
   kind: VarDeclKind,
   maybe_ts_type: Option<&TsTypeDef>,
   items: &mut Vec<(String, VariableDef)>,
-  source: &ParsedSource,
+  module_info: &EsModuleInfo,
 ) {
   let mut reached_rest = false;
   for (i, elem) in arr.elems.iter().enumerate() {
@@ -249,7 +246,7 @@ fn get_vars_from_array_destructuring(
       })
     } else {
       rest_type_ann
-        .map(|type_ann| TsTypeDef::new(source, &type_ann.type_ann))
+        .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann))
         .or_else(|| {
           maybe_ts_type.and_then(|ts_type| {
             if ts_type.kind == Some(TsTypeDefKind::Array) {

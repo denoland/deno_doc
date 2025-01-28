@@ -3,7 +3,7 @@
 use crate::ts_type::TsTypeDef;
 use deno_ast::swc::ast::TsTypeParam;
 use deno_ast::swc::ast::TsTypeParamDecl;
-use deno_ast::ParsedSource;
+use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Display;
@@ -36,16 +36,16 @@ impl Display for TsTypeParamDef {
 }
 
 impl TsTypeParamDef {
-  pub fn new(parsed_source: &ParsedSource, param: &TsTypeParam) -> Self {
+  pub fn new(module_info: &EsModuleInfo, param: &TsTypeParam) -> Self {
     let name = param.name.sym.to_string();
     let constraint = param
       .constraint
       .as_ref()
-      .map(|constraint| TsTypeDef::new(parsed_source, constraint));
+      .map(|constraint| TsTypeDef::new(module_info, constraint));
     let default = param
       .default
       .as_ref()
-      .map(|default| TsTypeDef::new(parsed_source, default));
+      .map(|default| TsTypeDef::new(module_info, default));
 
     TsTypeParamDef {
       name,
@@ -56,14 +56,14 @@ impl TsTypeParamDef {
 }
 
 pub(crate) fn maybe_type_param_decl_to_type_param_defs(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   maybe_type_param_decl: Option<&TsTypeParamDecl>,
 ) -> Box<[TsTypeParamDef]> {
   if let Some(type_params_decl) = maybe_type_param_decl {
     type_params_decl
       .params
       .iter()
-      .map(|type_param| TsTypeParamDef::new(parsed_source, type_param))
+      .map(|type_param| TsTypeParamDef::new(module_info, type_param))
       .collect::<Box<[_]>>()
   } else {
     Box::new([])

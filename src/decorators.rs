@@ -5,8 +5,8 @@ use crate::util::swc::get_location;
 
 use deno_ast::swc::ast::Decorator;
 use deno_ast::swc::ast::Expr;
-use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::symbols::EsModuleInfo;
 use deno_terminal::colors;
 use serde::Deserialize;
 use serde::Serialize;
@@ -41,7 +41,7 @@ impl Display for DecoratorDef {
 
 impl DecoratorDef {
   fn from_ast_decorator(
-    parsed_source: &ParsedSource,
+    module_info: &EsModuleInfo,
     decorator: &Decorator,
   ) -> Self {
     match decorator.expr.as_ref() {
@@ -51,41 +51,44 @@ impl DecoratorDef {
             let args = call_expr
               .args
               .iter()
-              .map(|a| a.text_fast(parsed_source.text_info_lazy()).to_string())
+              .map(|a| {
+                a.text_fast(module_info.source().text_info_lazy())
+                  .to_string()
+              })
               .collect();
             return Self {
               name: ident.sym.to_string(),
               args,
-              location: get_location(parsed_source, ident.start()),
+              location: get_location(module_info, ident.start()),
             };
           }
         }
         Self {
           name: "[UNSUPPORTED]".to_string(),
           args: vec![],
-          location: get_location(parsed_source, call_expr.start()),
+          location: get_location(module_info, call_expr.start()),
         }
       }
       Expr::Ident(ident) => Self {
         name: ident.sym.to_string(),
         args: vec![],
-        location: get_location(parsed_source, ident.start()),
+        location: get_location(module_info, ident.start()),
       },
       _ => Self {
         name: "[UNSUPPORTED]".to_string(),
         args: vec![],
-        location: get_location(parsed_source, decorator.start()),
+        location: get_location(module_info, decorator.start()),
       },
     }
   }
 }
 
 pub fn decorators_to_defs(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   decorators: &[Decorator],
 ) -> Box<[DecoratorDef]> {
   decorators
     .iter()
-    .map(|d| DecoratorDef::from_ast_decorator(parsed_source, d))
+    .map(|d| DecoratorDef::from_ast_decorator(module_info, d))
     .collect()
 }

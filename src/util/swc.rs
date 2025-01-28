@@ -8,6 +8,7 @@ use deno_ast::SourcePos;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
 use deno_ast::SourceTextInfo;
+use deno_graph::symbols::EsModuleInfo;
 use regex::Regex;
 
 use crate::js_doc::JsDoc;
@@ -53,10 +54,10 @@ pub(crate) fn js_doc_for_range_include_ignore(
 }
 
 pub(crate) fn js_doc_for_range(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   range: &SourceRange,
 ) -> Option<JsDoc> {
-  let js_doc = js_doc_for_range_include_ignore(parsed_source, range);
+  let js_doc = js_doc_for_range_include_ignore(module_info.source(), range);
   if js_doc.tags.contains(&JsDocTag::Ignore) {
     None
   } else {
@@ -104,10 +105,10 @@ pub(crate) fn module_js_doc_for_source(
   None
 }
 
-pub fn get_location(parsed_source: &ParsedSource, pos: SourcePos) -> Location {
+pub fn get_location(module_info: &EsModuleInfo, pos: SourcePos) -> Location {
   get_text_info_location(
-    parsed_source.specifier().as_str(),
-    parsed_source.text_info_lazy(),
+    module_info.specifier().as_str(),
+    module_info.source().text_info_lazy(),
     pos,
   )
 }
