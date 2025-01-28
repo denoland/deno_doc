@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -235,7 +235,7 @@ pub struct ClassDef {
 }
 
 pub fn class_to_class_def(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   class: &deno_ast::swc::ast::Class,
   def_name: Option<Box<str>>,
 ) -> (ClassDef, JsDoc) {
@@ -273,7 +273,7 @@ pub fn class_to_class_def(
   let implements = class
     .implements
     .iter()
-    .map(|expr| TsTypeDef::ts_expr_with_type_args(parsed_source, expr))
+    .map(|expr| TsTypeDef::ts_expr_with_type_args(module_info, expr))
     .collect::<Box<[_]>>();
 
   for member in &class.body {
@@ -281,10 +281,9 @@ pub fn class_to_class_def(
 
     match member {
       Constructor(ctor) => {
-        if let Some(ctor_js_doc) =
-          js_doc_for_range(parsed_source, &ctor.range())
+        if let Some(ctor_js_doc) = js_doc_for_range(module_info, &ctor.range())
         {
-          let constructor_name = prop_name_to_string(parsed_source, &ctor.key);
+          let constructor_name = prop_name_to_string(module_info, &ctor.key);
 
           let mut params = vec![];
 
@@ -295,7 +294,7 @@ pub fn class_to_class_def(
               Param(param) => ClassConstructorParamDef {
                 accessibility: None,
                 is_override: false,
-                param: param_to_param_def(parsed_source, param),
+                param: param_to_param_def(module_info, param),
                 readonly: false,
               },
               TsParamProp(ts_param_prop) => {
@@ -303,10 +302,10 @@ pub fn class_to_class_def(
 
                 let param = match &ts_param_prop.param {
                   TsParamPropParam::Ident(ident) => {
-                    ident_to_param_def(parsed_source, ident)
+                    ident_to_param_def(module_info, ident)
                   }
                   TsParamPropParam::Assign(assign_pat) => {
-                    assign_pat_to_param_def(parsed_source, assign_pat)
+                    assign_pat_to_param_def(module_info, assign_pat)
                   }
                 };
 
@@ -328,22 +327,18 @@ pub fn class_to_class_def(
             has_body: ctor.body.is_some(),
             name: constructor_name,
             params,
-            location: get_location(parsed_source, ctor.start()),
+            location: get_location(module_info, ctor.start()),
           };
           constructors.push(constructor_def);
         }
       }
       Method(class_method) => {
         if let Some(method_js_doc) =
-          js_doc_for_range(parsed_source, &class_method.range())
+          js_doc_for_range(module_info, &class_method.range())
         {
-          let method_name =
-            prop_name_to_string(parsed_source, &class_method.key);
-          let fn_def = function_to_function_def(
-            parsed_source,
-            &class_method.function,
-            None,
-          );
+          let method_name = prop_name_to_string(module_info, &class_method.key);
+          let fn_def =
+            function_to_function_def(module_info, &class_method.function, None);
           let method_def = ClassMethodDef {
             js_doc: method_js_doc,
             accessibility: class_method.accessibility,
@@ -354,30 +349,30 @@ pub fn class_to_class_def(
             name: method_name.into_boxed_str(),
             kind: class_method.kind,
             function_def: fn_def,
-            location: get_location(parsed_source, class_method.start()),
+            location: get_location(module_info, class_method.start()),
           };
           methods.push(method_def);
         }
       }
       ClassProp(class_prop) => {
         if let Some(prop_js_doc) =
-          js_doc_for_range(parsed_source, &class_prop.range())
+          js_doc_for_range(module_info, &class_prop.range())
         {
           let ts_type = if let Some(type_ann) = &class_prop.type_ann {
             // if the property has a type annotation, use it
-            Some(TsTypeDef::new(parsed_source, &type_ann.type_ann))
+            Some(TsTypeDef::new(module_info, &type_ann.type_ann))
           } else if let Some(value) = &class_prop.value {
             // else, if it has an initializer, try to infer the type
-            infer_ts_type_from_expr(parsed_source, value, false)
+            infer_ts_type_from_expr(module_info, value, false)
           } else {
             // else, none
             None
           };
 
-          let prop_name = prop_name_to_string(parsed_source, &class_prop.key);
+          let prop_name = prop_name_to_string(module_info, &class_prop.key);
 
           let decorators =
-            decorators_to_defs(parsed_source, &class_prop.decorators);
+            decorators_to_defs(module_info, &class_prop.decorators);
 
           let prop_def = ClassPropertyDef {
             js_doc: prop_js_doc,
@@ -390,28 +385,28 @@ pub fn class_to_class_def(
             accessibility: class_prop.accessibility,
             name: prop_name.into_boxed_str(),
             decorators,
-            location: get_location(parsed_source, class_prop.start()),
+            location: get_location(module_info, class_prop.start()),
           };
           properties.push(prop_def);
         }
       }
       TsIndexSignature(ts_index_sig) => {
         if let Some(js_doc) =
-          js_doc_for_range(parsed_source, &ts_index_sig.range())
+          js_doc_for_range(module_info, &ts_index_sig.range())
         {
           let mut params = vec![];
           for param in &ts_index_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
+            let param_def = ts_fn_param_to_param_def(module_info, param);
             params.push(param_def);
           }
 
           let ts_type = ts_index_sig
             .type_ann
             .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
           let index_sig_def = IndexSignatureDef {
-            location: get_location(parsed_source, ts_index_sig.start()),
+            location: get_location(module_info, ts_index_sig.start()),
             js_doc,
             readonly: ts_index_sig.readonly,
             params,
@@ -428,21 +423,21 @@ pub fn class_to_class_def(
   }
 
   let type_params = maybe_type_param_decl_to_type_param_defs(
-    parsed_source,
+    module_info,
     class.type_params.as_deref(),
   );
 
   let super_type_params = maybe_type_param_instantiation_to_type_defs(
-    parsed_source,
+    module_info,
     class.super_type_params.as_deref(),
   );
 
-  let decorators = decorators_to_defs(parsed_source, &class.decorators);
+  let decorators = decorators_to_defs(module_info, &class.decorators);
 
   // JSDoc associated with the class may actually be a leading comment on a
   // decorator, and so we should parse out the JSDoc for the first decorator
   let js_doc = if !class.decorators.is_empty() {
-    js_doc_for_range(parsed_source, &class.decorators[0].range()).unwrap()
+    js_doc_for_range(module_info, &class.decorators[0].range()).unwrap()
   } else {
     JsDoc::default()
   };
@@ -466,12 +461,12 @@ pub fn class_to_class_def(
 }
 
 pub fn get_doc_for_class_decl(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   class_decl: &deno_ast::swc::ast::ClassDecl,
 ) -> (String, ClassDef, JsDoc) {
   let class_name = class_decl.ident.sym.to_string();
   let (class_def, js_doc) =
-    class_to_class_def(parsed_source, &class_decl.class, None);
+    class_to_class_def(module_info, &class_decl.class, None);
 
   (class_name, class_def, js_doc)
 }

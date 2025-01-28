@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -30,7 +30,7 @@ pub struct EnumDef {
 }
 
 pub fn get_doc_for_ts_enum_decl(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   enum_decl: &deno_ast::swc::ast::TsEnumDecl,
 ) -> (String, EnumDef) {
   let enum_name = enum_decl.id.sym.to_string();
@@ -39,14 +39,13 @@ pub fn get_doc_for_ts_enum_decl(
   for enum_member in &enum_decl.members {
     use deno_ast::swc::ast::TsEnumMemberId::*;
 
-    if let Some(js_doc) = js_doc_for_range(parsed_source, &enum_member.range())
-    {
+    if let Some(js_doc) = js_doc_for_range(module_info, &enum_member.range()) {
       let name = match &enum_member.id {
         Ident(ident) => ident.sym.to_string(),
         Str(str_) => str_.value.to_string(),
       };
       let init = if let Some(expr) = &enum_member.init {
-        infer_ts_type_from_expr(parsed_source, expr, true)
+        infer_ts_type_from_expr(module_info, expr, true)
       } else {
         None
       };
@@ -55,7 +54,7 @@ pub fn get_doc_for_ts_enum_decl(
         name,
         init,
         js_doc,
-        location: get_location(parsed_source, enum_member.start()),
+        location: get_location(module_info, enum_member.start()),
       };
       members.push(member_def);
     }

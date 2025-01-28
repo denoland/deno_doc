@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ParsedSource;
 use deno_ast::SourceRangedForSpanned;
+use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -75,7 +75,7 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
 }
 
 pub fn get_doc_for_ts_interface_decl(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   interface_decl: &deno_ast::swc::ast::TsInterfaceDecl,
   def_name: Option<String>,
 ) -> (String, InterfaceDef) {
@@ -93,12 +93,12 @@ pub fn get_doc_for_ts_interface_decl(
     match &type_element {
       TsMethodSignature(ts_method_sig) => {
         if let Some(method_js_doc) =
-          js_doc_for_range(parsed_source, &ts_method_sig.range())
+          js_doc_for_range(module_info, &ts_method_sig.range())
         {
           let mut params = vec![];
 
           for param in &ts_method_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
+            let param_def = ts_fn_param_to_param_def(module_info, param);
             params.push(param_def);
           }
 
@@ -107,10 +107,10 @@ pub fn get_doc_for_ts_interface_decl(
           let maybe_return_type = ts_method_sig
             .type_ann
             .as_deref()
-            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
+            .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
+            module_info,
             ts_method_sig.type_params.as_deref(),
           );
 
@@ -118,7 +118,7 @@ pub fn get_doc_for_ts_interface_decl(
             name,
             kind: deno_ast::swc::ast::MethodKind::Method,
             js_doc: method_js_doc,
-            location: get_location(parsed_source, ts_method_sig.start()),
+            location: get_location(module_info, ts_method_sig.start()),
             computed: ts_method_sig.computed,
             optional: ts_method_sig.optional,
             params,
@@ -130,20 +130,20 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsGetterSignature(ts_getter_sig) => {
         if let Some(method_js_doc) =
-          js_doc_for_range(parsed_source, &ts_getter_sig.range())
+          js_doc_for_range(module_info, &ts_getter_sig.range())
         {
           let name = expr_to_name(&ts_getter_sig.key);
 
           let maybe_return_type = ts_getter_sig
             .type_ann
             .as_deref()
-            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
+            .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
 
           let method_def = MethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Getter,
             js_doc: method_js_doc,
-            location: get_location(parsed_source, ts_getter_sig.start()),
+            location: get_location(module_info, ts_getter_sig.start()),
             computed: ts_getter_sig.computed,
             optional: false,
             params: vec![],
@@ -155,19 +155,19 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsSetterSignature(ts_setter_sig) => {
         if let Some(method_js_doc) =
-          js_doc_for_range(parsed_source, &ts_setter_sig.range())
+          js_doc_for_range(module_info, &ts_setter_sig.range())
         {
           let name = expr_to_name(&ts_setter_sig.key);
 
           let param_def =
-            ts_fn_param_to_param_def(parsed_source, &ts_setter_sig.param);
+            ts_fn_param_to_param_def(module_info, &ts_setter_sig.param);
           let params = vec![param_def];
 
           let method_def = MethodDef {
             name,
             kind: deno_ast::swc::ast::MethodKind::Setter,
             js_doc: method_js_doc,
-            location: get_location(parsed_source, ts_setter_sig.start()),
+            location: get_location(module_info, ts_setter_sig.start()),
             computed: ts_setter_sig.computed,
             optional: false,
             params,
@@ -179,22 +179,22 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsPropertySignature(ts_prop_sig) => {
         if let Some(prop_js_doc) =
-          js_doc_for_range(parsed_source, &ts_prop_sig.range())
+          js_doc_for_range(module_info, &ts_prop_sig.range())
         {
           let name = expr_to_name(&ts_prop_sig.key);
 
           let ts_type = ts_prop_sig
             .type_ann
             .as_deref()
-            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
+            .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
 
           let type_params =
-            maybe_type_param_decl_to_type_param_defs(parsed_source, None);
+            maybe_type_param_decl_to_type_param_defs(module_info, None);
 
           let prop_def = PropertyDef {
             name,
             js_doc: prop_js_doc,
-            location: get_location(parsed_source, ts_prop_sig.start()),
+            location: get_location(module_info, ts_prop_sig.start()),
             params: vec![],
             ts_type,
             readonly: ts_prop_sig.readonly,
@@ -207,27 +207,27 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsCallSignatureDecl(ts_call_sig) => {
         if let Some(call_sig_js_doc) =
-          js_doc_for_range(parsed_source, &ts_call_sig.range())
+          js_doc_for_range(module_info, &ts_call_sig.range())
         {
           let mut params = vec![];
           for param in &ts_call_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
+            let param_def = ts_fn_param_to_param_def(module_info, param);
             params.push(param_def);
           }
 
           let ts_type = ts_call_sig
             .type_ann
             .as_deref()
-            .map(|type_ann| TsTypeDef::new(parsed_source, &type_ann.type_ann));
+            .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
+            module_info,
             ts_call_sig.type_params.as_deref(),
           );
 
           let call_sig_def = CallSignatureDef {
             js_doc: call_sig_js_doc,
-            location: get_location(parsed_source, ts_call_sig.start()),
+            location: get_location(module_info, ts_call_sig.start()),
             params,
             ts_type,
             type_params,
@@ -237,21 +237,21 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsIndexSignature(ts_index_sig) => {
         if let Some(js_doc) =
-          js_doc_for_range(parsed_source, &ts_index_sig.range())
+          js_doc_for_range(module_info, &ts_index_sig.range())
         {
           let mut params = vec![];
           for param in &ts_index_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
+            let param_def = ts_fn_param_to_param_def(module_info, param);
             params.push(param_def);
           }
 
           let ts_type = ts_index_sig
             .type_ann
             .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
           let index_sig_def = IndexSignatureDef {
-            location: get_location(parsed_source, ts_index_sig.start()),
+            location: get_location(module_info, ts_index_sig.start()),
             js_doc,
             readonly: ts_index_sig.readonly,
             params,
@@ -262,28 +262,28 @@ pub fn get_doc_for_ts_interface_decl(
       }
       TsConstructSignatureDecl(ts_construct_sig) => {
         if let Some(js_doc) =
-          js_doc_for_range(parsed_source, &ts_construct_sig.range())
+          js_doc_for_range(module_info, &ts_construct_sig.range())
         {
           let mut params = vec![];
 
           for param in &ts_construct_sig.params {
-            let param_def = ts_fn_param_to_param_def(parsed_source, param);
+            let param_def = ts_fn_param_to_param_def(module_info, param);
             params.push(param_def);
           }
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
-            parsed_source,
+            module_info,
             ts_construct_sig.type_params.as_deref(),
           );
 
           let maybe_return_type = ts_construct_sig
             .type_ann
             .as_ref()
-            .map(|rt| TsTypeDef::new(parsed_source, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
           let construct_sig_def = ConstructorDef {
             js_doc,
-            location: get_location(parsed_source, ts_construct_sig.start()),
+            location: get_location(module_info, ts_construct_sig.start()),
             params,
             return_type: maybe_return_type,
             type_params,
@@ -296,14 +296,14 @@ pub fn get_doc_for_ts_interface_decl(
   }
 
   let type_params = maybe_type_param_decl_to_type_param_defs(
-    parsed_source,
+    module_info,
     interface_decl.type_params.as_deref(),
   );
 
   let extends = interface_decl
     .extends
     .iter()
-    .map(|expr| TsTypeDef::ts_expr_with_type_args(parsed_source, expr))
+    .map(|expr| TsTypeDef::ts_expr_with_type_args(module_info, expr))
     .collect::<Vec<TsTypeDef>>();
 
   let interface_def = InterfaceDef {
