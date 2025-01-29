@@ -1,7 +1,8 @@
+use super::DocNodeWithContext;
+use super::GenerateCtx;
 use super::ShortPath;
-use super::{DocNodeWithContext, GenerateCtx};
 use crate::js_doc::JsDocTag;
-use crate::DocNodeKind;
+use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::cmp::Ordering;
@@ -29,11 +30,15 @@ where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
     for node in doc_nodes {
-      if matches!(node.kind(), DocNodeKind::ModuleDoc | DocNodeKind::Import) {
+      if matches!(
+        node.def,
+        DocNodeDef::ModuleDoc { .. } | DocNodeDef::Import { .. }
+      ) {
         continue;
       }
 
-      if flatten_namespaces && node.kind() == DocNodeKind::Namespace {
+      if flatten_namespaces && matches!(node.def, DocNodeDef::Namespace { .. })
+      {
         partitioner_inner(
           ctx,
           partitions,
@@ -98,7 +103,7 @@ pub fn partition_nodes_by_name<'a>(
   );
 
   for val in partitions.values_mut() {
-    val.sort_by_key(|n| n.kind());
+    val.sort_by_key(|n| n.kind);
   }
 
   partitions.sort_keys();
@@ -125,7 +130,7 @@ pub fn partition_nodes_by_kind<'a>(
       if let Some(nodes) = maybe_nodes {
         nodes.push(node.clone());
       } else {
-        let entry = partitions.entry(node.kind_with_drilldown).or_default();
+        let entry = partitions.entry(node.kind).or_default();
         entry.push(node.clone());
       }
     },
@@ -173,7 +178,7 @@ pub fn partition_nodes_by_category<'a>(
 
       if !entry.iter().any(|n| {
         n.get_qualified_name() == node.get_qualified_name()
-          && n.kind() == node.kind()
+          && n.kind == node.kind
       }) {
         entry.push(node.clone());
       }
@@ -248,5 +253,5 @@ fn compare_node(
         .cmp(&node2.get_qualified_name().to_ascii_lowercase())
     })
     .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
-    .then_with(|| node1.kind().cmp(&node2.kind()))
+    .then_with(|| node1.kind.cmp(&node2.kind))
 }

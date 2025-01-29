@@ -2,7 +2,7 @@ use crate::html::jsdoc::markdown_to_html;
 use crate::html::jsdoc::MarkdownToHTMLOptions;
 use crate::html::render_context::ToCEntry;
 use crate::html::usage::UsagesCtx;
-use crate::html::DocNodeKindWithDrilldown;
+use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
 use crate::html::GenerateCtx;
@@ -11,7 +11,6 @@ use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
-use crate::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
@@ -68,11 +67,13 @@ pub fn compute_namespaced_symbols<'a>(
     HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
 
   for doc_node in doc_nodes {
-    if doc_node.kind() == DocNodeKind::ModuleDoc
-      || doc_node.kind() == DocNodeKind::Import
-    {
+    if matches!(
+      doc_node.def,
+      DocNodeDef::ModuleDoc | DocNodeDef::Import { .. }
+    ) {
       continue;
     }
+
     // TODO: handle export aliasing
 
     let name_path: Rc<[String]> = doc_node.sub_qualifier().into();
@@ -205,7 +206,7 @@ pub fn compute_namespaced_symbols<'a>(
     namespaced_symbols
       .insert(name_path.to_vec(), Some(doc_node.origin.clone()));
 
-    if doc_node.kind() == DocNodeKind::Namespace {
+    if matches!(doc_node.def, DocNodeDef::Namespace { .. }) {
       let children = doc_node
         .namespace_children
         .as_ref()
@@ -381,39 +382,31 @@ pub struct DocNodeKindCtx {
   pub title_plural: &'static str,
 }
 
-impl From<DocNodeKindWithDrilldown> for DocNodeKindCtx {
-  fn from(kind: DocNodeKindWithDrilldown) -> Self {
+impl From<DocNodeKind> for DocNodeKindCtx {
+  fn from(kind: DocNodeKind) -> Self {
     let (char, kind, title, title_lowercase, title_plural) = match kind {
-      DocNodeKindWithDrilldown::Property => {
+      DocNodeKind::Property => {
         ('p', "Property", "Property", "property", "Properties")
       }
-      DocNodeKindWithDrilldown::Method(_) => {
-        ('m', "Method", "Method", "method", "Methods")
-      }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::Function) => {
+      DocNodeKind::Method(_) => ('m', "Method", "Method", "method", "Methods"),
+      DocNodeKind::Function => {
         ('f', "Function", "Function", "function", "Functions")
       }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::Variable) => {
+      DocNodeKind::Variable => {
         ('v', "Variable", "Variable", "variable", "Variables")
       }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::Class) => {
-        ('c', "Class", "Class", "class", "Classes")
-      }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::Enum) => {
-        ('E', "Enum", "Enum", "enum", "Enums")
-      }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::Interface) => {
+      DocNodeKind::Class => ('c', "Class", "Class", "class", "Classes"),
+      DocNodeKind::Enum => ('E', "Enum", "Enum", "enum", "Enums"),
+      DocNodeKind::Interface => {
         ('I', "Interface", "Interface", "interface", "Interfaces")
       }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::TypeAlias) => {
+      DocNodeKind::TypeAlias => {
         ('T', "TypeAlias", "Type Alias", "type alias", "Type Aliases")
       }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::Namespace) => {
+      DocNodeKind::Namespace => {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
-      DocNodeKindWithDrilldown::Other(DocNodeKind::ModuleDoc)
-      | DocNodeKindWithDrilldown::Other(DocNodeKind::Import)
-      | DocNodeKindWithDrilldown::Other(DocNodeKind::Reference) => {
+      DocNodeKind::ModuleDoc | DocNodeKind::Import | DocNodeKind::Reference => {
         unreachable!()
       }
     };
@@ -469,7 +462,7 @@ impl SectionHeaderCtx {
 
     let doc = module_doc_nodes
       .iter()
-      .find(|n| n.kind() == DocNodeKind::ModuleDoc)
+      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
       .and_then(|node| node.js_doc.doc.as_ref())
       .and_then(|doc| {
         markdown_to_html(
@@ -719,10 +712,7 @@ impl TopSymbolsCtx {
       .into_iter()
       .take(5)
       .map(|(name, nodes)| TopSymbolCtx {
-        kind: nodes
-          .iter()
-          .map(|node| node.kind_with_drilldown.into())
-          .collect(),
+        kind: nodes.iter().map(|node| node.kind.into()).collect(),
         href: ctx.ctx.resolve_path(
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {

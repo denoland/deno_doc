@@ -8,7 +8,7 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
-use crate::node::DocNodeKind;
+use crate::node::DocNodeDef;
 use crate::Location;
 
 use deno_terminal::colors;
@@ -55,8 +55,7 @@ impl DocPrinter<'_> {
 
     let mut sorted = Vec::from(doc_nodes);
     sorted.sort_unstable_by(|a, b| {
-      let kind_cmp =
-        self.kind_order(&a.kind()).cmp(&self.kind_order(&b.kind()));
+      let kind_cmp = self.kind_order(a).cmp(&self.kind_order(b));
       if kind_cmp == core::cmp::Ordering::Equal {
         a.name.cmp(&b.name)
       } else {
@@ -65,10 +64,12 @@ impl DocPrinter<'_> {
     });
 
     for node in &sorted {
-      let has_overloads = if node.kind() == DocNodeKind::Function {
+      let has_overloads = if matches!(node.def, DocNodeDef::Function { .. }) {
         sorted
           .iter()
-          .filter(|n| n.kind() == DocNodeKind::Function && n.name == node.name)
+          .filter(|n| {
+            matches!(n.def, DocNodeDef::Function { .. }) && n.name == node.name
+          })
           .count()
           > 1
       } else {
@@ -96,11 +97,11 @@ impl DocPrinter<'_> {
       self.format_jsdoc(w, &node.js_doc, indent + 1)?;
       writeln!(w)?;
 
-      match node.kind() {
-        DocNodeKind::Class => self.format_class(w, node)?,
-        DocNodeKind::Enum => self.format_enum(w, node)?,
-        DocNodeKind::Interface => self.format_interface(w, node)?,
-        DocNodeKind::Namespace => self.format_namespace(w, node)?,
+      match node.def {
+        DocNodeDef::Class { .. } => self.format_class(w, node)?,
+        DocNodeDef::Enum { .. } => self.format_enum(w, node)?,
+        DocNodeDef::Interface { .. } => self.format_interface(w, node)?,
+        DocNodeDef::Namespace { .. } => self.format_namespace(w, node)?,
         _ => {}
       }
     }
@@ -112,18 +113,18 @@ impl DocPrinter<'_> {
     Ok(())
   }
 
-  fn kind_order(&self, kind: &DocNodeKind) -> i64 {
-    match kind {
-      DocNodeKind::ModuleDoc => 0,
-      DocNodeKind::Function => 1,
-      DocNodeKind::Variable => 2,
-      DocNodeKind::Class => 3,
-      DocNodeKind::Enum => 4,
-      DocNodeKind::Interface => 5,
-      DocNodeKind::TypeAlias => 6,
-      DocNodeKind::Namespace => 7,
-      DocNodeKind::Import => 8,
-      DocNodeKind::Reference => 9,
+  fn kind_order(&self, node: &DocNode) -> i64 {
+    match node.def {
+      DocNodeDef::ModuleDoc { .. } => 0,
+      DocNodeDef::Function { .. } => 1,
+      DocNodeDef::Variable { .. } => 2,
+      DocNodeDef::Class { .. } => 3,
+      DocNodeDef::Enum { .. } => 4,
+      DocNodeDef::Interface { .. } => 5,
+      DocNodeDef::TypeAlias { .. } => 6,
+      DocNodeDef::Namespace { .. } => 7,
+      DocNodeDef::Import { .. } => 8,
+      DocNodeDef::Reference { .. } => 9,
     }
   }
 
@@ -134,25 +135,27 @@ impl DocPrinter<'_> {
     indent: i64,
     has_overloads: bool,
   ) -> FmtResult {
-    match node.kind() {
-      DocNodeKind::ModuleDoc => self.format_module_doc(w, node, indent),
-      DocNodeKind::Function => {
+    match node.def {
+      DocNodeDef::ModuleDoc { .. } => self.format_module_doc(w, node, indent),
+      DocNodeDef::Function { .. } => {
         self.format_function_signature(w, node, indent, has_overloads)
       }
-      DocNodeKind::Variable => self.format_variable_signature(w, node, indent),
-      DocNodeKind::Class => self.format_class_signature(w, node, indent),
-      DocNodeKind::Enum => self.format_enum_signature(w, node, indent),
-      DocNodeKind::Interface => {
+      DocNodeDef::Variable { .. } => {
+        self.format_variable_signature(w, node, indent)
+      }
+      DocNodeDef::Class { .. } => self.format_class_signature(w, node, indent),
+      DocNodeDef::Enum { .. } => self.format_enum_signature(w, node, indent),
+      DocNodeDef::Interface { .. } => {
         self.format_interface_signature(w, node, indent)
       }
-      DocNodeKind::TypeAlias => {
+      DocNodeDef::TypeAlias { .. } => {
         self.format_type_alias_signature(w, node, indent)
       }
-      DocNodeKind::Namespace => {
+      DocNodeDef::Namespace { .. } => {
         self.format_namespace_signature(w, node, indent)
       }
-      DocNodeKind::Import => Ok(()),
-      DocNodeKind::Reference => {
+      DocNodeDef::Import { .. } => Ok(()),
+      DocNodeDef::Reference { .. } => {
         self.format_reference_signature(w, node, indent)
       }
     }
@@ -511,10 +514,12 @@ impl DocPrinter<'_> {
   ) -> FmtResult {
     let elements = &node.namespace_def().unwrap().elements;
     for node in elements {
-      let has_overloads = if node.kind() == DocNodeKind::Function {
+      let has_overloads = if matches!(node.def, DocNodeDef::Function { .. }) {
         elements
           .iter()
-          .filter(|n| n.kind() == DocNodeKind::Function && n.name == node.name)
+          .filter(|n| {
+            matches!(n.def, DocNodeDef::Function { .. }) && n.name == node.name
+          })
           .count()
           > 1
       } else {

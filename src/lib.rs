@@ -34,7 +34,7 @@ pub mod variable;
 mod visibility;
 
 pub use node::DocNode;
-pub use node::DocNodeKind;
+pub use node::DocNodeDef;
 pub use node::Location;
 
 use node::ImportDef;
@@ -103,7 +103,7 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
     DocNodeDef::Namespace { namespace_def } => namespace_def
       .elements
       .into_iter()
-      .map(std::rc::Rc::unwrap_or_clone)
+      .map(std::sync::Arc::unwrap_or_clone)
       .collect(),
     DocNodeDef::Interface { interface_def } => {
       let mut doc_nodes: Vec<DocNode> = vec![];
