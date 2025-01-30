@@ -3,7 +3,7 @@ use super::FileMode;
 use super::RenderContext;
 use super::UrlResolveKind;
 use crate::js_doc::JsDocTag;
-use crate::DocNodeKind;
+use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use regex::Regex;
 use serde::Serialize;
@@ -108,8 +108,9 @@ fn usage_to_md(
           doc_node
             .parent
             .as_ref()
-            .map_or_else(|| doc_node.kind(), |parent| parent.kind()),
-          DocNodeKind::TypeAlias | DocNodeKind::Interface
+            .map_or_else(|| &doc_node.inner, |parent| &parent.inner)
+            .def,
+          DocNodeDef::TypeAlias { .. } | DocNodeDef::Interface { .. }
         )
       });
 
@@ -159,7 +160,7 @@ fn get_identifier_for_file(
         .and_then(|nodes| {
           nodes
             .iter()
-            .find(|node| node.kind() == DocNodeKind::ModuleDoc)
+            .find(|node| matches!(node.def, DocNodeDef::ModuleDoc))
         })
         .and_then(|node| {
           node.js_doc.tags.iter().find_map(|tag| {
