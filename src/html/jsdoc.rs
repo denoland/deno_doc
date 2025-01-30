@@ -3,7 +3,7 @@ use super::util::*;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
-use crate::DocNodeKind;
+use crate::node::DocNodeDef;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::rc::Rc;
@@ -330,7 +330,7 @@ impl ModuleDocCtx {
 
     let (deprecated, html) = if let Some(node) = module_doc_nodes
       .iter()
-      .find(|n| n.kind() == DocNodeKind::ModuleDoc)
+      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
     {
       let deprecated = node.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {

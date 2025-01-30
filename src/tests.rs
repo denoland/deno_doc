@@ -1,5 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::node::DocNodeDef;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
 use crate::DocParserOptions;
@@ -580,7 +581,6 @@ export * as b from "./mod_doc.ts";
 #[tokio::test]
 async fn filter_nodes_by_name() {
   use crate::find_nodes_by_name_recursively;
-  use crate::DocNodeKind;
   let source_code = r#"
 export namespace Deno {
   export class Buffer {}
@@ -645,28 +645,28 @@ export namespace Deno {
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.rid");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "rid");
-  assert_eq!(found[0].kind(), DocNodeKind::Variable);
+  assert!(matches!(found[0].def, DocNodeDef::Variable { .. }));
 
   // Interface method
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.closeWrite");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "closeWrite");
-  assert_eq!(found[0].kind(), DocNodeKind::Function);
+  assert!(matches!(found[0].def, DocNodeDef::Function { .. }));
 
   // Class property
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Process.pid");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "pid");
-  assert_eq!(found[0].kind(), DocNodeKind::Variable);
+  assert!(matches!(found[0].def, DocNodeDef::Variable { .. }));
 
   // Class method
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Process.output");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "output");
-  assert_eq!(found[0].kind(), DocNodeKind::Function);
+  assert!(matches!(found[0].def, DocNodeDef::Function { .. }));
 
   // No match
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.test.a");

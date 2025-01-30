@@ -1,14 +1,13 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::js_doc::JsDoc;
 use serde::Deserialize;
 use serde::Serialize;
-use std::rc::Rc;
-
-use crate::js_doc::JsDoc;
+use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
-  pub elements: Vec<Rc<DocNode>>,
+  pub elements: Vec<Arc<DocNode>>,
 }
 
 #[derive(
@@ -353,21 +352,6 @@ impl DocNode {
     };
 
     default_name.unwrap_or(&self.name)
-  }
-
-  pub fn kind(&self) -> DocNodeKind {
-    match &self.def {
-      DocNodeDef::Class { .. } => DocNodeKind::Class,
-      DocNodeDef::Function { .. } => DocNodeKind::Function,
-      DocNodeDef::Variable { .. } => DocNodeKind::Variable,
-      DocNodeDef::Enum { .. } => DocNodeKind::Enum,
-      DocNodeDef::TypeAlias { .. } => DocNodeKind::TypeAlias,
-      DocNodeDef::Namespace { .. } => DocNodeKind::Namespace,
-      DocNodeDef::Interface { .. } => DocNodeKind::Interface,
-      DocNodeDef::Import { .. } => DocNodeKind::Import,
-      DocNodeDef::ModuleDoc => DocNodeKind::ModuleDoc,
-      DocNodeDef::Reference { .. } => DocNodeKind::Reference,
-    }
   }
 
   pub fn class_def(&self) -> Option<&super::class::ClassDef> {

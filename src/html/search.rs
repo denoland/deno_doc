@@ -38,7 +38,7 @@ fn doc_nodes_into_search_index_node(
   let kinds = doc_nodes
     .iter()
     .map(|node| {
-      let kind = DocNodeKindCtx::from(node.kind_with_drilldown);
+      let kind = DocNodeKindCtx::from(node.kind);
       SlimKindCtx {
         char: kind.char,
         kind: kind.kind,

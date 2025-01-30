@@ -1,6 +1,5 @@
 use crate::node::DocNodeDef;
 use crate::DocNode;
-use deno_ast::swc::ast::MethodKind;
 use deno_ast::ModuleSpecifier;
 use handlebars::handlebars_helper;
 use handlebars::Handlebars;
@@ -12,6 +11,7 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::Arc;
 
 pub mod jsdoc;
 pub mod pages;
@@ -353,8 +353,8 @@ impl GenerateCtx {
             DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
-              kind_with_drilldown: DocNodeKindWithDrilldown::Other(node.kind()),
-              inner: Rc::new(node),
+              kind: DocNodeKind::from_node(&node),
+              inner: Arc::new(node),
               drilldown_name: None,
               parent: None,
               namespace_children: None,
@@ -499,7 +499,7 @@ impl GenerateCtx {
         return Box::new(std::iter::once(node));
       }
 
-      if node.kind() == crate::DocNodeKind::Namespace {
+      if matches!(node.def, DocNodeDef::Namespace { .. }) {
         if let Some(children) = &node.namespace_children {
           return Box::new(
             children
@@ -656,58 +656,74 @@ impl PartialOrd for ShortPath {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
-pub enum DocNodeKindWithDrilldown {
-  Property,
-  Method(MethodKind),
-  Other(crate::DocNodeKind),
+#[derive(
+  Debug,
+  PartialEq,
+  Eq,
+  Hash,
+  Clone,
+  Copy,
+  Serialize,
+  Deserialize,
+  Ord,
+  PartialOrd,
+)]
+pub enum MethodKind {
+  Method,
+  Getter,
+  Setter,
 }
 
-impl PartialOrd for DocNodeKindWithDrilldown {
-  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    Some(self.cmp(other))
+impl From<deno_ast::swc::ast::MethodKind> for MethodKind {
+  fn from(value: deno_ast::swc::ast::MethodKind) -> Self {
+    match value {
+      deno_ast::swc::ast::MethodKind::Method => Self::Method,
+      deno_ast::swc::ast::MethodKind::Getter => Self::Getter,
+      deno_ast::swc::ast::MethodKind::Setter => Self::Setter,
+    }
   }
 }
 
-impl Ord for DocNodeKindWithDrilldown {
-  fn cmp(&self, other: &Self) -> Ordering {
-    match (self, other) {
-      (
-        DocNodeKindWithDrilldown::Other(other1),
-        DocNodeKindWithDrilldown::Other(other2),
-      ) => other1.cmp(other2),
-      (
-        DocNodeKindWithDrilldown::Property,
-        DocNodeKindWithDrilldown::Other(_),
-      ) => Ordering::Less,
-      (
-        DocNodeKindWithDrilldown::Property,
-        DocNodeKindWithDrilldown::Method(_),
-      ) => Ordering::Less,
-      (
-        DocNodeKindWithDrilldown::Property,
-        DocNodeKindWithDrilldown::Property,
-      ) => Ordering::Equal,
-      (
-        DocNodeKindWithDrilldown::Method(_),
-        DocNodeKindWithDrilldown::Other(_),
-      ) => Ordering::Less,
-      (
-        DocNodeKindWithDrilldown::Method(_),
-        DocNodeKindWithDrilldown::Method(_),
-      ) => Ordering::Equal,
-      (
-        DocNodeKindWithDrilldown::Method(_),
-        DocNodeKindWithDrilldown::Property,
-      ) => Ordering::Greater,
-      (
-        DocNodeKindWithDrilldown::Other(_),
-        DocNodeKindWithDrilldown::Property,
-      ) => Ordering::Greater,
-      (
-        DocNodeKindWithDrilldown::Other(_),
-        DocNodeKindWithDrilldown::Method(_),
-      ) => Ordering::Greater,
+#[derive(
+  Debug,
+  PartialEq,
+  Eq,
+  Hash,
+  Clone,
+  Copy,
+  Serialize,
+  Deserialize,
+  Ord,
+  PartialOrd,
+)]
+pub enum DocNodeKind {
+  Property,
+  Method(MethodKind),
+  Class,
+  Enum,
+  Function,
+  Import,
+  Interface,
+  ModuleDoc,
+  Namespace,
+  Reference,
+  TypeAlias,
+  Variable,
+}
+
+impl DocNodeKind {
+  fn from_node(node: &DocNode) -> Self {
+    match node.def {
+      DocNodeDef::Function { .. } => Self::Function,
+      DocNodeDef::Variable { .. } => Self::Variable,
+      DocNodeDef::Enum { .. } => Self::Enum,
+      DocNodeDef::Class { .. } => Self::Class,
+      DocNodeDef::TypeAlias { .. } => Self::TypeAlias,
+      DocNodeDef::Namespace { .. } => Self::Namespace,
+      DocNodeDef::Interface { .. } => Self::Interface,
+      DocNodeDef::Import { .. } => Self::Import,
+      DocNodeDef::ModuleDoc => Self::ModuleDoc,
+      DocNodeDef::Reference { .. } => Self::Reference,
     }
   }
 }
@@ -720,19 +736,19 @@ impl Ord for DocNodeKindWithDrilldown {
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<[String]>,
-  pub kind_with_drilldown: DocNodeKindWithDrilldown,
-  pub inner: Rc<DocNode>,
+  pub kind: DocNodeKind,
+  pub inner: Arc<DocNode>,
   pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
   pub namespace_children: Option<Vec<DocNodeWithContext>>,
 }
 
 impl DocNodeWithContext {
-  pub fn create_child(&self, doc_node: Rc<DocNode>) -> Self {
+  pub fn create_child(&self, doc_node: Arc<DocNode>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
-      kind_with_drilldown: DocNodeKindWithDrilldown::Other(doc_node.kind()),
+      kind: DocNodeKind::from_node(&doc_node),
       inner: doc_node,
       drilldown_name: None,
       parent: Some(Box::new(self.clone())),
@@ -742,7 +758,7 @@ impl DocNodeWithContext {
 
   pub fn create_namespace_child(
     &self,
-    doc_node: Rc<DocNode>,
+    doc_node: Arc<DocNode>,
     qualifiers: Rc<[String]>,
   ) -> Self {
     let mut child = self.create_child(doc_node);
@@ -754,7 +770,7 @@ impl DocNodeWithContext {
     &self,
     mut method_doc_node: DocNode,
     is_static: bool,
-    method_kind: MethodKind,
+    method_kind: deno_ast::swc::ast::MethodKind,
   ) -> Self {
     let original_name = method_doc_node.name.clone();
     method_doc_node.name =
@@ -762,10 +778,9 @@ impl DocNodeWithContext {
         .into_boxed_str();
     method_doc_node.declaration_kind = self.declaration_kind;
 
-    let mut new_node = self.create_child(Rc::new(method_doc_node));
+    let mut new_node = self.create_child(Arc::new(method_doc_node));
     new_node.drilldown_name = Some(original_name);
-    new_node.kind_with_drilldown =
-      DocNodeKindWithDrilldown::Method(method_kind);
+    new_node.kind = DocNodeKind::Method(method_kind.into());
     new_node
   }
 
@@ -783,9 +798,9 @@ impl DocNodeWithContext {
     .into_boxed_str();
     property_doc_node.declaration_kind = self.declaration_kind;
 
-    let mut new_node = self.create_child(Rc::new(property_doc_node));
+    let mut new_node = self.create_child(Arc::new(property_doc_node));
     new_node.drilldown_name = Some(original_name);
-    new_node.kind_with_drilldown = DocNodeKindWithDrilldown::Property;
+    new_node.kind = DocNodeKind::Property;
     new_node
   }
 

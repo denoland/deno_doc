@@ -1,14 +1,14 @@
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
+use crate::html::util::AnchorCtx;
+use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::util::{AnchorCtx, SectionContentCtx};
-use crate::html::DocNodeKindWithDrilldown;
+use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
-use crate::DocNodeKind;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
@@ -49,15 +49,15 @@ impl SymbolGroupCtx {
     name: &str,
   ) -> Self {
     let mut split_nodes =
-      IndexMap::<DocNodeKindWithDrilldown, Vec<DocNodeWithContext>>::default();
+      IndexMap::<DocNodeKind, Vec<DocNodeWithContext>>::default();
 
     for doc_node in doc_nodes {
-      if doc_node.kind() == DocNodeKind::Import {
+      if matches!(doc_node.def, DocNodeDef::Import { .. }) {
         continue;
       }
 
       split_nodes
-        .entry(doc_node.kind_with_drilldown)
+        .entry(doc_node.kind)
         .or_insert(vec![])
         .push(doc_node.clone());
     }
@@ -116,7 +116,7 @@ impl SymbolGroupCtx {
         }
 
         let deprecated = if all_deprecated
-          && !(doc_nodes[0].kind() == DocNodeKind::Function
+          && !(matches!(doc_nodes[0].def, DocNodeDef::Function { .. })
             && doc_nodes.len() == 1)
         {
           doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
@@ -146,7 +146,7 @@ impl SymbolGroupCtx {
 
         SymbolCtx {
           tags,
-          kind: doc_nodes[0].kind_with_drilldown.into(),
+          kind: doc_nodes[0].kind.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
           source_href: ctx
@@ -287,7 +287,7 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if doc_node.kind() != DocNodeKind::Function {
+      if !matches!(doc_node.def, DocNodeDef::Function { .. }) {
         if let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
         {
@@ -295,23 +295,25 @@ impl SymbolInnerCtx {
         }
       }
 
-      sections.extend(match doc_node.kind() {
-        DocNodeKind::Function => {
+      sections.extend(match doc_node.def {
+        DocNodeDef::Function { .. } => {
           functions.push(doc_node);
           continue;
         }
 
-        DocNodeKind::Variable => variable::render_variable(ctx, doc_node, name),
-        DocNodeKind::Class => class::render_class(ctx, doc_node, name),
-        DocNodeKind::Enum => r#enum::render_enum(ctx, doc_node),
-        DocNodeKind::Interface => {
+        DocNodeDef::Variable { .. } => {
+          variable::render_variable(ctx, doc_node, name)
+        }
+        DocNodeDef::Class { .. } => class::render_class(ctx, doc_node, name),
+        DocNodeDef::Enum { .. } => r#enum::render_enum(ctx, doc_node),
+        DocNodeDef::Interface { .. } => {
           interface::render_interface(ctx, doc_node, name)
         }
-        DocNodeKind::TypeAlias => {
+        DocNodeDef::TypeAlias { .. } => {
           type_alias::render_type_alias(ctx, doc_node, name)
         }
 
-        DocNodeKind::Namespace => {
+        DocNodeDef::Namespace { .. } => {
           let namespace_nodes = doc_node.namespace_children.as_ref().unwrap();
           let ns_qualifiers = namespace_nodes
             .first()
@@ -352,9 +354,9 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeKind::ModuleDoc
-        | DocNodeKind::Import
-        | DocNodeKind::Reference => unreachable!(),
+        DocNodeDef::ModuleDoc { .. }
+        | DocNodeDef::Import { .. }
+        | DocNodeDef::Reference { .. } => unreachable!(),
       });
 
       let references = doc_node

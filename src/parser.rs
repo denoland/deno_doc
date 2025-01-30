@@ -1,12 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use std::borrow::Cow;
-use std::cell::RefCell;
-use std::collections::HashSet;
-use std::error::Error;
-use std::fmt;
-use std::rc::Rc;
-
 use deno_ast::swc::ast::ClassDecl;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
@@ -41,6 +34,13 @@ use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
 use indexmap::IndexMap;
+use std::borrow::Cow;
+use std::cell::RefCell;
+use std::collections::HashSet;
+use std::error::Error;
+use std::fmt;
+use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
@@ -64,7 +64,6 @@ use crate::util::swc::module_js_doc_for_source;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
-use crate::DocNodeKind;
 use crate::ImportDef;
 use crate::Location;
 
@@ -179,12 +178,12 @@ impl<'a> DocParser<'a> {
       .values()
       .flatten()
       .flat_map(|node| {
-        fn walk_rc_nodes(nodes: &[Rc<DocNode>]) -> Vec<Location> {
+        fn walk_arc_nodes(nodes: &[Arc<DocNode>]) -> Vec<Location> {
           nodes
             .iter()
             .flat_map(|node| {
               if let Some(namespace) = node.namespace_def() {
-                walk_rc_nodes(&namespace.elements)
+                walk_arc_nodes(&namespace.elements)
               } else {
                 vec![node.location.clone()]
               }
@@ -193,7 +192,7 @@ impl<'a> DocParser<'a> {
         }
 
         if let Some(namespace) = node.namespace_def() {
-          walk_rc_nodes(&namespace.elements)
+          walk_arc_nodes(&namespace.elements)
         } else {
           vec![node.location.clone()]
         }
@@ -247,7 +246,7 @@ impl<'a> DocParser<'a> {
           )?;
 
           namespace_def.elements =
-            namespace_elements.into_iter().map(Rc::new).collect();
+            namespace_elements.into_iter().map(Arc::new).collect();
         }
         DocNodeDef::Reference { reference_def } => {
           let mut new_name_path = Vec::with_capacity(name_path.len() + 1);
@@ -450,14 +449,14 @@ impl<'a> DocParser<'a> {
                 // hoist any module doc to be the exported namespaces module doc
                 let mut js_doc = JsDoc::default();
                 for doc_node in &doc_nodes {
-                  if matches!(doc_node.kind(), DocNodeKind::ModuleDoc) {
+                  if matches!(doc_node.def, DocNodeDef::ModuleDoc) {
                     js_doc = doc_node.js_doc.clone();
                   }
                 }
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
                     .into_iter()
-                    .filter(|dn| !matches!(dn.kind(), DocNodeKind::ModuleDoc))
+                    .filter(|dn| !matches!(dn.def, DocNodeDef::ModuleDoc))
                     .map(|mut node| {
                       node.def = DocNodeDef::Reference {
                         reference_def: ReferenceDef {
@@ -466,7 +465,7 @@ impl<'a> DocParser<'a> {
                       };
                       node.location = def_location.clone();
 
-                      Rc::new(node)
+                      Arc::new(node)
                     })
                     .collect(),
                 };
@@ -794,7 +793,7 @@ impl<'a> DocParser<'a> {
           doc_node.name = export_name.as_str().into();
           doc_node.declaration_kind = DeclarationKind::Export;
 
-          elements.push(Rc::new(doc_node));
+          elements.push(Arc::new(doc_node));
         }
       }
     }
@@ -817,7 +816,7 @@ impl<'a> DocParser<'a> {
               child_symbol,
             )
             .into_iter()
-            .map(Rc::new),
+            .map(Arc::new),
         );
       }
     }
@@ -1181,7 +1180,7 @@ impl<'a> DocParser<'a> {
         }
         docs
       })
-      .map(Rc::new)
+      .map(Arc::new)
       .collect::<Vec<_>>();
     if elements.is_empty() {
       return None;

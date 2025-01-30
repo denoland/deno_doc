@@ -1,8 +1,8 @@
 use crate::html::render_context::RenderContext;
 use crate::html::util::*;
-use crate::html::DocNodeKindWithDrilldown;
+use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
-use deno_ast::swc::ast::MethodKind;
+use crate::html::MethodKind;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
@@ -137,12 +137,12 @@ impl NamespaceNodeCtx {
               !symbol.drilldown_name.as_ref().unwrap().starts_with('[')
             })
             .map(|symbol| {
-              let id = match symbol.kind_with_drilldown {
-                DocNodeKindWithDrilldown::Property => name_to_id(
+              let id = match symbol.kind {
+                DocNodeKind::Property => name_to_id(
                   "property",
                   &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
                 ),
-                DocNodeKindWithDrilldown::Method(kind) => {
+                DocNodeKind::Method(kind) => {
                   if matches!(kind, MethodKind::Getter | MethodKind::Setter) {
                     name_to_id(
                       "accessor",
@@ -158,7 +158,7 @@ impl NamespaceNodeCtx {
                     )
                   }
                 }
-                DocNodeKindWithDrilldown::Other(_) => unreachable!(),
+                _ => unreachable!(),
               };
 
               NamespaceNodeSubItemCtx {
@@ -176,10 +176,7 @@ impl NamespaceNodeCtx {
       id: id.clone(),
       anchor: AnchorCtx { id },
       tags,
-      doc_node_kind_ctx: nodes
-        .iter()
-        .map(|node| node.kind_with_drilldown.into())
-        .collect(),
+      doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,
       name,
       docs,

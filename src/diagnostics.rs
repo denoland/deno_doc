@@ -3,13 +3,13 @@
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
+use crate::node::DocNodeDef;
 use crate::node::NamespaceDef;
 use crate::ts_type::TsTypeDef;
 use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
-use crate::DocNodeKind;
 use crate::Location;
 
 use deno_ast::diagnostics::Diagnostic;
@@ -394,18 +394,18 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
   }
 
   fn visit_doc_node(&mut self, doc_node: &DocNode) {
-    fn is_js_docable_kind(kind: &DocNodeKind) -> bool {
-      match kind {
-        DocNodeKind::Class
-        | DocNodeKind::Enum
-        | DocNodeKind::Function
-        | DocNodeKind::Interface
-        | DocNodeKind::Namespace
-        | DocNodeKind::TypeAlias
-        | DocNodeKind::Variable => true,
-        DocNodeKind::Import
-        | DocNodeKind::ModuleDoc
-        | DocNodeKind::Reference => false,
+    fn is_js_docable_kind(node: &DocNode) -> bool {
+      match node.def {
+        DocNodeDef::Class { .. }
+        | DocNodeDef::Enum { .. }
+        | DocNodeDef::Function { .. }
+        | DocNodeDef::Interface { .. }
+        | DocNodeDef::Namespace { .. }
+        | DocNodeDef::TypeAlias { .. }
+        | DocNodeDef::Variable { .. } => true,
+        DocNodeDef::Import { .. }
+        | DocNodeDef::ModuleDoc { .. }
+        | DocNodeDef::Reference { .. } => false,
       }
     }
 
@@ -413,7 +413,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
       return; // skip, we don't do these diagnostics above private nodes
     }
 
-    if is_js_docable_kind(&doc_node.kind()) {
+    if is_js_docable_kind(doc_node) {
       self
         .diagnostics
         .check_missing_js_doc(&doc_node.js_doc, &doc_node.location);

@@ -25,7 +25,7 @@ use super::STYLESHEET_FILENAME;
 
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
-use crate::DocNodeKind;
+use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use serde::Serialize;
 
@@ -260,7 +260,7 @@ impl IndexCtx {
           .map(|(short_path, nodes)| {
             let doc = nodes
               .iter()
-              .find(|node| node.kind() == DocNodeKind::ModuleDoc)
+              .find(|node| matches!(node.def, DocNodeDef::ModuleDoc))
               .and_then(|node| {
                 crate::html::jsdoc::jsdoc_body_to_html(
                   &render_ctx,
@@ -552,7 +552,7 @@ pub fn generate_symbol_pages_for_module(
 
     if doc_nodes
       .iter()
-      .any(|doc_node| doc_node.kind() == DocNodeKind::Class)
+      .any(|doc_node| matches!(doc_node.def, DocNodeDef::Class { .. }))
     {
       let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {

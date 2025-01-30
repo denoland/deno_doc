@@ -3,11 +3,12 @@
 use clap::App;
 use clap::Arg;
 use deno_doc::find_nodes_by_name_recursively;
+use deno_doc::html::GenerateCtx;
+use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
-use deno_doc::html::{GenerateCtx, HrefResolver};
-use deno_doc::DocNodeKind;
+use deno_doc::node::DocNodeDef;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
@@ -151,7 +152,8 @@ async fn run() -> anyhow::Result<()> {
   let mut doc_nodes =
     parser.parse()?.into_values().flatten().collect::<Vec<_>>();
 
-  doc_nodes.retain(|doc_node| doc_node.kind() != DocNodeKind::Import);
+  doc_nodes
+    .retain(|doc_node| !matches!(doc_node.def, DocNodeDef::Import { .. }));
   if let Some(filter) = maybe_filter {
     doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter);
   }
