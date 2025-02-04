@@ -106,7 +106,8 @@ a {
       @apply opacity-60;
 
       .namespaceItemContent > a {
-        @apply line-through decoration-2 decoration-stone-500/70 text-stone-500 dark:text-stone-400;
+        @apply line-through decoration-2 decoration-stone-500/70 text-stone-500
+          dark:text-stone-400;
       }
     }
 
@@ -227,7 +228,8 @@ a {
       }
 
       ul {
-        @apply ml-3.5 space-y-2 text-gray-1 text-[0.8rem] leading-none dark:text-gray-400;
+        @apply ml-3.5 space-y-2 text-gray-1 text-[0.8rem] leading-none
+          dark:text-gray-400;
 
         li {
           @apply mt-1 !important;
@@ -261,7 +263,8 @@ a {
 
         > div {
           @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-48
-            bg-white md:rounded border max-md:border-x-0 border-gray-300 dark:border-gray-600;
+            bg-white md:rounded border max-md:border-x-0 border-gray-300
+            dark:border-gray-600;
 
           label {
             @apply flex items-center gap-2 cursor-pointer select-none px-2 py-1
@@ -288,7 +291,8 @@ a {
   }
 
   pre.highlight {
-    @apply border border-gray-300 max-md:border-x-0 bg-white dark:border-gray-600;
+    @apply border border-gray-300 max-md:border-x-0 bg-white
+      dark:border-gray-600;
     @apply mt-1 !important;
 
     > code:first-child {
@@ -330,7 +334,8 @@ a {
 .contextLink {
   @apply text-contextLink/80 underline decoration-[1.5px]
     decoration-contextLink/50 underline-offset-[0.15em] hover:text-contextLink
-    hover:decoration-contextLink dark:text-contextLink/70 dark:hover:text-contextLink;
+    hover:decoration-contextLink dark:text-contextLink/70
+    dark:hover:text-contextLink;
   text-decoration-skip-ink: auto;
 }
 
