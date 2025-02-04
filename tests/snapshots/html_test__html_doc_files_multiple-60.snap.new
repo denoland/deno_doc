@@ -1,0 +1,69 @@
+---
+source: tests/html_test.rs
+assertion_line: 398
+expression: files.get(file_name).unwrap()
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <title>someVariable - documentation</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="doc-current-file" content=".">
+  <link rel="stylesheet" href="..&#x2F;styles.css">
+  <link rel="stylesheet" href="..&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;reset.css"><script src="..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;script.js" defer></script>
+    <script src="..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;search.js" defer></script></head>
+<body>
+<div class="ddoc">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14 dark:bg-black" id="topnav">
+  <div class="h-full">
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
+	width="16"
+	height="16"
+	viewBox="0 0 16 16"
+	fill="none"
+	xmlns="http://www.w3.org/2000/svg">
+	<path fill-rule="evenodd" clip-rule="evenodd" d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z" fill="currentColor" />
+</svg>
+</span><ul><li>someVariable</li></ul></ul>
+</div>
+
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
+  </div>
+</nav>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_someVariable"><article>
+      <div>
+        <div>
+          <div class="text-2xl leading-none break-all">
+            <span class="text-Variable">variable</span>&nbsp;<span class="font-bold">someVariable</span>
+          </div></div></div><div><div class="space-y-7" id=""></div>
+</div>
+    </article></main>
+<div class="toc">
+    <div><div class="usageContent">
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { someVariable } from &quot;.&quot;;
+</code><button class="context_button" data-copy="import { someVariable } from &quot;.&quot;;
+"><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="7" height="7" fill="none"/>
+<rect x="6" y="6" width="7" height="7" fill="none"/>
+<path d="M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z" fill="#232323"/>
+</svg>
+<svg class="check" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="#232323" fill="none" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+<path d="M5 12l5 5l10 -10" />
+</svg>
+</button><code></code></pre>
+</div></div></div>
+  </div></div>
+</div>
+</div>
+</body>
+</html>
