@@ -1,6 +1,7 @@
 ---
 source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
+snapshot_kind: text
 ---
 <!DOCTYPE html>
 <html>
@@ -17,9 +18,9 @@ expression: files.get(file_name).unwrap()
     <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14 dark:bg-black" id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +35,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo"><article>
@@ -107,7 +109,7 @@ Examples</h2></div><div class="space-y-8"><div class="anchorable"><a href="#exam
 <p>baz</p>
 </div></div>
 </div>
-<div class="border-b border-gray-300"></div><div class="anchorable"><a href="#example_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<div class="border-b border-gray-300 dark:border-gray-700"></div><div class="anchorable"><a href="#example_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -198,7 +200,7 @@ Constructors</h2></div><div class="space-y-8"><div class="anchorable docEntry" i
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">Foo</span><span class="font-medium text-stone-500">(<span><span>value<span>: <a href="#type_param_T" class="link">T</a></span></span></span>)</span>
+<span class="font-bold font-lg">Foo</span><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>value<span>: <a href="#type_param_T" class="link">T</a></span></span></span>)</span>
       </code>
     </div></div></div>
 </div></section>
@@ -250,7 +252,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500"></span>
+<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500 dark:text-stone-200"></span>
       </code>
     </div></div></div>
 </div></section>
@@ -302,7 +304,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.&quot;&gt;&lt;img src=x onerror=alert(1)&gt;.html">"&gt;&lt;img src=x onerror=alert(1)&gt;</a><span class="font-medium text-stone-500"><span>: <span>number</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.&quot;&gt;&lt;img src=x onerror=alert(1)&gt;.html">"&gt;&lt;img src=x onerror=alert(1)&gt;</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>number</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="property_foo">
@@ -331,7 +333,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.foo.html">foo</a><span class="font-medium text-stone-500"><span>: <a href="../././~/A.html" class="link">A</a></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.foo.html">foo</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <a href="../././~/A.html" class="link">A</a></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="accessor_getterandsetter">
@@ -360,7 +362,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.getterAndSetter.html">getterAndSetter</a><span class="font-medium text-stone-500"></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.getterAndSetter.html">getterAndSetter</a><span class="font-medium text-stone-500 dark:text-stone-200"></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="accessor_getter">
@@ -390,7 +392,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.getter.html">getter</a><span class="font-medium text-stone-500"></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.getter.html">getter</a><span class="font-medium text-stone-500 dark:text-stone-200"></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="property_protectedproperty">
@@ -419,7 +421,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.protectedProperty.html">protectedProperty</a><span class="font-medium text-stone-500"><span>: <span>boolean</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.protectedProperty.html">protectedProperty</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>boolean</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="property_readonlyproperty">
@@ -448,7 +450,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.readonlyProperty.html">readonlyProperty</a><span class="font-medium text-stone-500"><span>: <span>boolean</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.readonlyProperty.html">readonlyProperty</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>boolean</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="accessor_setter">
@@ -477,7 +479,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.setter.html">setter</a><span class="font-medium text-stone-500"><span>: <span>string</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.setter.html">setter</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>string</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="accessor_getterandsetter-1">
@@ -506,7 +508,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.getterAndSetter.html">getterAndSetter</a><span class="font-medium text-stone-500"></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.getterAndSetter.html">getterAndSetter</a><span class="font-medium text-stone-500 dark:text-stone-200"></span>
       </code>
     </div></div></div>
 </div></section>
@@ -558,7 +560,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.[Symbol.iterator].html">[Symbol.iterator]</a><span class="font-medium text-stone-500">()<span>: <span>void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.[Symbol.iterator].html">[Symbol.iterator]</a><span class="font-medium text-stone-500 dark:text-stone-200">()<span>: <span>void</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="method_methodwithoverloads_0">
@@ -587,7 +589,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.methodWithOverloads.html">methodWithOverloads</a><span class="font-medium text-stone-500">(<span><span>s<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.methodWithOverloads.html">methodWithOverloads</a><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>s<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="method_methodwithoverloads_1">
@@ -616,7 +618,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.methodWithOverloads.html">methodWithOverloads</a><span class="font-medium text-stone-500">(<span><span>s<span>: <span>string</span></span></span></span>)<span>: <span>void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.methodWithOverloads.html">methodWithOverloads</a><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>s<span>: <span>string</span></span></span></span>)<span>: <span>void</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="method_test_0">
@@ -644,7 +646,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.test.html">test</a><span class="font-medium text-stone-500">()<span>: <span>void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.test.html">test</a><span class="font-medium text-stone-500 dark:text-stone-200">()<span>: <span>void</span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -696,7 +698,7 @@ Static Properties</h2></div><div class="space-y-8"><div class="anchorable docEnt
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.bar.html">bar</a><span class="font-medium text-stone-500"><span>: <span>"string"</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.bar.html">bar</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>"string"</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="accessor_staticsetter">
@@ -725,7 +727,7 @@ Static Properties</h2></div><div class="space-y-8"><div class="anchorable docEnt
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.staticSetter.html">staticSetter</a><span class="font-medium text-stone-500"><span>: <span>number</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.staticSetter.html">staticSetter</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>number</span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -777,7 +779,7 @@ Static Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry"
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.staticMethod.html">staticMethod</a><span class="font-medium text-stone-500">()<span>: <span>void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.staticMethod.html">staticMethod</a><span class="font-medium text-stone-500 dark:text-stone-200">()<span>: <span>void</span></span></span>
       </code>
     </div></div></div>
 </div></section>

@@ -1,6 +1,7 @@
 ---
 source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
+snapshot_kind: text
 ---
 <!DOCTYPE html>
 <html>
@@ -17,9 +18,9 @@ expression: files.get(file_name).unwrap()
     <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14 dark:bg-black" id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +35,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Hello"><article>
@@ -90,7 +92,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500"><span><span> extends </span><span>string</span></span></span>
+<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500 dark:text-stone-200"><span><span> extends </span><span>string</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="type_param_e">
@@ -118,7 +120,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">E</span><span class="font-medium text-stone-500"><span><span> extends </span><a href="#type_param_T" class="link">T</a></span></span>
+<span class="font-bold font-lg">E</span><span class="font-medium text-stone-500 dark:text-stone-200"><span><span> extends </span><a href="#type_param_T" class="link">T</a></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="type_param_r">
@@ -146,7 +148,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">R</span><span class="font-medium text-stone-500"><span><span> = </span><span>number</span></span></span>
+<span class="font-bold font-lg">R</span><span class="font-medium text-stone-500 dark:text-stone-200"><span><span> = </span><span>number</span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -176,7 +178,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
 Call Signatures</h2></div><div class="space-y-8"><div class=" docEntry" id="call_signature_0">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500">(<span><span>a<span>: <span>string</span></span></span></span>)<span>: <span>string</span></span></span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>a<span>: <span>string</span></span></span></span>)<span>: <span>string</span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -228,7 +230,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.world.html">world</a><span class="font-medium text-stone-500"><span>: <span>string</span></span><span><span class="font-normal"> = </span>"foo"</span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.world.html">world</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>string</span></span><span><span class="font-normal"> = </span>"foo"</span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="property_test">
@@ -258,7 +260,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.test.html">test</a><span class="font-medium text-stone-500"><span>: <span>"test"</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.test.html">test</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>"test"</span></span></span>
       </code>
     </div></div><div class="max-w-[75ch]"><div class="markdown"><p>Some docs</p>
 </div></div></div>
@@ -287,7 +289,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.ab.html">[ab]</a><span class="font-medium text-stone-500"><span>: <span>string</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.ab.html">[ab]</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>string</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="property_x">
@@ -315,7 +317,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.x.html">x</a><span class="font-medium text-stone-500"><span>: { [<span><span>foo<span>: <span>string</span></span></span></span>]<span>: <span>number</span></span>;  }</span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.x.html">x</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: { [<span><span>foo<span>: <span>string</span></span></span></span>]<span>: <span>number</span></span>;  }</span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -368,7 +370,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.optionalMethod.html">optionalMethod</a><span class="font-medium text-stone-500">()<span>: <span>[<span>string</span>]</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.optionalMethod.html">optionalMethod</a><span class="font-medium text-stone-500 dark:text-stone-200">()<span>: <span>[<span>string</span>]</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="methods_computedmethod_1">
@@ -397,7 +399,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.computedMethod.html">[computedMethod]</a><span class="font-medium text-stone-500">(<span><span>a<span>: <a href="#type_param_T" class="link">T</a> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <a href="#type_param_R" class="link">R</a> : <span>any</span></span></span></span>)<span>: <span>void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.computedMethod.html">[computedMethod]</a><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>a<span>: <a href="#type_param_T" class="link">T</a> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <a href="#type_param_R" class="link">R</a> : <span>any</span></span></span></span>)<span>: <span>void</span></span></span>
       </code>
     </div></div></div>
 </div></section>

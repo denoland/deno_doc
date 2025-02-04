@@ -1,6 +1,7 @@
 ---
 source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
+snapshot_kind: text
 ---
 <!DOCTYPE html>
 <html>
@@ -17,9 +18,9 @@ expression: files.get(file_name).unwrap()
     <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14 dark:bg-black" id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +35,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_EmptyInterface"><article>

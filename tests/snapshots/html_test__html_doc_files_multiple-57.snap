@@ -1,6 +1,7 @@
 ---
 source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
+snapshot_kind: text
 ---
 <!DOCTYPE html>
 <html>
@@ -17,9 +18,9 @@ expression: files.get(file_name).unwrap()
     <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav class="top-0 sticky bg-white z-50 py-3 h-14 dark:bg-black" id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +35,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_d"><article>
@@ -127,7 +129,7 @@ Examples</h2></div><div class="space-y-8"><div class="anchorable"><a href="#exam
 </button><code></code></pre>
 </div></div>
 </div>
-<div class="border-b border-gray-300"></div><div class="anchorable"><a href="#example_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<div class="border-b border-gray-300 dark:border-gray-700"></div><div class="anchorable"><a href="#example_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -214,7 +216,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500"><span><span> = </span><span>string</span></span></span>
+<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500 dark:text-stone-200"><span><span> = </span><span>string</span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -267,7 +269,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">foo</span><span class="font-medium text-stone-500"><span>: <span>number</span></span><span><span class="font-normal"> = </span>1</span></span>
+<span class="font-bold font-lg">foo</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>number</span></span><span><span class="font-normal"> = </span>1</span></span>
       </code>
     </div></div><div class="max-w-[75ch]"><div class="markdown"><p>{number} some parameter</p>
 </div></div></div>
@@ -297,7 +299,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">bar</span><span class="font-medium text-stone-500"><span>: <span>string</span></span><span><span class="font-normal"> = </span>bar</span></span>
+<span class="font-bold font-lg">bar</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>string</span></span><span><span class="font-normal"> = </span>bar</span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="function_d_0_parameters_baz">
@@ -326,7 +328,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">baz</span><span class="font-medium text-stone-500"><span>: { hello?<span>: <span>string</span></span>;  }</span></span>
+<span class="font-bold font-lg">baz</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: { hello?<span>: <span>string</span></span>;  }</span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="function_d_0_parameters_qaz">
@@ -354,7 +356,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">qaz</span><span class="font-medium text-stone-500"><span>: <a href="#type_param_T" class="link">T</a></span></span>
+<span class="font-bold font-lg">qaz</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <a href="#type_param_T" class="link">T</a></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="function_d_0_parameters____strings">
@@ -382,7 +384,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg"><span>...strings</span></span><span class="font-medium text-stone-500"><span>: <span>string</span>[]</span></span>
+<span class="font-bold font-lg"><span>...strings</span></span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>string</span>[]</span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -412,7 +414,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
 Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_d_0_return">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500"><span>string</span></span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span>string</span></span>
       </code>
     </div></div><div class="max-w-[75ch]"><div class="markdown"><p>a new string</p>
 </div></div></div>
@@ -443,7 +445,7 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
 Throws</h2></div><div class="space-y-8"><div class=" docEntry" id="function_d_0_throws_0">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500">Foo</span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200">Foo</span>
       </code>
     </div></div><div class="max-w-[75ch]"><div class="markdown"><p>bar</p>
 </div></div></div>
