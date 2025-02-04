@@ -3,7 +3,7 @@
 
 .ddoc {
   /* keep spacing in sync with #topnav in various places further down */
-  @apply flex min-h-fit items-start gap-6 p-4;
+  @apply flex min-h-fit items-start gap-6 p-4 dark:bg-gray-800 dark:text-white;
 
   &:has(#categoryPanel) {
     @apply lg:p-2;

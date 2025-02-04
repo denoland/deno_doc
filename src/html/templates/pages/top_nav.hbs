@@ -1,4 +1,4 @@
-<nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<nav class="top-0 sticky bg-white z-50 py-3 h-14 dark:bg-black" id="topnav">
   <div class="h-full">
     <div>
       {{~> breadcrumbs breadcrumbs_ctx ~}}
@@ -9,7 +9,8 @@
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
     {{/if}}
   </div>
 </nav>
