@@ -5,5 +5,4 @@ export default {
     "./src/html/templates/pages/*.hbs",
     "./src/html/templates/pages/search.js",
   ],
-  darkMode: "class",
 } as Config;

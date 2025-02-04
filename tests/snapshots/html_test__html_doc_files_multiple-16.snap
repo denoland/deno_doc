@@ -1,6 +1,7 @@
 ---
 source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
+snapshot_kind: text
 ---
 <!DOCTYPE html>
 <html>
@@ -17,9 +18,11 @@ expression: files.get(file_name).unwrap()
     <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav
+  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-gray-950/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
+  id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +37,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Baz"><article>
@@ -90,7 +94,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500"></span>
+<span class="font-bold font-lg">T</span><span class="font-medium text-stone-500 dark:text-stone-200"></span>
       </code>
     </div></div></div>
 </div></section>
@@ -142,7 +146,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium text-stone-500"><span>: <span>Record</span>&lt;<span>string</span><span>, </span><a href="#type_param_T" class="link">T</a> <span>extends</span> <span>string</span> ? <span>0</span> : <span>1</span>&gt;</span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>Record</span>&lt;<span>string</span><span>, </span><a href="#type_param_T" class="link">T</a> <span>extends</span> <span>string</span> ? <span>0</span> : <span>1</span>&gt;</span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -194,7 +198,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.bar.html">bar</a><span class="font-medium text-stone-500">()<span>: <a href="../././~/InterfaceWithIndexSignature.html" class="link">InterfaceWithIndexSignature</a>[<span>"test"</span>]</span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.bar.html">bar</a><span class="font-medium text-stone-500 dark:text-stone-200">()<span>: <a href="../././~/InterfaceWithIndexSignature.html" class="link">InterfaceWithIndexSignature</a>[<span>"test"</span>]</span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -208,9 +212,9 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
-<path d="M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z" fill="#232323"/>
+<path d="M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z" fill="currentColor"/>
 </svg>
-<svg class="check" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="#232323" fill="none" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+<svg class="check" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
 <path d="M5 12l5 5l10 -10" />
 </svg>
