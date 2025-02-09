@@ -292,8 +292,7 @@ a {
 
   pre.highlight {
     @apply border border-gray-300 max-md:border-x-0 bg-white
-      dark:border-gray-600;
-    @apply mt-1 !important;
+      dark:border-gray-600 dark:bg-gray-800;
 
     > code:first-child {
       @apply py-2 px-3;

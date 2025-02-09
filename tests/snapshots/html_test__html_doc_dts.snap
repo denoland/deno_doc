@@ -57,12 +57,12 @@ snapshot_kind: text
   </div>
 </nav>
 <div id="searchResults"></div><div id="content">
-    <main><div class="space-y-7" id=""><section class="section" ><div class="namespaceSection"><div id="namespace_responseinit" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+    <main><div class="space-y-7" id=""><section class="section" ><div class="namespaceSection"><div id="namespace_responseinit" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html" title="ResponseInit">ResponseInit</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html#property_status">status</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html#property_statustext">statusText</a></li></ul></div>
-    </div><div id="namespace_websocket" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+    </div><div id="namespace_websocket" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html" title="WebSocket">WebSocket</a>
 

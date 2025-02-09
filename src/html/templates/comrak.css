@@ -179,7 +179,7 @@
 }
 
 .markdown .highlight {
-  @apply relative;
+  @apply relative text-white bg-slate-800 dark:bg-stone-900;
 
   .lineNumbers {
     @apply border-r-2 border-stone-300 pr-1 text-right flex-none
@@ -187,7 +187,8 @@
   }
 
   .context_button {
-    @apply absolute top-3 right-4 opacity-60 hover:opacity-100;
+    @apply absolute top-3 right-4 opacity-60 hover:opacity-100
+      active:opacity-100 transition duration-75;
 
     svg.check {
       @apply hidden;
