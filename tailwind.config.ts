@@ -53,6 +53,7 @@ export default {
       colors: {
         ...extraColors,
         "contextLink": "#0E6590",
+        "contextLinkDark": "#86d3f3",
         gray: {
           1: "#868789",
         },
@@ -68,5 +69,4 @@ export default {
       },
     },
   },
-  darkMode: "class",
 } as Config;

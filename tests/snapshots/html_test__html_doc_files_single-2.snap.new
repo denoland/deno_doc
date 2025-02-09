@@ -1,0 +1,61 @@
+---
+source: tests/html_test.rs
+assertion_line: 262
+expression: files.get(file_name).unwrap()
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <title>documentation</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="doc-current-file" content="">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="reset.css"><script src="search_index.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="fuse.js" defer></script>
+    <script src="search.js" defer></script></head>
+<body>
+<div class="ddoc">
+<div><nav
+  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-gray-900/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
+  id="topnav">
+  <div class="h-full">
+    <div><ul class="breadcrumbs"><li>index</li></ul>
+</div>
+
+      <input
+        type="text"
+        id="searchbar"
+        style="display: none;"
+        class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
+  </div>
+</nav>
+<div id="searchResults"></div><div id="content">
+    <main><section>
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"></div>
+</div>
+</section>
+</main><div class="toc">
+    <div><nav class="topSymbols">
+          <h3>Symbols</h3>
+          <ul><li>
+                <a href=".&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15">Bar</span>
+                </a>
+              </li><li>
+                <a href=".&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15">Foo</span>
+                </a>
+              </li><li>
+                <a href=".&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15">Foobar</span>
+                </a>
+              </li></ul></nav></div>
+  </div></div>
+</div>
+</div>
+</body>
+</html>

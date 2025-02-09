@@ -96,7 +96,7 @@ a {
     @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4 min-h-0;
 
     .docNodeKindIcon {
-      @apply w-auto flex-col justify-start;
+      @apply w-auto flex-col justify-start gap-1;
 
       > * + * {
         @apply ml-0 -mt-0.5;
@@ -334,8 +334,8 @@ a {
 .contextLink {
   @apply text-contextLink/80 underline decoration-[1.5px]
     decoration-contextLink/50 underline-offset-[0.15em] hover:text-contextLink
-    hover:decoration-contextLink dark:text-contextLink/70
-    dark:hover:text-contextLink;
+    hover:decoration-contextLink dark:text-contextLinkDark/70
+    dark:hover:text-contextLinkDark;
   text-decoration-skip-ink: auto;
 }
 

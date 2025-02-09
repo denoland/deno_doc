@@ -1,3 +1,8 @@
+---
+source: tests/html_test.rs
+assertion_line: 398
+expression: files.get(file_name).unwrap()
+---
 const Fuse = window.Fuse;
 
 const searchInput = document.querySelector("#searchbar");
