@@ -179,11 +179,11 @@
 }
 
 .markdown .highlight {
-  @apply relative text-white bg-slate-800 dark:bg-stone-900;
+  @apply relative text-black bg-gray-50 dark:bg-gray-800 dark:text-white;
 
   .lineNumbers {
-    @apply border-r-2 border-stone-300 pr-1 text-right flex-none
-      dark:border-stone-700;
+    @apply border-r-2 border-gray-300 pr-1 text-right flex-none
+      dark:border-gray-600;
   }
 
   .context_button {
