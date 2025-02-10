@@ -19,7 +19,7 @@ snapshot_kind: text
 <body>
 <div class="ddoc">
 <div><nav
-  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-gray-900/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
+  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-gray-950/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
   id="topnav">
   <div class="h-full">
     <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg

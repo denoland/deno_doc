@@ -3,7 +3,7 @@
 
 .ddoc {
   /* keep spacing in sync with #topnav in various places further down */
-  @apply flex bg-white w-full items-start gap-6 p-4 dark:bg-gray-800
+  @apply flex bg-white w-full items-start gap-6 p-4 dark:bg-gray-950
     dark:text-white;
 
   &:has(#categoryPanel) {
