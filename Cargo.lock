@@ -535,9 +535,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.44.0"
+version = "0.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eebc7aaabfdb3ddcad32aee1b62d250149dc8b35dfbdccbb125df2bdc62da952"
+checksum = "8b64adab8b7eb6a8713d7ada508b2ef5dc41f201acf6c42d4214ca1917365958"
 dependencies = [
  "base64",
  "deno_error",
@@ -548,6 +548,7 @@ dependencies = [
  "percent-encoding",
  "serde",
  "sourcemap",
+ "string_capacity",
  "swc_atoms",
  "swc_common",
  "swc_ecma_ast",
@@ -570,7 +571,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.167.0"
+version = "0.168.0"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -649,9 +650,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.87.0"
+version = "0.88.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f56d4eb4b7c81ae920b6d18c45a1866924f93110caee80bbbc362dc28143f2bb"
+checksum = "8514a537cc6746ee7958b02f62273eff615ada6fa30bf8f5b38eaa68180992a7"
 dependencies = [
  "async-trait",
  "capacity_builder",
@@ -682,11 +683,12 @@ dependencies = [
 
 [[package]]
 name = "deno_media_type"
-version = "0.2.3"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a417f8bd3f1074185c4c8ccb6ea6261ae173781596cc358e68ad07aaac11009d"
+checksum = "600222d059ab31ff31182b3e12615df2134a9e01605836b78ad8df91ba39eab3"
 dependencies = [
  "data-url",
+ "encoding_rs",
  "serde",
  "url",
 ]
@@ -2072,6 +2074,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
+name = "string_capacity"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fcd14cb3a5abda6d2626370785f5f788b22e95476f597159faa4a2cc2966961a"
+dependencies = [
+ "itoa",
+]
+
+[[package]]
 name = "string_enum"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2369,9 +2380,9 @@ dependencies = [
 
 [[package]]
 name = "sys_traits"
-version = "0.1.0"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72001c0d1b690f17bb18ea7960821389199fd59ce6784f883fc76d0f3fbb6236"
+checksum = "638f0e61b5134e56b2abdf4c704fd44672603f15ca09013f314649056f3fee4d"
 
 [[package]]
 name = "tap"
