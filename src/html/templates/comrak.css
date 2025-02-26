@@ -25,6 +25,25 @@
   }
 }
 
+.context_button {
+  @apply absolute top-3 right-4 opacity-60 hover:opacity-100 active:opacity-100
+    transition duration-75;
+
+  svg.check {
+    @apply hidden;
+  }
+
+  &.copied {
+    svg.copy {
+      @apply hidden;
+    }
+
+    svg.check {
+      @apply block;
+    }
+  }
+}
+
 .markdown {
   @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm
     md:max-w-screen-md lg:max-w-[75ch];
@@ -86,7 +105,7 @@
   pre {
     @apply font-mono text-sm text-black bg-slate-50 border-t-1.5 border-b-1.5
       border-slate-300 -mx-4 rounded-none md:rounded-md md:border-1.5 md:mx-0
-      dark:bg-stone-800;
+      dark:bg-stone-800 dark:border-gray-600;
 
     & > code:first-child {
       @apply overflow-x-auto px-6 py-4 block;
@@ -184,24 +203,5 @@
   .lineNumbers {
     @apply border-r-2 border-gray-300 pr-1 text-right flex-none
       dark:border-gray-600;
-  }
-
-  .context_button {
-    @apply absolute top-3 right-4 opacity-60 hover:opacity-100
-      active:opacity-100 transition duration-75;
-
-    svg.check {
-      @apply hidden;
-    }
-
-    &.copied {
-      svg.copy {
-        @apply hidden;
-      }
-
-      svg.check {
-        @apply block;
-      }
-    }
   }
 }

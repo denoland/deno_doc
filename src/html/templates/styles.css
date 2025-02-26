@@ -300,15 +300,11 @@ a {
     }
 
     .context_button {
-      @apply top-1 right-2 hidden border-0;
-
-      svg rect {
-        @apply fill-white dark:fill-black;
-      }
+      @apply top-1 right-2 opacity-0 hidden;
     }
 
     &:hover .context_button {
-      @apply block opacity-100;
+      @apply opacity-100 block;
     }
   }
 }
