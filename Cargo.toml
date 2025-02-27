@@ -11,8 +11,8 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.88.0", default-features = false, features = ["symbols"] }
-deno_ast = { version = "0.45.1" }
+deno_graph = { version = "0.89.0", default-features = false, features = ["symbols"] }
+deno_ast = { version = "0.46.0" }
 import_map = "0.21.0"
 serde = { version = "1.0.204", features = ["derive"] }
 
@@ -76,7 +76,3 @@ codegen-units = 1
 incremental = true
 lto = true
 opt-level = "s"
-
-[patch.crates-io]
-deno_ast = { git = "https://github.com/dsherret/deno_ast", rev = "69305a5ea48d15096f863c9b5da22d8498146e66" }
-deno_graph = { git = "https://github.com/dsherret/deno_graph", rev = "480ca8f873099a7f8b675d5759d0b5ab0b3fd8b7" }
