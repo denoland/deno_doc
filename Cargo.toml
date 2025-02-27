@@ -78,5 +78,5 @@ lto = true
 opt-level = "s"
 
 [patch.crates-io]
-deno_graph = { git = "https://github.com/dsherret/deno_graph", rev = "38d99cfb2221d0e578fa02f83b9348b251cc30f2" }
-deno_ast = { git = "https://github.com/dsherret/deno_ast", rev = "77e6be69bedf1d93389f3c78f55c692f3eb91a2e" }
+deno_ast = { git = "https://github.com/dsherret/deno_ast", rev = "69305a5ea48d15096f863c9b5da22d8498146e66" }
+deno_graph = { git = "https://github.com/dsherret/deno_graph", rev = "480ca8f873099a7f8b675d5759d0b5ab0b3fd8b7" }

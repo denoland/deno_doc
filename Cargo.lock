@@ -321,7 +321,7 @@ dependencies = [
  "bitflags 1.3.2",
  "strsim 0.8.0",
  "textwrap 0.11.0",
- "unicode-width",
+ "unicode-width 0.1.14",
  "vec_map",
 ]
 
@@ -404,7 +404,7 @@ version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47a00bd3837aa7e8dc15766ded788486eba8aee03dab4e56f7c7051012a81c23"
 dependencies = [
- "unicode-width",
+ "unicode-width 0.1.14",
  "vte",
 ]
 
@@ -564,7 +564,7 @@ dependencies = [
 [[package]]
 name = "deno_ast"
 version = "0.45.1"
-source = "git+https://github.com/dsherret/deno_ast?rev=77e6be69bedf1d93389f3c78f55c692f3eb91a2e#77e6be69bedf1d93389f3c78f55c692f3eb91a2e"
+source = "git+https://github.com/dsherret/deno_ast?rev=69305a5ea48d15096f863c9b5da22d8498146e66#69305a5ea48d15096f863c9b5da22d8498146e66"
 dependencies = [
  "base64",
  "deno_error",
@@ -592,7 +592,7 @@ dependencies = [
  "swc_visit_macros",
  "text_lines",
  "thiserror 2.0.3",
- "unicode-width",
+ "unicode-width 0.2.0",
  "url",
 ]
 
@@ -678,7 +678,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.88.0"
-source = "git+https://github.com/dsherret/deno_graph?rev=38d99cfb2221d0e578fa02f83b9348b251cc30f2#38d99cfb2221d0e578fa02f83b9348b251cc30f2"
+source = "git+https://github.com/dsherret/deno_graph?rev=480ca8f873099a7f8b675d5759d0b5ab0b3fd8b7#480ca8f873099a7f8b675d5759d0b5ab0b3fd8b7"
 dependencies = [
  "async-trait",
  "capacity_builder",
@@ -2193,7 +2193,7 @@ dependencies = [
  "swc_eq_ignore_macros",
  "swc_visit",
  "tracing",
- "unicode-width",
+ "unicode-width 0.1.14",
  "url",
 ]
 
@@ -2471,7 +2471,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 dependencies = [
- "unicode-width",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
@@ -2675,6 +2675,12 @@ name = "unicode-width"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
+
+[[package]]
+name = "unicode-width"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fc81956842c57dac11422a97c3b8195a1ff727f06e85c84ed2e8aa277c9a0fd"
 
 [[package]]
 name = "unicode_categories"
