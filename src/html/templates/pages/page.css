@@ -1,9 +1,16 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply bg-white dark:bg-gray-950 text-black dark:text-white;
+}
+
 .ddoc {
-  /* keep spacing in sync with #topnav in various places further down */
-  @apply flex min-h-fit items-start gap-6 p-4;
+  /*
+    keep spacing in sync with #topnav in various places further down
+    de-dup body styles to unsure compatibility `@deno/doc`
+  */
+  @apply flex bg-white items-start gap-6 p-4 dark:bg-gray-950 dark:text-white;
 
   &:has(#categoryPanel) {
     @apply lg:p-2;
