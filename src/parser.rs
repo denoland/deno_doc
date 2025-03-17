@@ -733,11 +733,26 @@ impl<'a> DocParser<'a> {
   fn get_doc_for_ts_namespace(
     &self,
     module_info: &EsModuleInfo,
-    symbol: &Symbol,
+    ns_symbol: &Symbol,
     ts_module: &TsModuleDecl,
     full_range: &SourceRange,
   ) -> Option<DocNode> {
-    let first_ns_decl = symbol
+    fn symbol_in_ancestors(
+      id: UniqueSymbolId,
+      parent: &Symbol,
+      module_info: &EsModuleInfo,
+    ) -> bool {
+      let mut current_symbol = Some(parent);
+      while let Some(symbol) = current_symbol.take() {
+        if symbol.unique_id() == id {
+          return true;
+        }
+        current_symbol = symbol.parent_id().and_then(|s| module_info.symbol(s));
+      }
+      false
+    }
+
+    let first_ns_decl = ns_symbol
       .decls()
       .iter()
       .filter_map(|d| {
@@ -766,7 +781,7 @@ impl<'a> DocParser<'a> {
     let mut elements = Vec::new();
     let mut handled_symbols = HashSet::new();
 
-    for (export_name, export_symbol_id) in symbol.exports() {
+    for (export_name, export_symbol_id) in ns_symbol.exports() {
       handled_symbols.insert(UniqueSymbolId::new(
         module_info.module_id(),
         *export_symbol_id,
@@ -778,7 +793,12 @@ impl<'a> DocParser<'a> {
       let original_range = &export_symbol.decls().first().unwrap().range;
 
       for definition in definitions {
-        handled_symbols.insert(definition.symbol.unique_id());
+        let definition_id = definition.symbol.unique_id();
+        if symbol_in_ancestors(definition_id, ns_symbol, module_info) {
+          continue;
+        }
+
+        handled_symbols.insert(definition_id);
 
         let maybe_docs = self.docs_for_maybe_node(
           definition.module,
@@ -799,7 +819,7 @@ impl<'a> DocParser<'a> {
     }
 
     let is_ambient = elements.is_empty() && !module_has_import(module_info);
-    for child_id in symbol.child_ids() {
+    for child_id in ns_symbol.child_ids() {
       let unique_id = UniqueSymbolId::new(module_info.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
