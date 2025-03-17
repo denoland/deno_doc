@@ -599,7 +599,7 @@ dependencies = [
 
 [[package]]
 name = "deno_doc"
-version = "0.169.0"
+version = "0.169.1"
 dependencies = [
  "anyhow",
  "cfg-if",
