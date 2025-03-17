@@ -25,6 +25,16 @@ export namespace d {
   }
 }
 
+/** Description. */
+export namespace f {
+  /** Description. */
+  export namespace g {
+    /** Description. */
+    const value: f;
+    export { value };
+  }
+}
+
 # output.txt
 Defined in file:///mod.ts:2:1
 
@@ -54,6 +64,14 @@ namespace d
   Description.
 
   namespace e
+    Description.
+
+Defined in file:///mod.ts:28:1
+
+namespace f
+  Description.
+
+  namespace g
     Description.
 
 
@@ -196,6 +214,70 @@ namespace d
           "kind": "namespace",
           "namespaceDef": {
             "elements": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "f",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 28,
+      "col": 0,
+      "byteIndex": 396
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Description."
+    },
+    "kind": "namespace",
+    "namespaceDef": {
+      "elements": [
+        {
+          "name": "g",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 30,
+            "col": 2,
+            "byteIndex": 441
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Description."
+          },
+          "kind": "namespace",
+          "namespaceDef": {
+            "elements": [
+              {
+                "name": "value",
+                "isDefault": false,
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 32,
+                  "col": 10,
+                  "byteIndex": 496
+                },
+                "declarationKind": "export",
+                "jsDoc": {
+                  "doc": "Description."
+                },
+                "kind": "variable",
+                "variableDef": {
+                  "tsType": {
+                    "repr": "f",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "f"
+                    }
+                  },
+                  "kind": "const"
+                }
+              }
+            ]
           }
         }
       ]
