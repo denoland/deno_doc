@@ -596,7 +596,7 @@ mod test {
     // [label] takes precedence - consistent with the default JSDoc behaviour
     assert_eq!(
       parse_links(
-        "foo [Example (pre)]{@link https://example.com|Exapmle (after)} bar",
+        "foo [Example (pre)]{@link https://example.com|Example (after)} bar",
         &render_ctx
       ),
       "foo [Example (pre)](https://example.com) bar"
