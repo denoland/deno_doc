@@ -26,7 +26,7 @@
           {{~> (lookup ../content "kind") this ~}}
 
           {{~#if (and (eq (lookup ../content "kind") "example") (not @last))~}}
-            <div class="border-b border-gray-300"></div>
+            <div class="border-b border-gray-300 dark:border-gray-700"></div>
           {{~/if~}}
         {{~/each~}}
       </div>
