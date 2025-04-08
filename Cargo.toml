@@ -11,7 +11,7 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.89.0", default-features = false, features = ["symbols"] }
+deno_graph = { version = "0.89.4", default-features = false, features = ["symbols"] }
 deno_ast = { version = "0.46.3" }
 import_map = "0.21.0"
 serde = { version = "1.0.204", features = ["derive"] }
