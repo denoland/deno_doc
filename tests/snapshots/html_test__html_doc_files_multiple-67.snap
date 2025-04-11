@@ -87,8 +87,8 @@ Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_defaul
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import bar from &quot;foo&quot;;
-</code><button class="context_button" data-copy="import bar from &quot;foo&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import bar123 from &quot;foo&quot;;
+</code><button class="context_button" data-copy="import bar123 from &quot;foo&quot;;
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
