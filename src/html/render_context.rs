@@ -380,7 +380,7 @@ impl HeadingToCAdapter {
 
     *offset = level;
 
-    if toc.last().map_or(true, |toc| toc.content != content) {
+    if toc.last().is_none_or(|toc| toc.content != content) {
       toc.push(ToCEntry {
         level,
         content: content.to_owned(),
