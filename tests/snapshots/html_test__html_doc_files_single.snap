@@ -17,9 +17,11 @@ expression: files.get(file_name).unwrap()
     <script src=".&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav
+  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-backgroundDark/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
+  id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +36,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content">
@@ -61,17 +64,17 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">Foo</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
 

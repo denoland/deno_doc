@@ -17,9 +17,11 @@ expression: files.get(file_name).unwrap()
     <script src=".&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav
+  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-backgroundDark/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
+  id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href=".&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +36,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content">
@@ -61,105 +64,105 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_abstractclass" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_abstractclass" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass">AbstractClass</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html#property_foo">foo</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html#accessor_getter">getter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html#method_method_0">method</a></li></ul></div>
-    </div><div id="namespace_anothervariable" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+    </div><div id="namespace_anothervariable" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;anotherVariable.html" title="anotherVariable">anotherVariable</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;anotherVariable.html#method_bar_0">bar</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;anotherVariable.html#property_foo">foo</a></li></ul></div>
-    </div><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">Bar</a>
 
 	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Bar docs</p>
 </div></div></div>
-    </div><div id="namespace_baz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
+    </div><div id="namespace_baz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz">Baz</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html#method_bar_0">bar</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html#property_foo">foo</a></li></ul></div>
-    </div><div id="namespace_c" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_c" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;c.html" title="c">c</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_compoundtype" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+    </div><div id="namespace_compoundtype" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html" title="CompoundType">CompoundType</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html#property_bufferedamount">bufferedAmount</a></li></ul></div>
-    </div><div id="namespace_d" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_d" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;d.html" title="d">d</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_emptyinterface" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+    </div><div id="namespace_emptyinterface" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;EmptyInterface.html" title="EmptyInterface">EmptyInterface</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_enum" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Enum bg-Enum/15" title="Enum">E</div></div>
+    </div><div id="namespace_enum" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Enum bg-Enum/15 dark:text-EnumDark dark:bg-EnumDark/15" title="Enum">E</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Enum.html" title="Enum">Enum</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_enum2" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Enum bg-Enum/15" title="Enum">E</div></div>
+    </div><div id="namespace_enum2" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Enum bg-Enum/15 dark:text-EnumDark dark:bg-EnumDark/15" title="Enum">E</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Enum2.html" title="Enum2">Enum2</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">Foo</a>
 
 	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <a href="./././~/Bar.html"><code>Bar</code></a></p>
 </div></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&amp;quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">bar</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_foo">foo</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getter">getter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getterandsetter">getterAndSetter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_methodwithoverloads_0">methodWithOverloads</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_protectedproperty">protectedProperty</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_readonlyproperty">readonlyProperty</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_setter">setter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_staticmethod_0">staticMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_staticsetter">staticSetter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_test_0">test</a></li></ul></div>
-    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
+    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
 
 	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Foobar docs</p>
 </div></div></div>
-    </div><div id="namespace_functionwithoptionalparameters" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_functionwithoptionalparameters" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;functionWithOptionalParameters.html" title="functionWithOptionalParameters">functionWithOptionalParameters</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+    </div><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello">Hello</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_ab">ab</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">computedMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">optionalMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">test</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_world">world</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_x">x</a></li></ul></div>
-    </div><div id="namespace_interfacewithindexsignature" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div></div>
+    </div><div id="namespace_interfacewithindexsignature" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;InterfaceWithIndexSignature.html" title="InterfaceWithIndexSignature">InterfaceWithIndexSignature</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_qaz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_qaz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;qaz.html" title="qaz">qaz</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_somevariable" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+    </div><div id="namespace_somevariable" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;someVariable.html" title="someVariable">someVariable</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_testing" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div><div class="text-Namespace bg-Namespace/15" title="Namespace">N</div></div>
+    </div><div id="namespace_testing" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div><div class="text-Namespace bg-Namespace/15 dark:text-NamespaceDark dark:bg-NamespaceDark/15" title="Namespace">N</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.html" title="Testing">Testing</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_testing_t" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_testing_t" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.t.html" title="Testing.t">Testing.t</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_typealias" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
+    </div><div id="namespace_typealias" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;TypeAlias.html" title="TypeAlias">TypeAlias</a>
 
@@ -189,12 +192,12 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;c&#x2F;index.html" class="contextLink">c</a></h2></div><div class="namespaceSection"><div id="namespace_testing_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<a href=".&#x2F;.&#x2F;c&#x2F;index.html" class="contextLink">c</a></h2></div><div class="namespaceSection"><div id="namespace_testing_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;Testing.x.html" title="Testing.x">Testing.x</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;x.html" title="x">x</a>
 
@@ -224,12 +227,12 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;d&#x2F;index.html" class="contextLink">d</a></h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+<a href=".&#x2F;.&#x2F;d&#x2F;index.html" class="contextLink">d</a></h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction">externalFunction</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">Testing.externalFunction</a>
 
@@ -259,13 +262,13 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;.&#x2F;foo&#x2F;index.html" class="contextLink">foo</a></h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+<a href=".&#x2F;.&#x2F;foo&#x2F;index.html" class="contextLink">foo</a></h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">default</a>
 
 	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
 </div></div></div>
-    </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+    </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">x</a>
 

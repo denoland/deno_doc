@@ -17,9 +17,11 @@ expression: files.get(file_name).unwrap()
     <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
-<div><nav class="top-0 sticky bg-white z-50 py-3 h-14" id="topnav">
+<div><nav
+  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-backgroundDark/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
+  id="topnav">
   <div class="h-full">
-    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-[#0F172A]"><svg
+    <div><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
 	width="16"
 	height="16"
 	viewBox="0 0 16 16"
@@ -34,7 +36,8 @@ expression: files.get(file_name).unwrap()
         type="text"
         id="searchbar"
         style="display: none;"
-        class="py-2 px-2.5 rounded text-sm border border-gray-300 bg-transparent" />
+        class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+        />
   </div>
 </nav>
 <div id="searchResults"></div><div id="content">
@@ -62,7 +65,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
+Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">x</a>
 
@@ -92,7 +95,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
   </defs>
 </svg>
 </a>
-Variables</h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
+Variables</h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">default</a>
 
@@ -110,9 +113,9 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
-<path d="M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z" fill="#232323"/>
+<path d="M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z" fill="currentColor"/>
 </svg>
-<svg class="check" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="#232323" fill="none" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+<svg class="check" width="15" height="15" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
 <path d="M5 12l5 5l10 -10" />
 </svg>
@@ -120,24 +123,34 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 </div></div><nav class="topSymbols">
           <h3>Symbols</h3>
           <ul><li>
-                <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15" title="Function">f</div></div>
-<span class="hover:bg-Function/15">externalFunction</span>
+                <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
+<span class="hover:bg-Function/15 hover:bg-FunctionDark/15">
+                    externalFunction
+                  </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">AbstractClass</span>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
+                    AbstractClass
+                  </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15">Bar</span>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
+                    Bar
+                  </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz"><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15" title="Type Alias">T</div></div>
-<span class="hover:bg-TypeAlias/15">Baz</span>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz"><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
+<span class="hover:bg-TypeAlias/15 hover:bg-TypeAliasDark/15">
+                    Baz
+                  </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html" title="CompoundType"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15" title="Interface">I</div><div class="text-Variable bg-Variable/15" title="Variable">v</div></div>
-<span class="hover:bg-Interface/15">CompoundType</span>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html" title="CompoundType"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
+<span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
+                    CompoundType
+                  </span>
                 </a>
               </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
               <span class="leading-none">view all 27 symbols</span><svg
