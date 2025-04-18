@@ -63,6 +63,7 @@ export default {
         ...extraColors,
         "contextLink": "#0E6590",
         "contextLinkDark": "#86d3f3",
+        backgroundDark: "#121417",
         gray: {
           1: "#868789",
         },
