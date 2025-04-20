@@ -176,6 +176,6 @@ Deno.test({
       },
     });
 
-    assertEquals(Object.keys(files).length, 56);
+    assertEquals(Object.keys(files).length, 55);
   },
 });
