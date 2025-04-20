@@ -72,6 +72,10 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
+const DARKMODE_TOGGLE_JS: &str =
+  include_str!("./templates/pages/darkmode_toggle.js");
+const DARKMODE_TOGGLE_FILENAME: &str = "darkmode_toggle.js";
+
 fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   let mut reg = Handlebars::new();
   reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
@@ -226,6 +230,14 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   reg.register_template_string(
     "icons/menu",
     include_str!("./templates/icons/menu.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/sun",
+    include_str!("./templates/icons/sun.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/moon",
+    include_str!("./templates/icons/moon.svg"),
   )?;
 
   Ok(reg)
@@ -1153,6 +1165,7 @@ pub fn generate(
   files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+  files.insert(DARKMODE_TOGGLE_FILENAME.into(), DARKMODE_TOGGLE_JS.into());
   #[cfg(feature = "comrak")]
   files.insert(
     comrak::COMRAK_STYLESHEET_FILENAME.into(),

@@ -1,6 +1,7 @@
 import { type Config } from "npm:tailwindcss@3.4.3";
 
 export default {
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
