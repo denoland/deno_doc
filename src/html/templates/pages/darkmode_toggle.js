@@ -21,6 +21,7 @@ function setTheme(theme, themeToggle) {
 
 window.addEventListener("load", () => {
   const themeToggle = document.getElementById("theme-toggle");
+  themeToggle.removeAttribute("style");
 
   const storedTheme = localStorage.getItem("theme");
   const systemPrefersDark =
@@ -39,8 +40,6 @@ window.addEventListener("load", () => {
     });
   }
 });
-
-document.getElementById("theme-toggle").removeAttribute("style");
 
 // prevent flash
 const theme = localStorage.getItem("theme") ||

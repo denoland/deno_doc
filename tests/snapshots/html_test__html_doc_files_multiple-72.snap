@@ -121,7 +121,7 @@ function renderResults(results) {
 
   for (const result of results) {
     const kind = result.kind.map((kind) => {
-      return `<div class="text-${kind.kind} bg-${kind.kind}/15 text-${kind.kind}Dark bg-${kind.kind}Dark/15" title="${kind.title}">${kind.char}</div>`;
+      return `<div class="text-${kind.kind} bg-${kind.kind}/15 dark:text-${kind.kind}Dark dark:bg-${kind.kind}Dark/15" title="${kind.title}">${kind.char}</div>`;
     }).join("");
 
     html += `<li class="block">

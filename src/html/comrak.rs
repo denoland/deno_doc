@@ -229,7 +229,7 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     write!(output, "</code>")?;
     write!(
       output,
-      r#"<button class="context_button" data-copy="{}">{}{}</button>"#,
+      r#"<button class="copyButton" data-copy="{}">{}{}</button>"#,
       html_escape::encode_double_quoted_attribute(code),
       include_str!("./templates/icons/copy.svg"),
       include_str!("./templates/icons/check.svg"),

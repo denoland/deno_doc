@@ -45,6 +45,7 @@ export default {
   safelist: [
     {
       pattern: new RegExp(`^text-(${Object.keys(extraColors).join("|")})$`),
+      variants: ["dark"],
     },
     {
       pattern: new RegExp(
@@ -55,7 +56,7 @@ export default {
       pattern: new RegExp(
         `^bg-(${Object.keys(extraColors).join("|")})\/(?:5|15)$`,
       ),
-      variants: ["hover"],
+      variants: ["hover", "dark"],
     },
   ],
   theme: {

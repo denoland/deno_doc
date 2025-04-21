@@ -15,6 +15,11 @@ a {
   --ddoc-selection-selected-border-color: #2564eb;
   --ddoc-selection-selected-bg: #056cf00c;
   --ddoc-selection-padding: 9px 15px;
+  --ddoc-usage-active-bg: #ebf6ff;
+
+  &:is(.dark *) {
+    --ddoc-usage-active-bg: theme("colors.stone.800");
+  }
 }
 
 .link {
@@ -63,6 +68,10 @@ a {
 .docEntry {
   @apply mb-4 space-y-2;
 
+  &:hover .sourceButton {
+    @apply flex;
+  }
+
   .docEntryHeader {
     @apply flex justify-between items-start md:text-base;
 
@@ -79,7 +88,7 @@ a {
     @apply space-y-2;
 
     > h2 {
-      @apply text-xl leading-6 font-semibold py-1 mb-0;
+      @apply text-xl leading-6 font-semibold py-1 mb-4;
     }
 
     /* markdown */
@@ -90,7 +99,7 @@ a {
 }
 
 .namespaceSection {
-  @apply space-y-4 mt-4 max-w-prose;
+  @apply space-y-3 mt-4 max-w-prose;
 
   .namespaceItem {
     @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4 min-h-0;
@@ -112,12 +121,12 @@ a {
     }
 
     .namespaceItemContent {
-      > a, .namespaceItemContentSubItems a {
-        @apply underline decoration-stone-300 dark:decoration-stone-500;
+      flex: 1;
+      width: 0;
 
-        &:hover {
-          @apply no-underline;
-        }
+      > a, .namespaceItemContentSubItems a {
+        @apply underline decoration-stone-300 dark:decoration-stone-500
+          hover:no-underline;
       }
 
       > a {
@@ -146,8 +155,12 @@ a {
   article {
     @apply space-y-5;
 
-    > div:first-child {
+    .symbolTitle {
       @apply flex justify-between items-start;
+
+      &:hover .sourceButton {
+        @apply flex;
+      }
 
       > div:first-child {
         @apply font-medium space-y-1;
@@ -160,7 +173,7 @@ a {
   @apply inline-flex justify-end shrink-0;
 
   div {
-    @apply rounded-full size-5 font-medium text-xs leading-5 text-center
+    @apply rounded-full size-4 font-medium text-xs leading-4 text-center
       align-middle shrink-0 select-none font-mono;
   }
 
@@ -295,17 +308,27 @@ a {
       dark:border-gray-600 dark:bg-gray-800;
 
     > code:first-child {
-      @apply py-2 px-3;
+      @apply pt-2 pr-10 pb-2 pl-2;
       scrollbar-width: thin;
     }
 
-    .context_button {
-      @apply top-1 right-2 opacity-0 hidden;
+    .copyButton {
+      @apply top-1 right-2 opacity-0;
     }
 
-    &:hover .context_button {
-      @apply opacity-100 block;
+    &:hover .copyButton {
+      @apply opacity-100;
     }
+  }
+}
+
+pre.highlight {
+  .copyButton {
+    @apply absolute opacity-0 top-3 right-4;
+  }
+
+  &:hover .copyButton {
+    @apply opacity-60 hover:opacity-100;
   }
 }
 
@@ -346,15 +369,25 @@ a {
   }
 }
 
-.context_button {
-  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200
-    leading-[0] dark:bg-inherit dark:hover:bg-stone-800;
-}
-
 .see {
   @apply list-disc list-inside;
 
   > li * {
     display: inline-block;
+  }
+}
+
+.sourceButton, .copyButton {
+  @apply z-10 rounded no-underline p-1.5 cursor-pointer bg-inherit
+    hover:bg-stone-200 leading-[0] dark:hover:bg-stone-800 transition
+    duration-75;
+}
+
+.sourceButton {
+  @apply flex-row gap-2 items-center relative mr-2 hidden;
+
+  &:before {
+    content: "View code";
+    @apply hidden md:block text-xs leading-none;
   }
 }

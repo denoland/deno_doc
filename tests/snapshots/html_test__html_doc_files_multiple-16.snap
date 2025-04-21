@@ -59,7 +59,7 @@ expression: files.get(file_name).unwrap()
   </div>
 </nav>
 <div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Baz"><article>
-      <div>
+      <div class="symbolTitle">
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-TypeAlias">type alias</span>&nbsp;<span class="font-bold">Baz</span>
@@ -225,7 +225,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
 <div class="toc">
     <div><div class="usageContent">
     <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { type Baz } from &quot;.&quot;;
-</code><button class="context_button" data-copy="import { type Baz } from &quot;.&quot;;
+</code><button class="copyButton" data-copy="import { type Baz } from &quot;.&quot;;
 "><svg class="copy" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="2" y="2" width="7" height="7" fill="none"/>
 <rect x="6" y="6" width="7" height="7" fill="none"/>
