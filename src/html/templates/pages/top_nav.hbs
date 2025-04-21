@@ -1,18 +1,23 @@
-<nav
-  class="top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-backgroundDark/90 dark:text-white/90 border-b border-gray-300 dark:border-gray-700"
-  id="topnav">
+<nav id="topnav">
   <div class="h-full">
-    <div>
+    <div class="flex items-center">
       {{~> breadcrumbs breadcrumbs_ctx ~}}
     </div>
 
-    {{#if (not disable_search)}}
-      <input
-        type="text"
-        id="searchbar"
-        style="display: none;"
-        class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
-        />
-    {{/if}}
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle" type="button" aria-label="Toggle dark mode" style="display: none;">
+        {{~> icons/moon ~}}
+        {{~> icons/sun class="hidden" ~}}
+      </button>
+
+      {{#if (not disable_search)}}
+        <input
+          type="text"
+          id="searchbar"
+          style="display: none;"
+          class="py-2 px-2.5 mx-1 rounded text-sm border border-gray-300 bg-transparent dark:bg-gray-800 dark:border-gray-700"
+          />
+      {{/if}}
+    </div>
   </div>
 </nav>

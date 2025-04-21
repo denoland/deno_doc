@@ -82,3 +82,17 @@ body {
     }
   }
 }
+
+#topnav {
+  @apply top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-backgroundDark/90
+    dark:text-white/90 border-b border-gray-300 dark:border-gray-700;
+}
+
+#theme-toggle {
+  @apply text-gray-500 dark:text-gray-400 hover:bg-gray-100
+    dark:hover:bg-gray-700 rounded p-1;
+
+  * {
+    @apply size-5;
+  }
+}

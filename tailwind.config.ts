@@ -41,6 +41,7 @@ export default {
     "./src/html/**/*.rs",
     "./src/html/templates/*.hbs",
   ],
+  darkMode: "class",
   safelist: [
     {
       pattern: new RegExp(`^text-(${Object.keys(extraColors).join("|")})$`),

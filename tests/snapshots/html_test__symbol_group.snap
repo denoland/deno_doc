@@ -1,7 +1,6 @@
 ---
 source: tests/html_test.rs
 expression: files
-snapshot_kind: text
 ---
 [
   {
@@ -15,7 +14,8 @@ snapshot_kind: text
       "url_search_index": "../../search_index.js",
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
-      "url_search": "../../search.js",
+      "search_js": "../../search.js",
+      "darkmode_toggle_js": "../../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -188,7 +188,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -278,7 +279,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -475,7 +477,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -565,7 +568,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -655,7 +659,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -847,7 +852,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -993,7 +999,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -1072,7 +1079,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -1207,7 +1215,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -1342,7 +1351,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -1929,7 +1939,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -2048,7 +2059,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -2389,7 +2401,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -2500,7 +2513,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -2710,7 +2724,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -2883,7 +2898,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -3015,7 +3031,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -3188,7 +3205,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -3301,7 +3319,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -3456,7 +3475,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -3582,7 +3602,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -3942,7 +3963,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -4246,7 +4268,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -4477,7 +4500,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -4556,7 +4580,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -4723,7 +4748,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -4848,7 +4874,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -4986,7 +5013,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5161,7 +5189,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5293,7 +5322,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5412,7 +5442,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5531,7 +5562,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5650,7 +5682,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5775,7 +5808,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -5913,7 +5947,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -6038,7 +6073,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -6163,7 +6199,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -6395,7 +6432,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -6664,7 +6702,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -6789,7 +6828,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -6914,7 +6954,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7089,7 +7130,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7227,7 +7269,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7359,7 +7402,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7528,7 +7572,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7647,7 +7692,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7816,7 +7862,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -7948,7 +7995,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8067,7 +8115,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8186,7 +8235,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8303,7 +8353,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8435,7 +8486,8 @@ snapshot_kind: text
       "url_search_index": "../search_index.js",
       "script_js": "../script.js",
       "fuse_js": "../fuse.js",
-      "url_search": "../search.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8554,7 +8606,8 @@ snapshot_kind: text
       "url_search_index": "../../search_index.js",
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
-      "url_search": "../../search.js",
+      "search_js": "../../search.js",
+      "darkmode_toggle_js": "../../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8673,7 +8726,8 @@ snapshot_kind: text
       "url_search_index": "../../search_index.js",
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
-      "url_search": "../../search.js",
+      "search_js": "../../search.js",
+      "darkmode_toggle_js": "../../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },
@@ -8846,7 +8900,8 @@ snapshot_kind: text
       "url_search_index": "../../search_index.js",
       "script_js": "../../script.js",
       "fuse_js": "../../fuse.js",
-      "url_search": "../../search.js",
+      "search_js": "../../search.js",
+      "darkmode_toggle_js": "../../darkmode_toggle.js",
       "head_inject": null,
       "disable_search": false
     },

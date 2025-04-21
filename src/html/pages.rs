@@ -15,6 +15,7 @@ use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::rc::Rc;
 
+use super::DARKMODE_TOGGLE_FILENAME;
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
 use super::RESET_STYLESHEET_FILENAME;
@@ -39,7 +40,8 @@ pub struct HtmlHeadCtx {
   url_search_index: String,
   script_js: String,
   fuse_js: String,
-  url_search: String,
+  search_js: String,
+  darkmode_toggle_js: String,
   head_inject: Option<String>,
   disable_search: bool,
 }
@@ -73,7 +75,8 @@ impl HtmlHeadCtx {
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
       script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
-      url_search: format!("{root}{SEARCH_FILENAME}"),
+      search_js: format!("{root}{SEARCH_FILENAME}"),
+      darkmode_toggle_js: format!("{root}{DARKMODE_TOGGLE_FILENAME}"),
       head_inject: ctx.head_inject.clone().map(|head_inject| head_inject(root)),
       disable_search: ctx.disable_search,
     }

@@ -1,7 +1,3 @@
----
-source: tests/html_test.rs
-expression: files.get(file_name).unwrap()
----
 function setTheme(theme, themeToggle) {
   if (theme === "dark") {
     document.documentElement.classList.add("dark");
