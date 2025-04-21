@@ -16,7 +16,9 @@
   @apply inline text-stone-600 dark:text-stone-400;
 
   p {
-    @apply inline-block line-clamp-4;
+    max-width: 100%;
+
+    @apply inline-block line-clamp-4 leading-normal;
   }
 
   :not(pre) > code {
@@ -25,10 +27,7 @@
   }
 }
 
-.context_button {
-  @apply absolute top-3 right-4 opacity-60 hover:opacity-100 active:opacity-100
-    transition duration-75;
-
+.copyButton {
   svg.check {
     @apply hidden;
   }
@@ -45,7 +44,7 @@
 }
 
 .markdown {
-  @apply space-y-3 shrink min-w-0 max-w-[40ch] sm:max-w-screen-sm
+  @apply space-y-3 shrink min-w-0 max-w-prose sm:max-w-screen-sm
     md:max-w-screen-md lg:max-w-[75ch];
 
   h1 {
@@ -195,13 +194,17 @@
       @apply text-red-600 stroke-red-600 dark:text-red-600 dark:stroke-red-600;
     }
   }
-}
 
-.markdown .highlight {
-  @apply relative text-black bg-gray-50 dark:bg-gray-800 dark:text-white;
+  code {
+    @apply w-full;
+  }
 
-  .lineNumbers {
-    @apply border-r-2 border-gray-300 pr-1 text-right flex-none
-      dark:border-gray-600;
+  .highlight {
+    @apply relative text-black bg-gray-50 dark:bg-gray-800 dark:text-white;
+
+    .lineNumbers {
+      @apply border-r-2 border-gray-300 pr-1 text-right flex-none
+        dark:border-gray-600;
+    }
   }
 }

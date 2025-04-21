@@ -35,7 +35,7 @@ fn render_css_for_usage(name: &str) -> String {
 }}
 #{name}:checked ~ nav label[for='{name}'] {{
   cursor: unset;
-  background-color: #EBF6FF;
+  background-color: var(--ddoc-usage-active-bg);
 }}
 "#
   )
