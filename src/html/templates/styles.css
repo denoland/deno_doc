@@ -16,6 +16,10 @@ a {
   --ddoc-selection-selected-bg: #056cf00c;
   --ddoc-selection-padding: 9px 15px;
   --ddoc-usage-active-bg: #ebf6ff;
+
+  &:is(.dark *) {
+    --ddoc-usage-active-bg: theme("colors.stone.800");
+  }
 }
 
 .link {
@@ -386,8 +390,4 @@ pre.highlight {
     content: "View code";
     @apply hidden md:block text-xs leading-none;
   }
-}
-
-.dark {
-  --ddoc-usage-active-bg: theme("colors.stone.800");
 }
