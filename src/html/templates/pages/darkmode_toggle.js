@@ -40,6 +40,8 @@ window.addEventListener("load", () => {
   }
 });
 
+document.getElementById("theme-toggle").removeAttribute("style");
+
 // prevent flash
 const theme = localStorage.getItem("theme") ||
   (window.matchMedia("(prefers-color-scheme: dark)").matches
