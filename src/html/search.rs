@@ -57,7 +57,7 @@ pub fn doc_nodes_into_search_index_node(
     super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
   let doc = super::jsdoc::strip(
-    &ctx,
+    ctx,
     &doc_nodes[0].js_doc.doc.clone().unwrap_or_default(),
   )
   .into_boxed_str();
