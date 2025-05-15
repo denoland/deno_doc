@@ -16,7 +16,7 @@ use std::ops::Deref;
 
 #[derive(Debug, Serialize, Clone)]
 struct OverloadRenderCtx {
-  id: String,
+  id: Id,
   anchor: AnchorCtx,
   name: String,
   summary: String,
@@ -68,13 +68,18 @@ impl FunctionCtx {
         }
       });
 
-      let overload_id =
-        name_to_id("function", &format!("{}_{i}", doc_node.get_name()));
+      let overload_id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Function)
+        .name(doc_node.get_name())
+        .index(i)
+        .build();
 
       if overloads_count > 1 {
-        ctx
-          .toc
-          .add_entry(0, &format!("Overload {}", i + 1), &overload_id);
+        ctx.toc.add_entry(
+          0,
+          &format!("Overload {}", i + 1),
+          overload_id.as_str(),
+        );
       }
 
       functions_content.push(OverloadRenderCtx {
@@ -85,7 +90,7 @@ impl FunctionCtx {
         name: doc_node.get_name().to_string(),
         summary: render_function_summary(function_def, ctx),
         deprecated,
-        content: render_single_function(ctx, doc_node, &overload_id),
+        content: render_single_function(ctx, doc_node, overload_id.clone()),
       });
     }
 
@@ -115,7 +120,7 @@ pub(crate) fn render_function_summary(
 fn render_single_function(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
-  overload_id: &str,
+  overload_id: Id,
 ) -> SymbolContentCtx {
   let function_def = doc_node.function_def().unwrap();
 
@@ -155,7 +160,11 @@ fn render_single_function(
     .enumerate()
     .map(|(i, param)| {
       let (name, str_name) = crate::html::parameters::param_name(param, i);
-      let id = name_to_id(overload_id, &format!("parameters_{str_name}"));
+      let id = IdBuilder::new(ctx.ctx)
+        .component(&overload_id)
+        .kind(IdKind::Parameter)
+        .name(&str_name)
+        .build();
 
       let (mut default, optional) = if let Some((_doc, optional, default)) =
         param_docs.get(name.as_str())
@@ -203,7 +212,7 @@ fn render_single_function(
 
       DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         Some(name),
         None,
         &ts_type,
@@ -245,8 +254,13 @@ fn render_single_function(
     ctx,
     "Return Type",
     SectionContentCtx::DocEntry(
-      render_function_return_type(ctx, function_def, doc_node, overload_id)
-        .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
+      render_function_return_type(
+        ctx,
+        function_def,
+        doc_node,
+        overload_id.clone(),
+      )
+      .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
     ),
   ));
 
@@ -265,7 +279,14 @@ fn render_single_function(
     })
     .enumerate()
     .map(|(i, (type_ref, doc))| {
-      render_function_throws(ctx, doc_node, type_ref, doc, overload_id, i)
+      render_function_throws(
+        ctx,
+        doc_node,
+        type_ref,
+        doc,
+        overload_id.clone(),
+        i,
+      )
     })
     .collect::<Vec<_>>();
 
@@ -299,7 +320,7 @@ fn render_single_function(
   }
 
   SymbolContentCtx {
-    id: String::new(),
+    id: Id::empty(),
     sections,
     docs,
   }
@@ -309,11 +330,14 @@ fn render_function_return_type(
   render_ctx: &RenderContext,
   def: &FunctionDef,
   doc_node: &DocNodeWithContext,
-  overload_id: &str,
+  overload_id: Id,
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
-  let id = name_to_id(overload_id, "return");
+  let id = IdBuilder::new(render_ctx.ctx)
+    .component(overload_id.as_str())
+    .kind(IdKind::Return)
+    .build();
 
   let return_type_doc = doc_node.js_doc.tags.iter().find_map(|tag| {
     if let JsDocTag::Return { doc, .. } = tag {
@@ -325,7 +349,7 @@ fn render_function_return_type(
 
   Some(DocEntryCtx::new(
     render_ctx,
-    &id,
+    id,
     None,
     None,
     &render_type_def(render_ctx, return_type),
@@ -340,14 +364,18 @@ fn render_function_throws(
   doc_node: &DocNodeWithContext,
   type_ref: &Option<Box<str>>,
   doc: &Option<Box<str>>,
-  overload_id: &str,
+  overload_id: Id,
   throws_id: usize,
 ) -> DocEntryCtx {
-  let id = name_to_id(overload_id, &format!("throws_{throws_id}"));
+  let id = IdBuilder::new(render_ctx.ctx)
+    .component(overload_id.as_str())
+    .kind(IdKind::Throws)
+    .index(throws_id)
+    .build();
 
   DocEntryCtx::new(
     render_ctx,
-    &id,
+    id,
     None,
     None,
     type_ref

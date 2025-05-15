@@ -298,10 +298,10 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="property_quotgtltimg-srcx-onerroralert1gt">
+Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="property_&amp;quot;&amp;gt;&amp;lt;img-src=x-onerror=alert(1)&amp;gt;">
 
   <div class="docEntryHeader">
-    <div><code><a href="#property_quotgtltimg-srcx-onerroralert1gt" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#property_&amp;quot;&amp;gt;&amp;lt;img-src=x-onerror=alert(1)&amp;gt;" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -554,10 +554,10 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="method_symbol_iterator_0">
+Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="method_[symbol_iterator]_0">
 
   <div class="docEntryHeader">
-    <div><code><a href="#method_symbol_iterator_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#method_[symbol_iterator]_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -820,7 +820,7 @@ Static Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry"
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#examples" title="Examples">Examples</a></li><li><ul><li><a href="#example_0" title="test">test</a></li><li><a href="#example_1" title="test 2">test 2</a></li></ul></li><li><a href="#constructors" title="Constructors">Constructors</a></li><li><ul><li><a href="#constructor_0" title="Foo">Foo</a></li></ul></li><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li></ul></li><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_quotgtltimg-srcx-onerroralert1gt" title="&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href="#property_foo" title="foo">foo</a></li><li><a href="#accessor_getterandsetter" title="getterAndSetter">getterAndSetter</a></li><li><a href="#accessor_getter" title="getter">getter</a></li><li><a href="#property_protectedproperty" title="protectedProperty">protectedProperty</a></li><li><a href="#property_readonlyproperty" title="readonlyProperty">readonlyProperty</a></li><li><a href="#accessor_setter" title="setter">setter</a></li><li><a href="#accessor_getterandsetter-1" title="getterAndSetter">getterAndSetter</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#method_symbol_iterator_0" title="[Symbol.iterator]">[Symbol.iterator]</a></li><li><a href="#method_methodwithoverloads_0" title="methodWithOverloads">methodWithOverloads</a></li><li><a href="#method_test_0" title="test">test</a></li></ul></li><li><a href="#static-properties" title="Static Properties">Static Properties</a></li><li><ul><li><a href="#property_bar" title="bar">bar</a></li><li><a href="#accessor_staticsetter" title="staticSetter">staticSetter</a></li></ul></li><li><a href="#static-methods" title="Static Methods">Static Methods</a></li><li><ul><li><a href="#method_staticmethod_0" title="staticMethod">staticMethod</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#examples" title="Examples">Examples</a></li><li><ul><li><a href="#example_0" title="test">test</a></li><li><a href="#example_1" title="test 2">test 2</a></li></ul></li><li><a href="#constructors" title="Constructors">Constructors</a></li><li><ul><li><a href="#constructor_0" title="Foo">Foo</a></li></ul></li><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li></ul></li><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;" title="&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href="#property_foo" title="foo">foo</a></li><li><a href="#accessor_getterandsetter" title="getterAndSetter">getterAndSetter</a></li><li><a href="#accessor_getter" title="getter">getter</a></li><li><a href="#property_protectedproperty" title="protectedProperty">protectedProperty</a></li><li><a href="#property_readonlyproperty" title="readonlyProperty">readonlyProperty</a></li><li><a href="#accessor_setter" title="setter">setter</a></li><li><a href="#accessor_getterandsetter-1" title="getterAndSetter">getterAndSetter</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#method_[symbol_iterator]_0" title="[Symbol.iterator]">[Symbol.iterator]</a></li><li><a href="#method_methodwithoverloads_0" title="methodWithOverloads">methodWithOverloads</a></li><li><a href="#method_test_0" title="test">test</a></li></ul></li><li><a href="#static-properties" title="Static Properties">Static Properties</a></li><li><ul><li><a href="#property_bar" title="bar">bar</a></li><li><a href="#accessor_staticsetter" title="staticSetter">staticSetter</a></li></ul></li><li><a href="#static-methods" title="Static Methods">Static Methods</a></li><li><ul><li><a href="#method_staticmethod_0" title="staticMethod">staticMethod</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>

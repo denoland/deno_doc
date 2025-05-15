@@ -171,6 +171,7 @@ async fn html_doc_dts() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     get_files("dts").await,
   )
@@ -227,6 +228,7 @@ async fn html_doc_files_single() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     get_files("single").await,
   )
@@ -304,6 +306,7 @@ async fn html_doc_files_multiple() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     get_files("multiple").await,
   )
@@ -447,6 +450,7 @@ async fn symbol_group() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     None,
     Default::default(),
@@ -546,6 +550,7 @@ async fn symbol_search() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     None,
     Default::default(),
@@ -602,6 +607,7 @@ async fn module_doc() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     None,
     FileMode::Single,

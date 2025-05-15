@@ -22,7 +22,10 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let id = name_to_id("typeAlias", name);
+  let id = IdBuilder::new(ctx.ctx)
+    .kind(IdKind::TypeAlias)
+    .name(name)
+    .build();
 
   let mut sections = vec![];
 
@@ -63,7 +66,7 @@ pub(crate) fn render_type_alias(
       "Definition",
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         None,
         None,
         &render_type_def(ctx, &type_alias_def.ts_type),

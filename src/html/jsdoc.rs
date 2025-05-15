@@ -19,7 +19,11 @@ lazy_static! {
     regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
 }
 
-fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
+fn parse_links<'a>(
+  md: &'a str,
+  ctx: &RenderContext,
+  strip: bool,
+) -> Cow<'a, str> {
   JSDOC_LINK_RE.replace_all(md, |captures: &regex::Captures| {
     let code = captures
       .name("modifier")
@@ -111,7 +115,9 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       (title, link)
     };
 
-    if LINK_RE.is_match(&link) {
+    if strip {
+      title
+    } else if LINK_RE.is_match(&link) {
       if code {
         format!("[`{title}`]({link})")
       } else {
@@ -122,7 +128,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       if code {
         format!("`{title}`")
       } else {
-        title.to_string()
+        title
       }
     }
   })
@@ -149,7 +155,7 @@ pub struct MarkdownToHTMLOptions {
 pub type MarkdownStripper = std::rc::Rc<dyn (Fn(&str) -> String)>;
 
 pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
-  let md = parse_links(md, render_ctx);
+  let md = parse_links(md, render_ctx, true);
 
   (render_ctx.ctx.markdown_stripper)(&md)
 }
@@ -200,7 +206,7 @@ pub fn markdown_to_html(
     anchorizer.as_ref(),
   );
 
-  let md = parse_links(md, render_ctx);
+  let md = parse_links(md, render_ctx, false);
 
   let file = render_ctx.get_current_resolve().get_file().cloned();
 
@@ -281,7 +287,7 @@ pub(crate) fn jsdoc_examples(
 #[derive(Debug, Serialize, Clone)]
 pub struct ExampleCtx {
   pub anchor: AnchorCtx,
-  pub id: String,
+  pub id: Id,
   pub title: String,
   pub markdown_title: String,
   markdown_body: String,
@@ -291,7 +297,11 @@ impl ExampleCtx {
   pub const TEMPLATE: &'static str = "example";
 
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
-    let id = name_to_id("example", &i.to_string());
+    // Using the context-aware builder with the Example kind
+    let id = IdBuilder::new(render_ctx.ctx)
+      .kind(IdKind::Example)
+      .index(i)
+      .build();
 
     let (maybe_title, body) = split_markdown_title(example);
     let title = if let Some(title) = maybe_title {
@@ -305,8 +315,8 @@ impl ExampleCtx {
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
     ExampleCtx {
-      anchor: AnchorCtx { id: id.to_string() },
-      id: id.to_string(),
+      anchor: AnchorCtx { id: id.clone() },
+      id,
       title,
       markdown_title,
       markdown_body,
@@ -368,7 +378,9 @@ impl ModuleDocCtx {
             render_ctx.clone(),
             Some(SectionHeaderCtx {
               title: title.clone(),
-              anchor: AnchorCtx { id: title },
+              anchor: AnchorCtx {
+                id: super::util::Id::new(title),
+              },
               href: None,
               doc: None,
             }),
@@ -381,7 +393,7 @@ impl ModuleDocCtx {
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
-        id: "module_doc".to_string(),
+        id: Id::new("module_doc"),
         docs: html,
         sections,
       },
@@ -490,6 +502,7 @@ mod test {
         ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
+        id_prefix: None,
       },
       Default::default(),
       Default::default(),
@@ -569,65 +582,78 @@ mod test {
     );
 
     assert_eq!(
-      parse_links("foo {@link https://example.com} bar", &render_ctx),
+      parse_links("foo {@link https://example.com} bar", &render_ctx, false),
       "foo [https://example.com](https://example.com) bar"
     );
     assert_eq!(
-      parse_links("foo {@linkcode https://example.com} bar", &render_ctx),
+      parse_links(
+        "foo {@linkcode https://example.com} bar",
+        &render_ctx,
+        false
+      ),
       "foo [`https://example.com`](https://example.com) bar"
     );
 
     assert_eq!(
-      parse_links("foo {@link https://example.com Example} bar", &render_ctx),
+      parse_links(
+        "foo {@link https://example.com Example} bar",
+        &render_ctx,
+        false
+      ),
       "foo [Example](https://example.com) bar"
     );
     assert_eq!(
-      parse_links("foo {@link https://example.com|Example} bar", &render_ctx),
+      parse_links(
+        "foo {@link https://example.com|Example} bar",
+        &render_ctx,
+        false
+      ),
       "foo [Example](https://example.com) bar"
     );
     assert_eq!(
       parse_links(
         "foo {@linkcode https://example.com Example} bar",
-        &render_ctx
+        &render_ctx,
+        false,
       ),
       "foo [`Example`](https://example.com) bar"
     );
 
     assert_eq!(
-      parse_links("foo {@link unknownSymbol} bar", &render_ctx),
+      parse_links("foo {@link unknownSymbol} bar", &render_ctx, false),
       "foo unknownSymbol bar"
     );
     assert_eq!(
-      parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx),
+      parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx, false),
       "foo `unknownSymbol` bar"
     );
 
     #[cfg(not(target_os = "windows"))]
     {
       assert_eq!(
-        parse_links("foo {@link bar} bar", &render_ctx),
+        parse_links("foo {@link bar} bar", &render_ctx, false),
         "foo [bar](../../.././/a.ts/~/bar.html) bar"
       );
       assert_eq!(
-        parse_links("foo {@linkcode bar} bar", &render_ctx),
+        parse_links("foo {@linkcode bar} bar", &render_ctx, false),
         "foo [`bar`](../../.././/a.ts/~/bar.html) bar"
       );
 
       assert_eq!(
-        parse_links("foo {@link [b.ts]} bar", &render_ctx),
+        parse_links("foo {@link [b.ts]} bar", &render_ctx, false),
         "foo [b.ts](../../.././/b.ts/index.html) bar"
       );
       assert_eq!(
-        parse_links("foo {@linkcode [b.ts]} bar", &render_ctx),
+        parse_links("foo {@linkcode [b.ts]} bar", &render_ctx, false),
         "foo [`b.ts`](../../.././/b.ts/index.html) bar"
       );
 
       assert_eq!(
-        parse_links("foo {@link [b.ts].baz} bar", &render_ctx),
+        parse_links("foo {@link [b.ts].baz} bar", &render_ctx, false),
         "foo [b.ts baz](../../.././/b.ts/~/baz.html) bar"
       );
       assert_eq!(
-        parse_links("foo {@linkcode [b.ts].baz} bar", &render_ctx),
+        parse_links("foo {@linkcode [b.ts].baz} bar", &render_ctx, false),
         "foo [`b.ts baz`](../../.././/b.ts/~/baz.html) bar"
       );
     }

@@ -18,7 +18,7 @@ pub mod pages;
 mod parameters;
 pub mod partition;
 mod render_context;
-mod search;
+pub mod search;
 mod symbols;
 mod types;
 mod usage;
@@ -267,6 +267,7 @@ pub struct GenerateOptions {
   pub markdown_renderer: jsdoc::MarkdownRenderer,
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
+  pub id_prefix: Option<String>,
 }
 
 #[non_exhaustive]
@@ -286,6 +287,7 @@ pub struct GenerateCtx {
   pub markdown_renderer: jsdoc::MarkdownRenderer,
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
+  pub id_prefix: Option<String>,
 }
 
 impl GenerateCtx {
@@ -422,6 +424,7 @@ impl GenerateCtx {
       markdown_renderer: options.markdown_renderer,
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
+      id_prefix: options.id_prefix,
     })
   }
 
