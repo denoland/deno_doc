@@ -292,6 +292,7 @@ pub fn generate_html(
   markdown_renderer: js_sys::Function,
   markdown_stripper: js_sys::Function,
   head_inject: Option<js_sys::Function>,
+  id_prefix: Option<String>,
 
   doc_nodes_by_url: JsValue,
 
@@ -317,6 +318,7 @@ pub fn generate_html(
     markdown_renderer,
     markdown_stripper,
     head_inject,
+    id_prefix,
     doc_nodes_by_url,
     json,
   )
@@ -532,6 +534,7 @@ fn generate_html_inner(
   markdown_renderer: js_sys::Function,
   markdown_stripper: js_sys::Function,
   head_inject: Option<js_sys::Function>,
+  id_prefix: Option<String>,
 
   doc_nodes_by_url: JsValue,
 
@@ -642,6 +645,7 @@ fn generate_html_inner(
       markdown_renderer,
       markdown_stripper,
       head_inject,
+      id_prefix,
     },
     doc_nodes_by_url,
   )?;
