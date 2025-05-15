@@ -157,7 +157,6 @@ impl AsRef<str> for Id {
   }
 }
 
-/// Sanitize a component for use in an ID
 fn sanitize_id_part(part: &str) -> String {
   html_escape::encode_quoted_attribute(&TARGET_RE.replace_all(part, "_"))
     .into_owned()

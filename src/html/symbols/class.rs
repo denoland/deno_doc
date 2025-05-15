@@ -16,8 +16,6 @@ pub(crate) fn render_class(
   doc_node: &DocNodeWithContext,
   name: &str,
 ) -> Vec<SectionCtx> {
-  // Use IdKind::Class to ensure the enum variant is considered used
-  let _id_kind = IdKind::Class; // This will be optimized out in a release build
   let class_def = doc_node.class_def().unwrap();
 
   let current_type_params = class_def

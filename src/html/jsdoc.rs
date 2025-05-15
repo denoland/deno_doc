@@ -297,7 +297,6 @@ impl ExampleCtx {
   pub const TEMPLATE: &'static str = "example";
 
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
-    // Using the context-aware builder with the Example kind
     let id = IdBuilder::new(render_ctx.ctx)
       .kind(IdKind::Example)
       .index(i)
