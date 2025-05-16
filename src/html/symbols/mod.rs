@@ -257,7 +257,7 @@ impl DocBlockSubtitleCtx {
 
 #[derive(Debug, Serialize, Clone, Default)]
 pub struct SymbolContentCtx {
-  pub id: String,
+  pub id: crate::html::util::Id,
   pub docs: Option<String>,
   pub sections: Vec<SectionCtx>,
 }
@@ -345,7 +345,9 @@ impl SymbolInnerCtx {
                 ctx.clone(),
                 Some(crate::html::util::SectionHeaderCtx {
                   title: title.clone(),
-                  anchor: AnchorCtx { id: title },
+                  anchor: AnchorCtx {
+                    id: crate::html::util::Id::new(title),
+                  },
                   href: None,
                   doc: None,
                 }),
@@ -381,7 +383,7 @@ impl SymbolInnerCtx {
       }
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
-        id: String::new(),
+        id: crate::html::util::Id::empty(),
         sections,
         docs,
       }));

@@ -275,6 +275,7 @@ fn generate_docs_directory(
         deno_doc::html::comrak::COMRAK_STYLESHEET_FILENAME
       )
     })),
+    id_prefix: None,
   };
   let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url)?;
   let html = deno_doc::html::generate(ctx)?;

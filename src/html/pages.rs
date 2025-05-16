@@ -284,7 +284,9 @@ impl IndexCtx {
                   short_path.as_resolve_kind(),
                 )),
                 title: title.to_string(),
-                anchor: AnchorCtx { id: anchor },
+                anchor: AnchorCtx {
+                  id: util::Id::new(anchor),
+                },
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -300,7 +302,7 @@ impl IndexCtx {
         });
 
         Some(SymbolContentCtx {
-          id: String::new(),
+          id: util::Id::empty(),
           sections,
           docs: None,
         })
@@ -336,7 +338,9 @@ impl IndexCtx {
                   UrlResolveKind::Category { category: &title },
                 )),
                 title,
-                anchor: AnchorCtx { id: anchor },
+                anchor: AnchorCtx {
+                  id: util::Id::new(anchor),
+                },
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -345,7 +349,7 @@ impl IndexCtx {
           .collect::<Vec<_>>();
 
         Some(SymbolContentCtx {
-          id: String::new(),
+          id: util::Id::empty(),
           sections,
           docs: None,
         })
@@ -404,7 +408,9 @@ impl IndexCtx {
         (
           render_ctx.clone(),
           Some(SectionHeaderCtx {
-            anchor: AnchorCtx { id: title.clone() },
+            anchor: AnchorCtx {
+              id: util::Id::new(title.clone()),
+            },
             title,
             href: None,
             doc,
@@ -436,7 +442,7 @@ impl IndexCtx {
       html_head_ctx,
       module_doc: None,
       overview: Some(SymbolContentCtx {
-        id: String::new(),
+        id: util::Id::empty(),
         sections,
         docs: None,
       }),
@@ -485,7 +491,7 @@ impl AllSymbolsCtx {
     AllSymbolsCtx {
       html_head_ctx,
       content: SymbolContentCtx {
-        id: String::new(),
+        id: util::Id::empty(),
         sections,
         docs: None,
       },

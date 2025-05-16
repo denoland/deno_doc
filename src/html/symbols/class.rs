@@ -118,7 +118,10 @@ fn render_constructors(
     .iter()
     .enumerate()
     .map(|(i, constructor)| {
-      let id = name_to_id("constructor", &i.to_string());
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Constructor)
+        .index(i)
+        .build();
 
       let params = constructor
         .params
@@ -130,7 +133,7 @@ fn render_constructors(
 
       DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         Some(html_escape::encode_text(&name).into_owned()),
         None,
         &format!("({params})"),
@@ -150,7 +153,7 @@ fn render_constructors(
 
 #[derive(Debug, Serialize, Clone)]
 pub struct IndexSignatureCtx {
-  pub id: String,
+  pub id: Id,
   pub anchor: AnchorCtx,
   pub readonly: bool,
   pub params: String,
@@ -315,7 +318,10 @@ fn render_class_accessor(
   let getter_or_setter = getter.or(setter).unwrap();
 
   let name = &getter_or_setter.name;
-  let id = name_to_id("accessor", name);
+  let id = IdBuilder::new(ctx.ctx)
+    .kind(IdKind::Accessor)
+    .name(name)
+    .build();
   let ts_type = getter
     .and_then(|getter| getter.function_def.return_type.as_ref())
     .or_else(|| {
@@ -345,7 +351,7 @@ fn render_class_accessor(
 
   DocEntryCtx::new(
     ctx,
-    &id,
+    id,
     Some(html_escape::encode_text(&name).into_owned()),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
@@ -369,7 +375,11 @@ fn render_class_method(
     return None;
   }
 
-  let id = name_to_id("method", &format!("{}_{i}", method.name));
+  let id = IdBuilder::new(ctx.ctx)
+    .kind(IdKind::Method)
+    .name(&method.name)
+    .index(i)
+    .build();
 
   let mut tags = Tag::from_js_doc(&method.js_doc);
   if let Some(tag) = Tag::from_accessibility(method.accessibility) {
@@ -384,7 +394,7 @@ fn render_class_method(
 
   Some(DocEntryCtx::new(
     ctx,
-    &id,
+    id,
     Some(html_escape::encode_text(&method.name).into_owned()),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
@@ -403,7 +413,10 @@ fn render_class_property(
   class_name: &str,
   property: &ClassPropertyDef,
 ) -> DocEntryCtx {
-  let id = name_to_id("property", &property.name);
+  let id = IdBuilder::new(ctx.ctx)
+    .kind(IdKind::Property)
+    .name(&property.name)
+    .build();
 
   let mut tags = Tag::from_js_doc(&property.js_doc);
   if let Some(tag) = Tag::from_accessibility(property.accessibility) {
@@ -427,7 +440,7 @@ fn render_class_property(
 
   DocEntryCtx::new(
     ctx,
-    &id,
+    id,
     Some(html_escape::encode_text(&property.name).into_owned()),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,

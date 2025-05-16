@@ -63,12 +63,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_externalfunction_0_parameters__n",
+                                "id": "function_externalfunction_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
-                                  "id": "function_externalfunction_0_parameters__n"
+                                  "id": "function_externalfunction_0_parameter__n"
                                 },
                                 "tags": [
                                   {
@@ -155,7 +155,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_externalfunction_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_externalfunction_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -165,7 +165,7 @@ expression: files
         {
           "level": 2,
           "content": "_n",
-          "anchor": "function_externalfunction_0_parameters__n"
+          "anchor": "function_externalfunction_0_parameter__n"
         },
         {
           "level": 1,
@@ -752,12 +752,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "methods_bar_0",
+                          "id": "method_bar_0",
                           "name": "bar",
                           "name_href": "../././~/Baz.bar.html",
                           "content": "()<span>: <a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link\">InterfaceWithIndexSignature</a>[<span>\"test\"</span>]</span>",
                           "anchor": {
-                            "id": "methods_bar_0"
+                            "id": "method_bar_0"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -804,7 +804,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#methods_bar_0\" title=\"bar\">bar</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_bar_0\" title=\"bar\">bar</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -834,7 +834,7 @@ expression: files
         {
           "level": 2,
           "content": "bar",
-          "anchor": "methods_bar_0"
+          "anchor": "method_bar_0"
         }
       ]
     },
@@ -1487,12 +1487,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "property_quotgtltimg-srcx-onerroralert1gt",
+                          "id": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;",
                           "name": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
                           "name_href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
                           "content": "<span>: <span>number</span></span>",
                           "anchor": {
-                            "id": "property_quotgtltimg-srcx-onerroralert1gt"
+                            "id": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1629,12 +1629,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "method_symbol_iterator_0",
+                          "id": "method_[symbol_iterator]_0",
                           "name": "[Symbol.iterator]",
                           "name_href": "../././~/Foo.prototype.[Symbol.iterator].html",
                           "content": "()<span>: <span>void</span></span>",
                           "anchor": {
-                            "id": "method_symbol_iterator_0"
+                            "id": "method_[symbol_iterator]_0"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -1795,7 +1795,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"test 2\">test 2</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Foo\">Foo</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_quotgtltimg-srcx-onerroralert1gt\" title=\"&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li><li><a href=\"#accessor_getterandsetter\" title=\"getterAndSetter\">getterAndSetter</a></li><li><a href=\"#accessor_getter\" title=\"getter\">getter</a></li><li><a href=\"#property_protectedproperty\" title=\"protectedProperty\">protectedProperty</a></li><li><a href=\"#property_readonlyproperty\" title=\"readonlyProperty\">readonlyProperty</a></li><li><a href=\"#accessor_setter\" title=\"setter\">setter</a></li><li><a href=\"#accessor_getterandsetter-1\" title=\"getterAndSetter\">getterAndSetter</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_symbol_iterator_0\" title=\"[Symbol.iterator]\">[Symbol.iterator]</a></li><li><a href=\"#method_methodwithoverloads_0\" title=\"methodWithOverloads\">methodWithOverloads</a></li><li><a href=\"#method_test_0\" title=\"test\">test</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li><li><a href=\"#accessor_staticsetter\" title=\"staticSetter\">staticSetter</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_staticmethod_0\" title=\"staticMethod\">staticMethod</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"test 2\">test 2</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Foo\">Foo</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;\" title=\"&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li><li><a href=\"#accessor_getterandsetter\" title=\"getterAndSetter\">getterAndSetter</a></li><li><a href=\"#accessor_getter\" title=\"getter\">getter</a></li><li><a href=\"#property_protectedproperty\" title=\"protectedProperty\">protectedProperty</a></li><li><a href=\"#property_readonlyproperty\" title=\"readonlyProperty\">readonlyProperty</a></li><li><a href=\"#accessor_setter\" title=\"setter\">setter</a></li><li><a href=\"#accessor_getterandsetter-1\" title=\"getterAndSetter\">getterAndSetter</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_[symbol_iterator]_0\" title=\"[Symbol.iterator]\">[Symbol.iterator]</a></li><li><a href=\"#method_methodwithoverloads_0\" title=\"methodWithOverloads\">methodWithOverloads</a></li><li><a href=\"#method_test_0\" title=\"test\">test</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li><li><a href=\"#accessor_staticsetter\" title=\"staticSetter\">staticSetter</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_staticmethod_0\" title=\"staticMethod\">staticMethod</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -1840,7 +1840,7 @@ expression: files
         {
           "level": 2,
           "content": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
-          "anchor": "property_quotgtltimg-srcx-onerroralert1gt"
+          "anchor": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
         },
         {
           "level": 2,
@@ -1885,7 +1885,7 @@ expression: files
         {
           "level": 2,
           "content": "[Symbol.iterator]",
-          "anchor": "method_symbol_iterator_0"
+          "anchor": "method_[symbol_iterator]_0"
         },
         {
           "level": 2,
@@ -2246,12 +2246,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "methods_optionalmethod_0",
+                          "id": "method_optionalmethod_0",
                           "name": "optionalMethod",
                           "name_href": "../././~/Hello.optionalMethod.html",
                           "content": "()<span>: <span>[<span>string</span>]</span></span>",
                           "anchor": {
-                            "id": "methods_optionalmethod_0"
+                            "id": "method_optionalmethod_0"
                           },
                           "tags": [
                             {
@@ -2262,12 +2262,12 @@ expression: files
                           "source_href": null
                         },
                         {
-                          "id": "methods_computedmethod_1",
+                          "id": "method_computedmethod_1",
                           "name": "[computedMethod]",
                           "name_href": "../././~/Hello.computedMethod.html",
                           "content": "(<span><span>a<span>: <a href=\"#type_param_T\" class=\"link\">T</a> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <a href=\"#type_param_R\" class=\"link\">R</a> : <span>any</span></span></span></span>)<span>: <span>void</span></span>",
                           "anchor": {
-                            "id": "methods_computedmethod_1"
+                            "id": "method_computedmethod_1"
                           },
                           "tags": [
                             {
@@ -2318,7 +2318,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li><li><a href=\"#type_param_e\" title=\"E\">E</a></li><li><a href=\"#type_param_r\" title=\"R\">R</a></li></ul></li><li><a href=\"#call-signatures\" title=\"Call Signatures\">Call Signatures</a></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li><li><a href=\"#property_test\" title=\"test\">test</a></li><li><a href=\"#property_ab\" title=\"[ab]\">[ab]</a></li><li><a href=\"#property_x\" title=\"x\">x</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#methods_optionalmethod_0\" title=\"optionalMethod\">optionalMethod</a></li><li><a href=\"#methods_computedmethod_1\" title=\"[computedMethod]\">[computedMethod]</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li><li><a href=\"#type_param_e\" title=\"E\">E</a></li><li><a href=\"#type_param_r\" title=\"R\">R</a></li></ul></li><li><a href=\"#call-signatures\" title=\"Call Signatures\">Call Signatures</a></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li><li><a href=\"#property_test\" title=\"test\">test</a></li><li><a href=\"#property_ab\" title=\"[ab]\">[ab]</a></li><li><a href=\"#property_x\" title=\"x\">x</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_optionalmethod_0\" title=\"optionalMethod\">optionalMethod</a></li><li><a href=\"#method_computedmethod_1\" title=\"[computedMethod]\">[computedMethod]</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -2378,12 +2378,12 @@ expression: files
         {
           "level": 2,
           "content": "optionalMethod",
-          "anchor": "methods_optionalmethod_0"
+          "anchor": "method_optionalmethod_0"
         },
         {
           "level": 2,
           "content": "[computedMethod]",
-          "anchor": "methods_computedmethod_1"
+          "anchor": "method_computedmethod_1"
         }
       ]
     },
@@ -2773,12 +2773,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_externalfunction_0_parameters__n",
+                                "id": "function_externalfunction_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
-                                  "id": "function_externalfunction_0_parameters__n"
+                                  "id": "function_externalfunction_0_parameter__n"
                                 },
                                 "tags": [
                                   {
@@ -2865,7 +2865,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_externalfunction_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_externalfunction_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -2875,7 +2875,7 @@ expression: files
         {
           "level": 2,
           "content": "_n",
-          "anchor": "function_externalfunction_0_parameters__n"
+          "anchor": "function_externalfunction_0_parameter__n"
         },
         {
           "level": 1,
@@ -3080,12 +3080,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_x_0_parameters__n",
+                                "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
-                                  "id": "function_x_0_parameters__n"
+                                  "id": "function_x_0_parameter__n"
                                 },
                                 "tags": [
                                   {
@@ -3172,7 +3172,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -3182,7 +3182,7 @@ expression: files
         {
           "level": 2,
           "content": "_n",
-          "anchor": "function_x_0_parameters__n"
+          "anchor": "function_x_0_parameter__n"
         },
         {
           "level": 1,
@@ -3385,12 +3385,12 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "methods_bar_0",
+                          "id": "method_bar_0",
                           "name": "bar",
                           "name_href": "../././~/anotherVariable.bar.html",
                           "content": "()<span>: <span>number</span></span>",
                           "anchor": {
-                            "id": "methods_bar_0"
+                            "id": "method_bar_0"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -3437,7 +3437,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#methods_bar_0\" title=\"bar\">bar</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_foo\" title=\"foo\">foo</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_bar_0\" title=\"bar\">bar</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -3457,7 +3457,7 @@ expression: files
         {
           "level": 2,
           "content": "bar",
-          "anchor": "methods_bar_0"
+          "anchor": "method_bar_0"
         }
       ]
     },
@@ -3711,12 +3711,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_d_0_parameters_foo",
+                                "id": "function_d_0_parameter_foo",
                                 "name": "foo",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
                                 "anchor": {
-                                  "id": "function_d_0_parameters_foo"
+                                  "id": "function_d_0_parameter_foo"
                                 },
                                 "tags": [
                                   {
@@ -3727,12 +3727,12 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_d_0_parameters_bar",
+                                "id": "function_d_0_parameter_bar",
                                 "name": "bar",
                                 "name_href": null,
                                 "content": "<span>: <span>string</span></span><span><span class=\"font-normal\"> = </span>bar</span>",
                                 "anchor": {
-                                  "id": "function_d_0_parameters_bar"
+                                  "id": "function_d_0_parameter_bar"
                                 },
                                 "tags": [
                                   {
@@ -3743,12 +3743,12 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_d_0_parameters_baz",
+                                "id": "function_d_0_parameter_baz",
                                 "name": "baz",
                                 "name_href": null,
                                 "content": "<span>: { hello?<span>: <span>string</span></span>;  }</span>",
                                 "anchor": {
-                                  "id": "function_d_0_parameters_baz"
+                                  "id": "function_d_0_parameter_baz"
                                 },
                                 "tags": [
                                   {
@@ -3759,24 +3759,24 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_d_0_parameters_qaz",
+                                "id": "function_d_0_parameter_qaz",
                                 "name": "qaz",
                                 "name_href": null,
                                 "content": "<span>: <a href=\"#type_param_T\" class=\"link\">T</a></span>",
                                 "anchor": {
-                                  "id": "function_d_0_parameters_qaz"
+                                  "id": "function_d_0_parameter_qaz"
                                 },
                                 "tags": [],
                                 "js_doc": null,
                                 "source_href": null
                               },
                               {
-                                "id": "function_d_0_parameters____strings",
+                                "id": "function_d_0_parameter_(___strings)",
                                 "name": "<span>...strings</span>",
                                 "name_href": null,
                                 "content": "<span>: <span>string</span>[]</span>",
                                 "anchor": {
-                                  "id": "function_d_0_parameters____strings"
+                                  "id": "function_d_0_parameter_(___strings)"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -3880,7 +3880,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"Example 2\">Example 2</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameters_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameters_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameters_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_d_0_parameters_qaz\" title=\"qaz\">qaz</a></li><li><a href=\"#function_d_0_parameters____strings\" title=\"&lt;span&gt;...strings&lt;/span&gt;\"><span>...strings</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"Example 2\">Example 2</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameter_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameter_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameter_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_d_0_parameter_qaz\" title=\"qaz\">qaz</a></li><li><a href=\"#function_d_0_parameter_(___strings)\" title=\"&lt;span&gt;...strings&lt;/span&gt;\"><span>...strings</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -3915,27 +3915,27 @@ expression: files
         {
           "level": 2,
           "content": "foo",
-          "anchor": "function_d_0_parameters_foo"
+          "anchor": "function_d_0_parameter_foo"
         },
         {
           "level": 2,
           "content": "bar",
-          "anchor": "function_d_0_parameters_bar"
+          "anchor": "function_d_0_parameter_bar"
         },
         {
           "level": 2,
           "content": "baz",
-          "anchor": "function_d_0_parameters_baz"
+          "anchor": "function_d_0_parameter_baz"
         },
         {
           "level": 2,
           "content": "qaz",
-          "anchor": "function_d_0_parameters_qaz"
+          "anchor": "function_d_0_parameter_qaz"
         },
         {
           "level": 2,
           "content": "<span>...strings</span>",
-          "anchor": "function_d_0_parameters____strings"
+          "anchor": "function_d_0_parameter_(___strings)"
         },
         {
           "level": 1,
@@ -4012,12 +4012,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_functionwithoptionalparameters_0_parameters_foo",
+                                "id": "function_functionwithoptionalparameters_0_parameter_foo",
                                 "name": "foo",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameters_foo"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_foo"
                                 },
                                 "tags": [
                                   {
@@ -4028,12 +4028,12 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_functionwithoptionalparameters_0_parameters_bar",
+                                "id": "function_functionwithoptionalparameters_0_parameter_bar",
                                 "name": "bar",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameters_bar"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_bar"
                                 },
                                 "tags": [
                                   {
@@ -4044,12 +4044,12 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_functionwithoptionalparameters_0_parameters_baz",
+                                "id": "function_functionwithoptionalparameters_0_parameter_baz",
                                 "name": "baz",
                                 "name_href": null,
                                 "content": "<span>: <span>[<span>number</span>]</span></span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameters_baz"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_baz"
                                 },
                                 "tags": [
                                   {
@@ -4060,12 +4060,12 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_functionwithoptionalparameters_0_parameters_unnamed-3",
+                                "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)",
                                 "name": "<span class=\"italic\">unnamed 3</span>",
                                 "name_href": null,
                                 "content": "<span>: <span>string</span>[]</span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameters_unnamed-3"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)"
                                 },
                                 "tags": [
                                   {
@@ -4076,12 +4076,12 @@ expression: files
                                 "source_href": null
                               },
                               {
-                                "id": "function_functionwithoptionalparameters_0_parameters_unnamed-4",
+                                "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)",
                                 "name": "<span class=\"italic\">unnamed 4</span>",
                                 "name_href": null,
                                 "content": "<span>: { qux<span>: <span>number</span></span>;  }</span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameters_unnamed-4"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)"
                                 },
                                 "tags": [
                                   {
@@ -4205,7 +4205,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_functionwithoptionalparameters_0_parameters_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameters_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameters_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameters_unnamed-3\" title=\"&lt;span class=&quot;italic&quot;&gt;unnamed 3&lt;/span&gt;\"><span class=\"italic\">unnamed 3</span></a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameters_unnamed-4\" title=\"&lt;span class=&quot;italic&quot;&gt;unnamed 4&lt;/span&gt;\"><span class=\"italic\">unnamed 4</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li><li><a href=\"#see\" title=\"See\">See</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_functionwithoptionalparameters_0_parameter_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_(unnamed-3)\" title=\"&lt;span class=&quot;italic&quot;&gt;unnamed 3&lt;/span&gt;\"><span class=\"italic\">unnamed 3</span></a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_(unnamed-4)\" title=\"&lt;span class=&quot;italic&quot;&gt;unnamed 4&lt;/span&gt;\"><span class=\"italic\">unnamed 4</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li><li><a href=\"#see\" title=\"See\">See</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -4215,27 +4215,27 @@ expression: files
         {
           "level": 2,
           "content": "foo",
-          "anchor": "function_functionwithoptionalparameters_0_parameters_foo"
+          "anchor": "function_functionwithoptionalparameters_0_parameter_foo"
         },
         {
           "level": 2,
           "content": "bar",
-          "anchor": "function_functionwithoptionalparameters_0_parameters_bar"
+          "anchor": "function_functionwithoptionalparameters_0_parameter_bar"
         },
         {
           "level": 2,
           "content": "baz",
-          "anchor": "function_functionwithoptionalparameters_0_parameters_baz"
+          "anchor": "function_functionwithoptionalparameters_0_parameter_baz"
         },
         {
           "level": 2,
           "content": "<span class=\"italic\">unnamed 3</span>",
-          "anchor": "function_functionwithoptionalparameters_0_parameters_unnamed-3"
+          "anchor": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)"
         },
         {
           "level": 2,
           "content": "<span class=\"italic\">unnamed 4</span>",
-          "anchor": "function_functionwithoptionalparameters_0_parameters_unnamed-4"
+          "anchor": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)"
         },
         {
           "level": 1,
@@ -4317,12 +4317,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_qaz_0_parameters_a",
+                                "id": "function_qaz_0_parameter_a",
                                 "name": "a",
                                 "name_href": null,
                                 "content": "<span>: <span>string</span></span>",
                                 "anchor": {
-                                  "id": "function_qaz_0_parameters_a"
+                                  "id": "function_qaz_0_parameter_a"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -4373,12 +4373,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_qaz_1_parameters_a",
+                                "id": "function_qaz_1_parameter_a",
                                 "name": "a",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span>",
                                 "anchor": {
-                                  "id": "function_qaz_1_parameters_a"
+                                  "id": "function_qaz_1_parameter_a"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -4442,7 +4442,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#function_qaz_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_0_parameter_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_qaz_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_qaz_1_parameter_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 0,
@@ -4457,7 +4457,7 @@ expression: files
         {
           "level": 2,
           "content": "a",
-          "anchor": "function_qaz_0_parameters_a"
+          "anchor": "function_qaz_0_parameter_a"
         },
         {
           "level": 1,
@@ -4477,7 +4477,7 @@ expression: files
         {
           "level": 2,
           "content": "a",
-          "anchor": "function_qaz_1_parameters_a"
+          "anchor": "function_qaz_1_parameter_a"
         },
         {
           "level": 1,
@@ -4629,12 +4629,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_x_0_parameters__n",
+                                "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
-                                  "id": "function_x_0_parameters__n"
+                                  "id": "function_x_0_parameter__n"
                                 },
                                 "tags": [
                                   {
@@ -4715,7 +4715,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -4725,7 +4725,7 @@ expression: files
         {
           "level": 2,
           "content": "_n",
-          "anchor": "function_x_0_parameters__n"
+          "anchor": "function_x_0_parameter__n"
         },
         {
           "level": 1,
@@ -5062,12 +5062,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_abstractclass_prototype_method_0_parameters_s",
+                                "id": "function_abstractclass_prototype_method_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span><span>number</span><span> | </span><span>string</span></span></span>",
                                 "anchor": {
-                                  "id": "function_abstractclass_prototype_method_0_parameters_s"
+                                  "id": "function_abstractclass_prototype_method_0_parameter_s"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -5156,7 +5156,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_abstractclass_prototype_method_0_parameters_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_abstractclass_prototype_method_0_parameter_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -5166,7 +5166,7 @@ expression: files
         {
           "level": 2,
           "content": "s",
-          "anchor": "function_abstractclass_prototype_method_0_parameters_s"
+          "anchor": "function_abstractclass_prototype_method_0_parameter_s"
         },
         {
           "level": 1,
@@ -6300,12 +6300,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_foo_prototype_getterandsetter_0_parameters_s",
+                                "id": "function_foo_prototype_getterandsetter_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
                                 "content": "",
                                 "anchor": {
-                                  "id": "function_foo_prototype_getterandsetter_0_parameters_s"
+                                  "id": "function_foo_prototype_getterandsetter_0_parameter_s"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -6394,7 +6394,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_getterandsetter_0_parameters_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_getterandsetter_0_parameter_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -6409,7 +6409,7 @@ expression: files
         {
           "level": 2,
           "content": "s",
-          "anchor": "function_foo_prototype_getterandsetter_0_parameters_s"
+          "anchor": "function_foo_prototype_getterandsetter_0_parameter_s"
         },
         {
           "level": 1,
@@ -6481,12 +6481,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_foo_prototype_methodwithoverloads_0_parameters_s",
+                                "id": "function_foo_prototype_methodwithoverloads_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span>",
                                 "anchor": {
-                                  "id": "function_foo_prototype_methodwithoverloads_0_parameters_s"
+                                  "id": "function_foo_prototype_methodwithoverloads_0_parameter_s"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -6550,12 +6550,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_foo_prototype_methodwithoverloads_1_parameters_s",
+                                "id": "function_foo_prototype_methodwithoverloads_1_parameter_s",
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span>string</span></span>",
                                 "anchor": {
-                                  "id": "function_foo_prototype_methodwithoverloads_1_parameters_s"
+                                  "id": "function_foo_prototype_methodwithoverloads_1_parameter_s"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -6644,7 +6644,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#function_Foo_prototype_methodWithOverloads_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_methodwithoverloads_0_parameters_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_Foo_prototype_methodWithOverloads_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_methodwithoverloads_1_parameters_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#function_Foo_prototype_methodWithOverloads_0\" title=\"Overload 1\">Overload 1</a></li><li><ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_methodwithoverloads_0_parameter_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul></li><li><a href=\"#function_Foo_prototype_methodWithOverloads_1\" title=\"Overload 2\">Overload 2</a></li><li><ul><li><a href=\"#parameters-1\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_methodwithoverloads_1_parameter_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 0,
@@ -6659,7 +6659,7 @@ expression: files
         {
           "level": 2,
           "content": "s",
-          "anchor": "function_foo_prototype_methodwithoverloads_0_parameters_s"
+          "anchor": "function_foo_prototype_methodwithoverloads_0_parameter_s"
         },
         {
           "level": 1,
@@ -6679,7 +6679,7 @@ expression: files
         {
           "level": 2,
           "content": "s",
-          "anchor": "function_foo_prototype_methodwithoverloads_1_parameters_s"
+          "anchor": "function_foo_prototype_methodwithoverloads_1_parameter_s"
         },
         {
           "level": 1,
@@ -7003,12 +7003,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_foo_prototype_setter_0_parameters_s",
+                                "id": "function_foo_prototype_setter_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span>string</span></span>",
                                 "anchor": {
-                                  "id": "function_foo_prototype_setter_0_parameters_s"
+                                  "id": "function_foo_prototype_setter_0_parameter_s"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -7097,7 +7097,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_setter_0_parameters_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_prototype_setter_0_parameter_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -7107,7 +7107,7 @@ expression: files
         {
           "level": 2,
           "content": "s",
-          "anchor": "function_foo_prototype_setter_0_parameters_s"
+          "anchor": "function_foo_prototype_setter_0_parameter_s"
         },
         {
           "level": 1,
@@ -7451,12 +7451,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_foo_staticsetter_0_parameters_s",
+                                "id": "function_foo_staticsetter_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span>",
                                 "anchor": {
-                                  "id": "function_foo_staticsetter_0_parameters_s"
+                                  "id": "function_foo_staticsetter_0_parameter_s"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -7539,7 +7539,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_staticsetter_0_parameters_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_foo_staticsetter_0_parameter_s\" title=\"s\">s</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -7549,7 +7549,7 @@ expression: files
         {
           "level": 2,
           "content": "s",
-          "anchor": "function_foo_staticsetter_0_parameters_s"
+          "anchor": "function_foo_staticsetter_0_parameter_s"
         },
         {
           "level": 1,
@@ -7741,12 +7741,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_hello_computedmethod_0_parameters_a",
+                                "id": "function_hello_computedmethod_0_parameter_a",
                                 "name": "a",
                                 "name_href": null,
                                 "content": "<span>: <span>T</span> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <span>R</span> : <span>any</span></span>",
                                 "anchor": {
-                                  "id": "function_hello_computedmethod_0_parameters_a"
+                                  "id": "function_hello_computedmethod_0_parameter_a"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -7829,7 +7829,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_hello_computedmethod_0_parameters_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_hello_computedmethod_0_parameter_a\" title=\"a\">a</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -7839,7 +7839,7 @@ expression: files
         {
           "level": 2,
           "content": "a",
-          "anchor": "function_hello_computedmethod_0_parameters_a"
+          "anchor": "function_hello_computedmethod_0_parameter_a"
         },
         {
           "level": 1,
@@ -8775,12 +8775,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_x_0_parameters__n",
+                                "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
-                                  "id": "function_x_0_parameters__n"
+                                  "id": "function_x_0_parameter__n"
                                 },
                                 "tags": [
                                   {
@@ -8867,7 +8867,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -8877,7 +8877,7 @@ expression: files
         {
           "level": 2,
           "content": "_n",
-          "anchor": "function_x_0_parameters__n"
+          "anchor": "function_x_0_parameter__n"
         },
         {
           "level": 1,
@@ -8949,12 +8949,12 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
-                                "id": "function_x_0_parameters__n",
+                                "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
-                                  "id": "function_x_0_parameters__n"
+                                  "id": "function_x_0_parameter__n"
                                 },
                                 "tags": [
                                   {
@@ -9041,7 +9041,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameters__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_x_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -9051,7 +9051,7 @@ expression: files
         {
           "level": 2,
           "content": "_n",
-          "anchor": "function_x_0_parameters__n"
+          "anchor": "function_x_0_parameter__n"
         },
         {
           "level": 1,

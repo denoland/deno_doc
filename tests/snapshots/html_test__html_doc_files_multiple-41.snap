@@ -363,11 +363,11 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="methods_optionalmethod_0">
+Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="method_optionalmethod_0">
 
   <div class="docEntryHeader">
     <div><div class="space-x-1 mb-1"><div class="text-optional border border-optional/50 bg-optional/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none text-sm py-1 px-2">optional</div>
-</div><code><a href="#methods_optionalmethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+</div><code><a href="#method_optionalmethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -392,11 +392,11 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
 <a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.optionalMethod.html">optionalMethod</a><span class="font-medium text-stone-500 dark:text-stone-200">()<span>: <span>[<span>string</span>]</span></span></span>
       </code>
     </div></div></div>
-<div class="anchorable docEntry" id="methods_computedmethod_1">
+<div class="anchorable docEntry" id="method_computedmethod_1">
 
   <div class="docEntryHeader">
     <div><div class="space-x-1 mb-1"><div class="text-optional border border-optional/50 bg-optional/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none text-sm py-1 px-2">optional</div>
-</div><code><a href="#methods_computedmethod_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+</div><code><a href="#method_computedmethod_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -440,7 +440,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li><li><a href="#type_param_e" title="E">E</a></li><li><a href="#type_param_r" title="R">R</a></li></ul></li><li><a href="#call-signatures" title="Call Signatures">Call Signatures</a></li><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_world" title="world">world</a></li><li><a href="#property_test" title="test">test</a></li><li><a href="#property_ab" title="[ab]">[ab]</a></li><li><a href="#property_x" title="x">x</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#methods_optionalmethod_0" title="optionalMethod">optionalMethod</a></li><li><a href="#methods_computedmethod_1" title="[computedMethod]">[computedMethod]</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li><li><a href="#type_param_e" title="E">E</a></li><li><a href="#type_param_r" title="R">R</a></li></ul></li><li><a href="#call-signatures" title="Call Signatures">Call Signatures</a></li><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_world" title="world">world</a></li><li><a href="#property_test" title="test">test</a></li><li><a href="#property_ab" title="[ab]">[ab]</a></li><li><a href="#property_x" title="x">x</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#method_optionalmethod_0" title="optionalMethod">optionalMethod</a></li><li><a href="#method_computedmethod_1" title="[computedMethod]">[computedMethod]</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>

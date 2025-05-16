@@ -365,7 +365,7 @@ impl Default for HeadingToCAdapter {
 
 lazy_static! {
   static ref REJECTED_CHARS: regex::Regex =
-    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap();
+    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -_/]").unwrap();
 }
 
 impl HeadingToCAdapter {
@@ -603,6 +603,7 @@ mod test {
         ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
+        id_prefix: None,
       },
       None,
       Default::default(),

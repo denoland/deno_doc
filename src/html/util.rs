@@ -18,17 +18,148 @@ use regex::Regex;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
 lazy_static! {
   static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
-pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
-  format!(
-    "{kind}_{}",
-    html_escape::encode_safe(&TARGET_RE.replace_all(name, "_"))
-  )
+pub enum IdKind {
+  Constructor,
+  Property,
+  Method,
+  Function,
+  Variable,
+  Class,
+  Enum,
+  Interface,
+  TypeAlias,
+  Namespace,
+  Accessor,
+  Parameter,
+  Return,
+  TypeParam,
+  Throws,
+  IndexSignature,
+  CallSignature,
+  Example,
+}
+
+impl IdKind {
+  fn as_str(&self) -> &'static str {
+    match self {
+      IdKind::Constructor => "constructor",
+      IdKind::Property => "property",
+      IdKind::Method => "method",
+      IdKind::Function => "function",
+      IdKind::Variable => "variable",
+      IdKind::Class => "class",
+      IdKind::Enum => "enum",
+      IdKind::Interface => "interface",
+      IdKind::TypeAlias => "typeAlias",
+      IdKind::Namespace => "namespace",
+      IdKind::Accessor => "accessor",
+      IdKind::Parameter => "parameter",
+      IdKind::Return => "return",
+      IdKind::TypeParam => "type_param",
+      IdKind::Throws => "throws",
+      IdKind::IndexSignature => "index_signature",
+      IdKind::CallSignature => "call_signature",
+      IdKind::Example => "example",
+    }
+  }
+}
+
+pub struct IdBuilder<'a> {
+  components: Vec<Cow<'a, str>>,
+}
+
+impl<'a> IdBuilder<'a> {
+  pub fn new(ctx: &'a GenerateCtx) -> Self {
+    let mut builder = Self {
+      components: Vec::new(),
+    };
+
+    if let Some(prefix) = &ctx.id_prefix {
+      builder.components.push(Cow::Borrowed(prefix));
+    }
+
+    builder
+  }
+
+  pub fn kind(mut self, kind: IdKind) -> Self {
+    self.components.push(Cow::Borrowed(kind.as_str()));
+    self
+  }
+
+  pub fn name(mut self, name: &str) -> Self {
+    if !name.is_empty() {
+      self.components.push(Cow::Owned(sanitize_id_part(name)));
+    }
+    self
+  }
+
+  pub fn index(mut self, index: usize) -> Self {
+    self.components.push(Cow::Owned(index.to_string()));
+    self
+  }
+
+  pub fn component<C: AsRef<str>>(mut self, component: C) -> Self {
+    let component = component.as_ref();
+    if !component.is_empty() {
+      self
+        .components
+        .push(Cow::Owned(sanitize_id_part(component)));
+    }
+    self
+  }
+
+  pub fn build(self) -> Id {
+    Id(self.components.join("_"))
+  }
+}
+
+#[derive(
+  Debug, Clone, Serialize, Ord, PartialOrd, Eq, PartialEq, Hash, Default,
+)]
+pub struct Id(String);
+
+impl Id {
+  pub(crate) fn as_str(&self) -> &str {
+    self.0.as_str()
+  }
+
+  pub fn new(s: impl Into<String>) -> Self {
+    Id(s.into())
+  }
+
+  pub fn empty() -> Self {
+    Id(String::new())
+  }
+}
+
+impl From<String> for Id {
+  fn from(s: String) -> Self {
+    Id(s)
+  }
+}
+
+impl Display for Id {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.0)
+  }
+}
+
+impl AsRef<str> for Id {
+  fn as_ref(&self) -> &str {
+    self.0.as_str()
+  }
+}
+
+fn sanitize_id_part(part: &str) -> String {
+  html_escape::encode_quoted_attribute(&TARGET_RE.replace_all(part, "_"))
+    .into_owned()
 }
 
 /// A container to hold a list of symbols with their namespaces:
@@ -423,7 +554,7 @@ impl From<DocNodeKind> for DocNodeKindCtx {
 
 #[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct AnchorCtx {
-  pub id: String,
+  pub id: Id,
 }
 
 impl AnchorCtx {
@@ -480,7 +611,7 @@ impl SectionHeaderCtx {
     Some(SectionHeaderCtx {
       title: title.to_string(),
       anchor: AnchorCtx {
-        id: title.to_string(),
+        id: Id::new(title.to_string()),
       },
       href: Some(render_ctx.ctx.resolve_path(
         render_ctx.get_current_resolve(),
@@ -511,7 +642,9 @@ impl SectionCtx {
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx { id: anchor },
+        anchor: AnchorCtx {
+          id: Id::new(anchor),
+        },
         href: None,
         doc: None,
       })
@@ -526,17 +659,17 @@ impl SectionCtx {
             continue;
           };
 
-          let anchor = render_context.toc.anchorize(&entry.id);
+          let anchor = render_context.toc.anchorize(entry.id.as_str());
 
           render_context.toc.add_entry(2, name, &anchor);
 
-          entry.id = anchor.clone();
-          entry.anchor.id = anchor;
+          entry.id = Id::new(anchor.clone());
+          entry.anchor.id = Id::new(anchor);
         }
       }
       SectionContentCtx::Example(examples) => {
         for example in examples {
-          let anchor = render_context.toc.anchorize(&example.id);
+          let anchor = render_context.toc.anchorize(example.id.as_str());
 
           render_context.toc.add_entry(
             2,
@@ -544,19 +677,19 @@ impl SectionCtx {
             &anchor,
           );
 
-          example.id = anchor.clone();
-          example.anchor.id = anchor;
+          example.id = Id::new(anchor.clone());
+          example.anchor.id = Id::new(anchor);
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          let anchor = render_context.toc.anchorize(&node.id);
+          let anchor = render_context.toc.anchorize(node.id.as_str());
 
           render_context.toc.add_entry(2, &node.name, &anchor);
 
-          node.id = anchor.clone();
-          node.anchor.id = anchor;
+          node.id = Id::new(anchor.clone());
+          node.anchor.id = Id::new(anchor);
         }
       }
       SectionContentCtx::See(_) => {}
@@ -610,7 +743,7 @@ impl Tag {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct DocEntryCtx {
-  id: String,
+  id: Id,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
@@ -626,7 +759,7 @@ impl DocEntryCtx {
   #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,
-    id: &str,
+    id: Id,
     name: Option<String>,
     name_href: Option<String>,
     content: &str,
@@ -639,11 +772,11 @@ impl DocEntryCtx {
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
-      id: id.to_string(),
+      id: id.clone(),
       name,
       name_href,
       content: content.to_string(),
-      anchor: AnchorCtx { id: id.to_string() },
+      anchor: AnchorCtx { id },
       tags,
       js_doc: maybe_jsdoc,
       source_href,

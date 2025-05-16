@@ -83,7 +83,10 @@ pub(crate) fn render_type_def(
       let href = if ctx.contains_type_param(&type_ref.type_name) {
         Some(format!(
           "#{}",
-          name_to_id("type_param", &type_ref.type_name)
+          IdBuilder::new(ctx.ctx)
+            .kind(IdKind::TypeParam)
+            .name(&type_ref.type_name)
+            .build()
         ))
       } else {
         ctx.lookup_symbol_href(&type_ref.type_name)
@@ -566,7 +569,10 @@ pub(crate) fn render_type_params(
     .collect::<std::collections::HashMap<&str, &str>>();
 
   for type_param in type_params.iter() {
-    let id = name_to_id("type_param", &type_param.name);
+    let id = IdBuilder::new(ctx.ctx)
+      .kind(IdKind::TypeParam)
+      .name(&type_param.name)
+      .build();
 
     let constraint = type_param
       .constraint
@@ -592,7 +598,7 @@ pub(crate) fn render_type_params(
 
     let content = DocEntryCtx::new(
       ctx,
-      &id,
+      id,
       Some(html_escape::encode_text(&type_param.name).into_owned()),
       None,
       &format!("{constraint}{default}"),

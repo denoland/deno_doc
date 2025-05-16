@@ -3,5 +3,5 @@ source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
 ---
 (function () {
-  window.DENO_DOC_SEARCH_INDEX = {"kind":"search","nodes":[{"kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Bar","file":".","doc":"","url":"././~/Bar.html","deprecated":false},{"kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Foo","file":".","doc":"```ts\nusing time = new FakeTime();\n```","url":"././~/Foo.html","deprecated":false},{"kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Foobar","file":".","doc":"","url":"././~/Foobar.html","deprecated":false}]};
+  window.DENO_DOC_SEARCH_INDEX = {"kind":"search","nodes":[{"id":"namespace_Bar","kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Bar","file":".","doc":"","url":"././~/Bar.html","deprecated":false},{"id":"namespace_Foo","kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Foo","file":".","doc":"","url":"././~/Foo.html","deprecated":false},{"id":"namespace_Foobar","kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Foobar","file":".","doc":"","url":"././~/Foobar.html","deprecated":false}]};
 })()

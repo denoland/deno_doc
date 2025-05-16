@@ -190,10 +190,10 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="methods_bar_0">
+Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="method_bar_0">
 
   <div class="docEntryHeader">
-    <div><code><a href="#methods_bar_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#method_bar_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -237,7 +237,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li></ul></li><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_foo" title="foo">foo</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#methods_bar_0" title="bar">bar</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li></ul></li><li><a href="#properties" title="Properties">Properties</a></li><li><ul><li><a href="#property_foo" title="foo">foo</a></li></ul></li><li><a href="#methods" title="Methods">Methods</a></li><li><ul><li><a href="#method_bar_0" title="bar">bar</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>

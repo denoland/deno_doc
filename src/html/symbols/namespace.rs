@@ -95,7 +95,7 @@ impl Eq for NamespaceNodeSubItemCtx {}
 
 #[derive(Debug, Serialize, Clone)]
 pub struct NamespaceNodeCtx {
-  pub id: String,
+  pub id: Id,
   pub anchor: AnchorCtx,
   pub tags: IndexSet<Tag>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
@@ -112,7 +112,10 @@ impl NamespaceNodeCtx {
     name: String,
     nodes: Vec<DocNodeWithContext>,
   ) -> Self {
-    let id = name_to_id("namespace", &name);
+    let id = IdBuilder::new(ctx.ctx)
+      .kind(IdKind::Namespace)
+      .name(&name)
+      .build();
 
     let docs =
       crate::html::jsdoc::jsdoc_body_to_html(ctx, &nodes[0].js_doc, true);
@@ -137,25 +140,27 @@ impl NamespaceNodeCtx {
               !symbol.drilldown_name.as_ref().unwrap().starts_with('[')
             })
             .map(|symbol| {
-              let id = match symbol.kind {
-                DocNodeKind::Property => name_to_id(
-                  "property",
-                  &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
-                ),
+              let target_id = match symbol.kind {
+                DocNodeKind::Property => IdBuilder::new(ctx.ctx)
+                  .kind(IdKind::Property)
+                  .name(&symbol.drilldown_name.as_ref().unwrap().to_lowercase())
+                  .build(),
                 DocNodeKind::Method(kind) => {
                   if matches!(kind, MethodKind::Getter | MethodKind::Setter) {
-                    name_to_id(
-                      "accessor",
-                      &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
-                    )
+                    IdBuilder::new(ctx.ctx)
+                      .kind(IdKind::Accessor)
+                      .name(
+                        &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
+                      )
+                      .build()
                   } else {
-                    name_to_id(
-                      "method",
-                      &format!(
-                        "{}_0",
-                        symbol.drilldown_name.as_ref().unwrap().to_lowercase()
-                      ),
-                    )
+                    IdBuilder::new(ctx.ctx)
+                      .kind(IdKind::Method)
+                      .name(
+                        &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
+                      )
+                      .index(0)
+                      .build()
                   }
                 }
                 _ => unreachable!(),
@@ -163,7 +168,7 @@ impl NamespaceNodeCtx {
 
               NamespaceNodeSubItemCtx {
                 title: symbol.drilldown_name.as_ref().unwrap().to_string(),
-                href: format!("{href}#{id}"),
+                href: format!("{href}#{}", target_id.as_str()),
               }
             }),
         );

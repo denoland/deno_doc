@@ -18,7 +18,10 @@ pub(crate) fn render_variable(
     return vec![];
   };
 
-  let id = name_to_id("variable", &doc_node.get_qualified_name());
+  let id = IdBuilder::new(ctx.ctx)
+    .kind(IdKind::Variable)
+    .name(&doc_node.get_qualified_name())
+    .build();
 
   let mut sections = vec![];
 
@@ -50,7 +53,7 @@ pub(crate) fn render_variable(
       "Type",
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         None,
         None,
         &render_type_def(ctx, ts_type),

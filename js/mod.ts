@@ -283,6 +283,8 @@ export interface GenerateOptions {
   ): string | undefined;
   /** Function to strip markdown. */
   markdownStripper(md: string): string;
+  /** Prefix for IDs of elements. */
+  idPrefix?: string;
 }
 
 const defaultUsageComposer: UsageComposer = {
@@ -331,6 +333,7 @@ export async function generateHtml(
     options.markdownRenderer,
     options.markdownStripper,
     options.headInject,
+    options.idPrefix,
     docNodesByUrl,
     false,
   );
@@ -368,6 +371,7 @@ export async function generateHtmlAsJSON(
     options.markdownRenderer,
     options.markdownStripper,
     options.headInject,
+    options.idPrefix,
     docNodesByUrl,
     true,
   );

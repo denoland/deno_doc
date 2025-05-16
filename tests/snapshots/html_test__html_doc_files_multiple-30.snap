@@ -110,10 +110,10 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="function_foo_prototype_methodwithoverloads_0_parameters_s">
+Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="function_foo_prototype_methodwithoverloads_0_parameter_s">
 
   <div class="docEntryHeader">
-    <div><code><a href="#function_foo_prototype_methodwithoverloads_0_parameters_s" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#function_foo_prototype_methodwithoverloads_0_parameter_s" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -217,10 +217,10 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
   </defs>
 </svg>
 </a>
-Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="function_foo_prototype_methodwithoverloads_1_parameters_s">
+Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="function_foo_prototype_methodwithoverloads_1_parameter_s">
 
   <div class="docEntryHeader">
-    <div><code><a href="#function_foo_prototype_methodwithoverloads_1_parameters_s" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#function_foo_prototype_methodwithoverloads_1_parameter_s" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -295,7 +295,7 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#function_Foo_prototype_methodWithOverloads_0" title="Overload 1">Overload 1</a></li><li><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_foo_prototype_methodwithoverloads_0_parameters_s" title="s">s</a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li></ul></li><li><a href="#function_Foo_prototype_methodWithOverloads_1" title="Overload 2">Overload 2</a></li><li><ul><li><a href="#parameters-1" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_foo_prototype_methodwithoverloads_1_parameters_s" title="s">s</a></li></ul></li><li><a href="#return-type-1" title="Return Type">Return Type</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#function_Foo_prototype_methodWithOverloads_0" title="Overload 1">Overload 1</a></li><li><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_foo_prototype_methodwithoverloads_0_parameter_s" title="s">s</a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li></ul></li><li><a href="#function_Foo_prototype_methodWithOverloads_1" title="Overload 2">Overload 2</a></li><li><ul><li><a href="#parameters-1" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_foo_prototype_methodwithoverloads_1_parameter_s" title="s">s</a></li></ul></li><li><a href="#return-type-1" title="Return Type">Return Type</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>
