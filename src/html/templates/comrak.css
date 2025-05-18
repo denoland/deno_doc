@@ -47,6 +47,12 @@
   @apply space-y-3 shrink min-w-0 max-w-prose sm:max-w-screen-sm
     md:max-w-screen-md lg:max-w-[75ch];
 
+  summary {
+    h1, h2, h3, h4, h5, h6 {
+      display: inline-block;
+    }
+  }
+
   h1 {
     @apply text-xl md:text-2xl lg:text-3xl border-b border-stone-300 pb-1
       dark:border-stone-700;
