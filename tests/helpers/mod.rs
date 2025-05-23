@@ -52,6 +52,7 @@ impl TestBuilder {
     graph
       .build(
         roots.clone(),
+        Vec::new(),
         &self.loader,
         BuildOptions {
           module_analyzer: &analyzer,

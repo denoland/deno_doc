@@ -72,7 +72,7 @@ impl Loader for JsLoader {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = serde_wasm_bindgen::to_value(&JsLoadOptions {
-      is_dynamic: options.is_dynamic,
+      is_dynamic: options.in_dynamic_branch,
       cache_setting: options.cache_setting.as_js_str(),
       checksum: options.maybe_checksum.map(|c| c.into_string()),
     })
@@ -203,7 +203,7 @@ async fn inner_doc(
       .load(
         &import_map_specifier,
         LoadOptions {
-          is_dynamic: false,
+          in_dynamic_branch: false,
           was_dynamic_root: false,
           cache_setting: CacheSetting::Use,
           maybe_checksum: None,
@@ -245,6 +245,7 @@ async fn inner_doc(
   graph
     .build(
       root_specifiers.clone(),
+      Vec::new(),
       &mut loader,
       BuildOptions {
         module_analyzer: &analyzer,
