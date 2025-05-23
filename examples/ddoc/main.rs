@@ -40,6 +40,7 @@ impl Loader for SourceFileLoader {
         .map(|content| {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
+            mtime: None,
             maybe_headers: None,
             content: content.into(),
           })
@@ -117,6 +118,7 @@ async fn run() -> anyhow::Result<()> {
   graph
     .build(
       source_files.clone(),
+      Vec::new(),
       &loader,
       BuildOptions {
         module_analyzer: &analyzer,

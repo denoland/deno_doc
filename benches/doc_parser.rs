@@ -35,6 +35,7 @@ async fn parse() -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,

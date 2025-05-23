@@ -40,6 +40,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -72,6 +73,7 @@ async fn content_type_handling() {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -123,6 +125,7 @@ async fn types_header_handling() {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,

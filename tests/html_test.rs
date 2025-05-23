@@ -36,6 +36,7 @@ impl Loader for SourceFileLoader {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
             maybe_headers: None,
+            mtime: None,
             content: content.into(),
           })
         })
@@ -133,6 +134,7 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   graph
     .build(
       source_files.clone(),
+      Vec::new(),
       &loader,
       BuildOptions {
         module_analyzer: &analyzer,
