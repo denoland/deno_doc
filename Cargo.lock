@@ -570,7 +570,7 @@ checksum = "0f883bd8eae4dfc8019d925ec3dd04b634b6af9346a5168acc259d55f5f5021d"
 dependencies = [
  "base64",
  "capacity_builder",
- "deno_error 0.6.0",
+ "deno_error",
  "deno_media_type",
  "deno_terminal 0.2.2",
  "dprint-swc-ext",
@@ -640,7 +640,7 @@ dependencies = [
  "anyhow",
  "console_error_panic_hook",
  "deno_doc",
- "deno_error 0.5.6",
+ "deno_error",
  "deno_graph",
  "import_map",
  "indexmap 2.6.0",
@@ -654,37 +654,15 @@ dependencies = [
 
 [[package]]
 name = "deno_error"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19fae9fe305307b5ef3ee4e8244c79cffcca421ab0ce8634dea0c6b1342f220f"
-dependencies = [
- "deno_error_macro 0.5.6",
- "libc",
- "url",
-]
-
-[[package]]
-name = "deno_error"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43674d0eb32a7457e0911164fee92b45320e02a52c0c530e6cde47163cdf6dc8"
 dependencies = [
- "deno_error_macro 0.6.0",
+ "deno_error_macro",
  "libc",
  "serde",
  "serde_json",
  "url",
-]
-
-[[package]]
-name = "deno_error_macro"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5abb2556e91848b66f562451fcbcdee2a3b7c88281828908dcf7cca355f5d997"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -708,7 +686,7 @@ dependencies = [
  "capacity_builder",
  "data-url",
  "deno_ast",
- "deno_error 0.6.0",
+ "deno_error",
  "deno_media_type",
  "deno_path_util",
  "deno_semver",
@@ -749,7 +727,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "516f813389095889776b81cc9108ff6f336fd9409b4b12fc0138aea23d2708e1"
 dependencies = [
- "deno_error 0.6.0",
+ "deno_error",
  "percent-encoding",
  "sys_traits",
  "thiserror 2.0.12",
@@ -763,7 +741,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2d807160e754edb1989b4a19cac1ac5299065a7a89ff98682a2366cbaa25795"
 dependencies = [
  "capacity_builder",
- "deno_error 0.6.0",
+ "deno_error",
  "ecow",
  "hipstr",
  "monch",
@@ -1335,7 +1313,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f315e535cb94a0e80704278d630990bb48834c8c8d976acf0a2f6bc8fede7c38"
 dependencies = [
  "boxed_error",
- "deno_error 0.6.0",
+ "deno_error",
  "indexmap 2.6.0",
  "log",
  "percent-encoding",
@@ -2888,7 +2866,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e51cf5f08b357e64cd7642ab4bbeb11aecab9e15520692129624fb9908b8df2c"
 dependencies = [
- "deno_error 0.6.0",
+ "deno_error",
  "thiserror 2.0.12",
 ]
 
