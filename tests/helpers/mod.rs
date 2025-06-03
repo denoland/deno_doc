@@ -7,7 +7,7 @@ use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
 use deno_graph::source::MemoryLoader;
 use deno_graph::BuildOptions;
-use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 
 pub struct BuildResult {
