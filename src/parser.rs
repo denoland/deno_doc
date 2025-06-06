@@ -341,7 +341,7 @@ impl<'a> DocParser<'a> {
                     definitions.first().unwrap().module.specifier(),
                     reference_def,
                     // -1 to include the root
-                    name_path[i - 1..].to_vec(),
+                    name_path[(if i > 1 { i - 1 } else { 0 })..].to_vec(),
                     false,
                   );
                 };
