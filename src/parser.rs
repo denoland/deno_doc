@@ -341,7 +341,13 @@ impl<'a> DocParser<'a> {
                     definitions.first().unwrap().module.specifier(),
                     reference_def,
                     // -1 to include the root
-                    name_path[i - 1..].to_vec(),
+                    if i > 1 {
+                      name_path[i - 1..].to_vec()
+                    } else {
+                      let mut out = vec![root_name];
+                      out.extend_from_slice(&name_path);
+                      out
+                    },
                     false,
                   );
                 };
