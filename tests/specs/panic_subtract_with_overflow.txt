@@ -4,20 +4,23 @@ export { Audio } from './audio.ts';
 # audio.ts
 import { Speech } from './speech.ts';
 
-/** Some documentation. **/
+/** Some documentation. */
 export namespace Audio {
   export { Speech as Speech };
 }
 
 # speech.ts
+/** Some documentation. */
 export namespace Speech {}
 
 # output.txt
 Defined in file:///audio.ts:4:1
 
 namespace Audio
-  Some documentation. *
+  Some documentation.
 
+  namespace Speech
+    Some documentation.
 
 
 # output.json
@@ -29,15 +32,34 @@ namespace Audio
       "filename": "file:///audio.ts",
       "line": 4,
       "col": 0,
-      "byteIndex": 67
+      "byteIndex": 66
     },
     "declarationKind": "export",
     "jsDoc": {
-      "doc": "Some documentation. *"
+      "doc": "Some documentation."
     },
     "kind": "namespace",
     "namespaceDef": {
-      "elements": []
+      "elements": [
+        {
+          "name": "Speech",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///speech.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 27
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Some documentation."
+          },
+          "kind": "namespace",
+          "namespaceDef": {
+            "elements": []
+          }
+        }
+      ]
     }
   }
 ]

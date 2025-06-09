@@ -182,34 +182,7 @@ Defined in file:///mod.ts:1:1
           },
           "kind": "namespace",
           "namespaceDef": {
-            "elements": [
-              {
-                "name": "Completions",
-                "isDefault": false,
-                "location": {
-                  "filename": "file:///chat_completions.ts",
-                  "line": 2,
-                  "col": 0,
-                  "byteIndex": 11
-                },
-                "declarationKind": "export",
-                "jsDoc": {
-                  "doc": "Doc"
-                },
-                "kind": "class",
-                "classDef": {
-                  "isAbstract": false,
-                  "constructors": [],
-                  "properties": [],
-                  "indexSignatures": [],
-                  "methods": [],
-                  "extends": null,
-                  "implements": [],
-                  "typeParams": [],
-                  "superTypeParams": []
-                }
-              }
-            ]
+            "elements": []
           }
         }
       ]
