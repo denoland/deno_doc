@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.178.0"
+version = "0.178.1"
 edition = "2021"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
