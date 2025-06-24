@@ -654,9 +654,9 @@ dependencies = [
 
 [[package]]
 name = "deno_error"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43674d0eb32a7457e0911164fee92b45320e02a52c0c530e6cde47163cdf6dc8"
+checksum = "612ec3fc481fea759141b0c57810889b0a4fb6fee8f10748677bfe492fd30486"
 dependencies = [
  "deno_error_macro",
  "libc",
@@ -667,9 +667,9 @@ dependencies = [
 
 [[package]]
 name = "deno_error_macro"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06d727b287cd43aa5120cbd00d1ca5be5e829d502bbb52d4bbb144a5a057372e"
+checksum = "8380a4224d5d2c3f84da4d764c4326cac62e9a1e3d4960442d29136fc07be863"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -678,11 +678,12 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.95.0"
+version = "0.96.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af557eab0d8abf2c6e7c890d510eccaebe52388924ae4a3e15c8a818c1bbbb90"
+checksum = "1c8d829b56e6cbd4176981234d1cffe285e0f8a680edbc0cdcfab91db018748c"
 dependencies = [
  "async-trait",
+ "boxed_error",
  "capacity_builder",
  "data-url",
  "deno_ast",
@@ -691,7 +692,6 @@ dependencies = [
  "deno_path_util",
  "deno_semver",
  "deno_unsync",
- "encoding_rs",
  "futures",
  "import_map",
  "indexmap 2.6.0",
@@ -711,9 +711,9 @@ dependencies = [
 
 [[package]]
 name = "deno_media_type"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d9080fcfcea53bcd6eea1916217bd5611c896f3a0db4c001a859722a1258a47"
+checksum = "f0ec0dada9dc5ac4733b4175d36f6a150b7dd68fab46db35cb1ef00dd7366acb"
 dependencies = [
  "data-url",
  "encoding_rs",
@@ -773,10 +773,11 @@ dependencies = [
 
 [[package]]
 name = "deno_unsync"
-version = "0.4.1"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f36b4ef61a04ce201b925a5dffa90f88437d37fee4836c758470dd15ba7f05e"
+checksum = "6742a724e8becb372a74c650a1aefb8924a5b8107f7d75b3848763ea24b27a87"
 dependencies = [
+ "futures-util",
  "parking_lot",
  "tokio",
 ]
@@ -2432,9 +2433,9 @@ dependencies = [
 
 [[package]]
 name = "sys_traits"
-version = "0.1.14"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0f8c2c55b6b4dd67f0f8df8de9bdf00b16c8ea4fbc4be0c2133d5d3924be5d4"
+checksum = "dc4707edf3196e8037ee45018d1bb1bfb233b0e4fc440fa3d3f25bc69bfdaf26"
 dependencies = [
  "sys_traits_macros",
 ]
