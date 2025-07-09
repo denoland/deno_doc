@@ -445,10 +445,10 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     if def.constructors.len() == 1 {
       self.visit_class_ctor_def(&def.constructors[0]);
     } else if !def.constructors.is_empty() {
-      // skip the first one
-      let ctors = &def.constructors[1..];
-      for ctor in ctors {
-        self.visit_class_ctor_def(ctor);
+      for ctor in &def.constructors {
+        if !ctor.has_body {
+          self.visit_class_ctor_def(ctor);
+        }
       }
     }
 
