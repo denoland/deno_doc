@@ -19,6 +19,15 @@ export class Class3 {
   }
 }
 
+/** doc4 */
+export class Class4 {
+  constructor(s: string);
+  constructor(s: number);
+  constructor(value: string | number) {
+    // won't require a jsdoc because it's a body
+  }
+}
+
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
  --> /mod.ts:1:1
@@ -32,6 +41,20 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | 
 2 |   constructor(public a, readonly b) {
   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:23:3
+   | 
+23 |   constructor(s: string);
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:24:3
+   | 
+24 |   constructor(s: number);
+   |   ^
 
 # output.txt
 Defined in file:///mod.ts:1:1
@@ -53,6 +76,14 @@ class Class3
   doc3
 
   private constructor(value: string)
+
+Defined in file:///mod.ts:22:1
+
+class Class4
+  doc4
+
+  constructor(s: string)
+  constructor(s: number)
 
 
 # output.json
@@ -185,6 +216,111 @@ class Class3
             "line": 16,
             "col": 2,
             "byteIndex": 262
+          }
+        }
+      ],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "name": "Class4",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 22,
+      "col": 0,
+      "byteIndex": 368
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "doc4"
+    },
+    "kind": "class",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [
+        {
+          "accessibility": null,
+          "name": "constructor",
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "s",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 23,
+            "col": 2,
+            "byteIndex": 392
+          }
+        },
+        {
+          "accessibility": null,
+          "name": "constructor",
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "s",
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          ],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 24,
+            "col": 2,
+            "byteIndex": 418
+          }
+        },
+        {
+          "accessibility": null,
+          "hasBody": true,
+          "name": "constructor",
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "value",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                ]
+              }
+            }
+          ],
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 25,
+            "col": 2,
+            "byteIndex": 444
           }
         }
       ],
