@@ -32,6 +32,8 @@ pub mod type_alias;
 mod util;
 pub mod variable;
 mod visibility;
+pub mod diff;
+
 
 pub use node::DocNode;
 pub use node::DocNodeDef;

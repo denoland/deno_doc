@@ -24,6 +24,10 @@ name = "deno_doc"
 name = "ddoc"
 required-features = ["comrak"]
 
+[[example]]
+name = "diff"
+required-features = ["comrak"]
+
 [dependencies]
 anyhow = "1.0.86"
 cfg-if = "1.0.0"
