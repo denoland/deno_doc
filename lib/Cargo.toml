@@ -20,7 +20,7 @@ deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
 serde.workspace = true
 indexmap = "2.6.0"
-deno_error = { version = "0.6.1", features = ["url"] }
+deno_error = { version = "0.7.0", features = ["url"] }
 
 console_error_panic_hook = "0.1.7"
 js-sys = "=0.3.69"
