@@ -1,10 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-export interface Docs {
-  version: 1;
-  nodes: DocNode[];
-}
-
 export type DocNode =
   | DocNodeModuleDoc
   | DocNodeFunction
