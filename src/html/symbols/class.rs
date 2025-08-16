@@ -429,7 +429,7 @@ fn render_class_property(
     tags.insert(Tag::Readonly);
   }
   if property.optional {
-    tags.insert(Tag::Abstract);
+    tags.insert(Tag::Optional);
   }
 
   let ts_type = property
