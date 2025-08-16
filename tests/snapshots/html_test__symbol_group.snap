@@ -1508,7 +1508,7 @@ expression: files
                           },
                           "tags": [
                             {
-                              "kind": "abstract"
+                              "kind": "optional"
                             }
                           ],
                           "js_doc": null,
