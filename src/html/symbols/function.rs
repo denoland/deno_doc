@@ -1,12 +1,12 @@
 use super::SymbolContentCtx;
 use crate::function::FunctionDef;
+use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use indexmap::IndexSet;
@@ -186,11 +186,10 @@ fn render_single_function(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      if let Some(default) = &default {
-        if default.deref() != "[UNSUPPORTED]" {
+      if let Some(default) = &default
+        && default.deref() != "[UNSUPPORTED]" {
           ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
         }
-      }
 
       let tags = if matches!(
         param.pattern,
@@ -269,10 +268,10 @@ fn render_single_function(
     .tags
     .iter()
     .filter_map(|tag| {
-      if let JsDocTag::Throws { type_ref, doc } = tag {
-        if type_ref.is_some() || doc.is_some() {
-          return Some((type_ref, doc));
-        }
+      if let JsDocTag::Throws { type_ref, doc } = tag
+        && (type_ref.is_some() || doc.is_some())
+      {
+        return Some((type_ref, doc));
       }
 
       None

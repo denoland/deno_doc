@@ -1,29 +1,29 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::DocNode;
+use crate::Location;
+use crate::ParamDef;
+use crate::display::SliceDisplayer;
 use crate::display::display_computed;
 use crate::display::display_optional;
 use crate::display::display_readonly;
-use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
 use crate::params::param_to_param_def;
 use crate::params::pat_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
-use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::get_location;
 use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
-use crate::DocNode;
-use crate::Location;
-use crate::ParamDef;
 
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::variable::VariableDef;
-use deno_ast::swc::ast::*;
 use deno_ast::SourceRangedForSpanned;
+use deno_ast::swc::ast::*;
 use deno_graph::symbols::EsModuleInfo;
 use deno_terminal::colors;
 use serde::Deserialize;

@@ -1,12 +1,12 @@
+use crate::html::DocNodeKind;
+use crate::html::DocNodeWithContext;
+use crate::html::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::DocNodeKind;
-use crate::html::DocNodeWithContext;
-use crate::html::RenderContext;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
@@ -287,12 +287,11 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if !matches!(doc_node.def, DocNodeDef::Function { .. }) {
-        if let Some(examples) =
+      if !matches!(doc_node.def, DocNodeDef::Function { .. })
+        && let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
-        {
-          sections.push(examples);
-        }
+      {
+        sections.push(examples);
       }
 
       sections.extend(match doc_node.def {
@@ -356,7 +355,7 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeDef::ModuleDoc { .. }
+        DocNodeDef::ModuleDoc
         | DocNodeDef::Import { .. }
         | DocNodeDef::Reference { .. } => unreachable!(),
       });

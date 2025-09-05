@@ -1,7 +1,7 @@
+use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 
 pub(crate) fn render_enum(
   render_ctx: &RenderContext,

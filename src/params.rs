@@ -1,15 +1,15 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
-use crate::display::display_optional;
+use crate::decorators::decorators_to_defs;
 use crate::display::SliceDisplayer;
+use crate::display::display_optional;
 use crate::ts_type::TsTypeDef;
 
+use deno_ast::SourceRangedForSpanned;
 use deno_ast::swc::ast::ObjectPatProp;
 use deno_ast::swc::ast::Pat;
 use deno_ast::swc::ast::TsFnParam;
-use deno_ast::SourceRangedForSpanned;
 use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;

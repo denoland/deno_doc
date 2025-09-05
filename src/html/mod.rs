@@ -1,8 +1,8 @@
-use crate::node::DocNodeDef;
 use crate::DocNode;
+use crate::node::DocNodeDef;
 use deno_ast::ModuleSpecifier;
-use handlebars::handlebars_helper;
 use handlebars::Handlebars;
+use handlebars::handlebars_helper;
 use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
@@ -32,15 +32,12 @@ use crate::js_doc::JsDocTag;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
-pub use symbols::namespace;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
+pub use symbols::namespace;
 pub use usage::UsageComposer;
 pub use usage::UsageComposerEntry;
 pub use usage::UsageToMd;
-pub use util::compute_namespaced_symbols;
-pub use util::href_path_resolve;
-pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
@@ -49,6 +46,9 @@ pub use util::ToCCtx;
 pub use util::TopSymbolCtx;
 pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
+pub use util::compute_namespaced_symbols;
+pub use util::href_path_resolve;
+pub use util::qualify_drilldown_name;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -316,14 +316,13 @@ impl GenerateCtx {
         let nodes = nodes
           .into_iter()
           .map(|mut node| {
-            if &*node.name == "default" {
-              if let Some(default_rename) =
+            if &*node.name == "default"
+              && let Some(default_rename) =
                 options.default_symbol_map.as_ref().and_then(
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
-              {
-                node.name = default_rename.as_str().into();
-              }
+            {
+              node.name = default_rename.as_str().into();
             }
 
             // TODO(@crowlKats): support this in namespaces
@@ -467,14 +466,12 @@ impl GenerateCtx {
     current: UrlResolveKind,
     target: UrlResolveKind,
   ) -> String {
-    if let Some(symbol_redirect_map) = &self.symbol_redirect_map {
-      if let UrlResolveKind::Symbol { file, symbol } = target {
-        if let Some(path_map) = symbol_redirect_map.get(&file.path) {
-          if let Some(href) = path_map.get(symbol) {
-            return href.clone();
-          }
-        }
-      }
+    if let Some(symbol_redirect_map) = &self.symbol_redirect_map
+      && let UrlResolveKind::Symbol { file, symbol } = target
+      && let Some(path_map) = symbol_redirect_map.get(&file.path)
+      && let Some(href) = path_map.get(symbol)
+    {
+      return href.clone();
     }
 
     self.href_resolver.resolve_path(current, target)
@@ -514,14 +511,14 @@ impl GenerateCtx {
         return Box::new(std::iter::once(node));
       }
 
-      if matches!(node.def, DocNodeDef::Namespace { .. }) {
-        if let Some(children) = &node.namespace_children {
-          return Box::new(
-            children
-              .iter()
-              .flat_map(move |child| handle_node(child, reference, depth + 1)),
-          );
-        }
+      if matches!(node.def, DocNodeDef::Namespace { .. })
+        && let Some(children) = &node.namespace_children
+      {
+        return Box::new(
+          children
+            .iter()
+            .flat_map(move |child| handle_node(child, reference, depth + 1)),
+        );
       }
 
       Box::new(std::iter::empty())
@@ -647,7 +644,7 @@ impl ShortPath {
     }
   }
 
-  pub fn as_resolve_kind(&self) -> UrlResolveKind {
+  pub fn as_resolve_kind(&self) -> UrlResolveKind<'_> {
     if self.is_main {
       UrlResolveKind::Root
     } else {

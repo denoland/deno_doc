@@ -125,11 +125,7 @@ fn parse_links<'a>(
       }
     } else {
       #[allow(clippy::collapsible_if)]
-      if code {
-        format!("`{title}`")
-      } else {
-        title
-      }
+      if code { format!("`{title}`") } else { title }
     }
   })
 }
@@ -402,22 +398,22 @@ impl ModuleDocCtx {
 
 #[cfg(test)]
 mod test {
-  use crate::html::href_path_resolve;
-  use crate::html::jsdoc::parse_links;
+  use crate::DocNode;
+  use crate::Location;
   use crate::html::GenerateCtx;
   use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
   use crate::html::UsageComposer;
   use crate::html::UsageComposerEntry;
-  use crate::DocNode;
-  use crate::Location;
+  use crate::html::href_path_resolve;
+  use crate::html::jsdoc::parse_links;
   use deno_ast::ModuleSpecifier;
   use indexmap::IndexMap;
   use std::rc::Rc;
 
-  use crate::html::usage::UsageToMd;
   use crate::html::RenderContext;
   use crate::html::UrlResolveKind;
+  use crate::html::usage::UsageToMd;
   use crate::interface::InterfaceDef;
   use crate::js_doc::JsDoc;
   use crate::node::DeclarationKind;

@@ -30,10 +30,7 @@ where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
     for node in doc_nodes {
-      if matches!(
-        node.def,
-        DocNodeDef::ModuleDoc { .. } | DocNodeDef::Import { .. }
-      ) {
+      if matches!(node.def, DocNodeDef::ModuleDoc | DocNodeDef::Import { .. }) {
         continue;
       }
 

@@ -1,10 +1,10 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
+use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde::Serialize;
@@ -168,7 +168,7 @@ enum PropertyOrMethod {
 
 impl PropertyOrMethod {
   fn prop(&self) -> Option<&ClassPropertyDef> {
-    if let PropertyOrMethod::Property(ref prop) = self {
+    if let PropertyOrMethod::Property(prop) = self {
       Some(prop)
     } else {
       None
@@ -176,7 +176,7 @@ impl PropertyOrMethod {
   }
 
   fn method(&self) -> Option<&ClassMethodDef> {
-    if let PropertyOrMethod::Method(ref method) = self {
+    if let PropertyOrMethod::Method(method) = self {
       Some(method)
     } else {
       None

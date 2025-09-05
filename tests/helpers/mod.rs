@@ -5,10 +5,10 @@ use deno_doc::DocDiagnostic;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
 use deno_doc::DocPrinter;
-use deno_graph::ast::CapturingModuleAnalyzer;
-use deno_graph::source::MemoryLoader;
 use deno_graph::BuildOptions;
 use deno_graph::GraphKind;
+use deno_graph::ast::CapturingModuleAnalyzer;
+use deno_graph::source::MemoryLoader;
 
 pub struct BuildResult {
   pub json_output: serde_json::Value,

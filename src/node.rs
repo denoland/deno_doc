@@ -344,7 +344,7 @@ impl DocNode {
       }
       DocNodeDef::Enum { .. }
       | DocNodeDef::Import { .. }
-      | DocNodeDef::ModuleDoc { .. }
+      | DocNodeDef::ModuleDoc
       | DocNodeDef::Namespace { .. }
       | DocNodeDef::TypeAlias { .. }
       | DocNodeDef::Variable { .. }

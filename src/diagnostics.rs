@@ -1,5 +1,6 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
+use crate::Location;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
@@ -10,8 +11,10 @@ use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
-use crate::Location;
 
+use deno_ast::ModuleSpecifier;
+use deno_ast::SourceRange;
+use deno_ast::SourceTextInfo;
 use deno_ast::diagnostics::Diagnostic;
 use deno_ast::diagnostics::DiagnosticLevel;
 use deno_ast::diagnostics::DiagnosticLocation;
@@ -21,9 +24,6 @@ use deno_ast::diagnostics::DiagnosticSnippetHighlightStyle;
 use deno_ast::diagnostics::DiagnosticSourcePos;
 use deno_ast::diagnostics::DiagnosticSourceRange;
 use deno_ast::swc::ast::Accessibility;
-use deno_ast::ModuleSpecifier;
-use deno_ast::SourceRange;
-use deno_ast::SourceTextInfo;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol;
@@ -100,7 +100,7 @@ impl Diagnostic for DocDiagnostic {
     }
   }
 
-  fn location(&self) -> DiagnosticLocation {
+  fn location(&self) -> DiagnosticLocation<'_> {
     let specifier = ModuleSpecifier::parse(&self.location.filename).unwrap();
     DiagnosticLocation::ModulePosition {
       specifier: Cow::Owned(specifier),
@@ -279,14 +279,13 @@ impl<'a> DiagnosticsCollector<'a> {
     if js_doc.doc.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_jsdoc_missing.insert(location.clone())
+      && let Some(text_info) = self.maybe_get_text_info(location)
     {
-      if let Some(text_info) = self.maybe_get_text_info(location) {
-        self.diagnostics.push(DocDiagnostic {
-          location: location.clone(),
-          kind: DocDiagnosticKind::MissingJsDoc,
-          text_info,
-        });
-      }
+      self.diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::MissingJsDoc,
+        text_info,
+      });
     }
   }
 
@@ -299,14 +298,13 @@ impl<'a> DiagnosticsCollector<'a> {
     if ts_type.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
+      && let Some(text_info) = self.maybe_get_text_info(location)
     {
-      if let Some(text_info) = self.maybe_get_text_info(location) {
-        self.diagnostics.push(DocDiagnostic {
-          location: location.clone(),
-          kind: DocDiagnosticKind::MissingExplicitType,
-          text_info,
-        })
-      }
+      self.diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::MissingExplicitType,
+        text_info,
+      })
     }
   }
 
@@ -319,14 +317,13 @@ impl<'a> DiagnosticsCollector<'a> {
     if return_type.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
+      && let Some(text_info) = self.maybe_get_text_info(location)
     {
-      if let Some(text_info) = self.maybe_get_text_info(location) {
-        self.diagnostics.push(DocDiagnostic {
-          location: location.clone(),
-          kind: DocDiagnosticKind::MissingReturnType,
-          text_info,
-        });
-      }
+      self.diagnostics.push(DocDiagnostic {
+        location: location.clone(),
+        kind: DocDiagnosticKind::MissingReturnType,
+        text_info,
+      });
     }
   }
 
@@ -374,15 +371,13 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         continue; // don't report diagnostics on remote modules
       }
 
-      if let Some(last_node) = last_node {
-        if doc_node.name == last_node.name && last_node.function_def().is_some()
-        {
-          if let Some(current_fn) = &doc_node.function_def() {
-            if current_fn.has_body {
-              continue; // it's an overload. Ignore it
-            }
-          }
-        }
+      if let Some(last_node) = last_node
+        && doc_node.name == last_node.name
+        && last_node.function_def().is_some()
+        && let Some(current_fn) = &doc_node.function_def()
+        && current_fn.has_body
+      {
+        continue; // it's an overload. Ignore it
       }
 
       if !has_ignorable_js_doc_tag(&doc_node.js_doc) {
@@ -404,7 +399,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         | DocNodeDef::TypeAlias { .. }
         | DocNodeDef::Variable { .. } => true,
         DocNodeDef::Import { .. }
-        | DocNodeDef::ModuleDoc { .. }
+        | DocNodeDef::ModuleDoc
         | DocNodeDef::Reference { .. } => false,
       }
     }
@@ -482,10 +477,11 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     // methods
     let mut last_name: Option<&str> = None;
     for method in def.methods.iter() {
-      if let Some(last_name) = last_name {
-        if &*method.name == last_name && method.function_def.has_body {
-          continue; // skip, it's the implementation signature
-        }
+      if let Some(last_name) = last_name
+        && &*method.name == last_name
+        && method.function_def.has_body
+      {
+        continue; // skip, it's the implementation signature
       }
 
       self

@@ -1,13 +1,13 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::decorators::decorators_to_defs;
+use crate::ParamDef;
 use crate::decorators::DecoratorDef;
+use crate::decorators::decorators_to_defs;
 use crate::params::param_to_param_def;
 use crate::ts_type::TsTypeDef;
-use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::is_false;
-use crate::ParamDef;
 use deno_ast::swc::ast::ReturnStmt;
 use deno_ast::swc::ast::Stmt;
 use deno_graph::symbols::EsModuleInfo;

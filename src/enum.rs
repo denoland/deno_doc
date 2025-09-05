@@ -5,12 +5,12 @@ use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::Location;
 use crate::js_doc::JsDoc;
-use crate::ts_type::infer_ts_type_from_expr;
 use crate::ts_type::TsTypeDef;
+use crate::ts_type::infer_ts_type_from_expr;
 use crate::util::swc::get_location;
 use crate::util::swc::js_doc_for_range;
-use crate::Location;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]

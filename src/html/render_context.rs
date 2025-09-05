@@ -1,9 +1,9 @@
-use crate::html::util::BreadcrumbCtx;
-use crate::html::util::BreadcrumbsCtx;
-use crate::html::util::NamespacedSymbols;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
+use crate::html::util::BreadcrumbCtx;
+use crate::html::util::BreadcrumbsCtx;
+use crate::html::util::NamespacedSymbols;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
 use serde::Serialize;
@@ -86,7 +86,7 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_current_resolve(&self) -> UrlResolveKind {
+  pub fn get_current_resolve(&self) -> UrlResolveKind<'_> {
     self.current_resolve
   }
 
@@ -142,21 +142,20 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if let Some(src) = self.current_imports.get(target_symbol) {
-      if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if let Some(short_path) = self
+      if let Ok(module_specifier) = ModuleSpecifier::parse(src)
+        && let Some(short_path) = self
           .ctx
           .doc_nodes
           .keys()
           .find(|short_path| short_path.specifier == module_specifier)
-        {
-          return Some(self.ctx.resolve_path(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: short_path,
-              symbol: target_symbol,
-            },
-          ));
-        }
+      {
+        return Some(self.ctx.resolve_path(
+          self.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: short_path,
+            symbol: target_symbol,
+          },
+        ));
       }
 
       return self
@@ -488,14 +487,14 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::DocNode;
+  use crate::Location;
   use crate::html::HrefResolver;
   use crate::html::{
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
-  use crate::DocNode;
-  use crate::Location;
   use indexmap::IndexMap;
 
   struct TestResolver;

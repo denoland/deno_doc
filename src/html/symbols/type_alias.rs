@@ -1,3 +1,4 @@
+use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::interface::render_call_signatures;
 use crate::html::symbols::interface::render_index_signatures;
@@ -5,7 +6,6 @@ use crate::html::symbols::interface::render_methods;
 use crate::html::symbols::interface::render_properties;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 use std::collections::HashSet;
 
 pub(crate) fn render_type_alias(

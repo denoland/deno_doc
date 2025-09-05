@@ -1,10 +1,10 @@
+use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
