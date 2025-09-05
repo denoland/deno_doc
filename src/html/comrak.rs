@@ -1,8 +1,8 @@
 use crate::html::ShortPath;
+use comrak::Arena;
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::AstNode;
 use comrak::nodes::NodeValue;
-use comrak::Arena;
 use std::collections::HashMap;
 use std::io::BufWriter;
 use std::io::Write;

@@ -7,9 +7,9 @@ use deno_graph::symbols::SymbolNodeRef;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
+use crate::ts_type::infer_simple_ts_type_from_init;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -50,9 +50,10 @@ pub fn get_docs_for_var_declarator(
             if let Some(SymbolNodeRef::Var(_, var_declarator, _)) =
               decl.maybe_node()
               && let Pat::Ident(ident) = &var_declarator.name
-                && let Some(type_ann) = &ident.type_ann {
-                  return Some(TsTypeDef::new(module_info, &type_ann.type_ann));
-                }
+              && let Some(type_ann) = &ident.type_ann
+            {
+              return Some(TsTypeDef::new(module_info, &type_ann.type_ann));
+            }
             let maybe_type_ann = infer_simple_ts_type_from_init(
               module_info,
               var_declarator.init.as_deref(),

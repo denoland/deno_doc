@@ -1,9 +1,9 @@
-use crate::html::util::BreadcrumbCtx;
-use crate::html::util::BreadcrumbsCtx;
-use crate::html::util::NamespacedSymbols;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
+use crate::html::util::BreadcrumbCtx;
+use crate::html::util::BreadcrumbsCtx;
+use crate::html::util::NamespacedSymbols;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
 use serde::Serialize;
@@ -148,15 +148,15 @@ impl<'ctx> RenderContext<'ctx> {
           .doc_nodes
           .keys()
           .find(|short_path| short_path.specifier == module_specifier)
-        {
-          return Some(self.ctx.resolve_path(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: short_path,
-              symbol: target_symbol,
-            },
-          ));
-        }
+      {
+        return Some(self.ctx.resolve_path(
+          self.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: short_path,
+            symbol: target_symbol,
+          },
+        ));
+      }
 
       return self
         .ctx
@@ -487,14 +487,14 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::DocNode;
+  use crate::Location;
   use crate::html::HrefResolver;
   use crate::html::{
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
-  use crate::DocNode;
-  use crate::Location;
   use indexmap::IndexMap;
 
   struct TestResolver;

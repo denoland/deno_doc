@@ -162,8 +162,11 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::FnOrConstructor => {
       let fn_or_constructor = def.fn_or_constructor.as_ref().unwrap();
 
-      let new = if fn_or_constructor
-        .constructor { "<span>new </span>" } else { Default::default() };
+      let new = if fn_or_constructor.constructor {
+        "<span>new </span>"
+      } else {
+        Default::default()
+      };
 
       format!(
         "{new}{}({}) =&gt; {}",
@@ -251,8 +254,11 @@ pub(crate) fn render_type_def(
         Vec::with_capacity(type_literal.index_signatures.len());
 
       for index_signature in type_literal.index_signatures.iter() {
-        let readonly = if index_signature
-          .readonly { "<span>readonly </span>" } else { Default::default() };
+        let readonly = if index_signature.readonly {
+          "<span>readonly </span>"
+        } else {
+          Default::default()
+        };
 
         let ts_type = index_signature
           .ts_type
@@ -291,8 +297,11 @@ pub(crate) fn render_type_def(
       let mut properties = Vec::with_capacity(type_literal.properties.len());
 
       for property in type_literal.properties.iter() {
-        let readonly = if property
-          .readonly { "<span>readonly </span>" } else { Default::default() };
+        let readonly = if property.readonly {
+          "<span>readonly </span>"
+        } else {
+          Default::default()
+        };
 
         let name = if property.computed {
           format!("[{}]", html_escape::encode_text(&property.name))
@@ -300,7 +309,11 @@ pub(crate) fn render_type_def(
           html_escape::encode_text(&property.name).to_string()
         };
 
-        let optional = if property.optional { "?" } else { Default::default() };
+        let optional = if property.optional {
+          "?"
+        } else {
+          Default::default()
+        };
 
         let ts_type = property
           .ts_type
@@ -330,7 +343,11 @@ pub(crate) fn render_type_def(
           method.name.clone()
         };
 
-        let optional = if method.optional { "?" } else { Default::default() };
+        let optional = if method.optional {
+          "?"
+        } else {
+          Default::default()
+        };
 
         let return_type = method
           .return_type
@@ -353,8 +370,11 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypePredicate => {
       let type_predicate = def.type_predicate.as_ref().unwrap();
 
-      let asserts = if type_predicate
-        .asserts { "<span>asserts </span>" } else { Default::default() };
+      let asserts = if type_predicate.asserts {
+        "<span>asserts </span>"
+      } else {
+        Default::default()
+      };
       let param_type = if let crate::ts_type::ThisOrIdent::Identifier { name } =
         &type_predicate.param
       {

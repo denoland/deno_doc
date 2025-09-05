@@ -6,13 +6,13 @@ use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 
 use deno_ast::SourceRange;
+use deno_graph::ModuleGraph;
 use deno_graph::symbols::DefinitionPathNode;
 use deno_graph::symbols::DefinitionPathNodeResolved;
 use deno_graph::symbols::ResolveDepsMode;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::ModuleGraph;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 

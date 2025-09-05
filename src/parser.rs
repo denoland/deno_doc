@@ -259,12 +259,13 @@ impl<'a> DocParser<'a> {
               reference_def,
               new_name_path,
               false,
-            )? {
-              nodes.splice(i..=i, new_nodes);
-              all_locations
-                .extend(nodes.iter().map(|node| node.location.clone()));
-              continue;
-            }
+            )?
+          {
+            nodes.splice(i..=i, new_nodes);
+            all_locations
+              .extend(nodes.iter().map(|node| node.location.clone()));
+            continue;
+          }
         }
 
         _ => {}
@@ -508,49 +509,49 @@ impl<'a> DocParser<'a> {
       if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node
         && let Some(js_doc) =
           js_doc_for_range(module_info, &import_decl.range())
-        {
-          let location = get_location(module_info, import_decl.start());
-          for specifier in &import_decl.specifiers {
-            use deno_ast::swc::ast::ImportSpecifier::*;
+      {
+        let location = get_location(module_info, import_decl.start());
+        for specifier in &import_decl.specifiers {
+          use deno_ast::swc::ast::ImportSpecifier::*;
 
-            let (name, maybe_imported_name, src) = match specifier {
-              Named(named_specifier) => (
-                named_specifier.local.sym.to_string(),
-                named_specifier
-                  .imported
-                  .as_ref()
-                  .map(module_export_name_value)
-                  .or_else(|| Some(named_specifier.local.sym.to_string())),
-                import_decl.src.value.to_string(),
-              ),
-              Default(default_specifier) => (
-                default_specifier.local.sym.to_string(),
-                Some("default".to_string()),
-                import_decl.src.value.to_string(),
-              ),
-              Namespace(namespace_specifier) => (
-                namespace_specifier.local.sym.to_string(),
-                None,
-                import_decl.src.value.to_string(),
-              ),
-            };
+          let (name, maybe_imported_name, src) = match specifier {
+            Named(named_specifier) => (
+              named_specifier.local.sym.to_string(),
+              named_specifier
+                .imported
+                .as_ref()
+                .map(module_export_name_value)
+                .or_else(|| Some(named_specifier.local.sym.to_string())),
+              import_decl.src.value.to_string(),
+            ),
+            Default(default_specifier) => (
+              default_specifier.local.sym.to_string(),
+              Some("default".to_string()),
+              import_decl.src.value.to_string(),
+            ),
+            Namespace(namespace_specifier) => (
+              namespace_specifier.local.sym.to_string(),
+              None,
+              import_decl.src.value.to_string(),
+            ),
+          };
 
-            let resolved_specifier = self.resolve_dependency(&src, referrer)?;
-            let import_def = ImportDef {
-              src: resolved_specifier.to_string(),
-              imported: maybe_imported_name,
-            };
+          let resolved_specifier = self.resolve_dependency(&src, referrer)?;
+          let import_def = ImportDef {
+            src: resolved_specifier.to_string(),
+            imported: maybe_imported_name,
+          };
 
-            let doc_node = DocNode::import(
-              name.into_boxed_str(),
-              location.clone(),
-              js_doc.clone(),
-              import_def,
-            );
+          let doc_node = DocNode::import(
+            name.into_boxed_str(),
+            location.clone(),
+            js_doc.clone(),
+            import_def,
+          );
 
-            imports.push(doc_node);
-          }
+          imports.push(doc_node);
         }
+      }
     }
 
     Ok(imports)
@@ -1159,14 +1160,15 @@ impl<'a> DocParser<'a> {
       self.check_private_type_in_public_diagnostic(module_info, symbol);
 
       if let Some(node) = maybe_node
-        && node.is_function() {
-          // find any expando properties for this function symbol
-          if let Some(expando_namespace) = self
-            .maybe_expando_property_namespace_doc(&docs[0], module_info, symbol)
-          {
-            docs.push(expando_namespace);
-          }
+        && node.is_function()
+      {
+        // find any expando properties for this function symbol
+        if let Some(expando_namespace) = self
+          .maybe_expando_property_namespace_doc(&docs[0], module_info, symbol)
+        {
+          docs.push(expando_namespace);
         }
+      }
     }
 
     docs

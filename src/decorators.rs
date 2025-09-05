@@ -3,9 +3,9 @@
 use crate::node::Location;
 use crate::util::swc::get_location;
 
+use deno_ast::SourceRangedForSpanned;
 use deno_ast::swc::ast::Decorator;
 use deno_ast::swc::ast::Expr;
-use deno_ast::SourceRangedForSpanned;
 use deno_graph::symbols::EsModuleInfo;
 use deno_terminal::colors;
 use serde::Deserialize;
@@ -47,21 +47,22 @@ impl DecoratorDef {
     match decorator.expr.as_ref() {
       Expr::Call(call_expr) => {
         if let Some(expr) = call_expr.callee.clone().expr()
-          && let Expr::Ident(ident) = expr.as_ref() {
-            let args = call_expr
-              .args
-              .iter()
-              .map(|a| {
-                a.text_fast(module_info.source().text_info_lazy())
-                  .to_string()
-              })
-              .collect();
-            return Self {
-              name: ident.sym.to_string(),
-              args,
-              location: get_location(module_info, ident.start()),
-            };
-          }
+          && let Expr::Ident(ident) = expr.as_ref()
+        {
+          let args = call_expr
+            .args
+            .iter()
+            .map(|a| {
+              a.text_fast(module_info.source().text_info_lazy())
+                .to_string()
+            })
+            .collect();
+          return Self {
+            name: ident.sym.to_string(),
+            args,
+            location: get_location(module_info, ident.start()),
+          };
+        }
         Self {
           name: "[UNSUPPORTED]".to_string(),
           args: vec![],

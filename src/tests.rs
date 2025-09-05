@@ -1,16 +1,16 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::DocParserOptions;
 use crate::node::DocNodeDef;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use crate::DocParserOptions;
-use deno_graph::ast::CapturingModuleAnalyzer;
-use deno_graph::source::MemoryLoader;
-use deno_graph::source::Source;
 use deno_graph::BuildOptions;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::ast::CapturingModuleAnalyzer;
+use deno_graph::source::MemoryLoader;
+use deno_graph::source::Source;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -340,10 +340,12 @@ export function fooFn(a: number) {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  assert!(DocPrinter::new(&entries, false, false)
-    .to_string()
-    .as_str()
-    .contains("function fooFn(a: number)"));
+  assert!(
+    DocPrinter::new(&entries, false, false)
+      .to_string()
+      .as_str()
+      .contains("function fooFn(a: number)")
+  );
 }
 
 #[tokio::test]
@@ -484,9 +486,11 @@ async fn deep_reexports() {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  assert!(DocPrinter::new(&entries, false, false)
-    .to_string()
-    .contains("const foo"));
+  assert!(
+    DocPrinter::new(&entries, false, false)
+      .to_string()
+      .contains("const foo")
+  );
 }
 
 #[tokio::test]

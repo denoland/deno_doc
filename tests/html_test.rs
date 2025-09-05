@@ -1,20 +1,20 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ModuleSpecifier;
-use deno_doc::html::pages::SymbolPage;
-use deno_doc::html::*;
 use deno_doc::DocNode;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
+use deno_doc::html::pages::SymbolPage;
+use deno_doc::html::*;
+use deno_graph::BuildOptions;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
 use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::LoadError;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::BuildOptions;
-use deno_graph::GraphKind;
-use deno_graph::ModuleGraph;
 use futures::future;
 use indexmap::IndexMap;
 use std::fs;

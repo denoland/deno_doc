@@ -5,10 +5,13 @@ use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::decorators::decorators_to_defs;
+use crate::DocNode;
+use crate::Location;
+use crate::ParamDef;
 use crate::decorators::DecoratorDef;
-use crate::function::function_to_function_def;
+use crate::decorators::decorators_to_defs;
 use crate::function::FunctionDef;
+use crate::function::function_to_function_def;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::params::assign_pat_to_param_def;
@@ -16,19 +19,16 @@ use crate::params::ident_to_param_def;
 use crate::params::param_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
-use crate::ts_type::infer_ts_type_from_expr;
-use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
 use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::TsTypeDef;
-use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
+use crate::ts_type::infer_ts_type_from_expr;
+use crate::ts_type::maybe_type_param_instantiation_to_type_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::get_location;
 use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
 use crate::variable::VariableDef;
-use crate::DocNode;
-use crate::Location;
-use crate::ParamDef;
 
 cfg_if! {
   if #[cfg(feature = "rust")] {

@@ -321,9 +321,9 @@ impl GenerateCtx {
                 options.default_symbol_map.as_ref().and_then(
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
-              {
-                node.name = default_rename.as_str().into();
-              }
+            {
+              node.name = default_rename.as_str().into();
+            }
 
             // TODO(@crowlKats): support this in namespaces
             let node = if node
@@ -468,10 +468,11 @@ impl GenerateCtx {
   ) -> String {
     if let Some(symbol_redirect_map) = &self.symbol_redirect_map
       && let UrlResolveKind::Symbol { file, symbol } = target
-        && let Some(path_map) = symbol_redirect_map.get(&file.path)
-          && let Some(href) = path_map.get(symbol) {
-            return href.clone();
-          }
+      && let Some(path_map) = symbol_redirect_map.get(&file.path)
+      && let Some(href) = path_map.get(symbol)
+    {
+      return href.clone();
+    }
 
     self.href_resolver.resolve_path(current, target)
   }
@@ -511,13 +512,14 @@ impl GenerateCtx {
       }
 
       if matches!(node.def, DocNodeDef::Namespace { .. })
-        && let Some(children) = &node.namespace_children {
-          return Box::new(
-            children
-              .iter()
-              .flat_map(move |child| handle_node(child, reference, depth + 1)),
-          );
-        }
+        && let Some(children) = &node.namespace_children
+      {
+        return Box::new(
+          children
+            .iter()
+            .flat_map(move |child| handle_node(child, reference, depth + 1)),
+        );
+      }
 
       Box::new(std::iter::empty())
     }
