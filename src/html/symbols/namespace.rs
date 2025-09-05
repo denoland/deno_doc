@@ -1,8 +1,8 @@
-use crate::html::render_context::RenderContext;
-use crate::html::util::*;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::MethodKind;
+use crate::html::render_context::RenderContext;
+use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
@@ -75,7 +75,7 @@ impl std::hash::Hash for NamespaceNodeSubItemCtx {
 
 impl PartialOrd for NamespaceNodeSubItemCtx {
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    Some(self.title.cmp(&other.title))
+    Some(self.cmp(&other))
   }
 }
 
