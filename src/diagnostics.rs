@@ -279,15 +279,13 @@ impl<'a> DiagnosticsCollector<'a> {
     if js_doc.doc.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_jsdoc_missing.insert(location.clone())
-    {
-      if let Some(text_info) = self.maybe_get_text_info(location) {
+      && let Some(text_info) = self.maybe_get_text_info(location) {
         self.diagnostics.push(DocDiagnostic {
           location: location.clone(),
           kind: DocDiagnosticKind::MissingJsDoc,
           text_info,
         });
       }
-    }
   }
 
   fn check_missing_explicit_type(
@@ -299,15 +297,13 @@ impl<'a> DiagnosticsCollector<'a> {
     if ts_type.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
-    {
-      if let Some(text_info) = self.maybe_get_text_info(location) {
+      && let Some(text_info) = self.maybe_get_text_info(location) {
         self.diagnostics.push(DocDiagnostic {
           location: location.clone(),
           kind: DocDiagnosticKind::MissingExplicitType,
           text_info,
         })
       }
-    }
   }
 
   fn check_missing_return_type(
@@ -319,15 +315,13 @@ impl<'a> DiagnosticsCollector<'a> {
     if return_type.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_missing_type_refs.insert(location.clone())
-    {
-      if let Some(text_info) = self.maybe_get_text_info(location) {
+      && let Some(text_info) = self.maybe_get_text_info(location) {
         self.diagnostics.push(DocDiagnostic {
           location: location.clone(),
           kind: DocDiagnosticKind::MissingReturnType,
           text_info,
         });
       }
-    }
   }
 
   fn maybe_get_text_info(&self, location: &Location) -> Option<SourceTextInfo> {
@@ -374,16 +368,12 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         continue; // don't report diagnostics on remote modules
       }
 
-      if let Some(last_node) = last_node {
-        if doc_node.name == last_node.name && last_node.function_def().is_some()
-        {
-          if let Some(current_fn) = &doc_node.function_def() {
-            if current_fn.has_body {
+      if let Some(last_node) = last_node
+        && doc_node.name == last_node.name && last_node.function_def().is_some()
+          && let Some(current_fn) = &doc_node.function_def()
+            && current_fn.has_body {
               continue; // it's an overload. Ignore it
             }
-          }
-        }
-      }
 
       if !has_ignorable_js_doc_tag(&doc_node.js_doc) {
         self.visit_doc_node(doc_node);
@@ -404,7 +394,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         | DocNodeDef::TypeAlias { .. }
         | DocNodeDef::Variable { .. } => true,
         DocNodeDef::Import { .. }
-        | DocNodeDef::ModuleDoc { .. }
+        | DocNodeDef::ModuleDoc
         | DocNodeDef::Reference { .. } => false,
       }
     }
@@ -482,11 +472,10 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     // methods
     let mut last_name: Option<&str> = None;
     for method in def.methods.iter() {
-      if let Some(last_name) = last_name {
-        if &*method.name == last_name && method.function_def.has_body {
+      if let Some(last_name) = last_name
+        && &*method.name == last_name && method.function_def.has_body {
           continue; // skip, it's the implementation signature
         }
-      }
 
       self
         .diagnostics

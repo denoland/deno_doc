@@ -186,11 +186,10 @@ fn render_single_function(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      if let Some(default) = &default {
-        if default.deref() != "[UNSUPPORTED]" {
+      if let Some(default) = &default
+        && default.deref() != "[UNSUPPORTED]" {
           ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
         }
-      }
 
       let tags = if matches!(
         param.pattern,
@@ -269,11 +268,10 @@ fn render_single_function(
     .tags
     .iter()
     .filter_map(|tag| {
-      if let JsDocTag::Throws { type_ref, doc } = tag {
-        if type_ref.is_some() || doc.is_some() {
+      if let JsDocTag::Throws { type_ref, doc } = tag
+        && (type_ref.is_some() || doc.is_some()) {
           return Some((type_ref, doc));
         }
-      }
 
       None
     })

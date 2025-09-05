@@ -32,7 +32,7 @@ where
     for node in doc_nodes {
       if matches!(
         node.def,
-        DocNodeDef::ModuleDoc { .. } | DocNodeDef::Import { .. }
+        DocNodeDef::ModuleDoc | DocNodeDef::Import { .. }
       ) {
         continue;
       }

@@ -142,8 +142,8 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if let Some(src) = self.current_imports.get(target_symbol) {
-      if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if let Some(short_path) = self
+      if let Ok(module_specifier) = ModuleSpecifier::parse(src)
+        && let Some(short_path) = self
           .ctx
           .doc_nodes
           .keys()
@@ -157,7 +157,6 @@ impl<'ctx> RenderContext<'ctx> {
             },
           ));
         }
-      }
 
       return self
         .ctx

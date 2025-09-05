@@ -49,13 +49,10 @@ pub fn get_docs_for_var_declarator(
           for decl in symbol.decls() {
             if let Some(SymbolNodeRef::Var(_, var_declarator, _)) =
               decl.maybe_node()
-            {
-              if let Pat::Ident(ident) = &var_declarator.name {
-                if let Some(type_ann) = &ident.type_ann {
+              && let Pat::Ident(ident) = &var_declarator.name
+                && let Some(type_ann) = &ident.type_ann {
                   return Some(TsTypeDef::new(module_info, &type_ann.type_ann));
                 }
-              }
-            }
             let maybe_type_ann = infer_simple_ts_type_from_init(
               module_info,
               var_declarator.init.as_deref(),

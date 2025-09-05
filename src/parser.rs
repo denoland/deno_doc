@@ -253,8 +253,8 @@ impl<'a> DocParser<'a> {
           new_name_path.extend_from_slice(name_path);
           new_name_path.push(name);
 
-          if !all_locations.contains(&reference_def.target) {
-            if let Some(new_nodes) = self.resolve_dangling_reference(
+          if !all_locations.contains(&reference_def.target)
+            && let Some(new_nodes) = self.resolve_dangling_reference(
               specifier,
               reference_def,
               new_name_path,
@@ -265,7 +265,6 @@ impl<'a> DocParser<'a> {
                 .extend(nodes.iter().map(|node| node.location.clone()));
               continue;
             }
-          }
         }
 
         _ => {}
@@ -506,8 +505,8 @@ impl<'a> DocParser<'a> {
     let mut imports = vec![];
 
     for node in parsed_source.program_ref().body() {
-      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
-        if let Some(js_doc) =
+      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node
+        && let Some(js_doc) =
           js_doc_for_range(module_info, &import_decl.range())
         {
           let location = get_location(module_info, import_decl.start());
@@ -552,7 +551,6 @@ impl<'a> DocParser<'a> {
             imports.push(doc_node);
           }
         }
-      }
     }
 
     Ok(imports)
@@ -1160,8 +1158,8 @@ impl<'a> DocParser<'a> {
 
       self.check_private_type_in_public_diagnostic(module_info, symbol);
 
-      if let Some(node) = maybe_node {
-        if node.is_function() {
+      if let Some(node) = maybe_node
+        && node.is_function() {
           // find any expando properties for this function symbol
           if let Some(expando_namespace) = self
             .maybe_expando_property_namespace_doc(&docs[0], module_info, symbol)
@@ -1169,7 +1167,6 @@ impl<'a> DocParser<'a> {
             docs.push(expando_namespace);
           }
         }
-      }
     }
 
     docs

@@ -287,13 +287,12 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if !matches!(doc_node.def, DocNodeDef::Function { .. }) {
-        if let Some(examples) =
+      if !matches!(doc_node.def, DocNodeDef::Function { .. })
+        && let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
         {
           sections.push(examples);
         }
-      }
 
       sections.extend(match doc_node.def {
         DocNodeDef::Function { .. } => {
@@ -356,7 +355,7 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeDef::ModuleDoc { .. }
+        DocNodeDef::ModuleDoc
         | DocNodeDef::Import { .. }
         | DocNodeDef::Reference { .. } => unreachable!(),
       });

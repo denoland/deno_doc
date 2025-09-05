@@ -46,8 +46,8 @@ impl DecoratorDef {
   ) -> Self {
     match decorator.expr.as_ref() {
       Expr::Call(call_expr) => {
-        if let Some(expr) = call_expr.callee.clone().expr() {
-          if let Expr::Ident(ident) = expr.as_ref() {
+        if let Some(expr) = call_expr.callee.clone().expr()
+          && let Expr::Ident(ident) = expr.as_ref() {
             let args = call_expr
               .args
               .iter()
@@ -62,7 +62,6 @@ impl DecoratorDef {
               location: get_location(module_info, ident.start()),
             };
           }
-        }
         Self {
           name: "[UNSUPPORTED]".to_string(),
           args: vec![],
