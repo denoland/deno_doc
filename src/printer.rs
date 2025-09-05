@@ -1,15 +1,15 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::Location;
+use crate::display::SliceDisplayer;
 use crate::display::display_abstract;
 use crate::display::display_async;
 use crate::display::display_generator;
-use crate::display::SliceDisplayer;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::DocNodeDef;
-use crate::Location;
 
 use deno_terminal::colors;
 use deno_terminal::colors::Style;
@@ -33,7 +33,7 @@ impl DocPrinter<'_> {
     doc_nodes: &[DocNode],
     use_color: bool,
     private: bool,
-  ) -> DocPrinter {
+  ) -> DocPrinter<'_> {
     DocPrinter {
       doc_nodes,
       use_color,
@@ -115,7 +115,7 @@ impl DocPrinter<'_> {
 
   fn kind_order(&self, node: &DocNode) -> i64 {
     match node.def {
-      DocNodeDef::ModuleDoc { .. } => 0,
+      DocNodeDef::ModuleDoc => 0,
       DocNodeDef::Function { .. } => 1,
       DocNodeDef::Variable { .. } => 2,
       DocNodeDef::Class { .. } => 3,
@@ -136,7 +136,7 @@ impl DocPrinter<'_> {
     has_overloads: bool,
   ) -> FmtResult {
     match node.def {
-      DocNodeDef::ModuleDoc { .. } => self.format_module_doc(w, node, indent),
+      DocNodeDef::ModuleDoc => self.format_module_doc(w, node, indent),
       DocNodeDef::Function { .. } => {
         self.format_function_signature(w, node, indent, has_overloads)
       }

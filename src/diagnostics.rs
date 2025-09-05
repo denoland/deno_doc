@@ -1,5 +1,6 @@
 // Copyright 2020-2023 the Deno authors. All rights reserved. MIT license.
 
+use crate::Location;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
@@ -10,8 +11,10 @@ use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
-use crate::Location;
 
+use deno_ast::ModuleSpecifier;
+use deno_ast::SourceRange;
+use deno_ast::SourceTextInfo;
 use deno_ast::diagnostics::Diagnostic;
 use deno_ast::diagnostics::DiagnosticLevel;
 use deno_ast::diagnostics::DiagnosticLocation;
@@ -21,9 +24,6 @@ use deno_ast::diagnostics::DiagnosticSnippetHighlightStyle;
 use deno_ast::diagnostics::DiagnosticSourcePos;
 use deno_ast::diagnostics::DiagnosticSourceRange;
 use deno_ast::swc::ast::Accessibility;
-use deno_ast::ModuleSpecifier;
-use deno_ast::SourceRange;
-use deno_ast::SourceTextInfo;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol;
@@ -100,7 +100,7 @@ impl Diagnostic for DocDiagnostic {
     }
   }
 
-  fn location(&self) -> DiagnosticLocation {
+  fn location(&self) -> DiagnosticLocation<'_> {
     let specifier = ModuleSpecifier::parse(&self.location.filename).unwrap();
     DiagnosticLocation::ModulePosition {
       specifier: Cow::Owned(specifier),

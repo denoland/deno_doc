@@ -1,8 +1,8 @@
-use crate::node::DocNodeDef;
 use crate::DocNode;
+use crate::node::DocNodeDef;
 use deno_ast::ModuleSpecifier;
-use handlebars::handlebars_helper;
 use handlebars::Handlebars;
+use handlebars::handlebars_helper;
 use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
@@ -32,15 +32,12 @@ use crate::js_doc::JsDocTag;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
-pub use symbols::namespace;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
+pub use symbols::namespace;
 pub use usage::UsageComposer;
 pub use usage::UsageComposerEntry;
 pub use usage::UsageToMd;
-pub use util::compute_namespaced_symbols;
-pub use util::href_path_resolve;
-pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
@@ -49,6 +46,9 @@ pub use util::ToCCtx;
 pub use util::TopSymbolCtx;
 pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
+pub use util::compute_namespaced_symbols;
+pub use util::href_path_resolve;
+pub use util::qualify_drilldown_name;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -647,7 +647,7 @@ impl ShortPath {
     }
   }
 
-  pub fn as_resolve_kind(&self) -> UrlResolveKind {
+  pub fn as_resolve_kind(&self) -> UrlResolveKind<'_> {
     if self.is_main {
       UrlResolveKind::Root
     } else {

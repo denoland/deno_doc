@@ -1,5 +1,9 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::ModuleItemRef;
+use deno_ast::SourceRange;
+use deno_ast::SourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use deno_ast::swc::ast::ClassDecl;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
@@ -17,10 +21,9 @@ use deno_ast::swc::ast::TsTypeAliasDecl;
 use deno_ast::swc::ast::VarDecl;
 use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::swc::ast::VarDeclarator;
-use deno_ast::ModuleItemRef;
-use deno_ast::SourceRange;
-use deno_ast::SourceRanged;
-use deno_ast::SourceRangedForSpanned;
+use deno_graph::Module;
+use deno_graph::ModuleGraph;
+use deno_graph::ModuleSpecifier;
 use deno_graph::ast::EsParser;
 use deno_graph::symbols::EsModuleInfo;
 use deno_graph::symbols::ExpandoPropertyRef;
@@ -30,9 +33,6 @@ use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::Module;
-use deno_graph::ModuleGraph;
-use deno_graph::ModuleSpecifier;
 use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -42,6 +42,8 @@ use std::fmt;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use crate::ImportDef;
+use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
@@ -50,11 +52,11 @@ use crate::node::DocNode;
 use crate::node::DocNodeDef;
 use crate::node::NamespaceDef;
 use crate::node::ReferenceDef;
-use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
+use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::util::graph::resolve_deno_graph_module;
 use crate::util::swc::get_location;
 use crate::util::swc::get_text_info_location;
@@ -64,8 +66,6 @@ use crate::util::swc::module_js_doc_for_source;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
-use crate::ImportDef;
-use crate::Location;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -156,7 +156,7 @@ impl<'a> DocParser<'a> {
   fn get_module_info(
     &self,
     specifier: &ModuleSpecifier,
-  ) -> Result<ModuleInfoRef, DocError> {
+  ) -> Result<ModuleInfoRef<'_>, DocError> {
     get_module_info(&self.root_symbol, specifier)
   }
 
@@ -865,10 +865,12 @@ impl<'a> DocParser<'a> {
     module_info: ModuleInfoRef,
     child_symbol: &Symbol,
   ) -> Vec<DocNode> {
-    debug_assert!(self
-      .visibility
-      .get_root_exported_deps(&child_symbol.unique_id())
-      .is_none());
+    debug_assert!(
+      self
+        .visibility
+        .get_root_exported_deps(&child_symbol.unique_id())
+        .is_none()
+    );
     let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
       let maybe_docs = self.docs_for_maybe_node(

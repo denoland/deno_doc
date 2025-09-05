@@ -86,7 +86,7 @@ impl<'ctx> RenderContext<'ctx> {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_current_resolve(&self) -> UrlResolveKind {
+  pub fn get_current_resolve(&self) -> UrlResolveKind<'_> {
     self.current_resolve
   }
 

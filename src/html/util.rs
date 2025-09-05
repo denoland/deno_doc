@@ -1,13 +1,13 @@
-use crate::html::jsdoc::markdown_to_html;
-use crate::html::jsdoc::MarkdownToHTMLOptions;
-use crate::html::render_context::ToCEntry;
-use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
+use crate::html::jsdoc::MarkdownToHTMLOptions;
+use crate::html::jsdoc::markdown_to_html;
+use crate::html::render_context::ToCEntry;
+use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -457,7 +457,7 @@ pub trait HrefResolver {
 
   /// Resolver for symbols from non-relative imports
   fn resolve_import_href(&self, symbol: &[String], src: &str)
-    -> Option<String>;
+  -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
@@ -487,7 +487,7 @@ pub struct BreadcrumbsCtx {
 impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
 
-  pub fn to_strings(&self) -> Vec<Cow<str>> {
+  pub fn to_strings(&self) -> Vec<Cow<'_, str>> {
     let mut title_parts = vec![];
     let mut symbol_parts = vec![];
 

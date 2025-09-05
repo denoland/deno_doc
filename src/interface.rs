@@ -12,8 +12,8 @@ use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::MethodDef;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
-use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::get_location;
 use crate::util::swc::js_doc_for_range;
 
@@ -58,16 +58,16 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
       use deno_ast::swc::ast::Regex;
       use deno_ast::swc::ast::Str;
       match lit {
-        Lit::Str(Str { ref value, .. }) => value.to_string(),
-        Lit::Bool(Bool { ref value, .. }) => {
+        Lit::Str(Str { value, .. }) => value.to_string(),
+        Lit::Bool(Bool { value, .. }) => {
           let str_val = if *value { "true" } else { "false" };
           str_val.to_string()
         }
         Lit::Null(_) => "null".to_string(),
-        Lit::Num(Number { ref value, .. }) => value.to_string(),
-        Lit::BigInt(BigInt { ref value, .. }) => value.to_string(),
-        Lit::Regex(Regex { ref exp, .. }) => format!("/{}/", exp),
-        Lit::JSXText(JSXText { ref raw, .. }) => raw.to_string(),
+        Lit::Num(Number { value, .. }) => value.to_string(),
+        Lit::BigInt(BigInt { value, .. }) => value.to_string(),
+        Lit::Regex(Regex { exp, .. }) => format!("/{}/", exp),
+        Lit::JSXText(JSXText { raw, .. }) => raw.to_string(),
       }
     }
     _ => "[UNSUPPORTED]".to_string(),
