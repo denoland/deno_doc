@@ -75,7 +75,7 @@ impl std::hash::Hash for NamespaceNodeSubItemCtx {
 
 impl PartialOrd for NamespaceNodeSubItemCtx {
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    Some(self.cmp(&other))
+    Some(self.cmp(other))
   }
 }
 
