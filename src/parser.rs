@@ -522,21 +522,22 @@ impl<'a> DocParser<'a> {
                 .as_ref()
                 .map(module_export_name_value)
                 .or_else(|| Some(named_specifier.local.sym.to_string())),
-              import_decl.src.value.to_string(),
+              &import_decl.src.value,
             ),
             Default(default_specifier) => (
               default_specifier.local.sym.to_string(),
               Some("default".to_string()),
-              import_decl.src.value.to_string(),
+              &import_decl.src.value,
             ),
             Namespace(namespace_specifier) => (
               namespace_specifier.local.sym.to_string(),
               None,
-              import_decl.src.value.to_string(),
+              &import_decl.src.value,
             ),
           };
 
-          let resolved_specifier = self.resolve_dependency(&src, referrer)?;
+          let resolved_specifier =
+            self.resolve_dependency(&src.to_string_lossy(), referrer)?;
           let import_def = ImportDef {
             src: resolved_specifier.to_string(),
             imported: maybe_imported_name,
@@ -781,7 +782,7 @@ impl<'a> DocParser<'a> {
 
     let namespace_name = match &ts_module.id {
       TsModuleName::Ident(ident) => ident.sym.to_string(),
-      TsModuleName::Str(str_) => str_.value.to_string(),
+      TsModuleName::Str(str_) => str_.value.to_string_lossy().into_owned(),
     };
     let mut elements = Vec::new();
     let mut handled_symbols = HashSet::new();

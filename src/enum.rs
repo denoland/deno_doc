@@ -42,7 +42,7 @@ pub fn get_doc_for_ts_enum_decl(
     if let Some(js_doc) = js_doc_for_range(module_info, &enum_member.range()) {
       let name = match &enum_member.id {
         Ident(ident) => ident.sym.to_string(),
-        Str(str_) => str_.value.to_string(),
+        Str(str_) => str_.value.to_string_lossy().into_owned(),
       };
       let init = if let Some(expr) = &enum_member.init {
         infer_ts_type_from_expr(module_info, expr, true)

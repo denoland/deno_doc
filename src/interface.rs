@@ -58,7 +58,7 @@ pub fn expr_to_name(expr: &deno_ast::swc::ast::Expr) -> String {
       use deno_ast::swc::ast::Regex;
       use deno_ast::swc::ast::Str;
       match lit {
-        Lit::Str(Str { value, .. }) => value.to_string(),
+        Lit::Str(Str { value, .. }) => value.to_string_lossy().into_owned(),
         Lit::Bool(Bool { value, .. }) => {
           let str_val = if *value { "true" } else { "false" };
           str_val.to_string()

@@ -136,7 +136,7 @@ pub fn module_export_name_value(
 ) -> String {
   match module_export_name {
     ModuleExportName::Ident(ident) => ident.sym.to_string(),
-    ModuleExportName::Str(str) => str.value.to_string(),
+    ModuleExportName::Str(str) => str.value.to_string_lossy().into_owned(),
   }
 }
 
