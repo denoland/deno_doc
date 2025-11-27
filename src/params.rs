@@ -316,7 +316,7 @@ pub fn prop_name_to_string(
   use deno_ast::swc::ast::PropName;
   match prop_name {
     PropName::Ident(ident) => ident.sym.to_string(),
-    PropName::Str(str_) => str_.value.to_string(),
+    PropName::Str(str_) => str_.value.to_string_lossy().into_owned(),
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => comp_prop_name

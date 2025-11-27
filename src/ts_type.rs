@@ -223,7 +223,9 @@ impl TsTypeDef {
 
     let type_name = match &other.expr_name {
       TsEntityName(entity_name) => ts_entity_name_to_name(entity_name),
-      Import(import_type) => import_type.arg.value.to_string(),
+      Import(import_type) => {
+        import_type.arg.value.to_string_lossy().into_owned()
+      }
     };
 
     TsTypeDef {
@@ -596,7 +598,7 @@ impl TsTypeDef {
     };
 
     let import_type_def = TsImportTypeDef {
-      specifier: other.arg.value.to_string(),
+      specifier: other.arg.value.to_string_lossy().into_owned(),
       qualifier: other.qualifier.as_ref().map(ts_entity_name_to_name),
       type_params,
     };
@@ -1252,7 +1254,7 @@ impl TsTypeDef {
   }
 
   pub fn string_literal(str_node: &Str) -> Self {
-    Self::string_value(str_node.value.to_string())
+    Self::string_value(str_node.value.to_string_lossy().into_owned())
   }
 
   pub fn string_value(value: String) -> Self {
