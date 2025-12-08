@@ -16,9 +16,9 @@ use serde_json::json;
 
 type MaybeHeaders<S> = Option<Vec<(S, S)>>;
 
-pub(crate) async fn setup<S: AsRef<str> + Copy>(
+pub(crate) async fn setup<S: AsRef<str> + Copy, C: AsRef<[u8]>>(
   root: S,
-  sources: Vec<(S, MaybeHeaders<S>, S)>,
+  sources: Vec<(S, MaybeHeaders<S>, C)>,
 ) -> (ModuleGraph, CapturingModuleAnalyzer, ModuleSpecifier) {
   let sources = sources
     .into_iter()
