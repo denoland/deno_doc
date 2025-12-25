@@ -54,30 +54,6 @@ pub(crate) fn render_class(
     sections.push(index_signatures);
   }
 
-  if !class_items.properties.is_empty() {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Properties",
-      SectionContentCtx::DocEntry(render_class_properties(
-        ctx,
-        name,
-        class_items.properties,
-      )),
-    ));
-  }
-
-  if !class_items.methods.is_empty() {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Methods",
-      SectionContentCtx::DocEntry(render_class_methods(
-        ctx,
-        name,
-        class_items.methods,
-      )),
-    ));
-  }
-
   if !class_items.static_properties.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
@@ -98,6 +74,30 @@ pub(crate) fn render_class(
         ctx,
         name,
         class_items.static_methods,
+      )),
+    ));
+  }
+
+  if !class_items.properties.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Properties",
+      SectionContentCtx::DocEntry(render_class_properties(
+        ctx,
+        name,
+        class_items.properties,
+      )),
+    ));
+  }
+
+  if !class_items.methods.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Methods",
+      SectionContentCtx::DocEntry(render_class_methods(
+        ctx,
+        name,
+        class_items.methods,
       )),
     ));
   }
