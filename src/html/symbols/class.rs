@@ -5,6 +5,7 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
+use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use serde::Serialize;
@@ -116,6 +117,11 @@ fn render_constructors(
 
   let items = constructors
     .iter()
+    .filter(|constructor| {
+      !constructor.js_doc.tags.contains(&JsDocTag::Private)
+        && !constructor.js_doc.tags.contains(&JsDocTag::Internal)
+        && !matches!(constructor.accessibility, Some(Accessibility::Private))
+    })
     .enumerate()
     .map(|(i, constructor)| {
       let id = IdBuilder::new(ctx.ctx)
