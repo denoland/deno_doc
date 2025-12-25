@@ -120,17 +120,7 @@ fn render_constructors(
     .filter(|constructor| {
       !constructor.js_doc.tags.contains(&JsDocTag::Private)
         && !constructor.js_doc.tags.contains(&JsDocTag::Internal)
-        && {
-          if let Some(accessibility) = constructor.accessibility {
-            match accessibility {
-              Accessibility::Public => true,
-              Accessibility::Protected => true,
-              Accessibility::Private => false,
-            }
-          } else {
-            true
-          }
-        }
+        && !matches!(constructor.accessibility, Some(Accessibility::Private))
     })
     .enumerate()
     .map(|(i, constructor)| {
