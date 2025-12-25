@@ -244,6 +244,34 @@ fn compare_node(
   (!node2_is_deprecated)
     .cmp(&!node1_is_deprecated)
     .then_with(|| {
+      let p1 = node1.js_doc.tags.iter().find_map(|tag| {
+        if let JsDocTag::Priority { priority } = tag {
+          Some(priority)
+        } else {
+          None
+        }
+      });
+      let p2 = node2.js_doc.tags.iter().find_map(|tag| {
+        if let JsDocTag::Priority { priority } = tag {
+          Some(priority)
+        } else {
+          None
+        }
+      });
+
+      match (p1, p2) {
+        (Some(p1), Some(p2)) => p1.cmp(p2),
+        (Some(p1), None) if p1 == &0 => Ordering::Equal,
+        (Some(p1), None) if p1.is_negative() => Ordering::Less,
+        (Some(_), None) => Ordering::Greater,
+        (None, Some(p2)) if p2 == &0 => Ordering::Equal,
+        (None, Some(p2)) if p2.is_negative() => Ordering::Greater,
+        (None, Some(_)) => Ordering::Less,
+        (None, None) => Ordering::Equal,
+      }
+      .reverse()
+    })
+    .then_with(|| {
       node1
         .get_qualified_name()
         .to_ascii_lowercase()

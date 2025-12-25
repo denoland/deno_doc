@@ -121,7 +121,18 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_abstractclass" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+<a href=".&#x2F;" class="contextLink">default</a></h2></div><div class="namespaceSection"><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
+
+	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Foobar docs</p>
+</div></div></div>
+    </div><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello">Hello</a>
+
+	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_ab">ab</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">computedMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">optionalMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">test</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_world">world</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_x">x</a></li></ul></div>
+    </div><div id="namespace_abstractclass" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass">AbstractClass</a>
 
@@ -178,22 +189,11 @@ expression: files.get(file_name).unwrap()
 
 	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <a href="./././~/Bar.html"><code>Bar</code></a></p>
 </div></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&amp;quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">bar</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_foo">foo</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getter">getter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getterandsetter">getterAndSetter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_methodwithoverloads_0">methodWithOverloads</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_protectedproperty">protectedProperty</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_readonlyproperty">readonlyProperty</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_setter">setter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_staticmethod_0">staticMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_staticsetter">staticSetter</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_test_0">test</a></li></ul></div>
-    </div><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
-<div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">Foobar</a>
-
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Foobar docs</p>
-</div></div></div>
     </div><div id="namespace_functionwithoptionalparameters" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;functionWithOptionalParameters.html" title="functionWithOptionalParameters">functionWithOptionalParameters</a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
-    </div><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
-<div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello">Hello</a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_ab">ab</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">computedMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">optionalMethod</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">test</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_world">world</a></li><li><a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_x">x</a></li></ul></div>
     </div><div id="namespace_interfacewithindexsignature" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;InterfaceWithIndexSignature.html" title="InterfaceWithIndexSignature">InterfaceWithIndexSignature</a>
