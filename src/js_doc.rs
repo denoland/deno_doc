@@ -11,7 +11,7 @@ lazy_static! {
   /// @tag maybe_value
   static ref JS_DOC_TAG_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated|module)(?:\s+(.+))?").unwrap();
   /// @tag value
-  static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since)(?:\s+(.+))").unwrap();
+  static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
   static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   /// @tag {type} name maybe_value
@@ -274,6 +274,10 @@ pub enum JsDocTag {
   Since {
     doc: Box<str>,
   },
+  /// `@priority 1`
+  Priority {
+    priority: i32,
+  },
   Unsupported {
     value: Box<str>,
   },
@@ -359,6 +363,14 @@ impl From<String> for JsDocTag {
         },
         "see" => Self::See { doc },
         "since" => Self::Since { doc },
+        "priority" => {
+          let Ok(priority) = doc.parse() else {
+            return Self::Unsupported {
+              value: value.into(),
+            };
+          };
+          Self::Priority { priority }
+        }
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {

@@ -412,6 +412,15 @@ impl DocPrinter<'_> {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("since"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
       }
+      JsDocTag::Priority { priority } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("priority"),
+          italic_cyan(priority),
+        )
+      }
       JsDocTag::Throws { type_ref, doc } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
         if let Some(type_ref) = type_ref {
