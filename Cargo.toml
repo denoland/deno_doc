@@ -41,7 +41,7 @@ serde.workspace = true
 serde_json = { version = "1.0.122", features = ["preserve_order"] }
 termcolor = "1.4.1"
 itoa = "1.0.14"
-deno_path_util = "0.6.0"
+deno_path_util = "0.6.4"
 
 html-escape = { version = "0.2.13" }
 handlebars = { version = "6.1", features = ["string_helpers"] }
@@ -79,3 +79,6 @@ codegen-units = 1
 incremental = true
 lto = true
 opt-level = "s"
+
+[patch.crates-io]
+deno_graph = { path = "../deno_graph" }
