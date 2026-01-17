@@ -114,7 +114,7 @@ impl Resolver for ImportMapResolver {
     self
       .0
       .resolve(specifier, &referrer_range.specifier)
-      .map_err(|err| ResolveError::ImportMap(err))
+      .map_err(ResolveError::from_err)
   }
 }
 
