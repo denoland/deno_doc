@@ -11,12 +11,12 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.105.0", default-features = false, features = [
+deno_graph = { version = "0.106.0", default-features = false, features = [
   "swc",
   "symbols",
 ] }
 deno_ast = { version = "0.52.0" }
-import_map = "0.24.0"
+import_map = "0.25.0"
 serde = { version = "1.0.204", features = ["derive"] }
 
 [lib]
@@ -34,14 +34,13 @@ deno_ast.workspace = true
 deno_graph.workspace = true
 deno_terminal = "0.2.0"
 indexmap = "2.3.0"
-import_map.workspace = true
 lazy_static = "1.5.0"
 regex = "1.10.6"
 serde.workspace = true
 serde_json = { version = "1.0.122", features = ["preserve_order"] }
 termcolor = "1.4.1"
 itoa = "1.0.14"
-deno_path_util = "0.6.0"
+deno_path_util = "0.6.4"
 
 html-escape = { version = "0.2.13" }
 handlebars = { version = "6.1", features = ["string_helpers"] }
@@ -79,3 +78,4 @@ codegen-units = 1
 incremental = true
 lto = true
 opt-level = "s"
+

@@ -148,7 +148,7 @@ pub struct MarkdownToHTMLOptions {
   pub no_toc: bool,
 }
 
-pub type MarkdownStripper = std::rc::Rc<dyn (Fn(&str) -> String)>;
+pub type MarkdownStripper = std::rc::Rc<dyn Fn(&str) -> String>;
 
 pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   let md = parse_links(md, render_ctx, true);
@@ -163,7 +163,7 @@ pub type Anchorizer =
   std::sync::Arc<dyn Fn(String, u8) -> String + Send + Sync>;
 
 pub type MarkdownRenderer =
-  Rc<dyn (Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>)>;
+  Rc<dyn Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>>;
 
 pub fn markdown_to_html(
   render_ctx: &RenderContext,
