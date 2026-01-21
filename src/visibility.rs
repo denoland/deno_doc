@@ -158,9 +158,8 @@ impl SymbolVisibility {
         }
 
         for dep_symbol_id in dep_symbol_ids {
-          if !root_exported_ids.contains_key(&dep_symbol_id)
-            && non_exported_public_ids.insert(dep_symbol_id)
-          {
+          if !root_exported_ids.contains_key(&dep_symbol_id) {
+            // always record this as a dependency of the current symbol
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
               dep_ids.add(
                 decl_symbol.unique_id(),
@@ -170,8 +169,11 @@ impl SymbolVisibility {
               );
             }
 
-            // examine the private types of this private type
-            pending_symbol_ids.push(dep_symbol_id);
+            // only analyze this private type's dependencies once
+            if non_exported_public_ids.insert(dep_symbol_id) {
+              // examine the private types of this private type
+              pending_symbol_ids.push(dep_symbol_id);
+            }
           }
         }
       }
