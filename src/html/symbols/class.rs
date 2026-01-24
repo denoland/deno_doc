@@ -173,19 +173,24 @@ enum PropertyOrMethod {
 }
 
 impl PropertyOrMethod {
-  fn prop(&self) -> Option<&ClassPropertyDef> {
-    if let PropertyOrMethod::Property(prop) = self {
-      Some(prop)
-    } else {
-      None
-    }
-  }
-
   fn method(&self) -> Option<&ClassMethodDef> {
     if let PropertyOrMethod::Method(method) = self {
       Some(method)
     } else {
       None
+    }
+  }
+
+  fn name(&self) -> &Box<str> {
+    match self {
+      PropertyOrMethod::Property(prop) => &prop.name,
+      PropertyOrMethod::Method(meth) => &meth.name,
+    }
+  }
+  fn accessibility(&self) -> Option<Accessibility> {
+    match self {
+      PropertyOrMethod::Property(prop) => prop.accessibility,
+      PropertyOrMethod::Method(meth) => meth.accessibility,
     }
   }
 }
@@ -194,47 +199,25 @@ fn property_or_method_cmp(
   a: &PropertyOrMethod,
   b: &PropertyOrMethod,
 ) -> std::cmp::Ordering {
-  let name_cmp = {
-    let a_name = a
-      .prop()
-      .map(|prop| &prop.name)
-      .unwrap_or_else(|| &a.method().unwrap().name);
-    let b_name = b
-      .prop()
-      .map(|prop| &prop.name)
-      .unwrap_or_else(|| &b.method().unwrap().name);
+  let name_cmp = a.name().cmp(b.name());
 
-    a_name.cmp(b_name)
-  };
-
-  let accessibility_cmp = {
-    let a_accessibility = a
-      .prop()
-      .map(|prop| &prop.accessibility)
-      .unwrap_or_else(|| &a.method().unwrap().accessibility);
-    let b_accessibility = b
-      .prop()
-      .map(|prop| &prop.accessibility)
-      .unwrap_or_else(|| &b.method().unwrap().accessibility);
-
-    match (a_accessibility, b_accessibility) {
-      (Some(a_acc), Some(b_acc)) => match (a_acc, b_acc) {
-        (Accessibility::Public, Accessibility::Public) => {
-          std::cmp::Ordering::Equal
-        }
-        (Accessibility::Private, Accessibility::Private) => {
-          std::cmp::Ordering::Equal
-        }
-        (Accessibility::Protected, Accessibility::Protected) => {
-          std::cmp::Ordering::Equal
-        }
-        (Accessibility::Private, _) => std::cmp::Ordering::Greater,
-        (_, Accessibility::Private) => std::cmp::Ordering::Less,
-        (Accessibility::Protected, _) => std::cmp::Ordering::Greater,
-        (_, Accessibility::Protected) => std::cmp::Ordering::Less,
-      },
-      _ => std::cmp::Ordering::Equal,
-    }
+  let accessibility_cmp = match (a.accessibility(), b.accessibility()) {
+    (Some(a_acc), Some(b_acc)) => match (a_acc, b_acc) {
+      (Accessibility::Public, Accessibility::Public) => {
+        std::cmp::Ordering::Equal
+      }
+      (Accessibility::Private, Accessibility::Private) => {
+        std::cmp::Ordering::Equal
+      }
+      (Accessibility::Protected, Accessibility::Protected) => {
+        std::cmp::Ordering::Equal
+      }
+      (Accessibility::Private, _) => std::cmp::Ordering::Greater,
+      (_, Accessibility::Private) => std::cmp::Ordering::Less,
+      (Accessibility::Protected, _) => std::cmp::Ordering::Greater,
+      (_, Accessibility::Protected) => std::cmp::Ordering::Less,
+    },
+    _ => std::cmp::Ordering::Equal,
   };
 
   let accessor_cmp = {
