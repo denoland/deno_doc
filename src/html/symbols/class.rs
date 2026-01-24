@@ -217,46 +217,40 @@ fn property_or_method_cmp(
       .map(|prop| &prop.accessibility)
       .unwrap_or_else(|| &b.method().unwrap().accessibility);
 
-    a_accessibility
-      .and_then(|a_accessibility| {
-        b_accessibility.map(|b_accessibility| {
-          match (a_accessibility, b_accessibility) {
-            (Accessibility::Public, Accessibility::Public) => {
-              std::cmp::Ordering::Equal
-            }
-            (Accessibility::Private, Accessibility::Private) => {
-              std::cmp::Ordering::Equal
-            }
-            (Accessibility::Protected, Accessibility::Protected) => {
-              std::cmp::Ordering::Equal
-            }
-            (Accessibility::Private, _) => std::cmp::Ordering::Greater,
-            (_, Accessibility::Private) => std::cmp::Ordering::Less,
-            (Accessibility::Protected, _) => std::cmp::Ordering::Greater,
-            (_, Accessibility::Protected) => std::cmp::Ordering::Less,
-          }
-        })
-      })
-      .unwrap_or(std::cmp::Ordering::Equal)
+    match (a_accessibility, b_accessibility) {
+      (Some(a_acc), Some(b_acc)) => match (a_acc, b_acc) {
+        (Accessibility::Public, Accessibility::Public) => {
+          std::cmp::Ordering::Equal
+        }
+        (Accessibility::Private, Accessibility::Private) => {
+          std::cmp::Ordering::Equal
+        }
+        (Accessibility::Protected, Accessibility::Protected) => {
+          std::cmp::Ordering::Equal
+        }
+        (Accessibility::Private, _) => std::cmp::Ordering::Greater,
+        (_, Accessibility::Private) => std::cmp::Ordering::Less,
+        (Accessibility::Protected, _) => std::cmp::Ordering::Greater,
+        (_, Accessibility::Protected) => std::cmp::Ordering::Less,
+      },
+      _ => std::cmp::Ordering::Equal,
+    }
   };
 
   let accessor_cmp = {
     let a_accessor = a.method().map(|method| &method.kind);
     let b_accessor = b.method().map(|method| &method.kind);
 
-    a_accessor
-      .and_then(|a_accessor| {
-        b_accessor.map(|b_accessor| match (a_accessor, b_accessor) {
-          (MethodKind::Getter, MethodKind::Getter) => std::cmp::Ordering::Equal,
-          (MethodKind::Setter, MethodKind::Setter) => std::cmp::Ordering::Equal,
-          (MethodKind::Getter, MethodKind::Setter) => {
-            std::cmp::Ordering::Greater
-          }
-          (MethodKind::Setter, MethodKind::Getter) => std::cmp::Ordering::Less,
-          _ => unreachable!(),
-        })
-      })
-      .unwrap_or(std::cmp::Ordering::Equal)
+    match (a_accessor, b_accessor) {
+      (Some(k1), Some(k2)) => match (k1, k2) {
+        (MethodKind::Getter, MethodKind::Getter) => std::cmp::Ordering::Equal,
+        (MethodKind::Setter, MethodKind::Setter) => std::cmp::Ordering::Equal,
+        (MethodKind::Getter, MethodKind::Setter) => std::cmp::Ordering::Greater,
+        (MethodKind::Setter, MethodKind::Getter) => std::cmp::Ordering::Less,
+        _ => unreachable!(),
+      },
+      _ => std::cmp::Ordering::Equal,
+    }
   };
 
   accessibility_cmp.then(accessor_cmp).then(name_cmp)
