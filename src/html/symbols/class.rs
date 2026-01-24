@@ -236,8 +236,20 @@ fn property_or_method_cmp(
       // two properties
       (None, None) => std::cmp::Ordering::Equal,
       // property vs method
-      (None, Some(_)) => std::cmp::Ordering::Less,
-      (Some(_), None) => std::cmp::Ordering::Greater,
+      (None, Some(_)) => {
+        if a.name() == b.name() {
+          std::cmp::Ordering::Less
+        } else {
+          std::cmp::Ordering::Equal
+        }
+      }
+      (Some(_), None) => {
+        if a.name() == b.name() {
+          std::cmp::Ordering::Greater
+        } else {
+          std::cmp::Ordering::Equal
+        }
+      }
     }
   };
 
