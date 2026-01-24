@@ -181,7 +181,7 @@ impl PropertyOrMethod {
     }
   }
 
-  fn name(&self) -> &Box<str> {
+  fn name(&self) -> &str {
     match self {
       PropertyOrMethod::Property(prop) => &prop.name,
       PropertyOrMethod::Method(meth) => &meth.name,
