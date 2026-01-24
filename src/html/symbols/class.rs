@@ -199,61 +199,49 @@ fn property_or_method_cmp(
   a: &PropertyOrMethod,
   b: &PropertyOrMethod,
 ) -> std::cmp::Ordering {
-  let name_cmp = a.name().cmp(b.name());
-
-  let accessibility_cmp = match (a.accessibility(), b.accessibility()) {
-    (Some(a_acc), Some(b_acc)) => match (a_acc, b_acc) {
-      (Accessibility::Public, Accessibility::Public) => {
-        std::cmp::Ordering::Equal
-      }
-      (Accessibility::Private, Accessibility::Private) => {
-        std::cmp::Ordering::Equal
-      }
-      (Accessibility::Protected, Accessibility::Protected) => {
-        std::cmp::Ordering::Equal
-      }
-      (Accessibility::Private, _) => std::cmp::Ordering::Greater,
-      (_, Accessibility::Private) => std::cmp::Ordering::Less,
-      (Accessibility::Protected, _) => std::cmp::Ordering::Greater,
-      (_, Accessibility::Protected) => std::cmp::Ordering::Less,
-    },
-    _ => std::cmp::Ordering::Equal,
-  };
-
-  let accessor_cmp = {
-    let a_accessor = a.method().map(|method| &method.kind);
-    let b_accessor = b.method().map(|method| &method.kind);
-
-    match (a_accessor, b_accessor) {
-      // two methods (compare getters/setters)
-      (Some(k1), Some(k2)) => match (k1, k2) {
-        (MethodKind::Getter, MethodKind::Getter) => std::cmp::Ordering::Equal,
-        (MethodKind::Setter, MethodKind::Setter) => std::cmp::Ordering::Equal,
-        (MethodKind::Getter, MethodKind::Setter) => std::cmp::Ordering::Greater,
-        (MethodKind::Setter, MethodKind::Getter) => std::cmp::Ordering::Less,
-        _ => unreachable!(),
-      },
-      // two properties
-      (None, None) => std::cmp::Ordering::Equal,
-      // property vs method
-      (None, Some(_)) => {
-        if a.name() == b.name() {
-          std::cmp::Ordering::Less
-        } else {
-          std::cmp::Ordering::Equal
-        }
-      }
-      (Some(_), None) => {
-        if a.name() == b.name() {
-          std::cmp::Ordering::Greater
-        } else {
-          std::cmp::Ordering::Equal
-        }
-      }
+  // 1. public < protected < private
+  let rank_accessibility = |item: &PropertyOrMethod| -> u8 {
+    match item.accessibility() {
+      Some(Accessibility::Public) | None => 0,
+      Some(Accessibility::Protected) => 1,
+      Some(Accessibility::Private) => 2,
     }
   };
 
-  accessibility_cmp.then(accessor_cmp).then(name_cmp)
+  // 2. property/getter/setter < method
+  let rank_category = |item: &PropertyOrMethod| -> u8 {
+    match item {
+      PropertyOrMethod::Property(_)
+      | PropertyOrMethod::Method(ClassMethodDef {
+        kind: MethodKind::Getter | MethodKind::Setter,
+        ..
+      }) => 0,
+      _ => 1,
+    }
+  };
+
+  // 3. names (alphabetically)
+
+  // 4. getter < setter
+  let rank_kind = |item: &PropertyOrMethod| -> u8 {
+    match item {
+      PropertyOrMethod::Method(ClassMethodDef {
+        kind: MethodKind::Getter,
+        ..
+      }) => 0,
+      PropertyOrMethod::Method(ClassMethodDef {
+        kind: MethodKind::Setter,
+        ..
+      }) => 1,
+      _ => 2,
+    }
+  };
+
+  rank_accessibility(a)
+    .cmp(&rank_accessibility(b))
+    .then_with(|| rank_category(a).cmp(&rank_category(b)))
+    .then_with(|| a.name().cmp(b.name()))
+    .then_with(|| rank_kind(a).cmp(&rank_kind(b)))
 }
 
 struct ClassItems {
