@@ -225,6 +225,7 @@ fn property_or_method_cmp(
     let b_accessor = b.method().map(|method| &method.kind);
 
     match (a_accessor, b_accessor) {
+      // two methods (compare getters/setters)
       (Some(k1), Some(k2)) => match (k1, k2) {
         (MethodKind::Getter, MethodKind::Getter) => std::cmp::Ordering::Equal,
         (MethodKind::Setter, MethodKind::Setter) => std::cmp::Ordering::Equal,
@@ -232,7 +233,11 @@ fn property_or_method_cmp(
         (MethodKind::Setter, MethodKind::Getter) => std::cmp::Ordering::Less,
         _ => unreachable!(),
       },
-      _ => std::cmp::Ordering::Equal,
+      // two properties
+      (None, None) => std::cmp::Ordering::Equal,
+      // property vs method
+      (None, Some(_)) => std::cmp::Ordering::Less,
+      (Some(_), None) => std::cmp::Ordering::Greater,
     }
   };
 
