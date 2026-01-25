@@ -9,7 +9,8 @@ export type DocNode =
   | DocNodeTypeAlias
   | DocNodeNamespace
   | DocNodeInterface
-  | DocNodeImport;
+  | DocNodeImport
+  | DocNodeReference;
 
 /** Indicates how the documentation node was declared. `"private"` indicates
  * the node is un-exported. `"export"` indicates it is exported from the current
@@ -22,6 +23,7 @@ interface DocNodeBase {
   location: Location;
   declarationKind: DeclarationKind;
   jsDoc?: JsDoc;
+  isDefault?: boolean;
 }
 
 export type DocNodeKind =
@@ -33,7 +35,8 @@ export type DocNodeKind =
   | "typeAlias"
   | "namespace"
   | "interface"
-  | "import";
+  | "import"
+  | "reference";
 
 export interface DocNodeModuleDoc extends DocNodeBase {
   kind: "moduleDoc";
@@ -78,6 +81,11 @@ export interface DocNodeInterface extends DocNodeBase {
 export interface DocNodeImport extends DocNodeBase {
   kind: "import";
   importDef: ImportDef;
+}
+
+export interface DocNodeReference extends DocNodeBase {
+  kind: "reference";
+  reference_def: ReferenceDef;
 }
 
 export type Accessibility = "public" | "protected" | "private";
@@ -186,6 +194,7 @@ export interface InterfaceDef {
   callSignatures: InterfaceCallSignatureDef[];
   indexSignatures: InterfaceIndexSignatureDef[];
   typeParams: TsTypeParamDef[];
+  constructors?: unknown[];
 }
 
 export interface InterfaceCallSignatureDef {
@@ -226,6 +235,10 @@ export interface InterfacePropertyDef {
   typeParams: TsTypeParamDef[];
 }
 
+export interface ReferenceDef {
+  target: Location;
+}
+
 export interface JsDoc {
   doc?: string;
   tags?: JsDocTag[];
@@ -255,6 +268,7 @@ export type JsDocTagKind =
   | "typedef"
   | "type"
   | "see"
+  | "throws"
   | "unsupported";
 
 export type JsDocTag =
@@ -267,6 +281,8 @@ export type JsDocTag =
   | JsDocTagNamedTyped
   | JsDocTagParam
   | JsDocTagReturn
+  | JsDocTagModule
+  | JsDocTagThrows
   | JsDocTagTags
   | JsDocTagUnsupported;
 
@@ -278,7 +294,6 @@ export interface JsDocTagOnly extends JsDocTagBase {
   kind:
     | "constructor"
     | "ignore"
-    | "module"
     | "public"
     | "private"
     | "protected"
@@ -333,6 +348,17 @@ export interface JsDocTagReturn extends JsDocTagBase {
   kind: "return";
   type?: string;
   doc?: string;
+}
+
+export interface JsDocTagThrows extends JsDocTagBase {
+  kind: "throws";
+  type?: string;
+  doc: string;
+}
+
+export interface JsDocTagModule extends JsDocTagBase {
+  kind: "module";
+  name?: string;
 }
 
 export interface JsDocTagTags extends JsDocTagBase {
@@ -398,6 +424,7 @@ export interface LiteralIndexSignatureDef {
   readonly: boolean;
   params: ParamDef[];
   tsType?: TsTypeDef;
+  location?: Location;
 }
 
 export interface LiteralMethodDef {
@@ -408,6 +435,7 @@ export interface LiteralMethodDef {
   optional: boolean;
   returnType?: TsTypeDef;
   typeParams: TsTypeParamDef[];
+  location?: Location;
 }
 
 export interface LiteralPropertyDef {
@@ -418,12 +446,14 @@ export interface LiteralPropertyDef {
   optional: boolean;
   tsType?: TsTypeDef;
   typeParams: TsTypeParamDef[];
+  location?: Location;
 }
 
 export interface Location {
   filename: string;
   line: number;
   col: number;
+  byteIndex?: number;
 }
 
 export type MethodKind = "method" | "getter" | "setter";
@@ -545,6 +575,7 @@ export interface TsTypeLiteralDef {
   properties: LiteralPropertyDef[];
   callSignatures: LiteralCallSignatureDef[];
   indexSignatures: LiteralIndexSignatureDef[];
+  constructors?: unknown[];
 }
 
 export interface TsTypeOperatorDef {
