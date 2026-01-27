@@ -27,7 +27,7 @@ pub(crate) fn render_class(
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let class_items = partition_properties_and_classes(
+  let class_items = partition_visible_properties_and_classes(
     class_def.properties.clone(),
     class_def.methods.clone(),
   );
@@ -269,7 +269,7 @@ struct ClassItems {
   static_methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
 }
 
-fn partition_properties_and_classes(
+fn partition_visible_properties_and_classes(
   properties: Box<[ClassPropertyDef]>,
   methods: Box<[ClassMethodDef]>,
 ) -> ClassItems {
@@ -278,7 +278,11 @@ fn partition_properties_and_classes(
   let mut out_methods = BTreeMap::new();
   let mut out_static_methods = BTreeMap::new();
 
-  for property in properties.into_vec().into_iter() {
+  for property in properties
+    .into_vec()
+    .into_iter()
+    .filter(|p| !matches!(p.accessibility, Some(Accessibility::Private)))
+  {
     if property.is_static {
       out_static_properties.push(PropertyOrMethod::Property(property));
     } else {
@@ -286,7 +290,11 @@ fn partition_properties_and_classes(
     }
   }
 
-  for method in methods.into_vec().into_iter() {
+  for method in methods
+    .into_vec()
+    .into_iter()
+    .filter(|p| !matches!(p.accessibility, Some(Accessibility::Private)))
+  {
     if matches!(method.kind, MethodKind::Getter | MethodKind::Setter) {
       if method.is_static {
         out_static_properties.push(PropertyOrMethod::Method(method));
