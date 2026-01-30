@@ -28,9 +28,9 @@ Defined in file:///mod.ts:12:1
 
 function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args: unknown[]): void
   Hello there, this is a multiline JSdoc.
-  
+
   It has many lines
-  
+
   Or not that many?
 
 

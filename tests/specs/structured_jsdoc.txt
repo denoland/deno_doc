@@ -47,8 +47,7 @@ class A
         some comment
 
     @param {string} a
-        some other comment that
-        spans two lines
+        some other comment that spans two lines
 
     @param {number} b
         a number
