@@ -881,18 +881,15 @@ fn render_markdown(
           self.at_line_start = true;
         }
 
-        let has_bq =
-          bq_prefix.is_some() && (!segment.is_empty() || i > 0);
-        if !segment.is_empty() || has_bq {
-          if self.at_line_start {
-            write!(self.w, "{}", Indent(self.indent))?;
-            self.at_line_start = false;
-          }
+        let has_bq = bq_prefix.is_some() && (!segment.is_empty() || i > 0);
+        if (!segment.is_empty() || has_bq) && self.at_line_start {
+          write!(self.w, "{}", Indent(self.indent))?;
+          self.at_line_start = false;
         }
-        if let Some(ref prefix) = bq_prefix {
-          if has_bq {
-            self.w.write_str(prefix)?;
-          }
+        if let Some(ref prefix) = bq_prefix
+          && has_bq
+        {
+          self.w.write_str(prefix)?;
         }
         if !segment.is_empty() {
           self.w.write_str(segment)?;
@@ -985,8 +982,7 @@ fn render_markdown(
           self.link_url = Some(wl.url.clone());
           self.text_stack.push(String::new());
         }
-        NodeValue::BlockQuote
-        | NodeValue::MultilineBlockQuote(_) => {
+        NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
           self.write_block_separator()?;
           self.block_quote_depth += 1;
         }
@@ -994,7 +990,7 @@ fn render_markdown(
           self.write_block_separator()?;
           self.list_stack.push(ListContext {
             list_type: nl.list_type,
-            current_item: nl.start as usize,
+            current_item: nl.start,
           });
         }
         NodeValue::Item(_) => {
@@ -1030,8 +1026,7 @@ fn render_markdown(
         }
         NodeValue::HtmlBlock(hb) => {
           self.write_block_separator()?;
-          self
-            .push_output(&colors::dimmed_gray(&hb.literal).to_string())?;
+          self.push_output(&colors::dimmed_gray(&hb.literal).to_string())?;
           self.pending_blank_line = true;
         }
         NodeValue::HtmlInline(s) => {
@@ -1090,8 +1085,7 @@ fn render_markdown(
           let text = self.text_stack.pop().unwrap_or_default();
           self.push_inline(&format!("~{}~", text));
         }
-        NodeValue::Superscript
-        | NodeValue::SpoileredText => {
+        NodeValue::Superscript | NodeValue::SpoileredText => {
           // no terminal representation; just pop the accumulated text back
           let text = self.text_stack.pop().unwrap_or_default();
           self.push_inline(&text);
@@ -1121,8 +1115,7 @@ fn render_markdown(
           };
           self.push_inline(&colors::italic(&display).to_string());
         }
-        NodeValue::BlockQuote
-        | NodeValue::MultilineBlockQuote(_) => {
+        NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
           self.block_quote_depth = self.block_quote_depth.saturating_sub(1);
         }
         NodeValue::List(_) => {
@@ -1170,7 +1163,7 @@ fn render_markdown(
         | NodeValue::FootnoteReference(_)
         | NodeValue::EscapedTag(_) => {}
         // container nodes with no special end handling
-        | NodeValue::Escaped
+        NodeValue::Escaped
         | NodeValue::Table(_)
         | NodeValue::DescriptionList
         | NodeValue::DescriptionItem(_)
@@ -1358,8 +1351,7 @@ mod render_markdown_tests {
   #[test]
   fn thematic_break() {
     let output = render("above\n\n---\n\nbelow");
-    let expected =
-      format!("above\n\n{}\n\nbelow\n", "─".repeat(40));
+    let expected = format!("above\n\n{}\n\nbelow\n", "─".repeat(40));
     assert_eq!(output, expected);
   }
 
