@@ -4,11 +4,7 @@
 /js/deno_doc_wasm.generated.js
 /js/LICENSE
 .vscode
-
-# IDE
+.claude
 /.idea
-
-# OS
 .DS_Store
-
 /generated_docs/
