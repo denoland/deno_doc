@@ -937,7 +937,7 @@ fn render_markdown(
           self.push_inline(s);
         }
         NodeValue::SoftBreak => {
-          self.push_inline(" ");
+          self.push_inline("\n");
         }
         NodeValue::LineBreak => {
           self.push_inline("\n");
@@ -1378,10 +1378,11 @@ mod render_markdown_tests {
   }
 
   #[test]
-  fn soft_break_becomes_space() {
-    // a single newline inside a paragraph is a soft break
+  fn soft_break_preserves_newline() {
+    // a single newline inside a paragraph is a soft break; we preserve it
+    // rather than joining into one line, to respect the original wrapping
     let output = render("line one\nline two");
-    assert_eq!(output, "line one line two\n");
+    assert_eq!(output, "line one\nline two\n");
   }
 
   #[test]
