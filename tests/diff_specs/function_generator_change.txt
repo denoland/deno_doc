@@ -15,7 +15,6 @@ export function* items(): Iterable<number> { yield 1; }
           "defChanges": {
             "type": "function",
             "isGeneratorChange": {
-              "kind": "modified",
               "old": false,
               "new": true
             }

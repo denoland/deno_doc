@@ -15,7 +15,6 @@ export const VERSION: string = "1.0.0";
           "defChanges": {
             "type": "variable",
             "kindChange": {
-              "kind": "modified",
               "old": "let",
               "new": "const"
             }

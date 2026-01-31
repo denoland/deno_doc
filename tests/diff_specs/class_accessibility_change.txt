@@ -23,7 +23,6 @@ export class Foo {
                 {
                   "name": "bar",
                   "accessibilityChange": {
-                    "kind": "modified",
                     "old": "public",
                     "new": "protected"
                   }

@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use super::DiffEntry;
+use super::Change;
 use super::function::DecoratorsDiff;
 use super::function::FunctionDiff;
 use super::function::ParamsDiff;
@@ -25,9 +25,9 @@ use std::collections::HashSet;
 #[serde(rename_all = "camelCase")]
 pub struct ClassDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_abstract_change: Option<DiffEntry<bool>>,
+  pub is_abstract_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub extends_change: Option<DiffEntry<Option<Box<str>>>>,
+  pub extends_change: Option<Change<Option<Box<str>>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub implements_change: Option<ImplementsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -76,16 +76,13 @@ impl ClassDiff {
     } = new;
 
     let is_abstract_change = if old_is_abstract != new_is_abstract {
-      Some(DiffEntry::modified(*old_is_abstract, *new_is_abstract))
+      Some(Change::new(*old_is_abstract, *new_is_abstract))
     } else {
       None
     };
 
     let extends_change = if old_extends != new_extends {
-      Some(DiffEntry::modified(
-        old_extends.clone(),
-        new_extends.clone(),
-      ))
+      Some(Change::new(old_extends.clone(), new_extends.clone()))
     } else {
       None
     };
@@ -298,9 +295,9 @@ impl ConstructorsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub accessibility_change: Option<DiffEntry<Option<Accessibility>>>,
+  pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_optional_change: Option<DiffEntry<bool>>,
+  pub is_optional_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ConstructorParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -332,13 +329,13 @@ impl ConstructorDiff {
     } = new;
 
     let accessibility_change = if old_accessibility != new_accessibility {
-      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
+      Some(Change::new(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
     let is_optional_change = if old_is_optional != new_is_optional {
-      Some(DiffEntry::modified(*old_is_optional, *new_is_optional))
+      Some(Change::new(*old_is_optional, *new_is_optional))
     } else {
       None
     };
@@ -420,11 +417,11 @@ impl ConstructorParamsDiff {
 pub struct ConstructorParamDiff {
   pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub accessibility_change: Option<DiffEntry<Option<Accessibility>>>,
+  pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_override_change: Option<DiffEntry<bool>>,
+  pub is_override_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub readonly_change: Option<DiffEntry<bool>>,
+  pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub param_change: Option<ParamsDiff>,
 }
@@ -449,19 +446,19 @@ impl ConstructorParamDiff {
     } = new;
 
     let accessibility_change = if old_accessibility != new_accessibility {
-      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
+      Some(Change::new(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
     let is_override_change = if old_is_override != new_is_override {
-      Some(DiffEntry::modified(*old_is_override, *new_is_override))
+      Some(Change::new(*old_is_override, *new_is_override))
     } else {
       None
     };
 
     let readonly_change = if old_readonly != new_readonly {
-      Some(DiffEntry::modified(*old_readonly, *new_readonly))
+      Some(Change::new(*old_readonly, *new_readonly))
     } else {
       None
     };
@@ -551,15 +548,15 @@ impl MethodsDiff {
 pub struct MethodDiff {
   pub name: Box<str>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub accessibility_change: Option<DiffEntry<Option<Accessibility>>>,
+  pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_static_change: Option<DiffEntry<bool>>,
+  pub is_static_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_abstract_change: Option<DiffEntry<bool>>,
+  pub is_abstract_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_override_change: Option<DiffEntry<bool>>,
+  pub is_override_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub optional_change: Option<DiffEntry<bool>>,
+  pub optional_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub function_diff: Option<FunctionDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -594,31 +591,31 @@ impl MethodDiff {
     } = new;
 
     let accessibility_change = if old_accessibility != new_accessibility {
-      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
+      Some(Change::new(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
     let is_static_change = if old_is_static != new_is_static {
-      Some(DiffEntry::modified(*old_is_static, *new_is_static))
+      Some(Change::new(*old_is_static, *new_is_static))
     } else {
       None
     };
 
     let is_abstract_change = if old_is_abstract != new_is_abstract {
-      Some(DiffEntry::modified(*old_is_abstract, *new_is_abstract))
+      Some(Change::new(*old_is_abstract, *new_is_abstract))
     } else {
       None
     };
 
     let is_override_change = if old_is_override != new_is_override {
-      Some(DiffEntry::modified(*old_is_override, *new_is_override))
+      Some(Change::new(*old_is_override, *new_is_override))
     } else {
       None
     };
 
     let optional_change = if old_optional != new_optional {
-      Some(DiffEntry::modified(*old_optional, *new_optional))
+      Some(Change::new(*old_optional, *new_optional))
     } else {
       None
     };
@@ -715,17 +712,17 @@ impl PropertiesDiff {
 pub struct PropertyDiff {
   pub name: Box<str>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub accessibility_change: Option<DiffEntry<Option<Accessibility>>>,
+  pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub readonly_change: Option<DiffEntry<bool>>,
+  pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_static_change: Option<DiffEntry<bool>>,
+  pub is_static_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_abstract_change: Option<DiffEntry<bool>>,
+  pub is_abstract_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_override_change: Option<DiffEntry<bool>>,
+  pub is_override_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub optional_change: Option<DiffEntry<bool>>,
+  pub optional_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -764,37 +761,37 @@ impl PropertyDiff {
     } = new;
 
     let accessibility_change = if old_accessibility != new_accessibility {
-      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
+      Some(Change::new(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
     let readonly_change = if old_readonly != new_readonly {
-      Some(DiffEntry::modified(*old_readonly, *new_readonly))
+      Some(Change::new(*old_readonly, *new_readonly))
     } else {
       None
     };
 
     let is_static_change = if old_is_static != new_is_static {
-      Some(DiffEntry::modified(*old_is_static, *new_is_static))
+      Some(Change::new(*old_is_static, *new_is_static))
     } else {
       None
     };
 
     let is_abstract_change = if old_is_abstract != new_is_abstract {
-      Some(DiffEntry::modified(*old_is_abstract, *new_is_abstract))
+      Some(Change::new(*old_is_abstract, *new_is_abstract))
     } else {
       None
     };
 
     let is_override_change = if old_is_override != new_is_override {
-      Some(DiffEntry::modified(*old_is_override, *new_is_override))
+      Some(Change::new(*old_is_override, *new_is_override))
     } else {
       None
     };
 
     let optional_change = if old_optional != new_optional {
-      Some(DiffEntry::modified(*old_optional, *new_optional))
+      Some(Change::new(*old_optional, *new_optional))
     } else {
       None
     };
@@ -904,7 +901,7 @@ impl IndexSignaturesDiff {
 #[serde(rename_all = "camelCase")]
 pub struct IndexSignatureDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub readonly_change: Option<DiffEntry<bool>>,
+  pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -934,7 +931,7 @@ impl IndexSignatureDiff {
     } = new;
 
     let readonly_change = if old_readonly != new_readonly {
-      Some(DiffEntry::modified(*old_readonly, *new_readonly))
+      Some(Change::new(*old_readonly, *new_readonly))
     } else {
       None
     };

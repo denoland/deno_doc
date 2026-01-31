@@ -19,7 +19,6 @@ export function process<T extends number>(value: T): T { return value; }
                 {
                   "name": "T",
                   "constraintChange": {
-                    "kind": "modified",
                     "old": {
                       "repr": "string",
                       "kind": "keyword",

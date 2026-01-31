@@ -25,7 +25,6 @@ export class Foo extends Other {}
           "defChanges": {
             "type": "class",
             "extendsChange": {
-              "kind": "modified",
               "old": "Base",
               "new": "Other"
             }

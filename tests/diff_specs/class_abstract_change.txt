@@ -19,7 +19,6 @@ export abstract class Foo {
           "defChanges": {
             "type": "class",
             "isAbstractChange": {
-              "kind": "modified",
               "old": false,
               "new": true
             },
@@ -28,7 +27,6 @@ export abstract class Foo {
                 {
                   "name": "bar",
                   "isAbstractChange": {
-                    "kind": "modified",
                     "old": false,
                     "new": true
                   }

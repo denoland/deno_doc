@@ -16,7 +16,6 @@ export function foo() {}
           "kind": "function",
           "jsDocChanges": {
             "docChange": {
-              "kind": "modified",
               "old": "Old description",
               "new": "New description"
             }

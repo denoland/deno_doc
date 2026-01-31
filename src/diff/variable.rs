@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use super::DiffEntry;
+use super::Change;
 use super::ts_type::TsTypeDiff;
 use crate::variable::VariableDef;
 use deno_ast::swc::ast::VarDeclKind;
@@ -13,7 +13,7 @@ pub struct VariableDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub ts_type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub kind_change: Option<DiffEntry<VarDeclKind>>,
+  pub kind_change: Option<Change<VarDeclKind>>,
 }
 
 impl VariableDiff {
@@ -41,7 +41,7 @@ impl VariableDiff {
     };
 
     let kind_change = if old_kind != new_kind {
-      Some(DiffEntry::modified(*old_kind, *new_kind))
+      Some(Change::new(*old_kind, *new_kind))
     } else {
       None
     };

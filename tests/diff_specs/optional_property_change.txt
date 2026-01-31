@@ -23,7 +23,6 @@ export interface Foo {
                 {
                   "name": "name",
                   "optionalChange": {
-                    "kind": "modified",
                     "old": false,
                     "new": true
                   }

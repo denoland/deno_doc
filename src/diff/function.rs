@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use super::DiffEntry;
+use super::Change;
 use super::ts_type::TsTypeDiff;
 use super::ts_type::TypeParamsDiff;
 use super::ts_type::types_equal;
@@ -20,9 +20,9 @@ pub struct FunctionDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub return_type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_async_change: Option<DiffEntry<bool>>,
+  pub is_async_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_generator_change: Option<DiffEntry<bool>>,
+  pub is_generator_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_params_change: Option<TypeParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -74,13 +74,13 @@ impl FunctionDiff {
     };
 
     let is_async_change = if old_is_async != new_is_async {
-      Some(DiffEntry::modified(*old_is_async, *new_is_async))
+      Some(Change::new(*old_is_async, *new_is_async))
     } else {
       None
     };
 
     let is_generator_change = if old_is_generator != new_is_generator {
-      Some(DiffEntry::modified(*old_is_generator, *new_is_generator))
+      Some(Change::new(*old_is_generator, *new_is_generator))
     } else {
       None
     };
@@ -163,7 +163,7 @@ impl ParamsDiff {
 pub struct ParamDiff {
   pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub pattern_change: Option<DiffEntry<ParamDef>>,
+  pub pattern_change: Option<Change<ParamDef>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -193,7 +193,7 @@ impl ParamDiff {
     }
 
     let pattern_change = if pattern_changed {
-      Some(DiffEntry::modified(old.clone(), new.clone()))
+      Some(Change::new(old.clone(), new.clone()))
     } else {
       None
     };

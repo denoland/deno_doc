@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use super::DiffEntry;
+use super::Change;
 use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
@@ -341,7 +341,7 @@ impl InterfaceMethodsDiff {
 pub struct InterfaceMethodDiff {
   pub name: String,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub optional_change: Option<DiffEntry<bool>>,
+  pub optional_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -378,7 +378,7 @@ impl InterfaceMethodDiff {
     } = new;
 
     let optional_change = if old_optional != new_optional {
-      Some(DiffEntry::modified(*old_optional, *new_optional))
+      Some(Change::new(*old_optional, *new_optional))
     } else {
       None
     };
@@ -484,9 +484,9 @@ impl InterfacePropertiesDiff {
 pub struct InterfacePropertyDiff {
   pub name: String,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub readonly_change: Option<DiffEntry<bool>>,
+  pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub optional_change: Option<DiffEntry<bool>>,
+  pub optional_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -523,13 +523,13 @@ impl InterfacePropertyDiff {
     } = new;
 
     let readonly_change = if old_readonly != new_readonly {
-      Some(DiffEntry::modified(*old_readonly, *new_readonly))
+      Some(Change::new(*old_readonly, *new_readonly))
     } else {
       None
     };
 
     let optional_change = if old_optional != new_optional {
-      Some(DiffEntry::modified(*old_optional, *new_optional))
+      Some(Change::new(*old_optional, *new_optional))
     } else {
       None
     };
@@ -759,7 +759,7 @@ impl InterfaceIndexSignaturesDiff {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceIndexSignatureDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub readonly_change: Option<DiffEntry<bool>>,
+  pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -789,7 +789,7 @@ impl InterfaceIndexSignatureDiff {
     } = new;
 
     let readonly_change = if old_readonly != new_readonly {
-      Some(DiffEntry::modified(*old_readonly, *new_readonly))
+      Some(Change::new(*old_readonly, *new_readonly))
     } else {
       None
     };

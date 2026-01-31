@@ -15,7 +15,6 @@ export async function fetch(): Promise<void> {}
           "defChanges": {
             "type": "function",
             "isAsyncChange": {
-              "kind": "modified",
               "old": false,
               "new": true
             }

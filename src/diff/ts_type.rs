@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use super::DiffEntry;
+use super::Change;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::TsTypeParamDef;
 use serde::Deserialize;
@@ -32,9 +32,9 @@ impl TsTypeDiff {
 pub struct TsTypeParamDiff {
   pub name: String,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub constraint_change: Option<DiffEntry<Option<TsTypeDef>>>,
+  pub constraint_change: Option<Change<Option<TsTypeDef>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub default_change: Option<DiffEntry<Option<TsTypeDef>>>,
+  pub default_change: Option<Change<Option<TsTypeDef>>>,
 }
 
 impl TsTypeParamDiff {
@@ -56,19 +56,13 @@ impl TsTypeParamDiff {
     }
 
     let constraint_change = if constraint_changed {
-      Some(DiffEntry::modified(
-        old.constraint.clone(),
-        new.constraint.clone(),
-      ))
+      Some(Change::new(old.constraint.clone(), new.constraint.clone()))
     } else {
       None
     };
 
     let default_change = if default_changed {
-      Some(DiffEntry::modified(
-        old.default.clone(),
-        new.default.clone(),
-      ))
+      Some(Change::new(old.default.clone(), new.default.clone()))
     } else {
       None
     };

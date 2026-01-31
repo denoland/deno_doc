@@ -23,7 +23,6 @@ export class Child extends Parent {
                 {
                   "name": "name",
                   "isOverrideChange": {
-                    "kind": "modified",
                     "old": false,
                     "new": true
                   }

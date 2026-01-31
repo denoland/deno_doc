@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use super::DiffEntry;
+use super::Change;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use serde::Deserialize;
@@ -10,7 +10,7 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub struct JsDocDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub doc_change: Option<DiffEntry<Option<Box<str>>>>,
+  pub doc_change: Option<Change<Option<Box<str>>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub tags_change: Option<TagsDiff>,
 }
@@ -18,7 +18,7 @@ pub struct JsDocDiff {
 impl JsDocDiff {
   pub fn diff(old: &JsDoc, new: &JsDoc) -> Option<Self> {
     let doc_change = if old.doc != new.doc {
-      Some(DiffEntry::modified(old.doc.clone(), new.doc.clone()))
+      Some(Change::new(old.doc.clone(), new.doc.clone()))
     } else {
       None
     };

@@ -33,55 +33,17 @@ pub use ts_type::TsTypeDiff;
 pub use type_alias::TypeAliasDiff;
 pub use variable::VariableDiff;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
-pub enum DiffKind {
-  Added,
-  Removed,
-  Modified,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct DiffEntry<T> {
-  pub kind: DiffKind,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub old: Option<T>,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub new: Option<T>,
+pub struct Change<T> {
+  pub old: T,
+  pub new: T,
 }
 
-impl<T> DiffEntry<T> {
-  pub fn added(value: T) -> Self {
-    Self {
-      kind: DiffKind::Added,
-      old: None,
-      new: Some(value),
-    }
+impl<T> Change<T> {
+  pub fn new(old: T, new: T) -> Self {
+    Self { old, new }
   }
-
-  pub fn removed(value: T) -> Self {
-    Self {
-      kind: DiffKind::Removed,
-      old: Some(value),
-      new: None,
-    }
-  }
-
-  pub fn modified(old: T, new: T) -> Self {
-    Self {
-      kind: DiffKind::Modified,
-      old: Some(old),
-      new: Some(new),
-    }
-  }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct NameChange {
-  pub old: Box<str>,
-  pub new: Box<str>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -186,7 +148,7 @@ impl ModuleDiff {
             JsDocDiff::diff(&removed_node.js_doc, &added_node.js_doc);
           let declaration_kind_change =
             if removed_node.declaration_kind != added_node.declaration_kind {
-              Some(DiffEntry::modified(
+              Some(Change::new(
                 removed_node.declaration_kind,
                 added_node.declaration_kind,
               ))
@@ -197,7 +159,7 @@ impl ModuleDiff {
           let is_default_change = if removed_node.is_default.unwrap_or(false)
             != added_node.is_default.unwrap_or(false)
           {
-            Some(DiffEntry::modified(
+            Some(Change::new(
               removed_node.is_default.unwrap_or(false),
               added_node.is_default.unwrap_or(false),
             ))
@@ -208,10 +170,10 @@ impl ModuleDiff {
           modified.push(DocNodeDiff {
             name: added_node.name.clone(),
             kind: added_node.def.to_kind(),
-            name_change: Some(NameChange {
-              old: removed_node.name.clone(),
-              new: added_node.name.clone(),
-            }),
+            name_change: Some(Change::new(
+              removed_node.name.clone(),
+              added_node.name.clone(),
+            )),
             def_changes,
             js_doc_changes,
             declaration_kind_change,
@@ -353,22 +315,21 @@ fn build_node_map(
   map
 }
 
-/// Detailed diff for a modified symbol.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeDiff {
   pub name: Box<str>,
   pub kind: DocNodeKind,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub name_change: Option<NameChange>,
+  pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub def_changes: Option<DocNodeDefDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_changes: Option<JsDocDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub declaration_kind_change: Option<DiffEntry<DeclarationKind>>,
+  pub declaration_kind_change: Option<Change<DeclarationKind>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_default_change: Option<DiffEntry<bool>>,
+  pub is_default_change: Option<Change<bool>>,
 }
 
 impl DocNodeDiff {
@@ -378,17 +339,14 @@ impl DocNodeDiff {
 
     let declaration_kind_change =
       if old.declaration_kind != new.declaration_kind {
-        Some(DiffEntry::modified(
-          old.declaration_kind,
-          new.declaration_kind,
-        ))
+        Some(Change::new(old.declaration_kind, new.declaration_kind))
       } else {
         None
       };
 
     let is_default_change =
       if old.is_default.unwrap_or(false) != new.is_default.unwrap_or(false) {
-        Some(DiffEntry::modified(
+        Some(Change::new(
           old.is_default.unwrap_or(false),
           new.is_default.unwrap_or(false),
         ))
