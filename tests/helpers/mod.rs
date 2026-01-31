@@ -11,18 +11,21 @@ use deno_graph::GraphKind;
 use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::MemoryLoader;
 
+#[allow(dead_code)]
 pub struct BuildResult {
   pub json_output: serde_json::Value,
   pub text_output: String,
   pub diagnostics: Vec<DocDiagnostic>,
 }
 
+#[allow(dead_code)]
 pub struct TestBuilder {
   loader: MemoryLoader,
   private: bool,
   entry_point: String,
 }
 
+#[allow(dead_code)]
 impl TestBuilder {
   pub fn new() -> Self {
     Self {
@@ -87,11 +90,13 @@ impl TestBuilder {
   }
 }
 
+#[allow(dead_code)]
 pub struct DiffTestBuilder {
   loader: MemoryLoader,
   entry_point: String,
 }
 
+#[allow(dead_code)]
 impl DiffTestBuilder {
   pub fn new() -> Self {
     Self {
