@@ -8,11 +8,14 @@ export function bar() {}
 {
   "modifiedModules": {
     "file:///mod.ts": {
-      "renamed": [
+      "modified": [
         {
-          "oldName": "foo",
-          "newName": "bar",
-          "kind": "function"
+          "name": "bar",
+          "kind": "function",
+          "nameChange": {
+            "old": "foo",
+            "new": "bar"
+          }
         }
       ]
     }

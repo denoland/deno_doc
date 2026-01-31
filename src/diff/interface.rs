@@ -1,8 +1,11 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use serde::Deserialize;
-use serde::Serialize;
-use std::collections::HashMap;
+use super::DiffEntry;
+use super::function::ParamsDiff;
+use super::js_doc::JsDocDiff;
+use super::ts_type::TsTypeDiff;
+use super::ts_type::TypeParamsDiff;
+use super::ts_type::types_equal;
 use crate::interface::InterfaceDef;
 use crate::ts_type::CallSignatureDef;
 use crate::ts_type::ConstructorDef;
@@ -10,11 +13,9 @@ use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::MethodDef;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
-use super::DiffEntry;
-use super::js_doc::JsDocDiff;
-use super::ts_type::TsTypeDiff;
-use super::ts_type::TypeParamsDiff;
-use super::ts_type::types_equal;
+use serde::Deserialize;
+use serde::Serialize;
+use std::collections::HashMap;
 
 /// Diff for an interface definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -202,15 +203,21 @@ impl InterfaceConstructorsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceConstructorDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub type_params_change: Option<TypeParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub return_type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
-  pub old: ConstructorDef,
-  pub new: ConstructorDef,
 }
 
 impl InterfaceConstructorDiff {
   pub fn diff(old: &ConstructorDef, new: &ConstructorDef) -> Option<Self> {
+    let params_change = ParamsDiff::diff(&old.params, &new.params);
+    let type_params_change =
+      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+
     let return_type_change = if !types_equal(&old.return_type, &new.return_type)
     {
       match (&old.return_type, &new.return_type) {
@@ -233,21 +240,19 @@ impl InterfaceConstructorDiff {
 
     let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
 
-    let params_changed =
-      old.params.len() != new.params.len() || old.params != new.params;
-
-    if return_type_change.is_none()
+    if params_change.is_none()
+      && type_params_change.is_none()
+      && return_type_change.is_none()
       && js_doc_change.is_none()
-      && !params_changed
     {
       return None;
     }
 
     Some(InterfaceConstructorDiff {
+      params_change,
+      type_params_change,
       return_type_change,
       js_doc_change,
-      old: old.clone(),
-      new: new.clone(),
     })
   }
 }
@@ -318,13 +323,13 @@ pub struct InterfaceMethodDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub optional_change: Option<DiffEntry<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub return_type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_params_change: Option<TypeParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
-  pub old: MethodDef,
-  pub new: MethodDef,
 }
 
 impl InterfaceMethodDiff {
@@ -334,6 +339,8 @@ impl InterfaceMethodDiff {
     } else {
       None
     };
+
+    let params_change = ParamsDiff::diff(&old.params, &new.params);
 
     let return_type_change = if !types_equal(&old.return_type, &new.return_type)
     {
@@ -359,14 +366,11 @@ impl InterfaceMethodDiff {
       TypeParamsDiff::diff(&old.type_params, &new.type_params);
     let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
 
-    let params_changed =
-      old.params.len() != new.params.len() || old.params != new.params;
-
     if optional_change.is_none()
+      && params_change.is_none()
       && return_type_change.is_none()
       && type_params_change.is_none()
       && js_doc_change.is_none()
-      && !params_changed
     {
       return None;
     }
@@ -374,11 +378,10 @@ impl InterfaceMethodDiff {
     Some(InterfaceMethodDiff {
       name: old.name.clone(),
       optional_change,
+      params_change,
       return_type_change,
       type_params_change,
       js_doc_change,
-      old: old.clone(),
-      new: new.clone(),
     })
   }
 }
@@ -561,15 +564,21 @@ impl CallSignaturesDiff {
 #[serde(rename_all = "camelCase")]
 pub struct CallSignatureDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub type_params_change: Option<TypeParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub return_type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
-  pub old: CallSignatureDef,
-  pub new: CallSignatureDef,
 }
 
 impl CallSignatureDiff {
   pub fn diff(old: &CallSignatureDef, new: &CallSignatureDef) -> Option<Self> {
+    let params_change = ParamsDiff::diff(&old.params, &new.params);
+    let type_params_change =
+      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+
     let return_type_change = if !types_equal(&old.ts_type, &new.ts_type) {
       match (&old.ts_type, &new.ts_type) {
         (Some(old_type), Some(new_type)) => {
@@ -591,21 +600,19 @@ impl CallSignatureDiff {
 
     let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
 
-    let params_changed =
-      old.params.len() != new.params.len() || old.params != new.params;
-
-    if return_type_change.is_none()
+    if params_change.is_none()
+      && type_params_change.is_none()
+      && return_type_change.is_none()
       && js_doc_change.is_none()
-      && !params_changed
     {
       return None;
     }
 
     Some(CallSignatureDiff {
+      params_change,
+      type_params_change,
       return_type_change,
       js_doc_change,
-      old: old.clone(),
-      new: new.clone(),
     })
   }
 }
@@ -668,9 +675,9 @@ pub struct InterfaceIndexSignatureDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub readonly_change: Option<DiffEntry<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
-  pub old: IndexSignatureDef,
-  pub new: IndexSignatureDef,
 }
 
 impl InterfaceIndexSignatureDiff {
@@ -683,6 +690,8 @@ impl InterfaceIndexSignatureDiff {
     } else {
       None
     };
+
+    let params_change = ParamsDiff::diff(&old.params, &new.params);
 
     let type_change = if !types_equal(&old.ts_type, &new.ts_type) {
       match (&old.ts_type, &new.ts_type) {
@@ -703,18 +712,17 @@ impl InterfaceIndexSignatureDiff {
       None
     };
 
-    let params_changed =
-      old.params.len() != new.params.len() || old.params != new.params;
-
-    if readonly_change.is_none() && type_change.is_none() && !params_changed {
+    if readonly_change.is_none()
+      && params_change.is_none()
+      && type_change.is_none()
+    {
       return None;
     }
 
     Some(InterfaceIndexSignatureDiff {
       readonly_change,
+      params_change,
       type_change,
-      old: old.clone(),
-      new: new.clone(),
     })
   }
 }

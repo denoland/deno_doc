@@ -12,6 +12,14 @@ export class Foo extends Other {}
     "file:///mod.ts": {
       "modified": [
         {
+          "name": "Other",
+          "kind": "class",
+          "nameChange": {
+            "old": "Base",
+            "new": "Other"
+          }
+        },
+        {
           "name": "Foo",
           "kind": "class",
           "defChanges": {
@@ -22,13 +30,6 @@ export class Foo extends Other {}
               "new": "Other"
             }
           }
-        }
-      ],
-      "renamed": [
-        {
-          "oldName": "Base",
-          "newName": "Other",
-          "kind": "class"
         }
       ]
     }

@@ -12,11 +12,14 @@ export class Baz {
 {
   "modifiedModules": {
     "file:///mod.ts": {
-      "renamed": [
+      "modified": [
         {
-          "oldName": "Foo",
-          "newName": "Baz",
-          "kind": "class"
+          "name": "Baz",
+          "kind": "class",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Baz"
+          }
         }
       ]
     }

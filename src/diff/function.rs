@@ -147,14 +147,18 @@ pub struct ParamDiff {
   pub pattern_change: Option<DiffEntry<ParamDef>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub decorators_change: Option<DecoratorsDiff>,
 }
 
 impl ParamDiff {
   pub fn diff(index: usize, old: &ParamDef, new: &ParamDef) -> Option<Self> {
     let pattern_changed = old.pattern != new.pattern;
     let type_changed = !types_equal(&old.ts_type, &new.ts_type);
+    let decorators_change =
+      DecoratorsDiff::diff(&old.decorators, &new.decorators);
 
-    if !pattern_changed && !type_changed {
+    if !pattern_changed && !type_changed && decorators_change.is_none() {
       return None;
     }
 
@@ -164,7 +168,7 @@ impl ParamDiff {
       None
     };
 
-    let type_change = if type_changed && !pattern_changed {
+    let type_change = if type_changed {
       match (&old.ts_type, &new.ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
@@ -187,6 +191,7 @@ impl ParamDiff {
       index,
       pattern_change,
       type_change,
+      decorators_change,
     })
   }
 }

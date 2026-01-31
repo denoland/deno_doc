@@ -21,50 +21,8 @@ export interface Callable {
             "callSignatureChanges": {
               "modified": [
                 {
-                  "old": {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 2,
-                      "col": 2,
-                      "byteIndex": 30
-                    },
-                    "params": [
-                      {
-                        "kind": "identifier",
-                        "name": "x",
-                        "optional": false,
-                        "tsType": {
-                          "repr": "number",
-                          "kind": "keyword",
-                          "keyword": "number"
-                        }
-                      }
-                    ],
-                    "tsType": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    },
-                    "typeParams": []
-                  },
-                  "new": {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 2,
-                      "col": 2,
-                      "byteIndex": 30
-                    },
-                    "params": [
-                      {
-                        "kind": "identifier",
-                        "name": "x",
-                        "optional": false,
-                        "tsType": {
-                          "repr": "number",
-                          "kind": "keyword",
-                          "keyword": "number"
-                        }
-                      },
+                  "paramsChange": {
+                    "added": [
                       {
                         "kind": "identifier",
                         "name": "y",
@@ -75,13 +33,7 @@ export interface Callable {
                           "keyword": "number"
                         }
                       }
-                    ],
-                    "tsType": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    },
-                    "typeParams": []
+                    ]
                   }
                 }
               ]

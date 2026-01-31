@@ -5,6 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::class::ClassConstructorDef;
+use crate::class::ClassConstructorParamDef;
 use crate::class::ClassDef;
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
@@ -14,6 +15,7 @@ use crate::ts_type::TsTypeDef;
 use super::DiffEntry;
 use super::function::DecoratorsDiff;
 use super::function::FunctionDiff;
+use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
 use super::ts_type::TypeParamsDiff;
@@ -295,10 +297,9 @@ pub struct ConstructorDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub is_optional_change: Option<DiffEntry<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ConstructorParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
-  /// Full old and new for display purposes
-  pub old: ClassConstructorDef,
-  pub new: ClassConstructorDef,
 }
 
 impl ConstructorDiff {
@@ -318,20 +319,13 @@ impl ConstructorDiff {
       None
     };
 
+    let params_change = ConstructorParamsDiff::diff(&old.params, &new.params);
     let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
-
-    // Check if params changed
-    let params_changed = old.params.len() != new.params.len()
-      || old
-        .params
-        .iter()
-        .zip(new.params.iter())
-        .any(|(o, n)| o.param != n.param);
 
     if accessibility_change.is_none()
       && is_optional_change.is_none()
+      && params_change.is_none()
       && js_doc_change.is_none()
-      && !params_changed
     {
       return None;
     }
@@ -339,9 +333,123 @@ impl ConstructorDiff {
     Some(ConstructorDiff {
       accessibility_change,
       is_optional_change,
+      params_change,
       js_doc_change,
-      old: old.clone(),
-      new: new.clone(),
+    })
+  }
+}
+
+/// Diff for constructor parameters.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ConstructorParamsDiff {
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub added: Vec<ClassConstructorParamDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub removed: Vec<ClassConstructorParamDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub modified: Vec<ConstructorParamDiff>,
+}
+
+impl ConstructorParamsDiff {
+  pub fn diff(
+    old: &[ClassConstructorParamDef],
+    new: &[ClassConstructorParamDef],
+  ) -> Option<Self> {
+    let max_len = old.len().max(new.len());
+    let mut added = Vec::new();
+    let mut removed = Vec::new();
+    let mut modified = Vec::new();
+
+    for i in 0..max_len {
+      match (old.get(i), new.get(i)) {
+        (Some(old_param), Some(new_param)) => {
+          if let Some(diff) =
+            ConstructorParamDiff::diff(i, old_param, new_param)
+          {
+            modified.push(diff);
+          }
+        }
+        (Some(old_param), None) => {
+          removed.push(old_param.clone());
+        }
+        (None, Some(new_param)) => {
+          added.push(new_param.clone());
+        }
+        (None, None) => unreachable!(),
+      }
+    }
+
+    if added.is_empty() && removed.is_empty() && modified.is_empty() {
+      return None;
+    }
+
+    Some(ConstructorParamsDiff {
+      added,
+      removed,
+      modified,
+    })
+  }
+}
+
+/// Diff for a single constructor parameter.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConstructorParamDiff {
+  pub index: usize,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub accessibility_change: Option<DiffEntry<Option<Accessibility>>>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub is_override_change: Option<DiffEntry<bool>>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub readonly_change: Option<DiffEntry<bool>>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub param_change: Option<ParamsDiff>,
+}
+
+impl ConstructorParamDiff {
+  pub fn diff(
+    index: usize,
+    old: &ClassConstructorParamDef,
+    new: &ClassConstructorParamDef,
+  ) -> Option<Self> {
+    let accessibility_change = if old.accessibility != new.accessibility {
+      Some(DiffEntry::modified(old.accessibility, new.accessibility))
+    } else {
+      None
+    };
+
+    let is_override_change = if old.is_override != new.is_override {
+      Some(DiffEntry::modified(old.is_override, new.is_override))
+    } else {
+      None
+    };
+
+    let readonly_change = if old.readonly != new.readonly {
+      Some(DiffEntry::modified(old.readonly, new.readonly))
+    } else {
+      None
+    };
+
+    let param_change = ParamsDiff::diff(
+      std::slice::from_ref(&old.param),
+      std::slice::from_ref(&new.param),
+    );
+
+    if accessibility_change.is_none()
+      && is_override_change.is_none()
+      && readonly_change.is_none()
+      && param_change.is_none()
+    {
+      return None;
+    }
+
+    Some(ConstructorParamDiff {
+      index,
+      accessibility_change,
+      is_override_change,
+      readonly_change,
+      param_change,
     })
   }
 }
@@ -715,9 +823,9 @@ pub struct IndexSignatureDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub readonly_change: Option<DiffEntry<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
-  pub old: IndexSignatureDef,
-  pub new: IndexSignatureDef,
 }
 
 impl IndexSignatureDiff {
@@ -730,6 +838,8 @@ impl IndexSignatureDiff {
     } else {
       None
     };
+
+    let params_change = ParamsDiff::diff(&old.params, &new.params);
 
     let type_change = if !types_equal(&old.ts_type, &new.ts_type) {
       match (&old.ts_type, &new.ts_type) {
@@ -750,23 +860,17 @@ impl IndexSignatureDiff {
       None
     };
 
-    // Check params changed
-    let params_changed = old.params.len() != new.params.len()
-      || old
-        .params
-        .iter()
-        .zip(new.params.iter())
-        .any(|(o, n)| o != n);
-
-    if readonly_change.is_none() && type_change.is_none() && !params_changed {
+    if readonly_change.is_none()
+      && params_change.is_none()
+      && type_change.is_none()
+    {
       return None;
     }
 
     Some(IndexSignatureDiff {
       readonly_change,
+      params_change,
       type_change,
-      old: old.clone(),
-      new: new.clone(),
     })
   }
 }

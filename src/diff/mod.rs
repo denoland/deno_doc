@@ -77,6 +77,13 @@ impl<T> DiffEntry<T> {
   }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct NameChange {
+  pub old: Box<str>,
+  pub new: Box<str>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocDiff {
@@ -138,8 +145,6 @@ pub struct ModuleDiff {
   pub removed: Vec<DocNode>,
   #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub modified: Vec<DocNodeDiff>,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub renamed: Vec<DocNodeRename>,
 }
 
 impl ModuleDiff {
@@ -150,7 +155,6 @@ impl ModuleDiff {
     let mut added = Vec::new();
     let mut removed = Vec::new();
     let mut modified = Vec::new();
-    let mut renamed = Vec::new();
 
     // Find potentially added symbols
     for ((name, kind), node) in &new_map {
@@ -190,13 +194,28 @@ impl ModuleDiff {
               None
             };
 
-          renamed.push(DocNodeRename {
-            old_name: removed_node.name.clone(),
-            new_name: added_node.name.clone(),
+          let is_default_change = if removed_node.is_default.unwrap_or(false)
+            != added_node.is_default.unwrap_or(false)
+          {
+            Some(DiffEntry::modified(
+              removed_node.is_default.unwrap_or(false),
+              added_node.is_default.unwrap_or(false),
+            ))
+          } else {
+            None
+          };
+
+          modified.push(DocNodeDiff {
+            name: added_node.name.clone(),
             kind: added_node.def.to_kind(),
+            name_change: Some(NameChange {
+              old: removed_node.name.clone(),
+              new: added_node.name.clone(),
+            }),
             def_changes,
             js_doc_changes,
             declaration_kind_change,
+            is_default_change,
           });
 
           matched_added.insert(a_idx);
@@ -207,18 +226,18 @@ impl ModuleDiff {
     }
 
     // Remove matched items from added/removed
-    let added: Vec<_> = added
+    let added = added
       .into_iter()
       .enumerate()
       .filter(|(i, _)| !matched_added.contains(i))
       .map(|(_, n)| n)
-      .collect();
-    let removed: Vec<_> = removed
+      .collect::<Vec<_>>();
+    let removed = removed
       .into_iter()
       .enumerate()
       .filter(|(i, _)| !matched_removed.contains(i))
       .map(|(_, n)| n)
-      .collect();
+      .collect::<Vec<_>>();
 
     // Find modified symbols
     for ((name, kind), old_node) in &old_map {
@@ -233,7 +252,6 @@ impl ModuleDiff {
       added,
       removed,
       modified,
-      renamed,
     }
   }
 
@@ -241,7 +259,6 @@ impl ModuleDiff {
     !self.added.is_empty()
       || !self.removed.is_empty()
       || !self.modified.is_empty()
-      || !self.renamed.is_empty()
   }
 }
 
@@ -336,45 +353,20 @@ fn build_node_map(
   map
 }
 
-/// A symbol that was renamed.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DocNodeRename {
-  /// The old name of the symbol.
-  pub old_name: Box<str>,
-  /// The new name of the symbol.
-  pub new_name: Box<str>,
-  /// The kind of the symbol.
-  pub kind: DocNodeKind,
-  /// Changes to the definition (if any, besides the name).
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub def_changes: Option<DocNodeDefDiff>,
-  /// Changes to JSDoc (if any).
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub js_doc_changes: Option<JsDocDiff>,
-  /// Changes to declaration kind.
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub declaration_kind_change: Option<DiffEntry<DeclarationKind>>,
-}
-
 /// Detailed diff for a modified symbol.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeDiff {
-  /// The name of the symbol.
   pub name: Box<str>,
-  /// The kind of the symbol.
   pub kind: DocNodeKind,
-  /// Changes to the definition.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<NameChange>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub def_changes: Option<DocNodeDefDiff>,
-  /// Changes to JSDoc.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_changes: Option<JsDocDiff>,
-  /// Changes to declaration kind.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub declaration_kind_change: Option<DiffEntry<DeclarationKind>>,
-  /// Changes to is_default flag.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub is_default_change: Option<DiffEntry<bool>>,
 }
@@ -415,6 +407,7 @@ impl DocNodeDiff {
     Some(DocNodeDiff {
       name: old.name.clone(),
       kind: old.def.to_kind(),
+      name_change: None,
       def_changes,
       js_doc_changes,
       declaration_kind_change,

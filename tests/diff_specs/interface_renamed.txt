@@ -12,11 +12,14 @@ export interface Baz {
 {
   "modifiedModules": {
     "file:///mod.ts": {
-      "renamed": [
+      "modified": [
         {
-          "oldName": "Foo",
-          "newName": "Baz",
-          "kind": "interface"
+          "name": "Baz",
+          "kind": "interface",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Baz"
+          }
         }
       ]
     }
