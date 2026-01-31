@@ -7,7 +7,6 @@ use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
 use super::ts_type::TypeParamsDiff;
-use super::ts_type::types_equal;
 use crate::class::ClassConstructorDef;
 use crate::class::ClassConstructorParamDef;
 use crate::class::ClassDef;

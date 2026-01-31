@@ -5,7 +5,6 @@ use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
 use super::ts_type::TypeParamsDiff;
-use super::ts_type::types_equal;
 use crate::interface::InterfaceDef;
 use crate::ts_type::CallSignatureDef;
 use crate::ts_type::ConstructorDef;

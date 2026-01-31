@@ -3,7 +3,6 @@
 use super::Change;
 use super::ts_type::TsTypeDiff;
 use super::ts_type::TypeParamsDiff;
-use super::ts_type::types_equal;
 use crate::decorators::DecoratorDef;
 use crate::function::FunctionDef;
 use crate::params::ParamDef;
