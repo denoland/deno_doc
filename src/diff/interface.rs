@@ -240,24 +240,8 @@ impl InterfaceConstructorDiff {
     let type_params_change =
       TypeParamsDiff::diff(old_type_params, new_type_params);
 
-    let return_type_change = if !types_equal(old_return_type, new_return_type) {
-      match (old_return_type, new_return_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("void"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("void"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let return_type_change =
+      TsTypeDiff::diff_optional(old_return_type, new_return_type, "void");
 
     let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
@@ -385,24 +369,8 @@ impl InterfaceMethodDiff {
 
     let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let return_type_change = if !types_equal(old_return_type, new_return_type) {
-      match (old_return_type, new_return_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("void"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("void"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let return_type_change =
+      TsTypeDiff::diff_optional(old_return_type, new_return_type, "void");
 
     let type_params_change =
       TypeParamsDiff::diff(old_type_params, new_type_params);
@@ -534,24 +502,8 @@ impl InterfacePropertyDiff {
       None
     };
 
-    let type_change = if !types_equal(old_ts_type, new_ts_type) {
-      match (old_ts_type, new_ts_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("unknown"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("unknown"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let type_change =
+      TsTypeDiff::diff_optional(old_ts_type, new_ts_type, "unknown");
 
     let params_change = ParamsDiff::diff(old_params, new_params);
     let type_params_change =
@@ -639,7 +591,7 @@ pub struct CallSignatureDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_params_change: Option<TypeParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub return_type_change: Option<TsTypeDiff>,
+  pub ts_type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
 }
@@ -665,30 +617,14 @@ impl CallSignatureDiff {
     let type_params_change =
       TypeParamsDiff::diff(old_type_params, new_type_params);
 
-    let return_type_change = if !types_equal(old_ts_type, new_ts_type) {
-      match (old_ts_type, new_ts_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("void"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("void"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let ts_type_change =
+      TsTypeDiff::diff_optional(old_ts_type, new_ts_type, "void");
 
     let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if params_change.is_none()
       && type_params_change.is_none()
-      && return_type_change.is_none()
+      && ts_type_change.is_none()
       && js_doc_change.is_none()
     {
       return None;
@@ -697,7 +633,7 @@ impl CallSignatureDiff {
     Some(CallSignatureDiff {
       params_change,
       type_params_change,
-      return_type_change,
+      ts_type_change,
       js_doc_change,
     })
   }
@@ -796,24 +732,8 @@ impl InterfaceIndexSignatureDiff {
 
     let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let type_change = if !types_equal(old_ts_type, new_ts_type) {
-      match (old_ts_type, new_ts_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("unknown"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("unknown"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let type_change =
+      TsTypeDiff::diff_optional(old_ts_type, new_ts_type, "unknown");
 
     let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 

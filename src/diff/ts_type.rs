@@ -25,6 +25,25 @@ impl TsTypeDiff {
       new: new.clone(),
     })
   }
+
+  pub fn diff_optional(
+    old: &Option<TsTypeDef>,
+    new: &Option<TsTypeDef>,
+    fallback: &'static str,
+  ) -> Option<Self> {
+    match (old, new) {
+      (Some(old), Some(new)) => TsTypeDiff::diff(old, new),
+      (Some(old), None) => Some(TsTypeDiff {
+        old: old.clone(),
+        new: TsTypeDef::keyword(fallback),
+      }),
+      (None, Some(new)) => Some(TsTypeDiff {
+        old: TsTypeDef::keyword(fallback),
+        new: new.clone(),
+      }),
+      (None, None) => None,
+    }
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,14 +91,6 @@ impl TsTypeParamDiff {
       constraint_change,
       default_change,
     })
-  }
-}
-
-pub fn types_equal(a: &Option<TsTypeDef>, b: &Option<TsTypeDef>) -> bool {
-  match (a, b) {
-    (Some(a), Some(b)) => a.repr == b.repr,
-    (None, None) => true,
-    _ => false,
   }
 }
 

@@ -796,24 +796,8 @@ impl PropertyDiff {
       None
     };
 
-    let type_change = if !types_equal(old_ts_type, new_ts_type) {
-      match (old_ts_type, new_ts_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("unknown"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("unknown"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let type_change =
+      TsTypeDiff::diff_optional(old_ts_type, new_ts_type, "unknown");
 
     let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
     let decorators_change =
@@ -938,24 +922,8 @@ impl IndexSignatureDiff {
 
     let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let type_change = if !types_equal(old_ts_type, new_ts_type) {
-      match (old_ts_type, new_ts_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("unknown"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("unknown"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let type_change =
+      TsTypeDiff::diff_optional(old_ts_type, new_ts_type, "unknown");
 
     let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 

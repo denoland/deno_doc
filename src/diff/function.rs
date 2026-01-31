@@ -7,7 +7,6 @@ use super::ts_type::types_equal;
 use crate::decorators::DecoratorDef;
 use crate::function::FunctionDef;
 use crate::params::ParamDef;
-use crate::ts_type::TsTypeDef;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -54,24 +53,8 @@ impl FunctionDiff {
 
     let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let return_type_change = if !types_equal(old_return_type, new_return_type) {
-      match (old_return_type, new_return_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("void"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("void"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let return_type_change =
+      TsTypeDiff::diff_optional(old_return_type, new_return_type, "void");
 
     let is_async_change = if old_is_async != new_is_async {
       Some(Change::new(*old_is_async, *new_is_async))
@@ -183,39 +166,24 @@ impl ParamDiff {
       ts_type: new_ts_type,
     } = new;
 
-    let pattern_changed = old_pattern != new_pattern;
-    let type_changed = !types_equal(old_ts_type, new_ts_type);
-    let decorators_change =
-      DecoratorsDiff::diff(old_decorators, new_decorators);
-
-    if !pattern_changed && !type_changed && decorators_change.is_none() {
-      return None;
-    }
-
-    let pattern_change = if pattern_changed {
+    let pattern_change = if old_pattern != new_pattern {
       Some(Change::new(old.clone(), new.clone()))
     } else {
       None
     };
 
-    let type_change = if type_changed {
-      match (old_ts_type, new_ts_type) {
-        (Some(old_type), Some(new_type)) => {
-          TsTypeDiff::diff(old_type, new_type)
-        }
-        (Some(old_type), None) => Some(TsTypeDiff {
-          old: old_type.clone(),
-          new: TsTypeDef::keyword("unknown"),
-        }),
-        (None, Some(new_type)) => Some(TsTypeDiff {
-          old: TsTypeDef::keyword("unknown"),
-          new: new_type.clone(),
-        }),
-        (None, None) => None,
-      }
-    } else {
-      None
-    };
+    let type_change =
+      TsTypeDiff::diff_optional(old_ts_type, new_ts_type, "unknown");
+
+    let decorators_change =
+      DecoratorsDiff::diff(old_decorators, new_decorators);
+
+    if pattern_change.is_none()
+      && type_change.is_none()
+      && decorators_change.is_none()
+    {
+      return None;
+    }
 
     Some(ParamDiff {
       index,
