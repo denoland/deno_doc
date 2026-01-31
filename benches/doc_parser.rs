@@ -5,7 +5,7 @@ use criterion::async_executor::FuturesExecutor;
 use criterion::criterion_group;
 use criterion::criterion_main;
 
-use deno_doc::DocNode;
+use deno_doc::{ParseOutput};
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
 use deno_graph::BuildOptions;
@@ -15,9 +15,8 @@ use deno_graph::ModuleSpecifier;
 use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
-use indexmap::IndexMap;
 
-async fn parse() -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
+async fn parse() -> ParseOutput {
   let source = std::fs::read_to_string("./benches/fixtures/deno.d.ts").unwrap();
   let sources = vec![(
     "file:///test/fixtures/deno.d.ts",

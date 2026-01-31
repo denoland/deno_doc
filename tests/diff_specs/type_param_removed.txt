@@ -1,0 +1,66 @@
+# old/mod.ts
+export function identity<T>(value: T): T { return value; }
+
+# new/mod.ts
+export function identity(value: unknown): unknown { return value; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "identity",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "paramsChange": {
+              "modified": [
+                {
+                  "index": 0,
+                  "typeChange": {
+                    "old": {
+                      "repr": "T",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "T"
+                      }
+                    },
+                    "new": {
+                      "repr": "unknown",
+                      "kind": "keyword",
+                      "keyword": "unknown"
+                    }
+                  }
+                }
+              ]
+            },
+            "returnTypeChange": {
+              "old": {
+                "repr": "T",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "T"
+                }
+              },
+              "new": {
+                "repr": "unknown",
+                "kind": "keyword",
+                "keyword": "unknown"
+              }
+            },
+            "typeParamsChange": {
+              "removed": [
+                {
+                  "name": "T"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

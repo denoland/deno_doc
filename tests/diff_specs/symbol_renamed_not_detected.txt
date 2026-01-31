@@ -1,0 +1,87 @@
+# old/mod.ts
+export function foo(a: string) {}
+
+# new/mod.ts
+export function bar(a: number) {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "bar",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "functionDef": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ],
+      "removed": [
+        {
+          "name": "foo",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "functionDef": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  }
+}

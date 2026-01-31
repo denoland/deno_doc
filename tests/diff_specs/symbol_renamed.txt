@@ -1,0 +1,20 @@
+# old/mod.ts
+export function foo() {}
+
+# new/mod.ts
+export function bar() {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "renamed": [
+        {
+          "oldName": "foo",
+          "newName": "bar",
+          "kind": "function"
+        }
+      ]
+    }
+  }
+}

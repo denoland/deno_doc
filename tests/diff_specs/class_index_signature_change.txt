@@ -1,0 +1,96 @@
+# old/mod.ts
+export class Dict {
+  [key: string]: number;
+}
+
+# new/mod.ts
+export class Dict {
+  [key: string]: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Dict",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "indexSignatureChanges": {
+              "modified": [
+                {
+                  "typeChange": {
+                    "old": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    },
+                    "new": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    }
+                  },
+                  "old": {
+                    "readonly": false,
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "key",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 22
+                    }
+                  },
+                  "new": {
+                    "readonly": false,
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "key",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 22
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

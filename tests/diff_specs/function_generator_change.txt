@@ -1,0 +1,27 @@
+# old/mod.ts
+export function items(): Iterable<number> { return []; }
+
+# new/mod.ts
+export function* items(): Iterable<number> { yield 1; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "items",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "isGeneratorChange": {
+              "kind": "modified",
+              "old": false,
+              "new": true
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,24 @@
+# old/mod.ts
+export interface Foo {
+  bar: string;
+}
+
+# new/mod.ts
+export interface Baz {
+  bar: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "renamed": [
+        {
+          "oldName": "Foo",
+          "newName": "Baz",
+          "kind": "interface"
+        }
+      ]
+    }
+  }
+}

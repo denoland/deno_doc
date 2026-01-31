@@ -1,0 +1,94 @@
+# old/mod.ts
+export interface Callable {
+  (x: number): string;
+}
+
+# new/mod.ts
+export interface Callable {
+  (x: number, y: number): string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Callable",
+          "kind": "interface",
+          "defChanges": {
+            "type": "interface",
+            "callSignatureChanges": {
+              "modified": [
+                {
+                  "old": {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 30
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "x",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    "typeParams": []
+                  },
+                  "new": {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 30
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "x",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      },
+                      {
+                        "kind": "identifier",
+                        "name": "y",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    "typeParams": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

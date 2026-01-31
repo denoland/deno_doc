@@ -1,0 +1,36 @@
+# old/mod.ts
+class Base {}
+export class Foo extends Base {}
+
+# new/mod.ts
+class Other {}
+export class Foo extends Other {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "extendsChange": {
+              "kind": "modified",
+              "old": "Base",
+              "new": "Other"
+            }
+          }
+        }
+      ],
+      "renamed": [
+        {
+          "oldName": "Base",
+          "newName": "Other",
+          "kind": "class"
+        }
+      ]
+    }
+  }
+}
