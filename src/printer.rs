@@ -841,14 +841,16 @@ fn render_markdown(
     text_stack: Vec<String>,
     /// tracks nested list contexts for bullet/number rendering
     list_stack: Vec<ListContext>,
-    /// url of the current link being processed
-    link_url: Option<String>,
+    /// stack of urls for nested link/image nodes
+    link_url_stack: Vec<String>,
     /// depth of nested blockquotes for prefix rendering
     block_quote_depth: usize,
     /// whether the next content should be preceded by an indent
     at_line_start: bool,
     /// deferred blank line separator between block-level elements
     pending_blank_line: bool,
+    /// stack of continuation prefixes for list item text alignment
+    line_prefix_stack: Vec<String>,
   }
 
   struct ListContext {
@@ -884,6 +886,9 @@ fn render_markdown(
         let has_bq = bq_prefix.is_some() && (!segment.is_empty() || i > 0);
         if (!segment.is_empty() || has_bq) && self.at_line_start {
           write!(self.w, "{}", Indent(self.indent))?;
+          if let Some(prefix) = self.line_prefix_stack.last() {
+            self.w.write_str(prefix)?;
+          }
           self.at_line_start = false;
         }
         if let Some(ref prefix) = bq_prefix
@@ -946,16 +951,22 @@ fn render_markdown(
         NodeValue::CodeBlock(cb) => {
           self.write_block_separator()?;
           self.flush_text()?;
-          let fence_open = if cb.info.is_empty() {
-            "```".to_string()
+          if cb.fenced {
+            let fence_open = if cb.info.is_empty() {
+              "```".to_string()
+            } else {
+              format!("```{}", cb.info)
+            };
+            self.push_output(&format!("{}\n", colors::gray(&fence_open)))?;
+            for line in cb.literal.lines() {
+              self.push_output(&format!("{}\n", colors::gray(line)))?;
+            }
+            self.push_output(&format!("{}\n", colors::gray("```")))?;
           } else {
-            format!("```{}", cb.info)
-          };
-          self.push_output(&format!("{}\n", colors::gray(&fence_open)))?;
-          for line in cb.literal.lines() {
-            self.push_output(&format!("{}\n", colors::gray(line)))?;
+            for line in cb.literal.lines() {
+              self.push_output(&format!("    {}\n", colors::gray(line)))?;
+            }
           }
-          self.push_output(&format!("{}\n", colors::gray("```")))?;
           self.pending_blank_line = true;
         }
         NodeValue::Strong
@@ -971,15 +982,15 @@ fn render_markdown(
           self.text_stack.push(String::new());
         }
         NodeValue::Link(nl) => {
-          self.link_url = Some(nl.url.clone());
+          self.link_url_stack.push(nl.url.clone());
           self.text_stack.push(String::new());
         }
         NodeValue::Image(nl) => {
-          self.link_url = Some(nl.url.clone());
+          self.link_url_stack.push(nl.url.clone());
           self.text_stack.push(String::new());
         }
         NodeValue::WikiLink(wl) => {
-          self.link_url = Some(wl.url.clone());
+          self.link_url_stack.push(wl.url.clone());
           self.text_stack.push(String::new());
         }
         NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
@@ -994,7 +1005,8 @@ fn render_markdown(
           });
         }
         NodeValue::Item(_) => {
-          let indent = "  ".repeat(self.list_stack.len().saturating_sub(1));
+          let nesting_indent =
+            "  ".repeat(self.list_stack.len().saturating_sub(1));
           if let Some(ctx) = self.list_stack.last_mut() {
             let marker = match ctx.list_type {
               ListType::Bullet => "- ".to_string(),
@@ -1005,8 +1017,18 @@ fn render_markdown(
               }
             };
             self.flush_text()?;
-            self.push_output(&indent)?;
+            // temporarily remove parent item's prefix so the nesting indent
+            // isn't stacked on top of it (nesting_indent already accounts
+            // for the full depth)
+            let saved_prefix = self.line_prefix_stack.pop();
+            self.push_output(&nesting_indent)?;
             self.push_output(&marker)?;
+            if let Some(p) = saved_prefix {
+              self.line_prefix_stack.push(p);
+            }
+            self.line_prefix_stack.push(
+              " ".repeat(nesting_indent.len() + marker.len()),
+            );
           }
         }
         NodeValue::TaskItem(checked) => {
@@ -1097,7 +1119,7 @@ fn render_markdown(
         }
         NodeValue::Link(_) | NodeValue::WikiLink(_) => {
           let text = self.text_stack.pop().unwrap_or_default();
-          let url = self.link_url.take().unwrap_or_default();
+          let url = self.link_url_stack.pop().unwrap_or_default();
           let styled = if text == url || text.is_empty() {
             colors::cyan_with_underline(&url).to_string()
           } else {
@@ -1107,7 +1129,7 @@ fn render_markdown(
         }
         NodeValue::Image(_) => {
           let alt_text = self.text_stack.pop().unwrap_or_default();
-          let url = self.link_url.take().unwrap_or_default();
+          let url = self.link_url_stack.pop().unwrap_or_default();
           let display = if alt_text.is_empty() {
             format!("[image]({})", url)
           } else {
@@ -1126,6 +1148,7 @@ fn render_markdown(
         }
         NodeValue::Item(_) => {
           self.flush_text()?;
+          self.line_prefix_stack.pop();
           if !self.at_line_start {
             self.w.write_str("\n")?;
             self.at_line_start = true;
@@ -1182,10 +1205,11 @@ fn render_markdown(
     indent,
     text_stack: vec![String::new()],
     list_stack: Vec::new(),
-    link_url: None,
+    link_url_stack: Vec::new(),
     block_quote_depth: 0,
     at_line_start: true,
     pending_blank_line: false,
+    line_prefix_stack: Vec::new(),
   };
 
   for edge in root.traverse() {
@@ -1313,6 +1337,16 @@ mod render_markdown_tests {
   }
 
   #[test]
+  fn image_inside_link() {
+    // image wrapped in a link should preserve both urls
+    let output = render("[![badge](https://img.example.com/b.svg)](https://example.com)");
+    assert_eq!(
+      output,
+      "[badge](https://img.example.com/b.svg) (https://example.com)\n"
+    );
+  }
+
+  #[test]
   fn unordered_list() {
     let output = render("- one\n- two\n- three");
     assert_eq!(output, "- one\n- two\n- three\n");
@@ -1387,6 +1421,26 @@ mod render_markdown_tests {
   fn indent_on_list() {
     let output = render_indented("- a\n- b", 1);
     assert_eq!(output, "  - a\n  - b\n");
+  }
+
+  #[test]
+  fn list_item_continuation_indent() {
+    // continuation lines in a list item should align with the text after the marker
+    let output = render("- first line\n  second line\n- next item");
+    assert_eq!(output, "- first line\n  second line\n- next item\n");
+  }
+
+  #[test]
+  fn ordered_list_continuation_indent() {
+    let output = render("1. first line\n   second line\n2. next");
+    assert_eq!(output, "1. first line\n   second line\n2. next\n");
+  }
+
+  #[test]
+  fn indented_code_block() {
+    // 4-space indented code blocks are rendered with indentation, not fences
+    let output = render("    const x = 1;\n    const y = 2;");
+    assert_eq!(output, "    const x = 1;\n    const y = 2;\n");
   }
 
   #[test]

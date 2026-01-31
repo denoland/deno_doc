@@ -33,18 +33,14 @@ namespace Tabs
 
   Line 2
 
-  ```
-  Indented
-  ```
+      Indented
 
   interface Tabs
     Line 1
 
     Line 2
 
-    ```
-    Indented
-    ```
+        Indented
 
 
 # output.json
