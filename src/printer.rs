@@ -1026,9 +1026,9 @@ fn render_markdown(
             if let Some(p) = saved_prefix {
               self.line_prefix_stack.push(p);
             }
-            self.line_prefix_stack.push(
-              " ".repeat(nesting_indent.len() + marker.len()),
-            );
+            self
+              .line_prefix_stack
+              .push(" ".repeat(nesting_indent.len() + marker.len()));
           }
         }
         NodeValue::TaskItem(checked) => {
@@ -1339,7 +1339,8 @@ mod render_markdown_tests {
   #[test]
   fn image_inside_link() {
     // image wrapped in a link should preserve both urls
-    let output = render("[![badge](https://img.example.com/b.svg)](https://example.com)");
+    let output =
+      render("[![badge](https://img.example.com/b.svg)](https://example.com)");
     assert_eq!(
       output,
       "[badge](https://img.example.com/b.svg) (https://example.com)\n"
