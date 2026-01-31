@@ -17,9 +17,18 @@ pub struct TypeAliasDiff {
 
 impl TypeAliasDiff {
   pub fn diff(old: &TypeAliasDef, new: &TypeAliasDef) -> Option<Self> {
-    let ts_type_change = TsTypeDiff::diff(&old.ts_type, &new.ts_type);
+    let TypeAliasDef {
+      ts_type: old_ts_type,
+      type_params: old_type_params,
+    } = old;
+    let TypeAliasDef {
+      ts_type: new_ts_type,
+      type_params: new_type_params,
+    } = new;
+
+    let ts_type_change = TsTypeDiff::diff(old_ts_type, new_ts_type);
     let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+      TypeParamsDiff::diff(old_type_params, new_type_params);
 
     if ts_type_change.is_none() && type_params_change.is_none() {
       return None;

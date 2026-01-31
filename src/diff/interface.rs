@@ -16,50 +16,63 @@ use crate::ts_type::TsTypeDef;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
-/// Diff for an interface definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceDiff {
-  /// Changes to extends list.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub extends_change: Option<ExtendsDiff>,
-  /// Type parameter changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_params_change: Option<TypeParamsDiff>,
-  /// Constructor changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub constructor_changes: Option<InterfaceConstructorsDiff>,
-  /// Method changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub method_changes: Option<InterfaceMethodsDiff>,
-  /// Property changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub property_changes: Option<InterfacePropertiesDiff>,
-  /// Call signature changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub call_signature_changes: Option<CallSignaturesDiff>,
-  /// Index signature changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub index_signature_changes: Option<InterfaceIndexSignaturesDiff>,
 }
 
 impl InterfaceDiff {
-  /// Compare two interface definitions.
   pub fn diff(old: &InterfaceDef, new: &InterfaceDef) -> Option<Self> {
-    let extends_change = ExtendsDiff::diff(&old.extends, &new.extends);
+    let InterfaceDef {
+      def_name: _, // internal, not part of public API
+      extends: old_extends,
+      constructors: old_constructors,
+      methods: old_methods,
+      properties: old_properties,
+      call_signatures: old_call_signatures,
+      index_signatures: old_index_signatures,
+      type_params: old_type_params,
+    } = old;
+    let InterfaceDef {
+      def_name: _,
+      extends: new_extends,
+      constructors: new_constructors,
+      methods: new_methods,
+      properties: new_properties,
+      call_signatures: new_call_signatures,
+      index_signatures: new_index_signatures,
+      type_params: new_type_params,
+    } = new;
+
+    let extends_change = ExtendsDiff::diff(old_extends, new_extends);
     let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+      TypeParamsDiff::diff(old_type_params, new_type_params);
     let constructor_changes =
-      InterfaceConstructorsDiff::diff(&old.constructors, &new.constructors);
-    let method_changes = InterfaceMethodsDiff::diff(&old.methods, &new.methods);
+      InterfaceConstructorsDiff::diff(old_constructors, new_constructors);
+    let method_changes = InterfaceMethodsDiff::diff(old_methods, new_methods);
     let property_changes =
-      InterfacePropertiesDiff::diff(&old.properties, &new.properties);
+      InterfacePropertiesDiff::diff(old_properties, new_properties);
     let call_signature_changes =
-      CallSignaturesDiff::diff(&old.call_signatures, &new.call_signatures);
+      CallSignaturesDiff::diff(old_call_signatures, new_call_signatures);
     let index_signature_changes = InterfaceIndexSignaturesDiff::diff(
-      &old.index_signatures,
-      &new.index_signatures,
+      old_index_signatures,
+      new_index_signatures,
     );
 
     if extends_change.is_none()
@@ -85,7 +98,6 @@ impl InterfaceDiff {
   }
 }
 
-/// Diff for extends list.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ExtendsDiff {
@@ -97,21 +109,19 @@ pub struct ExtendsDiff {
 
 impl ExtendsDiff {
   pub fn diff(old: &[TsTypeDef], new: &[TsTypeDef]) -> Option<Self> {
-    use std::collections::HashSet;
+    let old_set = old.iter().map(|t| &t.repr).collect::<HashSet<_>>();
+    let new_set = new.iter().map(|t| &t.repr).collect::<HashSet<_>>();
 
-    let old_set: HashSet<_> = old.iter().map(|t| &t.repr).collect();
-    let new_set: HashSet<_> = new.iter().map(|t| &t.repr).collect();
-
-    let added: Vec<_> = new
+    let added = new
       .iter()
       .filter(|t| !old_set.contains(&t.repr))
       .cloned()
-      .collect();
-    let removed: Vec<_> = old
+      .collect::<Vec<_>>();
+    let removed = old
       .iter()
       .filter(|t| !new_set.contains(&t.repr))
       .cloned()
-      .collect();
+      .collect::<Vec<_>>();
 
     if added.is_empty() && removed.is_empty() {
       return None;
@@ -121,7 +131,6 @@ impl ExtendsDiff {
   }
 }
 
-/// Diff for interface constructors.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceConstructorsDiff {
@@ -135,14 +144,13 @@ pub struct InterfaceConstructorsDiff {
 
 impl InterfaceConstructorsDiff {
   pub fn diff(old: &[ConstructorDef], new: &[ConstructorDef]) -> Option<Self> {
-    // Match by parameter count
-    let old_by_param_count: HashMap<_, Vec<_>> =
-      old.iter().fold(HashMap::new(), |mut acc, c| {
+    let old_by_param_count =
+      old.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
-    let new_by_param_count: HashMap<_, Vec<_>> =
-      new.iter().fold(HashMap::new(), |mut acc, c| {
+    let new_by_param_count =
+      new.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
@@ -198,7 +206,6 @@ impl InterfaceConstructorsDiff {
   }
 }
 
-/// Diff for a single interface constructor.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceConstructorDiff {
@@ -214,13 +221,27 @@ pub struct InterfaceConstructorDiff {
 
 impl InterfaceConstructorDiff {
   pub fn diff(old: &ConstructorDef, new: &ConstructorDef) -> Option<Self> {
-    let params_change = ParamsDiff::diff(&old.params, &new.params);
-    let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+    let ConstructorDef {
+      js_doc: old_js_doc,
+      params: old_params,
+      return_type: old_return_type,
+      type_params: old_type_params,
+      location: _, // internal, not diffed
+    } = old;
+    let ConstructorDef {
+      js_doc: new_js_doc,
+      params: new_params,
+      return_type: new_return_type,
+      type_params: new_type_params,
+      location: _,
+    } = new;
 
-    let return_type_change = if !types_equal(&old.return_type, &new.return_type)
-    {
-      match (&old.return_type, &new.return_type) {
+    let params_change = ParamsDiff::diff(old_params, new_params);
+    let type_params_change =
+      TypeParamsDiff::diff(old_type_params, new_type_params);
+
+    let return_type_change = if !types_equal(old_return_type, new_return_type) {
+      match (old_return_type, new_return_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -238,7 +259,7 @@ impl InterfaceConstructorDiff {
       None
     };
 
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if params_change.is_none()
       && type_params_change.is_none()
@@ -257,7 +278,6 @@ impl InterfaceConstructorDiff {
   }
 }
 
-/// Diff for interface methods.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodsDiff {
@@ -271,13 +291,14 @@ pub struct InterfaceMethodsDiff {
 
 impl InterfaceMethodsDiff {
   pub fn diff(old: &[MethodDef], new: &[MethodDef]) -> Option<Self> {
-    use std::collections::HashMap;
-
-    // Key by (name, kind)
-    let old_map: HashMap<_, _> =
-      old.iter().map(|m| ((&*m.name, m.kind), m)).collect();
-    let new_map: HashMap<_, _> =
-      new.iter().map(|m| ((&*m.name, m.kind), m)).collect();
+    let old_map = old
+      .iter()
+      .map(|m| ((&*m.name, m.kind), m))
+      .collect::<HashMap<_, _>>();
+    let new_map = new
+      .iter()
+      .map(|m| ((&*m.name, m.kind), m))
+      .collect::<HashMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -315,7 +336,6 @@ impl InterfaceMethodsDiff {
   }
 }
 
-/// Diff for a single interface method.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDiff {
@@ -334,17 +354,39 @@ pub struct InterfaceMethodDiff {
 
 impl InterfaceMethodDiff {
   pub fn diff(old: &MethodDef, new: &MethodDef) -> Option<Self> {
-    let optional_change = if old.optional != new.optional {
-      Some(DiffEntry::modified(old.optional, new.optional))
+    let MethodDef {
+      name: old_name,
+      js_doc: old_js_doc,
+      kind: _,     // methods matched by kind in caller
+      location: _, // internal, not diffed
+      params: old_params,
+      computed: _, // not useful for diffing
+      optional: old_optional,
+      return_type: old_return_type,
+      type_params: old_type_params,
+    } = old;
+    let MethodDef {
+      name: _,
+      js_doc: new_js_doc,
+      kind: _,
+      location: _,
+      params: new_params,
+      computed: _,
+      optional: new_optional,
+      return_type: new_return_type,
+      type_params: new_type_params,
+    } = new;
+
+    let optional_change = if old_optional != new_optional {
+      Some(DiffEntry::modified(*old_optional, *new_optional))
     } else {
       None
     };
 
-    let params_change = ParamsDiff::diff(&old.params, &new.params);
+    let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let return_type_change = if !types_equal(&old.return_type, &new.return_type)
-    {
-      match (&old.return_type, &new.return_type) {
+    let return_type_change = if !types_equal(old_return_type, new_return_type) {
+      match (old_return_type, new_return_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -363,8 +405,8 @@ impl InterfaceMethodDiff {
     };
 
     let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+      TypeParamsDiff::diff(old_type_params, new_type_params);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if optional_change.is_none()
       && params_change.is_none()
@@ -376,7 +418,7 @@ impl InterfaceMethodDiff {
     }
 
     Some(InterfaceMethodDiff {
-      name: old.name.clone(),
+      name: old_name.clone(),
       optional_change,
       params_change,
       return_type_change,
@@ -386,7 +428,6 @@ impl InterfaceMethodDiff {
   }
 }
 
-/// Diff for interface properties.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfacePropertiesDiff {
@@ -400,10 +441,8 @@ pub struct InterfacePropertiesDiff {
 
 impl InterfacePropertiesDiff {
   pub fn diff(old: &[PropertyDef], new: &[PropertyDef]) -> Option<Self> {
-    use std::collections::HashMap;
-
-    let old_map: HashMap<_, _> = old.iter().map(|p| (&*p.name, p)).collect();
-    let new_map: HashMap<_, _> = new.iter().map(|p| (&*p.name, p)).collect();
+    let old_map = old.iter().map(|p| (&*p.name, p)).collect::<HashMap<_, _>>();
+    let new_map = new.iter().map(|p| (&*p.name, p)).collect::<HashMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -440,7 +479,6 @@ impl InterfacePropertiesDiff {
   }
 }
 
-/// Diff for a single interface property.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfacePropertyDiff {
@@ -452,25 +490,52 @@ pub struct InterfacePropertyDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub params_change: Option<ParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub type_params_change: Option<TypeParamsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
 }
 
 impl InterfacePropertyDiff {
   pub fn diff(old: &PropertyDef, new: &PropertyDef) -> Option<Self> {
-    let readonly_change = if old.readonly != new.readonly {
-      Some(DiffEntry::modified(old.readonly, new.readonly))
+    let PropertyDef {
+      name: old_name,
+      js_doc: old_js_doc,
+      location: _, // internal, not diffed
+      params: old_params,
+      readonly: old_readonly,
+      computed: _, // not useful for diffing
+      optional: old_optional,
+      ts_type: old_ts_type,
+      type_params: old_type_params,
+    } = old;
+    let PropertyDef {
+      name: _,
+      js_doc: new_js_doc,
+      location: _,
+      params: new_params,
+      readonly: new_readonly,
+      computed: _,
+      optional: new_optional,
+      ts_type: new_ts_type,
+      type_params: new_type_params,
+    } = new;
+
+    let readonly_change = if old_readonly != new_readonly {
+      Some(DiffEntry::modified(*old_readonly, *new_readonly))
     } else {
       None
     };
 
-    let optional_change = if old.optional != new.optional {
-      Some(DiffEntry::modified(old.optional, new.optional))
+    let optional_change = if old_optional != new_optional {
+      Some(DiffEntry::modified(*old_optional, *new_optional))
     } else {
       None
     };
 
-    let type_change = if !types_equal(&old.ts_type, &new.ts_type) {
-      match (&old.ts_type, &new.ts_type) {
+    let type_change = if !types_equal(old_ts_type, new_ts_type) {
+      match (old_ts_type, new_ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -488,27 +553,33 @@ impl InterfacePropertyDiff {
       None
     };
 
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let params_change = ParamsDiff::diff(old_params, new_params);
+    let type_params_change =
+      TypeParamsDiff::diff(old_type_params, new_type_params);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if readonly_change.is_none()
       && optional_change.is_none()
       && type_change.is_none()
+      && params_change.is_none()
+      && type_params_change.is_none()
       && js_doc_change.is_none()
     {
       return None;
     }
 
     Some(InterfacePropertyDiff {
-      name: old.name.clone(),
+      name: old_name.clone(),
       readonly_change,
       optional_change,
       type_change,
+      params_change,
+      type_params_change,
       js_doc_change,
     })
   }
 }
 
-/// Diff for call signatures.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CallSignaturesDiff {
@@ -575,12 +646,27 @@ pub struct CallSignatureDiff {
 
 impl CallSignatureDiff {
   pub fn diff(old: &CallSignatureDef, new: &CallSignatureDef) -> Option<Self> {
-    let params_change = ParamsDiff::diff(&old.params, &new.params);
-    let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+    let CallSignatureDef {
+      js_doc: old_js_doc,
+      location: _, // internal, not diffed
+      params: old_params,
+      ts_type: old_ts_type,
+      type_params: old_type_params,
+    } = old;
+    let CallSignatureDef {
+      js_doc: new_js_doc,
+      location: _,
+      params: new_params,
+      ts_type: new_ts_type,
+      type_params: new_type_params,
+    } = new;
 
-    let return_type_change = if !types_equal(&old.ts_type, &new.ts_type) {
-      match (&old.ts_type, &new.ts_type) {
+    let params_change = ParamsDiff::diff(old_params, new_params);
+    let type_params_change =
+      TypeParamsDiff::diff(old_type_params, new_type_params);
+
+    let return_type_change = if !types_equal(old_ts_type, new_ts_type) {
+      match (old_ts_type, new_ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -598,7 +684,7 @@ impl CallSignatureDiff {
       None
     };
 
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if params_change.is_none()
       && type_params_change.is_none()
@@ -678,6 +764,8 @@ pub struct InterfaceIndexSignatureDiff {
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub js_doc_change: Option<JsDocDiff>,
 }
 
 impl InterfaceIndexSignatureDiff {
@@ -685,16 +773,31 @@ impl InterfaceIndexSignatureDiff {
     old: &IndexSignatureDef,
     new: &IndexSignatureDef,
   ) -> Option<Self> {
-    let readonly_change = if old.readonly != new.readonly {
-      Some(DiffEntry::modified(old.readonly, new.readonly))
+    let IndexSignatureDef {
+      js_doc: old_js_doc,
+      readonly: old_readonly,
+      params: old_params,
+      ts_type: old_ts_type,
+      location: _, // internal, not diffed
+    } = old;
+    let IndexSignatureDef {
+      js_doc: new_js_doc,
+      readonly: new_readonly,
+      params: new_params,
+      ts_type: new_ts_type,
+      location: _,
+    } = new;
+
+    let readonly_change = if old_readonly != new_readonly {
+      Some(DiffEntry::modified(*old_readonly, *new_readonly))
     } else {
       None
     };
 
-    let params_change = ParamsDiff::diff(&old.params, &new.params);
+    let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let type_change = if !types_equal(&old.ts_type, &new.ts_type) {
-      match (&old.ts_type, &new.ts_type) {
+    let type_change = if !types_equal(old_ts_type, new_ts_type) {
+      match (old_ts_type, new_ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -712,9 +815,12 @@ impl InterfaceIndexSignatureDiff {
       None
     };
 
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
+
     if readonly_change.is_none()
       && params_change.is_none()
       && type_change.is_none()
+      && js_doc_change.is_none()
     {
       return None;
     }
@@ -723,6 +829,7 @@ impl InterfaceIndexSignatureDiff {
       readonly_change,
       params_change,
       type_change,
+      js_doc_change,
     })
   }
 }

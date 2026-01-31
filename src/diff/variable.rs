@@ -18,7 +18,16 @@ pub struct VariableDiff {
 
 impl VariableDiff {
   pub fn diff(old: &VariableDef, new: &VariableDef) -> Option<Self> {
-    let ts_type_change = match (&old.ts_type, &new.ts_type) {
+    let VariableDef {
+      ts_type: old_ts_type,
+      kind: old_kind,
+    } = old;
+    let VariableDef {
+      ts_type: new_ts_type,
+      kind: new_kind,
+    } = new;
+
+    let ts_type_change = match (old_ts_type, new_ts_type) {
       (Some(old_type), Some(new_type)) => TsTypeDiff::diff(old_type, new_type),
       (None, None) => None,
       (Some(old_type), None) => Some(TsTypeDiff {
@@ -31,8 +40,8 @@ impl VariableDiff {
       }),
     };
 
-    let kind_change = if old.kind != new.kind {
-      Some(DiffEntry::modified(old.kind, new.kind))
+    let kind_change = if old_kind != new_kind {
+      Some(DiffEntry::modified(*old_kind, *new_kind))
     } else {
       None
     };

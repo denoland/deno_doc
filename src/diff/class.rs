@@ -1,17 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::swc::ast::Accessibility;
-use serde::Deserialize;
-use serde::Serialize;
-
-use crate::class::ClassConstructorDef;
-use crate::class::ClassConstructorParamDef;
-use crate::class::ClassDef;
-use crate::class::ClassMethodDef;
-use crate::class::ClassPropertyDef;
-use crate::ts_type::IndexSignatureDef;
-use crate::ts_type::TsTypeDef;
-
 use super::DiffEntry;
 use super::function::DecoratorsDiff;
 use super::function::FunctionDiff;
@@ -20,76 +8,102 @@ use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
 use super::ts_type::TypeParamsDiff;
 use super::ts_type::types_equal;
+use crate::class::ClassConstructorDef;
+use crate::class::ClassConstructorParamDef;
+use crate::class::ClassDef;
+use crate::class::ClassMethodDef;
+use crate::class::ClassPropertyDef;
+use crate::ts_type::IndexSignatureDef;
+use crate::ts_type::TsTypeDef;
+use deno_ast::swc::ast::Accessibility;
+use serde::Deserialize;
+use serde::Serialize;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-/// Diff for a class definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassDiff {
-  /// Change in abstract modifier.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub is_abstract_change: Option<DiffEntry<bool>>,
-  /// Change in extends clause.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub extends_change: Option<DiffEntry<Option<Box<str>>>>,
-  /// Changes to implements list.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub implements_change: Option<ImplementsDiff>,
-  /// Changes to type parameters.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_params_change: Option<TypeParamsDiff>,
-  /// Changes to super type parameters.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub super_type_params_change: Option<SuperTypeParamsDiff>,
-  /// Constructor changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub constructor_changes: Option<ConstructorsDiff>,
-  /// Method changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub method_changes: Option<MethodsDiff>,
-  /// Property changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub property_changes: Option<PropertiesDiff>,
-  /// Index signature changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub index_signature_changes: Option<IndexSignaturesDiff>,
-  /// Decorator changes.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub decorators_change: Option<DecoratorsDiff>,
 }
 
 impl ClassDiff {
-  /// Compare two class definitions.
   pub fn diff(old: &ClassDef, new: &ClassDef) -> Option<Self> {
-    let is_abstract_change = if old.is_abstract != new.is_abstract {
-      Some(DiffEntry::modified(old.is_abstract, new.is_abstract))
+    let ClassDef {
+      def_name: _, // internal, not part of public API
+      is_abstract: old_is_abstract,
+      constructors: old_constructors,
+      properties: old_properties,
+      index_signatures: old_index_signatures,
+      methods: old_methods,
+      extends: old_extends,
+      implements: old_implements,
+      type_params: old_type_params,
+      super_type_params: old_super_type_params,
+      decorators: old_decorators,
+    } = old;
+    let ClassDef {
+      def_name: _,
+      is_abstract: new_is_abstract,
+      constructors: new_constructors,
+      properties: new_properties,
+      index_signatures: new_index_signatures,
+      methods: new_methods,
+      extends: new_extends,
+      implements: new_implements,
+      type_params: new_type_params,
+      super_type_params: new_super_type_params,
+      decorators: new_decorators,
+    } = new;
+
+    let is_abstract_change = if old_is_abstract != new_is_abstract {
+      Some(DiffEntry::modified(*old_is_abstract, *new_is_abstract))
     } else {
       None
     };
 
-    let extends_change = if old.extends != new.extends {
+    let extends_change = if old_extends != new_extends {
       Some(DiffEntry::modified(
-        old.extends.clone(),
-        new.extends.clone(),
+        old_extends.clone(),
+        new_extends.clone(),
       ))
     } else {
       None
     };
 
     let implements_change =
-      ImplementsDiff::diff(&old.implements, &new.implements);
+      ImplementsDiff::diff(old_implements, new_implements);
     let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
+      TypeParamsDiff::diff(old_type_params, new_type_params);
     let super_type_params_change =
-      SuperTypeParamsDiff::diff(&old.super_type_params, &new.super_type_params);
+      SuperTypeParamsDiff::diff(old_super_type_params, new_super_type_params);
     let constructor_changes =
-      ConstructorsDiff::diff(&old.constructors, &new.constructors);
-    let method_changes = MethodsDiff::diff(&old.methods, &new.methods);
-    let property_changes =
-      PropertiesDiff::diff(&old.properties, &new.properties);
+      ConstructorsDiff::diff(old_constructors, new_constructors);
+    let method_changes = MethodsDiff::diff(old_methods, new_methods);
+    let property_changes = PropertiesDiff::diff(old_properties, new_properties);
     let index_signature_changes =
-      IndexSignaturesDiff::diff(&old.index_signatures, &new.index_signatures);
+      IndexSignaturesDiff::diff(old_index_signatures, new_index_signatures);
     let decorators_change =
-      DecoratorsDiff::diff(&old.decorators, &new.decorators);
+      DecoratorsDiff::diff(old_decorators, new_decorators);
 
     if is_abstract_change.is_none()
       && extends_change.is_none()
@@ -120,7 +134,6 @@ impl ClassDiff {
   }
 }
 
-/// Diff for implements list.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ImplementsDiff {
@@ -132,21 +145,19 @@ pub struct ImplementsDiff {
 
 impl ImplementsDiff {
   pub fn diff(old: &[TsTypeDef], new: &[TsTypeDef]) -> Option<Self> {
-    use std::collections::HashSet;
+    let old_set = old.iter().map(|t| &t.repr).collect::<HashSet<_>>();
+    let new_set = new.iter().map(|t| &t.repr).collect::<HashSet<_>>();
 
-    let old_set: HashSet<_> = old.iter().map(|t| &t.repr).collect();
-    let new_set: HashSet<_> = new.iter().map(|t| &t.repr).collect();
-
-    let added: Vec<_> = new
+    let added = new
       .iter()
       .filter(|t| !old_set.contains(&t.repr))
       .cloned()
-      .collect();
-    let removed: Vec<_> = old
+      .collect::<Vec<_>>();
+    let removed = old
       .iter()
       .filter(|t| !new_set.contains(&t.repr))
       .cloned()
-      .collect();
+      .collect::<Vec<_>>();
 
     if added.is_empty() && removed.is_empty() {
       return None;
@@ -156,7 +167,6 @@ impl ImplementsDiff {
   }
 }
 
-/// Diff for super type parameters (generic arguments to the extended class).
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SuperTypeParamsDiff {
@@ -204,7 +214,6 @@ impl SuperTypeParamsDiff {
   }
 }
 
-/// Diff for class constructors.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorsDiff {
@@ -221,21 +230,18 @@ impl ConstructorsDiff {
     old: &[ClassConstructorDef],
     new: &[ClassConstructorDef],
   ) -> Option<Self> {
-    // Match constructors by parameter count (simple heuristic)
-    // In practice, most classes have 0 or 1 constructor
     let mut added = Vec::new();
     let mut removed = Vec::new();
     let mut modified = Vec::new();
 
     // Group by parameter count
-    use std::collections::HashMap;
-    let old_by_param_count: HashMap<_, Vec<_>> =
-      old.iter().fold(HashMap::new(), |mut acc, c| {
+    let old_by_param_count =
+      old.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
-    let new_by_param_count: HashMap<_, Vec<_>> =
-      new.iter().fold(HashMap::new(), |mut acc, c| {
+    let new_by_param_count =
+      new.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
@@ -246,11 +252,11 @@ impl ConstructorsDiff {
           // Compare the first constructor of each (simple case)
           if let (Some(old_ctor), Some(new_ctor)) =
             (old_ctors.first(), new_ctors.first())
+            && let Some(diff) = ConstructorDiff::diff(old_ctor, new_ctor)
           {
-            if let Some(diff) = ConstructorDiff::diff(old_ctor, new_ctor) {
-              modified.push(diff);
-            }
+            modified.push(diff);
           }
+
           // Handle extra constructors
           for new_ctor in new_ctors.iter().skip(old_ctors.len()) {
             added.push((*new_ctor).clone());
@@ -288,7 +294,6 @@ impl ConstructorsDiff {
   }
 }
 
-/// Diff for a single constructor.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorDiff {
@@ -307,20 +312,39 @@ impl ConstructorDiff {
     old: &ClassConstructorDef,
     new: &ClassConstructorDef,
   ) -> Option<Self> {
-    let accessibility_change = if old.accessibility != new.accessibility {
-      Some(DiffEntry::modified(old.accessibility, new.accessibility))
+    let ClassConstructorDef {
+      js_doc: old_js_doc,
+      accessibility: old_accessibility,
+      is_optional: old_is_optional,
+      has_body: _, // implementation detail, not diffed
+      name: _,     // constructors identified by position, not name
+      params: old_params,
+      location: _, // internal, not diffed
+    } = old;
+    let ClassConstructorDef {
+      js_doc: new_js_doc,
+      accessibility: new_accessibility,
+      is_optional: new_is_optional,
+      has_body: _,
+      name: _,
+      params: new_params,
+      location: _,
+    } = new;
+
+    let accessibility_change = if old_accessibility != new_accessibility {
+      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
-    let is_optional_change = if old.is_optional != new.is_optional {
-      Some(DiffEntry::modified(old.is_optional, new.is_optional))
+    let is_optional_change = if old_is_optional != new_is_optional {
+      Some(DiffEntry::modified(*old_is_optional, *new_is_optional))
     } else {
       None
     };
 
-    let params_change = ConstructorParamsDiff::diff(&old.params, &new.params);
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let params_change = ConstructorParamsDiff::diff(old_params, new_params);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if accessibility_change.is_none()
       && is_optional_change.is_none()
@@ -339,7 +363,6 @@ impl ConstructorDiff {
   }
 }
 
-/// Diff for constructor parameters.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorParamsDiff {
@@ -392,7 +415,6 @@ impl ConstructorParamsDiff {
   }
 }
 
-/// Diff for a single constructor parameter.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorParamDiff {
@@ -413,27 +435,40 @@ impl ConstructorParamDiff {
     old: &ClassConstructorParamDef,
     new: &ClassConstructorParamDef,
   ) -> Option<Self> {
-    let accessibility_change = if old.accessibility != new.accessibility {
-      Some(DiffEntry::modified(old.accessibility, new.accessibility))
+    let ClassConstructorParamDef {
+      accessibility: old_accessibility,
+      is_override: old_is_override,
+      param: old_param,
+      readonly: old_readonly,
+    } = old;
+    let ClassConstructorParamDef {
+      accessibility: new_accessibility,
+      is_override: new_is_override,
+      param: new_param,
+      readonly: new_readonly,
+    } = new;
+
+    let accessibility_change = if old_accessibility != new_accessibility {
+      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
-    let is_override_change = if old.is_override != new.is_override {
-      Some(DiffEntry::modified(old.is_override, new.is_override))
+    let is_override_change = if old_is_override != new_is_override {
+      Some(DiffEntry::modified(*old_is_override, *new_is_override))
     } else {
       None
     };
 
-    let readonly_change = if old.readonly != new.readonly {
-      Some(DiffEntry::modified(old.readonly, new.readonly))
+    let readonly_change = if old_readonly != new_readonly {
+      Some(DiffEntry::modified(*old_readonly, *new_readonly))
     } else {
       None
     };
 
     let param_change = ParamsDiff::diff(
-      std::slice::from_ref(&old.param),
-      std::slice::from_ref(&new.param),
+      std::slice::from_ref(old_param),
+      std::slice::from_ref(new_param),
     );
 
     if accessibility_change.is_none()
@@ -454,7 +489,6 @@ impl ConstructorParamDiff {
   }
 }
 
-/// Diff for class methods.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MethodsDiff {
@@ -468,17 +502,14 @@ pub struct MethodsDiff {
 
 impl MethodsDiff {
   pub fn diff(old: &[ClassMethodDef], new: &[ClassMethodDef]) -> Option<Self> {
-    use std::collections::HashMap;
-
-    // Key by (name, is_static, kind) to handle method overloads
-    let old_map: HashMap<_, _> = old
+    let old_map = old
       .iter()
       .map(|m| ((&*m.name, m.is_static, m.kind), m))
-      .collect();
-    let new_map: HashMap<_, _> = new
+      .collect::<HashMap<_, _>>();
+    let new_map = new
       .iter()
       .map(|m| ((&*m.name, m.is_static, m.kind), m))
-      .collect();
+      .collect::<HashMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -515,7 +546,6 @@ impl MethodsDiff {
   }
 }
 
-/// Diff for a single class method.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MethodDiff {
@@ -538,39 +568,63 @@ pub struct MethodDiff {
 
 impl MethodDiff {
   pub fn diff(old: &ClassMethodDef, new: &ClassMethodDef) -> Option<Self> {
-    let accessibility_change = if old.accessibility != new.accessibility {
-      Some(DiffEntry::modified(old.accessibility, new.accessibility))
+    let ClassMethodDef {
+      js_doc: old_js_doc,
+      accessibility: old_accessibility,
+      optional: old_optional,
+      is_abstract: old_is_abstract,
+      is_static: old_is_static,
+      is_override: old_is_override,
+      name: old_name,
+      kind: _, // methods are matched by kind in the caller
+      function_def: old_function_def,
+      location: _, // internal, not diffed
+    } = old;
+    let ClassMethodDef {
+      js_doc: new_js_doc,
+      accessibility: new_accessibility,
+      optional: new_optional,
+      is_abstract: new_is_abstract,
+      is_static: new_is_static,
+      is_override: new_is_override,
+      name: _,
+      kind: _,
+      function_def: new_function_def,
+      location: _,
+    } = new;
+
+    let accessibility_change = if old_accessibility != new_accessibility {
+      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
-    let is_static_change = if old.is_static != new.is_static {
-      Some(DiffEntry::modified(old.is_static, new.is_static))
+    let is_static_change = if old_is_static != new_is_static {
+      Some(DiffEntry::modified(*old_is_static, *new_is_static))
     } else {
       None
     };
 
-    let is_abstract_change = if old.is_abstract != new.is_abstract {
-      Some(DiffEntry::modified(old.is_abstract, new.is_abstract))
+    let is_abstract_change = if old_is_abstract != new_is_abstract {
+      Some(DiffEntry::modified(*old_is_abstract, *new_is_abstract))
     } else {
       None
     };
 
-    let is_override_change = if old.is_override != new.is_override {
-      Some(DiffEntry::modified(old.is_override, new.is_override))
+    let is_override_change = if old_is_override != new_is_override {
+      Some(DiffEntry::modified(*old_is_override, *new_is_override))
     } else {
       None
     };
 
-    let optional_change = if old.optional != new.optional {
-      Some(DiffEntry::modified(old.optional, new.optional))
+    let optional_change = if old_optional != new_optional {
+      Some(DiffEntry::modified(*old_optional, *new_optional))
     } else {
       None
     };
 
-    let function_diff =
-      FunctionDiff::diff(&old.function_def, &new.function_def);
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let function_diff = FunctionDiff::diff(old_function_def, new_function_def);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if accessibility_change.is_none()
       && is_static_change.is_none()
@@ -584,7 +638,7 @@ impl MethodDiff {
     }
 
     Some(MethodDiff {
-      name: old.name.clone(),
+      name: old_name.clone(),
       accessibility_change,
       is_static_change,
       is_abstract_change,
@@ -596,7 +650,6 @@ impl MethodDiff {
   }
 }
 
-/// Diff for class properties.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct PropertiesDiff {
@@ -613,13 +666,14 @@ impl PropertiesDiff {
     old: &[ClassPropertyDef],
     new: &[ClassPropertyDef],
   ) -> Option<Self> {
-    use std::collections::HashMap;
-
-    // Key by (name, is_static)
-    let old_map: HashMap<_, _> =
-      old.iter().map(|p| ((&*p.name, p.is_static), p)).collect();
-    let new_map: HashMap<_, _> =
-      new.iter().map(|p| ((&*p.name, p.is_static), p)).collect();
+    let old_map = old
+      .iter()
+      .map(|p| ((&*p.name, p.is_static), p))
+      .collect::<HashMap<_, _>>();
+    let new_map = new
+      .iter()
+      .map(|p| ((&*p.name, p.is_static), p))
+      .collect::<HashMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -656,7 +710,6 @@ impl PropertiesDiff {
   }
 }
 
-/// Diff for a single class property.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PropertyDiff {
@@ -676,49 +729,78 @@ pub struct PropertyDiff {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
+  pub decorators_change: Option<DecoratorsDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_change: Option<JsDocDiff>,
 }
 
 impl PropertyDiff {
   pub fn diff(old: &ClassPropertyDef, new: &ClassPropertyDef) -> Option<Self> {
-    let accessibility_change = if old.accessibility != new.accessibility {
-      Some(DiffEntry::modified(old.accessibility, new.accessibility))
+    let ClassPropertyDef {
+      js_doc: old_js_doc,
+      ts_type: old_ts_type,
+      readonly: old_readonly,
+      accessibility: old_accessibility,
+      decorators: old_decorators,
+      optional: old_optional,
+      is_abstract: old_is_abstract,
+      is_static: old_is_static,
+      is_override: old_is_override,
+      name: old_name,
+      location: _, // internal, not diffed
+    } = old;
+    let ClassPropertyDef {
+      js_doc: new_js_doc,
+      ts_type: new_ts_type,
+      readonly: new_readonly,
+      accessibility: new_accessibility,
+      decorators: new_decorators,
+      optional: new_optional,
+      is_abstract: new_is_abstract,
+      is_static: new_is_static,
+      is_override: new_is_override,
+      name: _,
+      location: _,
+    } = new;
+
+    let accessibility_change = if old_accessibility != new_accessibility {
+      Some(DiffEntry::modified(*old_accessibility, *new_accessibility))
     } else {
       None
     };
 
-    let readonly_change = if old.readonly != new.readonly {
-      Some(DiffEntry::modified(old.readonly, new.readonly))
+    let readonly_change = if old_readonly != new_readonly {
+      Some(DiffEntry::modified(*old_readonly, *new_readonly))
     } else {
       None
     };
 
-    let is_static_change = if old.is_static != new.is_static {
-      Some(DiffEntry::modified(old.is_static, new.is_static))
+    let is_static_change = if old_is_static != new_is_static {
+      Some(DiffEntry::modified(*old_is_static, *new_is_static))
     } else {
       None
     };
 
-    let is_abstract_change = if old.is_abstract != new.is_abstract {
-      Some(DiffEntry::modified(old.is_abstract, new.is_abstract))
+    let is_abstract_change = if old_is_abstract != new_is_abstract {
+      Some(DiffEntry::modified(*old_is_abstract, *new_is_abstract))
     } else {
       None
     };
 
-    let is_override_change = if old.is_override != new.is_override {
-      Some(DiffEntry::modified(old.is_override, new.is_override))
+    let is_override_change = if old_is_override != new_is_override {
+      Some(DiffEntry::modified(*old_is_override, *new_is_override))
     } else {
       None
     };
 
-    let optional_change = if old.optional != new.optional {
-      Some(DiffEntry::modified(old.optional, new.optional))
+    let optional_change = if old_optional != new_optional {
+      Some(DiffEntry::modified(*old_optional, *new_optional))
     } else {
       None
     };
 
-    let type_change = if !types_equal(&old.ts_type, &new.ts_type) {
-      match (&old.ts_type, &new.ts_type) {
+    let type_change = if !types_equal(old_ts_type, new_ts_type) {
+      match (old_ts_type, new_ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -736,7 +818,9 @@ impl PropertyDiff {
       None
     };
 
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
+    let decorators_change =
+      DecoratorsDiff::diff(old_decorators, new_decorators);
 
     if accessibility_change.is_none()
       && readonly_change.is_none()
@@ -746,12 +830,13 @@ impl PropertyDiff {
       && optional_change.is_none()
       && type_change.is_none()
       && js_doc_change.is_none()
+      && decorators_change.is_none()
     {
       return None;
     }
 
     Some(PropertyDiff {
-      name: old.name.clone(),
+      name: old_name.clone(),
       accessibility_change,
       readonly_change,
       is_static_change,
@@ -759,12 +844,12 @@ impl PropertyDiff {
       is_override_change,
       optional_change,
       type_change,
+      decorators_change,
       js_doc_change,
     })
   }
 }
 
-/// Diff for index signatures.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexSignaturesDiff {
@@ -781,7 +866,6 @@ impl IndexSignaturesDiff {
     old: &[IndexSignatureDef],
     new: &[IndexSignatureDef],
   ) -> Option<Self> {
-    // Index signatures are tricky to match - use position-based comparison
     let max_len = old.len().max(new.len());
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -816,7 +900,6 @@ impl IndexSignaturesDiff {
   }
 }
 
-/// Diff for a single index signature.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexSignatureDiff {
@@ -826,6 +909,8 @@ pub struct IndexSignatureDiff {
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub type_change: Option<TsTypeDiff>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub js_doc_change: Option<JsDocDiff>,
 }
 
 impl IndexSignatureDiff {
@@ -833,16 +918,31 @@ impl IndexSignatureDiff {
     old: &IndexSignatureDef,
     new: &IndexSignatureDef,
   ) -> Option<Self> {
-    let readonly_change = if old.readonly != new.readonly {
-      Some(DiffEntry::modified(old.readonly, new.readonly))
+    let IndexSignatureDef {
+      js_doc: old_js_doc,
+      readonly: old_readonly,
+      params: old_params,
+      ts_type: old_ts_type,
+      location: _, // internal, not diffed
+    } = old;
+    let IndexSignatureDef {
+      js_doc: new_js_doc,
+      readonly: new_readonly,
+      params: new_params,
+      ts_type: new_ts_type,
+      location: _,
+    } = new;
+
+    let readonly_change = if old_readonly != new_readonly {
+      Some(DiffEntry::modified(*old_readonly, *new_readonly))
     } else {
       None
     };
 
-    let params_change = ParamsDiff::diff(&old.params, &new.params);
+    let params_change = ParamsDiff::diff(old_params, new_params);
 
-    let type_change = if !types_equal(&old.ts_type, &new.ts_type) {
-      match (&old.ts_type, &new.ts_type) {
+    let type_change = if !types_equal(old_ts_type, new_ts_type) {
+      match (old_ts_type, new_ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -860,9 +960,12 @@ impl IndexSignatureDiff {
       None
     };
 
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
+
     if readonly_change.is_none()
       && params_change.is_none()
       && type_change.is_none()
+      && js_doc_change.is_none()
     {
       return None;
     }
@@ -871,6 +974,7 @@ impl IndexSignatureDiff {
       readonly_change,
       params_change,
       type_change,
+      js_doc_change,
     })
   }
 }

@@ -21,13 +21,18 @@ pub struct NamespaceDiff {
 
 impl NamespaceDiff {
   pub fn diff(old: &NamespaceDef, new: &NamespaceDef) -> Option<Self> {
-    let old_map = old
-      .elements
+    let NamespaceDef {
+      elements: old_elements,
+    } = old;
+    let NamespaceDef {
+      elements: new_elements,
+    } = new;
+
+    let old_map = old_elements
       .iter()
       .map(|n| ((n.name.to_string(), n.def.to_kind()), n))
       .collect::<HashMap<_, _>>();
-    let new_map = new
-      .elements
+    let new_map = new_elements
       .iter()
       .map(|n| ((n.name.to_string(), n.def.to_kind()), n))
       .collect::<HashMap<_, _>>();

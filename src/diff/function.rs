@@ -31,11 +31,31 @@ pub struct FunctionDiff {
 
 impl FunctionDiff {
   pub fn diff(old: &FunctionDef, new: &FunctionDef) -> Option<Self> {
-    let params_change = ParamsDiff::diff(&old.params, &new.params);
+    let FunctionDef {
+      def_name: _, // internal, not part of public API
+      params: old_params,
+      return_type: old_return_type,
+      has_body: _, // implementation detail, not diffed
+      is_async: old_is_async,
+      is_generator: old_is_generator,
+      type_params: old_type_params,
+      decorators: old_decorators,
+    } = old;
+    let FunctionDef {
+      def_name: _,
+      params: new_params,
+      return_type: new_return_type,
+      has_body: _,
+      is_async: new_is_async,
+      is_generator: new_is_generator,
+      type_params: new_type_params,
+      decorators: new_decorators,
+    } = new;
 
-    let return_type_change = if !types_equal(&old.return_type, &new.return_type)
-    {
-      match (&old.return_type, &new.return_type) {
+    let params_change = ParamsDiff::diff(old_params, new_params);
+
+    let return_type_change = if !types_equal(old_return_type, new_return_type) {
+      match (old_return_type, new_return_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }
@@ -53,23 +73,22 @@ impl FunctionDiff {
       None
     };
 
-    let is_async_change = if old.is_async != new.is_async {
-      Some(DiffEntry::modified(old.is_async, new.is_async))
+    let is_async_change = if old_is_async != new_is_async {
+      Some(DiffEntry::modified(*old_is_async, *new_is_async))
     } else {
       None
     };
 
-    let is_generator_change = if old.is_generator != new.is_generator {
-      Some(DiffEntry::modified(old.is_generator, new.is_generator))
+    let is_generator_change = if old_is_generator != new_is_generator {
+      Some(DiffEntry::modified(*old_is_generator, *new_is_generator))
     } else {
       None
     };
 
     let type_params_change =
-      TypeParamsDiff::diff(&old.type_params, &new.type_params);
-
+      TypeParamsDiff::diff(old_type_params, new_type_params);
     let decorators_change =
-      DecoratorsDiff::diff(&old.decorators, &new.decorators);
+      DecoratorsDiff::diff(old_decorators, new_decorators);
 
     if params_change.is_none()
       && return_type_change.is_none()
@@ -153,10 +172,21 @@ pub struct ParamDiff {
 
 impl ParamDiff {
   pub fn diff(index: usize, old: &ParamDef, new: &ParamDef) -> Option<Self> {
-    let pattern_changed = old.pattern != new.pattern;
-    let type_changed = !types_equal(&old.ts_type, &new.ts_type);
+    let ParamDef {
+      pattern: old_pattern,
+      decorators: old_decorators,
+      ts_type: old_ts_type,
+    } = old;
+    let ParamDef {
+      pattern: new_pattern,
+      decorators: new_decorators,
+      ts_type: new_ts_type,
+    } = new;
+
+    let pattern_changed = old_pattern != new_pattern;
+    let type_changed = !types_equal(old_ts_type, new_ts_type);
     let decorators_change =
-      DecoratorsDiff::diff(&old.decorators, &new.decorators);
+      DecoratorsDiff::diff(old_decorators, new_decorators);
 
     if !pattern_changed && !type_changed && decorators_change.is_none() {
       return None;
@@ -169,7 +199,7 @@ impl ParamDiff {
     };
 
     let type_change = if type_changed {
-      match (&old.ts_type, &new.ts_type) {
+      match (old_ts_type, new_ts_type) {
         (Some(old_type), Some(new_type)) => {
           TsTypeDiff::diff(old_type, new_type)
         }

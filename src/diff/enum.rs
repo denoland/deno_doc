@@ -21,13 +21,18 @@ pub struct EnumDiff {
 
 impl EnumDiff {
   pub fn diff(old: &EnumDef, new: &EnumDef) -> Option<Self> {
-    let old_map = old
-      .members
+    let EnumDef {
+      members: old_members,
+    } = old;
+    let EnumDef {
+      members: new_members,
+    } = new;
+
+    let old_map = old_members
       .iter()
       .map(|m| (m.name.as_str(), m))
       .collect::<HashMap<_, _>>();
-    let new_map = new
-      .members
+    let new_map = new_members
       .iter()
       .map(|m| (m.name.as_str(), m))
       .collect::<HashMap<_, _>>();
@@ -83,7 +88,20 @@ pub struct EnumMemberDiff {
 
 impl EnumMemberDiff {
   pub fn diff(old: &EnumMemberDef, new: &EnumMemberDef) -> Option<Self> {
-    let init_change = match (&old.init, &new.init) {
+    let EnumMemberDef {
+      name: old_name,
+      init: old_init,
+      js_doc: old_js_doc,
+      location: _, // internal, not diffed
+    } = old;
+    let EnumMemberDef {
+      name: _,
+      init: new_init,
+      js_doc: new_js_doc,
+      location: _,
+    } = new;
+
+    let init_change = match (old_init, new_init) {
       (Some(old_init), Some(new_init)) => TsTypeDiff::diff(old_init, new_init),
       (None, None) => None,
       (Some(old_init), None) => Some(TsTypeDiff {
@@ -96,14 +114,14 @@ impl EnumMemberDiff {
       }),
     };
 
-    let js_doc_change = JsDocDiff::diff(&old.js_doc, &new.js_doc);
+    let js_doc_change = JsDocDiff::diff(old_js_doc, new_js_doc);
 
     if init_change.is_none() && js_doc_change.is_none() {
       return None;
     }
 
     Some(EnumMemberDiff {
-      name: old.name.clone(),
+      name: old_name.clone(),
       init_change,
       js_doc_change,
     })
