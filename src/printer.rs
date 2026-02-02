@@ -877,9 +877,7 @@ fn render_markdown(
     /// writes text to the formatter with indent and blockquote prefixes
     fn push_output(&mut self, text: &str) -> FmtResult {
       let bq_prefix = if self.block_quote_depth > 0 {
-        Some(
-          colors::gray(&"│".repeat(self.block_quote_depth)).to_string(),
-        )
+        Some(colors::gray(&"│".repeat(self.block_quote_depth)).to_string())
       } else {
         None
       };
@@ -1420,10 +1418,7 @@ mod render_markdown_tests {
   #[test]
   fn blockquote_multiple_paragraphs() {
     let output = render("> first paragraph\n>\n> second paragraph");
-    assert_eq!(
-      output,
-      "│ first paragraph\n│\n│ second paragraph\n│\n"
-    );
+    assert_eq!(output, "│ first paragraph\n│\n│ second paragraph\n│\n");
   }
 
   #[test]
