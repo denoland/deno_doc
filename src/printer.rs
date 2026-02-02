@@ -895,9 +895,10 @@ fn render_markdown(
           // content; on blank blockquote lines the prefix would push
           // the │ marker to a wrong indent level
           if !segment.is_empty()
-            && let Some(prefix) = self.line_prefix_stack.last() {
-              self.w.write_str(prefix)?;
-            }
+            && let Some(prefix) = self.line_prefix_stack.last()
+          {
+            self.w.write_str(prefix)?;
+          }
           if let Some(ref prefix) = bq_prefix
             && has_bq
           {
