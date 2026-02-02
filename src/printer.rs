@@ -893,8 +893,13 @@ fn render_markdown(
         let has_bq = bq_prefix.is_some() && (!segment.is_empty() || i > 0);
         if (!segment.is_empty() || has_bq) && self.at_line_start {
           write!(self.w, "{}", Indent(self.indent))?;
-          if let Some(prefix) = self.line_prefix_stack.last() {
-            self.w.write_str(prefix)?;
+          // only apply list-continuation prefix when there is actual
+          // content; on blank blockquote lines the prefix would push
+          // the │ marker to a wrong indent level
+          if !segment.is_empty() {
+            if let Some(prefix) = self.line_prefix_stack.last() {
+              self.w.write_str(prefix)?;
+            }
           }
           if let Some(ref prefix) = bq_prefix
             && has_bq
@@ -1107,9 +1112,14 @@ fn render_markdown(
         }
         NodeValue::Paragraph => {
           self.flush_text()?;
-          self.push_output("\n")?;
           if self.list_stack.is_empty() {
+            self.push_output("\n")?;
             self.pending_blank_line = true;
+          } else {
+            // inside a list item, write a plain newline so we don't
+            // emit a trailing blockquote prefix between list items
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
           }
         }
         NodeValue::Strong => {
@@ -1156,6 +1166,13 @@ fn render_markdown(
         }
         NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
           self.block_quote_depth = self.block_quote_depth.saturating_sub(1);
+          // terminate the trailing prefix line so subsequent content
+          // starts on a fresh line with a blank separator
+          if !self.at_line_start {
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
+          }
+          self.pending_blank_line = true;
         }
         NodeValue::List(_) => {
           self.list_stack.pop();
@@ -1391,13 +1408,13 @@ mod render_markdown_tests {
   #[test]
   fn blockquote() {
     let output = render("> quoted text");
-    assert_eq!(output, "│ quoted text\n│");
+    assert_eq!(output, "│ quoted text\n│\n");
   }
 
   #[test]
   fn nested_blockquote() {
     let output = render("> outer\n>> inner");
-    assert_eq!(output, "│ outer\n│\n││ inner\n││");
+    assert_eq!(output, "│ outer\n│\n││ inner\n││\n");
   }
 
   #[test]
@@ -1405,7 +1422,7 @@ mod render_markdown_tests {
     let output = render("> first paragraph\n>\n> second paragraph");
     assert_eq!(
       output,
-      "│ first paragraph\n│\n│ second paragraph\n│"
+      "│ first paragraph\n│\n│ second paragraph\n│\n"
     );
   }
 

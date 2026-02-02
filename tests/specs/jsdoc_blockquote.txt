@@ -63,6 +63,7 @@ function deepNested(): void
   ││
   │││ Level three.
   │││
+
 Defined in file:///mod.ts:29:1
 
 function followedByText(): void
@@ -70,6 +71,7 @@ function followedByText(): void
 
   │ Quoted section.
   │
+
   Back to normal text.
 
 Defined in file:///mod.ts:14:1
@@ -81,6 +83,7 @@ function multiParagraph(): void
   │
   │ Second paragraph inside the quote.
   │
+
 Defined in file:///mod.ts:21:1
 
 function nested(): void
@@ -90,6 +93,7 @@ function nested(): void
   │
   ││ Inner quote.
   ││
+
 Defined in file:///mod.ts:6:1
 
 function simple(): void
@@ -97,6 +101,7 @@ function simple(): void
 
   │ This is quoted text.
   │
+
 Defined in file:///mod.ts:35:1
 
 function withCodeSpan(): void
@@ -104,6 +109,7 @@ function withCodeSpan(): void
 
   │ Use `console.log()` for debugging.
   │
+
 Defined in file:///mod.ts:43:1
 
 function withList(): void
@@ -112,9 +118,7 @@ function withList(): void
   │ Items:
   │
   │ - one
-    │
   │ - two
-    │
 
 
 # output.json
