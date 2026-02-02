@@ -863,7 +863,13 @@ fn render_markdown(
     fn write_block_separator(&mut self) -> FmtResult {
       if self.pending_blank_line {
         self.pending_blank_line = false;
-        self.push_output("\n")?;
+        // write a plain newline to terminate the current line (which may
+        // already carry a trailing blockquote prefix from the previous
+        // paragraph's leave handler).  this avoids push_output writing a
+        // *second* prefix that would leave at_line_start=false and swallow
+        // the next block's prefix.
+        self.w.write_str("\n")?;
+        self.at_line_start = true;
       }
       Ok(())
     }
@@ -871,8 +877,9 @@ fn render_markdown(
     /// writes text to the formatter with indent and blockquote prefixes
     fn push_output(&mut self, text: &str) -> FmtResult {
       let bq_prefix = if self.block_quote_depth > 0 {
-        let p = format!("{} ", "│".repeat(self.block_quote_depth));
-        Some(colors::gray(&p).to_string())
+        Some(
+          colors::gray(&"│".repeat(self.block_quote_depth)).to_string(),
+        )
       } else {
         None
       };
@@ -889,12 +896,15 @@ fn render_markdown(
           if let Some(prefix) = self.line_prefix_stack.last() {
             self.w.write_str(prefix)?;
           }
+          if let Some(ref prefix) = bq_prefix
+            && has_bq
+          {
+            self.w.write_str(prefix)?;
+            if !segment.is_empty() {
+              self.w.write_str(" ")?;
+            }
+          }
           self.at_line_start = false;
-        }
-        if let Some(ref prefix) = bq_prefix
-          && has_bq
-        {
-          self.w.write_str(prefix)?;
         }
         if !segment.is_empty() {
           self.w.write_str(segment)?;
@@ -996,6 +1006,13 @@ fn render_markdown(
         NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
           self.write_block_separator()?;
           self.block_quote_depth += 1;
+          // when a blockquote starts mid-line (after a separator wrote a
+          // prefix at the previous depth), force a new line so the deeper
+          // prefix is emitted correctly
+          if !self.at_line_start {
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
+          }
         }
         NodeValue::List(nl) => {
           self.write_block_separator()?;
@@ -1374,13 +1391,22 @@ mod render_markdown_tests {
   #[test]
   fn blockquote() {
     let output = render("> quoted text");
-    assert_eq!(output, "│ quoted text\n│ ");
+    assert_eq!(output, "│ quoted text\n│");
   }
 
   #[test]
   fn nested_blockquote() {
     let output = render("> outer\n>> inner");
-    assert_eq!(output, "│ outer\n│ \n│ ││ inner\n││ ");
+    assert_eq!(output, "│ outer\n│\n││ inner\n││");
+  }
+
+  #[test]
+  fn blockquote_multiple_paragraphs() {
+    let output = render("> first paragraph\n>\n> second paragraph");
+    assert_eq!(
+      output,
+      "│ first paragraph\n│\n│ second paragraph\n│"
+    );
   }
 
   #[test]
