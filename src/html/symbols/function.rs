@@ -10,8 +10,8 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use indexmap::IndexSet;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashSet;
 use std::ops::Deref;
 

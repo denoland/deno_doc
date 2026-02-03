@@ -8,8 +8,8 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 

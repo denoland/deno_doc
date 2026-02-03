@@ -6,8 +6,8 @@ use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use regex::Regex;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::borrow::Cow;
 
 #[cfg(target_arch = "wasm32")]

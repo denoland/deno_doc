@@ -4,8 +4,8 @@ use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::rc::Rc;
 

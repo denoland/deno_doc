@@ -15,8 +15,8 @@ use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
 use regex::Regex;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
@@ -122,7 +122,16 @@ impl<'a> IdBuilder<'a> {
 }
 
 #[derive(
-  Debug, Clone, Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq, Hash, Default,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
+  Ord,
+  PartialOrd,
+  Eq,
+  PartialEq,
+  Hash,
+  Default,
 )]
 pub struct Id(String);
 
@@ -553,7 +562,9 @@ impl From<DocNodeKind> for DocNodeKindCtx {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct AnchorCtx {
   pub id: Id,
 }
@@ -573,7 +584,9 @@ pub enum SectionContentCtx {
   Empty,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct SectionHeaderCtx {
   pub title: String,
   pub anchor: AnchorCtx,

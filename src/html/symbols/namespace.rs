@@ -5,8 +5,8 @@ use crate::html::render_context::RenderContext;
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::cmp::Ordering;
 
 pub fn render_namespace<'a>(

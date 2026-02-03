@@ -28,8 +28,8 @@ use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct HtmlHeadCtx {

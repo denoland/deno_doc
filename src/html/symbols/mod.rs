@@ -11,8 +11,8 @@ use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
-use serde::Serialize;
 use serde::Deserialize;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashSet;
 
