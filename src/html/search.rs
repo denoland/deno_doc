@@ -50,8 +50,8 @@ pub fn doc_nodes_into_search_index_node(
       let kind = DocNodeKindCtx::from(node.kind);
       SlimKindCtx {
         char: kind.char,
-        kind: kind.kind.into(),
-        title: kind.title.into(),
+        kind: kind.kind,
+        title: kind.title,
       }
     })
     .collect();
