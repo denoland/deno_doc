@@ -7,6 +7,7 @@ use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use regex::Regex;
 use serde::Serialize;
+use serde::Deserialize;
 use std::borrow::Cow;
 
 #[cfg(target_arch = "wasm32")]
@@ -188,7 +189,7 @@ pub type UsageToMd<'a> = &'a js_sys::Function;
 #[cfg(feature = "rust")]
 pub type UsageToMd<'a> = &'a dyn Fn(&str, Option<&str>) -> String;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct UsageCtx {
   name: String,
   content: String,
@@ -196,7 +197,7 @@ struct UsageCtx {
   additional_css: String,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct UsagesCtx {
   usages: Vec<UsageCtx>,
   composed: bool,

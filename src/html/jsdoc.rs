@@ -5,6 +5,7 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use serde::Serialize;
+use serde::Deserialize;
 use std::borrow::Cow;
 use std::rc::Rc;
 
@@ -280,7 +281,7 @@ pub(crate) fn jsdoc_examples(
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ExampleCtx {
   pub anchor: AnchorCtx,
   pub id: Id,
@@ -319,7 +320,7 @@ impl ExampleCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ModuleDocCtx {
   pub deprecated: Option<String>,
   pub sections: super::SymbolContentCtx,

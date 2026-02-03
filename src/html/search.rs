@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
@@ -8,17 +9,18 @@ use crate::html::util::IdBuilder;
 use crate::html::util::IdKind;
 use crate::js_doc::JsDocTag;
 use serde::Serialize;
+use serde::Deserialize;
 use serde_json::json;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SlimKindCtx {
   pub char: char,
-  pub kind: &'static str,
-  pub title: &'static str,
+  pub kind: Cow<'static, str>,
+  pub title: Cow<'static, str>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchIndexNode {
   pub id: Id,
@@ -48,8 +50,8 @@ pub fn doc_nodes_into_search_index_node(
       let kind = DocNodeKindCtx::from(node.kind);
       SlimKindCtx {
         char: kind.char,
-        kind: kind.kind,
-        title: kind.title,
+        kind: kind.kind.into(),
+        title: kind.title.into(),
       }
     })
     .collect();

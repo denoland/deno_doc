@@ -29,8 +29,9 @@ use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use serde::Serialize;
+use serde::Deserialize;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct HtmlHeadCtx {
   title: String,
   current_file: String,
@@ -83,7 +84,7 @@ impl HtmlHeadCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoriesPanelCtx {
   pub categories: Vec<CategoriesPanelCategoryCtx>,
   pub all_symbols_href: String,
@@ -190,14 +191,14 @@ impl CategoriesPanelCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoriesPanelCategoryCtx {
   pub name: String,
   pub href: String,
   pub active: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct IndexCtx {
   pub html_head_ctx: HtmlHeadCtx,
@@ -583,7 +584,7 @@ pub fn generate_symbol_pages_for_module(
   generated_pages
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,

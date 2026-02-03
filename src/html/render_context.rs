@@ -7,6 +7,7 @@ use crate::html::util::NamespacedSymbols;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
 use serde::Serialize;
+use serde::Deserialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -309,7 +310,7 @@ impl<'ctx> RenderContext<'ctx> {
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCEntry {
   pub level: u8,
   pub content: String,

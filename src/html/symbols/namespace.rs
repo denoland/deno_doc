@@ -6,6 +6,7 @@ use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
+use serde::Deserialize;
 use std::cmp::Ordering;
 
 pub fn render_namespace<'a>(
@@ -61,7 +62,7 @@ fn get_namespace_section_render_ctx(
   section
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceNodeSubItemCtx {
   title: String,
   href: String,
@@ -93,7 +94,7 @@ impl PartialEq for NamespaceNodeSubItemCtx {
 
 impl Eq for NamespaceNodeSubItemCtx {}
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceNodeCtx {
   pub id: Id,
   pub anchor: AnchorCtx,

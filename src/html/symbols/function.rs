@@ -11,10 +11,11 @@ use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
 use indexmap::IndexSet;
 use serde::Serialize;
+use serde::Deserialize;
 use std::collections::HashSet;
 use std::ops::Deref;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct OverloadRenderCtx {
   id: Id,
   anchor: AnchorCtx,
@@ -24,7 +25,7 @@ struct OverloadRenderCtx {
   content: SymbolContentCtx,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FunctionCtx {
   functions: Vec<OverloadRenderCtx>,
 }

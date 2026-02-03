@@ -12,6 +12,7 @@ use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Serialize;
+use serde::Deserialize;
 use std::borrow::Cow;
 use std::collections::HashSet;
 
@@ -23,7 +24,7 @@ pub mod namespace;
 pub mod type_alias;
 pub mod variable;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   usage: Option<UsagesCtx>,
@@ -34,7 +35,7 @@ struct SymbolCtx {
   source_href: Option<String>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
@@ -166,14 +167,14 @@ impl SymbolGroupCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocBlockClassSubtitleExtendsCtx {
   href: Option<String>,
   symbol: String,
   type_args: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "kind", content = "value")]
 pub enum DocBlockSubtitleCtx {
@@ -255,7 +256,7 @@ impl DocBlockSubtitleCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SymbolContentCtx {
   pub id: crate::html::util::Id,
   pub docs: Option<String>,
@@ -266,7 +267,7 @@ impl SymbolContentCtx {
   pub const TEMPLATE: &'static str = "symbol_content";
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum SymbolInnerCtx {
   Function(function::FunctionCtx),
