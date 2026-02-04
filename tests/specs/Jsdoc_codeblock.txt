@@ -48,21 +48,21 @@ Defined in file:///mod.ts:35:1
 
 function C(): void
   C is a function
-  
+
   ```ts
   class Bar {
     #foo = "something";
   }
   console.log(bar);
   ```
-  
+
   Summarised
 
 Defined in file:///mod.ts:43:1
 
 function D(): void
   D
-  
+
   ```ts
   const bar = "foo";
   ```
@@ -71,12 +71,12 @@ Defined in file:///mod.ts:11:1
 
 class A
   A is a class
-  
+
   ```ts
   const bar = "foo";
   console.log(bar);
   ```
-  
+
   Nothing more
 
 
@@ -84,11 +84,11 @@ Defined in file:///mod.ts:22:1
 
 interface B
   B is an interface
-  
+
   ```ts
   console.log(bar);
   ```
-  
+
   Should be
 
 
