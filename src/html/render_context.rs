@@ -6,6 +6,7 @@ use crate::html::util::BreadcrumbsCtx;
 use crate::html::util::NamespacedSymbols;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
+use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -309,7 +310,7 @@ impl<'ctx> RenderContext<'ctx> {
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCEntry {
   pub level: u8,
   pub content: String,

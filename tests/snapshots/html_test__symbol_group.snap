@@ -1593,6 +1593,34 @@ expression: files
                           "anchor": {
                             "id": "accessor_getterandsetter"
                           },
+                          "tags": [],
+                          "js_doc": null,
+                          "source_href": null
+                        },
+                        {
+                          "id": "property_readonlyproperty",
+                          "name": "readonlyProperty",
+                          "name_href": "../././~/Foo.prototype.readonlyProperty.html",
+                          "content": "<span>: <span>boolean</span></span>",
+                          "anchor": {
+                            "id": "property_readonlyproperty"
+                          },
+                          "tags": [
+                            {
+                              "kind": "readonly"
+                            }
+                          ],
+                          "js_doc": null,
+                          "source_href": null
+                        },
+                        {
+                          "id": "accessor_setter",
+                          "name": "setter",
+                          "name_href": "../././~/Foo.prototype.setter.html",
+                          "content": "<span>: <span>string</span></span>",
+                          "anchor": {
+                            "id": "accessor_setter"
+                          },
                           "tags": [
                             {
                               "kind": "writeonly"
@@ -1631,54 +1659,6 @@ expression: files
                           "tags": [
                             {
                               "kind": "protected"
-                            }
-                          ],
-                          "js_doc": null,
-                          "source_href": null
-                        },
-                        {
-                          "id": "property_readonlyproperty",
-                          "name": "readonlyProperty",
-                          "name_href": "../././~/Foo.prototype.readonlyProperty.html",
-                          "content": "<span>: <span>boolean</span></span>",
-                          "anchor": {
-                            "id": "property_readonlyproperty"
-                          },
-                          "tags": [
-                            {
-                              "kind": "readonly"
-                            }
-                          ],
-                          "js_doc": null,
-                          "source_href": null
-                        },
-                        {
-                          "id": "accessor_setter",
-                          "name": "setter",
-                          "name_href": "../././~/Foo.prototype.setter.html",
-                          "content": "<span>: <span>string</span></span>",
-                          "anchor": {
-                            "id": "accessor_setter"
-                          },
-                          "tags": [
-                            {
-                              "kind": "writeonly"
-                            }
-                          ],
-                          "js_doc": null,
-                          "source_href": null
-                        },
-                        {
-                          "id": "accessor_getterandsetter-1",
-                          "name": "getterAndSetter",
-                          "name_href": "../././~/Foo.prototype.getterAndSetter.html",
-                          "content": "",
-                          "anchor": {
-                            "id": "accessor_getterandsetter-1"
-                          },
-                          "tags": [
-                            {
-                              "kind": "readonly"
                             }
                           ],
                           "js_doc": null,
@@ -1764,7 +1744,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"test 2\">test 2</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Foo\">Foo</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li><li><a href=\"#accessor_staticsetter\" title=\"staticSetter\">staticSetter</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_staticmethod_0\" title=\"staticMethod\">staticMethod</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;\" title=\"&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li><li><a href=\"#accessor_getterandsetter\" title=\"getterAndSetter\">getterAndSetter</a></li><li><a href=\"#accessor_getter\" title=\"getter\">getter</a></li><li><a href=\"#property_protectedproperty\" title=\"protectedProperty\">protectedProperty</a></li><li><a href=\"#property_readonlyproperty\" title=\"readonlyProperty\">readonlyProperty</a></li><li><a href=\"#accessor_setter\" title=\"setter\">setter</a></li><li><a href=\"#accessor_getterandsetter-1\" title=\"getterAndSetter\">getterAndSetter</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_[symbol_iterator]_0\" title=\"[Symbol.iterator]\">[Symbol.iterator]</a></li><li><a href=\"#method_test_0\" title=\"test\">test</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"test 2\">test 2</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Foo\">Foo</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_bar\" title=\"bar\">bar</a></li><li><a href=\"#accessor_staticsetter\" title=\"staticSetter\">staticSetter</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_staticmethod_0\" title=\"staticMethod\">staticMethod</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;\" title=\"&quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;\">\"&gt;&lt;img src=x onerror=alert(1)&gt;</a></li><li><a href=\"#property_foo\" title=\"foo\">foo</a></li><li><a href=\"#accessor_getterandsetter\" title=\"getterAndSetter\">getterAndSetter</a></li><li><a href=\"#property_readonlyproperty\" title=\"readonlyProperty\">readonlyProperty</a></li><li><a href=\"#accessor_setter\" title=\"setter\">setter</a></li><li><a href=\"#accessor_getter\" title=\"getter\">getter</a></li><li><a href=\"#property_protectedproperty\" title=\"protectedProperty\">protectedProperty</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_[symbol_iterator]_0\" title=\"[Symbol.iterator]\">[Symbol.iterator]</a></li><li><a href=\"#method_test_0\" title=\"test\">test</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -1848,16 +1828,6 @@ expression: files
         },
         {
           "level": 2,
-          "content": "getter",
-          "anchor": "accessor_getter"
-        },
-        {
-          "level": 2,
-          "content": "protectedProperty",
-          "anchor": "property_protectedproperty"
-        },
-        {
-          "level": 2,
           "content": "readonlyProperty",
           "anchor": "property_readonlyproperty"
         },
@@ -1868,8 +1838,13 @@ expression: files
         },
         {
           "level": 2,
-          "content": "getterAndSetter",
-          "anchor": "accessor_getterandsetter-1"
+          "content": "getter",
+          "anchor": "accessor_getter"
+        },
+        {
+          "level": 2,
+          "content": "protectedProperty",
+          "anchor": "property_protectedproperty"
         },
         {
           "level": 1,
