@@ -1,0 +1,45 @@
+# old/mod.ts
+export class Foo {
+  value: string = "";
+}
+
+# new/mod.ts
+export class Foo {
+  value: number = 0;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "propertyChanges": {
+              "modified": [
+                {
+                  "name": "value",
+                  "typeChange": {
+                    "old": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    "new": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

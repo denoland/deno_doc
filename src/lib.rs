@@ -17,6 +17,7 @@ extern crate serde_json;
 pub mod class;
 mod decorators;
 mod diagnostics;
+pub mod diff;
 mod display;
 pub mod r#enum;
 pub mod function;
@@ -52,6 +53,7 @@ cfg_if! {
 pub use parser::DocError;
 pub use parser::DocParser;
 pub use parser::DocParserOptions;
+pub use parser::ParseOutput;
 
 #[cfg(test)]
 mod tests;

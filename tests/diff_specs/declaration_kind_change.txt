@@ -1,0 +1,23 @@
+# old/mod.ts
+declare const VERSION: string;
+
+# new/mod.ts
+export const VERSION: string = "1.0.0";
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "VERSION",
+          "kind": "variable",
+          "declarationKindChange": {
+            "old": "declare",
+            "new": "export"
+          }
+        }
+      ]
+    }
+  }
+}

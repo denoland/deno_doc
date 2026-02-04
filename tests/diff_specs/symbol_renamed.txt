@@ -1,0 +1,23 @@
+# old/mod.ts
+export function foo() {}
+
+# new/mod.ts
+export function bar() {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "bar",
+          "kind": "function",
+          "nameChange": {
+            "old": "foo",
+            "new": "bar"
+          }
+        }
+      ]
+    }
+  }
+}

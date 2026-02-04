@@ -1,0 +1,110 @@
+# old/mod.ts
+interface Runnable { run(): void; }
+export class Foo {}
+
+# new/mod.ts
+interface Runnable { run(): void; }
+export class Foo implements Runnable {
+  run() {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "Runnable",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "interfaceDef": {
+            "extends": [],
+            "constructors": [],
+            "methods": [
+              {
+                "name": "run",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 21,
+                  "byteIndex": 21
+                },
+                "params": [],
+                "optional": false,
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "keyword": "void"
+                },
+                "typeParams": []
+              }
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ],
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "implementsChange": {
+              "added": [
+                {
+                  "repr": "Runnable",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Runnable"
+                  }
+                }
+              ]
+            },
+            "methodChanges": {
+              "added": [
+                {
+                  "accessibility": null,
+                  "optional": false,
+                  "isAbstract": false,
+                  "isStatic": false,
+                  "name": "run",
+                  "kind": "method",
+                  "functionDef": {
+                    "params": [],
+                    "returnType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "keyword": "void"
+                    },
+                    "hasBody": true,
+                    "isAsync": false,
+                    "isGenerator": false,
+                    "typeParams": []
+                  },
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 3,
+                    "col": 2,
+                    "byteIndex": 77
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

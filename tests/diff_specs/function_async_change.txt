@@ -1,0 +1,26 @@
+# old/mod.ts
+export function fetch(): Promise<void> { return Promise.resolve(); }
+
+# new/mod.ts
+export async function fetch(): Promise<void> {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "fetch",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "isAsyncChange": {
+              "old": false,
+              "new": true
+            }
+          }
+        }
+      ]
+    }
+  }
+}

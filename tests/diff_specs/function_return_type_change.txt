@@ -1,0 +1,34 @@
+# old/mod.ts
+export function foo(): string { return ""; }
+
+# new/mod.ts
+export function foo(): number { return 0; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "returnTypeChange": {
+              "old": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "new": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

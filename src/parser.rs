@@ -94,6 +94,8 @@ impl From<deno_ast::ParseDiagnostic> for DocError {
   }
 }
 
+pub type ParseOutput = IndexMap<ModuleSpecifier, Vec<DocNode>>;
+
 #[derive(Default, Clone)]
 pub struct DocParserOptions {
   /// Whether diagnostics should be collected.
@@ -160,9 +162,7 @@ impl<'a> DocParser<'a> {
     get_module_info(&self.root_symbol, specifier)
   }
 
-  pub fn parse(
-    &self,
-  ) -> Result<IndexMap<ModuleSpecifier, Vec<DocNode>>, DocError> {
+  pub fn parse(&self) -> Result<ParseOutput, DocError> {
     let mut doc_nodes_by_url = self
       .specifiers
       .iter()

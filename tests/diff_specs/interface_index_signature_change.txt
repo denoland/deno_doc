@@ -1,0 +1,44 @@
+# old/mod.ts
+export interface Dict {
+  [key: string]: number;
+}
+
+# new/mod.ts
+export interface Dict {
+  [key: string]: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Dict",
+          "kind": "interface",
+          "defChanges": {
+            "type": "interface",
+            "indexSignatureChanges": {
+              "modified": [
+                {
+                  "typeChange": {
+                    "old": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    },
+                    "new": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

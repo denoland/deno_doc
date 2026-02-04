@@ -1,9 +1,9 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ModuleSpecifier;
-use deno_doc::DocNode;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
+use deno_doc::ParseOutput;
 use deno_doc::html::pages::SymbolPage;
 use deno_doc::html::*;
 use deno_graph::BuildOptions;
@@ -109,7 +109,7 @@ impl UsageComposer for EmptyResolver {
   }
 }
 
-async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
+async fn get_files(subpath: &str) -> ParseOutput {
   let files = fs::read_dir(
     std::env::current_dir()
       .unwrap()

@@ -1,0 +1,26 @@
+# old/mod.ts
+export let VERSION: string = "1.0.0";
+
+# new/mod.ts
+export const VERSION: string = "1.0.0";
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "VERSION",
+          "kind": "variable",
+          "defChanges": {
+            "type": "variable",
+            "kindChange": {
+              "old": "let",
+              "new": "const"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

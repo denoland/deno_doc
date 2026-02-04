@@ -1,0 +1,70 @@
+# old/mod.ts
+export function foo() {}
+
+# new/mod.ts
+export const foo = () => {};
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "foo",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 13,
+            "byteIndex": 13
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "variableDef": {
+            "tsType": {
+              "repr": "",
+              "kind": "fnOrConstructor",
+              "fnOrConstructor": {
+                "constructor": false,
+                "tsType": {
+                  "repr": "unknown",
+                  "kind": "keyword",
+                  "keyword": "unknown"
+                },
+                "params": [],
+                "typeParams": []
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ],
+      "removed": [
+        {
+          "name": "foo",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+# old/mod.ts
+export function process<T extends string>(value: T): T { return value; }
+
+# new/mod.ts
+export function process<T extends number>(value: T): T { return value; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "process",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "typeParamsChange": {
+              "modified": [
+                {
+                  "name": "T",
+                  "constraintChange": {
+                    "old": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    "new": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

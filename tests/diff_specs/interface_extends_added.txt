@@ -1,0 +1,82 @@
+# old/mod.ts
+interface Base { id: number; }
+export interface Foo {
+  name: string;
+}
+
+# new/mod.ts
+interface Base { id: number; }
+export interface Foo extends Base {
+  name: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "Base",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "interfaceDef": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "id",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 17,
+                  "byteIndex": 17
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ],
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "interface",
+          "defChanges": {
+            "type": "interface",
+            "extendsChange": {
+              "added": [
+                {
+                  "repr": "Base",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "Base"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

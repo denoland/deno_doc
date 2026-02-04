@@ -1,0 +1,37 @@
+# old/mod.ts
+export class Child extends Parent {
+  name: string = "";
+}
+
+# new/mod.ts
+export class Child extends Parent {
+  override name: string = "";
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Child",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "propertyChanges": {
+              "modified": [
+                {
+                  "name": "name",
+                  "isOverrideChange": {
+                    "old": false,
+                    "new": true
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

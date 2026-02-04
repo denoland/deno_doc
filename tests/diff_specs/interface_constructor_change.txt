@@ -1,0 +1,100 @@
+# old/mod.ts
+export interface Foo {
+  new(name: string): Foo;
+}
+
+# new/mod.ts
+export interface Foo {
+  new(name: string, age: number): Foo;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "interface",
+          "defChanges": {
+            "type": "interface",
+            "constructorChanges": {
+              "added": [
+                {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "name",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    },
+                    {
+                      "kind": "identifier",
+                      "name": "age",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "keyword": "number"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "Foo",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Foo"
+                    }
+                  },
+                  "typeParams": [],
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 2,
+                    "col": 2,
+                    "byteIndex": 25
+                  }
+                }
+              ],
+              "removed": [
+                {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "name",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "Foo",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Foo"
+                    }
+                  },
+                  "typeParams": [],
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 2,
+                    "col": 2,
+                    "byteIndex": 25
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
