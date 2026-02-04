@@ -8,6 +8,7 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
+use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
@@ -157,7 +158,7 @@ fn render_constructors(
   ))
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct IndexSignatureCtx {
   pub id: Id,
   pub anchor: AnchorCtx,

@@ -7,18 +7,20 @@ use crate::html::util::Id;
 use crate::html::util::IdBuilder;
 use crate::html::util::IdKind;
 use crate::js_doc::JsDocTag;
+use serde::Deserialize;
 use serde::Serialize;
 use serde_json::json;
+use std::borrow::Cow;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SlimKindCtx {
   pub char: char,
-  pub kind: &'static str,
-  pub title: &'static str,
+  pub kind: Cow<'static, str>,
+  pub title: Cow<'static, str>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchIndexNode {
   pub id: Id,
