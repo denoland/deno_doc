@@ -1,0 +1,274 @@
+# mod.ts
+/**
+ * # `lorem_ipsum`
+ *
+ * [![](https://example.com/badge.svg)](https://example.com/crate)
+ * [![Lorem](https://example.com/badges/lorem)](https://example.com/lorem)
+ *
+ * Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+ * tempor incididunt ut labore et dolore magna aliqua.
+ *
+ * ## Usage
+ *
+ * See [docs/README.md](docs/README.md).
+ *
+ * ## Example
+ *
+ * `examples/lorem/main.rs` provides a minimal standalone binary demonstrating
+ * how the library can be used as a crate.
+ *
+ * ```shell
+ * $ cargo run --example lorem ../std/http/mod.ts
+ * ```
+ *
+ * ## Developing
+ *
+ * ```shell
+ * # build all targets
+ * $ cargo build --all-targets
+ *
+ * # test it
+ * $ cargo test
+ *
+ * # build api
+ * $ task build
+ *
+ * # test it
+ * $ task test
+ * ```
+ *
+ * ### HTML generation
+ *
+ * Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+ * aliquip ex ea commodo consequat:
+ *
+ * `task tailwind`: this regenerates the transpiled tailwind from the css
+ * files and mentions of classes across the codebases, be it in rust files or js
+ * files. This needs to always be run to do any updates to the styling.
+ *
+ * `task gen_html`: This generates a `generated_docs` directory which is the
+ * HTML output based on the provided files.
+ *
+ * `task debug`: this calls the above tailwind task, and then the gen_html
+ * task with all the files from `tests/testdata/multiple` passed.
+ *
+ * Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
+ * eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+ *
+ * We use [insta](https://example.com/insta) testing tool for taking
+ * snapshots of the html output. If you change the rendering of html output, or
+ * change the fixture files for html testing, you need to update snapshot using
+ * [cargo-insta](https://example.com/insta/docs) command.
+ *
+ * ```
+ * # update snapshots
+ * cargo insta test
+ *
+ * # review snapshots
+ * cargo insta review
+ * ```
+ *
+ * See [the insta docs](https://example.com/insta/docs) for more details.
+ *
+ * ### Internal structure
+ *
+ * Most of the HTML generated, except if its in very small fragments (ie a single
+ * element or two) is located in `src/html/templates`. This is also where scripts,
+ * CSS and icons live. The `page` directory in it is an extension to that which
+ * only relates to generation of a full-fledged documentation page, and is not
+ * used when just generating fragments (like https://example.com).
+ *
+ * Rendering of a symbol is done in the `src/html/symbols` directory, in the
+ * corresponding file depending on the type of the symbol. Namespace is a special
+ * case as in it is used for things besides namespaces, for example the "all
+ * symbols" page.
+ *
+ * A collection of symbols that refer to the same symbol identifier (like lets say
+ * having a class and namespace with the same name of `MySymbol`), are called a
+ * "symbol group".
+ *
+ * The markdown rendering is pluggable and a default renderer is available via the
+ * `comrak` feature which enables a default markdown renderer using the crate with
+ * the same name.
+ *
+ * An internal struct is `ShortPath`, which is a wrapper around a `Url` instance
+ * with some additional information, including the display value and if it is the
+ * main entrypoint. In addition to this struct, we have another wrapper struct
+ * named `DocNodeWithContext`, which contains a `DocNode` and information related
+ * to it, like a resolved identifier for representing its name in a namespace, and
+ * also data related to "property drilldown".
+ *
+ * Property drilldown is what we call being able to view properties, methods and
+ * other accessors on classes, interfaces and applicable variables and type
+ * aliases. It however does not refer to an item in a namespace, as those have
+ * their unique handling.
+ *
+ * ## Contributing
+ *
+ * - If you are going to work on an issue, mention so in the issue comments
+ *   _before_ you start working on the issue.
+ *
+ * - Please be professional in the forums. See our
+ *   [Code of Conduct](https://example.com/code-of-conduct).
+ *
+ * - Ask for help in the [community chat room](https://example.com/chat).
+ *
+ * ## Submitting a Pull Request
+ *
+ * Before submitting, please make sure the following is done:
+ *
+ * 1. That there is a related issue and it is referenced in the PR text.
+ * 2. There are tests that cover the changes.
+ * 3. Ensure `cargo test` and `task test` passes.
+ * 4. Format your code with `rustfmt --check src/lib.rs`
+ * 5. Make sure `cargo clippy --all-targets --release --locked -- -D clippy::all`
+ *    passes.
+ *
+ * @module
+ */
+
+export {}
+# output.txt
+Defined in file:///mod.ts:1:1
+
+  # `lorem_ipsum`
+
+  [image](https://example.com/badge.svg) (https://example.com/crate)
+  [Lorem](https://example.com/badges/lorem) (https://example.com/lorem)
+
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+  tempor incididunt ut labore et dolore magna aliqua.
+
+  ## Usage
+
+  See docs/README.md.
+
+  ## Example
+
+  `examples/lorem/main.rs` provides a minimal standalone binary demonstrating
+  how the library can be used as a crate.
+
+  ```shell
+  $ cargo run --example lorem ../std/http/mod.ts
+  ```
+
+  ## Developing
+
+  ```shell
+  $ cargo build --all-targets
+
+  $ cargo test
+
+  $ task build
+
+  $ task test
+  ```
+
+  ### HTML generation
+
+  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+  aliquip ex ea commodo consequat:
+
+  `task tailwind`: this regenerates the transpiled tailwind from the css
+  files and mentions of classes across the codebases, be it in rust files or js
+  files. This needs to always be run to do any updates to the styling.
+
+  `task gen_html`: This generates a `generated_docs` directory which is the
+  HTML output based on the provided files.
+
+  `task debug`: this calls the above tailwind task, and then the gen_html
+  task with all the files from `tests/testdata/multiple` passed.
+
+  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
+  eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+
+  We use insta (https://example.com/insta) testing tool for taking
+  snapshots of the html output. If you change the rendering of html output, or
+  change the fixture files for html testing, you need to update snapshot using
+  cargo-insta (https://example.com/insta/docs) command.
+
+  ```
+  cargo insta test
+
+  cargo insta review
+  ```
+
+  See the insta docs (https://example.com/insta/docs) for more details.
+
+  ### Internal structure
+
+  Most of the HTML generated, except if its in very small fragments (ie a single
+  element or two) is located in `src/html/templates`. This is also where scripts,
+  CSS and icons live. The `page` directory in it is an extension to that which
+  only relates to generation of a full-fledged documentation page, and is not
+  used when just generating fragments (like https://example.com).
+
+  Rendering of a symbol is done in the `src/html/symbols` directory, in the
+  corresponding file depending on the type of the symbol. Namespace is a special
+  case as in it is used for things besides namespaces, for example the "all
+  symbols" page.
+
+  A collection of symbols that refer to the same symbol identifier (like lets say
+  having a class and namespace with the same name of `MySymbol`), are called a
+  "symbol group".
+
+  The markdown rendering is pluggable and a default renderer is available via the
+  `comrak` feature which enables a default markdown renderer using the crate with
+  the same name.
+
+  An internal struct is `ShortPath`, which is a wrapper around a `Url` instance
+  with some additional information, including the display value and if it is the
+  main entrypoint. In addition to this struct, we have another wrapper struct
+  named `DocNodeWithContext`, which contains a `DocNode` and information related
+  to it, like a resolved identifier for representing its name in a namespace, and
+  also data related to "property drilldown".
+
+  Property drilldown is what we call being able to view properties, methods and
+  other accessors on classes, interfaces and applicable variables and type
+  aliases. It however does not refer to an item in a namespace, as those have
+  their unique handling.
+
+  ## Contributing
+
+  - If you are going to work on an issue, mention so in the issue comments
+    before you start working on the issue.
+  - Please be professional in the forums. See our
+    Code of Conduct (https://example.com/code-of-conduct).
+  - Ask for help in the community chat room (https://example.com/chat).
+
+  ## Submitting a Pull Request
+
+  Before submitting, please make sure the following is done:
+
+  1. That there is a related issue and it is referenced in the PR text.
+  2. There are tests that cover the changes.
+  3. Ensure `cargo test` and `task test` passes.
+  4. Format your code with `rustfmt --check src/lib.rs`
+  5. Make sure `cargo clippy --all-targets --release --locked -- -D clippy::all`
+     passes.
+
+  @module
+
+
+# output.json
+[
+  {
+    "name": "",
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 1,
+      "col": 0,
+      "byteIndex": 0
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "# `lorem_ipsum`\n\n[![](https://example.com/badge.svg)](https://example.com/crate)\n[![Lorem](https://example.com/badges/lorem)](https://example.com/lorem)\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod\ntempor incididunt ut labore et dolore magna aliqua.\n\n## Usage\n\nSee [docs/README.md](docs/README.md).\n\n## Example\n\n`examples/lorem/main.rs` provides a minimal standalone binary demonstrating\nhow the library can be used as a crate.\n\n```shell\n$ cargo run --example lorem ../std/http/mod.ts\n```\n\n## Developing\n\n```shell\n$ cargo build --all-targets\n\n$ cargo test\n\n$ task build\n\n$ task test\n```\n\n### HTML generation\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut\naliquip ex ea commodo consequat:\n\n`task tailwind`: this regenerates the transpiled tailwind from the css\nfiles and mentions of classes across the codebases, be it in rust files or js\nfiles. This needs to always be run to do any updates to the styling.\n\n`task gen_html`: This generates a `generated_docs` directory which is the\nHTML output based on the provided files.\n\n`task debug`: this calls the above tailwind task, and then the gen_html\ntask with all the files from `tests/testdata/multiple` passed.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore\neu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.\n\nWe use [insta](https://example.com/insta) testing tool for taking\nsnapshots of the html output. If you change the rendering of html output, or\nchange the fixture files for html testing, you need to update snapshot using\n[cargo-insta](https://example.com/insta/docs) command.\n\n```\ncargo insta test\n\ncargo insta review\n```\n\nSee [the insta docs](https://example.com/insta/docs) for more details.\n\n### Internal structure\n\nMost of the HTML generated, except if its in very small fragments (ie a single\nelement or two) is located in `src/html/templates`. This is also where scripts,\nCSS and icons live. The `page` directory in it is an extension to that which\nonly relates to generation of a full-fledged documentation page, and is not\nused when just generating fragments (like https://example.com).\n\nRendering of a symbol is done in the `src/html/symbols` directory, in the\ncorresponding file depending on the type of the symbol. Namespace is a special\ncase as in it is used for things besides namespaces, for example the \"all\nsymbols\" page.\n\nA collection of symbols that refer to the same symbol identifier (like lets say\nhaving a class and namespace with the same name of `MySymbol`), are called a\n\"symbol group\".\n\nThe markdown rendering is pluggable and a default renderer is available via the\n`comrak` feature which enables a default markdown renderer using the crate with\nthe same name.\n\nAn internal struct is `ShortPath`, which is a wrapper around a `Url` instance\nwith some additional information, including the display value and if it is the\nmain entrypoint. In addition to this struct, we have another wrapper struct\nnamed `DocNodeWithContext`, which contains a `DocNode` and information related\nto it, like a resolved identifier for representing its name in a namespace, and\nalso data related to \"property drilldown\".\n\nProperty drilldown is what we call being able to view properties, methods and\nother accessors on classes, interfaces and applicable variables and type\naliases. It however does not refer to an item in a namespace, as those have\ntheir unique handling.\n\n## Contributing\n\n- If you are going to work on an issue, mention so in the issue comments\n  _before_ you start working on the issue.\n\n- Please be professional in the forums. See our\n  [Code of Conduct](https://example.com/code-of-conduct).\n\n- Ask for help in the [community chat room](https://example.com/chat).\n\n## Submitting a Pull Request\n\nBefore submitting, please make sure the following is done:\n\n1. That there is a related issue and it is referenced in the PR text.\n2. There are tests that cover the changes.\n3. Ensure `cargo test` and `task test` passes.\n4. Format your code with `rustfmt --check src/lib.rs`\n5. Make sure `cargo clippy --all-targets --release --locked -- -D clippy::all`\n   passes.\n",
+      "tags": [
+        {
+          "kind": "module"
+        }
+      ]
+    },
+    "kind": "moduleDoc"
+  }
+]

@@ -15,6 +15,7 @@ use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
 use regex::Regex;
+use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -121,7 +122,16 @@ impl<'a> IdBuilder<'a> {
 }
 
 #[derive(
-  Debug, Clone, Serialize, Ord, PartialOrd, Eq, PartialEq, Hash, Default,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
+  Ord,
+  PartialOrd,
+  Eq,
+  PartialEq,
+  Hash,
+  Default,
 )]
 pub struct Id(String);
 
@@ -471,7 +481,7 @@ pub trait HrefResolver {
   ) -> Option<(String, String)>;
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbCtx {
   pub name: String,
   pub href: String,
@@ -479,7 +489,7 @@ pub struct BreadcrumbCtx {
   pub is_first_symbol: bool,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbsCtx {
   pub parts: Vec<BreadcrumbCtx>,
 }
@@ -504,13 +514,13 @@ impl BreadcrumbsCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 pub struct DocNodeKindCtx {
-  pub kind: &'static str,
+  pub kind: Cow<'static, str>,
   pub char: char,
-  pub title: &'static str,
-  pub title_lowercase: &'static str,
-  pub title_plural: &'static str,
+  pub title: Cow<'static, str>,
+  pub title_lowercase: Cow<'static, str>,
+  pub title_plural: Cow<'static, str>,
 }
 
 impl From<DocNodeKind> for DocNodeKindCtx {
@@ -543,16 +553,18 @@ impl From<DocNodeKind> for DocNodeKindCtx {
     };
 
     Self {
-      kind,
+      kind: kind.into(),
       char,
-      title,
-      title_lowercase,
-      title_plural,
+      title: title.into(),
+      title_lowercase: title_lowercase.into(),
+      title_plural: title_plural.into(),
     }
   }
 }
 
-#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct AnchorCtx {
   pub id: Id,
 }
@@ -561,7 +573,7 @@ impl AnchorCtx {
   pub const TEMPLATE: &'static str = "anchor";
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
   DocEntry(Vec<DocEntryCtx>),
@@ -572,7 +584,9 @@ pub enum SectionContentCtx {
   Empty,
 }
 
-#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct SectionHeaderCtx {
   pub title: String,
   pub anchor: AnchorCtx,
@@ -622,7 +636,7 @@ impl SectionHeaderCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SectionCtx {
   pub header: Option<SectionHeaderCtx>,
   pub content: SectionContentCtx,
@@ -700,7 +714,7 @@ impl SectionCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum Tag {
   New,
@@ -741,7 +755,7 @@ impl Tag {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
   id: Id,
   name: Option<String>,
@@ -805,14 +819,14 @@ pub fn qualify_drilldown_name(
   )
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TopSymbolCtx {
   pub kind: IndexSet<DocNodeKindCtx>,
   pub name: String,
   pub href: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TopSymbolsCtx {
   pub symbols: Vec<TopSymbolCtx>,
   pub total_symbols: usize,
@@ -867,7 +881,7 @@ impl TopSymbolsCtx {
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCCtx {
   pub usages: Option<UsagesCtx>,
   pub top_symbols: Option<TopSymbolsCtx>,

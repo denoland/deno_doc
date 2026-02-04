@@ -208,7 +208,10 @@ fn analyze_root_exported_ids(
   {
     let mut pending_symbols = Vec::new();
     for root in &graph.roots {
-      let module = resolve_deno_graph_module(graph, root)?;
+      let Ok(module) = resolve_deno_graph_module(graph, root) else {
+        // leave invalid roots up to the caller
+        continue;
+      };
       let module_info = get_module_info(root_symbol, module.specifier())?;
       let exports = module_info.exports(root_symbol);
       for (_name, export) in &exports.resolved {
