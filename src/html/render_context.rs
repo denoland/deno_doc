@@ -179,31 +179,37 @@ impl<'ctx> RenderContext<'ctx> {
         .resolve_path(self.current_resolve, UrlResolveKind::Root),
     };
     let mut current_entrypoint = None;
-    let mut entrypoints = self.ctx.doc_nodes.keys().cloned().collect::<Vec<_>>();
+    let mut entrypoints =
+      self.ctx.doc_nodes.keys().cloned().collect::<Vec<_>>();
     entrypoints.sort_unstable_by_key(|a| !a.is_main);
 
-    let mut entrypoints = entrypoints.into_iter().map(|short_path| {
-      BreadcrumbCtx {
+    let mut entrypoints = entrypoints
+      .into_iter()
+      .map(|short_path| BreadcrumbCtx {
         name: short_path.display_name().to_string(),
+        href: self.ctx.resolve_path(
+          self.current_resolve,
+          UrlResolveKind::File { file: &short_path },
+        ),
+      })
+      .collect::<Vec<_>>();
+
+    entrypoints.insert(
+      0,
+      BreadcrumbCtx {
+        name: "all symbols".to_string(),
         href: self
           .ctx
-          .resolve_path(self.current_resolve, UrlResolveKind::File { file: &short_path }),
-      }
-    }).collect::<Vec<_>>();
-
-    entrypoints.insert(0, BreadcrumbCtx {
-      name: "all symbols".to_string(),
-      href: self
-        .ctx
-        .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
-    });
+          .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
+      },
+    );
 
     let mut symbols = vec![];
 
     match self.current_resolve {
       UrlResolveKind::Root => {
         entrypoints = vec![];
-      },
+      }
       UrlResolveKind::AllSymbols => {
         current_entrypoint = Some(BreadcrumbCtx {
           name: "all symbols".to_string(),
@@ -243,32 +249,36 @@ impl<'ctx> RenderContext<'ctx> {
           });
         }
 
-        let (_, symbol_parts) =
-          split_with_brackets(symbol).into_iter().fold(
-            (vec![], vec![]),
-            |(mut symbol_parts, mut breadcrumbs), symbol_part| {
-              symbol_parts.push(symbol_part.clone());
-              let breadcrumb = BreadcrumbCtx {
-                name: symbol_part,
-                href: self.ctx.resolve_path(
-                  self.current_resolve,
-                  UrlResolveKind::Symbol {
-                    file,
-                    symbol: &symbol_parts.join("."),
-                  },
-                ),
-              };
-              breadcrumbs.push(breadcrumb);
+        let (_, symbol_parts) = split_with_brackets(symbol).into_iter().fold(
+          (vec![], vec![]),
+          |(mut symbol_parts, mut breadcrumbs), symbol_part| {
+            symbol_parts.push(symbol_part.clone());
+            let breadcrumb = BreadcrumbCtx {
+              name: symbol_part,
+              href: self.ctx.resolve_path(
+                self.current_resolve,
+                UrlResolveKind::Symbol {
+                  file,
+                  symbol: &symbol_parts.join("."),
+                },
+              ),
+            };
+            breadcrumbs.push(breadcrumb);
 
-              (symbol_parts, breadcrumbs)
-            },
-          );
+            (symbol_parts, breadcrumbs)
+          },
+        );
 
         symbols = symbol_parts;
       }
     }
 
-    BreadcrumbsCtx { root, current_entrypoint, entrypoints, symbol: symbols }
+    BreadcrumbsCtx {
+      root,
+      current_entrypoint,
+      entrypoints,
+      symbol: symbols,
+    }
   }
 }
 

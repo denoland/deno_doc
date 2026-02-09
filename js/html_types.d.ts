@@ -107,14 +107,15 @@ export interface UsageCtx {
 }
 
 export interface BreadcrumbsCtx {
-  parts: BreadcrumbCtx[];
+  root: BreadcrumbCtx;
+  current_entrypoint: BreadcrumbCtx | null;
+  entrypoints: BreadcrumbCtx[];
+  symbol: BreadcrumbCtx[];
 }
 
 export interface BreadcrumbCtx {
   name: string;
   href: string;
-  is_symbol: boolean;
-  is_first_symbol: boolean;
 }
 
 export interface TopSymbolsCtx {

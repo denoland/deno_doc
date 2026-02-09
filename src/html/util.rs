@@ -499,9 +499,7 @@ impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
 
   pub fn to_strings(&self) -> Vec<Cow<'_, str>> {
-    let mut title_parts = vec![
-      Cow::Borrowed(self.root.name.as_str())
-    ];
+    let mut title_parts = vec![Cow::Borrowed(self.root.name.as_str())];
 
     if let Some(entrypoint) = &self.current_entrypoint {
       title_parts.push(Cow::Borrowed(entrypoint.name.as_str()));
@@ -509,7 +507,12 @@ impl BreadcrumbsCtx {
 
     if !self.symbol.is_empty() {
       title_parts.push(Cow::Owned(
-        self.symbol.iter().map(|crumb| crumb.name.as_str()).collect::<Vec<_>>().join(".")
+        self
+          .symbol
+          .iter()
+          .map(|crumb| crumb.name.as_str())
+          .collect::<Vec<_>>()
+          .join("."),
       ));
     }
 

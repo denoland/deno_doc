@@ -237,7 +237,11 @@ impl IndexCtx {
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
+      super::jsdoc::ModuleDocCtx::new(
+        &render_ctx,
+        short_path,
+        !short_path.is_main,
+      )
     });
 
     let root =

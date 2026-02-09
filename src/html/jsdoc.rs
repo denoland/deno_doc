@@ -329,7 +329,11 @@ pub struct ModuleDocCtx {
 impl ModuleDocCtx {
   pub const TEMPLATE: &'static str = "module_doc";
 
-  pub fn new(render_ctx: &RenderContext, short_path: &ShortPath) -> Self {
+  pub fn new(
+    render_ctx: &RenderContext,
+    short_path: &ShortPath,
+    render_symbols: bool,
+  ) -> Self {
     let module_doc_nodes = render_ctx.ctx.doc_nodes.get(short_path).unwrap();
 
     let mut sections = Vec::with_capacity(7);
@@ -361,7 +365,7 @@ impl ModuleDocCtx {
       (None, None)
     };
 
-    if !short_path.is_main {
+    if render_symbols {
       let partitions_by_kind = super::partition::partition_nodes_by_kind(
         render_ctx.ctx,
         module_doc_nodes.iter().map(Cow::Borrowed),

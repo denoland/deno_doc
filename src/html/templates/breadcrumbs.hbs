@@ -8,13 +8,13 @@
   {{~#if current_entrypoint~}}
     <span class="text-black dark:text-white">{{~> icons/arrow ~}}</span>
 
-    <li>
-      <select autocomplete="off">
-        {{~#each entrypoints~}}
-          <option value="{{this.name}}" {{#if (eq (lookup ../current_entrypoint "name") this.name)}}selected{{/if}}>{{this.name}}</option>
-        {{~/each~}}
-      </select>
-    </li>
+    {{~#if symbol~}}
+      <a href="{{current_entrypoint.href}}" class="contextLink">
+        {{~current_entrypoint.name~}}
+      </a>
+    {{~else~}}
+      {{~current_entrypoint.name~}}
+    {{~/if~}}
   {{~/if~}}
 
 
