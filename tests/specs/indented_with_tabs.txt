@@ -30,17 +30,17 @@ Defined in file:///mod.ts:8:1
 
 namespace Tabs
   Line 1
-  
+
   Line 2
-  
-  	Indented
+
+      Indented
 
   interface Tabs
     Line 1
-    
+
     Line 2
-    
-    	Indented
+
+        Indented
 
 
 # output.json

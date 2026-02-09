@@ -28,11 +28,11 @@ namespace Namespace
 
   function a(): void
     Doc comment 1
-    
+
     Details 1
   class B
     Doc comment 2
-    
+
     Details 2
 
 
