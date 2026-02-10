@@ -213,7 +213,10 @@ impl<'ctx> RenderContext<'ctx> {
       UrlResolveKind::AllSymbols => {
         current_entrypoint = Some(BreadcrumbCtx {
           name: "all symbols".to_string(),
-          href: "".to_string(),
+          href: self.ctx.resolve_path(
+            self.current_resolve,
+            UrlResolveKind::AllSymbols,
+          ),
         });
       }
       UrlResolveKind::Category { category } => {
@@ -223,23 +226,16 @@ impl<'ctx> RenderContext<'ctx> {
         });
       }
       UrlResolveKind::File { file } => {
-        if !file.is_main {
-          current_entrypoint = Some(BreadcrumbCtx {
-            name: file.display_name().to_string(),
-            href: "".to_string(),
-          });
-        }
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: file.display_name().to_string(),
+          href: self.ctx.resolve_path(
+            self.current_resolve,
+            UrlResolveKind::File { file },
+          ),
+        });
       }
       UrlResolveKind::Symbol { file, symbol } => {
-        if !file.is_main {
-          current_entrypoint = Some(BreadcrumbCtx {
-            name: file.display_name().to_string(),
-            href: self.ctx.resolve_path(
-              self.current_resolve,
-              UrlResolveKind::File { file },
-            ),
-          });
-        } else if let Some(category) = self.category {
+        if let Some(category) = self.category {
           current_entrypoint = Some(BreadcrumbCtx {
             name: category.to_string(),
             href: self.ctx.resolve_path(
@@ -247,7 +243,15 @@ impl<'ctx> RenderContext<'ctx> {
               UrlResolveKind::Category { category },
             ),
           });
-        }
+        } else {
+         current_entrypoint = Some(BreadcrumbCtx {
+           name: file.display_name().to_string(),
+           href: self.ctx.resolve_path(
+             self.current_resolve,
+             UrlResolveKind::File { file },
+           ),
+         });
+       }
 
         let (_, symbol_parts) = split_with_brackets(symbol).into_iter().fold(
           (vec![], vec![]),
