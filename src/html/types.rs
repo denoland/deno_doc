@@ -10,6 +10,34 @@ use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
 
+const MAX_INLINE_LEN: usize = 60;
+
+fn html_text_len(html: &str) -> usize {
+  let mut len = 0;
+  let mut in_tag = false;
+  let mut chars = html.chars().peekable();
+  while let Some(ch) = chars.next() {
+    if ch == '<' {
+      in_tag = true;
+    } else if ch == '>' {
+      in_tag = false;
+    } else if !in_tag {
+      if ch == '&' {
+        // HTML entity - count as 1 character
+        for c in chars.by_ref() {
+          if c == ';' {
+            break;
+          }
+        }
+        len += 1;
+      } else {
+        len += 1;
+      }
+    }
+  }
+  len
+}
+
 pub(crate) fn render_type_def_colon(
   ctx: &RenderContext,
   def: &crate::ts_type::TsTypeDef,
@@ -29,10 +57,11 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::Keyword => {
       let keyword = def.keyword.as_ref().unwrap();
 
-      if let Some(href) = ctx
-        .ctx
-        .href_resolver
-        .resolve_global_symbol(&[keyword.to_owned()])
+      if !ctx.disable_links
+        && let Some(href) = ctx
+          .ctx
+          .href_resolver
+          .resolve_global_symbol(&[keyword.to_owned()])
       {
         format!(
           r#"<a href="{}" class="link">{keyword}</a>"#,
@@ -80,7 +109,9 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypeRef => {
       let type_ref = def.type_ref.as_ref().unwrap();
 
-      let href = if ctx.contains_type_param(&type_ref.type_name) {
+      let href = if ctx.disable_links {
+        None
+      } else if ctx.contains_type_param(&type_ref.type_name) {
         Some(format!(
           "#{}",
           IdBuilder::new(ctx.ctx)
@@ -116,10 +147,10 @@ pub(crate) fn render_type_def(
       )
     }
     TsTypeDefKind::Union => {
-      type_def_join(ctx, def.union.as_ref().unwrap(), "|")
+      type_def_join(ctx, def.union.as_ref().unwrap(), '|')
     }
     TsTypeDefKind::Intersection => {
-      type_def_join(ctx, def.intersection.as_ref().unwrap(), "&")
+      type_def_join(ctx, def.intersection.as_ref().unwrap(), '&')
     }
     TsTypeDefKind::Array => {
       format!("{}[]", render_type_def(ctx, def.array.as_ref().unwrap()))
@@ -148,7 +179,9 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypeQuery => {
       let query = def.type_query.as_ref().unwrap();
 
-      if let Some(href) = ctx.lookup_symbol_href(query) {
+      if !ctx.disable_links
+        && let Some(href) = ctx.lookup_symbol_href(query)
+      {
         format!(
           r#"<a href="{}" class="link">{}</a>"#,
           html_escape::encode_double_quoted_attribute(&href),
@@ -419,20 +452,21 @@ pub(crate) fn render_type_def(
 fn type_def_join(
   ctx: &RenderContext,
   union: &[crate::ts_type::TsTypeDef],
-  join: &str,
+  join: char,
 ) -> String {
-  if union.len() <= 2 {
-    let items = union
-      .iter()
-      .map(|element| render_type_def(ctx, element))
-      .collect::<Vec<String>>()
-      .join(&format!("<span> {join} </span>"));
+  let rendered: Vec<String> =
+    union.iter().map(|element| render_type_def(ctx, element)).collect();
 
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 3; // join char + 2 for spaces around
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join(&format!("<span> {join} </span>"));
     format!("<span>{items}</span>")
   } else {
-    let mut items = Vec::with_capacity(union.len());
+    let mut items = Vec::with_capacity(rendered.len());
 
-    for (i, element) in union.iter().enumerate() {
+    for (i, rendered_item) in rendered.iter().enumerate() {
       items.push(format!(
         r#"<span>{}{}</span>"#,
         if i != 0 {
@@ -440,7 +474,7 @@ fn type_def_join(
         } else {
           String::new()
         },
-        render_type_def(ctx, element)
+        rendered_item
       ));
     }
 
@@ -454,21 +488,25 @@ fn type_def_tuple(
   ctx: &RenderContext,
   tuple_items: &[crate::ts_type::TsTypeDef],
 ) -> String {
-  if tuple_items.len() <= 2 {
-    let items = tuple_items
-      .iter()
-      .map(|element| render_type_def(ctx, element))
-      .collect::<Vec<String>>()
-      .join(", ");
+  let rendered: Vec<String> = tuple_items
+    .iter()
+    .map(|element| render_type_def(ctx, element))
+    .collect();
 
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 2 // for brackets
+    + 2; // separator ", "
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join(", ");
     format!("<span>[{items}]</span>")
   } else {
-    let mut items = Vec::with_capacity(tuple_items.len());
+    let mut items = Vec::with_capacity(rendered.len());
 
-    for element in tuple_items {
+    for rendered_item in &rendered {
       items.push(format!(
         r#"<div><span>{}</span>, </div>"#,
-        render_type_def(ctx, element)
+        rendered_item
       ));
     }
 
@@ -484,20 +522,26 @@ pub(crate) fn type_params_summary(
   type_params: &[TsTypeParamDef],
 ) -> String {
   if type_params.is_empty() {
-    String::new()
-  } else if type_params.len() == 1 {
-    format!(
-      "<span>&lt;{}&gt;</span>",
-      type_param_summary(ctx, &type_params[0], "extends")
-    )
-  } else {
-    let mut items = Vec::with_capacity(type_params.len());
+    return String::new();
+  }
 
-    for type_param in type_params {
-      items.push(format!(
-        "<div>{},</div>",
-        type_param_summary(ctx, type_param, "extends")
-      ));
+  let rendered: Vec<String> = type_params
+    .iter()
+    .map(|tp| type_param_summary(ctx, tp, "extends"))
+    .collect();
+
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 2 // angled brackets
+    + 2; // separator ", "
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join("<span>, </span>");
+    format!("<span>&lt;{items}&gt;</span>")
+  } else {
+    let mut items = Vec::with_capacity(rendered.len());
+
+    for rendered_item in &rendered {
+      items.push(format!("<div>{},</div>", rendered_item));
     }
 
     let content = items.join("");
@@ -544,15 +588,29 @@ pub(crate) fn type_arguments(
   defs: &[crate::ts_type::TsTypeDef],
 ) -> String {
   if defs.is_empty() {
-    String::new()
-  } else {
-    let items = defs
-      .iter()
-      .map(|def| render_type_def(ctx, def))
-      .collect::<Vec<String>>()
-      .join("<span>, </span>");
+    return String::new();
+  }
 
+  let rendered: Vec<String> =
+    defs.iter().map(|def| render_type_def(ctx, def)).collect();
+
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 2 // angled brackets
+    + 2; // separator ", "
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join("<span>, </span>");
     format!("&lt;{items}&gt;")
+  } else {
+    let mut items = Vec::with_capacity(rendered.len());
+
+    for rendered_item in &rendered {
+      items.push(format!("<div>{},</div>", rendered_item));
+    }
+
+    let content = items.join("");
+
+    format!(r#"&lt;<div class="ml-indent">{content}</div>&gt;"#)
   }
 }
 

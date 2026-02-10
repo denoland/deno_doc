@@ -27,6 +27,7 @@ pub struct RenderContext<'ctx> {
   /// Only some when in `FileMode::SingleDts` and using categories
   pub category: Option<&'ctx str>,
   pub toc: HeadingToCAdapter,
+  pub disable_links: bool,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -44,6 +45,7 @@ impl<'ctx> RenderContext<'ctx> {
       namespace_parts: Rc::new([]),
       category: None,
       toc: Default::default(),
+      disable_links: false,
     }
   }
 
@@ -79,6 +81,13 @@ impl<'ctx> RenderContext<'ctx> {
     Self {
       category,
       toc: Default::default(),
+      ..self.clone()
+    }
+  }
+
+  pub fn with_disable_links(&self, disable_links: bool) -> Self {
+    Self {
+      disable_links,
       ..self.clone()
     }
   }

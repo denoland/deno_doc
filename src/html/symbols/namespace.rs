@@ -8,6 +8,8 @@ use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
+use crate::html::symbols::function::render_function_summary;
+use crate::html::types::render_type_def;
 
 pub fn render_namespace<'a>(
   partitions: impl Iterator<
@@ -102,6 +104,7 @@ pub struct NamespaceNodeCtx {
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
   pub name: String,
+  pub ty: Option<String>,
   pub docs: Option<String>,
   pub deprecated: bool,
   pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
@@ -132,6 +135,23 @@ impl NamespaceNodeCtx {
         symbol: &name,
       },
     );
+
+    let ty = match nodes[0].kind {
+      DocNodeKind::Function => Some(render_function_summary(nodes[0].function_def().unwrap(), &ctx.with_disable_links(true))),
+      DocNodeKind::Class => None,
+      DocNodeKind::Enum => None,
+      DocNodeKind::Interface => None,
+      DocNodeKind::Reference => None,
+      DocNodeKind::TypeAlias => None,
+      DocNodeKind::Variable => nodes[0].variable_def().unwrap().ts_type.as_ref().map(|ts_type| render_type_def(&ctx.with_disable_links(true), ts_type)),
+      DocNodeKind::Namespace |
+      DocNodeKind::Property |
+      DocNodeKind::Method(_) |
+      DocNodeKind::Import |
+      DocNodeKind::ModuleDoc => None
+    };
+
+
 
     for node in &nodes {
       if let Some(drilldown_symbols) = node.get_drilldown_symbols() {
@@ -185,6 +205,7 @@ impl NamespaceNodeCtx {
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,
       name,
+      ty,
       docs,
       deprecated: all_deprecated(&nodes.iter().collect::<Vec<_>>()),
       subitems,
