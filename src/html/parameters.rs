@@ -37,10 +37,10 @@ fn render_param(ctx: &RenderContext, param: &ParamDef, i: usize) -> String {
     .unwrap_or_default();
 
   let question_mark = match param.pattern {
-    ParamPatternDef::Array { optional, .. } if optional => "?",
-    ParamPatternDef::Assign { .. } => "?",
-    ParamPatternDef::Identifier { optional, .. } if optional => "?",
-    ParamPatternDef::Object { optional, .. } if optional => "?",
+    ParamPatternDef::Array { optional, .. } if optional => r#"<span class="td-op">?</span>"#,
+    ParamPatternDef::Assign { .. } => r#"<span class="td-op">?</span>"#,
+    ParamPatternDef::Identifier { optional, .. } if optional => r#"<span class="td-op">?</span>"#,
+    ParamPatternDef::Object { optional, .. } if optional => r#"<span class="td-op">?</span>"#,
     _ => "",
   };
 
