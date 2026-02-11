@@ -138,9 +138,7 @@ impl ModuleDiff {
           continue;
         }
 
-        if let Some(def_changes) =
-          try_detect_rename(removed_node, added_node)
-        {
+        if let Some(def_changes) = try_detect_rename(removed_node, added_node) {
           let js_doc_changes =
             JsDocDiff::diff(&removed_node.js_doc, &added_node.js_doc);
           let declaration_kind_change =
@@ -328,11 +326,7 @@ pub enum DocNodeDefDiff {
 }
 
 impl DocNodeDefDiff {
-  pub fn change_percentage(
-    &self,
-    old: &DocNodeDef,
-    new: &DocNodeDef,
-  ) -> f64 {
+  pub fn change_percentage(&self, old: &DocNodeDef, new: &DocNodeDef) -> f64 {
     match (self, old, new) {
       (DocNodeDefDiff::Function(d), _, _) => d.change_percentage(),
       (DocNodeDefDiff::Variable(d), _, _) => d.change_percentage(),
@@ -344,12 +338,8 @@ impl DocNodeDefDiff {
       ) => d.change_percentage(old_def, new_def),
       (
         DocNodeDefDiff::Class(d),
-        DocNodeDef::Class {
-          class_def: old_def,
-        },
-        DocNodeDef::Class {
-          class_def: new_def,
-        },
+        DocNodeDef::Class { class_def: old_def },
+        DocNodeDef::Class { class_def: new_def },
       ) => d.change_percentage(old_def, new_def),
       (
         DocNodeDefDiff::Interface(d),

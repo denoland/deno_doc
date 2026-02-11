@@ -107,8 +107,7 @@ impl InterfaceDiff {
       + self.type_params_change.is_some() as usize;
 
     // Collection items
-    let constructor_total =
-      old.constructors.len().max(new.constructors.len());
+    let constructor_total = old.constructors.len().max(new.constructors.len());
     let constructor_changed = self
       .constructor_changes
       .as_ref()
