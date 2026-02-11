@@ -137,11 +137,19 @@ a {
       }
 
       .namespaceItemContentDoc {
-        @apply mt-2 text-sm leading-5 text-stone-600 dark:text-stone-400;
+        @apply text-sm leading-5 text-stone-600 dark:text-stone-400;
+      }
+
+      > a .namespaceItemContentDoc {
+        @apply mt-2;
       }
 
       .namespaceItemContentSubItems {
-        @apply gap-y-2 text-sm mt-3 ml-2;
+        @apply space-y-3 text-sm mt-3 ml-2;
+
+        .namespaceItemContentDoc {
+          @apply mt-1;
+        }
       }
     }
   }

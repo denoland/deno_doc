@@ -3,13 +3,14 @@ use crate::html::DocNodeWithContext;
 use crate::html::MethodKind;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::function::render_function_summary;
-use crate::html::types::render_type_def;
+use crate::html::types::{render_type_def, type_params_summary};
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
+use crate::html::parameters::render_params;
 
 pub fn render_namespace<'a>(
   partitions: impl Iterator<
@@ -181,7 +182,7 @@ impl NamespaceNodeCtx {
               NamespaceNodeSubItemCtx {
                 title: symbol.drilldown_name.as_ref().unwrap().to_string(),
                 docs,
-                ty: summary_for_node(ctx, &[symbol]),
+                ty: summary_for_nodes(ctx, &[symbol]),
                 href: format!("{href}#{}", target_id.as_str()),
               }
             }),
@@ -198,7 +199,7 @@ impl NamespaceNodeCtx {
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,
       name,
-      ty: summary_for_node(ctx, &nodes),
+      ty: summary_for_nodes(ctx, &nodes),
       docs,
       deprecated: all_deprecated(&nodes.iter().collect::<Vec<_>>()),
       subitems,
@@ -206,7 +207,7 @@ impl NamespaceNodeCtx {
   }
 }
 
-fn summary_for_node(
+fn summary_for_nodes(
   ctx: &RenderContext,
   nodes: &[DocNodeWithContext],
 ) -> Option<String> {
@@ -217,7 +218,26 @@ fn summary_for_node(
         &ctx.with_disable_links(true),
       ))
     }
-    DocNodeKind::Class => None,
+    DocNodeKind::Class => {
+      let def = nodes[0].class_def().unwrap();
+      if !def.constructors.is_empty() {
+        let ctx = ctx.with_disable_links(true);
+
+        let params = def.constructors[0]
+          .params
+          .iter()
+          .map(|param| param.param.clone())
+          .collect::<Vec<_>>();
+
+        Some(format!(
+          "{}({})",
+          type_params_summary(&ctx, &def.type_params),
+          render_params(&ctx, &params)
+        ))
+      } else {
+        None
+      }
+    },
     DocNodeKind::Enum => None,
     DocNodeKind::Interface => None,
     DocNodeKind::TypeAlias => {

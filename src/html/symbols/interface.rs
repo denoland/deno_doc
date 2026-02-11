@@ -130,7 +130,7 @@ pub(crate) fn render_call_signatures(
         None,
         &format!(
           "{}({}){ts_type}",
-          type_params_summary(ctx, &call_signature.type_params,),
+          type_params_summary(ctx, &call_signature.type_params),
           render_params(ctx, &call_signature.params),
         ),
         tags,
