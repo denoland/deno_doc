@@ -70,15 +70,15 @@ async fn run() -> anyhow::Result<()> {
         .takes_value(true),
     )
     .arg(Arg::with_name("output").long("output").takes_value(true))
-    .arg(Arg::with_name("source_files").required(true).multiple(true))
+    .arg(Arg::with_name("source_files").required_unless("from").multiple(true))
     .arg(
       Arg::with_name("filter")
         .long("filter")
         .conflicts_with("html"),
     )
     .arg(Arg::with_name("private").long("private"))
+    .arg(Arg::with_name("from").long("from").takes_value(true))
     .get_matches();
-  let source_files = matches.values_of("source_files").unwrap();
   let html = matches.is_present("html");
   let json = matches.is_present("json");
   let name = if html {
@@ -103,43 +103,51 @@ async fn run() -> anyhow::Result<()> {
   };
   let maybe_filter = matches.value_of("filter");
   let private = matches.is_present("private");
-  let source_files: Vec<ModuleSpecifier> = source_files
-    .into_iter()
-    .map(|source_file| {
-      ModuleSpecifier::from_directory_path(current_dir().unwrap())
-        .unwrap()
-        .join(source_file)
-        .unwrap()
-    })
-    .collect();
-  let loader = SourceFileLoader {};
-  let analyzer = CapturingModuleAnalyzer::default();
-  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
-  graph
-    .build(
-      source_files.clone(),
-      Vec::new(),
-      &loader,
-      BuildOptions {
-        module_analyzer: &analyzer,
-        ..Default::default()
+  let doc_nodes_by_url = if let Some(from) = matches.value_of("from") {
+    let file = std::fs::File::open(from)?;
+    let reader = std::io::BufReader::new(file);
+    serde_json::from_reader(reader)?
+  } else {
+    let source_files = matches.values_of("source_files").unwrap();
+    let source_files: Vec<ModuleSpecifier> = source_files
+      .into_iter()
+      .map(|source_file| {
+        ModuleSpecifier::from_directory_path(current_dir().unwrap())
+          .unwrap()
+          .join(source_file)
+          .unwrap()
+      })
+      .collect();
+    let loader = SourceFileLoader {};
+    let analyzer = CapturingModuleAnalyzer::default();
+    let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+    graph
+      .build(
+        source_files.clone(),
+        Vec::new(),
+        &loader,
+        BuildOptions {
+          module_analyzer: &analyzer,
+          ..Default::default()
+        },
+      )
+      .await;
+
+    let mut source_files = source_files.clone();
+    source_files.sort();
+
+    let parser = DocParser::new(
+      &graph,
+      &analyzer,
+      &source_files,
+      DocParserOptions {
+        diagnostics: false,
+        private,
       },
-    )
-    .await;
+    )?;
 
-  let mut source_files = source_files.clone();
-  source_files.sort();
-
-  let parser = DocParser::new(
-    &graph,
-    &analyzer,
-    &source_files,
-    DocParserOptions {
-      diagnostics: false,
-      private,
-    },
-  )?;
-  let doc_nodes_by_url = parser.parse()?;
+    parser.parse()?
+  };
 
   if html {
     generate_docs_directory(
@@ -152,7 +160,7 @@ async fn run() -> anyhow::Result<()> {
   }
 
   let mut doc_nodes =
-    parser.parse()?.into_values().flatten().collect::<Vec<_>>();
+    doc_nodes_by_url.into_values().flatten().collect::<Vec<_>>();
 
   doc_nodes
     .retain(|doc_node| !matches!(doc_node.def, DocNodeDef::Import { .. }));

@@ -49,6 +49,8 @@ pub use util::UrlResolveKind;
 pub use util::compute_namespaced_symbols;
 pub use util::href_path_resolve;
 pub use util::qualify_drilldown_name;
+pub use symbols::AllSymbolsCtx;
+pub use symbols::AllSymbolsItemCtx;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -175,6 +177,10 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/category_panel.hbs"),
   )?;
   reg.register_template_string("see", include_str!("./templates/see.hbs"))?;
+  reg.register_template_string(
+    AllSymbolsCtx::TEMPLATE,
+    include_str!("./templates/all_symbols.hbs"),
+  )?;
 
   // pages
   reg.register_template_string(
@@ -182,7 +188,7 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/pages/html_head.hbs"),
   )?;
   reg.register_template_string(
-    pages::AllSymbolsCtx::TEMPLATE,
+    pages::AllSymbolsPageCtx::TEMPLATE,
     include_str!("./templates/pages/all_symbols.hbs"),
   )?;
   reg.register_template_string(
@@ -1013,31 +1019,25 @@ pub fn generate(
     );
   }
 
-  let all_doc_nodes = ctx
-    .doc_nodes
-    .values()
-    .flatten()
-    .cloned()
-    .collect::<Vec<DocNodeWithContext>>();
-
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
-      &ctx,
-      all_doc_nodes.iter().map(Cow::Borrowed),
-      true,
-    );
-
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+    let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
     files.insert(
       "./all_symbols.html".to_string(),
-      ctx.render(pages::AllSymbolsCtx::TEMPLATE, &all_symbols),
+      ctx.render(pages::AllSymbolsPageCtx::TEMPLATE, &all_symbols),
     );
   }
 
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
+    let all_doc_nodes = ctx
+      .doc_nodes
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<DocNodeWithContext>>();
+
     let categories = partition::partition_nodes_by_category(
       &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
@@ -1226,13 +1226,7 @@ pub fn generate_json(
 
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
-      &ctx,
-      all_doc_nodes.iter().map(Cow::Borrowed),
-      true,
-    );
-
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+    let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
     files.insert(
       "./all_symbols.json".to_string(),

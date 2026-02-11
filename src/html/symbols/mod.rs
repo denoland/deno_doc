@@ -1,4 +1,4 @@
-use crate::html::DocNodeKind;
+use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::html::types::render_type_def;
@@ -15,6 +15,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashSet;
+use crate::html::jsdoc::ModuleDocCtx;
 
 pub mod class;
 pub mod r#enum;
@@ -408,3 +409,34 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
 
   crate::html::jsdoc::render_markdown(ctx, &doc, true)
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllSymbolsItemCtx {
+  pub name: String,
+  pub href: String,
+  pub module_doc: ModuleDocCtx,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllSymbolsCtx {
+  pub entrypoints: Vec<AllSymbolsItemCtx>,
+}
+
+impl AllSymbolsCtx {
+  pub const TEMPLATE: &'static str = "all_symbols";
+
+  pub fn new(ctx: &RenderContext) -> Self {
+    let entrypoints= ctx.ctx.doc_nodes.keys().map(|short_path| {
+      AllSymbolsItemCtx {
+        name: short_path.display_name().to_string(),
+        href: ctx.ctx.resolve_path(ctx.get_current_resolve(), UrlResolveKind::File { file: short_path }),
+        module_doc: ModuleDocCtx::new(ctx, short_path, true),
+      }
+    }).collect();
+
+    Self {
+      entrypoints,
+    }
+  }
+}
+

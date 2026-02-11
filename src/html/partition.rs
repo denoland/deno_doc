@@ -1,12 +1,10 @@
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::ShortPath;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::cmp::Ordering;
-use std::rc::Rc;
 
 pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
@@ -199,31 +197,6 @@ pub fn partition_nodes_by_category<'a>(
       }
     })
     .collect()
-}
-
-pub fn partition_nodes_by_entrypoint<'a>(
-  ctx: &GenerateCtx,
-  doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
-  flatten_namespaces: bool,
-) -> Partitions<Rc<ShortPath>> {
-  let mut partitions = create_partitioner(
-    ctx,
-    doc_nodes,
-    flatten_namespaces,
-    &|partitions, node| {
-      let entry = partitions.entry(node.origin.clone()).or_default();
-
-      entry.push(node.clone());
-    },
-  );
-
-  for (_file, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
-
-  partitions.sort_keys();
-
-  partitions
 }
 
 fn compare_node(
