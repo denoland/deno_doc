@@ -1,6 +1,5 @@
 ---
 source: tests/html_test.rs
-assertion_line: 508
 expression: files
 ---
 [
@@ -45,7 +44,7 @@ expression: files
                       "id": "function_externalFunction_0"
                     },
                     "name": "externalFunction",
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -67,7 +66,7 @@ expression: files
                                 "id": "function_externalfunction_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
                                   "id": "function_externalfunction_0_parameter__n"
                                 },
@@ -98,7 +97,7 @@ expression: files
                                 "id": "function_externalFunction_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_externalFunction_0_return"
                                 },
@@ -122,24 +121,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../../"
+      },
+      "current_entrypoint": {
+        "name": "d",
+        "href": "../.././d/index.html"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": "../.././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../../"
         },
         {
           "name": "d",
-          "href": "../.././d/index.html",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "href": "../.././d/index.html"
         },
         {
+          "name": "foo",
+          "href": "../.././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": "../.././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "externalFunction",
-          "href": "../.././d/~/externalFunction.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../.././d/~/externalFunction.html"
         }
       ]
     },
@@ -234,18 +249,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "A",
-          "href": "../././~/A.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/A.html"
         }
       ]
     },
@@ -328,7 +365,7 @@ expression: files
                           "id": "property_foo",
                           "name": "foo",
                           "name_href": "../././~/AbstractClass.prototype.foo.html",
-                          "content": "<span>: <span>string</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "property_foo"
                           },
@@ -344,7 +381,7 @@ expression: files
                           "id": "accessor_getter",
                           "name": "getter",
                           "name_href": "../././~/AbstractClass.prototype.getter.html",
-                          "content": "<span>: <span>string</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "accessor_getter"
                           },
@@ -378,7 +415,7 @@ expression: files
                           "id": "method_method_0",
                           "name": "method",
                           "name_href": "../././~/AbstractClass.prototype.method.html",
-                          "content": "(<span><span>s<span>: <span><span>number</span><span> | </span><span>string</span></span></span></span></span>)<span>: s is <span>string</span></span>",
+                          "content": "(<span><span>s<span>: <span><span class=\"td-kw\">number</span><span class=\"td-op\"> | </span><span class=\"td-kw\">string</span></span></span></span></span>)<span>: s <span class=\"td-kw\">is</span> <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "method_method_0"
                           },
@@ -406,18 +443,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "AbstractClass",
-          "href": "../././~/AbstractClass.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/AbstractClass.html"
         }
       ]
     },
@@ -523,18 +582,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "B",
-          "href": "../././~/B.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/B.html"
         }
       ]
     },
@@ -594,7 +675,7 @@ expression: files
               "extends": {
                 "href": "../././~/Foo.html",
                 "symbol": "Foo",
-                "type_args": "&lt;<span>string</span>&gt;"
+                "type_args": "&lt;<span class=\"td-kw\">string</span>&gt;"
               }
             }
           },
@@ -614,18 +695,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Bar",
-          "href": "../././~/Bar.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Bar.html"
         }
       ]
     },
@@ -729,7 +832,7 @@ expression: files
                           "id": "property_foo",
                           "name": "foo",
                           "name_href": "../././~/Baz.foo.html",
-                          "content": "<span>: <span>Record</span>&lt;<span>string</span><span>, </span><a href=\"#type_param_T\" class=\"link\">T</a> <span>extends</span> <span>string</span> ? <span>0</span> : <span>1</span>&gt;</span>",
+                          "content": "<span>: <span class=\"td-ref\">Record</span>&lt;<span class=\"td-kw\">string</span><span>, </span><a href=\"#type_param_T\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> <span class=\"td-kw\">string</span> <span class=\"td-op\">?</span> <span class=\"td-lit\">0</span> <span class=\"td-op\">:</span> <span class=\"td-lit\">1</span>&gt;</span>",
                           "anchor": {
                             "id": "property_foo"
                           },
@@ -756,7 +859,7 @@ expression: files
                           "id": "method_bar_0",
                           "name": "bar",
                           "name_href": "../././~/Baz.bar.html",
-                          "content": "()<span>: <a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link\">InterfaceWithIndexSignature</a>[<span>\"test\"</span>]</span>",
+                          "content": "()<span>: <a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link td-ref\">InterfaceWithIndexSignature</a>[<span class=\"td-str\">\"test\"</span>]</span>",
                           "anchor": {
                             "id": "method_bar_0"
                           },
@@ -777,18 +880,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Baz",
-          "href": "../././~/Baz.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Baz.html"
         }
       ]
     },
@@ -895,7 +1020,7 @@ expression: files
                           "id": "property_bufferedamount",
                           "name": "bufferedAmount",
                           "name_href": "../././~/CompoundType.bufferedAmount.html",
-                          "content": "<span>: <span>number</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">number</span></span>",
                           "anchor": {
                             "id": "property_bufferedamount"
                           },
@@ -944,18 +1069,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "CompoundType",
-          "href": "../././~/CompoundType.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/CompoundType.html"
         }
       ]
     },
@@ -1035,18 +1182,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "EmptyInterface",
-          "href": "../././~/EmptyInterface.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/EmptyInterface.html"
         }
       ]
     },
@@ -1122,7 +1291,7 @@ expression: files
                           "id": "enum_enum_bar",
                           "name": "Bar",
                           "name_href": null,
-                          "content": " = <span>\"bar\"</span>",
+                          "content": " = <span class=\"td-str\">\"bar\"</span>",
                           "anchor": {
                             "id": "enum_enum_bar"
                           },
@@ -1134,7 +1303,7 @@ expression: files
                           "id": "enum_enum_foo",
                           "name": "Foo",
                           "name_href": null,
-                          "content": " = <span>\"foo\"</span>",
+                          "content": " = <span class=\"td-str\">\"foo\"</span>",
                           "anchor": {
                             "id": "enum_enum_foo"
                           },
@@ -1155,18 +1324,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Enum",
-          "href": "../././~/Enum.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Enum.html"
         }
       ]
     },
@@ -1291,18 +1482,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Enum2",
-          "href": "../././~/Enum2.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Enum2.html"
         }
       ]
     },
@@ -1433,7 +1646,7 @@ expression: files
                           "id": "constructor_0",
                           "name": "Foo",
                           "name_href": null,
-                          "content": "(<span><span>value<span>: <a href=\"#type_param_T\" class=\"link\">T</a></span></span></span>)",
+                          "content": "(<span><span>value<span>: <a href=\"#type_param_T\" class=\"link td-ref\">T</a></span></span></span>)",
                           "anchor": {
                             "id": "constructor_0"
                           },
@@ -1491,7 +1704,7 @@ expression: files
                           "id": "property_bar",
                           "name": "bar",
                           "name_href": "../././~/Foo.bar.html",
-                          "content": "<span>: <span>\"string\"</span></span>",
+                          "content": "<span>: <span class=\"td-str\">\"string\"</span></span>",
                           "anchor": {
                             "id": "property_bar"
                           },
@@ -1503,7 +1716,7 @@ expression: files
                           "id": "accessor_staticsetter",
                           "name": "staticSetter",
                           "name_href": "../././~/Foo.staticSetter.html",
-                          "content": "<span>: <span>number</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">number</span></span>",
                           "anchor": {
                             "id": "accessor_staticsetter"
                           },
@@ -1534,7 +1747,7 @@ expression: files
                           "id": "method_staticmethod_0",
                           "name": "staticMethod",
                           "name_href": "../././~/Foo.staticMethod.html",
-                          "content": "()<span>: <span>void</span></span>",
+                          "content": "()<span>: <span class=\"td-kw\">void</span></span>",
                           "anchor": {
                             "id": "method_staticmethod_0"
                           },
@@ -1561,7 +1774,7 @@ expression: files
                           "id": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;",
                           "name": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
                           "name_href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
-                          "content": "<span>: <span>number</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">number</span></span>",
                           "anchor": {
                             "id": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
                           },
@@ -1573,7 +1786,7 @@ expression: files
                           "id": "property_foo",
                           "name": "foo",
                           "name_href": "../././~/Foo.prototype.foo.html",
-                          "content": "<span>: <a href=\"../././~/A.html\" class=\"link\">A</a></span>",
+                          "content": "<span>: <a href=\"../././~/A.html\" class=\"link td-ref\">A</a></span>",
                           "anchor": {
                             "id": "property_foo"
                           },
@@ -1601,7 +1814,7 @@ expression: files
                           "id": "property_readonlyproperty",
                           "name": "readonlyProperty",
                           "name_href": "../././~/Foo.prototype.readonlyProperty.html",
-                          "content": "<span>: <span>boolean</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">boolean</span></span>",
                           "anchor": {
                             "id": "property_readonlyproperty"
                           },
@@ -1617,7 +1830,7 @@ expression: files
                           "id": "accessor_setter",
                           "name": "setter",
                           "name_href": "../././~/Foo.prototype.setter.html",
-                          "content": "<span>: <span>string</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "accessor_setter"
                           },
@@ -1652,7 +1865,7 @@ expression: files
                           "id": "property_protectedproperty",
                           "name": "protectedProperty",
                           "name_href": "../././~/Foo.prototype.protectedProperty.html",
-                          "content": "<span>: <span>boolean</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">boolean</span></span>",
                           "anchor": {
                             "id": "property_protectedproperty"
                           },
@@ -1683,7 +1896,7 @@ expression: files
                           "id": "method_[symbol_iterator]_0",
                           "name": "[Symbol.iterator]",
                           "name_href": "../././~/Foo.prototype.[Symbol.iterator].html",
-                          "content": "()<span>: <span>void</span></span>",
+                          "content": "()<span>: <span class=\"td-kw\">void</span></span>",
                           "anchor": {
                             "id": "method_[symbol_iterator]_0"
                           },
@@ -1695,7 +1908,7 @@ expression: files
                           "id": "method_methodwithoverloads_0",
                           "name": "methodWithOverloads",
                           "name_href": "../././~/Foo.prototype.methodWithOverloads.html",
-                          "content": "(<span><span>s<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                          "content": "(<span><span>s<span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                           "anchor": {
                             "id": "method_methodwithoverloads_0"
                           },
@@ -1711,7 +1924,7 @@ expression: files
                           "id": "method_methodwithoverloads_1",
                           "name": "methodWithOverloads",
                           "name_href": "../././~/Foo.prototype.methodWithOverloads.html",
-                          "content": "(<span><span>s<span>: <span>string</span></span></span></span>)<span>: <span>void</span></span>",
+                          "content": "(<span><span>s<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                           "anchor": {
                             "id": "method_methodwithoverloads_1"
                           },
@@ -1727,7 +1940,7 @@ expression: files
                           "id": "method_test_0",
                           "name": "test",
                           "name_href": "../././~/Foo.prototype.test.html",
-                          "content": "()<span>: <span>void</span></span>",
+                          "content": "()<span>: <span class=\"td-kw\">void</span></span>",
                           "anchor": {
                             "id": "method_test_0"
                           },
@@ -1748,18 +1961,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         }
       ]
     },
@@ -1973,18 +2208,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foobar",
-          "href": "../././~/Foobar.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foobar.html"
         }
       ]
     },
@@ -2077,7 +2334,7 @@ expression: files
                           "id": "type_param_t",
                           "name": "T",
                           "name_href": null,
-                          "content": "<span><span> extends </span><span>string</span></span>",
+                          "content": "<span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "type_param_t"
                           },
@@ -2089,7 +2346,7 @@ expression: files
                           "id": "type_param_e",
                           "name": "E",
                           "name_href": null,
-                          "content": "<span><span> extends </span><a href=\"#type_param_T\" class=\"link\">T</a></span>",
+                          "content": "<span><span class=\"td-kw\"> extends </span><a href=\"#type_param_T\" class=\"link td-ref\">T</a></span>",
                           "anchor": {
                             "id": "type_param_e"
                           },
@@ -2101,7 +2358,7 @@ expression: files
                           "id": "type_param_r",
                           "name": "R",
                           "name_href": null,
-                          "content": "<span><span> = </span><span>number</span></span>",
+                          "content": "<span><span> = </span><span class=\"td-kw\">number</span></span>",
                           "anchor": {
                             "id": "type_param_r"
                           },
@@ -2128,7 +2385,7 @@ expression: files
                           "id": "call_signature_0",
                           "name": null,
                           "name_href": null,
-                          "content": "(<span><span>a<span>: <span>string</span></span></span></span>)<span>: <span>string</span></span>",
+                          "content": "(<span><span>a<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "call_signature_0"
                           },
@@ -2155,7 +2412,7 @@ expression: files
                           "id": "property_world",
                           "name": "world",
                           "name_href": "../././~/Hello.world.html",
-                          "content": "<span>: <span>string</span></span><span><span class=\"font-normal\"> = </span>\"foo\"</span>",
+                          "content": "<span>: <span class=\"td-kw\">string</span></span><span><span class=\"font-normal\"> = </span>\"foo\"</span>",
                           "anchor": {
                             "id": "property_world"
                           },
@@ -2167,7 +2424,7 @@ expression: files
                           "id": "property_test",
                           "name": "test",
                           "name_href": "../././~/Hello.test.html",
-                          "content": "<span>: <span>\"test\"</span></span>",
+                          "content": "<span>: <span class=\"td-str\">\"test\"</span></span>",
                           "anchor": {
                             "id": "property_test"
                           },
@@ -2186,7 +2443,7 @@ expression: files
                           "id": "property_ab",
                           "name": "[ab]",
                           "name_href": "../././~/Hello.ab.html",
-                          "content": "<span>: <span>string</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "property_ab"
                           },
@@ -2198,7 +2455,7 @@ expression: files
                           "id": "property_x",
                           "name": "x",
                           "name_href": "../././~/Hello.x.html",
-                          "content": "<span>: { [<span><span>foo<span>: <span>string</span></span></span></span>]<span>: <span>number</span></span>;  }</span>",
+                          "content": "<span>: { [<span><span>foo<span>: <span class=\"td-kw\">string</span></span></span></span>]<span>: <span class=\"td-kw\">number</span></span>;  }</span>",
                           "anchor": {
                             "id": "property_x"
                           },
@@ -2225,7 +2482,7 @@ expression: files
                           "id": "method_optionalmethod_0",
                           "name": "optionalMethod",
                           "name_href": "../././~/Hello.optionalMethod.html",
-                          "content": "()<span>: <span>[<span>string</span>]</span></span>",
+                          "content": "()<span>: <span>[<span class=\"td-kw\">string</span>]</span></span>",
                           "anchor": {
                             "id": "method_optionalmethod_0"
                           },
@@ -2241,7 +2498,7 @@ expression: files
                           "id": "method_computedmethod_1",
                           "name": "[computedMethod]",
                           "name_href": "../././~/Hello.computedMethod.html",
-                          "content": "(<span><span>a<span>: <a href=\"#type_param_T\" class=\"link\">T</a> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <a href=\"#type_param_R\" class=\"link\">R</a> : <span>any</span></span></span></span>)<span>: <span>void</span></span>",
+                          "content": "(<span><span>a<span>: <a href=\"#type_param_T\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <a href=\"#type_param_R\" class=\"link td-ref\">R</a> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                           "anchor": {
                             "id": "method_computedmethod_1"
                           },
@@ -2266,18 +2523,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         }
       ]
     },
@@ -2421,8 +2700,8 @@ expression: files
                             "id": "index_signature_0"
                           },
                           "readonly": false,
-                          "params": "<span><span>foo<span>: <span>string</span></span></span></span>",
-                          "ts_type": "<span>: <span><span>`foo${<span>string</span>}`</span><span> | </span><div class=\"ml-indent\"><span>(<a href=\"../././~/Foobar.html\" class=\"link\">Foobar</a>)</span><br /><span><span> & </span><span>number</span></span><br /><span><span> & </span><span>this</span></span></div></span></span>",
+                          "params": "<span><span>foo<span>: <span class=\"td-kw\">string</span></span></span></span>",
+                          "ts_type": "<span>: <span><span class=\"td-str\">`foo${<span class=\"td-kw\">string</span>}`</span><span class=\"td-op\"> | </span><span>(<a href=\"../././~/Foobar.html\" class=\"link td-ref\">Foobar</a>)<span class=\"td-op\"> & </span><span class=\"td-kw\">number</span><span class=\"td-op\"> & </span><span class=\"td-kw\">this</span></span></span></span>",
                           "source_href": null
                         }
                       ]
@@ -2438,18 +2717,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "InterfaceWithIndexSignature",
-          "href": "../././~/InterfaceWithIndexSignature.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/InterfaceWithIndexSignature.html"
         }
       ]
     },
@@ -2574,6 +2875,7 @@ expression: files
                           ],
                           "href": ".././d/~/Testing.externalFunction.html",
                           "name": "Testing.externalFunction",
+                          "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                           "docs": null,
                           "deprecated": false,
                           "subitems": []
@@ -2595,6 +2897,7 @@ expression: files
                           ],
                           "href": "../././~/Testing.t.html",
                           "name": "Testing.t",
+                          "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
                           "docs": null,
                           "deprecated": false,
                           "subitems": []
@@ -2616,6 +2919,7 @@ expression: files
                           ],
                           "href": ".././c/~/Testing.x.html",
                           "name": "Testing.x",
+                          "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                           "docs": null,
                           "deprecated": false,
                           "subitems": []
@@ -2633,18 +2937,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Testing",
-          "href": "../././~/Testing.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Testing.html"
         }
       ]
     },
@@ -2730,7 +3056,7 @@ expression: files
                       "id": "function_externalFunction_0"
                     },
                     "name": "externalFunction",
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -2752,7 +3078,7 @@ expression: files
                                 "id": "function_externalfunction_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
                                   "id": "function_externalfunction_0_parameter__n"
                                 },
@@ -2783,7 +3109,7 @@ expression: files
                                 "id": "function_externalFunction_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_externalFunction_0_return"
                                 },
@@ -2807,24 +3133,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Testing",
-          "href": "../././~/Testing.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Testing.html"
         },
         {
           "name": "externalFunction",
-          "href": "../././~/Testing.externalFunction.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Testing.externalFunction.html"
         }
       ]
     },
@@ -2904,7 +3250,7 @@ expression: files
                       "id": "function_t_0"
                     },
                     "name": "t",
-                    "summary": "()<span>: <span>string</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -2926,7 +3272,7 @@ expression: files
                                 "id": "function_t_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>string</span>",
+                                "content": "<span class=\"td-kw\">string</span>",
                                 "anchor": {
                                   "id": "function_t_0_return"
                                 },
@@ -2950,24 +3296,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Testing",
-          "href": "../././~/Testing.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Testing.html"
         },
         {
           "name": "t",
-          "href": "../././~/Testing.t.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Testing.t.html"
         }
       ]
     },
@@ -3037,7 +3403,7 @@ expression: files
                       "id": "function_x_0"
                     },
                     "name": "x",
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -3059,7 +3425,7 @@ expression: files
                                 "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
                                   "id": "function_x_0_parameter__n"
                                 },
@@ -3090,7 +3456,7 @@ expression: files
                                 "id": "function_x_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_x_0_return"
                                 },
@@ -3114,24 +3480,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Testing",
-          "href": "../././~/Testing.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Testing.html"
         },
         {
           "name": "x",
-          "href": "../././~/Testing.x.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Testing.x.html"
         }
       ]
     },
@@ -3223,7 +3609,7 @@ expression: files
                           "id": "typeAlias_TypeAlias",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>string</span>",
+                          "content": "<span class=\"td-kw\">string</span>",
                           "anchor": {
                             "id": "typeAlias_TypeAlias"
                           },
@@ -3244,18 +3630,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "TypeAlias",
-          "href": "../././~/TypeAlias.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/TypeAlias.html"
         }
       ]
     },
@@ -3337,7 +3745,7 @@ expression: files
                           "id": "property_foo",
                           "name": "foo",
                           "name_href": "../././~/anotherVariable.foo.html",
-                          "content": "<span>: <span>string</span></span>",
+                          "content": "<span>: <span class=\"td-kw\">string</span></span>",
                           "anchor": {
                             "id": "property_foo"
                           },
@@ -3364,7 +3772,7 @@ expression: files
                           "id": "method_bar_0",
                           "name": "bar",
                           "name_href": "../././~/anotherVariable.bar.html",
-                          "content": "()<span>: <span>number</span></span>",
+                          "content": "()<span>: <span class=\"td-kw\">number</span></span>",
                           "anchor": {
                             "id": "method_bar_0"
                           },
@@ -3385,18 +3793,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "anotherVariable",
-          "href": "../././~/anotherVariable.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/anotherVariable.html"
         }
       ]
     },
@@ -3481,7 +3911,7 @@ expression: files
                       "id": "function_c_0"
                     },
                     "name": "c",
-                    "summary": "()<span>: <span>string</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -3503,7 +3933,7 @@ expression: files
                                 "id": "function_c_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>string</span>",
+                                "content": "<span class=\"td-kw\">string</span>",
                                 "anchor": {
                                   "id": "function_c_0_return"
                                 },
@@ -3527,18 +3957,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
         },
         {
           "name": "c",
-          "href": "../././~/c.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "c",
+          "href": "../././~/c.html"
         }
       ]
     },
@@ -3608,7 +4060,7 @@ expression: files
                       "id": "function_d_0"
                     },
                     "name": "d",
-                    "summary": "<span>&lt;<span><span>T</span><span><span> = </span><span>string</span></span></span>&gt;</span>(<div class=\"ml-4\"><div><span>foo?<span>: <span>number</span></span></span>,</div><div><span>bar?<span>: <span>string</span></span></span>,</div><div><span>baz?<span>: { hello?<span>: <span>string</span></span>;  }</span></span>,</div><div><span>qaz<span>: <span>T</span></span></span>,</div><div><span><span>...strings</span><span>: <span>string</span>[]</span></span>,</div></div>)<span>: <span>string</span></span>",
+                    "summary": "<span>&lt;<span><span class=\"td-tp\">T</span><span><span> = </span><span class=\"td-kw\">string</span></span></span>&gt;</span>(<div class=\"ml-4\"><div><span>foo<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>bar<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>baz<span class=\"td-op\">?</span><span>: { hello<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span>;  }</span></span>,</div><div><span>qaz<span>: <span class=\"td-ref\">T</span></span></span>,</div><div><span><span>...strings</span><span>: <span class=\"td-kw\">string</span>[]</span></span></div></div>)<span>: <span class=\"td-kw\">string</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -3663,7 +4115,7 @@ expression: files
                                 "id": "type_param_t",
                                 "name": "T",
                                 "name_href": null,
-                                "content": "<span><span> = </span><span>string</span></span>",
+                                "content": "<span><span> = </span><span class=\"td-kw\">string</span></span>",
                                 "anchor": {
                                   "id": "type_param_t"
                                 },
@@ -3690,7 +4142,7 @@ expression: files
                                 "id": "function_d_0_parameter_foo",
                                 "name": "foo",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
                                 "anchor": {
                                   "id": "function_d_0_parameter_foo"
                                 },
@@ -3706,7 +4158,7 @@ expression: files
                                 "id": "function_d_0_parameter_bar",
                                 "name": "bar",
                                 "name_href": null,
-                                "content": "<span>: <span>string</span></span><span><span class=\"font-normal\"> = </span>bar</span>",
+                                "content": "<span>: <span class=\"td-kw\">string</span></span><span><span class=\"font-normal\"> = </span>bar</span>",
                                 "anchor": {
                                   "id": "function_d_0_parameter_bar"
                                 },
@@ -3722,7 +4174,7 @@ expression: files
                                 "id": "function_d_0_parameter_baz",
                                 "name": "baz",
                                 "name_href": null,
-                                "content": "<span>: { hello?<span>: <span>string</span></span>;  }</span>",
+                                "content": "<span>: { hello<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span>;  }</span>",
                                 "anchor": {
                                   "id": "function_d_0_parameter_baz"
                                 },
@@ -3738,7 +4190,7 @@ expression: files
                                 "id": "function_d_0_parameter_qaz",
                                 "name": "qaz",
                                 "name_href": null,
-                                "content": "<span>: <a href=\"#type_param_T\" class=\"link\">T</a></span>",
+                                "content": "<span>: <a href=\"#type_param_T\" class=\"link td-ref\">T</a></span>",
                                 "anchor": {
                                   "id": "function_d_0_parameter_qaz"
                                 },
@@ -3750,7 +4202,7 @@ expression: files
                                 "id": "function_d_0_parameter_(___strings)",
                                 "name": "<span>...strings</span>",
                                 "name_href": null,
-                                "content": "<span>: <span>string</span>[]</span>",
+                                "content": "<span>: <span class=\"td-kw\">string</span>[]</span>",
                                 "anchor": {
                                   "id": "function_d_0_parameter_(___strings)"
                                 },
@@ -3777,7 +4229,7 @@ expression: files
                                 "id": "function_d_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>string</span>",
+                                "content": "<span class=\"td-kw\">string</span>",
                                 "anchor": {
                                   "id": "function_d_0_return"
                                 },
@@ -3828,18 +4280,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../"
         },
         {
           "name": "d",
-          "href": "../././~/d.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "d",
+          "href": "../././~/d.html"
         }
       ]
     },
@@ -3969,7 +4443,7 @@ expression: files
                       "id": "function_functionWithOptionalParameters_0"
                     },
                     "name": "functionWithOptionalParameters",
-                    "summary": "(<div class=\"ml-4\"><div><span>foo?<span>: <span>number</span></span></span>,</div><div><span>bar?<span>: <span>number</span></span></span>,</div><div><span>baz?<span>: <span>[<span>number</span>]</span></span></span>,</div><div><span><span class=\"italic\">unnamed 3</span>?<span>: <span>string</span>[]</span></span>,</div><div><span><span class=\"italic\">unnamed 4</span>?<span>: { qux<span>: <span>number</span></span>;  }</span></span>,</div></div>)<span>: <span>void</span></span>",
+                    "summary": "(<div class=\"ml-4\"><div><span>foo<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>bar<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>baz<span class=\"td-op\">?</span><span>: <span>[<span class=\"td-kw\">number</span>]</span></span></span>,</div><div><span><span class=\"italic\">unnamed 3</span><span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span>[]</span></span>,</div><div><span><span class=\"italic\">unnamed 4</span><span class=\"td-op\">?</span><span>: { qux<span>: <span class=\"td-kw\">number</span></span>;  }</span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -3991,7 +4465,7 @@ expression: files
                                 "id": "function_functionwithoptionalparameters_0_parameter_foo",
                                 "name": "foo",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
                                 "anchor": {
                                   "id": "function_functionwithoptionalparameters_0_parameter_foo"
                                 },
@@ -4007,7 +4481,7 @@ expression: files
                                 "id": "function_functionwithoptionalparameters_0_parameter_bar",
                                 "name": "bar",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span>",
                                 "anchor": {
                                   "id": "function_functionwithoptionalparameters_0_parameter_bar"
                                 },
@@ -4023,7 +4497,7 @@ expression: files
                                 "id": "function_functionwithoptionalparameters_0_parameter_baz",
                                 "name": "baz",
                                 "name_href": null,
-                                "content": "<span>: <span>[<span>number</span>]</span></span>",
+                                "content": "<span>: <span>[<span class=\"td-kw\">number</span>]</span></span>",
                                 "anchor": {
                                   "id": "function_functionwithoptionalparameters_0_parameter_baz"
                                 },
@@ -4039,7 +4513,7 @@ expression: files
                                 "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)",
                                 "name": "<span class=\"italic\">unnamed 3</span>",
                                 "name_href": null,
-                                "content": "<span>: <span>string</span>[]</span>",
+                                "content": "<span>: <span class=\"td-kw\">string</span>[]</span>",
                                 "anchor": {
                                   "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)"
                                 },
@@ -4055,7 +4529,7 @@ expression: files
                                 "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)",
                                 "name": "<span class=\"italic\">unnamed 4</span>",
                                 "name_href": null,
-                                "content": "<span>: { qux<span>: <span>number</span></span>;  }</span>",
+                                "content": "<span>: { qux<span>: <span class=\"td-kw\">number</span></span>;  }</span>",
                                 "anchor": {
                                   "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)"
                                 },
@@ -4086,7 +4560,7 @@ expression: files
                                 "id": "function_functionWithOptionalParameters_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_functionWithOptionalParameters_0_return"
                                 },
@@ -4153,18 +4627,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "functionWithOptionalParameters",
-          "href": "../././~/functionWithOptionalParameters.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/functionWithOptionalParameters.html"
         }
       ]
     },
@@ -4274,7 +4770,7 @@ expression: files
                       "id": "function_qaz_0"
                     },
                     "name": "qaz",
-                    "summary": "(<span><span>a<span>: <span>string</span></span></span></span>)",
+                    "summary": "(<span><span>a<span>: <span class=\"td-kw\">string</span></span></span></span>)",
                     "deprecated": "<div class=\"markdown\"><p>content</p>\n</div>",
                     "content": {
                       "id": "",
@@ -4296,7 +4792,7 @@ expression: files
                                 "id": "function_qaz_0_parameter_a",
                                 "name": "a",
                                 "name_href": null,
-                                "content": "<span>: <span>string</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">string</span></span>",
                                 "anchor": {
                                   "id": "function_qaz_0_parameter_a"
                                 },
@@ -4330,7 +4826,7 @@ expression: files
                       "id": "function_qaz_1"
                     },
                     "name": "qaz",
-                    "summary": "(<span><span>a<span>: <span>number</span></span></span></span>)",
+                    "summary": "(<span><span>a<span>: <span class=\"td-kw\">number</span></span></span></span>)",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -4352,7 +4848,7 @@ expression: files
                                 "id": "function_qaz_1_parameter_a",
                                 "name": "a",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span>",
                                 "anchor": {
                                   "id": "function_qaz_1_parameter_a"
                                 },
@@ -4390,18 +4886,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "qaz",
-          "href": "../././~/qaz.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/qaz.html"
         }
       ]
     },
@@ -4511,18 +5029,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "someVariable",
-          "href": "../././~/someVariable.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/someVariable.html"
         }
       ]
     },
@@ -4586,7 +5126,7 @@ expression: files
                       "id": "function_x_0"
                     },
                     "name": "x",
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -4608,7 +5148,7 @@ expression: files
                                 "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
                                   "id": "function_x_0_parameter__n"
                                 },
@@ -4639,7 +5179,7 @@ expression: files
                                 "id": "function_x_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_x_0_return"
                                 },
@@ -4663,18 +5203,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "x",
-          "href": "../././~/x.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/x.html"
         }
       ]
     },
@@ -4766,7 +5328,7 @@ expression: files
                           "id": "variable_AbstractClass_prototype_foo",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>string</span>",
+                          "content": "<span class=\"td-kw\">string</span>",
                           "anchor": {
                             "id": "variable_AbstractClass_prototype_foo"
                           },
@@ -4787,30 +5349,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
-          "name": "AbstractClass",
-          "href": "../././~/AbstractClass.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "name": "default",
+          "href": "../"
         },
         {
-          "name": "prototype",
-          "href": "../././~/AbstractClass.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "name": "d",
+          "href": ".././d/index.html"
         },
         {
           "name": "foo",
-          "href": "../././~/AbstractClass.prototype.foo.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "AbstractClass",
+          "href": "../././~/AbstractClass.html"
+        },
+        {
+          "name": "prototype",
+          "href": "../././~/AbstractClass.prototype.html"
+        },
+        {
+          "name": "foo",
+          "href": "../././~/AbstractClass.prototype.foo.html"
         }
       ]
     },
@@ -4880,7 +5460,7 @@ expression: files
                       "id": "function_AbstractClass_prototype_getter_0"
                     },
                     "name": "AbstractClass.prototype.getter",
-                    "summary": "()<span>: <span>string</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -4902,7 +5482,7 @@ expression: files
                                 "id": "function_AbstractClass_prototype_getter_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>string</span>",
+                                "content": "<span class=\"td-kw\">string</span>",
                                 "anchor": {
                                   "id": "function_AbstractClass_prototype_getter_0_return"
                                 },
@@ -4926,30 +5506,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "AbstractClass",
-          "href": "../././~/AbstractClass.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/AbstractClass.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/AbstractClass.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/AbstractClass.prototype.html"
         },
         {
           "name": "getter",
-          "href": "../././~/AbstractClass.prototype.getter.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/AbstractClass.prototype.getter.html"
         }
       ]
     },
@@ -5019,7 +5617,7 @@ expression: files
                       "id": "function_AbstractClass_prototype_method_0"
                     },
                     "name": "AbstractClass.prototype.method",
-                    "summary": "(<span><span>s<span>: <span><span>number</span><span> | </span><span>string</span></span></span></span></span>)<span>: s is <span>string</span></span>",
+                    "summary": "(<span><span>s<span>: <span><span class=\"td-kw\">number</span><span class=\"td-op\"> | </span><span class=\"td-kw\">string</span></span></span></span></span>)<span>: s <span class=\"td-kw\">is</span> <span class=\"td-kw\">string</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -5041,7 +5639,7 @@ expression: files
                                 "id": "function_abstractclass_prototype_method_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
-                                "content": "<span>: <span><span>number</span><span> | </span><span>string</span></span></span>",
+                                "content": "<span>: <span><span class=\"td-kw\">number</span><span class=\"td-op\"> | </span><span class=\"td-kw\">string</span></span></span>",
                                 "anchor": {
                                   "id": "function_abstractclass_prototype_method_0_parameter_s"
                                 },
@@ -5068,7 +5666,7 @@ expression: files
                                 "id": "function_AbstractClass_prototype_method_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "s is <span>string</span>",
+                                "content": "s <span class=\"td-kw\">is</span> <span class=\"td-kw\">string</span>",
                                 "anchor": {
                                   "id": "function_AbstractClass_prototype_method_0_return"
                                 },
@@ -5092,30 +5690,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "AbstractClass",
-          "href": "../././~/AbstractClass.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/AbstractClass.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/AbstractClass.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/AbstractClass.prototype.html"
         },
         {
           "name": "method",
-          "href": "../././~/AbstractClass.prototype.method.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/AbstractClass.prototype.method.html"
         }
       ]
     },
@@ -5195,7 +5811,7 @@ expression: files
                       "id": "function_Baz_bar_0"
                     },
                     "name": "Baz.bar",
-                    "summary": "()<span>: <a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link\">InterfaceWithIndexSignature</a>[<span>\"test\"</span>]</span>",
+                    "summary": "()<span>: <a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link td-ref\">InterfaceWithIndexSignature</a>[<span class=\"td-str\">\"test\"</span>]</span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -5217,7 +5833,7 @@ expression: files
                                 "id": "function_Baz_bar_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link\">InterfaceWithIndexSignature</a>[<span>\"test\"</span>]",
+                                "content": "<a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link td-ref\">InterfaceWithIndexSignature</a>[<span class=\"td-str\">\"test\"</span>]",
                                 "anchor": {
                                   "id": "function_Baz_bar_0_return"
                                 },
@@ -5241,24 +5857,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Baz",
-          "href": "../././~/Baz.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Baz.html"
         },
         {
           "name": "bar",
-          "href": "../././~/Baz.bar.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Baz.bar.html"
         }
       ]
     },
@@ -5340,7 +5976,7 @@ expression: files
                           "id": "variable_Baz_foo",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>Record</span>&lt;<span>string</span><span>, </span><span>T</span> <span>extends</span> <span>string</span> ? <span>0</span> : <span>1</span>&gt;",
+                          "content": "<span class=\"td-ref\">Record</span>&lt;<span class=\"td-kw\">string</span><span>, </span><span class=\"td-ref\">T</span> <span class=\"td-kw\">extends</span> <span class=\"td-kw\">string</span> <span class=\"td-op\">?</span> <span class=\"td-lit\">0</span> <span class=\"td-op\">:</span> <span class=\"td-lit\">1</span>&gt;",
                           "anchor": {
                             "id": "variable_Baz_foo"
                           },
@@ -5361,24 +5997,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
-          "name": "Baz",
-          "href": "../././~/Baz.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
         },
         {
           "name": "foo",
-          "href": "../././~/Baz.foo.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "Baz",
+          "href": "../././~/Baz.html"
+        },
+        {
+          "name": "foo",
+          "href": "../././~/Baz.foo.html"
         }
       ]
     },
@@ -5460,7 +6116,7 @@ expression: files
                           "id": "variable_CompoundType_bufferedAmount",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>number</span>",
+                          "content": "<span class=\"td-kw\">number</span>",
                           "anchor": {
                             "id": "variable_CompoundType_bufferedAmount"
                           },
@@ -5481,24 +6137,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "CompoundType",
-          "href": "../././~/CompoundType.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/CompoundType.html"
         },
         {
           "name": "bufferedAmount",
-          "href": "../././~/CompoundType.bufferedAmount.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/CompoundType.bufferedAmount.html"
         }
       ]
     },
@@ -5580,7 +6256,7 @@ expression: files
                           "id": "variable_Foo_bar",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>\"string\"</span>",
+                          "content": "<span class=\"td-str\">\"string\"</span>",
                           "anchor": {
                             "id": "variable_Foo_bar"
                           },
@@ -5601,24 +6277,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "bar",
-          "href": "../././~/Foo.bar.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.bar.html"
         }
       ]
     },
@@ -5700,7 +6396,7 @@ expression: files
                           "id": "variable_Foo_prototype_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>number</span>",
+                          "content": "<span class=\"td-kw\">number</span>",
                           "anchor": {
                             "id": "variable_Foo_prototype_&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"
                           },
@@ -5721,30 +6417,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "\"><img src=x onerror=alert(1)>",
-          "href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html"
         }
       ]
     },
@@ -5814,7 +6528,7 @@ expression: files
                       "id": "function_Foo_prototype_[Symbol_iterator]_0"
                     },
                     "name": "Foo.prototype.[Symbol.iterator]",
-                    "summary": "()<span>: <span>void</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -5836,7 +6550,7 @@ expression: files
                                 "id": "function_Foo_prototype_[Symbol_iterator]_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_prototype_[Symbol_iterator]_0_return"
                                 },
@@ -5860,30 +6574,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "[Symbol.iterator]",
-          "href": "../././~/Foo.prototype.[Symbol.iterator].html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.[Symbol.iterator].html"
         }
       ]
     },
@@ -5965,7 +6697,7 @@ expression: files
                           "id": "variable_Foo_prototype_foo",
                           "name": null,
                           "name_href": null,
-                          "content": "<a href=\"../././~/A.html\" class=\"link\">A</a>",
+                          "content": "<a href=\"../././~/A.html\" class=\"link td-ref\">A</a>",
                           "anchor": {
                             "id": "variable_Foo_prototype_foo"
                           },
@@ -5986,30 +6718,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
-          "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "name": "default",
+          "href": "../"
         },
         {
-          "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "name": "d",
+          "href": ".././d/index.html"
         },
         {
           "name": "foo",
-          "href": "../././~/Foo.prototype.foo.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "Foo",
+          "href": "../././~/Foo.html"
+        },
+        {
+          "name": "prototype",
+          "href": "../././~/Foo.prototype.html"
+        },
+        {
+          "name": "foo",
+          "href": "../././~/Foo.prototype.foo.html"
         }
       ]
     },
@@ -6112,30 +6862,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "getter",
-          "href": "../././~/Foo.prototype.getter.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.getter.html"
         }
       ]
     },
@@ -6257,7 +7025,7 @@ expression: files
                       "id": "function_Foo_prototype_getterAndSetter_0"
                     },
                     "name": "Foo.prototype.getterAndSetter",
-                    "summary": "(<span><span>s</span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>s</span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -6306,7 +7074,7 @@ expression: files
                                 "id": "function_Foo_prototype_getterAndSetter_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_prototype_getterAndSetter_0_return"
                                 },
@@ -6330,30 +7098,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "getterAndSetter",
-          "href": "../././~/Foo.prototype.getterAndSetter.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.getterAndSetter.html"
         }
       ]
     },
@@ -6438,7 +7224,7 @@ expression: files
                       "id": "function_Foo_prototype_methodWithOverloads_0"
                     },
                     "name": "Foo.prototype.methodWithOverloads",
-                    "summary": "(<span><span>s<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>s<span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -6460,7 +7246,7 @@ expression: files
                                 "id": "function_foo_prototype_methodwithoverloads_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span>",
                                 "anchor": {
                                   "id": "function_foo_prototype_methodwithoverloads_0_parameter_s"
                                 },
@@ -6487,7 +7273,7 @@ expression: files
                                 "id": "function_Foo_prototype_methodWithOverloads_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_prototype_methodWithOverloads_0_return"
                                 },
@@ -6507,7 +7293,7 @@ expression: files
                       "id": "function_Foo_prototype_methodWithOverloads_1"
                     },
                     "name": "Foo.prototype.methodWithOverloads",
-                    "summary": "(<span><span>s<span>: <span>string</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>s<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -6529,7 +7315,7 @@ expression: files
                                 "id": "function_foo_prototype_methodwithoverloads_1_parameter_s",
                                 "name": "s",
                                 "name_href": null,
-                                "content": "<span>: <span>string</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">string</span></span>",
                                 "anchor": {
                                   "id": "function_foo_prototype_methodwithoverloads_1_parameter_s"
                                 },
@@ -6556,7 +7342,7 @@ expression: files
                                 "id": "function_Foo_prototype_methodWithOverloads_1_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_prototype_methodWithOverloads_1_return"
                                 },
@@ -6580,30 +7366,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "methodWithOverloads",
-          "href": "../././~/Foo.prototype.methodWithOverloads.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.methodWithOverloads.html"
         }
       ]
     },
@@ -6720,7 +7524,7 @@ expression: files
                           "id": "variable_Foo_prototype_protectedProperty",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>boolean</span>",
+                          "content": "<span class=\"td-kw\">boolean</span>",
                           "anchor": {
                             "id": "variable_Foo_prototype_protectedProperty"
                           },
@@ -6741,30 +7545,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "protectedProperty",
-          "href": "../././~/Foo.prototype.protectedProperty.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.protectedProperty.html"
         }
       ]
     },
@@ -6846,7 +7668,7 @@ expression: files
                           "id": "variable_Foo_prototype_readonlyProperty",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>boolean</span>",
+                          "content": "<span class=\"td-kw\">boolean</span>",
                           "anchor": {
                             "id": "variable_Foo_prototype_readonlyProperty"
                           },
@@ -6867,30 +7689,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "readonlyProperty",
-          "href": "../././~/Foo.prototype.readonlyProperty.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.readonlyProperty.html"
         }
       ]
     },
@@ -6960,7 +7800,7 @@ expression: files
                       "id": "function_Foo_prototype_setter_0"
                     },
                     "name": "Foo.prototype.setter",
-                    "summary": "(<span><span>s<span>: <span>string</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>s<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -6982,7 +7822,7 @@ expression: files
                                 "id": "function_foo_prototype_setter_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
-                                "content": "<span>: <span>string</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">string</span></span>",
                                 "anchor": {
                                   "id": "function_foo_prototype_setter_0_parameter_s"
                                 },
@@ -7009,7 +7849,7 @@ expression: files
                                 "id": "function_Foo_prototype_setter_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_prototype_setter_0_return"
                                 },
@@ -7033,30 +7873,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "setter",
-          "href": "../././~/Foo.prototype.setter.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.setter.html"
         }
       ]
     },
@@ -7136,7 +7994,7 @@ expression: files
                       "id": "function_Foo_prototype_test_0"
                     },
                     "name": "Foo.prototype.test",
-                    "summary": "()<span>: <span>void</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -7158,7 +8016,7 @@ expression: files
                                 "id": "function_Foo_prototype_test_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_prototype_test_0_return"
                                 },
@@ -7182,30 +8040,48 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "prototype",
-          "href": "../././~/Foo.prototype.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.html"
         },
         {
           "name": "test",
-          "href": "../././~/Foo.prototype.test.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.prototype.test.html"
         }
       ]
     },
@@ -7275,7 +8151,7 @@ expression: files
                       "id": "function_Foo_staticMethod_0"
                     },
                     "name": "Foo.staticMethod",
-                    "summary": "()<span>: <span>void</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -7297,7 +8173,7 @@ expression: files
                                 "id": "function_Foo_staticMethod_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_staticMethod_0_return"
                                 },
@@ -7321,24 +8197,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "staticMethod",
-          "href": "../././~/Foo.staticMethod.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.staticMethod.html"
         }
       ]
     },
@@ -7408,7 +8304,7 @@ expression: files
                       "id": "function_Foo_staticSetter_0"
                     },
                     "name": "Foo.staticSetter",
-                    "summary": "(<span><span>s<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>s<span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -7430,7 +8326,7 @@ expression: files
                                 "id": "function_foo_staticsetter_0_parameter_s",
                                 "name": "s",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span>",
                                 "anchor": {
                                   "id": "function_foo_staticsetter_0_parameter_s"
                                 },
@@ -7457,7 +8353,7 @@ expression: files
                                 "id": "function_Foo_staticSetter_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Foo_staticSetter_0_return"
                                 },
@@ -7481,24 +8377,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Foo",
-          "href": "../././~/Foo.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Foo.html"
         },
         {
           "name": "staticSetter",
-          "href": "../././~/Foo.staticSetter.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Foo.staticSetter.html"
         }
       ]
     },
@@ -7590,7 +8506,7 @@ expression: files
                           "id": "variable_Hello_ab",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>string</span>",
+                          "content": "<span class=\"td-kw\">string</span>",
                           "anchor": {
                             "id": "variable_Hello_ab"
                           },
@@ -7611,24 +8527,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         },
         {
           "name": "ab",
-          "href": "../././~/Hello.ab.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Hello.ab.html"
         }
       ]
     },
@@ -7698,7 +8634,7 @@ expression: files
                       "id": "function_Hello_computedMethod_0"
                     },
                     "name": "Hello.computedMethod",
-                    "summary": "(<span><span>a<span>: <span>T</span> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <span>R</span> : <span>any</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>a<span>: <span class=\"td-ref\">T</span> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <span class=\"td-ref\">R</span> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -7720,7 +8656,7 @@ expression: files
                                 "id": "function_hello_computedmethod_0_parameter_a",
                                 "name": "a",
                                 "name_href": null,
-                                "content": "<span>: <span>T</span> <span>extends</span> () =&gt; <span>infer <span><span>R</span></span></span> ? <span>R</span> : <span>any</span></span>",
+                                "content": "<span>: <span class=\"td-ref\">T</span> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <span class=\"td-ref\">R</span> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span>",
                                 "anchor": {
                                   "id": "function_hello_computedmethod_0_parameter_a"
                                 },
@@ -7747,7 +8683,7 @@ expression: files
                                 "id": "function_Hello_computedMethod_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_Hello_computedMethod_0_return"
                                 },
@@ -7771,24 +8707,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         },
         {
           "name": "computedMethod",
-          "href": "../././~/Hello.computedMethod.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Hello.computedMethod.html"
         }
       ]
     },
@@ -7868,7 +8824,7 @@ expression: files
                       "id": "function_Hello_optionalMethod_0"
                     },
                     "name": "Hello.optionalMethod",
-                    "summary": "()<span>: <span>[<span>string</span>]</span></span>",
+                    "summary": "()<span>: <span>[<span class=\"td-kw\">string</span>]</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -7890,7 +8846,7 @@ expression: files
                                 "id": "function_Hello_optionalMethod_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>[<span>string</span>]</span>",
+                                "content": "<span>[<span class=\"td-kw\">string</span>]</span>",
                                 "anchor": {
                                   "id": "function_Hello_optionalMethod_0_return"
                                 },
@@ -7914,24 +8870,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         },
         {
           "name": "optionalMethod",
-          "href": "../././~/Hello.optionalMethod.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Hello.optionalMethod.html"
         }
       ]
     },
@@ -8013,7 +8989,7 @@ expression: files
                           "id": "variable_Hello_test",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>\"test\"</span>",
+                          "content": "<span class=\"td-str\">\"test\"</span>",
                           "anchor": {
                             "id": "variable_Hello_test"
                           },
@@ -8034,24 +9010,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         },
         {
           "name": "test",
-          "href": "../././~/Hello.test.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Hello.test.html"
         }
       ]
     },
@@ -8133,7 +9129,7 @@ expression: files
                           "id": "variable_Hello_world",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>string</span>",
+                          "content": "<span class=\"td-kw\">string</span>",
                           "anchor": {
                             "id": "variable_Hello_world"
                           },
@@ -8154,24 +9150,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         },
         {
           "name": "world",
-          "href": "../././~/Hello.world.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Hello.world.html"
         }
       ]
     },
@@ -8255,8 +9271,8 @@ expression: files
                             "id": "index_signature_0"
                           },
                           "readonly": false,
-                          "params": "<span><span>foo<span>: <span>string</span></span></span></span>",
-                          "ts_type": "<span>: <span>number</span></span>",
+                          "params": "<span><span>foo<span>: <span class=\"td-kw\">string</span></span></span></span>",
+                          "ts_type": "<span>: <span class=\"td-kw\">number</span></span>",
                           "source_href": null
                         }
                       ]
@@ -8272,24 +9288,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "Hello",
-          "href": "../././~/Hello.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/Hello.html"
         },
         {
           "name": "x",
-          "href": "../././~/Hello.x.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/Hello.x.html"
         }
       ]
     },
@@ -8359,7 +9395,7 @@ expression: files
                       "id": "function_anotherVariable_bar_0"
                     },
                     "name": "anotherVariable.bar",
-                    "summary": "()<span>: <span>number</span></span>",
+                    "summary": "()<span>: <span class=\"td-kw\">number</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -8381,7 +9417,7 @@ expression: files
                                 "id": "function_anotherVariable_bar_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>number</span>",
+                                "content": "<span class=\"td-kw\">number</span>",
                                 "anchor": {
                                   "id": "function_anotherVariable_bar_0_return"
                                 },
@@ -8405,24 +9441,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "anotherVariable",
-          "href": "../././~/anotherVariable.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../././~/anotherVariable.html"
         },
         {
           "name": "bar",
-          "href": "../././~/anotherVariable.bar.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": "../././~/anotherVariable.bar.html"
         }
       ]
     },
@@ -8504,7 +9560,7 @@ expression: files
                           "id": "variable_anotherVariable_foo",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>string</span>",
+                          "content": "<span class=\"td-kw\">string</span>",
                           "anchor": {
                             "id": "variable_anotherVariable_foo"
                           },
@@ -8525,24 +9581,44 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
         },
         {
-          "name": "anotherVariable",
-          "href": "../././~/anotherVariable.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
         },
         {
           "name": "foo",
-          "href": "../././~/anotherVariable.foo.html",
-          "is_symbol": true,
-          "is_first_symbol": false
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "anotherVariable",
+          "href": "../././~/anotherVariable.html"
+        },
+        {
+          "name": "foo",
+          "href": "../././~/anotherVariable.foo.html"
         }
       ]
     },
@@ -8624,7 +9700,7 @@ expression: files
                           "id": "variable_default",
                           "name": null,
                           "name_href": null,
-                          "content": "<span>number</span>",
+                          "content": "<span class=\"td-kw\">number</span>",
                           "anchor": {
                             "id": "variable_default"
                           },
@@ -8645,24 +9721,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../../"
+      },
+      "current_entrypoint": {
+        "name": "foo",
+        "href": "../.././foo/index.html"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../../",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
-        {
-          "name": "foo",
-          "href": "../.././foo/index.html",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": "../.././all_symbols.html"
         },
         {
           "name": "default",
-          "href": "../.././foo/~/default.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../../"
+        },
+        {
+          "name": "d",
+          "href": "../.././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": "../.././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": "../.././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "default",
+          "href": "../.././foo/~/default.html"
         }
       ]
     },
@@ -8732,7 +9824,7 @@ expression: files
                       "id": "function_x_0"
                     },
                     "name": "x",
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -8754,7 +9846,7 @@ expression: files
                                 "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
                                   "id": "function_x_0_parameter__n"
                                 },
@@ -8785,7 +9877,7 @@ expression: files
                                 "id": "function_x_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_x_0_return"
                                 },
@@ -8809,24 +9901,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../../"
+      },
+      "current_entrypoint": {
+        "name": "foo",
+        "href": "../.././foo/index.html"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": "../.././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../../"
+        },
+        {
+          "name": "d",
+          "href": "../.././d/index.html"
         },
         {
           "name": "foo",
-          "href": "../.././foo/index.html",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "href": "../.././foo/index.html"
         },
         {
+          "name": "c",
+          "href": "../.././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
           "name": "x",
-          "href": "../.././foo/~/x.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../.././foo/~/x.html"
         }
       ]
     },
@@ -8906,7 +10014,7 @@ expression: files
                       "id": "function_x_0"
                     },
                     "name": "x",
-                    "summary": "(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span>",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -8928,7 +10036,7 @@ expression: files
                                 "id": "function_x_0_parameter__n",
                                 "name": "_n",
                                 "name_href": null,
-                                "content": "<span>: <span>number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
                                 "anchor": {
                                   "id": "function_x_0_parameter__n"
                                 },
@@ -8959,7 +10067,7 @@ expression: files
                                 "id": "function_x_0_return",
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>void</span>",
+                                "content": "<span class=\"td-kw\">void</span>",
                                 "anchor": {
                                   "id": "function_x_0_return"
                                 },
@@ -8983,24 +10091,40 @@ expression: files
       ]
     },
     "breadcrumbs_ctx": {
-      "parts": [
+      "root": {
+        "name": "index",
+        "href": "../../"
+      },
+      "current_entrypoint": {
+        "name": "c",
+        "href": "../.././c/index.html"
+      },
+      "entrypoints": [
         {
-          "name": "index",
-          "href": "../../",
-          "is_symbol": false,
-          "is_first_symbol": false
+          "name": "all symbols",
+          "href": "../.././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../../"
+        },
+        {
+          "name": "d",
+          "href": "../.././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": "../.././foo/index.html"
         },
         {
           "name": "c",
-          "href": "../.././c/index.html",
-          "is_symbol": false,
-          "is_first_symbol": false
-        },
+          "href": "../.././c/index.html"
+        }
+      ],
+      "symbol": [
         {
           "name": "x",
-          "href": "../.././c/~/x.html",
-          "is_symbol": true,
-          "is_first_symbol": true
+          "href": "../.././c/~/x.html"
         }
       ]
     },

@@ -19,7 +19,10 @@ expression: files.get(file_name).unwrap()
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
-    <div class="flex items-center"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
+    <div class="flex items-center"><ul class="breadcrumbs">
+  <li>
+    <a href="..&#x2F;" class="contextLink">index</a>
+  </li><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -33,7 +36,7 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span><li>d</li></ul>
+</span>d</ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -124,7 +127,8 @@ expression: files.get(file_name).unwrap()
 </a>
 Functions</h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction">externalFunction</a>
+		    <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction">
+			    <span>externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
 
 	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
     </div></div>

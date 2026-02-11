@@ -19,7 +19,10 @@ expression: files.get(file_name).unwrap()
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
-    <div class="flex items-center"><ul class="breadcrumbs"><li><a href="..&#x2F;..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
+    <div class="flex items-center"><ul class="breadcrumbs">
+  <li>
+    <a href="..&#x2F;..&#x2F;" class="contextLink">index</a>
+  </li><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -33,7 +36,7 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span><li><a href="..&#x2F;..&#x2F;.&#x2F;foo&#x2F;index.html" class="contextLink">foo</a></li><span class="text-black dark:text-white"><svg
+</span><a href="..&#x2F;..&#x2F;.&#x2F;foo&#x2F;index.html" class="contextLink">foo</a><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -47,7 +50,9 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span><ul><li>x</li></ul></ul>
+</span>
+
+    <ul><li>x</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -139,7 +144,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">x</span><span class="font-medium">(<span><span>_n?<span>: <span>number</span></span></span></span>)<span>: <span>void</span></span> </span>
+<span class="font-bold">x</span><span class="font-medium">(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section"  id="parameters"><div>
       <h2 class="anchorable mb-1"><a href="#parameters" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -189,7 +194,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">_n</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>number</span></span><span><span class="font-normal"> = </span>0</span></span>
+<span class="font-bold font-lg">_n</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-kw">number</span></span><span><span class="font-normal"> = </span>0</span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -219,7 +224,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
 Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_x_0_return">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span>void</span></span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-kw">void</span></span>
       </code>
     </div></div></div>
 </div></section>

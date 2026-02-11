@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AbstractClass.prototype.method - documentation</title>
+  <title>AbstractClass.prototype.method - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -19,7 +19,10 @@ expression: files.get(file_name).unwrap()
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
-    <div class="flex items-center"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
+    <div class="flex items-center"><ul class="breadcrumbs">
+  <li>
+    <a href="..&#x2F;" class="contextLink">index</a>
+  </li><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -33,7 +36,25 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span><ul><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" class="contextLink">AbstractClass</a></li><span>.</span><li><a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.prototype.html" class="contextLink">prototype</a></li><span>.</span><li>method</li></ul></ul>
+</span><a href="..&#x2F;" class="contextLink">default</a><span class="text-black dark:text-white"><svg
+  width="16"
+  height="16"
+  viewBox="0 0 16 16"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z"
+    fill="currentColor"
+  />
+</svg>
+</span>
+
+    <ul><li><span>.</span>
+            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" class="contextLink">AbstractClass</a></li><li><span>.</span>
+            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.prototype.html" class="contextLink">prototype</a></li><li>method</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -125,7 +146,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">AbstractClass.prototype.method</span><span class="font-medium">(<span><span>s<span>: <span><span>number</span><span> | </span><span>string</span></span></span></span></span>)<span>: s is <span>string</span></span> </span>
+<span class="font-bold">AbstractClass.prototype.method</span><span class="font-medium">(<span><span>s<span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">string</span></span></span></span></span>)<span>: s <span class="td-kw">is</span> <span class="td-kw">string</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section"  id="parameters"><div>
       <h2 class="anchorable mb-1"><a href="#parameters" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -174,7 +195,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">s</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span><span>number</span><span> | </span><span>string</span></span></span></span>
+<span class="font-bold font-lg">s</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">string</span></span></span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -204,7 +225,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
 Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_AbstractClass_prototype_method_0_return">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500 dark:text-stone-200">s is <span>string</span></span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200">s <span class="td-kw">is</span> <span class="td-kw">string</span></span>
       </code>
     </div></div></div>
 </div></section>

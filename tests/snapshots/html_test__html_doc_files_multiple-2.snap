@@ -19,7 +19,10 @@ expression: files.get(file_name).unwrap()
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
-    <div class="flex items-center"><ul class="breadcrumbs"><li>index</li></ul>
+    <div class="flex items-center"><ul class="breadcrumbs">
+  <li>
+    <a href="" class="contextLink">index</a>
+  </li></ul>
 </div>
 
     <div class="flex items-center gap-2">
