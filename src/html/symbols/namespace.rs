@@ -2,14 +2,14 @@ use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::MethodKind;
 use crate::html::render_context::RenderContext;
+use crate::html::symbols::function::render_function_summary;
+use crate::html::types::render_type_def;
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
-use crate::html::symbols::function::render_function_summary;
-use crate::html::types::render_type_def;
 
 pub fn render_namespace<'a>(
   partitions: impl Iterator<
@@ -172,7 +172,11 @@ impl NamespaceNodeCtx {
                 _ => unreachable!(),
               };
 
-              let docs = crate::html::jsdoc::jsdoc_body_to_html(ctx, &symbol.js_doc, true);
+              let docs = crate::html::jsdoc::jsdoc_body_to_html(
+                ctx,
+                &symbol.js_doc,
+                true,
+              );
 
               NamespaceNodeSubItemCtx {
                 title: symbol.drilldown_name.as_ref().unwrap().to_string(),
@@ -202,9 +206,17 @@ impl NamespaceNodeCtx {
   }
 }
 
-fn summary_for_node(ctx: &RenderContext, nodes: &[DocNodeWithContext]) -> Option<String> {
+fn summary_for_node(
+  ctx: &RenderContext,
+  nodes: &[DocNodeWithContext],
+) -> Option<String> {
   match nodes[0].kind {
-    DocNodeKind::Method(_) | DocNodeKind::Function => Some(render_function_summary(nodes[0].function_def().unwrap(), &ctx.with_disable_links(true))),
+    DocNodeKind::Method(_) | DocNodeKind::Function => {
+      Some(render_function_summary(
+        nodes[0].function_def().unwrap(),
+        &ctx.with_disable_links(true),
+      ))
+    }
     DocNodeKind::Class => None,
     DocNodeKind::Enum => None,
     DocNodeKind::Interface => None,
@@ -212,12 +224,26 @@ fn summary_for_node(ctx: &RenderContext, nodes: &[DocNodeWithContext]) -> Option
       let ctx = ctx.with_disable_links(true);
       let def = nodes[0].type_alias_def().unwrap();
 
-      Some(format!("{} = {}", crate::html::types::type_params_summary(&ctx, &def.type_params), render_type_def(&ctx, &def.ts_type)))
-    },
-    DocNodeKind::Property | DocNodeKind::Variable => nodes[0].variable_def().unwrap().ts_type.as_ref().map(|ts_type| format!(": {}", render_type_def(&ctx.with_disable_links(true), ts_type))),
-    DocNodeKind::Reference |
-    DocNodeKind::Namespace |
-    DocNodeKind::Import |
-    DocNodeKind::ModuleDoc => None
+      Some(format!(
+        "{} = {}",
+        crate::html::types::type_params_summary(&ctx, &def.type_params),
+        render_type_def(&ctx, &def.ts_type)
+      ))
+    }
+    DocNodeKind::Property | DocNodeKind::Variable => nodes[0]
+      .variable_def()
+      .unwrap()
+      .ts_type
+      .as_ref()
+      .map(|ts_type| {
+        format!(
+          ": {}",
+          render_type_def(&ctx.with_disable_links(true), ts_type)
+        )
+      }),
+    DocNodeKind::Reference
+    | DocNodeKind::Namespace
+    | DocNodeKind::Import
+    | DocNodeKind::ModuleDoc => None,
   }
 }

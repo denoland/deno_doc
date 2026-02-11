@@ -26,7 +26,12 @@ export interface CategoriesPanelCategoryCtx {
   active: boolean;
 }
 
-export type Page = IndexCtx | AllSymbolsPageCtx | SymbolPageCtx | Redirect | Search;
+export type Page =
+  | IndexCtx
+  | AllSymbolsPageCtx
+  | SymbolPageCtx
+  | Redirect
+  | Search;
 
 export interface PageBase {
   kind: "IndexCtx" | "AllSymbolsPageCtx" | "SymbolPageCtx";

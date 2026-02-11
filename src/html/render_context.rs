@@ -222,10 +222,9 @@ impl<'ctx> RenderContext<'ctx> {
       UrlResolveKind::AllSymbols => {
         current_entrypoint = Some(BreadcrumbCtx {
           name: "all symbols".to_string(),
-          href: self.ctx.resolve_path(
-            self.current_resolve,
-            UrlResolveKind::AllSymbols,
-          ),
+          href: self
+            .ctx
+            .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
         });
       }
       UrlResolveKind::Category { category } => {
@@ -237,10 +236,9 @@ impl<'ctx> RenderContext<'ctx> {
       UrlResolveKind::File { file } => {
         current_entrypoint = Some(BreadcrumbCtx {
           name: file.display_name().to_string(),
-          href: self.ctx.resolve_path(
-            self.current_resolve,
-            UrlResolveKind::File { file },
-          ),
+          href: self
+            .ctx
+            .resolve_path(self.current_resolve, UrlResolveKind::File { file }),
         });
       }
       UrlResolveKind::Symbol { file, symbol } => {
@@ -253,14 +251,14 @@ impl<'ctx> RenderContext<'ctx> {
             ),
           });
         } else {
-         current_entrypoint = Some(BreadcrumbCtx {
-           name: file.display_name().to_string(),
-           href: self.ctx.resolve_path(
-             self.current_resolve,
-             UrlResolveKind::File { file },
-           ),
-         });
-       }
+          current_entrypoint = Some(BreadcrumbCtx {
+            name: file.display_name().to_string(),
+            href: self.ctx.resolve_path(
+              self.current_resolve,
+              UrlResolveKind::File { file },
+            ),
+          });
+        }
 
         let (_, symbol_parts) = split_with_brackets(symbol).into_iter().fold(
           (vec![], vec![]),

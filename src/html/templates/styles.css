@@ -125,8 +125,8 @@ a {
       width: 0;
 
       > a, .namespaceItemContentSubItems > li > a {
-        @apply block font-mono underline decoration-stone-300 dark:decoration-stone-500
-          hover:no-underline;
+        @apply block font-mono underline decoration-stone-300
+          dark:decoration-stone-500 hover:no-underline;
 
         span:first-child {
           @apply leading-none break-all font-medium;

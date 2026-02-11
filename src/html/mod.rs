@@ -32,6 +32,8 @@ use crate::js_doc::JsDocTag;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
+pub use symbols::AllSymbolsCtx;
+pub use symbols::AllSymbolsItemCtx;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use symbols::namespace;
@@ -49,8 +51,6 @@ pub use util::UrlResolveKind;
 pub use util::compute_namespaced_symbols;
 pub use util::href_path_resolve;
 pub use util::qualify_drilldown_name;
-pub use symbols::AllSymbolsCtx;
-pub use symbols::AllSymbolsItemCtx;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -295,8 +295,10 @@ pub struct GenerateCtx {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   /// Index from Location to (depth, node) for fast reference resolution.
-  reference_index:
-    std::collections::HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
+  reference_index: std::collections::HashMap<
+    crate::Location,
+    Vec<(usize, DocNodeWithContext)>,
+  >,
 }
 
 impl GenerateCtx {
@@ -434,7 +436,9 @@ impl GenerateCtx {
           .entry(node.location.clone())
           .or_default()
           .push((depth, node.clone()));
-        if matches!(node.def, DocNodeDef::Namespace { .. }) && let Some(children) = &node.namespace_children {
+        if matches!(node.def, DocNodeDef::Namespace { .. })
+          && let Some(children) = &node.namespace_children
+        {
           for child in children {
             index_node(index, child, depth + 1);
           }

@@ -508,8 +508,10 @@ fn type_def_join(
   union: &[crate::ts_type::TsTypeDef],
   join: char,
 ) -> String {
-  let rendered: Vec<String> =
-    union.iter().map(|element| render_type_def(ctx, element)).collect();
+  let rendered: Vec<String> = union
+    .iter()
+    .map(|element| render_type_def(ctx, element))
+    .collect();
 
   let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
     + rendered.len().saturating_sub(1) * 3; // join char + 2 for spaces around

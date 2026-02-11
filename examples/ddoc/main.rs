@@ -70,7 +70,11 @@ async fn run() -> anyhow::Result<()> {
         .takes_value(true),
     )
     .arg(Arg::with_name("output").long("output").takes_value(true))
-    .arg(Arg::with_name("source_files").required_unless("from").multiple(true))
+    .arg(
+      Arg::with_name("source_files")
+        .required_unless("from")
+        .multiple(true),
+    )
     .arg(
       Arg::with_name("filter")
         .long("filter")

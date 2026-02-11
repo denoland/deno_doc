@@ -473,9 +473,7 @@ pub struct AllSymbolsPageCtx {
 impl AllSymbolsPageCtx {
   pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  pub fn new(
-    ctx: &GenerateCtx,
-  ) -> Self {
+  pub fn new(ctx: &GenerateCtx) -> Self {
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
 
     let html_head_ctx = HtmlHeadCtx::new(ctx, "./", Some("All Symbols"), None);

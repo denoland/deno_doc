@@ -113,8 +113,7 @@ pub fn partition_nodes_by_kind<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
-  let name_to_kind =
-    RefCell::new(HashMap::<String, super::DocNodeKind>::new());
+  let name_to_kind = RefCell::new(HashMap::<String, super::DocNodeKind>::new());
 
   let mut partitions = create_partitioner(
     ctx,
@@ -154,9 +153,10 @@ pub fn partition_nodes_by_category<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
-  let seen = RefCell::new(
-    std::collections::HashSet::<(String, super::DocNodeKind)>::new(),
-  );
+  let seen = RefCell::new(std::collections::HashSet::<(
+    String,
+    super::DocNodeKind,
+  )>::new());
 
   let mut partitions = create_partitioner(
     ctx,
@@ -226,7 +226,13 @@ fn sort_nodes<T>(partitions: &mut Partitions<T>) {
       let qname_lower = node.get_qualified_name().to_ascii_lowercase();
       let qname = node.get_qualified_name().to_string();
 
-      (is_deprecated, std::cmp::Reverse(priority), qname_lower, qname, node.kind)
+      (
+        is_deprecated,
+        std::cmp::Reverse(priority),
+        qname_lower,
+        qname,
+        node.kind,
+      )
     });
   }
 }

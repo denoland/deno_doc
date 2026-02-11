@@ -1,12 +1,13 @@
-use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
+use crate::html::jsdoc::ModuleDocCtx;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
@@ -15,7 +16,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashSet;
-use crate::html::jsdoc::ModuleDocCtx;
 
 pub mod class;
 pub mod r#enum;
@@ -426,17 +426,20 @@ impl AllSymbolsCtx {
   pub const TEMPLATE: &'static str = "all_symbols";
 
   pub fn new(ctx: &RenderContext) -> Self {
-    let entrypoints= ctx.ctx.doc_nodes.keys().map(|short_path| {
-      AllSymbolsItemCtx {
+    let entrypoints = ctx
+      .ctx
+      .doc_nodes
+      .keys()
+      .map(|short_path| AllSymbolsItemCtx {
         name: short_path.display_name().to_string(),
-        href: ctx.ctx.resolve_path(ctx.get_current_resolve(), UrlResolveKind::File { file: short_path }),
+        href: ctx.ctx.resolve_path(
+          ctx.get_current_resolve(),
+          UrlResolveKind::File { file: short_path },
+        ),
         module_doc: ModuleDocCtx::new(ctx, short_path, true),
-      }
-    }).collect();
+      })
+      .collect();
 
-    Self {
-      entrypoints,
-    }
+    Self { entrypoints }
   }
 }
-
