@@ -136,9 +136,7 @@ pub fn partition_nodes_by_kind<'a>(
     },
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
+  sort_nodes(&mut partitions);
 
   partitions
     .sorted_by(|kind1, _nodes1, kind2, _nodes2| kind1.cmp(kind2))
@@ -156,6 +154,10 @@ pub fn partition_nodes_by_category<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
+  let seen = RefCell::new(
+    std::collections::HashSet::<(String, super::DocNodeKind)>::new(),
+  );
+
   let mut partitions = create_partitioner(
     ctx,
     doc_nodes,
@@ -174,20 +176,15 @@ pub fn partition_nodes_by_category<'a>(
         })
         .unwrap_or(String::from("Uncategorized"));
 
-      let entry = partitions.entry(category).or_default();
-
-      if !entry.iter().any(|n| {
-        n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
-      }) {
+      let key = (node.get_qualified_name().to_string(), node.kind);
+      if seen.borrow_mut().insert(key) {
+        let entry = partitions.entry(category).or_default();
         entry.push(node.clone());
       }
     },
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
+  sort_nodes(&mut partitions);
 
   partitions
     .sorted_by(|key1, _value1, key2, _value2| {
@@ -204,57 +201,32 @@ pub fn partition_nodes_by_category<'a>(
     .collect()
 }
 
-fn compare_node(
-  node1: &DocNodeWithContext,
-  node2: &DocNodeWithContext,
-) -> Ordering {
-  let node1_is_deprecated = node1
-    .js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-  let node2_is_deprecated = node2
-    .js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+fn sort_nodes<T>(partitions: &mut Partitions<T>) {
+  for (_key, nodes) in partitions.iter_mut() {
+    nodes.sort_by_cached_key(|node| {
+      let is_deprecated = node
+        .js_doc
+        .tags
+        .iter()
+        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
 
-  (!node2_is_deprecated)
-    .cmp(&!node1_is_deprecated)
-    .then_with(|| {
-      let p1 = node1.js_doc.tags.iter().find_map(|tag| {
-        if let JsDocTag::Priority { priority } = tag {
-          Some(priority)
-        } else {
-          None
-        }
-      });
-      let p2 = node2.js_doc.tags.iter().find_map(|tag| {
-        if let JsDocTag::Priority { priority } = tag {
-          Some(priority)
-        } else {
-          None
-        }
-      });
+      let priority = node
+        .js_doc
+        .tags
+        .iter()
+        .find_map(|tag| {
+          if let JsDocTag::Priority { priority } = tag {
+            Some(*priority)
+          } else {
+            None
+          }
+        })
+        .unwrap_or(0);
 
-      match (p1, p2) {
-        (Some(p1), Some(p2)) => p1.cmp(p2),
-        (Some(p1), None) if p1 == &0 => Ordering::Equal,
-        (Some(p1), None) if p1.is_negative() => Ordering::Less,
-        (Some(_), None) => Ordering::Greater,
-        (None, Some(p2)) if p2 == &0 => Ordering::Equal,
-        (None, Some(p2)) if p2.is_negative() => Ordering::Greater,
-        (None, Some(_)) => Ordering::Less,
-        (None, None) => Ordering::Equal,
-      }
-      .reverse()
-    })
-    .then_with(|| {
-      node1
-        .get_qualified_name()
-        .to_ascii_lowercase()
-        .cmp(&node2.get_qualified_name().to_ascii_lowercase())
-    })
-    .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
-    .then_with(|| node1.kind.cmp(&node2.kind))
+      let qname_lower = node.get_qualified_name().to_ascii_lowercase();
+      let qname = node.get_qualified_name().to_string();
+
+      (is_deprecated, std::cmp::Reverse(priority), qname_lower, qname, node.kind)
+    });
+  }
 }
