@@ -1,0 +1,29 @@
+# old/mod.ts
+export namespace Foo {
+  export function hello(): void {}
+  export const value: string = "";
+}
+
+# new/mod.ts
+export namespace Bar {
+  export function hello(): void {}
+  export const value: string = "";
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Bar",
+          "kind": "namespace",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Bar"
+          }
+        }
+      ]
+    }
+  }
+}
