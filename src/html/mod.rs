@@ -978,7 +978,7 @@ pub fn generate(
   ctx: GenerateCtx,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let mut files = HashMap::new();
-
+/*
   // Index page
   {
     let (partitions_for_entrypoint_nodes, uses_categories) =
@@ -1017,7 +1017,7 @@ pub fn generate(
       "./index.html".to_string(),
       ctx.render(pages::IndexCtx::TEMPLATE, &index),
     );
-  }
+  }*/
 
   // All symbols (list of all symbols in all files)
   {
@@ -1028,7 +1028,7 @@ pub fn generate(
       ctx.render(pages::AllSymbolsPageCtx::TEMPLATE, &all_symbols),
     );
   }
-
+/*
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
     let all_doc_nodes = ctx
@@ -1171,7 +1171,7 @@ pub fn generate(
     comrak::COMRAK_STYLESHEET_FILENAME.into(),
     comrak::COMRAK_STYLESHEET.into(),
   );
-
+*/
   Ok(files)
 }
 
