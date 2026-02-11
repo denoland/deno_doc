@@ -12,6 +12,39 @@ use deno_ast::swc::ast::TruePlusMinus;
 
 const MAX_INLINE_LEN: usize = 60;
 
+// not a fan of this, but its the easiest approach
+fn strip_indent_wrapper(html: &str) -> &str {
+  html
+    .strip_prefix(r#"<div class="ml-indent">"#)
+    .and_then(|s| s.strip_suffix("</div>"))
+    .unwrap_or(html)
+}
+
+pub(crate) fn with_trailing_comma(html: &str) -> String {
+  if let Some(pos) = html.rfind("</div>") {
+    let after = &html[pos + 6..];
+    let only_closing_tags = {
+      let mut s = after;
+      while let Some(rest) = s.strip_prefix("</") {
+        if let Some(end) = rest.find('>') {
+          s = &rest[end + 1..];
+        } else {
+          break;
+        }
+      }
+      s.is_empty()
+    };
+    if only_closing_tags {
+      let mut result = String::with_capacity(html.len() + 1);
+      result.push_str(&html[..pos]);
+      result.push(',');
+      result.push_str(&html[pos..]);
+      return result;
+    }
+  }
+  format!("{html},")
+}
+
 fn html_text_len(html: &str) -> usize {
   let mut len = 0;
   let mut in_tag = false;
@@ -523,13 +556,17 @@ fn type_def_tuple(
     let items = rendered.join(", ");
     format!("<span>[{items}]</span>")
   } else {
+    let last = rendered.len() - 1;
     let mut items = Vec::with_capacity(rendered.len());
 
-    for rendered_item in &rendered {
-      items.push(format!(
-        r#"<div><span>{}</span>, </div>"#,
-        rendered_item
-      ));
+    for (i, rendered_item) in rendered.iter().enumerate() {
+      let stripped = strip_indent_wrapper(rendered_item);
+      let content = if i < last {
+        with_trailing_comma(stripped)
+      } else {
+        stripped.to_string()
+      };
+      items.push(format!(r#"<div><span>{content}</span></div>"#));
     }
 
     let content = items.join("");
@@ -560,10 +597,16 @@ pub(crate) fn type_params_summary(
     let items = rendered.join("<span>, </span>");
     format!("<span>&lt;{items}&gt;</span>")
   } else {
+    let last = rendered.len() - 1;
     let mut items = Vec::with_capacity(rendered.len());
 
-    for rendered_item in &rendered {
-      items.push(format!("<div>{},</div>", rendered_item));
+    for (i, rendered_item) in rendered.iter().enumerate() {
+      let content = if i < last {
+        with_trailing_comma(rendered_item)
+      } else {
+        rendered_item.clone()
+      };
+      items.push(format!("<div>{content}</div>"));
     }
 
     let content = items.join("");
@@ -624,10 +667,17 @@ pub(crate) fn type_arguments(
     let items = rendered.join("<span>, </span>");
     format!("&lt;{items}&gt;")
   } else {
+    let last = rendered.len() - 1;
     let mut items = Vec::with_capacity(rendered.len());
 
-    for rendered_item in &rendered {
-      items.push(format!("<div>{},</div>", rendered_item));
+    for (i, rendered_item) in rendered.iter().enumerate() {
+      let stripped = strip_indent_wrapper(rendered_item);
+      let content = if i < last {
+        with_trailing_comma(stripped)
+      } else {
+        stripped.to_string()
+      };
+      items.push(format!("<div>{content}</div>"));
     }
 
     let content = items.join("");

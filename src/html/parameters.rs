@@ -1,5 +1,6 @@
 use super::render_context::RenderContext;
 use super::types::render_type_def_colon;
+use super::types::with_trailing_comma;
 use crate::params::ParamDef;
 use crate::params::ParamPatternDef;
 
@@ -12,10 +13,17 @@ pub(crate) fn render_params(
   } else if params.len() == 1 {
     format!("<span>{}</span>", render_param(ctx, &params[0], 0))
   } else {
+    let last = params.len() - 1;
     let mut items = Vec::with_capacity(params.len());
 
     for (i, def) in params.iter().enumerate() {
-      items.push(format!("<div>{},</div>", render_param(ctx, def, i)));
+      let rendered = render_param(ctx, def, i);
+      let content = if i < last {
+        with_trailing_comma(&rendered)
+      } else {
+        rendered
+      };
+      items.push(format!("<div>{content}</div>"));
     }
 
     let content = items.join("");
