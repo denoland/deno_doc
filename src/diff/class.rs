@@ -15,10 +15,10 @@ use crate::class::ClassPropertyDef;
 use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::TsTypeDef;
 use deno_ast::swc::ast::Accessibility;
+use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
-use std::collections::HashSet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -141,8 +141,8 @@ pub struct ImplementsDiff {
 
 impl ImplementsDiff {
   pub fn diff(old: &[TsTypeDef], new: &[TsTypeDef]) -> Option<Self> {
-    let old_set = old.iter().map(|t| &t.repr).collect::<HashSet<_>>();
-    let new_set = new.iter().map(|t| &t.repr).collect::<HashSet<_>>();
+    let old_set = old.iter().map(|t| &t.repr).collect::<IndexSet<_>>();
+    let new_set = new.iter().map(|t| &t.repr).collect::<IndexSet<_>>();
 
     let added = new
       .iter()
@@ -232,12 +232,12 @@ impl ConstructorsDiff {
 
     // Group by parameter count
     let old_by_param_count =
-      old.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
+      old.iter().fold(IndexMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
     let new_by_param_count =
-      new.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
+      new.iter().fold(IndexMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
@@ -501,11 +501,11 @@ impl MethodsDiff {
     let old_map = old
       .iter()
       .map(|m| ((&*m.name, m.is_static, m.kind), m))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
     let new_map = new
       .iter()
       .map(|m| ((&*m.name, m.is_static, m.kind), m))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -665,11 +665,11 @@ impl PropertiesDiff {
     let old_map = old
       .iter()
       .map(|p| ((&*p.name, p.is_static), p))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
     let new_map = new
       .iter()
       .map(|p| ((&*p.name, p.is_static), p))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();

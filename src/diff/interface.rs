@@ -12,10 +12,10 @@ use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::MethodDef;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
+use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
-use std::collections::HashSet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -108,8 +108,8 @@ pub struct ExtendsDiff {
 
 impl ExtendsDiff {
   pub fn diff(old: &[TsTypeDef], new: &[TsTypeDef]) -> Option<Self> {
-    let old_set = old.iter().map(|t| &t.repr).collect::<HashSet<_>>();
-    let new_set = new.iter().map(|t| &t.repr).collect::<HashSet<_>>();
+    let old_set = old.iter().map(|t| &t.repr).collect::<IndexSet<_>>();
+    let new_set = new.iter().map(|t| &t.repr).collect::<IndexSet<_>>();
 
     let added = new
       .iter()
@@ -144,12 +144,12 @@ pub struct InterfaceConstructorsDiff {
 impl InterfaceConstructorsDiff {
   pub fn diff(old: &[ConstructorDef], new: &[ConstructorDef]) -> Option<Self> {
     let old_by_param_count =
-      old.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
+      old.iter().fold(IndexMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
     let new_by_param_count =
-      new.iter().fold(HashMap::<_, Vec<_>>::new(), |mut acc, c| {
+      new.iter().fold(IndexMap::<_, Vec<_>>::new(), |mut acc, c| {
         acc.entry(c.params.len()).or_default().push(c);
         acc
       });
@@ -277,11 +277,11 @@ impl InterfaceMethodsDiff {
     let old_map = old
       .iter()
       .map(|m| ((&*m.name, m.kind), m))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
     let new_map = new
       .iter()
       .map(|m| ((&*m.name, m.kind), m))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
@@ -408,8 +408,14 @@ pub struct InterfacePropertiesDiff {
 
 impl InterfacePropertiesDiff {
   pub fn diff(old: &[PropertyDef], new: &[PropertyDef]) -> Option<Self> {
-    let old_map = old.iter().map(|p| (&*p.name, p)).collect::<HashMap<_, _>>();
-    let new_map = new.iter().map(|p| (&*p.name, p)).collect::<HashMap<_, _>>();
+    let old_map = old
+      .iter()
+      .map(|p| (&*p.name, p))
+      .collect::<IndexMap<_, _>>();
+    let new_map = new
+      .iter()
+      .map(|p| (&*p.name, p))
+      .collect::<IndexMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();

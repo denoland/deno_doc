@@ -6,9 +6,9 @@ use super::ts_type::TypeParamsDiff;
 use crate::decorators::DecoratorDef;
 use crate::function::FunctionDef;
 use crate::params::ParamDef;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashSet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -204,8 +204,8 @@ pub struct DecoratorsDiff {
 
 impl DecoratorsDiff {
   pub fn diff(old: &[DecoratorDef], new: &[DecoratorDef]) -> Option<Self> {
-    let old_set = old.iter().map(|d| &d.name).collect::<HashSet<_>>();
-    let new_set = new.iter().map(|d| &d.name).collect::<HashSet<_>>();
+    let old_set = old.iter().map(|d| &d.name).collect::<IndexSet<_>>();
+    let new_set = new.iter().map(|d| &d.name).collect::<IndexSet<_>>();
 
     let added: Vec<_> = new
       .iter()

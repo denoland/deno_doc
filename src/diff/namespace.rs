@@ -3,9 +3,9 @@
 use super::DocNodeDiff;
 use crate::DocNode;
 use crate::node::NamespaceDef;
+use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,11 +31,11 @@ impl NamespaceDiff {
     let old_map = old_elements
       .iter()
       .map(|n| ((n.name.to_string(), n.def.to_kind()), n))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
     let new_map = new_elements
       .iter()
       .map(|n| ((n.name.to_string(), n.def.to_kind()), n))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
 
     let mut added_elements = Vec::new();
     let mut removed_elements = Vec::new();

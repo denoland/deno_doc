@@ -10,10 +10,9 @@ mod ts_type;
 mod type_alias;
 mod variable;
 
-use std::collections::HashMap;
-
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -59,8 +58,8 @@ pub struct DocDiff {
 
 impl DocDiff {
   pub fn diff(old: &ParseOutput, new: &ParseOutput) -> Self {
-    let old_modules = old.keys().collect::<std::collections::HashSet<_>>();
-    let new_modules = new.keys().collect::<std::collections::HashSet<_>>();
+    let old_modules = old.keys().collect::<IndexSet<_>>();
+    let new_modules = new.keys().collect::<IndexSet<_>>();
 
     let added_modules = new_modules
       .difference(&old_modules)
@@ -132,8 +131,8 @@ impl ModuleDiff {
       }
     }
 
-    let mut matched_added = std::collections::HashSet::new();
-    let mut matched_removed = std::collections::HashSet::new();
+    let mut matched_added = IndexSet::new();
+    let mut matched_removed = IndexSet::new();
 
     for (r_idx, removed_node) in removed.iter().enumerate() {
       for (a_idx, added_node) in added.iter().enumerate() {
@@ -306,8 +305,8 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
 
 fn build_node_map(
   nodes: &[DocNode],
-) -> HashMap<(String, DocNodeKind), &DocNode> {
-  let mut map = HashMap::new();
+) -> IndexMap<(String, DocNodeKind), &DocNode> {
+  let mut map = IndexMap::new();
   for node in nodes {
     let kind = node.def.to_kind();
     map.insert((node.name.to_string(), kind), node);

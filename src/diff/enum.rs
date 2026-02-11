@@ -4,9 +4,9 @@ use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
 use crate::r#enum::EnumDef;
 use crate::r#enum::EnumMemberDef;
+use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,11 +31,11 @@ impl EnumDiff {
     let old_map = old_members
       .iter()
       .map(|m| (m.name.as_str(), m))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
     let new_map = new_members
       .iter()
       .map(|m| (m.name.as_str(), m))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
 
     let mut added_members = Vec::new();
     let mut removed_members = Vec::new();

@@ -3,9 +3,9 @@
 use super::Change;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::TsTypeParamDef;
+use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -110,11 +110,11 @@ impl TypeParamsDiff {
     let old_map = old
       .iter()
       .map(|p| (p.name.as_str(), p))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
     let new_map = new
       .iter()
       .map(|p| (p.name.as_str(), p))
-      .collect::<HashMap<_, _>>();
+      .collect::<IndexMap<_, _>>();
 
     let mut added = Vec::new();
     let mut removed = Vec::new();
