@@ -492,6 +492,7 @@ impl AllSymbolsPageCtx {
   }
 }
 
+#[allow(clippy::large_enum_variant)]
 pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,

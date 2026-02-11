@@ -434,11 +434,9 @@ impl GenerateCtx {
           .entry(node.location.clone())
           .or_default()
           .push((depth, node.clone()));
-        if matches!(node.def, DocNodeDef::Namespace { .. }) {
-          if let Some(children) = &node.namespace_children {
-            for child in children {
-              index_node(index, child, depth + 1);
-            }
+        if matches!(node.def, DocNodeDef::Namespace { .. }) && let Some(children) = &node.namespace_children {
+          for child in children {
+            index_node(index, child, depth + 1);
           }
         }
       }
@@ -630,19 +628,12 @@ impl ShortPath {
       };
     };
 
-    let Some(common_ancestor) = common_ancestor else {
-      return ShortPath {
-        path: url_file_path.to_string_lossy().to_string(),
-        specifier,
-        is_main,
-      };
-    };
-
-    let stripped_path = url_file_path
-      .strip_prefix(common_ancestor)
+    let stripped_path = common_ancestor
+      .and_then(|ancestor| url_file_path.strip_prefix(ancestor).ok())
       .unwrap_or(&url_file_path);
 
     let path = stripped_path.to_string_lossy().to_string();
+    let path = path.strip_prefix('/').unwrap_or(&path).to_string();
 
     ShortPath {
       path: if path.is_empty() {
@@ -1001,7 +992,7 @@ pub fn generate(
   ctx: GenerateCtx,
 ) -> Result<HashMap<String, String>, anyhow::Error> {
   let mut files = HashMap::new();
-/*
+
   // Index page
   {
     let (partitions_for_entrypoint_nodes, uses_categories) =
@@ -1040,7 +1031,7 @@ pub fn generate(
       "./index.html".to_string(),
       ctx.render(pages::IndexCtx::TEMPLATE, &index),
     );
-  }*/
+  }
 
   // All symbols (list of all symbols in all files)
   {
@@ -1051,7 +1042,7 @@ pub fn generate(
       ctx.render(pages::AllSymbolsPageCtx::TEMPLATE, &all_symbols),
     );
   }
-/*
+
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
     let all_doc_nodes = ctx
@@ -1194,7 +1185,7 @@ pub fn generate(
     comrak::COMRAK_STYLESHEET_FILENAME.into(),
     comrak::COMRAK_STYLESHEET.into(),
   );
-*/
+
   Ok(files)
 }
 
