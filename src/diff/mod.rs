@@ -117,14 +117,12 @@ impl ModuleDiff {
     let mut removed = Vec::new();
     let mut modified = Vec::new();
 
-    // Find potentially added symbols
     for ((name, kind), node) in &new_map {
       if !old_map.contains_key(&(name.clone(), *kind)) {
         added.push((*node).clone());
       }
     }
 
-    // Find potentially removed symbols
     for ((name, kind), node) in &old_map {
       if !new_map.contains_key(&(name.clone(), *kind)) {
         removed.push((*node).clone());
@@ -186,7 +184,6 @@ impl ModuleDiff {
       }
     }
 
-    // Remove matched items from added/removed
     let added = added
       .into_iter()
       .enumerate()
@@ -200,7 +197,6 @@ impl ModuleDiff {
       .map(|(_, n)| n)
       .collect::<Vec<_>>();
 
-    // Find modified symbols
     for ((name, kind), old_node) in &old_map {
       if let Some(new_node) = new_map.get(&(name.clone(), *kind))
         && let Some(symbol_diff) = DocNodeDiff::diff(old_node, new_node)
@@ -223,8 +219,6 @@ impl ModuleDiff {
   }
 }
 
-/// Check if two nodes are likely a rename (same definition, different name).
-/// Uses JSON serialization for comparison since not all types implement PartialEq.
 fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
   use crate::node::DocNodeDef;
 
@@ -232,16 +226,6 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
     return false;
   }
 
-  // Helper to compare via JSON serialization
-  fn json_eq<T: serde::Serialize>(a: &T, b: &T) -> bool {
-    match (serde_json::to_value(a), serde_json::to_value(b)) {
-      (Ok(a_json), Ok(b_json)) => a_json == b_json,
-      _ => false,
-    }
-  }
-
-  // Compare definitions by serializing to JSON and comparing
-  // This is a simple but effective way to check structural equality
   match (&old.def, &new.def) {
     (
       DocNodeDef::Function {
@@ -250,7 +234,7 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Function {
         function_def: new_fn,
       },
-    ) => json_eq(old_fn, new_fn),
+    ) => FunctionDiff::diff(old_fn, new_fn).is_none(),
     (
       DocNodeDef::Variable {
         variable_def: old_var,
@@ -258,7 +242,7 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Variable {
         variable_def: new_var,
       },
-    ) => json_eq(old_var, new_var),
+    ) => VariableDiff::diff(old_var, new_var).is_none(),
     (
       DocNodeDef::Class {
         class_def: old_class,
@@ -266,7 +250,7 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Class {
         class_def: new_class,
       },
-    ) => json_eq(old_class, new_class),
+    ) => ClassDiff::diff(old_class, new_class).is_none(),
     (
       DocNodeDef::Interface {
         interface_def: old_iface,
@@ -274,11 +258,11 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Interface {
         interface_def: new_iface,
       },
-    ) => json_eq(old_iface, new_iface),
+    ) => InterfaceDiff::diff(old_iface, new_iface).is_none(),
     (
       DocNodeDef::Enum { enum_def: old_enum },
       DocNodeDef::Enum { enum_def: new_enum },
-    ) => json_eq(old_enum, new_enum),
+    ) => EnumDiff::diff(old_enum, new_enum).is_none(),
     (
       DocNodeDef::TypeAlias {
         type_alias_def: old_alias,
@@ -286,7 +270,7 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::TypeAlias {
         type_alias_def: new_alias,
       },
-    ) => json_eq(old_alias, new_alias),
+    ) => TypeAliasDiff::diff(old_alias, new_alias).is_none(),
     (
       DocNodeDef::Namespace {
         namespace_def: old_ns,
@@ -294,11 +278,7 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Namespace {
         namespace_def: new_ns,
       },
-    ) => {
-      // For namespaces, just check element count as a basic heuristic
-      // (full comparison would need recursive rename detection)
-      old_ns.elements.len() == new_ns.elements.len()
-    }
+    ) => NamespaceDiff::diff(old_ns, new_ns).is_none(),
     _ => false,
   }
 }
