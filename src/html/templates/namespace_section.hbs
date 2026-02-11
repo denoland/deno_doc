@@ -7,8 +7,8 @@
 		    <a href="{{this.href}}" title="{{this.name}}">
 			    <span>{{~this.name~}}</span>
           {{~#if this.ty~}}
-            <span class="font-light opacity-85">
-              {{{~this.ty~}}}
+            <span>
+              {{{~this.ty~}}} {{! typedef rendering }}
             </span>
           {{~/if~}}
       </a>
@@ -24,7 +24,24 @@
         {{~#if this.subitems~}}
           <ul class="namespaceItemContentSubItems">
             {{~#each this.subitems~}}
-              <li><a href="{{this.href}}">{{this.title}}</a></li>
+              <li>
+                <a href="{{this.href}}">
+                  <span>{{this.title}}</span>
+                  {{~#if this.ty~}}
+                    <span>
+                      {{{~this.ty~}}} {{! typedef rendering }}
+                    </span>
+                  {{~/if~}}
+                </a>
+
+                <div class="namespaceItemContentDoc">
+                  {{~#if this.docs~}}
+                    {{{~this.docs~}}} {{! markdown rendering }}
+                  {{~else~}}
+                    <span class="italic">No documentation available</span>
+                  {{~/if~}}
+                </div>
+              </li>
             {{~/each~}}
           </ul>
         {{~/if~}}
