@@ -1,0 +1,10 @@
+# old/mod.ts
+export function foo() {}
+export const BAR = 42;
+
+# new/mod.ts
+export function foo() {}
+export const BAR = 42;
+
+# output.json
+{}

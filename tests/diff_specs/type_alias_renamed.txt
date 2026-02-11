@@ -1,0 +1,23 @@
+# old/mod.ts
+export type Foo = string | number;
+
+# new/mod.ts
+export type Bar = string | number;
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Bar",
+          "kind": "typeAlias",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Bar"
+          }
+        }
+      ]
+    }
+  }
+}

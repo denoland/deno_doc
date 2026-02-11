@@ -29,6 +29,7 @@ pub mod comrak;
 
 use crate::html::pages::SymbolPage;
 use crate::js_doc::JsDocTag;
+use crate::parser::ParseOutput;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -306,7 +307,7 @@ impl GenerateCtx {
     options: GenerateOptions,
     common_ancestor: Option<PathBuf>,
     file_mode: FileMode,
-    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: ParseOutput,
   ) -> Result<Self, anyhow::Error> {
     let mut main_entrypoint = None;
 
@@ -474,7 +475,7 @@ impl GenerateCtx {
 
   pub fn create_basic(
     mut options: GenerateOptions,
-    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: ParseOutput,
   ) -> Result<Self, anyhow::Error> {
     if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
       options.main_entrypoint =

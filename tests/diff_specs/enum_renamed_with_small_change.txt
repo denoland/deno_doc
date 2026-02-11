@@ -1,0 +1,251 @@
+# old/mod.ts
+export enum Foo {
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+}
+
+# new/mod.ts
+export enum Bar {
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  K,
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "Bar",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "enum",
+          "enumDef": {
+            "members": [
+              {
+                "name": "A",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 20
+                }
+              },
+              {
+                "name": "B",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 25
+                }
+              },
+              {
+                "name": "C",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 4,
+                  "col": 2,
+                  "byteIndex": 30
+                }
+              },
+              {
+                "name": "D",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 35
+                }
+              },
+              {
+                "name": "E",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 6,
+                  "col": 2,
+                  "byteIndex": 40
+                }
+              },
+              {
+                "name": "F",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 7,
+                  "col": 2,
+                  "byteIndex": 45
+                }
+              },
+              {
+                "name": "G",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 2,
+                  "byteIndex": 50
+                }
+              },
+              {
+                "name": "H",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 9,
+                  "col": 2,
+                  "byteIndex": 55
+                }
+              },
+              {
+                "name": "I",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 10,
+                  "col": 2,
+                  "byteIndex": 60
+                }
+              },
+              {
+                "name": "K",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 65
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "removed": [
+        {
+          "name": "Foo",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "enum",
+          "enumDef": {
+            "members": [
+              {
+                "name": "A",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 20
+                }
+              },
+              {
+                "name": "B",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 25
+                }
+              },
+              {
+                "name": "C",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 4,
+                  "col": 2,
+                  "byteIndex": 30
+                }
+              },
+              {
+                "name": "D",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 35
+                }
+              },
+              {
+                "name": "E",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 6,
+                  "col": 2,
+                  "byteIndex": 40
+                }
+              },
+              {
+                "name": "F",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 7,
+                  "col": 2,
+                  "byteIndex": 45
+                }
+              },
+              {
+                "name": "G",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 2,
+                  "byteIndex": 50
+                }
+              },
+              {
+                "name": "H",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 9,
+                  "col": 2,
+                  "byteIndex": 55
+                }
+              },
+              {
+                "name": "I",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 10,
+                  "col": 2,
+                  "byteIndex": 60
+                }
+              },
+              {
+                "name": "J",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 65
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

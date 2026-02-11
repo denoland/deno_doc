@@ -1,0 +1,34 @@
+# old/mod.ts
+/** A function */
+export function foo() {}
+
+# new/mod.ts
+/**
+ * A function
+ * @deprecated Use bar instead
+ */
+export function foo() {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "kind": "function",
+          "jsDocChanges": {
+            "tagsChange": {
+              "added": [
+                {
+                  "kind": "deprecated",
+                  "doc": "Use bar instead"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

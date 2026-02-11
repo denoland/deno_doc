@@ -1,0 +1,46 @@
+# old/mod.ts
+export interface Callable {
+  (x: number): string;
+}
+
+# new/mod.ts
+export interface Callable {
+  (x: number, y: number): string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Callable",
+          "kind": "interface",
+          "defChanges": {
+            "type": "interface",
+            "callSignatureChanges": {
+              "modified": [
+                {
+                  "paramsChange": {
+                    "added": [
+                      {
+                        "kind": "identifier",
+                        "name": "y",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
