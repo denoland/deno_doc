@@ -95,6 +95,69 @@ impl InterfaceDiff {
       index_signature_changes,
     })
   }
+
+  pub fn change_percentage(
+    &self,
+    old: &InterfaceDef,
+    new: &InterfaceDef,
+  ) -> f64 {
+    // Fields: extends, type_params = 2
+    let field_total = 2;
+    let field_changed = self.extends_change.is_some() as usize
+      + self.type_params_change.is_some() as usize;
+
+    // Collection items
+    let constructor_total =
+      old.constructors.len().max(new.constructors.len());
+    let constructor_changed = self
+      .constructor_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let method_total = old.methods.len().max(new.methods.len());
+    let method_changed = self
+      .method_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let property_total = old.properties.len().max(new.properties.len());
+    let property_changed = self
+      .property_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let call_sig_total =
+      old.call_signatures.len().max(new.call_signatures.len());
+    let call_sig_changed = self
+      .call_signature_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let index_sig_total =
+      old.index_signatures.len().max(new.index_signatures.len());
+    let index_sig_changed = self
+      .index_signature_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let total = field_total
+      + constructor_total
+      + method_total
+      + property_total
+      + call_sig_total
+      + index_sig_total;
+    let changed = field_changed
+      + constructor_changed
+      + method_changed
+      + property_changed
+      + call_sig_changed
+      + index_sig_changed;
+
+    if total == 0 {
+      return 0.0;
+    }
+    (changed as f64 / total as f64).min(1.0)
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

@@ -55,4 +55,11 @@ impl VariableDiff {
       kind_change,
     })
   }
+
+  pub fn change_percentage(&self) -> f64 {
+    let total = 2.0;
+    let changed =
+      self.ts_type_change.is_some() as u8 + self.kind_change.is_some() as u8;
+    changed as f64 / total
+  }
 }

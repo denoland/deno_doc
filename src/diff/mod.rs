@@ -220,6 +220,8 @@ impl ModuleDiff {
 }
 
 fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
+  const RENAME_THRESHOLD: f64 = 0.10;
+
   use crate::node::DocNodeDef;
 
   if old.def.to_kind() != new.def.to_kind() {
@@ -234,7 +236,8 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Function {
         function_def: new_fn,
       },
-    ) => FunctionDiff::diff(old_fn, new_fn).is_none(),
+    ) => FunctionDiff::diff(old_fn, new_fn)
+      .is_none_or(|d| d.change_percentage() <= RENAME_THRESHOLD),
     (
       DocNodeDef::Variable {
         variable_def: old_var,
@@ -242,7 +245,8 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Variable {
         variable_def: new_var,
       },
-    ) => VariableDiff::diff(old_var, new_var).is_none(),
+    ) => VariableDiff::diff(old_var, new_var)
+      .is_none_or(|d| d.change_percentage() <= RENAME_THRESHOLD),
     (
       DocNodeDef::Class {
         class_def: old_class,
@@ -250,7 +254,9 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Class {
         class_def: new_class,
       },
-    ) => ClassDiff::diff(old_class, new_class).is_none(),
+    ) => ClassDiff::diff(old_class, new_class).is_none_or(|d| {
+      d.change_percentage(old_class, new_class) <= RENAME_THRESHOLD
+    }),
     (
       DocNodeDef::Interface {
         interface_def: old_iface,
@@ -258,11 +264,15 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Interface {
         interface_def: new_iface,
       },
-    ) => InterfaceDiff::diff(old_iface, new_iface).is_none(),
+    ) => InterfaceDiff::diff(old_iface, new_iface).is_none_or(|d| {
+      d.change_percentage(old_iface, new_iface) <= RENAME_THRESHOLD
+    }),
     (
       DocNodeDef::Enum { enum_def: old_enum },
       DocNodeDef::Enum { enum_def: new_enum },
-    ) => EnumDiff::diff(old_enum, new_enum).is_none(),
+    ) => EnumDiff::diff(old_enum, new_enum).is_none_or(|d| {
+      d.change_percentage(old_enum, new_enum) <= RENAME_THRESHOLD
+    }),
     (
       DocNodeDef::TypeAlias {
         type_alias_def: old_alias,
@@ -270,7 +280,8 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::TypeAlias {
         type_alias_def: new_alias,
       },
-    ) => TypeAliasDiff::diff(old_alias, new_alias).is_none(),
+    ) => TypeAliasDiff::diff(old_alias, new_alias)
+      .is_none_or(|d| d.change_percentage() <= RENAME_THRESHOLD),
     (
       DocNodeDef::Namespace {
         namespace_def: old_ns,
@@ -278,7 +289,9 @@ fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
       DocNodeDef::Namespace {
         namespace_def: new_ns,
       },
-    ) => NamespaceDiff::diff(old_ns, new_ns).is_none(),
+    ) => NamespaceDiff::diff(old_ns, new_ns).is_none_or(|d| {
+      d.change_percentage(old_ns, new_ns) <= RENAME_THRESHOLD
+    }),
     _ => false,
   }
 }

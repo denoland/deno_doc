@@ -74,4 +74,19 @@ impl NamespaceDiff {
       modified_elements,
     })
   }
+
+  pub fn change_percentage(
+    &self,
+    old: &NamespaceDef,
+    new: &NamespaceDef,
+  ) -> f64 {
+    let total = old.elements.len().max(new.elements.len());
+    if total == 0 {
+      return 0.0;
+    }
+    let changed = self.added_elements.len()
+      + self.removed_elements.len()
+      + self.modified_elements.len();
+    (changed as f64 / total as f64).min(1.0)
+  }
 }

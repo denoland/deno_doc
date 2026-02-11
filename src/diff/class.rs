@@ -128,6 +128,61 @@ impl ClassDiff {
       decorators_change,
     })
   }
+
+  pub fn change_percentage(&self, old: &ClassDef, new: &ClassDef) -> f64 {
+    // Fields: is_abstract, extends, implements, type_params,
+    // super_type_params, decorators = 6
+    let field_total = 6;
+    let field_changed = self.is_abstract_change.is_some() as usize
+      + self.extends_change.is_some() as usize
+      + self.implements_change.is_some() as usize
+      + self.type_params_change.is_some() as usize
+      + self.super_type_params_change.is_some() as usize
+      + self.decorators_change.is_some() as usize;
+
+    // Collection items
+    let constructor_total =
+      old.constructors.len().max(new.constructors.len());
+    let constructor_changed = self
+      .constructor_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let method_total = old.methods.len().max(new.methods.len());
+    let method_changed = self
+      .method_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let property_total = old.properties.len().max(new.properties.len());
+    let property_changed = self
+      .property_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let index_sig_total =
+      old.index_signatures.len().max(new.index_signatures.len());
+    let index_sig_changed = self
+      .index_signature_changes
+      .as_ref()
+      .map_or(0, |c| c.added.len() + c.removed.len() + c.modified.len());
+
+    let total = field_total
+      + constructor_total
+      + method_total
+      + property_total
+      + index_sig_total;
+    let changed = field_changed
+      + constructor_changed
+      + method_changed
+      + property_changed
+      + index_sig_changed;
+
+    if total == 0 {
+      return 0.0;
+    }
+    (changed as f64 / total as f64).min(1.0)
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

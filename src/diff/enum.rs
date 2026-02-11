@@ -74,6 +74,21 @@ impl EnumDiff {
       modified_members,
     })
   }
+
+  pub fn change_percentage(
+    &self,
+    old: &EnumDef,
+    new: &EnumDef,
+  ) -> f64 {
+    let total = old.members.len().max(new.members.len());
+    if total == 0 {
+      return 0.0;
+    }
+    let changed = self.added_members.len()
+      + self.removed_members.len()
+      + self.modified_members.len();
+    (changed as f64 / total as f64).min(1.0)
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

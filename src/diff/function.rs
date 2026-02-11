@@ -91,6 +91,17 @@ impl FunctionDiff {
       decorators_change,
     })
   }
+
+  pub fn change_percentage(&self) -> f64 {
+    let total = 6.0;
+    let changed = self.params_change.is_some() as u8
+      + self.return_type_change.is_some() as u8
+      + self.is_async_change.is_some() as u8
+      + self.is_generator_change.is_some() as u8
+      + self.type_params_change.is_some() as u8
+      + self.decorators_change.is_some() as u8;
+    changed as f64 / total
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
