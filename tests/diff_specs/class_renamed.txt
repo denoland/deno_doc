@@ -1,0 +1,27 @@
+# old/mod.ts
+export class Foo {
+  bar() {}
+}
+
+# new/mod.ts
+export class Baz {
+  bar() {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Baz",
+          "kind": "class",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Baz"
+          }
+        }
+      ]
+    }
+  }
+}

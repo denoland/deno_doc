@@ -1,0 +1,38 @@
+# old/mod.ts
+export class StringList extends Array<string> {}
+
+# new/mod.ts
+export class StringList extends Array<number> {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "StringList",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "superTypeParamsChange": {
+              "modified": [
+                {
+                  "old": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "new": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

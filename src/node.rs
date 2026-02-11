@@ -148,6 +148,23 @@ pub enum DocNodeDef {
   },
 }
 
+impl DocNodeDef {
+  pub fn to_kind(&self) -> DocNodeKind {
+    match self {
+      DocNodeDef::Function { .. } => DocNodeKind::Function,
+      DocNodeDef::Variable { .. } => DocNodeKind::Variable,
+      DocNodeDef::Enum { .. } => DocNodeKind::Enum,
+      DocNodeDef::Class { .. } => DocNodeKind::Class,
+      DocNodeDef::TypeAlias { .. } => DocNodeKind::TypeAlias,
+      DocNodeDef::Namespace { .. } => DocNodeKind::Namespace,
+      DocNodeDef::Interface { .. } => DocNodeKind::Interface,
+      DocNodeDef::Import { .. } => DocNodeKind::Import,
+      DocNodeDef::ModuleDoc => DocNodeKind::ModuleDoc,
+      DocNodeDef::Reference { .. } => DocNodeKind::Reference,
+    }
+  }
+}
+
 impl Default for DocNode {
   fn default() -> Self {
     Self {
