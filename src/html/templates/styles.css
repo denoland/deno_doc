@@ -130,7 +130,14 @@ a {
       }
 
       > a {
-        @apply block leading-tight break-all font-medium;
+        @apply block font-mono;
+
+        span:first-child {
+          @apply leading-none break-all font-medium;
+        }
+        span:last-child {
+          @apply font-light opacity-85;
+        }
       }
 
       .namespaceItemContentDoc {

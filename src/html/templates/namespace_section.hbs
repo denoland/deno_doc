@@ -5,8 +5,13 @@
 
 	    <div class="namespaceItemContent">
 		    <a href="{{this.href}}" title="{{this.name}}">
-			    {{~this.name~}}
-		    </a>
+			    <span>{{~this.name~}}</span>
+          {{~#if this.ty~}}
+            <span class="font-light opacity-85">
+              {{{~this.ty~}}}
+            </span>
+          {{~/if~}}
+      </a>
 
 	      <div class="namespaceItemContentDoc">
 		      {{~#if this.docs~}}
