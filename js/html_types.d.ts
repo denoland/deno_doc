@@ -320,7 +320,7 @@ export interface NamespaceNodeCtx {
   doc_node_kind_ctx: DocNodeKindCtx[];
   href: string;
   name: string;
-  ty: string | null;
+  ty: TypeSummaryCtx | null;
   docs: string | null;
   deprecated: boolean;
   subitems: NamespaceNodeSubItemCtx[];
@@ -329,8 +329,13 @@ export interface NamespaceNodeCtx {
 export interface NamespaceNodeSubItemCtx {
   title: string;
   docs: string | null;
-  ty: string | null;
+  ty: TypeSummaryCtx | null;
   href: string;
+}
+
+export interface TypeSummaryCtx {
+  ty: string;
+  info: string | null;
 }
 
 export type Tag =

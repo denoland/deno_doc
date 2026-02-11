@@ -1,6 +1,7 @@
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::MethodKind;
+use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::function::render_function_summary;
 use crate::html::types::{render_type_def, type_params_summary};
@@ -10,7 +11,6 @@ use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
-use crate::html::parameters::render_params;
 
 pub fn render_namespace<'a>(
   partitions: impl Iterator<
@@ -69,7 +69,7 @@ fn get_namespace_section_render_ctx(
 pub struct NamespaceNodeSubItemCtx {
   title: String,
   docs: Option<String>,
-  ty: Option<String>,
+  ty: Option<TypeSummaryCtx>,
   href: String,
 }
 
@@ -107,7 +107,7 @@ pub struct NamespaceNodeCtx {
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
   pub name: String,
-  pub ty: Option<String>,
+  pub ty: Option<TypeSummaryCtx>,
   pub docs: Option<String>,
   pub deprecated: bool,
   pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
@@ -210,60 +210,107 @@ impl NamespaceNodeCtx {
 fn summary_for_nodes(
   ctx: &RenderContext,
   nodes: &[DocNodeWithContext],
-) -> Option<String> {
+) -> Option<TypeSummaryCtx> {
   match nodes[0].kind {
     DocNodeKind::Method(_) | DocNodeKind::Function => {
-      Some(render_function_summary(
-        nodes[0].function_def().unwrap(),
-        &ctx.with_disable_links(true),
-      ))
+      let overloads = nodes
+        .iter()
+        .filter(|node| {
+          matches!(node.kind, DocNodeKind::Method(_) | DocNodeKind::Function)
+        })
+        .map(|node| node.function_def().unwrap())
+        .collect::<Vec<_>>();
+
+      let (def, info) = if overloads.len() > 1 {
+        (
+          overloads
+            .iter()
+            .find(|overload| overload.has_body)
+            .cloned()
+            .unwrap_or(overloads[0]),
+          Some(format!("{} overloads", overloads.len())),
+        )
+      } else {
+        (overloads[0], None)
+      };
+
+      Some(TypeSummaryCtx {
+        ty: render_function_summary(def, &ctx.with_disable_links(true)),
+        info,
+      })
     }
     DocNodeKind::Class => {
       let def = nodes[0].class_def().unwrap();
       if !def.constructors.is_empty() {
         let ctx = ctx.with_disable_links(true);
 
-        let params = def.constructors[0]
+        let (constructor, info) = if def.constructors.len() > 1 {
+          (
+            def
+              .constructors
+              .iter()
+              .find(|overload| overload.has_body)
+              .unwrap_or(&def.constructors[0]),
+            Some(format!("{} constructors", def.constructors.len())),
+          )
+        } else {
+          (&def.constructors[0], None)
+        };
+
+        let params = constructor
           .params
           .iter()
           .map(|param| param.param.clone())
           .collect::<Vec<_>>();
 
-        Some(format!(
-          "{}({})",
-          type_params_summary(&ctx, &def.type_params),
-          render_params(&ctx, &params)
-        ))
+        Some(TypeSummaryCtx {
+          ty: format!(
+            "{}({})",
+            type_params_summary(&ctx, &def.type_params),
+            render_params(&ctx, &params)
+          ),
+          info,
+        })
       } else {
         None
       }
-    },
+    }
     DocNodeKind::Enum => None,
     DocNodeKind::Interface => None,
     DocNodeKind::TypeAlias => {
       let ctx = ctx.with_disable_links(true);
       let def = nodes[0].type_alias_def().unwrap();
 
-      Some(format!(
-        "{} = {}",
-        crate::html::types::type_params_summary(&ctx, &def.type_params),
-        render_type_def(&ctx, &def.ts_type)
-      ))
+      Some(TypeSummaryCtx {
+        ty: format!(
+          "{} = {}",
+          crate::html::types::type_params_summary(&ctx, &def.type_params),
+          render_type_def(&ctx, &def.ts_type)
+        ),
+        info: None,
+      })
     }
     DocNodeKind::Property | DocNodeKind::Variable => nodes[0]
       .variable_def()
       .unwrap()
       .ts_type
       .as_ref()
-      .map(|ts_type| {
-        format!(
+      .map(|ts_type| TypeSummaryCtx {
+        ty: format!(
           ": {}",
           render_type_def(&ctx.with_disable_links(true), ts_type)
-        )
+        ),
+        info: None,
       }),
     DocNodeKind::Reference
     | DocNodeKind::Namespace
     | DocNodeKind::Import
     | DocNodeKind::ModuleDoc => None,
   }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TypeSummaryCtx {
+  pub ty: String,
+  pub info: Option<String>,
 }

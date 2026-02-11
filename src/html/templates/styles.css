@@ -102,7 +102,7 @@ a {
   @apply space-y-3 mt-4 max-w-prose;
 
   .namespaceItem {
-    @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4 min-h-0;
+    @apply flex gap-x-2.5 lg:pr-4;
 
     .docNodeKindIcon {
       @apply w-auto flex-col justify-start gap-1;
@@ -136,6 +136,10 @@ a {
         }
       }
 
+      .namespaceItemContentTypeInfo {
+        @apply italic text-xs ml-2 text-stone-600 dark:text-stone-400;
+      }
+
       .namespaceItemContentDoc {
         @apply text-sm leading-5 text-stone-600 dark:text-stone-400;
       }
@@ -145,7 +149,7 @@ a {
       }
 
       .namespaceItemContentSubItems {
-        @apply space-y-3 text-sm mt-3 ml-2;
+        @apply space-y-3 text-sm mt-3 ml-3;
 
         .namespaceItemContentDoc {
           @apply mt-1;

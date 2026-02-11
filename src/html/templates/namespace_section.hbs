@@ -8,18 +8,21 @@
 			    <span>{{~this.name~}}</span>
           {{~#if this.ty~}}
             <span>
-              {{{~this.ty~}}} {{! typedef rendering }}
+              {{{~this.ty.ty~}}} {{! typedef rendering }}
             </span>
+            {{~#if this.ty.info~}}
+              <div class="namespaceItemContentTypeInfo">
+                {{~this.ty.info~}}
+              </div>
+            {{~/if~}}
           {{~/if~}}
         </a>
 
-	      <div class="namespaceItemContentDoc">
-		      {{~#if this.docs~}}
+        {{~#if this.docs~}}
+          <div class="namespaceItemContentDoc">
 			      {{{~this.docs~}}} {{! markdown rendering }}
-		      {{~else~}}
-			      <span class="italic">No documentation available</span>
-		      {{~/if~}}
-	      </div>
+          </div>
+        {{~/if~}}
 
         {{~#if this.subitems~}}
           <ul class="namespaceItemContentSubItems">
@@ -29,18 +32,21 @@
                   <span>{{this.title}}</span>
                   {{~#if this.ty~}}
                     <span>
-                      {{{~this.ty~}}} {{! typedef rendering }}
+                      {{{~this.ty.ty~}}} {{! typedef rendering }}
                     </span>
+                    {{~#if this.ty.info~}}
+                      <div class="namespaceItemContentTypeInfo">
+                        {{~this.ty.info~}}
+                      </div>
+                    {{~/if~}}
                   {{~/if~}}
                 </a>
 
-                <div class="namespaceItemContentDoc">
-                  {{~#if this.docs~}}
+                {{~#if this.docs~}}
+                  <div class="namespaceItemContentDoc">
                     {{{~this.docs~}}} {{! markdown rendering }}
-                  {{~else~}}
-                    <span class="italic">No documentation available</span>
-                  {{~/if~}}
-                </div>
+                  </div>
+                {{~/if~}}
               </li>
             {{~/each~}}
           </ul>
