@@ -153,40 +153,21 @@ expression: files.get(file_name).unwrap()
 Interfaces</h2></div><div class="namespaceSection"><div id="namespace_responseinit" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html" title="ResponseInit">
-			    <span>ResponseInit</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>ResponseInit</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html#property_status">
-                  <span>status</span><span>: <span class="td-kw">number</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>status</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;ResponseInit.html#property_statustext">
-                  <span>statusText</span><span>: <span class="td-kw">string</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>statusText</span><span>: <span class="td-kw">string</span></span></a></li></ul></div>
     </div><div id="namespace_websocket" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html" title="WebSocket">
-			    <span>WebSocket</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>WebSocket</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html#property_open">
-                  <span>OPEN</span><span>: <span class="td-kw">number</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>OPEN</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html#property_bufferedamount">
-                  <span>bufferedAmount</span><span>: <span class="td-kw">number</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>bufferedAmount</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;WebSocket.html#property_prototype">
-                  <span>prototype</span><span>: <span class="td-ref">WebSocket</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>prototype</span><span>: <span class="td-ref">WebSocket</span></span></a></li></ul></div>
     </div></div>
 </section>
 </div>

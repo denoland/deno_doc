@@ -2875,7 +2875,10 @@ expression: files
                           ],
                           "href": ".././d/~/Testing.externalFunction.html",
                           "name": "Testing.externalFunction",
-                          "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                          "ty": {
+                            "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                            "info": null
+                          },
                           "docs": null,
                           "deprecated": false,
                           "subitems": []
@@ -2897,7 +2900,10 @@ expression: files
                           ],
                           "href": "../././~/Testing.t.html",
                           "name": "Testing.t",
-                          "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
+                          "ty": {
+                            "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
+                            "info": null
+                          },
                           "docs": null,
                           "deprecated": false,
                           "subitems": []
@@ -2919,7 +2925,10 @@ expression: files
                           ],
                           "href": ".././c/~/Testing.x.html",
                           "name": "Testing.x",
-                          "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                          "ty": {
+                            "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                            "info": null
+                          },
                           "docs": null,
                           "deprecated": false,
                           "subitems": []

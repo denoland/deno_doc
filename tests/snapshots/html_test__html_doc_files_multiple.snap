@@ -132,9 +132,7 @@ expression: files.get(file_name).unwrap()
 Functions</h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction">
-			    <span>externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
 </div>
@@ -172,111 +170,56 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_externalfun
 Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foobar.html" title="Foobar">
-			    <span>Foobar</span></a>
-
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Foobar docs</p>
+			    <span>Foobar</span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Foobar docs</p>
 </div></div></div>
     </div><div id="namespace_abstractclass" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass">
-			    <span>AbstractClass</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>AbstractClass</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html#property_foo">
-                  <span>foo</span><span>: <span class="td-kw">string</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>foo</span><span>: <span class="td-kw">string</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html#accessor_getter">
-                  <span>getter</span><span>()<span>: <span class="td-kw">string</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>getter</span><span>()<span>: <span class="td-kw">string</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html#method_method_0">
-                  <span>method</span><span>(<span><span>s<span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">string</span></span></span></span></span>)<span>: s <span class="td-kw">is</span> <span class="td-kw">string</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>method</span><span>(<span><span>s<span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">string</span></span></span></span></span>)<span>: s <span class="td-kw">is</span> <span class="td-kw">string</span></span></span></a></li></ul></div>
     </div><div id="namespace_bar" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar">
-			    <span>Bar</span></a>
-
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Bar docs</p>
+			    <span>Bar</span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Bar docs</p>
 </div></div></div>
     </div><div id="namespace_foo" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">
-			    <span>Foo</span></a>
-
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <code>Bar</code></p>
+			    <span>Foo</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span>(<span><span>value<span>: <span class="td-ref">T</span></span></span></span>)</span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <code>Bar</code></p>
 </div></div><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&amp;quot;&amp;gt;&amp;lt;img src=x onerror=alert(1)&amp;gt;">
-                  <span>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</span><span>: <span class="td-kw">number</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">
-                  <span>bar</span><span>: <span class="td-str">"string"</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>bar</span><span>: <span class="td-str">"string"</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_foo">
-                  <span>foo</span><span>: <span class="td-ref">A</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>foo</span><span>: <span class="td-ref">A</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getter">
-                  <span>getter</span><span>()</span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>getter</span><span>()</span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getterandsetter">
-                  <span>getterAndSetter</span><span>()</span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>getterAndSetter</span><span>()</span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_methodwithoverloads_0">
-                  <span>methodWithOverloads</span><span>(<span><span>s<span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>methodWithOverloads</span><span>(<span><span>s<span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_protectedproperty">
-                  <span>protectedProperty</span><span>: <span class="td-kw">boolean</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>protectedProperty</span><span>: <span class="td-kw">boolean</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_readonlyproperty">
-                  <span>readonlyProperty</span><span>: <span class="td-kw">boolean</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>readonlyProperty</span><span>: <span class="td-kw">boolean</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_setter">
-                  <span>setter</span><span>(<span><span>s<span>: <span class="td-kw">string</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>setter</span><span>(<span><span>s<span>: <span class="td-kw">string</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_staticmethod_0">
-                  <span>staticMethod</span><span>()<span>: <span class="td-kw">void</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>staticMethod</span><span>()<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_staticsetter">
-                  <span>staticSetter</span><span>(<span><span>s<span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>staticSetter</span><span>(<span><span>s<span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_test_0">
-                  <span>test</span><span>()<span>: <span class="td-kw">void</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>test</span><span>()<span>: <span class="td-kw">void</span></span></span></a></li></ul></div>
     </div><div id="namespace_testing" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div><div class="text-Namespace bg-Namespace/15 dark:text-NamespaceDark dark:bg-NamespaceDark/15" title="Namespace">N</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.html" title="Testing">
-			    <span>Testing</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing</span></a></div>
     </div></div>
 </section>
 <section class="section"  id="Enums"><div>
@@ -305,15 +248,11 @@ Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class
 Enums</h2></div><div class="namespaceSection"><div id="namespace_enum" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Enum bg-Enum/15 dark:text-EnumDark dark:bg-EnumDark/15" title="Enum">E</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Enum.html" title="Enum">
-			    <span>Enum</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Enum</span></a></div>
     </div><div id="namespace_enum2" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Enum bg-Enum/15 dark:text-EnumDark dark:bg-EnumDark/15" title="Enum">E</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Enum2.html" title="Enum2">
-			    <span>Enum2</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Enum2</span></a></div>
     </div></div>
 </section>
 <section class="section"  id="Functions"><div>
@@ -342,51 +281,35 @@ Enums</h2></div><div class="namespaceSection"><div id="namespace_enum" class="na
 Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;c.html" title="c">
-			    <span>c</span><span>()<span>: <span class="td-kw">string</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>c</span><span>()<span>: <span class="td-kw">string</span></span></span></a></div>
     </div><div id="namespace_d" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;d.html" title="d">
-			    <span>d</span><span><span>&lt;<span><span class="td-tp">T</span><span><span> = </span><span class="td-kw">string</span></span></span>&gt;</span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">string</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: { hello<span class="td-op">?</span><span>: <span class="td-kw">string</span></span>;  }</span></span>,</div><div><span>qaz<span>: <span class="td-ref">T</span></span></span>,</div><div><span><span>...strings</span><span>: <span class="td-kw">string</span>[]</span></span></div></div>)<span>: <span class="td-kw">string</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>d</span><span><span>&lt;<span><span class="td-tp">T</span><span><span> = </span><span class="td-kw">string</span></span></span>&gt;</span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">string</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: { hello<span class="td-op">?</span><span>: <span class="td-kw">string</span></span>;  }</span></span>,</div><div><span>qaz<span>: <span class="td-ref">T</span></span></span>,</div><div><span><span>...strings</span><span>: <span class="td-kw">string</span>[]</span></span></div></div>)<span>: <span class="td-kw">string</span></span></span></a></div>
     </div><div id="namespace_functionwithoptionalparameters" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;functionWithOptionalParameters.html" title="functionWithOptionalParameters">
-			    <span>functionWithOptionalParameters</span><span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">unnamed 3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">unnamed 4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>functionWithOptionalParameters</span><span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">unnamed 3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">unnamed 4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_qaz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;qaz.html" title="qaz">
-			    <span>qaz</span><span>(<span><span>a<span>: <span class="td-kw">number</span></span></span></span>)</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>qaz</span><span>(<span><span>a<span>: <span><span class="td-kw">string</span><span class="td-op"> | </span><span class="td-kw">number</span></span></span></span></span>)<span>: <span class="td-kw">void</span></span></span><div class="namespaceItemContentTypeInfo">3 overloads</div></a></div>
     </div><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
-			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_testing_t" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.t.html" title="Testing.t">
-			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a></div>
     </div><div id="namespace_testing_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;Testing.x.html" title="Testing.x">
-			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;x.html" title="x">
-			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
 <section class="section"  id="Interfaces"><div>
@@ -415,63 +338,34 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="n
 Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello">
-			    <span>Hello</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>Hello</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_ab">
-                  <span>ab</span><span>: <span class="td-kw">string</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>ab</span><span>: <span class="td-kw">string</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">
-                  <span>computedMethod</span><span>(<span><span>a<span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>computedMethod</span><span>(<span><span>a<span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">
-                  <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>]</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>]</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">
-                  <span>test</span><span>: <span class="td-str">"test"</span></span></a>
-
-                <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Some docs</p>
-</div></div>
-              </li><li>
+                  <span>test</span><span>: <span class="td-str">"test"</span></span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Some docs</p>
+</div></div></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_world">
-                  <span>world</span><span>: <span class="td-kw">string</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>world</span><span>: <span class="td-kw">string</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_x">
-                  <span>x</span><span>: { [<span><span>foo<span>: <span class="td-kw">string</span></span></span></span>]<span>: <span class="td-kw">number</span></span>;  }</span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>x</span><span>: { [<span><span>foo<span>: <span class="td-kw">string</span></span></span></span>]<span>: <span class="td-kw">number</span></span>;  }</span></a></li></ul></div>
     </div><div id="namespace_compoundtype" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html" title="CompoundType">
-			    <span>CompoundType</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>CompoundType</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html#property_bufferedamount">
-                  <span>bufferedAmount</span><span>: <span class="td-kw">number</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>bufferedAmount</span><span>: <span class="td-kw">number</span></span></a></li></ul></div>
     </div><div id="namespace_emptyinterface" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;EmptyInterface.html" title="EmptyInterface">
-			    <span>EmptyInterface</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>EmptyInterface</span></a></div>
     </div><div id="namespace_interfacewithindexsignature" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;InterfaceWithIndexSignature.html" title="InterfaceWithIndexSignature">
-			    <span>InterfaceWithIndexSignature</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>InterfaceWithIndexSignature</span></a></div>
     </div></div>
 </section>
 <section class="section"  id="Type Aliases"><div>
@@ -500,25 +394,15 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
 Type Aliases</h2></div><div class="namespaceSection"><div id="namespace_baz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz">
-			    <span>Baz</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span> = { foo<span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span>; bar()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span>;  }</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>Baz</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span> = { foo<span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span>; bar()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span>;  }</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html#method_bar_0">
-                  <span>bar</span><span>()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>bar</span><span>()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html#property_foo">
-                  <span>foo</span><span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>foo</span><span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span></a></li></ul></div>
     </div><div id="namespace_typealias" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;TypeAlias.html" title="TypeAlias">
-			    <span>TypeAlias</span><span> = <span class="td-kw">string</span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>TypeAlias</span><span> = <span class="td-kw">string</span></span></a></div>
     </div></div>
 </section>
 <section class="section"  id="Variables"><div>
@@ -547,25 +431,15 @@ Type Aliases</h2></div><div class="namespaceSection"><div id="namespace_baz" cla
 Variables</h2></div><div class="namespaceSection"><div id="namespace_anothervariable" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;anotherVariable.html" title="anotherVariable">
-			    <span>anotherVariable</span><span>: { foo<span>: <span class="td-kw">string</span></span>; bar()<span>: <span class="td-kw">number</span></span>;  }</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div><ul class="namespaceItemContentSubItems"><li>
+			    <span>anotherVariable</span><span>: { foo<span>: <span class="td-kw">string</span></span>; bar()<span>: <span class="td-kw">number</span></span>;  }</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;anotherVariable.html#method_bar_0">
-                  <span>bar</span><span>()<span>: <span class="td-kw">number</span></span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li><li>
+                  <span>bar</span><span>()<span>: <span class="td-kw">number</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;anotherVariable.html#property_foo">
-                  <span>foo</span><span>: <span class="td-kw">string</span></span></a>
-
-                <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div>
-              </li></ul></div>
+                  <span>foo</span><span>: <span class="td-kw">string</span></span></a></li></ul></div>
     </div><div id="namespace_somevariable" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;someVariable.html" title="someVariable">
-			    <span>someVariable</span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>someVariable</span></a></div>
     </div></div>
 </section>
 </div>
@@ -603,9 +477,7 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_anothervari
 Functions</h2></div><div class="namespaceSection"><div id="namespace_x-1" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">
-			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
 <section class="section"  id="Variables"><div>
@@ -634,9 +506,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x-1" class=
 Variables</h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">
-			    <span>default</span><span>: <span class="td-kw">number</span></span></a>
-
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
+			    <span>default</span><span>: <span class="td-kw">number</span></span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
 </div></div></div>
     </div></div>
 </section>
@@ -675,9 +545,7 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 Functions</h2></div><div class="namespaceSection"><div id="namespace_x-2" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;x.html" title="x">
-			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
 </div>

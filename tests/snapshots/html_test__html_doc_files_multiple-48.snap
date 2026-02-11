@@ -154,21 +154,15 @@ expression: files.get(file_name).unwrap()
 Functions</h2></div><div class="namespaceSection"><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
-			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_testing_t" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.t.html" title="Testing.t">
-			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a></div>
     </div><div id="namespace_testing_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href="..&#x2F;.&#x2F;c&#x2F;~&#x2F;Testing.x.html" title="Testing.x">
-			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
 </div>
