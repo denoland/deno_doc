@@ -294,6 +294,9 @@ pub struct GenerateCtx {
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
+  /// Index from Location to (depth, node) for fast reference resolution.
+  reference_index:
+    std::collections::HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
 }
 
 impl GenerateCtx {
@@ -414,6 +417,38 @@ impl GenerateCtx {
       })
       .collect::<IndexMap<_, _>>();
 
+    let mut reference_index: std::collections::HashMap<
+      crate::Location,
+      Vec<(usize, DocNodeWithContext)>,
+    > = std::collections::HashMap::new();
+    {
+      fn index_node(
+        index: &mut std::collections::HashMap<
+          crate::Location,
+          Vec<(usize, DocNodeWithContext)>,
+        >,
+        node: &DocNodeWithContext,
+        depth: usize,
+      ) {
+        index
+          .entry(node.location.clone())
+          .or_default()
+          .push((depth, node.clone()));
+        if matches!(node.def, DocNodeDef::Namespace { .. }) {
+          if let Some(children) = &node.namespace_children {
+            for child in children {
+              index_node(index, child, depth + 1);
+            }
+          }
+        }
+      }
+      for nodes in doc_nodes.values() {
+        for node in nodes {
+          index_node(&mut reference_index, node, 0);
+        }
+      }
+    }
+
     Ok(Self {
       package_name: options.package_name,
       common_ancestor,
@@ -431,6 +466,7 @@ impl GenerateCtx {
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
+      reference_index,
     })
   }
 
@@ -490,55 +526,34 @@ impl GenerateCtx {
     new_parent: Option<&'a DocNodeWithContext>,
     reference: &'a crate::Location,
   ) -> impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a {
-    fn handle_node<'a>(
-      node: &'a DocNodeWithContext,
-      reference: &'a crate::Location,
-      depth: usize,
-    ) -> Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a> {
-      if &node.location == reference {
-        let node = if depth > 0 {
-          fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
-            let ns_qualifiers = node.ns_qualifiers.to_vec();
-            node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
-            node.qualified_name = std::cell::OnceCell::new();
+    fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
+      let ns_qualifiers = node.ns_qualifiers.to_vec();
+      node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+      node.qualified_name = std::cell::OnceCell::new();
 
-            if let Some(children) = &mut node.namespace_children {
-              for child in children {
-                strip_qualifiers(child, depth);
-              }
-            }
-          }
+      if let Some(children) = &mut node.namespace_children {
+        for child in children {
+          strip_qualifiers(child, depth);
+        }
+      }
+    }
 
+    let entries = self
+      .reference_index
+      .get(reference)
+      .map(|v| v.as_slice())
+      .unwrap_or(&[]);
+
+    entries
+      .iter()
+      .map(|(depth, node)| {
+        if *depth > 0 {
           let mut node = node.clone();
-          strip_qualifiers(&mut node, depth);
+          strip_qualifiers(&mut node, *depth);
           Cow::Owned(node)
         } else {
           Cow::Borrowed(node)
-        };
-
-        return Box::new(std::iter::once(node));
-      }
-
-      if matches!(node.def, DocNodeDef::Namespace { .. })
-        && let Some(children) = &node.namespace_children
-      {
-        return Box::new(
-          children
-            .iter()
-            .flat_map(move |child| handle_node(child, reference, depth + 1)),
-        );
-      }
-
-      Box::new(std::iter::empty())
-    }
-
-    self
-      .doc_nodes
-      .values()
-      .flat_map(move |nodes| {
-        nodes
-          .iter()
-          .flat_map(move |node| handle_node(node, reference, 0))
+        }
       })
       .map(move |node| {
         if let Some(parent) = new_parent {

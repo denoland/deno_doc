@@ -4,7 +4,9 @@ use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
@@ -111,22 +113,25 @@ pub fn partition_nodes_by_kind<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
+  let name_to_kind =
+    RefCell::new(HashMap::<String, super::DocNodeKind>::new());
+
   let mut partitions = create_partitioner(
     ctx,
     doc_nodes,
     flatten_namespaces,
     &|partitions, node| {
-      let maybe_nodes = partitions.values_mut().find(|nodes| {
-        nodes
-          .iter()
-          .any(|n| n.get_qualified_name() == node.get_qualified_name())
-      });
+      let qname = node.get_qualified_name();
+      let mut index = name_to_kind.borrow_mut();
 
-      if let Some(nodes) = maybe_nodes {
-        nodes.push(node.clone());
+      if let Some(&existing_kind) = index.get(qname) {
+        partitions
+          .get_mut(&existing_kind)
+          .unwrap()
+          .push(node.clone());
       } else {
-        let entry = partitions.entry(node.kind).or_default();
-        entry.push(node.clone());
+        index.insert(qname.to_string(), node.kind);
+        partitions.entry(node.kind).or_default().push(node.clone());
       }
     },
   );
