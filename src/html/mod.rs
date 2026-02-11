@@ -33,6 +33,8 @@ use crate::parser::ParseOutput;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
+pub use symbols::AllSymbolsCtx;
+pub use symbols::AllSymbolsItemCtx;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
 pub use symbols::namespace;
@@ -176,6 +178,10 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/category_panel.hbs"),
   )?;
   reg.register_template_string("see", include_str!("./templates/see.hbs"))?;
+  reg.register_template_string(
+    AllSymbolsCtx::TEMPLATE,
+    include_str!("./templates/all_symbols.hbs"),
+  )?;
 
   // pages
   reg.register_template_string(
@@ -183,7 +189,7 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/pages/html_head.hbs"),
   )?;
   reg.register_template_string(
-    pages::AllSymbolsCtx::TEMPLATE,
+    pages::AllSymbolsPageCtx::TEMPLATE,
     include_str!("./templates/pages/all_symbols.hbs"),
   )?;
   reg.register_template_string(
@@ -289,6 +295,11 @@ pub struct GenerateCtx {
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
+  /// Index from Location to (depth, node) for fast reference resolution.
+  reference_index: std::collections::HashMap<
+    crate::Location,
+    Vec<(usize, DocNodeWithContext)>,
+  >,
 }
 
 impl GenerateCtx {
@@ -372,6 +383,7 @@ impl GenerateCtx {
               drilldown_name: None,
               parent: None,
               namespace_children: None,
+              qualified_name: std::cell::OnceCell::new(),
             }
           })
           .map(|mut node| {
@@ -408,6 +420,38 @@ impl GenerateCtx {
       })
       .collect::<IndexMap<_, _>>();
 
+    let mut reference_index: std::collections::HashMap<
+      crate::Location,
+      Vec<(usize, DocNodeWithContext)>,
+    > = std::collections::HashMap::new();
+    {
+      fn index_node(
+        index: &mut std::collections::HashMap<
+          crate::Location,
+          Vec<(usize, DocNodeWithContext)>,
+        >,
+        node: &DocNodeWithContext,
+        depth: usize,
+      ) {
+        index
+          .entry(node.location.clone())
+          .or_default()
+          .push((depth, node.clone()));
+        if matches!(node.def, DocNodeDef::Namespace { .. })
+          && let Some(children) = &node.namespace_children
+        {
+          for child in children {
+            index_node(index, child, depth + 1);
+          }
+        }
+      }
+      for nodes in doc_nodes.values() {
+        for node in nodes {
+          index_node(&mut reference_index, node, 0);
+        }
+      }
+    }
+
     Ok(Self {
       package_name: options.package_name,
       common_ancestor,
@@ -425,6 +469,7 @@ impl GenerateCtx {
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
+      reference_index,
     })
   }
 
@@ -484,54 +529,34 @@ impl GenerateCtx {
     new_parent: Option<&'a DocNodeWithContext>,
     reference: &'a crate::Location,
   ) -> impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a {
-    fn handle_node<'a>(
-      node: &'a DocNodeWithContext,
-      reference: &'a crate::Location,
-      depth: usize,
-    ) -> Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a> {
-      if &node.location == reference {
-        let node = if depth > 0 {
-          fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
-            let ns_qualifiers = node.ns_qualifiers.to_vec();
-            node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+    fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
+      let ns_qualifiers = node.ns_qualifiers.to_vec();
+      node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+      node.qualified_name = std::cell::OnceCell::new();
 
-            if let Some(children) = &mut node.namespace_children {
-              for child in children {
-                strip_qualifiers(child, depth);
-              }
-            }
-          }
+      if let Some(children) = &mut node.namespace_children {
+        for child in children {
+          strip_qualifiers(child, depth);
+        }
+      }
+    }
 
+    let entries = self
+      .reference_index
+      .get(reference)
+      .map(|v| v.as_slice())
+      .unwrap_or(&[]);
+
+    entries
+      .iter()
+      .map(|(depth, node)| {
+        if *depth > 0 {
           let mut node = node.clone();
-          strip_qualifiers(&mut node, depth);
+          strip_qualifiers(&mut node, *depth);
           Cow::Owned(node)
         } else {
           Cow::Borrowed(node)
-        };
-
-        return Box::new(std::iter::once(node));
-      }
-
-      if matches!(node.def, DocNodeDef::Namespace { .. })
-        && let Some(children) = &node.namespace_children
-      {
-        return Box::new(
-          children
-            .iter()
-            .flat_map(move |child| handle_node(child, reference, depth + 1)),
-        );
-      }
-
-      Box::new(std::iter::empty())
-    }
-
-    self
-      .doc_nodes
-      .values()
-      .flat_map(move |nodes| {
-        nodes
-          .iter()
-          .flat_map(move |node| handle_node(node, reference, 0))
+        }
       })
       .map(move |node| {
         if let Some(parent) = new_parent {
@@ -554,6 +579,7 @@ impl GenerateCtx {
             let mut new_ns_qualifiers = ns_qualifiers;
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
+            node.qualified_name = std::cell::OnceCell::new();
           }
 
           handle_node(&mut node, ns_qualifiers);
@@ -607,19 +633,12 @@ impl ShortPath {
       };
     };
 
-    let Some(common_ancestor) = common_ancestor else {
-      return ShortPath {
-        path: url_file_path.to_string_lossy().to_string(),
-        specifier,
-        is_main,
-      };
-    };
-
-    let stripped_path = url_file_path
-      .strip_prefix(common_ancestor)
+    let stripped_path = common_ancestor
+      .and_then(|ancestor| url_file_path.strip_prefix(ancestor).ok())
       .unwrap_or(&url_file_path);
 
     let path = stripped_path.to_string_lossy().to_string();
+    let path = path.strip_prefix('/').unwrap_or(&path).to_string();
 
     ShortPath {
       path: if path.is_empty() {
@@ -754,6 +773,8 @@ pub struct DocNodeWithContext {
   pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
   pub namespace_children: Option<Vec<DocNodeWithContext>>,
+  #[serde(skip, default)]
+  qualified_name: std::cell::OnceCell<String>,
 }
 
 impl DocNodeWithContext {
@@ -766,6 +787,7 @@ impl DocNodeWithContext {
       drilldown_name: None,
       parent: Some(Box::new(self.clone())),
       namespace_children: None,
+      qualified_name: std::cell::OnceCell::new(),
     }
   }
 
@@ -817,12 +839,14 @@ impl DocNodeWithContext {
     new_node
   }
 
-  pub fn get_qualified_name(&self) -> String {
-    if self.ns_qualifiers.is_empty() {
-      self.get_name().to_string()
-    } else {
-      format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
-    }
+  pub fn get_qualified_name(&self) -> &str {
+    self.qualified_name.get_or_init(|| {
+      if self.ns_qualifiers.is_empty() {
+        self.get_name().to_string()
+      } else {
+        format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
+      }
+    })
   }
 
   pub fn sub_qualifier(&self) -> Vec<String> {
@@ -1014,31 +1038,25 @@ pub fn generate(
     );
   }
 
-  let all_doc_nodes = ctx
-    .doc_nodes
-    .values()
-    .flatten()
-    .cloned()
-    .collect::<Vec<DocNodeWithContext>>();
-
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
-      &ctx,
-      all_doc_nodes.iter().map(Cow::Borrowed),
-      true,
-    );
-
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+    let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
     files.insert(
       "./all_symbols.html".to_string(),
-      ctx.render(pages::AllSymbolsCtx::TEMPLATE, &all_symbols),
+      ctx.render(pages::AllSymbolsPageCtx::TEMPLATE, &all_symbols),
     );
   }
 
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
+    let all_doc_nodes = ctx
+      .doc_nodes
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<DocNodeWithContext>>();
+
     let categories = partition::partition_nodes_by_category(
       &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
@@ -1227,13 +1245,7 @@ pub fn generate_json(
 
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
-      &ctx,
-      all_doc_nodes.iter().map(Cow::Borrowed),
-      true,
-    );
-
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+    let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
     files.insert(
       "./all_symbols.json".to_string(),

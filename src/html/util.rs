@@ -485,30 +485,36 @@ pub trait HrefResolver {
 pub struct BreadcrumbCtx {
   pub name: String,
   pub href: String,
-  pub is_symbol: bool,
-  pub is_first_symbol: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbsCtx {
-  pub parts: Vec<BreadcrumbCtx>,
+  pub root: BreadcrumbCtx,
+  pub current_entrypoint: Option<BreadcrumbCtx>,
+  pub entrypoints: Vec<BreadcrumbCtx>,
+  pub symbol: Vec<BreadcrumbCtx>,
 }
 
 impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
 
   pub fn to_strings(&self) -> Vec<Cow<'_, str>> {
-    let mut title_parts = vec![];
-    let mut symbol_parts = vec![];
+    let mut title_parts = vec![Cow::Borrowed(self.root.name.as_str())];
 
-    for breadcrumb in self.parts.iter() {
-      if breadcrumb.is_symbol {
-        symbol_parts.push(breadcrumb.name.as_str());
-      } else {
-        title_parts.push(Cow::Borrowed(breadcrumb.name.as_str()));
-      }
+    if let Some(entrypoint) = &self.current_entrypoint {
+      title_parts.push(Cow::Borrowed(entrypoint.name.as_str()));
     }
-    title_parts.push(Cow::Owned(symbol_parts.join(".")));
+
+    if !self.symbol.is_empty() {
+      title_parts.push(Cow::Owned(
+        self
+          .symbol
+          .iter()
+          .map(|crumb| crumb.name.as_str())
+          .collect::<Vec<_>>()
+          .join("."),
+      ));
+    }
 
     title_parts
   }

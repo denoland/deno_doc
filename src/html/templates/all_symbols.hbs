@@ -1,0 +1,11 @@
+<div class="space-y-6 max-w-prose">
+  {{#each entrypoints}}
+    <div>
+      <a href="{{this.href}}" class="link text-xl font-bold">{{this.name}}</a>
+
+      <div class="ml-4 mt-2">
+        {{~> module_doc module_doc ~}}
+      </div>
+    </div>
+  {{/each}}
+</div>

@@ -237,7 +237,11 @@ impl IndexCtx {
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
+      super::jsdoc::ModuleDocCtx::new(
+        &render_ctx,
+        short_path,
+        !short_path.is_main,
+      )
     });
 
     let root =
@@ -458,44 +462,27 @@ impl IndexCtx {
 
 #[derive(Serialize)]
 #[serde(tag = "kind")]
-pub struct AllSymbolsCtx {
+pub struct AllSymbolsPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
-  pub content: SymbolContentCtx,
+  pub content: crate::html::symbols::AllSymbolsCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub disable_search: bool,
   pub categories_panel: Option<CategoriesPanelCtx>,
 }
 
-impl AllSymbolsCtx {
+impl AllSymbolsPageCtx {
   pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  pub fn new(
-    ctx: &GenerateCtx,
-    partitions: partition::Partitions<Rc<ShortPath>>,
-  ) -> Self {
+  pub fn new(ctx: &GenerateCtx) -> Self {
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
-
-    let sections = super::namespace::render_namespace(
-      partitions.into_iter().map(|(path, nodes)| {
-        let render_ctx =
-          RenderContext::new(ctx, &nodes, UrlResolveKind::AllSymbols);
-        let header = SectionHeaderCtx::new_for_all_symbols(&render_ctx, &path);
-
-        (render_ctx, header, nodes)
-      }),
-    );
 
     let html_head_ctx = HtmlHeadCtx::new(ctx, "./", Some("All Symbols"), None);
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, None);
 
-    AllSymbolsCtx {
+    AllSymbolsPageCtx {
       html_head_ctx,
-      content: SymbolContentCtx {
-        id: util::Id::empty(),
-        sections,
-        docs: None,
-      },
+      content: crate::html::symbols::AllSymbolsCtx::new(&render_ctx),
       breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
       disable_search: ctx.disable_search,
       categories_panel,
@@ -503,6 +490,7 @@ impl AllSymbolsCtx {
   }
 }
 
+#[allow(clippy::large_enum_variant)]
 pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,

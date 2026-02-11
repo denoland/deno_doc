@@ -102,7 +102,7 @@ a {
   @apply space-y-3 mt-4 max-w-prose;
 
   .namespaceItem {
-    @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4 min-h-0;
+    @apply flex gap-x-2.5 lg:pr-4;
 
     .docNodeKindIcon {
       @apply w-auto flex-col justify-start gap-1;
@@ -124,29 +124,58 @@ a {
       flex: 1;
       width: 0;
 
-      > a, .namespaceItemContentSubItems a {
-        @apply underline decoration-stone-300 dark:decoration-stone-500
-          hover:no-underline;
+      > a, .namespaceItemContentSubItems > li > a {
+        @apply block font-mono underline decoration-stone-300
+          dark:decoration-stone-500 hover:no-underline;
+
+        span:first-child {
+          @apply leading-none break-all font-medium;
+        }
+        span:last-child {
+          @apply font-light opacity-85;
+        }
       }
 
-      > a {
-        @apply block leading-tight break-all font-medium;
+      .namespaceItemContentTypeInfo {
+        @apply italic text-xs ml-2 text-stone-600 dark:text-stone-400;
       }
 
       .namespaceItemContentDoc {
-        @apply mt-2 text-sm leading-5 text-stone-600 dark:text-stone-400;
+        @apply text-sm leading-5 text-stone-600 dark:text-stone-400;
+      }
+
+      > a .namespaceItemContentDoc {
+        @apply mt-2;
       }
 
       .namespaceItemContentSubItems {
-        @apply mt-1.5 flex flex-wrap gap-y-1 text-sm;
+        @apply space-y-3 text-sm mt-3 ml-3;
 
-        > li:not(:last-child):after {
-          content: "|";
-          @apply mx-2 text-gray-300 select-none dark:text-gray-500;
+        .namespaceItemContentDoc {
+          @apply mt-1;
         }
       }
     }
   }
+}
+
+.td-kw {
+  @apply text-cyan-500;
+}
+.td-lit {
+  @apply text-orange-500;
+}
+.td-str {
+  @apply text-green-500;
+}
+.td-ref {
+  @apply text-blue-500;
+}
+.td-tp {
+  @apply text-yellow-500;
+}
+.td-op {
+  @apply text-pink-500;
 }
 
 .symbolGroup {

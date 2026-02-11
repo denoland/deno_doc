@@ -10,6 +10,67 @@ use crate::ts_type_param::TsTypeParamDef;
 use deno_ast::swc::ast::MethodKind;
 use deno_ast::swc::ast::TruePlusMinus;
 
+const MAX_INLINE_LEN: usize = 60;
+
+// not a fan of this, but its the easiest approach
+fn strip_indent_wrapper(html: &str) -> &str {
+  html
+    .strip_prefix(r#"<div class="ml-indent">"#)
+    .and_then(|s| s.strip_suffix("</div>"))
+    .unwrap_or(html)
+}
+
+pub(crate) fn with_trailing_comma(html: &str) -> String {
+  if let Some(pos) = html.rfind("</div>") {
+    let after = &html[pos + 6..];
+    let only_closing_tags = {
+      let mut s = after;
+      while let Some(rest) = s.strip_prefix("</") {
+        if let Some(end) = rest.find('>') {
+          s = &rest[end + 1..];
+        } else {
+          break;
+        }
+      }
+      s.is_empty()
+    };
+    if only_closing_tags {
+      let mut result = String::with_capacity(html.len() + 1);
+      result.push_str(&html[..pos]);
+      result.push(',');
+      result.push_str(&html[pos..]);
+      return result;
+    }
+  }
+  format!("{html},")
+}
+
+fn html_text_len(html: &str) -> usize {
+  let mut len = 0;
+  let mut in_tag = false;
+  let mut chars = html.chars().peekable();
+  while let Some(ch) = chars.next() {
+    if ch == '<' {
+      in_tag = true;
+    } else if ch == '>' {
+      in_tag = false;
+    } else if !in_tag {
+      if ch == '&' {
+        // HTML entity - count as 1 character
+        for c in chars.by_ref() {
+          if c == ';' {
+            break;
+          }
+        }
+        len += 1;
+      } else {
+        len += 1;
+      }
+    }
+  }
+  len
+}
+
 pub(crate) fn render_type_def_colon(
   ctx: &RenderContext,
   def: &crate::ts_type::TsTypeDef,
@@ -29,17 +90,18 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::Keyword => {
       let keyword = def.keyword.as_ref().unwrap();
 
-      if let Some(href) = ctx
-        .ctx
-        .href_resolver
-        .resolve_global_symbol(&[keyword.to_owned()])
+      if !ctx.disable_links
+        && let Some(href) = ctx
+          .ctx
+          .href_resolver
+          .resolve_global_symbol(&[keyword.to_owned()])
       {
         format!(
-          r#"<a href="{}" class="link">{keyword}</a>"#,
+          r#"<a href="{}" class="link td-kw">{keyword}</a>"#,
           html_escape::encode_double_quoted_attribute(&href),
         )
       } else {
-        format!("<span>{keyword}</span>")
+        format!(r#"<span class="td-kw">{keyword}</span>"#)
       }
     }
     TsTypeDefKind::Literal => {
@@ -49,10 +111,16 @@ pub(crate) fn render_type_def(
         LiteralDefKind::Number
         | LiteralDefKind::BigInt
         | LiteralDefKind::Boolean => {
-          format!("<span>{}</span>", html_escape::encode_text(&def.repr))
+          format!(
+            r#"<span class="td-lit">{}</span>"#,
+            html_escape::encode_text(&def.repr)
+          )
         }
         LiteralDefKind::String => {
-          format!("<span>{:?}</span>", html_escape::encode_text(&def.repr))
+          format!(
+            r#"<span class="td-str">{:?}</span>"#,
+            html_escape::encode_text(&def.repr)
+          )
         }
         LiteralDefKind::Template => {
           if let Some(types) = &lit.ts_types {
@@ -70,9 +138,12 @@ pub(crate) fn render_type_def(
               });
             }
 
-            format!("<span>`{out}`</span>")
+            format!(r#"<span class="td-str">`{out}`</span>"#)
           } else {
-            format!("<span>`{}`</span>", html_escape::encode_text(&def.repr))
+            format!(
+              r#"<span class="td-str">`{}`</span>"#,
+              html_escape::encode_text(&def.repr)
+            )
           }
         }
       }
@@ -80,7 +151,9 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypeRef => {
       let type_ref = def.type_ref.as_ref().unwrap();
 
-      let href = if ctx.contains_type_param(&type_ref.type_name) {
+      let href = if ctx.disable_links {
+        None
+      } else if ctx.contains_type_param(&type_ref.type_name) {
         Some(format!(
           "#{}",
           IdBuilder::new(ctx.ctx)
@@ -94,13 +167,13 @@ pub(crate) fn render_type_def(
 
       let name = if let Some(href) = href {
         format!(
-          r#"<a href="{}" class="link">{}</a>"#,
+          r#"<a href="{}" class="link td-ref">{}</a>"#,
           html_escape::encode_double_quoted_attribute(&href),
           html_escape::encode_text(&type_ref.type_name)
         )
       } else {
         format!(
-          r#"<span>{}</span>"#,
+          r#"<span class="td-ref">{}</span>"#,
           html_escape::encode_text(&type_ref.type_name)
         )
       };
@@ -116,10 +189,10 @@ pub(crate) fn render_type_def(
       )
     }
     TsTypeDefKind::Union => {
-      type_def_join(ctx, def.union.as_ref().unwrap(), "|")
+      type_def_join(ctx, def.union.as_ref().unwrap(), '|')
     }
     TsTypeDefKind::Intersection => {
-      type_def_join(ctx, def.intersection.as_ref().unwrap(), "&")
+      type_def_join(ctx, def.intersection.as_ref().unwrap(), '&')
     }
     TsTypeDefKind::Array => {
       format!("{}[]", render_type_def(ctx, def.array.as_ref().unwrap()))
@@ -128,7 +201,7 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypeOperator => {
       let operator = def.type_operator.as_ref().unwrap();
       format!(
-        "<span>{}</span> {}",
+        r#"<span class="td-kw">{}</span> {}"#,
         operator.operator,
         render_type_def(ctx, &operator.ts_type)
       )
@@ -148,22 +221,27 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::TypeQuery => {
       let query = def.type_query.as_ref().unwrap();
 
-      if let Some(href) = ctx.lookup_symbol_href(query) {
+      if !ctx.disable_links
+        && let Some(href) = ctx.lookup_symbol_href(query)
+      {
         format!(
-          r#"<a href="{}" class="link">{}</a>"#,
+          r#"<a href="{}" class="link td-ref">{}</a>"#,
           html_escape::encode_double_quoted_attribute(&href),
           html_escape::encode_text(query),
         )
       } else {
-        format!("<span>{}</span>", html_escape::encode_text(query))
+        format!(
+          r#"<span class="td-ref">{}</span>"#,
+          html_escape::encode_text(query)
+        )
       }
     }
-    TsTypeDefKind::This => "<span>this</span>".to_string(),
+    TsTypeDefKind::This => r#"<span class="td-kw">this</span>"#.to_string(),
     TsTypeDefKind::FnOrConstructor => {
       let fn_or_constructor = def.fn_or_constructor.as_ref().unwrap();
 
       let new = if fn_or_constructor.constructor {
-        "<span>new </span>"
+        r#"<span class="td-kw">new </span>"#
       } else {
         Default::default()
       };
@@ -179,7 +257,7 @@ pub(crate) fn render_type_def(
       let conditional = def.conditional_type.as_ref().unwrap();
 
       format!(
-        "{} <span>extends</span> {} ? {} : {}",
+        r#"{} <span class="td-kw">extends</span> {} <span class="td-op">?</span> {} <span class="td-op">:</span> {}"#,
         render_type_def(ctx, &conditional.check_type),
         render_type_def(ctx, &conditional.extends_type),
         render_type_def(ctx, &conditional.true_type),
@@ -187,7 +265,7 @@ pub(crate) fn render_type_def(
       )
     }
     TsTypeDefKind::Infer => format!(
-      "<span>infer {}</span>",
+      r#"<span class="td-kw">infer </span>{}"#,
       type_param_summary(
         ctx,
         &def.infer.as_ref().unwrap().type_param,
@@ -213,7 +291,7 @@ pub(crate) fn render_type_def(
           TruePlusMinus::Minus => "-",
         };
 
-        format!("<span>{char}readonly </span>")
+        format!(r#"<span class="td-kw">{char}readonly </span>"#)
       } else {
         String::new()
       };
@@ -222,18 +300,22 @@ pub(crate) fn render_type_def(
         .name_type
         .as_ref()
         .map(|name_type| {
-          format!("<span> in keyof </span>{}", render_type_def(ctx, name_type))
+          format!(
+            r#"<span class="td-kw"> in keyof </span>{}"#,
+            render_type_def(ctx, name_type)
+          )
         })
         .unwrap_or_default();
 
       let optional = if let Some(optional) = mapped.optional {
-        match optional {
+        let optional = match optional {
           TruePlusMinus::True => "?",
           TruePlusMinus::Plus => "+?",
           TruePlusMinus::Minus => "-?",
-        }
+        };
+        format!(r#"<span class="td-op">{optional}</span>"#)
       } else {
-        ""
+        String::new()
       };
 
       let ts_type = mapped
@@ -255,7 +337,7 @@ pub(crate) fn render_type_def(
 
       for index_signature in type_literal.index_signatures.iter() {
         let readonly = if index_signature.readonly {
-          "<span>readonly </span>"
+          r#"<span class="td-kw">readonly </span>"#
         } else {
           Default::default()
         };
@@ -298,7 +380,7 @@ pub(crate) fn render_type_def(
 
       for property in type_literal.properties.iter() {
         let readonly = if property.readonly {
-          "<span>readonly </span>"
+          r#"<span class="td-kw">readonly </span>"#
         } else {
           Default::default()
         };
@@ -310,7 +392,7 @@ pub(crate) fn render_type_def(
         };
 
         let optional = if property.optional {
-          "?"
+          r#"<span class="td-op">?</span>"#
         } else {
           Default::default()
         };
@@ -331,12 +413,12 @@ pub(crate) fn render_type_def(
       for method in type_literal.methods.iter() {
         let kind = match method.kind {
           MethodKind::Method => "",
-          MethodKind::Getter => "<span>get </span>",
-          MethodKind::Setter => "<span>set </span>",
+          MethodKind::Getter => r#"<span class="td-kw">get </span>"#,
+          MethodKind::Setter => r#"<span class="td-kw">set </span>"#,
         };
 
         let name = if method.name == "new" {
-          "<span>new </span>".to_string()
+          r#"<span class="td-kw">new </span>"#.to_string()
         } else if method.computed {
           format!("[{}]", method.name)
         } else {
@@ -344,7 +426,7 @@ pub(crate) fn render_type_def(
         };
 
         let optional = if method.optional {
-          "?"
+          r#"<span class="td-op">?</span>"#
         } else {
           Default::default()
         };
@@ -371,7 +453,7 @@ pub(crate) fn render_type_def(
       let type_predicate = def.type_predicate.as_ref().unwrap();
 
       let asserts = if type_predicate.asserts {
-        "<span>asserts </span>"
+        r#"<span class="td-kw">asserts </span>"#
       } else {
         Default::default()
       };
@@ -380,13 +462,18 @@ pub(crate) fn render_type_def(
       {
         html_escape::encode_text(name).to_string()
       } else {
-        "<span>this</span>".to_string()
+        r#"<span class="td-kw">this</span>"#.to_string()
       };
 
       let r#type = type_predicate
         .r#type
         .as_ref()
-        .map(|def| format!(" is {}", render_type_def(ctx, def)))
+        .map(|def| {
+          format!(
+            r#" <span class="td-kw">is</span> {}"#,
+            render_type_def(ctx, def)
+          )
+        })
         .unwrap_or_default();
 
       format!("{asserts}{param_type}{}", r#type)
@@ -409,7 +496,7 @@ pub(crate) fn render_type_def(
         .unwrap_or_default();
 
       format!(
-        r#"<span>import</span>("{}"){qualifier}{type_arguments}"#,
+        r#"<span class="td-kw">import</span>(<span class="td-str">"{}"</span>){qualifier}{type_arguments}"#,
         html_escape::encode_text(&import_type.specifier),
       )
     }
@@ -419,28 +506,32 @@ pub(crate) fn render_type_def(
 fn type_def_join(
   ctx: &RenderContext,
   union: &[crate::ts_type::TsTypeDef],
-  join: &str,
+  join: char,
 ) -> String {
-  if union.len() <= 2 {
-    let items = union
-      .iter()
-      .map(|element| render_type_def(ctx, element))
-      .collect::<Vec<String>>()
-      .join(&format!("<span> {join} </span>"));
+  let rendered: Vec<String> = union
+    .iter()
+    .map(|element| render_type_def(ctx, element))
+    .collect();
 
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 3; // join char + 2 for spaces around
+
+  if total_len <= MAX_INLINE_LEN {
+    let items =
+      rendered.join(&format!(r#"<span class="td-op"> {join} </span>"#));
     format!("<span>{items}</span>")
   } else {
-    let mut items = Vec::with_capacity(union.len());
+    let mut items = Vec::with_capacity(rendered.len());
 
-    for (i, element) in union.iter().enumerate() {
+    for (i, rendered_item) in rendered.iter().enumerate() {
       items.push(format!(
         r#"<span>{}{}</span>"#,
         if i != 0 {
-          format!("<span> {join} </span>")
+          format!(r#"<span class="td-op"> {join} </span>"#)
         } else {
           String::new()
         },
-        render_type_def(ctx, element)
+        rendered_item
       ));
     }
 
@@ -454,22 +545,30 @@ fn type_def_tuple(
   ctx: &RenderContext,
   tuple_items: &[crate::ts_type::TsTypeDef],
 ) -> String {
-  if tuple_items.len() <= 2 {
-    let items = tuple_items
-      .iter()
-      .map(|element| render_type_def(ctx, element))
-      .collect::<Vec<String>>()
-      .join(", ");
+  let rendered: Vec<String> = tuple_items
+    .iter()
+    .map(|element| render_type_def(ctx, element))
+    .collect();
 
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 2 // for brackets
+    + 2; // separator ", "
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join(", ");
     format!("<span>[{items}]</span>")
   } else {
-    let mut items = Vec::with_capacity(tuple_items.len());
+    let last = rendered.len() - 1;
+    let mut items = Vec::with_capacity(rendered.len());
 
-    for element in tuple_items {
-      items.push(format!(
-        r#"<div><span>{}</span>, </div>"#,
-        render_type_def(ctx, element)
-      ));
+    for (i, rendered_item) in rendered.iter().enumerate() {
+      let stripped = strip_indent_wrapper(rendered_item);
+      let content = if i < last {
+        with_trailing_comma(stripped)
+      } else {
+        stripped.to_string()
+      };
+      items.push(format!(r#"<div><span>{content}</span></div>"#));
     }
 
     let content = items.join("");
@@ -484,20 +583,32 @@ pub(crate) fn type_params_summary(
   type_params: &[TsTypeParamDef],
 ) -> String {
   if type_params.is_empty() {
-    String::new()
-  } else if type_params.len() == 1 {
-    format!(
-      "<span>&lt;{}&gt;</span>",
-      type_param_summary(ctx, &type_params[0], "extends")
-    )
-  } else {
-    let mut items = Vec::with_capacity(type_params.len());
+    return String::new();
+  }
 
-    for type_param in type_params {
-      items.push(format!(
-        "<div>{},</div>",
-        type_param_summary(ctx, type_param, "extends")
-      ));
+  let rendered: Vec<String> = type_params
+    .iter()
+    .map(|tp| type_param_summary(ctx, tp, "extends"))
+    .collect();
+
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 2 // angled brackets
+    + 2; // separator ", "
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join("<span>, </span>");
+    format!("<span>&lt;{items}&gt;</span>")
+  } else {
+    let last = rendered.len() - 1;
+    let mut items = Vec::with_capacity(rendered.len());
+
+    for (i, rendered_item) in rendered.iter().enumerate() {
+      let content = if i < last {
+        with_trailing_comma(rendered_item)
+      } else {
+        rendered_item.clone()
+      };
+      items.push(format!("<div>{content}</div>"));
     }
 
     let content = items.join("");
@@ -516,7 +627,7 @@ fn type_param_summary(
     .as_ref()
     .map(|constraint| {
       format!(
-        r#"<span><span> {constraint_kind} </span>{}</span>"#,
+        r#"<span><span class="td-kw"> {constraint_kind} </span>{}</span>"#,
         render_type_def(ctx, constraint)
       )
     })
@@ -534,7 +645,7 @@ fn type_param_summary(
     .unwrap_or_default();
 
   format!(
-    "<span><span>{}</span>{constraint}{default}</span>",
+    r#"<span><span class="td-tp">{}</span>{constraint}{default}</span>"#,
     type_param.name,
   )
 }
@@ -544,15 +655,36 @@ pub(crate) fn type_arguments(
   defs: &[crate::ts_type::TsTypeDef],
 ) -> String {
   if defs.is_empty() {
-    String::new()
-  } else {
-    let items = defs
-      .iter()
-      .map(|def| render_type_def(ctx, def))
-      .collect::<Vec<String>>()
-      .join("<span>, </span>");
+    return String::new();
+  }
 
+  let rendered: Vec<String> =
+    defs.iter().map(|def| render_type_def(ctx, def)).collect();
+
+  let total_len = rendered.iter().map(|s| html_text_len(s)).sum::<usize>()
+    + rendered.len().saturating_sub(1) * 2 // angled brackets
+    + 2; // separator ", "
+
+  if total_len <= MAX_INLINE_LEN {
+    let items = rendered.join("<span>, </span>");
     format!("&lt;{items}&gt;")
+  } else {
+    let last = rendered.len() - 1;
+    let mut items = Vec::with_capacity(rendered.len());
+
+    for (i, rendered_item) in rendered.iter().enumerate() {
+      let stripped = strip_indent_wrapper(rendered_item);
+      let content = if i < last {
+        with_trailing_comma(stripped)
+      } else {
+        stripped.to_string()
+      };
+      items.push(format!("<div>{content}</div>"));
+    }
+
+    let content = items.join("");
+
+    format!(r#"&lt;<div class="ml-indent">{content}</div>&gt;"#)
   }
 }
 
@@ -591,7 +723,7 @@ pub(crate) fn render_type_params(
       .as_ref()
       .map(|constraint| {
         format!(
-          r#"<span><span> extends </span>{}</span>"#,
+          r#"<span><span class="td-kw"> extends </span>{}</span>"#,
           render_type_def(ctx, constraint)
         )
       })

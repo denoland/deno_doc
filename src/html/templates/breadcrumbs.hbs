@@ -1,29 +1,39 @@
 <ul class="breadcrumbs">
-  {{~#each parts~}}
-    {{~#if this.is_first_symbol~}}
-      <ul>
+  <li>
+    <a href="{{root.href}}" class="contextLink">
+      {{~root.name~}}
+    </a>
+  </li>
+
+  {{~#if current_entrypoint~}}
+    <span class="text-black dark:text-white">{{~> icons/arrow ~}}</span>
+
+    {{~#if symbol~}}
+      <a href="{{current_entrypoint.href}}" class="contextLink">
+        {{~current_entrypoint.name~}}
+      </a>
+    {{~else~}}
+      {{~current_entrypoint.name~}}
     {{~/if~}}
+  {{~/if~}}
 
-    <li>
-	    {{~#if @last~}}
-	      {{~this.name~}}
-      {{~else~}}
-	      <a href="{{this.href}}" class="contextLink">
-		      {{~this.name~}}
-	      </a>
-			{{~/if~}}
-    </li>
 
-	  {{~#unless @last~}}
-		  {{~#if this.is_symbol~}}
-			  <span>.</span>
-			  {{~else~}}
-			  <span class="text-black dark:text-white">{{~> icons/arrow ~}}</span>
-		  {{~/if~}}
-	  {{/unless}}
+  {{~#if symbol~}}
+    <span class="text-black dark:text-white">{{~> icons/arrow ~}}</span>
 
-    {{~#if (and @last this.is_symbol)~}}
-      </ul>
-    {{~/if~}}
-  {{~/each~}}
+    <ul>
+      {{~#each symbol~}}
+        <li>
+          {{~#if @last~}}
+            {{~this.name~}}
+          {{~else~}}
+            <span>.</span>
+            <a href="{{this.href}}" class="contextLink">
+              {{~this.name~}}
+            </a>
+          {{~/if~}}
+        </li>
+      {{~/each~}}
+    </ul>
+  {{~/if~}}
 </ul>

@@ -5,21 +5,49 @@
 
 	    <div class="namespaceItemContent">
 		    <a href="{{this.href}}" title="{{this.name}}">
-			    {{~this.name~}}
-		    </a>
+			    <span>{{~this.name~}}</span>
+          {{~#if this.ty~}}
+            <span>
+              {{{~this.ty.ty~}}} {{! typedef rendering }}
+            </span>
+            {{~#if this.ty.info~}}
+              <div class="namespaceItemContentTypeInfo">
+                {{~this.ty.info~}}
+              </div>
+            {{~/if~}}
+          {{~/if~}}
+        </a>
 
-	      <div class="namespaceItemContentDoc">
-		      {{~#if this.docs~}}
+        {{~#if this.docs~}}
+          <div class="namespaceItemContentDoc">
 			      {{{~this.docs~}}} {{! markdown rendering }}
-		      {{~else~}}
-			      <span class="italic">No documentation available</span>
-		      {{~/if~}}
-	      </div>
+          </div>
+        {{~/if~}}
 
         {{~#if this.subitems~}}
           <ul class="namespaceItemContentSubItems">
             {{~#each this.subitems~}}
-              <li><a href="{{this.href}}">{{this.title}}</a></li>
+              <li>
+                <a href="{{this.href}}">
+                  <span>{{this.title}}</span>
+                  {{~#if this.ty~}}
+                    <span>
+                      {{{~this.ty.ty~}}} {{! typedef rendering }}
+                    </span>
+                    {{~#if this.ty.info~}}
+                      <div class="namespaceItemContentTypeInfo">
+                        {{~this.ty.info~}}
+                      </div>
+                    {{~/if~}}
+                  {{~/if~}}
+                </a>
+
+                {{~#if this.docs~}}
+                  <div class="namespaceItemContentDoc">
+                    {{{~this.docs~}}} {{! markdown rendering }}
+                  </div>
+                {{~/if~}}
+              </li>
             {{~/each~}}
           </ul>
         {{~/if~}}
