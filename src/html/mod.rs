@@ -377,6 +377,7 @@ impl GenerateCtx {
               drilldown_name: None,
               parent: None,
               namespace_children: None,
+              qualified_name: std::cell::OnceCell::new(),
             }
           })
           .map(|mut node| {
@@ -499,6 +500,7 @@ impl GenerateCtx {
           fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
             let ns_qualifiers = node.ns_qualifiers.to_vec();
             node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+            node.qualified_name = std::cell::OnceCell::new();
 
             if let Some(children) = &mut node.namespace_children {
               for child in children {
@@ -559,6 +561,7 @@ impl GenerateCtx {
             let mut new_ns_qualifiers = ns_qualifiers;
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
+            node.qualified_name = std::cell::OnceCell::new();
           }
 
           handle_node(&mut node, ns_qualifiers);
@@ -759,6 +762,8 @@ pub struct DocNodeWithContext {
   pub drilldown_name: Option<Box<str>>,
   pub parent: Option<Box<DocNodeWithContext>>,
   pub namespace_children: Option<Vec<DocNodeWithContext>>,
+  #[serde(skip, default)]
+  qualified_name: std::cell::OnceCell<String>,
 }
 
 impl DocNodeWithContext {
@@ -771,6 +776,7 @@ impl DocNodeWithContext {
       drilldown_name: None,
       parent: Some(Box::new(self.clone())),
       namespace_children: None,
+      qualified_name: std::cell::OnceCell::new(),
     }
   }
 
@@ -822,12 +828,14 @@ impl DocNodeWithContext {
     new_node
   }
 
-  pub fn get_qualified_name(&self) -> String {
-    if self.ns_qualifiers.is_empty() {
-      self.get_name().to_string()
-    } else {
-      format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
-    }
+  pub fn get_qualified_name(&self) -> &str {
+    self.qualified_name.get_or_init(|| {
+      if self.ns_qualifiers.is_empty() {
+        self.get_name().to_string()
+      } else {
+        format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
+      }
+    })
   }
 
   pub fn sub_qualifier(&self) -> Vec<String> {

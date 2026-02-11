@@ -91,7 +91,7 @@ pub fn partition_nodes_by_name<'a>(
     flatten_namespaces,
     &|partitions, node| {
       partitions
-        .entry(node.get_qualified_name())
+        .entry(node.get_qualified_name().to_string())
         .or_default()
         .push(node.clone());
     },

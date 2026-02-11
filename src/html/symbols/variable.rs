@@ -20,7 +20,7 @@ pub(crate) fn render_variable(
 
   let id = IdBuilder::new(ctx.ctx)
     .kind(IdKind::Variable)
-    .name(&doc_node.get_qualified_name())
+    .name(doc_node.get_qualified_name())
     .build();
 
   let mut sections = vec![];

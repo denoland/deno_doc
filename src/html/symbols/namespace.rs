@@ -36,7 +36,7 @@ fn get_namespace_section_render_ctx(
 
   for node in doc_nodes {
     let entry = grouped_nodes
-      .entry(node.get_qualified_name())
+      .entry(node.get_qualified_name().to_string())
       .or_insert(vec![]);
     entry.push(node);
   }
