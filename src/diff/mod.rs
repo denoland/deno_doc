@@ -138,9 +138,9 @@ impl ModuleDiff {
           continue;
         }
 
-        if is_likely_rename(removed_node, added_node) {
-          let def_changes =
-            DocNodeDefDiff::diff(&removed_node.def, &added_node.def);
+        if let Some(def_changes) =
+          try_detect_rename(removed_node, added_node)
+        {
           let js_doc_changes =
             JsDocDiff::diff(&removed_node.js_doc, &added_node.js_doc);
           let declaration_kind_change =
@@ -219,80 +219,28 @@ impl ModuleDiff {
   }
 }
 
-fn is_likely_rename(old: &DocNode, new: &DocNode) -> bool {
+/// None = not a rename.
+/// Some(None) = rename detected, no diff.
+/// Some(Some(def_diff)) = rename detected, with diff.
+fn try_detect_rename(
+  old: &DocNode,
+  new: &DocNode,
+) -> Option<Option<DocNodeDefDiff>> {
   const RENAME_THRESHOLD: f64 = 0.10;
 
-  use crate::node::DocNodeDef;
-
   if old.def.to_kind() != new.def.to_kind() {
-    return false;
+    return None;
   }
 
-  match (&old.def, &new.def) {
-    (
-      DocNodeDef::Function {
-        function_def: old_fn,
-      },
-      DocNodeDef::Function {
-        function_def: new_fn,
-      },
-    ) => FunctionDiff::diff(old_fn, new_fn)
-      .is_none_or(|d| d.change_percentage() <= RENAME_THRESHOLD),
-    (
-      DocNodeDef::Variable {
-        variable_def: old_var,
-      },
-      DocNodeDef::Variable {
-        variable_def: new_var,
-      },
-    ) => VariableDiff::diff(old_var, new_var)
-      .is_none_or(|d| d.change_percentage() <= RENAME_THRESHOLD),
-    (
-      DocNodeDef::Class {
-        class_def: old_class,
-      },
-      DocNodeDef::Class {
-        class_def: new_class,
-      },
-    ) => ClassDiff::diff(old_class, new_class).is_none_or(|d| {
-      d.change_percentage(old_class, new_class) <= RENAME_THRESHOLD
-    }),
-    (
-      DocNodeDef::Interface {
-        interface_def: old_iface,
-      },
-      DocNodeDef::Interface {
-        interface_def: new_iface,
-      },
-    ) => InterfaceDiff::diff(old_iface, new_iface).is_none_or(|d| {
-      d.change_percentage(old_iface, new_iface) <= RENAME_THRESHOLD
-    }),
-    (
-      DocNodeDef::Enum { enum_def: old_enum },
-      DocNodeDef::Enum { enum_def: new_enum },
-    ) => EnumDiff::diff(old_enum, new_enum).is_none_or(|d| {
-      d.change_percentage(old_enum, new_enum) <= RENAME_THRESHOLD
-    }),
-    (
-      DocNodeDef::TypeAlias {
-        type_alias_def: old_alias,
-      },
-      DocNodeDef::TypeAlias {
-        type_alias_def: new_alias,
-      },
-    ) => TypeAliasDiff::diff(old_alias, new_alias)
-      .is_none_or(|d| d.change_percentage() <= RENAME_THRESHOLD),
-    (
-      DocNodeDef::Namespace {
-        namespace_def: old_ns,
-      },
-      DocNodeDef::Namespace {
-        namespace_def: new_ns,
-      },
-    ) => NamespaceDiff::diff(old_ns, new_ns).is_none_or(|d| {
-      d.change_percentage(old_ns, new_ns) <= RENAME_THRESHOLD
-    }),
-    _ => false,
+  let def_diff = DocNodeDefDiff::diff(&old.def, &new.def);
+  let pct = def_diff
+    .as_ref()
+    .map_or(0.0, |d| d.change_percentage(&old.def, &new.def));
+
+  if pct <= RENAME_THRESHOLD {
+    Some(def_diff)
+  } else {
+    None
   }
 }
 
@@ -380,6 +328,51 @@ pub enum DocNodeDefDiff {
 }
 
 impl DocNodeDefDiff {
+  pub fn change_percentage(
+    &self,
+    old: &DocNodeDef,
+    new: &DocNodeDef,
+  ) -> f64 {
+    match (self, old, new) {
+      (DocNodeDefDiff::Function(d), _, _) => d.change_percentage(),
+      (DocNodeDefDiff::Variable(d), _, _) => d.change_percentage(),
+      (DocNodeDefDiff::TypeAlias(d), _, _) => d.change_percentage(),
+      (
+        DocNodeDefDiff::Enum(d),
+        DocNodeDef::Enum { enum_def: old_def },
+        DocNodeDef::Enum { enum_def: new_def },
+      ) => d.change_percentage(old_def, new_def),
+      (
+        DocNodeDefDiff::Class(d),
+        DocNodeDef::Class {
+          class_def: old_def,
+        },
+        DocNodeDef::Class {
+          class_def: new_def,
+        },
+      ) => d.change_percentage(old_def, new_def),
+      (
+        DocNodeDefDiff::Interface(d),
+        DocNodeDef::Interface {
+          interface_def: old_def,
+        },
+        DocNodeDef::Interface {
+          interface_def: new_def,
+        },
+      ) => d.change_percentage(old_def, new_def),
+      (
+        DocNodeDefDiff::Namespace(d),
+        DocNodeDef::Namespace {
+          namespace_def: old_def,
+        },
+        DocNodeDef::Namespace {
+          namespace_def: new_def,
+        },
+      ) => d.change_percentage(old_def, new_def),
+      _ => 1.0,
+    }
+  }
+
   pub fn diff(old: &DocNodeDef, new: &DocNodeDef) -> Option<Self> {
     match (old, new) {
       (
