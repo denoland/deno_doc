@@ -50,6 +50,10 @@ enum Commands {
     #[arg(long, conflicts_with = "html")]
     json: bool,
 
+    /// Treat input files as JSON ParseOutput instead of source files
+    #[arg(long)]
+    json_input: bool,
+
     /// Generate HTML documentation
     #[arg(long, requires = "output")]
     html: bool,
@@ -90,6 +94,10 @@ enum Commands {
     /// Include private items
     #[arg(long)]
     private: bool,
+
+    /// Treat input files as JSON ParseOutput instead of source files
+    #[arg(long)]
+    json_input: bool,
   },
 }
 
@@ -174,6 +182,7 @@ async fn run() -> anyhow::Result<()> {
     Commands::Doc {
       files,
       json,
+      json_input,
       html,
       output,
       name,
@@ -181,9 +190,13 @@ async fn run() -> anyhow::Result<()> {
       filter,
       private,
     } => {
-      let source_files = files.iter().map(path_to_specifier).collect();
-
-      let doc_nodes_by_url = parse_sources(source_files, private).await?;
+      let doc_nodes_by_url = if json_input {
+        assert_eq!(files.len(), 1);
+        serde_json::from_reader(std::fs::File::open(&files[0])?)?
+      } else {
+        let source_files = files.iter().map(path_to_specifier).collect();
+        parse_sources(source_files, private).await?
+      };
 
       if html {
         let output_dir = output.unwrap();
@@ -220,52 +233,67 @@ async fn run() -> anyhow::Result<()> {
       old_files,
       new_files,
       private,
+      json_input,
     } => {
-      let old_specifiers =
-        old_files.iter().map(path_to_specifier).collect::<Vec<_>>();
-      let new_specifiers =
-        new_files.iter().map(path_to_specifier).collect::<Vec<_>>();
+      let (old, new) = if json_input {
+        assert_eq!(old_files.len(), 1);
+        assert_eq!(new_files.len(), 1);
 
-      let old_docs = parse_sources(old_specifiers.clone(), private).await?;
-      let new_docs = parse_sources(new_specifiers.clone(), private).await?;
+        let old_docs: ParseOutput =
+          serde_json::from_reader(std::fs::File::open(&old_files[0])?)?;
+        let new_docs: ParseOutput =
+          serde_json::from_reader(std::fs::File::open(&new_files[0])?)?;
 
-      // Match modules by position: old[0] -> new[0], old[1] -> new[1], etc.
-      // This allows comparing renamed modules.
-      let old_by_original = old_specifiers
-        .iter()
-        .zip(old_docs.into_iter())
-        .map(|(orig, (_, nodes))| (orig.clone(), nodes))
-        .collect::<IndexMap<_, _>>();
+        (old_docs, new_docs)
+      } else {
+        let old_specifiers =
+          old_files.iter().map(path_to_specifier).collect::<Vec<_>>();
+        let new_specifiers =
+          new_files.iter().map(path_to_specifier).collect::<Vec<_>>();
 
-      let new_by_original = new_specifiers
-        .iter()
-        .zip(new_docs.into_iter())
-        .map(|(orig, (_, nodes))| (orig.clone(), nodes))
-        .collect::<IndexMap<_, _>>();
+        let old_docs = parse_sources(old_specifiers.clone(), private).await?;
+        let new_docs = parse_sources(new_specifiers.clone(), private).await?;
 
-      // Create normalized maps using new specifiers as canonical keys
-      let mut old_normalized = IndexMap::new();
-      let mut new_normalized = IndexMap::new();
+        // Match modules by position: old[0] -> new[0], old[1] -> new[1], etc.
+        // This allows comparing renamed modules.
+        let old_by_original = old_specifiers
+          .iter()
+          .zip(old_docs.into_iter())
+          .map(|(orig, (_, nodes))| (orig.clone(), nodes))
+          .collect::<IndexMap<_, _>>();
 
-      for (i, new_spec) in new_specifiers.iter().enumerate() {
-        if let Some(old_spec) = old_specifiers.get(i)
-          && let Some(old_nodes) = old_by_original.get(old_spec)
-        {
-          old_normalized.insert(new_spec.clone(), old_nodes.clone());
+        let new_by_original = new_specifiers
+          .iter()
+          .zip(new_docs.into_iter())
+          .map(|(orig, (_, nodes))| (orig.clone(), nodes))
+          .collect::<IndexMap<_, _>>();
+
+        // Create normalized maps using new specifiers as canonical keys
+        let mut old_normalized = IndexMap::new();
+        let mut new_normalized = IndexMap::new();
+
+        for (i, new_spec) in new_specifiers.iter().enumerate() {
+          if let Some(old_spec) = old_specifiers.get(i)
+            && let Some(old_nodes) = old_by_original.get(old_spec)
+          {
+            old_normalized.insert(new_spec.clone(), old_nodes.clone());
+          }
+          if let Some(new_nodes) = new_by_original.get(new_spec) {
+            new_normalized.insert(new_spec.clone(), new_nodes.clone());
+          }
         }
-        if let Some(new_nodes) = new_by_original.get(new_spec) {
-          new_normalized.insert(new_spec.clone(), new_nodes.clone());
-        }
-      }
 
-      // Handle extra old modules (removed)
-      for old_spec in old_specifiers.iter().skip(new_specifiers.len()) {
-        if let Some(old_nodes) = old_by_original.get(old_spec) {
-          old_normalized.insert(old_spec.clone(), old_nodes.clone());
+        // Handle extra old modules (removed)
+        for old_spec in old_specifiers.iter().skip(new_specifiers.len()) {
+          if let Some(old_nodes) = old_by_original.get(old_spec) {
+            old_normalized.insert(old_spec.clone(), old_nodes.clone());
+          }
         }
-      }
 
-      let doc_diff = diff::DocDiff::diff(&old_normalized, &new_normalized);
+        (old_normalized, new_normalized)
+      };
+
+      let doc_diff = diff::DocDiff::diff(&old, &new);
       serde_json::to_writer_pretty(std::io::stdout(), &doc_diff)?;
       println!();
     }
