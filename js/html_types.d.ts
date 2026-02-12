@@ -1,5 +1,28 @@
 // Copyright 2018-2025 the Deno authors. All rights reserved. MIT license.
 
+export type DiffStatus =
+  | DiffStatusAdded
+  | DiffStatusRemoved
+  | DiffStatusModified
+  | DiffStatusRenamed;
+
+export interface DiffStatusAdded {
+  kind: "added";
+}
+
+export interface DiffStatusRemoved {
+  kind: "removed";
+}
+
+export interface DiffStatusModified {
+  kind: "modified";
+}
+
+export interface DiffStatusRenamed {
+  kind: "renamed";
+  old_name: string;
+}
+
 export interface HtmlHeadCtx {
   title: string;
   current_file: string;
@@ -183,6 +206,7 @@ export interface AnchorCtx {
 export interface SymbolGroupCtx {
   name: string;
   symbols: SymbolCtx[];
+  diff_status?: DiffStatus;
 }
 
 export interface SymbolCtx {
@@ -203,9 +227,20 @@ export interface DocBlockSubtitleClassCtx {
   kind: "class";
   value: DocBlockSubtitleClassValueCtx;
 }
+export interface Change<T> {
+  old: T;
+  new: T;
+}
+
 export interface DocBlockSubtitleClassValueCtx {
   implements: string[] | null;
   extends: DocBlockClassSubtitleExtendsCtx | null;
+  is_abstract_change?: Change<boolean>;
+  extends_change?: Change<string | null>;
+  implements_added?: string[];
+  implements_removed?: string[];
+  super_type_params_added?: string[];
+  super_type_params_removed?: string[];
 }
 
 export interface DocBlockClassSubtitleExtendsCtx {
@@ -221,6 +256,8 @@ export interface DocBlockSubtitleInterfaceCtx {
 
 export interface DocBlockSubtitleInterfaceValueCtx {
   extends: string[];
+  extends_added?: string[];
+  extends_removed?: string[];
 }
 
 export type SymbolInnerCtx = SymbolInnerFunctionCtx | SymbolInnerOtherCtx;
@@ -294,6 +331,9 @@ export interface DocEntryCtx {
   tags: Tag[];
   js_doc: string | null;
   source_href: string | null;
+  diff_status?: DiffStatus;
+  old_content?: string;
+  old_tags?: Tag[];
 }
 
 export interface ExampleCtx {
@@ -311,6 +351,7 @@ export interface IndexSignatureCtx {
   params: string;
   ts_type: string;
   source_href: string | null;
+  diff_status?: DiffStatus;
 }
 
 export interface NamespaceNodeCtx {
@@ -324,6 +365,7 @@ export interface NamespaceNodeCtx {
   docs: string | null;
   deprecated: boolean;
   subitems: NamespaceNodeSubItemCtx[];
+  diff_status?: DiffStatus;
 }
 
 export interface NamespaceNodeSubItemCtx {

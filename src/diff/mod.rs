@@ -23,12 +23,18 @@ use crate::node::DocNodeKind;
 use crate::parser::ParseOutput;
 
 pub use class::ClassDiff;
+pub use class::ConstructorsDiff;
+pub use class::MethodDiff;
+pub use class::PropertyDiff;
+pub use interface::InterfaceMethodDiff;
+pub use interface::InterfacePropertyDiff;
 pub use r#enum::EnumDiff;
 pub use function::FunctionDiff;
 pub use interface::InterfaceDiff;
 pub use js_doc::JsDocDiff;
 pub use namespace::NamespaceDiff;
 pub use ts_type::TsTypeDiff;
+pub use ts_type::TypeParamsDiff;
 pub use type_alias::TypeAliasDiff;
 pub use variable::VariableDiff;
 

@@ -1,3 +1,4 @@
+use crate::html::DiffStatus;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
@@ -771,6 +772,12 @@ pub struct DocEntryCtx {
   tags: IndexSet<Tag>,
   js_doc: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_content: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_tags: Option<IndexSet<Tag>>,
 }
 
 impl DocEntryCtx {
@@ -787,6 +794,23 @@ impl DocEntryCtx {
     jsdoc: Option<&str>,
     location: &crate::Location,
   ) -> Self {
+    Self::new_with_diff(ctx, id, name, name_href, content, tags, jsdoc, location, None, None, None)
+  }
+
+  #[allow(clippy::too_many_arguments)]
+  pub fn new_with_diff(
+    ctx: &RenderContext,
+    id: Id,
+    name: Option<String>,
+    name_href: Option<String>,
+    content: &str,
+    tags: IndexSet<Tag>,
+    jsdoc: Option<&str>,
+    location: &crate::Location,
+    diff_status: Option<DiffStatus>,
+    old_content: Option<String>,
+    old_tags: Option<IndexSet<Tag>>,
+  ) -> Self {
     let maybe_jsdoc =
       jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true));
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
@@ -800,6 +824,9 @@ impl DocEntryCtx {
       tags,
       js_doc: maybe_jsdoc,
       source_href,
+      diff_status,
+      old_content,
+      old_tags,
     }
   }
 }

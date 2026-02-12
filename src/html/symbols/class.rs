@@ -1,5 +1,9 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
+use crate::diff::ClassDiff;
+use crate::diff::MethodDiff;
+use crate::diff::PropertyDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
@@ -8,6 +12,7 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -28,6 +33,23 @@ pub(crate) fn render_class(
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 
+  // Extract ClassDiff if available
+  let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    let info = diff_index.get_node_diff(
+      &doc_node.origin.specifier,
+      doc_node.get_name(),
+      doc_node.def.to_kind(),
+    )?;
+    let node_diff = info.diff.as_ref()?;
+    if let crate::diff::DocNodeDefDiff::Class(class_diff) =
+      node_diff.def_changes.as_ref()?
+    {
+      Some(class_diff)
+    } else {
+      None
+    }
+  });
+
   let class_items = partition_properties_and_classes(
     class_def.properties.clone(),
     class_def.methods.clone(),
@@ -36,7 +58,7 @@ pub(crate) fn render_class(
   let mut sections = vec![];
 
   if let Some(constructors) =
-    render_constructors(ctx, &class_def.constructors, doc_node.get_name())
+    render_constructors(ctx, &class_def.constructors, doc_node.get_name(), class_diff)
   {
     sections.push(constructors);
   }
@@ -46,61 +68,83 @@ pub(crate) fn render_class(
     &doc_node.js_doc,
     &class_def.type_params,
     &doc_node.location,
+    class_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
 
   if let Some(index_signatures) =
-    super::interface::render_index_signatures(ctx, &class_def.index_signatures)
+    render_class_index_signatures(ctx, &class_def.index_signatures, class_diff)
   {
     sections.push(index_signatures);
   }
 
-  if !class_items.static_properties.is_empty() {
+  // Collect removed static properties from diff
+  let mut static_properties = render_class_properties(
+    ctx,
+    name,
+    class_items.static_properties,
+    class_diff,
+  );
+  if let Some(diff) = class_diff {
+    inject_removed_properties(ctx, name, diff, true, &mut static_properties);
+  }
+
+  if !static_properties.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Static Properties",
-      SectionContentCtx::DocEntry(render_class_properties(
-        ctx,
-        name,
-        class_items.static_properties,
-      )),
+      SectionContentCtx::DocEntry(static_properties),
     ));
   }
 
-  if !class_items.static_methods.is_empty() {
+  let mut static_methods = render_class_methods(
+    ctx,
+    name,
+    class_items.static_methods,
+    class_diff,
+  );
+  if let Some(diff) = class_diff {
+    inject_removed_methods(ctx, name, diff, true, &mut static_methods);
+  }
+
+  if !static_methods.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Static Methods",
-      SectionContentCtx::DocEntry(render_class_methods(
-        ctx,
-        name,
-        class_items.static_methods,
-      )),
+      SectionContentCtx::DocEntry(static_methods),
     ));
   }
 
-  if !class_items.properties.is_empty() {
+  let mut properties = render_class_properties(
+    ctx,
+    name,
+    class_items.properties,
+    class_diff,
+  );
+  if let Some(diff) = class_diff {
+    inject_removed_properties(ctx, name, diff, false, &mut properties);
+  }
+
+  if !properties.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Properties",
-      SectionContentCtx::DocEntry(render_class_properties(
-        ctx,
-        name,
-        class_items.properties,
-      )),
+      SectionContentCtx::DocEntry(properties),
     ));
   }
 
-  if !class_items.methods.is_empty() {
+  let mut methods =
+    render_class_methods(ctx, name, class_items.methods, class_diff);
+  if let Some(diff) = class_diff {
+    inject_removed_methods(ctx, name, diff, false, &mut methods);
+  }
+
+  if !methods.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Methods",
-      SectionContentCtx::DocEntry(render_class_methods(
-        ctx,
-        name,
-        class_items.methods,
-      )),
+      SectionContentCtx::DocEntry(methods),
     ));
   }
 
@@ -111,12 +155,15 @@ fn render_constructors(
   ctx: &RenderContext,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
+  class_diff: Option<&ClassDiff>,
 ) -> Option<SectionCtx> {
-  if constructors.is_empty() {
+  if constructors.is_empty() && class_diff.and_then(|d| d.constructor_changes.as_ref()).map_or(true, |c| c.removed.is_empty()) {
     return None;
   }
 
-  let items = constructors
+  let constructor_changes = class_diff.and_then(|d| d.constructor_changes.as_ref());
+
+  let mut items = constructors
     .iter()
     .filter(|constructor| {
       !constructor.js_doc.tags.contains(&JsDocTag::Private)
@@ -138,7 +185,9 @@ fn render_constructors(
 
       let params = render_params(ctx, &params);
 
-      DocEntryCtx::new(
+      let diff_status = get_constructor_diff_status(constructor_changes, constructor);
+
+      DocEntryCtx::new_with_diff(
         ctx,
         id,
         Some(html_escape::encode_text(&name).into_owned()),
@@ -147,14 +196,159 @@ fn render_constructors(
         [Tag::New].into(),
         constructor.js_doc.doc.as_deref(),
         &constructor.location,
+        diff_status,
+        None,
+        None,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
+
+  // Inject removed constructors
+  if let Some(ctor_changes) = constructor_changes {
+    for removed_ctor in &ctor_changes.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Constructor)
+        .index(items.len())
+        .build();
+
+      let params = removed_ctor
+        .params
+        .iter()
+        .map(|param| param.param.clone())
+        .collect::<Vec<_>>();
+
+      let params = render_params(ctx, &params);
+
+      items.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&name).into_owned()),
+        None,
+        &format!("({params})"),
+        [Tag::New].into(),
+        None,
+        &removed_ctor.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+      ));
+    }
+  }
+
+  if items.is_empty() {
+    return None;
+  }
 
   Some(SectionCtx::new(
     ctx,
     "Constructors",
     SectionContentCtx::DocEntry(items),
+  ))
+}
+
+fn get_constructor_diff_status(
+  constructor_changes: Option<&crate::diff::ConstructorsDiff>,
+  constructor: &crate::class::ClassConstructorDef,
+) -> Option<DiffStatus> {
+  let changes = constructor_changes?;
+
+  let param_count = constructor.params.len();
+
+  if changes.added.iter().any(|c| c.params.len() == param_count) {
+    return Some(DiffStatus::Added);
+  }
+  if changes.modified.iter().any(|_m| true) {
+    // Constructors are matched by param count, and modified means the one with
+    // matching param count was changed
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn render_class_index_signatures(
+  ctx: &RenderContext,
+  index_signatures: &[crate::ts_type::IndexSignatureDef],
+  class_diff: Option<&ClassDiff>,
+) -> Option<SectionCtx> {
+  let idx_diff = class_diff.and_then(|d| d.index_signature_changes.as_ref());
+
+  if index_signatures.is_empty() && idx_diff.map_or(true, |d| d.removed.is_empty()) {
+    return None;
+  }
+
+  let mut items = Vec::with_capacity(index_signatures.len());
+
+  for (i, index_signature) in index_signatures.iter().enumerate() {
+    let id = IdBuilder::new(ctx.ctx)
+      .kind(IdKind::IndexSignature)
+      .index(i)
+      .build();
+
+    let ts_type = index_signature
+      .ts_type
+      .as_ref()
+      .map(|ts_type| crate::html::types::render_type_def_colon(ctx, ts_type))
+      .unwrap_or_default();
+
+    let diff_status = if let Some(diff) = idx_diff {
+      if diff.added.iter().any(|s| s.params.len() == index_signature.params.len() && s.readonly == index_signature.readonly) {
+        Some(DiffStatus::Added)
+      } else if !diff.modified.is_empty() && i < index_signatures.len() {
+        Some(DiffStatus::Modified)
+      } else {
+        None
+      }
+    } else {
+      None
+    };
+
+    items.push(IndexSignatureCtx {
+      id: id.clone(),
+      anchor: AnchorCtx { id },
+      readonly: index_signature.readonly,
+      params: render_params(ctx, &index_signature.params),
+      ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&index_signature.location),
+      diff_status,
+    });
+  }
+
+  // Inject removed index signatures
+  if let Some(diff) = idx_diff {
+    for removed_sig in &diff.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::IndexSignature)
+        .index(items.len())
+        .build();
+
+      let ts_type = removed_sig
+        .ts_type
+        .as_ref()
+        .map(|ts_type| crate::html::types::render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      items.push(IndexSignatureCtx {
+        id: id.clone(),
+        anchor: AnchorCtx { id },
+        readonly: removed_sig.readonly,
+        params: render_params(ctx, &removed_sig.params),
+        ts_type,
+        source_href: ctx
+          .ctx
+          .href_resolver
+          .resolve_source(&removed_sig.location),
+        diff_status: Some(DiffStatus::Removed),
+      });
+    }
+  }
+
+  Some(SectionCtx::new(
+    ctx,
+    "Index Signatures",
+    SectionContentCtx::IndexSignature(items),
   ))
 }
 
@@ -166,6 +360,8 @@ pub struct IndexSignatureCtx {
   pub params: String,
   pub ts_type: String,
   pub source_href: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<crate::html::DiffStatus>,
 }
 
 enum PropertyOrMethod {
@@ -303,6 +499,7 @@ fn render_class_accessor(
   class_name: &str,
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
+  class_diff: Option<&ClassDiff>,
 ) -> DocEntryCtx {
   let getter_or_setter = getter.or(setter).unwrap();
 
@@ -338,7 +535,14 @@ fn render_class_accessor(
     tags.insert(Tag::Writeonly);
   }
 
-  DocEntryCtx::new(
+  let diff_status = get_method_diff_status(
+    class_diff,
+    name,
+    getter_or_setter.is_static,
+    getter_or_setter.kind,
+  );
+
+  DocEntryCtx::new_with_diff(
     ctx,
     id,
     Some(html_escape::encode_text(&name).into_owned()),
@@ -351,6 +555,9 @@ fn render_class_accessor(
     tags,
     js_doc,
     &getter_or_setter.location,
+    diff_status,
+    None,
+    None,
   )
 }
 
@@ -359,6 +566,7 @@ fn render_class_method(
   class_name: &str,
   method: &ClassMethodDef,
   i: usize,
+  class_diff: Option<&ClassDiff>,
 ) -> Option<DocEntryCtx> {
   if method.function_def.has_body && i != 0 {
     return None;
@@ -381,7 +589,27 @@ fn render_class_method(
     tags.insert(Tag::Optional);
   }
 
-  Some(DocEntryCtx::new(
+  let diff_status =
+    get_method_diff_status(class_diff, &method.name, method.is_static, method.kind);
+
+  let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+    let method_diff = class_diff
+      .and_then(|d| d.method_changes.as_ref())
+      .and_then(|mc| mc.modified.iter().find(|m| &*m.name == &*method.name));
+
+    let old_content = method_diff
+      .and_then(|md| md.function_diff.as_ref())
+      .and_then(|fd| fd.return_type_change.as_ref())
+      .map(|tc| format!(": {}", &tc.old.repr));
+
+    let old_tags = method_diff.map(|md| compute_old_method_tags(&tags, md));
+
+    (old_content, old_tags)
+  } else {
+    (None, None)
+  };
+
+  Some(DocEntryCtx::new_with_diff(
     ctx,
     id,
     Some(html_escape::encode_text(&method.name).into_owned()),
@@ -394,6 +622,9 @@ fn render_class_method(
     tags,
     method.js_doc.doc.as_deref(),
     &method.location,
+    diff_status,
+    old_content,
+    old_tags,
   ))
 }
 
@@ -401,6 +632,7 @@ fn render_class_property(
   ctx: &RenderContext,
   class_name: &str,
   property: &ClassPropertyDef,
+  class_diff: Option<&ClassDiff>,
 ) -> DocEntryCtx {
   let id = IdBuilder::new(ctx.ctx)
     .kind(IdKind::Property)
@@ -427,7 +659,32 @@ fn render_class_property(
     .map(|ts_type| render_type_def_colon(ctx, ts_type))
     .unwrap_or_default();
 
-  DocEntryCtx::new(
+  let diff_status = get_property_diff_status(
+    class_diff,
+    &property.name,
+    property.is_static,
+  );
+
+  // For modified properties, render the old type and old tags
+  let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+    let prop_diff = class_diff
+      .and_then(|d| d.property_changes.as_ref())
+      .and_then(|pc| pc.modified.iter().find(|p| &*p.name == &*property.name));
+
+    let old_content = prop_diff
+      .and_then(|pd| pd.type_change.as_ref())
+      .map(|tc| format!(": {}", &tc.old.repr));
+
+    let old_tags = prop_diff.map(|pd| {
+      compute_old_property_tags(&tags, pd)
+    });
+
+    (old_content, old_tags)
+  } else {
+    (None, None)
+  };
+
+  DocEntryCtx::new_with_diff(
     ctx,
     id,
     Some(html_escape::encode_text(&property.name).into_owned()),
@@ -440,13 +697,137 @@ fn render_class_property(
     tags,
     property.js_doc.doc.as_deref(),
     &property.location,
+    diff_status,
+    old_content,
+    old_tags,
   )
+}
+
+fn get_property_diff_status(
+  class_diff: Option<&ClassDiff>,
+  name: &str,
+  is_static: bool,
+) -> Option<DiffStatus> {
+  let diff = class_diff?;
+  let prop_diff = diff.property_changes.as_ref()?;
+
+  if prop_diff.added.iter().any(|p| &*p.name == name && p.is_static == is_static) {
+    return Some(DiffStatus::Added);
+  }
+  if prop_diff.modified.iter().any(|p| &*p.name == name) {
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn get_method_diff_status(
+  class_diff: Option<&ClassDiff>,
+  name: &str,
+  is_static: bool,
+  kind: MethodKind,
+) -> Option<DiffStatus> {
+  let diff = class_diff?;
+  let method_diff = diff.method_changes.as_ref()?;
+
+  if method_diff.added.iter().any(|m| &*m.name == name && m.is_static == is_static && m.kind == kind) {
+    return Some(DiffStatus::Added);
+  }
+  if method_diff.modified.iter().any(|m| &*m.name == name) {
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn inject_removed_properties(
+  ctx: &RenderContext,
+  _class_name: &str,
+  class_diff: &ClassDiff,
+  is_static: bool,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  if let Some(prop_diff) = &class_diff.property_changes {
+    for removed_prop in &prop_diff.removed {
+      if removed_prop.is_static != is_static {
+        continue;
+      }
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Property)
+        .name(&removed_prop.name)
+        .build();
+
+      let ts_type = removed_prop
+        .ts_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      entries.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&removed_prop.name).into_owned()),
+        None,
+        &ts_type,
+        Default::default(),
+        None,
+        &removed_prop.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+      ));
+    }
+  }
+}
+
+fn inject_removed_methods(
+  ctx: &RenderContext,
+  _class_name: &str,
+  class_diff: &ClassDiff,
+  is_static: bool,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  if let Some(method_diff) = &class_diff.method_changes {
+    for removed_method in &method_diff.removed {
+      if removed_method.is_static != is_static {
+        continue;
+      }
+      // Skip getters/setters (they go in properties section)
+      if matches!(
+        removed_method.kind,
+        MethodKind::Getter | MethodKind::Setter
+      ) {
+        continue;
+      }
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Method)
+        .name(&removed_method.name)
+        .index(0)
+        .build();
+
+      entries.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&removed_method.name).into_owned()),
+        None,
+        &super::function::render_function_summary(
+          &removed_method.function_def,
+          ctx,
+        ),
+        Default::default(),
+        None,
+        &removed_method.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+      ));
+    }
+  }
 }
 
 fn render_class_properties(
   ctx: &RenderContext,
   class_name: &str,
   properties: Vec<PropertyOrMethod>,
+  class_diff: Option<&ClassDiff>,
 ) -> Vec<DocEntryCtx> {
   let mut properties = properties.into_iter().peekable();
   let mut out = vec![];
@@ -454,7 +835,7 @@ fn render_class_properties(
   while let Some(property) = properties.next() {
     let content = match property {
       PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, class_name, &property)
+        render_class_property(ctx, class_name, &property, class_diff)
       }
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
@@ -480,7 +861,7 @@ fn render_class_properties(
           (None, Some(method))
         };
 
-        render_class_accessor(ctx, class_name, getter, setter.as_ref())
+        render_class_accessor(ctx, class_name, getter, setter.as_ref(), class_diff)
       }
     };
 
@@ -494,13 +875,100 @@ fn render_class_methods(
   ctx: &RenderContext,
   class_name: &str,
   methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
+  class_diff: Option<&ClassDiff>,
 ) -> Vec<DocEntryCtx> {
   methods
     .values()
     .flat_map(|methods| {
       methods.iter().enumerate().filter_map(|(i, method)| {
-        render_class_method(ctx, class_name, method, i)
+        render_class_method(ctx, class_name, method, i, class_diff)
       })
     })
     .collect()
+}
+
+/// Reconstruct old tags for a class property by reversing modifier diffs.
+fn compute_old_property_tags(
+  current_tags: &IndexSet<Tag>,
+  diff: &PropertyDiff,
+) -> IndexSet<Tag> {
+  let mut old_tags = current_tags.clone();
+
+  // Reverse accessibility change
+  if let Some(change) = &diff.accessibility_change {
+    // Remove new accessibility tag, add old one
+    if let Some(new_tag) = Tag::from_accessibility(change.new) {
+      old_tags.swap_remove(&new_tag);
+    }
+    if let Some(old_tag) = Tag::from_accessibility(change.old) {
+      old_tags.insert(old_tag);
+    }
+  }
+
+  // Reverse readonly change
+  if let Some(change) = &diff.readonly_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Readonly);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Readonly);
+    }
+  }
+
+  // Reverse abstract change
+  if let Some(change) = &diff.is_abstract_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Abstract);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Abstract);
+    }
+  }
+
+  // Reverse optional change
+  if let Some(change) = &diff.optional_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Optional);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Optional);
+    }
+  }
+
+  old_tags
+}
+
+/// Reconstruct old tags for a class method by reversing modifier diffs.
+fn compute_old_method_tags(
+  current_tags: &IndexSet<Tag>,
+  diff: &MethodDiff,
+) -> IndexSet<Tag> {
+  let mut old_tags = current_tags.clone();
+
+  // Reverse accessibility change
+  if let Some(change) = &diff.accessibility_change {
+    if let Some(new_tag) = Tag::from_accessibility(change.new) {
+      old_tags.swap_remove(&new_tag);
+    }
+    if let Some(old_tag) = Tag::from_accessibility(change.old) {
+      old_tags.insert(old_tag);
+    }
+  }
+
+  // Reverse abstract change
+  if let Some(change) = &diff.is_abstract_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Abstract);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Abstract);
+    }
+  }
+
+  // Reverse optional change
+  if let Some(change) = &diff.optional_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Optional);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Optional);
+    }
+  }
+
+  old_tags
 }

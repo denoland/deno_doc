@@ -1,5 +1,7 @@
 use super::SymbolContentCtx;
+use crate::diff::FunctionDiff;
 use crate::function::FunctionDef;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
@@ -132,6 +134,23 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
+  // Extract FunctionDiff if available
+  let func_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    let info = diff_index.get_node_diff(
+      &doc_node.origin.specifier,
+      doc_node.get_name(),
+      doc_node.def.to_kind(),
+    )?;
+    let node_diff = info.diff.as_ref()?;
+    if let crate::diff::DocNodeDefDiff::Function(func_diff) =
+      node_diff.def_changes.as_ref()?
+    {
+      Some(func_diff)
+    } else {
+      None
+    }
+  });
+
   let param_docs = doc_node
     .js_doc
     .tags
@@ -155,7 +174,7 @@ fn render_single_function(
       (&Option<Box<str>>, bool, &Option<Box<str>>),
     >>();
 
-  let params = function_def
+  let mut params = function_def
     .params
     .iter()
     .enumerate()
@@ -210,7 +229,10 @@ fn render_single_function(
         .get(name.as_str())
         .and_then(|(doc, _, _)| doc.as_deref());
 
-      DocEntryCtx::new(
+      let (diff_status, old_content) =
+        get_param_diff_info(func_diff, i);
+
+      DocEntryCtx::new_with_diff(
         ctx,
         id,
         Some(name),
@@ -219,9 +241,17 @@ fn render_single_function(
         tags,
         param_doc,
         &doc_node.location,
+        diff_status,
+        old_content,
+        None,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
+
+  // Inject removed parameters
+  if let Some(diff) = func_diff {
+    inject_removed_params(ctx, diff, doc_node, &overload_id, &mut params);
+  }
 
   let mut sections = vec![];
 
@@ -238,6 +268,7 @@ fn render_single_function(
     &doc_node.js_doc,
     &function_def.type_params,
     &doc_node.location,
+    func_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
@@ -259,6 +290,7 @@ fn render_single_function(
         function_def,
         doc_node,
         overload_id.clone(),
+        func_diff,
       )
       .map_or_else(Default::default, |doc_entry| vec![doc_entry]),
     ),
@@ -331,6 +363,7 @@ fn render_function_return_type(
   def: &FunctionDef,
   doc_node: &DocNodeWithContext,
   overload_id: Id,
+  func_diff: Option<&FunctionDiff>,
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
@@ -347,7 +380,20 @@ fn render_function_return_type(
     }
   });
 
-  Some(DocEntryCtx::new(
+  let (diff_status, old_content) = if let Some(diff) = func_diff {
+    if let Some(return_type_change) = &diff.return_type_change {
+      (
+        Some(DiffStatus::Modified),
+        Some(return_type_change.old.repr.to_string()),
+      )
+    } else {
+      (None, None)
+    }
+  } else {
+    (None, None)
+  };
+
+  Some(DocEntryCtx::new_with_diff(
     render_ctx,
     id,
     None,
@@ -356,7 +402,88 @@ fn render_function_return_type(
     IndexSet::new(),
     return_type_doc,
     &doc_node.location,
+    diff_status,
+    old_content,
+    None,
   ))
+}
+
+fn get_param_diff_info(
+  func_diff: Option<&FunctionDiff>,
+  index: usize,
+) -> (Option<DiffStatus>, Option<String>) {
+  let diff = match func_diff {
+    Some(d) => d,
+    None => return (None, None),
+  };
+
+  let params_change = match &diff.params_change {
+    Some(pc) => pc,
+    None => return (None, None),
+  };
+
+  // Check if this param was modified
+  if let Some(param_diff) = params_change.modified.iter().find(|p| p.index == index) {
+    let old_content = param_diff
+      .type_change
+      .as_ref()
+      .map(|tc| format!(": {}", &tc.old.repr));
+    return (Some(DiffStatus::Modified), old_content);
+  }
+
+  // Params are positional, so added params are at indices >= old length.
+  // If there's a params_change and this index is beyond the original param count,
+  // it's effectively an added param. But added params are tracked separately
+  // in params_change.added which doesn't have indices — they represent new
+  // params appended beyond the old param list.
+  // Since we're iterating over new params by index, we check if this index
+  // maps to an added param.
+  let old_param_count = index + 1 - params_change.added.iter().filter(|_| true).count();
+  let _ = old_param_count; // not directly useful since added params don't have indices
+
+  (None, None)
+}
+
+fn inject_removed_params(
+  ctx: &RenderContext,
+  func_diff: &FunctionDiff,
+  doc_node: &DocNodeWithContext,
+  overload_id: &Id,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  let params_change = match &func_diff.params_change {
+    Some(pc) => pc,
+    None => return,
+  };
+
+  for removed_param in &params_change.removed {
+    let (name, str_name) = crate::html::parameters::param_name(removed_param, entries.len());
+    let id = IdBuilder::new(ctx.ctx)
+      .component(overload_id)
+      .kind(IdKind::Parameter)
+      .name(&str_name)
+      .build();
+
+    let ts_type = removed_param
+      .ts_type
+      .as_ref()
+      .map(|ts_type| render_type_def_colon(ctx, ts_type))
+      .unwrap_or_default();
+
+    entries.push(DocEntryCtx::new_with_diff(
+      ctx,
+      id,
+      Some(name),
+      None,
+      &ts_type,
+      Default::default(),
+      None,
+      &doc_node.location,
+      Some(DiffStatus::Removed),
+      None,
+      None,
+    ));
+  }
 }
 
 fn render_function_throws(

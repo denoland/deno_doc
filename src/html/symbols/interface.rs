@@ -1,3 +1,7 @@
+use crate::diff::InterfaceDiff;
+use crate::diff::InterfaceMethodDiff;
+use crate::diff::InterfacePropertyDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
@@ -5,6 +9,7 @@ use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
+use indexmap::IndexSet;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
@@ -20,6 +25,23 @@ pub(crate) fn render_interface(
     .collect::<std::collections::HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
+  // Extract InterfaceDiff if available
+  let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    let info = diff_index.get_node_diff(
+      &doc_node.origin.specifier,
+      doc_node.get_name(),
+      doc_node.def.to_kind(),
+    )?;
+    let node_diff = info.diff.as_ref()?;
+    if let crate::diff::DocNodeDefDiff::Interface(iface_diff) =
+      node_diff.def_changes.as_ref()?
+    {
+      Some(iface_diff)
+    } else {
+      None
+    }
+  });
+
   let mut sections = vec![];
 
   if let Some(type_params) = crate::html::types::render_type_params(
@@ -27,30 +49,49 @@ pub(crate) fn render_interface(
     &doc_node.js_doc,
     &interface_def.type_params,
     &doc_node.location,
+    iface_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
 
   if let Some(index_signatures) =
-    render_index_signatures(ctx, &interface_def.index_signatures)
+    render_interface_index_signatures(ctx, &interface_def.index_signatures, iface_diff)
   {
     sections.push(index_signatures);
   }
 
   if let Some(call_signatures) =
-    render_call_signatures(ctx, &interface_def.call_signatures)
+    render_interface_call_signatures(ctx, &interface_def.call_signatures, iface_diff)
   {
     sections.push(call_signatures);
   }
 
-  if let Some(properties) =
-    render_properties(ctx, name, &interface_def.properties)
-  {
-    sections.push(properties);
+  let mut properties =
+    render_properties_vec(ctx, name, &interface_def.properties, iface_diff);
+  if let Some(diff) = iface_diff {
+    inject_removed_properties(ctx, diff, &mut properties);
   }
 
-  if let Some(methods) = render_methods(ctx, name, &interface_def.methods) {
-    sections.push(methods);
+  if !properties.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Properties",
+      SectionContentCtx::DocEntry(properties),
+    ));
+  }
+
+  let mut methods =
+    render_methods_vec(ctx, name, &interface_def.methods, iface_diff);
+  if let Some(diff) = iface_diff {
+    inject_removed_methods(ctx, diff, &mut methods);
+  }
+
+  if !methods.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Methods",
+      SectionContentCtx::DocEntry(methods),
+    ));
   }
 
   sections
@@ -88,7 +129,96 @@ pub(crate) fn render_index_signatures(
         .ctx
         .href_resolver
         .resolve_source(&index_signature.location),
+      diff_status: None,
     });
+  }
+
+  Some(SectionCtx::new(
+    ctx,
+    "Index Signatures",
+    SectionContentCtx::IndexSignature(items),
+  ))
+}
+
+fn render_interface_index_signatures(
+  ctx: &RenderContext,
+  index_signatures: &[crate::ts_type::IndexSignatureDef],
+  iface_diff: Option<&InterfaceDiff>,
+) -> Option<SectionCtx> {
+  let idx_diff = iface_diff.and_then(|d| d.index_signature_changes.as_ref());
+
+  if index_signatures.is_empty() && idx_diff.map_or(true, |d| d.removed.is_empty()) {
+    return None;
+  }
+
+  let mut items = Vec::with_capacity(index_signatures.len());
+
+  for (i, index_signature) in index_signatures.iter().enumerate() {
+    let id = IdBuilder::new(ctx.ctx)
+      .kind(IdKind::IndexSignature)
+      .index(i)
+      .build();
+
+    let ts_type = index_signature
+      .ts_type
+      .as_ref()
+      .map(|ts_type| render_type_def_colon(ctx, ts_type))
+      .unwrap_or_default();
+
+    let diff_status = if let Some(diff) = idx_diff {
+      if !diff.added.is_empty() && i >= index_signatures.len() - diff.added.len() {
+        Some(DiffStatus::Added)
+      } else if diff.modified.iter().any(|_| true) && i < index_signatures.len().saturating_sub(diff.added.len()) {
+        // Position-based: modified entries are at matching positions
+        Some(DiffStatus::Modified)
+      } else {
+        None
+      }
+    } else {
+      None
+    };
+
+    items.push(IndexSignatureCtx {
+      id: id.clone(),
+      anchor: AnchorCtx { id },
+      readonly: index_signature.readonly,
+      params: render_params(ctx, &index_signature.params),
+      ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&index_signature.location),
+      diff_status,
+    });
+  }
+
+  // Inject removed index signatures
+  if let Some(diff) = idx_diff {
+    for removed_sig in &diff.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::IndexSignature)
+        .index(items.len())
+        .build();
+
+      let ts_type = removed_sig
+        .ts_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      items.push(IndexSignatureCtx {
+        id: id.clone(),
+        anchor: AnchorCtx { id },
+        readonly: removed_sig.readonly,
+        params: render_params(ctx, &removed_sig.params),
+        ts_type,
+        source_href: ctx
+          .ctx
+          .href_resolver
+          .resolve_source(&removed_sig.location),
+        diff_status: Some(DiffStatus::Removed),
+      });
+    }
   }
 
   Some(SectionCtx::new(
@@ -147,16 +277,225 @@ pub(crate) fn render_call_signatures(
   ))
 }
 
-pub(crate) fn render_properties(
+fn render_interface_call_signatures(
   ctx: &RenderContext,
-  interface_name: &str,
-  properties: &[crate::ts_type::PropertyDef],
+  call_signatures: &[crate::ts_type::CallSignatureDef],
+  iface_diff: Option<&InterfaceDiff>,
 ) -> Option<SectionCtx> {
-  if properties.is_empty() {
+  let cs_diff = iface_diff.and_then(|d| d.call_signature_changes.as_ref());
+
+  if call_signatures.is_empty() && cs_diff.map_or(true, |d| d.removed.is_empty()) {
     return None;
   }
 
-  let items = properties
+  let mut items = call_signatures
+    .iter()
+    .enumerate()
+    .map(|(i, call_signature)| {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::CallSignature)
+        .index(i)
+        .build();
+
+      let ts_type = call_signature
+        .ts_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      let tags = Tag::from_js_doc(&call_signature.js_doc);
+
+      let diff_status = if let Some(diff) = cs_diff {
+        if !diff.added.is_empty() && i >= call_signatures.len() - diff.added.len() {
+          Some(DiffStatus::Added)
+        } else if !diff.modified.is_empty() && i < call_signatures.len().saturating_sub(diff.added.len()) {
+          Some(DiffStatus::Modified)
+        } else {
+          None
+        }
+      } else {
+        None
+      };
+
+      DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "{}({}){ts_type}",
+          type_params_summary(ctx, &call_signature.type_params),
+          render_params(ctx, &call_signature.params),
+        ),
+        tags,
+        call_signature.js_doc.doc.as_deref(),
+        &call_signature.location,
+        diff_status,
+        None,
+        None,
+      )
+    })
+    .collect::<Vec<DocEntryCtx>>();
+
+  // Inject removed call signatures
+  if let Some(diff) = cs_diff {
+    for removed_sig in &diff.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::CallSignature)
+        .index(items.len())
+        .build();
+
+      let ts_type = removed_sig
+        .ts_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      items.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "{}({}){ts_type}",
+          type_params_summary(ctx, &removed_sig.type_params),
+          render_params(ctx, &removed_sig.params),
+        ),
+        Default::default(),
+        None,
+        &removed_sig.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+      ));
+    }
+  }
+
+  if items.is_empty() {
+    return None;
+  }
+
+  Some(SectionCtx::new(
+    ctx,
+    "Call Signatures",
+    SectionContentCtx::DocEntry(items),
+  ))
+}
+
+fn get_property_diff_status(
+  iface_diff: Option<&InterfaceDiff>,
+  name: &str,
+) -> Option<DiffStatus> {
+  let diff = iface_diff?;
+  let prop_diff = diff.property_changes.as_ref()?;
+
+  if prop_diff.added.iter().any(|p| &*p.name == name) {
+    return Some(DiffStatus::Added);
+  }
+  if prop_diff.modified.iter().any(|p| &*p.name == name) {
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn get_method_diff_status(
+  iface_diff: Option<&InterfaceDiff>,
+  name: &str,
+) -> Option<DiffStatus> {
+  let diff = iface_diff?;
+  let method_diff = diff.method_changes.as_ref()?;
+
+  if method_diff.added.iter().any(|m| &*m.name == name) {
+    return Some(DiffStatus::Added);
+  }
+  if method_diff.modified.iter().any(|m| &*m.name == name) {
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn inject_removed_properties(
+  ctx: &RenderContext,
+  iface_diff: &InterfaceDiff,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  if let Some(prop_diff) = &iface_diff.property_changes {
+    for removed_prop in &prop_diff.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Property)
+        .name(&removed_prop.name)
+        .build();
+
+      let ts_type = removed_prop
+        .ts_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      entries.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&removed_prop.name).into_owned()),
+        None,
+        &ts_type,
+        Default::default(),
+        None,
+        &removed_prop.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+      ));
+    }
+  }
+}
+
+fn inject_removed_methods(
+  ctx: &RenderContext,
+  iface_diff: &InterfaceDiff,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  if let Some(method_diff) = &iface_diff.method_changes {
+    for removed_method in &method_diff.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Method)
+        .name(&removed_method.name)
+        .index(0)
+        .build();
+
+      let return_type = removed_method
+        .return_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      entries.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&removed_method.name).into_owned()),
+        None,
+        &format!(
+          "{}({}){return_type}",
+          type_params_summary(ctx, &removed_method.type_params),
+          render_params(ctx, &removed_method.params)
+        ),
+        Default::default(),
+        None,
+        &removed_method.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+      ));
+    }
+  }
+}
+
+fn render_properties_vec(
+  ctx: &RenderContext,
+  interface_name: &str,
+  properties: &[crate::ts_type::PropertyDef],
+  iface_diff: Option<&InterfaceDiff>,
+) -> Vec<DocEntryCtx> {
+  properties
     .iter()
     .map(|property| {
       let id = IdBuilder::new(ctx.ctx)
@@ -193,7 +532,29 @@ pub(crate) fn render_properties(
         tags.insert(Tag::Optional);
       }
 
-      DocEntryCtx::new(
+      let diff_status = get_property_diff_status(iface_diff, &property.name);
+
+      let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let prop_diff = iface_diff
+          .and_then(|d| d.property_changes.as_ref())
+          .and_then(|pc| {
+            pc.modified.iter().find(|p| &*p.name == &*property.name)
+          });
+
+        let old_content = prop_diff
+          .and_then(|pd| pd.type_change.as_ref())
+          .map(|tc| format!(": {}", &tc.old.repr));
+
+        let old_tags = prop_diff.map(|pd| {
+          compute_old_iface_property_tags(&tags, pd)
+        });
+
+        (old_content, old_tags)
+      } else {
+        (None, None)
+      };
+
+      DocEntryCtx::new_with_diff(
         ctx,
         id,
         Some(if property.computed {
@@ -210,27 +571,21 @@ pub(crate) fn render_properties(
         tags,
         property.js_doc.doc.as_deref(),
         &property.location,
+        diff_status,
+        old_content,
+        old_tags,
       )
     })
-    .collect::<Vec<DocEntryCtx>>();
-
-  Some(SectionCtx::new(
-    ctx,
-    "Properties",
-    SectionContentCtx::DocEntry(items),
-  ))
+    .collect()
 }
 
-pub(crate) fn render_methods(
+fn render_methods_vec(
   ctx: &RenderContext,
   interface_name: &str,
   methods: &[crate::ts_type::MethodDef],
-) -> Option<SectionCtx> {
-  if methods.is_empty() {
-    return None;
-  }
-
-  let items = methods
+  iface_diff: Option<&InterfaceDiff>,
+) -> Vec<DocEntryCtx> {
+  methods
     .iter()
     .enumerate()
     .map(|(i, method)| {
@@ -259,7 +614,25 @@ pub(crate) fn render_methods(
         tags.insert(Tag::Optional);
       }
 
-      DocEntryCtx::new(
+      let diff_status = get_method_diff_status(iface_diff, &method.name);
+
+      let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let method_diff = iface_diff
+          .and_then(|d| d.method_changes.as_ref())
+          .and_then(|mc| mc.modified.iter().find(|m| m.name == *method.name));
+
+        let old_content = method_diff
+          .and_then(|md| md.return_type_change.as_ref())
+          .map(|tc| format!(": {}", &tc.old.repr));
+
+        let old_tags = method_diff.map(|md| compute_old_iface_method_tags(&tags, md));
+
+        (old_content, old_tags)
+      } else {
+        (None, None)
+      };
+
+      DocEntryCtx::new_with_diff(
         ctx,
         id,
         Some(name),
@@ -276,13 +649,93 @@ pub(crate) fn render_methods(
         tags,
         method.js_doc.doc.as_deref(),
         &method.location,
+        diff_status,
+        old_content,
+        old_tags,
       )
     })
-    .collect::<Vec<DocEntryCtx>>();
+    .collect()
+}
+
+pub(crate) fn render_properties(
+  ctx: &RenderContext,
+  interface_name: &str,
+  properties: &[crate::ts_type::PropertyDef],
+) -> Option<SectionCtx> {
+  if properties.is_empty() {
+    return None;
+  }
+
+  let items = render_properties_vec(ctx, interface_name, properties, None);
+
+  Some(SectionCtx::new(
+    ctx,
+    "Properties",
+    SectionContentCtx::DocEntry(items),
+  ))
+}
+
+pub(crate) fn render_methods(
+  ctx: &RenderContext,
+  interface_name: &str,
+  methods: &[crate::ts_type::MethodDef],
+) -> Option<SectionCtx> {
+  if methods.is_empty() {
+    return None;
+  }
+
+  let items = render_methods_vec(ctx, interface_name, methods, None);
 
   Some(SectionCtx::new(
     ctx,
     "Methods",
     SectionContentCtx::DocEntry(items),
   ))
+}
+
+/// Reconstruct old tags for an interface property by reversing modifier diffs.
+fn compute_old_iface_property_tags(
+  current_tags: &IndexSet<Tag>,
+  diff: &InterfacePropertyDiff,
+) -> IndexSet<Tag> {
+  let mut old_tags = current_tags.clone();
+
+  // Reverse readonly change
+  if let Some(change) = &diff.readonly_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Readonly);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Readonly);
+    }
+  }
+
+  // Reverse optional change
+  if let Some(change) = &diff.optional_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Optional);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Optional);
+    }
+  }
+
+  old_tags
+}
+
+/// Reconstruct old tags for an interface method by reversing modifier diffs.
+fn compute_old_iface_method_tags(
+  current_tags: &IndexSet<Tag>,
+  diff: &InterfaceMethodDiff,
+) -> IndexSet<Tag> {
+  let mut old_tags = current_tags.clone();
+
+  // Reverse optional change
+  if let Some(change) = &diff.optional_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Optional);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Optional);
+    }
+  }
+
+  old_tags
 }

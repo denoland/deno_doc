@@ -1,3 +1,4 @@
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::html::jsdoc::ModuleDocCtx;
@@ -40,6 +41,8 @@ struct SymbolCtx {
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl SymbolGroupCtx {
@@ -161,9 +164,14 @@ impl SymbolGroupCtx {
       })
       .collect::<Vec<_>>();
 
+    let diff_status = doc_nodes
+      .iter()
+      .find_map(|n| n.diff_status.clone());
+
     SymbolGroupCtx {
       name: name.to_string(),
       symbols,
+      diff_status,
     }
   }
 }
@@ -182,9 +190,25 @@ pub enum DocBlockSubtitleCtx {
   Class {
     implements: Option<Vec<String>>,
     extends: Option<DocBlockClassSubtitleExtendsCtx>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_abstract_change: Option<crate::diff::Change<bool>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    extends_change: Option<crate::diff::Change<Option<Box<str>>>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    implements_added: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    implements_removed: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    super_type_params_added: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    super_type_params_removed: Option<Vec<String>>,
   },
   Interface {
     extends: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    extends_added: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    extends_removed: Option<Vec<String>>,
   },
 }
 
@@ -202,6 +226,23 @@ impl DocBlockSubtitleCtx {
           .collect::<HashSet<&str>>();
 
         let ctx = &ctx.with_current_type_params(current_type_params);
+
+        // Extract ClassDiff for subtitle annotations
+        let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+          let info = diff_index.get_node_diff(
+            &doc_node.origin.specifier,
+            doc_node.get_name(),
+            doc_node.def.to_kind(),
+          )?;
+          let node_diff = info.diff.as_ref()?;
+          if let crate::diff::DocNodeDefDiff::Class(class_diff) =
+            node_diff.def_changes.as_ref()?
+          {
+            Some(class_diff)
+          } else {
+            None
+          }
+        });
 
         let mut class_implements = None;
         let mut class_extends = None;
@@ -227,13 +268,72 @@ impl DocBlockSubtitleCtx {
           });
         }
 
+        let is_abstract_change = class_diff.and_then(|d| d.is_abstract_change.clone());
+        let extends_change = class_diff.and_then(|d| d.extends_change.clone());
+
+        let implements_added = class_diff
+          .and_then(|d| d.implements_change.as_ref())
+          .map(|ic| ic.added.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .filter(|v| !v.is_empty());
+
+        let implements_removed = class_diff
+          .and_then(|d| d.implements_change.as_ref())
+          .map(|ic| ic.removed.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .filter(|v| !v.is_empty());
+
+        let super_type_params_added = class_diff
+          .and_then(|d| d.super_type_params_change.as_ref())
+          .map(|stpc| stpc.added.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .filter(|v| !v.is_empty());
+
+        let super_type_params_removed = class_diff
+          .and_then(|d| d.super_type_params_change.as_ref())
+          .map(|stpc| stpc.removed.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .filter(|v| !v.is_empty());
+
         Some(DocBlockSubtitleCtx::Class {
           implements: class_implements,
           extends: class_extends,
+          is_abstract_change,
+          extends_change,
+          implements_added,
+          implements_removed,
+          super_type_params_added,
+          super_type_params_removed,
         })
       }
       DocNodeDef::Interface { interface_def } => {
-        if interface_def.extends.is_empty() {
+        // Extract InterfaceDiff for subtitle annotations
+        let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+          let info = diff_index.get_node_diff(
+            &doc_node.origin.specifier,
+            doc_node.get_name(),
+            doc_node.def.to_kind(),
+          )?;
+          let node_diff = info.diff.as_ref()?;
+          if let crate::diff::DocNodeDefDiff::Interface(iface_diff) =
+            node_diff.def_changes.as_ref()?
+          {
+            Some(iface_diff)
+          } else {
+            None
+          }
+        });
+
+        let extends_added = iface_diff
+          .and_then(|d| d.extends_change.as_ref())
+          .map(|ec| ec.added.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .filter(|v| !v.is_empty());
+
+        let extends_removed = iface_diff
+          .and_then(|d| d.extends_change.as_ref())
+          .map(|ec| ec.removed.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .filter(|v| !v.is_empty());
+
+        let has_extends = !interface_def.extends.is_empty();
+        let has_diff = extends_added.is_some() || extends_removed.is_some();
+
+        if !has_extends && !has_diff {
           return None;
         }
 
@@ -250,7 +350,11 @@ impl DocBlockSubtitleCtx {
           .map(|extend| render_type_def(ctx, extend))
           .collect::<Vec<String>>();
 
-        Some(DocBlockSubtitleCtx::Interface { extends })
+        Some(DocBlockSubtitleCtx::Interface {
+          extends,
+          extends_added,
+          extends_removed,
+        })
       }
       _ => None,
     }

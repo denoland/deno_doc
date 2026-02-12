@@ -1,3 +1,5 @@
+use crate::diff::VariableDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::interface::render_call_signatures;
@@ -17,6 +19,23 @@ pub(crate) fn render_variable(
   let Some(ts_type) = &variable_def.ts_type else {
     return vec![];
   };
+
+  // Extract VariableDiff if available
+  let var_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    let info = diff_index.get_node_diff(
+      &doc_node.origin.specifier,
+      doc_node.get_name(),
+      doc_node.def.to_kind(),
+    )?;
+    let node_diff = info.diff.as_ref()?;
+    if let crate::diff::DocNodeDefDiff::Variable(var_diff) =
+      node_diff.def_changes.as_ref()?
+    {
+      Some(var_diff)
+    } else {
+      None
+    }
+  });
 
   let id = IdBuilder::new(ctx.ctx)
     .kind(IdKind::Variable)
@@ -48,10 +67,13 @@ pub(crate) fn render_variable(
       sections.push(methods);
     }
   } else {
+    let (diff_status, old_content) =
+      get_type_diff_info(var_diff);
+
     sections.push(SectionCtx::new(
       ctx,
       "Type",
-      SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
+      SectionContentCtx::DocEntry(vec![DocEntryCtx::new_with_diff(
         ctx,
         id,
         None,
@@ -60,9 +82,30 @@ pub(crate) fn render_variable(
         Default::default(),
         None,
         &doc_node.location,
+        diff_status,
+        old_content,
+        None,
       )]),
     ));
   }
 
   sections
+}
+
+fn get_type_diff_info(
+  var_diff: Option<&VariableDiff>,
+) -> (Option<DiffStatus>, Option<String>) {
+  let diff = match var_diff {
+    Some(d) => d,
+    None => return (None, None),
+  };
+
+  if let Some(ts_type_change) = &diff.ts_type_change {
+    (
+      Some(DiffStatus::Modified),
+      Some(ts_type_change.old.repr.to_string()),
+    )
+  } else {
+    (None, None)
+  }
 }

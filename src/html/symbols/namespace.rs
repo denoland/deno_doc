@@ -1,3 +1,4 @@
+use crate::html::DiffStatus;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::MethodKind;
@@ -111,6 +112,8 @@ pub struct NamespaceNodeCtx {
   pub docs: Option<String>,
   pub deprecated: bool,
   pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl NamespaceNodeCtx {
@@ -192,6 +195,8 @@ impl NamespaceNodeCtx {
 
     subitems.sort();
 
+    let diff_status = nodes[0].diff_status.clone();
+
     NamespaceNodeCtx {
       id: id.clone(),
       anchor: AnchorCtx { id },
@@ -203,6 +208,7 @@ impl NamespaceNodeCtx {
       docs,
       deprecated: all_deprecated(&nodes.iter().collect::<Vec<_>>()),
       subitems,
+      diff_status,
     }
   }
 }

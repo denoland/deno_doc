@@ -1,3 +1,5 @@
+use crate::diff::TypeAliasDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::interface::render_call_signatures;
@@ -22,6 +24,23 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
+  // Extract TypeAliasDiff if available
+  let ta_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    let info = diff_index.get_node_diff(
+      &doc_node.origin.specifier,
+      doc_node.get_name(),
+      doc_node.def.to_kind(),
+    )?;
+    let node_diff = info.diff.as_ref()?;
+    if let crate::diff::DocNodeDefDiff::TypeAlias(ta_diff) =
+      node_diff.def_changes.as_ref()?
+    {
+      Some(ta_diff)
+    } else {
+      None
+    }
+  });
+
   let id = IdBuilder::new(ctx.ctx)
     .kind(IdKind::TypeAlias)
     .name(name)
@@ -34,6 +53,7 @@ pub(crate) fn render_type_alias(
     &doc_node.js_doc,
     &type_alias_def.type_params,
     &doc_node.location,
+    ta_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
@@ -61,10 +81,13 @@ pub(crate) fn render_type_alias(
       sections.push(methods);
     }
   } else {
+    let (diff_status, old_content) =
+      get_type_diff_info(ta_diff);
+
     sections.push(SectionCtx::new(
       ctx,
       "Definition",
-      SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
+      SectionContentCtx::DocEntry(vec![DocEntryCtx::new_with_diff(
         ctx,
         id,
         None,
@@ -73,9 +96,30 @@ pub(crate) fn render_type_alias(
         Default::default(),
         None,
         &doc_node.location,
+        diff_status,
+        old_content,
+        None,
       )]),
     ));
   }
 
   sections
+}
+
+fn get_type_diff_info(
+  ta_diff: Option<&TypeAliasDiff>,
+) -> (Option<DiffStatus>, Option<String>) {
+  let diff = match ta_diff {
+    Some(d) => d,
+    None => return (None, None),
+  };
+
+  if let Some(ts_type_change) = &diff.ts_type_change {
+    (
+      Some(DiffStatus::Modified),
+      Some(ts_type_change.old.repr.to_string()),
+    )
+  } else {
+    (None, None)
+  }
 }
