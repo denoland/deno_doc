@@ -1,3 +1,4 @@
+use crate::diff::InterfaceConstructorsDiff;
 use crate::diff::InterfaceDiff;
 use crate::diff::InterfaceMethodDiff;
 use crate::diff::InterfacePropertyDiff;
@@ -58,6 +59,12 @@ pub(crate) fn render_interface(
     render_interface_index_signatures(ctx, &interface_def.index_signatures, iface_diff)
   {
     sections.push(index_signatures);
+  }
+
+  if let Some(constructors) =
+    render_interface_constructors(ctx, &interface_def.constructors, iface_diff)
+  {
+    sections.push(constructors);
   }
 
   if let Some(call_signatures) =
@@ -130,6 +137,8 @@ pub(crate) fn render_index_signatures(
         .href_resolver
         .resolve_source(&index_signature.location),
       diff_status: None,
+      old_readonly: None,
+      old_ts_type: None,
     });
   }
 
@@ -178,6 +187,19 @@ fn render_interface_index_signatures(
       None
     };
 
+    let (old_readonly, old_ts_type) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+      let sig_diff = idx_diff.and_then(|d| d.modified.first());
+      let old_readonly = sig_diff
+        .and_then(|sd| sd.readonly_change.as_ref())
+        .map(|c| c.old);
+      let old_ts_type = sig_diff
+        .and_then(|sd| sd.type_change.as_ref())
+        .map(|tc| format!(": {}", &tc.old.repr));
+      (old_readonly, old_ts_type)
+    } else {
+      (None, None)
+    };
+
     items.push(IndexSignatureCtx {
       id: id.clone(),
       anchor: AnchorCtx { id },
@@ -189,6 +211,8 @@ fn render_interface_index_signatures(
         .href_resolver
         .resolve_source(&index_signature.location),
       diff_status,
+      old_readonly,
+      old_ts_type,
     });
   }
 
@@ -217,6 +241,8 @@ fn render_interface_index_signatures(
           .href_resolver
           .resolve_source(&removed_sig.location),
         diff_status: Some(DiffStatus::Removed),
+        old_readonly: None,
+        old_ts_type: None,
       });
     }
   }
@@ -317,6 +343,18 @@ fn render_interface_call_signatures(
         None
       };
 
+      let (old_content, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let sig_diff = cs_diff.and_then(|d| d.modified.first());
+        let old_content = sig_diff
+          .and_then(|sd| sd.ts_type_change.as_ref())
+          .map(|tc| format!(": {}", &tc.old.repr));
+        let js_doc_changed = sig_diff
+          .and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
+        (old_content, js_doc_changed)
+      } else {
+        (None, None)
+      };
+
       DocEntryCtx::new_with_diff(
         ctx,
         id,
@@ -332,7 +370,9 @@ fn render_interface_call_signatures(
         &call_signature.location,
         diff_status,
         None,
+        old_content,
         None,
+        js_doc_changed,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -367,6 +407,8 @@ fn render_interface_call_signatures(
         Some(DiffStatus::Removed),
         None,
         None,
+        None,
+        None,
       ));
     }
   }
@@ -380,6 +422,133 @@ fn render_interface_call_signatures(
     "Call Signatures",
     SectionContentCtx::DocEntry(items),
   ))
+}
+
+fn render_interface_constructors(
+  ctx: &RenderContext,
+  constructors: &[crate::ts_type::ConstructorDef],
+  iface_diff: Option<&InterfaceDiff>,
+) -> Option<SectionCtx> {
+  let ctor_diff = iface_diff.and_then(|d| d.constructor_changes.as_ref());
+
+  if constructors.is_empty() && ctor_diff.map_or(true, |d| d.removed.is_empty()) {
+    return None;
+  }
+
+  let mut items = constructors
+    .iter()
+    .enumerate()
+    .map(|(i, constructor)| {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Constructor)
+        .index(i)
+        .build();
+
+      let return_type = constructor
+        .return_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      let tags = Tag::from_js_doc(&constructor.js_doc);
+
+      let diff_status = get_constructor_diff_status(ctor_diff, constructor);
+
+      let (old_content, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let cd = ctor_diff.and_then(|cc| cc.modified.iter().find(|_| true));
+        let old_content = cd
+          .and_then(|cd| cd.return_type_change.as_ref())
+          .map(|tc| format!(": {}", &tc.old.repr));
+        let js_doc_changed = cd
+          .and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
+        (old_content, js_doc_changed)
+      } else {
+        (None, None)
+      };
+
+      DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "new {}({}){return_type}",
+          type_params_summary(ctx, &constructor.type_params),
+          render_params(ctx, &constructor.params),
+        ),
+        tags,
+        constructor.js_doc.doc.as_deref(),
+        &constructor.location,
+        diff_status,
+        None,
+        old_content,
+        None,
+        js_doc_changed,
+      )
+    })
+    .collect::<Vec<DocEntryCtx>>();
+
+  // Inject removed constructors
+  if let Some(diff) = ctor_diff {
+    for removed_ctor in &diff.removed {
+      let id = IdBuilder::new(ctx.ctx)
+        .kind(IdKind::Constructor)
+        .index(items.len())
+        .build();
+
+      let return_type = removed_ctor
+        .return_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      items.push(DocEntryCtx::new_with_diff(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "new {}({}){return_type}",
+          type_params_summary(ctx, &removed_ctor.type_params),
+          render_params(ctx, &removed_ctor.params),
+        ),
+        Default::default(),
+        None,
+        &removed_ctor.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+        None,
+        None,
+      ));
+    }
+  }
+
+  if items.is_empty() {
+    return None;
+  }
+
+  Some(SectionCtx::new(
+    ctx,
+    "Constructors",
+    SectionContentCtx::DocEntry(items),
+  ))
+}
+
+fn get_constructor_diff_status(
+  ctor_diff: Option<&InterfaceConstructorsDiff>,
+  constructor: &crate::ts_type::ConstructorDef,
+) -> Option<DiffStatus> {
+  let changes = ctor_diff?;
+  let param_count = constructor.params.len();
+
+  if changes.added.iter().any(|c| c.params.len() == param_count) {
+    return Some(DiffStatus::Added);
+  }
+  if changes.modified.iter().any(|_| true) {
+    return Some(DiffStatus::Modified);
+  }
+  None
 }
 
 fn get_property_diff_status(
@@ -444,6 +613,8 @@ fn inject_removed_properties(
         Some(DiffStatus::Removed),
         None,
         None,
+        None,
+        None,
       ));
     }
   }
@@ -482,6 +653,8 @@ fn inject_removed_methods(
         None,
         &removed_method.location,
         Some(DiffStatus::Removed),
+        None,
+        None,
         None,
         None,
       ));
@@ -534,7 +707,7 @@ fn render_properties_vec(
 
       let diff_status = get_property_diff_status(iface_diff, &property.name);
 
-      let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+      let (old_content, old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
         let prop_diff = iface_diff
           .and_then(|d| d.property_changes.as_ref())
           .and_then(|pc| {
@@ -549,9 +722,11 @@ fn render_properties_vec(
           compute_old_iface_property_tags(&tags, pd)
         });
 
-        (old_content, old_tags)
+        let js_doc_changed = prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
+
+        (old_content, old_tags, js_doc_changed)
       } else {
-        (None, None)
+        (None, None, None)
       };
 
       DocEntryCtx::new_with_diff(
@@ -572,8 +747,10 @@ fn render_properties_vec(
         property.js_doc.doc.as_deref(),
         &property.location,
         diff_status,
+        None,
         old_content,
         old_tags,
+        js_doc_changed,
       )
     })
     .collect()
@@ -616,7 +793,7 @@ fn render_methods_vec(
 
       let diff_status = get_method_diff_status(iface_diff, &method.name);
 
-      let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+      let (old_content, old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
         let method_diff = iface_diff
           .and_then(|d| d.method_changes.as_ref())
           .and_then(|mc| mc.modified.iter().find(|m| m.name == *method.name));
@@ -627,9 +804,11 @@ fn render_methods_vec(
 
         let old_tags = method_diff.map(|md| compute_old_iface_method_tags(&tags, md));
 
-        (old_content, old_tags)
+        let js_doc_changed = method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+
+        (old_content, old_tags, js_doc_changed)
       } else {
-        (None, None)
+        (None, None, None)
       };
 
       DocEntryCtx::new_with_diff(
@@ -650,8 +829,10 @@ fn render_methods_vec(
         method.js_doc.doc.as_deref(),
         &method.location,
         diff_status,
+        None,
         old_content,
         old_tags,
+        js_doc_changed,
       )
     })
     .collect()

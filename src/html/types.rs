@@ -753,7 +753,9 @@ pub(crate) fn render_type_params(
       type_param_docs.get(type_param.name.as_str()).cloned(),
       location,
       diff_status,
+      None,
       old_content,
+      None,
       None,
     );
 
@@ -800,6 +802,8 @@ pub(crate) fn render_type_params(
         None,
         location,
         Some(crate::html::DiffStatus::Removed),
+        None,
+        None,
         None,
         None,
       ));

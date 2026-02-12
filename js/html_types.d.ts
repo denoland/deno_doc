@@ -332,8 +332,10 @@ export interface DocEntryCtx {
   js_doc: string | null;
   source_href: string | null;
   diff_status?: DiffStatus;
+  old_name?: string;
   old_content?: string;
   old_tags?: Tag[];
+  js_doc_changed?: boolean;
 }
 
 export interface ExampleCtx {
@@ -352,6 +354,8 @@ export interface IndexSignatureCtx {
   ts_type: string;
   source_href: string | null;
   diff_status?: DiffStatus;
+  old_readonly?: boolean;
+  old_ts_type?: string;
 }
 
 export interface NamespaceNodeCtx {

@@ -23,9 +23,11 @@ use crate::node::DocNodeKind;
 use crate::parser::ParseOutput;
 
 pub use class::ClassDiff;
+pub use class::ConstructorDiff;
 pub use class::ConstructorsDiff;
 pub use class::MethodDiff;
 pub use class::PropertyDiff;
+pub use interface::InterfaceConstructorsDiff;
 pub use interface::InterfaceMethodDiff;
 pub use interface::InterfacePropertyDiff;
 pub use r#enum::EnumDiff;

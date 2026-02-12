@@ -97,7 +97,9 @@ pub(crate) fn render_type_alias(
         None,
         &doc_node.location,
         diff_status,
+        None,
         old_content,
+        None,
         None,
       )]),
     ));

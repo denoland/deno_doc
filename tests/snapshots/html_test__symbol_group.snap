@@ -2371,6 +2371,33 @@ expression: files
                   },
                   {
                     "header": {
+                      "title": "Constructors",
+                      "anchor": {
+                        "id": "constructors"
+                      },
+                      "href": null,
+                      "doc": null
+                    },
+                    "content": {
+                      "kind": "doc_entry",
+                      "content": [
+                        {
+                          "id": "constructor_0",
+                          "name": null,
+                          "name_href": null,
+                          "content": "new <span>&lt;<span><span class=\"td-tp\">T</span><span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span></span><span>, </span><span><span class=\"td-tp\">E</span><span><span class=\"td-kw\"> extends </span><a href=\"#type_param_T\" class=\"link td-ref\">T</a></span></span><span>, </span><span><span class=\"td-tp\">R</span><span><span> = </span><span class=\"td-kw\">number</span></span></span>&gt;</span>()<span>: <a href=\"../././~/Hello.html\" class=\"link td-ref\">Hello</a>&lt;<a href=\"#type_param_T\" class=\"link td-ref\">T</a><span>, </span><a href=\"#type_param_E\" class=\"link td-ref\">E</a><span>, </span><a href=\"#type_param_R\" class=\"link td-ref\">R</a>&gt;</span>",
+                          "anchor": {
+                            "id": "constructor_0"
+                          },
+                          "tags": [],
+                          "js_doc": null,
+                          "source_href": null
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "header": {
                       "title": "Call Signatures",
                       "anchor": {
                         "id": "call-signatures"
@@ -2573,7 +2600,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li><li><a href=\"#type_param_e\" title=\"E\">E</a></li><li><a href=\"#type_param_r\" title=\"R\">R</a></li></ul></li><li><a href=\"#call-signatures\" title=\"Call Signatures\">Call Signatures</a></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li><li><a href=\"#property_test\" title=\"test\">test</a></li><li><a href=\"#property_ab\" title=\"[ab]\">[ab]</a></li><li><a href=\"#property_x\" title=\"x\">x</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_optionalmethod_0\" title=\"optionalMethod\">optionalMethod</a></li><li><a href=\"#method_computedmethod_1\" title=\"[computedMethod]\">[computedMethod]</a></li></ul></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li><li><a href=\"#type_param_e\" title=\"E\">E</a></li><li><a href=\"#type_param_r\" title=\"R\">R</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><a href=\"#call-signatures\" title=\"Call Signatures\">Call Signatures</a></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_world\" title=\"world\">world</a></li><li><a href=\"#property_test\" title=\"test\">test</a></li><li><a href=\"#property_ab\" title=\"[ab]\">[ab]</a></li><li><a href=\"#property_x\" title=\"x\">x</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_optionalmethod_0\" title=\"optionalMethod\">optionalMethod</a></li><li><a href=\"#method_computedmethod_1\" title=\"[computedMethod]\">[computedMethod]</a></li></ul></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -2594,6 +2621,11 @@ expression: files
           "level": 2,
           "content": "R",
           "anchor": "type_param_r"
+        },
+        {
+          "level": 1,
+          "content": "Constructors",
+          "anchor": "constructors"
         },
         {
           "level": 1,

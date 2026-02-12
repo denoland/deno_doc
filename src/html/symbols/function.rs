@@ -229,7 +229,7 @@ fn render_single_function(
         .get(name.as_str())
         .and_then(|(doc, _, _)| doc.as_deref());
 
-      let (diff_status, old_content) =
+      let (diff_status, old_name, old_content) =
         get_param_diff_info(func_diff, i);
 
       DocEntryCtx::new_with_diff(
@@ -242,7 +242,9 @@ fn render_single_function(
         param_doc,
         &doc_node.location,
         diff_status,
+        old_name,
         old_content,
+        None,
         None,
       )
     })
@@ -403,7 +405,9 @@ fn render_function_return_type(
     return_type_doc,
     &doc_node.location,
     diff_status,
+    None,
     old_content,
+    None,
     None,
   ))
 }
@@ -411,37 +415,34 @@ fn render_function_return_type(
 fn get_param_diff_info(
   func_diff: Option<&FunctionDiff>,
   index: usize,
-) -> (Option<DiffStatus>, Option<String>) {
+) -> (Option<DiffStatus>, Option<String>, Option<String>) {
   let diff = match func_diff {
     Some(d) => d,
-    None => return (None, None),
+    None => return (None, None, None),
   };
 
   let params_change = match &diff.params_change {
     Some(pc) => pc,
-    None => return (None, None),
+    None => return (None, None, None),
   };
 
   // Check if this param was modified
   if let Some(param_diff) = params_change.modified.iter().find(|p| p.index == index) {
+    let old_name = param_diff
+      .pattern_change
+      .as_ref()
+      .map(|pc| {
+        let (name, _) = crate::html::parameters::param_name(&pc.old, index);
+        name
+      });
     let old_content = param_diff
       .type_change
       .as_ref()
       .map(|tc| format!(": {}", &tc.old.repr));
-    return (Some(DiffStatus::Modified), old_content);
+    return (Some(DiffStatus::Modified), old_name, old_content);
   }
 
-  // Params are positional, so added params are at indices >= old length.
-  // If there's a params_change and this index is beyond the original param count,
-  // it's effectively an added param. But added params are tracked separately
-  // in params_change.added which doesn't have indices — they represent new
-  // params appended beyond the old param list.
-  // Since we're iterating over new params by index, we check if this index
-  // maps to an added param.
-  let old_param_count = index + 1 - params_change.added.iter().filter(|_| true).count();
-  let _ = old_param_count; // not directly useful since added params don't have indices
-
-  (None, None)
+  (None, None, None)
 }
 
 fn inject_removed_params(
@@ -480,6 +481,8 @@ fn inject_removed_params(
       None,
       &doc_node.location,
       Some(DiffStatus::Removed),
+      None,
+      None,
       None,
       None,
     ));

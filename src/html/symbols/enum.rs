@@ -44,6 +44,19 @@ pub(crate) fn render_enum(
 
       let diff_status = get_member_diff_status(enum_diff, &member.name);
 
+      let (old_content, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let member_diff = enum_diff
+          .and_then(|d| d.modified_members.iter().find(|m| &*m.name == &*member.name));
+        let old_content = member_diff
+          .and_then(|md| md.init_change.as_ref())
+          .map(|tc| format!(" = {}", &tc.old.repr));
+        let js_doc_changed = member_diff
+          .and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+        (old_content, js_doc_changed)
+      } else {
+        (None, None)
+      };
+
       DocEntryCtx::new_with_diff(
         render_ctx,
         id,
@@ -59,7 +72,9 @@ pub(crate) fn render_enum(
         &member.location,
         diff_status,
         None,
+        old_content,
         None,
+        js_doc_changed,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -120,6 +135,8 @@ fn inject_removed_members(
       None,
       &removed_member.location,
       Some(DiffStatus::Removed),
+      None,
+      None,
       None,
       None,
     ));

@@ -1,6 +1,7 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use crate::diff::ClassDiff;
+use crate::diff::ConstructorDiff;
 use crate::diff::MethodDiff;
 use crate::diff::PropertyDiff;
 use crate::html::DiffStatus;
@@ -187,6 +188,19 @@ fn render_constructors(
 
       let diff_status = get_constructor_diff_status(constructor_changes, constructor);
 
+      let (old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let ctor_diff = constructor_changes
+          .and_then(|cc| cc.modified.iter().find(|_| true));
+
+        let old_tags = ctor_diff.map(|cd| {
+          compute_old_constructor_tags(&[Tag::New].into(), cd)
+        });
+        let js_doc_changed = ctor_diff.and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
+        (old_tags, js_doc_changed)
+      } else {
+        (None, None)
+      };
+
       DocEntryCtx::new_with_diff(
         ctx,
         id,
@@ -199,6 +213,8 @@ fn render_constructors(
         diff_status,
         None,
         None,
+        old_tags,
+        js_doc_changed,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -229,6 +245,8 @@ fn render_constructors(
         None,
         &removed_ctor.location,
         Some(DiffStatus::Removed),
+        None,
+        None,
         None,
         None,
       ));
@@ -302,6 +320,19 @@ fn render_class_index_signatures(
       None
     };
 
+    let (old_readonly, old_ts_type) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+      let sig_diff = idx_diff.and_then(|d| d.modified.first());
+      let old_readonly = sig_diff
+        .and_then(|sd| sd.readonly_change.as_ref())
+        .map(|c| c.old);
+      let old_ts_type = sig_diff
+        .and_then(|sd| sd.type_change.as_ref())
+        .map(|tc| format!(": {}", &tc.old.repr));
+      (old_readonly, old_ts_type)
+    } else {
+      (None, None)
+    };
+
     items.push(IndexSignatureCtx {
       id: id.clone(),
       anchor: AnchorCtx { id },
@@ -313,6 +344,8 @@ fn render_class_index_signatures(
         .href_resolver
         .resolve_source(&index_signature.location),
       diff_status,
+      old_readonly,
+      old_ts_type,
     });
   }
 
@@ -341,6 +374,8 @@ fn render_class_index_signatures(
           .href_resolver
           .resolve_source(&removed_sig.location),
         diff_status: Some(DiffStatus::Removed),
+        old_readonly: None,
+        old_ts_type: None,
       });
     }
   }
@@ -362,6 +397,10 @@ pub struct IndexSignatureCtx {
   pub source_href: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<crate::html::DiffStatus>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_readonly: Option<bool>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_ts_type: Option<String>,
 }
 
 enum PropertyOrMethod {
@@ -558,6 +597,8 @@ fn render_class_accessor(
     diff_status,
     None,
     None,
+    None,
+    None,
   )
 }
 
@@ -592,7 +633,7 @@ fn render_class_method(
   let diff_status =
     get_method_diff_status(class_diff, &method.name, method.is_static, method.kind);
 
-  let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+  let (old_content, old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
     let method_diff = class_diff
       .and_then(|d| d.method_changes.as_ref())
       .and_then(|mc| mc.modified.iter().find(|m| &*m.name == &*method.name));
@@ -604,9 +645,11 @@ fn render_class_method(
 
     let old_tags = method_diff.map(|md| compute_old_method_tags(&tags, md));
 
-    (old_content, old_tags)
+    let js_doc_changed = method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+
+    (old_content, old_tags, js_doc_changed)
   } else {
-    (None, None)
+    (None, None, None)
   };
 
   Some(DocEntryCtx::new_with_diff(
@@ -623,8 +666,10 @@ fn render_class_method(
     method.js_doc.doc.as_deref(),
     &method.location,
     diff_status,
+    None,
     old_content,
     old_tags,
+    js_doc_changed,
   ))
 }
 
@@ -666,7 +711,7 @@ fn render_class_property(
   );
 
   // For modified properties, render the old type and old tags
-  let (old_content, old_tags) = if matches!(diff_status, Some(DiffStatus::Modified)) {
+  let (old_content, old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
     let prop_diff = class_diff
       .and_then(|d| d.property_changes.as_ref())
       .and_then(|pc| pc.modified.iter().find(|p| &*p.name == &*property.name));
@@ -679,9 +724,11 @@ fn render_class_property(
       compute_old_property_tags(&tags, pd)
     });
 
-    (old_content, old_tags)
+    let js_doc_changed = prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
+
+    (old_content, old_tags, js_doc_changed)
   } else {
-    (None, None)
+    (None, None, None)
   };
 
   DocEntryCtx::new_with_diff(
@@ -698,8 +745,10 @@ fn render_class_property(
     property.js_doc.doc.as_deref(),
     &property.location,
     diff_status,
+    None,
     old_content,
     old_tags,
+    js_doc_changed,
   )
 }
 
@@ -773,6 +822,8 @@ fn inject_removed_properties(
         Some(DiffStatus::Removed),
         None,
         None,
+        None,
+        None,
       ));
     }
   }
@@ -816,6 +867,8 @@ fn inject_removed_methods(
         None,
         &removed_method.location,
         Some(DiffStatus::Removed),
+        None,
+        None,
         None,
         None,
       ));
@@ -967,6 +1020,26 @@ fn compute_old_method_tags(
       old_tags.swap_remove(&Tag::Optional);
     } else if !change.new && change.old {
       old_tags.insert(Tag::Optional);
+    }
+  }
+
+  old_tags
+}
+
+/// Reconstruct old tags for a constructor by reversing modifier diffs.
+fn compute_old_constructor_tags(
+  current_tags: &IndexSet<Tag>,
+  diff: &ConstructorDiff,
+) -> IndexSet<Tag> {
+  let mut old_tags = current_tags.clone();
+
+  // Reverse accessibility change
+  if let Some(change) = &diff.accessibility_change {
+    if let Some(new_tag) = Tag::from_accessibility(change.new) {
+      old_tags.swap_remove(&new_tag);
+    }
+    if let Some(old_tag) = Tag::from_accessibility(change.old) {
+      old_tags.insert(old_tag);
     }
   }
 
