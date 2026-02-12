@@ -234,7 +234,7 @@ fn summary_for_nodes(
             .find(|overload| overload.has_body)
             .cloned()
             .unwrap_or(overloads[0]),
-          Some(format!("{} overloads", overloads.len())),
+          Some(format!("{} overloads", overloads.len() - 1)),
         )
       } else {
         (overloads[0], None)
@@ -257,7 +257,7 @@ fn summary_for_nodes(
               .iter()
               .find(|overload| overload.has_body)
               .unwrap_or(&def.constructors[0]),
-            Some(format!("{} constructors", def.constructors.len())),
+            Some(format!("{} constructors", def.constructors.len() - 1)),
           )
         } else {
           (&def.constructors[0], None)
