@@ -540,7 +540,7 @@ impl AllSymbolsCtx {
           ctx.get_current_resolve(),
           UrlResolveKind::File { file: short_path },
         ),
-        module_doc: ModuleDocCtx::new(ctx, short_path, true),
+        module_doc: ModuleDocCtx::new(ctx, short_path, true, true),
       })
       .collect();
 

@@ -8,6 +8,14 @@ expression: module_docs
     "sections": {
       "id": "module_doc",
       "docs": null,
+      "sections": []
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
       "sections": [
         {
           "header": {
@@ -50,14 +58,6 @@ expression: module_docs
           }
         }
       ]
-    }
-  },
-  {
-    "deprecated": null,
-    "sections": {
-      "id": "module_doc",
-      "docs": null,
-      "sections": []
     }
   },
   {

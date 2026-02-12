@@ -12,7 +12,6 @@ use super::util::AnchorCtx;
 use super::util::BreadcrumbsCtx;
 use super::util::SectionHeaderCtx;
 use std::borrow::Cow;
-use std::cmp::Ordering;
 use std::rc::Rc;
 
 use super::DARKMODE_TOGGLE_FILENAME;
@@ -111,7 +110,7 @@ impl CategoriesPanelCtx {
           .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
-        let mut categories = ctx
+        let categories = ctx
           .ctx
           .doc_nodes
           .keys()
@@ -126,8 +125,6 @@ impl CategoriesPanelCtx {
             }),
           })
           .collect::<Vec<_>>();
-
-        categories.sort_by(|a, b| a.name.cmp(&b.name));
 
         Some(CategoriesPanelCtx {
           categories,
@@ -241,6 +238,7 @@ impl IndexCtx {
         &render_ctx,
         short_path,
         !short_path.is_main,
+        false,
       )
     });
 
@@ -262,7 +260,7 @@ impl IndexCtx {
 
     let overview = match ctx.file_mode {
       FileMode::Dts if short_path.is_none() => {
-        let mut sections = ctx
+        let sections = ctx
           .doc_nodes
           .iter()
           .map(|(short_path, nodes)| {
@@ -298,13 +296,6 @@ impl IndexCtx {
             }
           })
           .collect::<Vec<_>>();
-
-        sections.sort_by(|a, b| match (&a.header, &b.header) {
-          (Some(x), Some(y)) => x.title.cmp(&y.title),
-          (None, Some(_)) => Ordering::Less,
-          (Some(_), None) => Ordering::Greater,
-          (None, None) => Ordering::Equal,
-        });
 
         Some(SymbolContentCtx {
           id: util::Id::empty(),

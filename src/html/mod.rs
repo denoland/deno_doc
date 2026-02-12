@@ -438,6 +438,8 @@ impl GenerateCtx {
       })
       .collect::<IndexMap<_, _>>();
 
+    doc_nodes.sort_by_key(|a, _| !a.is_main);
+
     // Inject removed symbols from diff data into doc_nodes for listing
     if let Some(diff) = &diff {
       for (short_path, nodes) in &mut doc_nodes {
