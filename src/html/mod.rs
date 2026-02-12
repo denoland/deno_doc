@@ -313,34 +313,10 @@ impl GenerateCtx {
     common_ancestor: Option<PathBuf>,
     file_mode: FileMode,
     doc_nodes_by_url: ParseOutput,
+    diff: Option<crate::diff::DocDiff>,
   ) -> Result<Self, anyhow::Error> {
-    Self::new_inner(options, common_ancestor, file_mode, doc_nodes_by_url, None)
-  }
+    let diff = diff.map(DiffIndex::new);
 
-  pub fn new_with_diff(
-    options: GenerateOptions,
-    common_ancestor: Option<PathBuf>,
-    file_mode: FileMode,
-    doc_nodes_by_url: ParseOutput,
-    diff: crate::diff::DocDiff,
-  ) -> Result<Self, anyhow::Error> {
-    let diff_index = DiffIndex::new(diff);
-    Self::new_inner(
-      options,
-      common_ancestor,
-      file_mode,
-      doc_nodes_by_url,
-      Some(diff_index),
-    )
-  }
-
-  fn new_inner(
-    options: GenerateOptions,
-    common_ancestor: Option<PathBuf>,
-    file_mode: FileMode,
-    doc_nodes_by_url: ParseOutput,
-    diff: Option<DiffIndex>,
-  ) -> Result<Self, anyhow::Error> {
     let mut main_entrypoint = None;
 
     let mut doc_nodes = doc_nodes_by_url
@@ -569,7 +545,7 @@ impl GenerateCtx {
 
     let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
 
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)
+    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url, None)
   }
 
   pub fn create_basic_with_diff(
@@ -596,12 +572,12 @@ impl GenerateCtx {
 
     let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
 
-    GenerateCtx::new_with_diff(
+    GenerateCtx::new(
       options,
       common_ancestor,
       file_mode,
       doc_nodes_by_url,
-      diff,
+      Some(diff),
     )
   }
 
