@@ -1,7 +1,9 @@
+use crate::r#enum::EnumMemberDef;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
+use crate::js_doc::JsDocTag;
 
 pub(crate) fn render_enum(
   render_ctx: &RenderContext,
@@ -9,7 +11,18 @@ pub(crate) fn render_enum(
 ) -> Vec<SectionCtx> {
   let mut members = doc_node.enum_def().unwrap().members.clone();
 
-  members.sort_by(|a, b| a.name.cmp(&b.name));
+  members.sort_by(|a, b| {
+    let is_deprecated = |m: &EnumMemberDef| {
+      m.js_doc
+        .tags
+        .iter()
+        .any(|t| matches!(t, JsDocTag::Deprecated { .. }))
+    };
+
+    is_deprecated(a)
+      .cmp(&is_deprecated(b))
+      .then_with(|| a.name.cmp(&b.name))
+  });
 
   let items = members
     .into_iter()

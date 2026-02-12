@@ -625,8 +625,12 @@ async fn module_doc() {
       doc_nodes,
       UrlResolveKind::File { file: short_path },
     );
-    let module_doc =
-      jsdoc::ModuleDocCtx::new(&render_ctx, short_path, !short_path.is_main);
+    let module_doc = jsdoc::ModuleDocCtx::new(
+      &render_ctx,
+      short_path,
+      !short_path.is_main,
+      false,
+    );
 
     module_docs.push(module_doc);
   }
