@@ -333,6 +333,7 @@ impl ModuleDocCtx {
     render_ctx: &RenderContext,
     short_path: &ShortPath,
     render_symbols: bool,
+    summary: bool,
   ) -> Self {
     let module_doc_nodes = render_ctx.ctx.doc_nodes.get(short_path).unwrap();
 
@@ -358,7 +359,7 @@ impl ModuleDocCtx {
         sections.push(examples);
       }
 
-      let html = jsdoc_body_to_html(render_ctx, &node.js_doc, false);
+      let html = jsdoc_body_to_html(render_ctx, &node.js_doc, summary);
 
       (deprecated, html)
     } else {

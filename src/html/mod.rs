@@ -311,7 +311,7 @@ impl GenerateCtx {
   ) -> Result<Self, anyhow::Error> {
     let mut main_entrypoint = None;
 
-    let doc_nodes = doc_nodes_by_url
+    let mut doc_nodes = doc_nodes_by_url
       .into_iter()
       .map(|(specifier, nodes)| {
         let short_path = Rc::new(ShortPath::new(
@@ -419,6 +419,8 @@ impl GenerateCtx {
         (short_path, nodes)
       })
       .collect::<IndexMap<_, _>>();
+
+    doc_nodes.sort_by_key(|a, _| !a.is_main);
 
     let mut reference_index: std::collections::HashMap<
       crate::Location,

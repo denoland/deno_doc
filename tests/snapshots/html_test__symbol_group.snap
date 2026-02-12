@@ -6,196 +6,6 @@ expression: files
   {
     "kind": "SymbolPageCtx",
     "html_head_ctx": {
-      "title": "externalFunction - documentation",
-      "current_file": "d",
-      "stylesheet_url": "../../styles.css",
-      "page_stylesheet_url": "../../page.css",
-      "reset_stylesheet_url": "../../reset.css",
-      "url_search_index": "../../search_index.js",
-      "script_js": "../../script.js",
-      "fuse_js": "../../fuse.js",
-      "search_js": "../../search.js",
-      "darkmode_toggle_js": "../../darkmode_toggle.js",
-      "head_inject": null,
-      "disable_search": false
-    },
-    "symbol_group_ctx": {
-      "name": "externalFunction",
-      "symbols": [
-        {
-          "kind": {
-            "kind": "Function",
-            "char": "f",
-            "title": "Function",
-            "title_lowercase": "function",
-            "title_plural": "Functions"
-          },
-          "usage": null,
-          "tags": [],
-          "subtitle": null,
-          "content": [
-            {
-              "kind": "function",
-              "value": {
-                "functions": [
-                  {
-                    "id": "function_externalFunction_0",
-                    "anchor": {
-                      "id": "function_externalFunction_0"
-                    },
-                    "name": "externalFunction",
-                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
-                    "deprecated": null,
-                    "content": {
-                      "id": "",
-                      "docs": null,
-                      "sections": [
-                        {
-                          "header": {
-                            "title": "Parameters",
-                            "anchor": {
-                              "id": "parameters"
-                            },
-                            "href": null,
-                            "doc": null
-                          },
-                          "content": {
-                            "kind": "doc_entry",
-                            "content": [
-                              {
-                                "id": "function_externalfunction_0_parameter__n",
-                                "name": "_n",
-                                "name_href": null,
-                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
-                                "anchor": {
-                                  "id": "function_externalfunction_0_parameter__n"
-                                },
-                                "tags": [
-                                  {
-                                    "kind": "optional"
-                                  }
-                                ],
-                                "js_doc": null,
-                                "source_href": null
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "header": {
-                            "title": "Return Type",
-                            "anchor": {
-                              "id": "return-type"
-                            },
-                            "href": null,
-                            "doc": null
-                          },
-                          "content": {
-                            "kind": "doc_entry",
-                            "content": [
-                              {
-                                "id": "function_externalFunction_0_return",
-                                "name": null,
-                                "name_href": null,
-                                "content": "<span class=\"td-kw\">void</span>",
-                                "anchor": {
-                                  "id": "function_externalFunction_0_return"
-                                },
-                                "tags": [],
-                                "js_doc": null,
-                                "source_href": null
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          ],
-          "deprecated": null,
-          "source_href": null
-        }
-      ]
-    },
-    "breadcrumbs_ctx": {
-      "root": {
-        "name": "index",
-        "href": "../../"
-      },
-      "current_entrypoint": {
-        "name": "d",
-        "href": "../.././d/index.html"
-      },
-      "entrypoints": [
-        {
-          "name": "all symbols",
-          "href": "../.././all_symbols.html"
-        },
-        {
-          "name": "default",
-          "href": "../../"
-        },
-        {
-          "name": "d",
-          "href": "../.././d/index.html"
-        },
-        {
-          "name": "foo",
-          "href": "../.././foo/index.html"
-        },
-        {
-          "name": "c",
-          "href": "../.././c/index.html"
-        }
-      ],
-      "symbol": [
-        {
-          "name": "externalFunction",
-          "href": "../.././d/~/externalFunction.html"
-        }
-      ]
-    },
-    "toc_ctx": {
-      "usages": {
-        "usages": [
-          {
-            "name": "",
-            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { externalFunction } from &quot;d&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { externalFunction } from &quot;d&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
-            "icon": null,
-            "additional_css": ""
-          }
-        ],
-        "composed": false
-      },
-      "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_externalfunction_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
-      "document_navigation": [
-        {
-          "level": 1,
-          "content": "Parameters",
-          "anchor": "parameters"
-        },
-        {
-          "level": 2,
-          "content": "_n",
-          "anchor": "function_externalfunction_0_parameter__n"
-        },
-        {
-          "level": 1,
-          "content": "Return Type",
-          "anchor": "return-type"
-        }
-      ]
-    },
-    "disable_search": false,
-    "categories_panel": null
-  },
-  {
-    "kind": "SymbolPageCtx",
-    "html_head_ctx": {
       "title": "A - documentation",
       "current_file": ".",
       "stylesheet_url": "../styles.css",
@@ -9650,6 +9460,196 @@ expression: files
           "level": 1,
           "content": "Type",
           "anchor": "type"
+        }
+      ]
+    },
+    "disable_search": false,
+    "categories_panel": null
+  },
+  {
+    "kind": "SymbolPageCtx",
+    "html_head_ctx": {
+      "title": "externalFunction - documentation",
+      "current_file": "d",
+      "stylesheet_url": "../../styles.css",
+      "page_stylesheet_url": "../../page.css",
+      "reset_stylesheet_url": "../../reset.css",
+      "url_search_index": "../../search_index.js",
+      "script_js": "../../script.js",
+      "fuse_js": "../../fuse.js",
+      "search_js": "../../search.js",
+      "darkmode_toggle_js": "../../darkmode_toggle.js",
+      "head_inject": null,
+      "disable_search": false
+    },
+    "symbol_group_ctx": {
+      "name": "externalFunction",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Function",
+            "char": "f",
+            "title": "Function",
+            "title_lowercase": "function",
+            "title_plural": "Functions"
+          },
+          "usage": null,
+          "tags": [],
+          "subtitle": null,
+          "content": [
+            {
+              "kind": "function",
+              "value": {
+                "functions": [
+                  {
+                    "id": "function_externalFunction_0",
+                    "anchor": {
+                      "id": "function_externalFunction_0"
+                    },
+                    "name": "externalFunction",
+                    "summary": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                    "deprecated": null,
+                    "content": {
+                      "id": "",
+                      "docs": null,
+                      "sections": [
+                        {
+                          "header": {
+                            "title": "Parameters",
+                            "anchor": {
+                              "id": "parameters"
+                            },
+                            "href": null,
+                            "doc": null
+                          },
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_externalfunction_0_parameter__n",
+                                "name": "_n",
+                                "name_href": null,
+                                "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
+                                "anchor": {
+                                  "id": "function_externalfunction_0_parameter__n"
+                                },
+                                "tags": [
+                                  {
+                                    "kind": "optional"
+                                  }
+                                ],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "header": {
+                            "title": "Return Type",
+                            "anchor": {
+                              "id": "return-type"
+                            },
+                            "href": null,
+                            "doc": null
+                          },
+                          "content": {
+                            "kind": "doc_entry",
+                            "content": [
+                              {
+                                "id": "function_externalFunction_0_return",
+                                "name": null,
+                                "name_href": null,
+                                "content": "<span class=\"td-kw\">void</span>",
+                                "anchor": {
+                                  "id": "function_externalFunction_0_return"
+                                },
+                                "tags": [],
+                                "js_doc": null,
+                                "source_href": null
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "root": {
+        "name": "index",
+        "href": "../../"
+      },
+      "current_entrypoint": {
+        "name": "d",
+        "href": "../.././d/index.html"
+      },
+      "entrypoints": [
+        {
+          "name": "all symbols",
+          "href": "../.././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../../"
+        },
+        {
+          "name": "d",
+          "href": "../.././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": "../.././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": "../.././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "externalFunction",
+          "href": "../.././d/~/externalFunction.html"
+        }
+      ]
+    },
+    "toc_ctx": {
+      "usages": {
+        "usages": [
+          {
+            "name": "",
+            "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { externalFunction } from &quot;d&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { externalFunction } from &quot;d&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+            "icon": null,
+            "additional_css": ""
+          }
+        ],
+        "composed": false
+      },
+      "top_symbols": null,
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_externalfunction_0_parameter__n\" title=\"_n\">_n</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+      "document_navigation": [
+        {
+          "level": 1,
+          "content": "Parameters",
+          "anchor": "parameters"
+        },
+        {
+          "level": 2,
+          "content": "_n",
+          "anchor": "function_externalfunction_0_parameter__n"
+        },
+        {
+          "level": 1,
+          "content": "Return Type",
+          "anchor": "return-type"
         }
       ]
     },

@@ -188,17 +188,16 @@ impl<'ctx> RenderContext<'ctx> {
         .resolve_path(self.current_resolve, UrlResolveKind::Root),
     };
     let mut current_entrypoint = None;
-    let mut entrypoints =
-      self.ctx.doc_nodes.keys().cloned().collect::<Vec<_>>();
-    entrypoints.sort_unstable_by_key(|a| !a.is_main);
 
-    let mut entrypoints = entrypoints
-      .into_iter()
+    let mut entrypoints = self
+      .ctx
+      .doc_nodes
+      .keys()
       .map(|short_path| BreadcrumbCtx {
         name: short_path.display_name().to_string(),
         href: self.ctx.resolve_path(
           self.current_resolve,
-          UrlResolveKind::File { file: &short_path },
+          UrlResolveKind::File { file: short_path },
         ),
       })
       .collect::<Vec<_>>();
