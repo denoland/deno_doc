@@ -406,6 +406,10 @@ impl DocPrinter<'_> {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("since"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
       }
+      JsDocTag::Summary { doc } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("summary"))?;
+        self.format_jsdoc_tag_doc(w, doc, indent)
+      }
       JsDocTag::Priority { priority } => {
         writeln!(
           w,

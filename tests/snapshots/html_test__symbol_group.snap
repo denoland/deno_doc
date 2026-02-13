@@ -1232,7 +1232,7 @@ expression: files
               "kind": "other",
               "value": {
                 "id": "",
-                "docs": null,
+                "docs": "<div class=\"markdown\"><p>the description</p>\n</div>",
                 "sections": [
                   {
                     "header": {

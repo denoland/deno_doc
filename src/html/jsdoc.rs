@@ -236,7 +236,24 @@ pub(crate) fn jsdoc_body_to_html(
   js_doc: &JsDoc,
   summary: bool,
 ) -> Option<String> {
-  if let Some(doc) = js_doc.doc.as_deref() {
+  if summary
+    && let Some(doc) = js_doc.tags.iter().find_map(|tag| {
+      if let JsDocTag::Summary { doc } = tag {
+        Some(doc)
+      } else {
+        None
+      }
+    })
+  {
+    markdown_to_html(
+      ctx,
+      doc,
+      MarkdownToHTMLOptions {
+        title_only: false,
+        no_toc: false,
+      },
+    )
+  } else if let Some(doc) = js_doc.doc.as_deref() {
     markdown_to_html(
       ctx,
       doc,
