@@ -236,11 +236,15 @@ pub(crate) fn jsdoc_body_to_html(
   js_doc: &JsDoc,
   summary: bool,
 ) -> Option<String> {
-  if summary && let Some(doc) = js_doc.tags.iter().find_map(|tag| if let JsDocTag::Summary { doc } = tag {
-    Some(doc)
-  } else {
-    None
-  }) {
+  if summary
+    && let Some(doc) = js_doc.tags.iter().find_map(|tag| {
+      if let JsDocTag::Summary { doc } = tag {
+        Some(doc)
+      } else {
+        None
+      }
+    })
+  {
     markdown_to_html(
       ctx,
       doc,

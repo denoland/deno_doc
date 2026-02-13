@@ -84,7 +84,9 @@ impl From<String> for JsDoc {
           let current_tag = std::mem::take(&mut current_tag);
           if let Some(current_tag) = current_tag {
             if current_tag_name == "description" {
-              if let Some(caps) = JS_DOC_TAG_WITH_VALUE_RE.captures(&current_tag) {
+              if let Some(caps) =
+                JS_DOC_TAG_WITH_VALUE_RE.captures(&current_tag)
+              {
                 if let Some(m) = caps.get(2) {
                   description_override = Some(m.as_str().to_string());
                 }
@@ -834,10 +836,8 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@summary A brief summary".to_string()
-      ))
-      .unwrap(),
+      serde_json::to_value(JsDoc::from("@summary A brief summary".to_string()))
+        .unwrap(),
       json!({
         "tags": [{
           "kind": "summary",
