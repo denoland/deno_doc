@@ -294,7 +294,7 @@ impl ExampleCtx {
   pub const TEMPLATE: &'static str = "example";
 
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
-    let id = IdBuilder::new(render_ctx.ctx)
+    let id = IdBuilder::new(render_ctx)
       .kind(IdKind::Example)
       .index(i)
       .build();
@@ -382,7 +382,7 @@ impl ModuleDocCtx {
             render_ctx.clone(),
             Some(SectionHeaderCtx {
               title: title.clone(),
-              anchor: AnchorCtx::new(Id::new(anchorized)),
+              anchor: AnchorCtx::new(anchorized),
               href: None,
               doc: None,
             }),
@@ -395,7 +395,7 @@ impl ModuleDocCtx {
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
-        id: Id::new(render_ctx.toc.anchorize("module_doc")),
+        id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
         sections,
       },

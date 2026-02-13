@@ -350,16 +350,22 @@ lazy_static! {
     regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -_/]").unwrap();
 }
 
-#[derive(Clone)]
-pub struct Anchorized(pub String);
-
 impl HeadingToCAdapter {
-  pub fn anchorize(&self, content: &str) -> Anchorized {
+  pub fn anchorize(&self, content: &str) -> super::util::Id {
     let mut anchorizer = self.anchorizer.lock().unwrap();
-    Anchorized(anchorizer.anchorize(content))
+    super::util::Id::from_raw(anchorizer.anchorize(content))
   }
 
-  pub fn add_entry(&self, level: u8, content: &str, anchor: &Anchorized) {
+  /// Apply the same GFM sanitization as anchorize but without registering
+  /// in the deduplication map. Use for IDs referencing anchors on other pages.
+  pub fn sanitize(&self, content: &str) -> super::util::Id {
+    let s = REJECTED_CHARS
+      .replace_all(&content.to_lowercase(), "")
+      .replace(' ', "-");
+    super::util::Id::from_raw(s)
+  }
+
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &super::util::Id) {
     let mut toc = self.toc.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
@@ -369,7 +375,7 @@ impl HeadingToCAdapter {
       toc.push(ToCEntry {
         level,
         content: content.to_owned(),
-        anchor: anchor.0.to_owned(),
+        anchor: anchor.as_str().to_owned(),
       });
     }
   }

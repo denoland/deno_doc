@@ -125,7 +125,7 @@ fn render_constructors(
     })
     .enumerate()
     .map(|(i, constructor)| {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Constructor)
         .index(i)
         .build();
@@ -307,7 +307,7 @@ fn render_class_accessor(
   let getter_or_setter = getter.or(setter).unwrap();
 
   let name = &getter_or_setter.name;
-  let id = IdBuilder::new(ctx.ctx)
+  let id = IdBuilder::new(ctx)
     .kind(IdKind::Accessor)
     .name(name)
     .build();
@@ -364,7 +364,7 @@ fn render_class_method(
     return None;
   }
 
-  let id = IdBuilder::new(ctx.ctx)
+  let id = IdBuilder::new(ctx)
     .kind(IdKind::Method)
     .name(&method.name)
     .index(i)
@@ -402,7 +402,7 @@ fn render_class_property(
   class_name: &str,
   property: &ClassPropertyDef,
 ) -> DocEntryCtx {
-  let id = IdBuilder::new(ctx.ctx)
+  let id = IdBuilder::new(ctx)
     .kind(IdKind::Property)
     .name(&property.name)
     .build();

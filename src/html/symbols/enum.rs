@@ -27,7 +27,7 @@ pub(crate) fn render_enum(
   let items = members
     .into_iter()
     .map(|member| {
-      let id = IdBuilder::new(render_ctx.ctx)
+      let id = IdBuilder::new(render_ctx)
         .kind(IdKind::Enum)
         .name(doc_node.get_name())
         .component(&member.name)

@@ -348,7 +348,7 @@ impl SymbolInnerCtx {
                 ctx.clone(),
                 Some(crate::html::util::SectionHeaderCtx {
                   title: title.clone(),
-                  anchor: AnchorCtx::new(crate::html::util::Id::new(anchorized)),
+                  anchor: AnchorCtx::new(anchorized),
                   href: None,
                   doc: None,
                 }),

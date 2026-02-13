@@ -123,8 +123,8 @@ expression: files.get(file_name).unwrap()
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-Method">method</span>&nbsp;<span class="font-bold">Foo.prototype.getter</span>
-          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_Foo_prototype_getter_0">
-      <code class="anchorable text-base break-words"><a href="#function_Foo_prototype_getter_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_foo_prototype_getter_0">
+      <code class="anchorable text-base break-words"><a href="#function_foo_prototype_getter_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"

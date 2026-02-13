@@ -67,7 +67,7 @@ pub(crate) fn render_index_signatures(
   let mut items = Vec::with_capacity(index_signatures.len());
 
   for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = IdBuilder::new(ctx.ctx)
+    let id = IdBuilder::new(ctx)
       .kind(IdKind::IndexSignature)
       .index(i)
       .build();
@@ -110,7 +110,7 @@ pub(crate) fn render_call_signatures(
     .iter()
     .enumerate()
     .map(|(i, call_signature)| {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::CallSignature)
         .index(i)
         .build();
@@ -159,7 +159,7 @@ pub(crate) fn render_properties(
   let items = properties
     .iter()
     .map(|property| {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Property)
         .name(&property.name)
         .build();
@@ -234,7 +234,7 @@ pub(crate) fn render_methods(
     .iter()
     .enumerate()
     .map(|(i, method)| {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Method)
         .name(&method.name)
         .index(i)

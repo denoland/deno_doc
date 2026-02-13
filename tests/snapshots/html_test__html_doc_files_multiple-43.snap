@@ -146,7 +146,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_Hello_test">
+Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_hello_test">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-str">"test"</span></span>

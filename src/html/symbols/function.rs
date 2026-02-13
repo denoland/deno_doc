@@ -69,20 +69,17 @@ impl FunctionCtx {
         }
       });
 
-      let overload_id = IdBuilder::new(ctx.ctx)
+      let overload_id = IdBuilder::new(ctx)
         .kind(IdKind::Function)
         .name(doc_node.get_name())
         .index(i)
         .build();
 
-      let anchorized = ctx.toc.anchorize(overload_id.as_str());
-      let overload_id = Id::new(anchorized.clone());
-
       if overloads_count > 1 {
         ctx.toc.add_entry(
           0,
           &format!("Overload {}", i + 1),
-          &anchorized,
+          &overload_id,
         );
       }
 
@@ -162,7 +159,7 @@ fn render_single_function(
     .enumerate()
     .map(|(i, param)| {
       let (name, str_name) = crate::html::parameters::param_name(param, i);
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .component(&overload_id)
         .kind(IdKind::Parameter)
         .name(&str_name)
@@ -335,7 +332,7 @@ fn render_function_return_type(
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
-  let id = IdBuilder::new(render_ctx.ctx)
+  let id = IdBuilder::new(render_ctx)
     .component(overload_id.as_str())
     .kind(IdKind::Return)
     .build();
@@ -368,7 +365,7 @@ fn render_function_throws(
   overload_id: Id,
   throws_id: usize,
 ) -> DocEntryCtx {
-  let id = IdBuilder::new(render_ctx.ctx)
+  let id = IdBuilder::new(render_ctx)
     .component(overload_id.as_str())
     .kind(IdKind::Throws)
     .index(throws_id)

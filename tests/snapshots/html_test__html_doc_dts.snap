@@ -127,8 +127,8 @@ expression: files.get(file_name).unwrap()
       <a href=".&#x2F;" class="link text-xl font-bold">default</a>
 
       <div class="ml-4 mt-2"><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="Interfaces"><div>
-      <h2 class="anchorable mb-1"><a href="#Interfaces" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="interfaces"><div>
+      <h2 class="anchorable mb-1"><a href="#interfaces" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"

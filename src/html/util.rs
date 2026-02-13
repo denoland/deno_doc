@@ -4,7 +4,6 @@ use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
-use crate::html::render_context::{Anchorized};
 use crate::html::render_context::{ToCEntry};
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
@@ -73,16 +72,18 @@ impl IdKind {
 }
 
 pub struct IdBuilder<'a> {
+  ctx: &'a RenderContext<'a>,
   components: Vec<Cow<'a, str>>,
 }
 
 impl<'a> IdBuilder<'a> {
-  pub fn new(ctx: &'a GenerateCtx) -> Self {
+  pub fn new(ctx: &'a RenderContext<'a>) -> Self {
     let mut builder = Self {
+      ctx,
       components: Vec::new(),
     };
 
-    if let Some(prefix) = &ctx.id_prefix {
+    if let Some(prefix) = &ctx.ctx.id_prefix {
       builder.components.push(Cow::Borrowed(prefix));
     }
 
@@ -117,7 +118,13 @@ impl<'a> IdBuilder<'a> {
   }
 
   pub fn build(self) -> Id {
-    Id(self.components.join("_"))
+    self.ctx.toc.anchorize(&self.components.join("_"))
+  }
+
+  /// Build an ID without registering it in the anchorizer.
+  /// Use this for IDs that reference anchors on other pages (e.g. href targets).
+  pub fn build_unregistered(self) -> Id {
+    self.ctx.toc.sanitize(&self.components.join("_"))
   }
 }
 
@@ -140,8 +147,8 @@ impl Id {
     self.0.as_str()
   }
 
-  pub fn new(s: Anchorized) -> Self {
-    Id(s.0)
+  pub(crate) fn from_raw(s: String) -> Self {
+    Id(s)
   }
 
   pub fn empty() -> Self {
@@ -610,7 +617,7 @@ impl SectionCtx {
   pub fn new(
     render_context: &RenderContext,
     title: &str,
-    mut content: SectionContentCtx,
+    content: SectionContentCtx,
   ) -> Self {
     let header = if !title.is_empty() {
       let anchor = render_context.toc.anchorize(title);
@@ -618,7 +625,7 @@ impl SectionCtx {
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx::new(Id::new(anchor)),
+        anchor: AnchorCtx::new(anchor),
         href: None,
         doc: None,
       })
@@ -626,44 +633,29 @@ impl SectionCtx {
       None
     };
 
-    match &mut content {
+    match &content {
       SectionContentCtx::DocEntry(entries) => {
         for entry in entries {
           let Some(name) = &entry.name else {
             continue;
           };
 
-          let anchor = render_context.toc.anchorize(entry.id.as_str());
-
-          render_context.toc.add_entry(2, name, &anchor);
-
-          entry.id = Id::new(anchor.clone());
-          entry.anchor.id = Id::new(anchor);
+          render_context.toc.add_entry(2, name, &entry.id);
         }
       }
       SectionContentCtx::Example(examples) => {
         for example in examples {
-          let anchor = render_context.toc.anchorize(example.id.as_str());
-
           render_context.toc.add_entry(
             2,
             &super::jsdoc::strip(render_context, &example.title),
-            &anchor,
+            &example.id,
           );
-
-          example.id = Id::new(anchor.clone());
-          example.anchor.id = Id::new(anchor);
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          let anchor = render_context.toc.anchorize(node.id.as_str());
-
-          render_context.toc.add_entry(2, &node.name, &anchor);
-
-          node.id = Id::new(anchor.clone());
-          node.anchor.id = Id::new(anchor);
+          render_context.toc.add_entry(2, &node.name, &node.id);
         }
       }
       SectionContentCtx::See(_) => {}
