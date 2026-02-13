@@ -623,12 +623,12 @@ impl SectionCtx {
     content: SectionContentCtx,
   ) -> Self {
     let header = if !title.is_empty() {
-      let anchor = render_context.toc.anchorize(title);
-      render_context.toc.add_entry(1, title, &anchor);
+      let id = render_context.toc.anchorize(title);
+      render_context.toc.add_entry(1, title, &id);
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx::new(anchor),
+        anchor: AnchorCtx::new(id),
         href: None,
         doc: None,
       })

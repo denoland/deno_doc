@@ -106,8 +106,8 @@ expression: files.get(file_name).unwrap()
       <a href=".&#x2F;" class="link text-xl font-bold">default</a>
 
       <div class="ml-4 mt-2"><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="classes"><div>
-      <h2 class="anchorable mb-1"><a href="#classes" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="default_classes"><div>
+      <h2 class="anchorable mb-1"><a href="#default_classes" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -184,8 +184,8 @@ Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class
 			    <span>Testing</span></a></div>
     </div></div>
 </section>
-<section class="section"  id="enums"><div>
-      <h2 class="anchorable mb-1"><a href="#enums" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="default_enums"><div>
+      <h2 class="anchorable mb-1"><a href="#default_enums" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -217,8 +217,8 @@ Enums</h2></div><div class="namespaceSection"><div id="namespace_enum" class="na
 			    <span>Enum2</span></a></div>
     </div></div>
 </section>
-<section class="section"  id="functions"><div>
-      <h2 class="anchorable mb-1"><a href="#functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="default_functions"><div>
+      <h2 class="anchorable mb-1"><a href="#default_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -274,8 +274,8 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="n
 			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
-<section class="section"  id="interfaces"><div>
-      <h2 class="anchorable mb-1"><a href="#interfaces" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="default_interfaces"><div>
+      <h2 class="anchorable mb-1"><a href="#default_interfaces" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -330,8 +330,8 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
 			    <span>InterfaceWithIndexSignature</span></a></div>
     </div></div>
 </section>
-<section class="section"  id="type-aliases"><div>
-      <h2 class="anchorable mb-1"><a href="#type-aliases" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="default_type-aliases"><div>
+      <h2 class="anchorable mb-1"><a href="#default_type-aliases" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -367,8 +367,8 @@ Type Aliases</h2></div><div class="namespaceSection"><div id="namespace_baz" cla
 			    <span>TypeAlias</span><span> = <span class="td-kw">string</span></span></a></div>
     </div></div>
 </section>
-<section class="section"  id="variables"><div>
-      <h2 class="anchorable mb-1"><a href="#variables" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="default_variables"><div>
+      <h2 class="anchorable mb-1"><a href="#default_variables" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -413,8 +413,8 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_anothervari
       <a href=".&#x2F;.&#x2F;d&#x2F;index.html" class="link text-xl font-bold">d</a>
 
       <div class="ml-4 mt-2"><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc-1"><section class="section"  id="functions-2"><div>
-      <h2 class="anchorable mb-1"><a href="#functions-2" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc-1"><section class="section"  id="d_functions"><div>
+      <h2 class="anchorable mb-1"><a href="#d_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -451,8 +451,8 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_externalfun
       <a href=".&#x2F;.&#x2F;foo&#x2F;index.html" class="link text-xl font-bold">foo</a>
 
       <div class="ml-4 mt-2"><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc-2"><section class="section"  id="functions-4"><div>
-      <h2 class="anchorable mb-1"><a href="#functions-4" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc-2"><section class="section"  id="foo_functions"><div>
+      <h2 class="anchorable mb-1"><a href="#foo_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -480,8 +480,8 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x-1" class=
 			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
-<section class="section"  id="variables-2"><div>
-      <h2 class="anchorable mb-1"><a href="#variables-2" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="foo_variables"><div>
+      <h2 class="anchorable mb-1"><a href="#foo_variables" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -519,8 +519,8 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
       <a href=".&#x2F;.&#x2F;c&#x2F;index.html" class="link text-xl font-bold">c</a>
 
       <div class="ml-4 mt-2"><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc-3"><section class="section"  id="functions-6"><div>
-      <h2 class="anchorable mb-1"><a href="#functions-6" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc-3"><section class="section"  id="c_functions"><div>
+      <h2 class="anchorable mb-1"><a href="#c_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"

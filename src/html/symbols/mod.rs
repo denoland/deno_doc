@@ -342,13 +342,13 @@ impl SymbolInnerCtx {
 
           namespace::render_namespace(partitions.into_iter().map(
             |(title, nodes)| {
-              let anchorized = ctx.toc.anchorize(&title);
+              let id = ctx.toc.anchorize(&title);
 
               (
                 ctx.clone(),
                 Some(crate::html::util::SectionHeaderCtx {
-                  title: title.clone(),
-                  anchor: AnchorCtx::new(anchorized),
+                  title,
+                  anchor: AnchorCtx::new(id),
                   href: None,
                   doc: None,
                 }),
@@ -414,6 +414,7 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
 pub struct AllSymbolsEntrypointCtx {
   pub name: String,
   pub href: String,
+  pub anchor: AnchorCtx,
   pub module_doc: ModuleDocCtx,
 }
 
@@ -432,8 +433,8 @@ impl AllSymbolsCtx {
       .keys()
       .map(|short_path| {
         let name = short_path.display_name().to_string();
-        let anchor = ctx.toc.anchorize(&name);
-        ctx.toc.add_entry(0, &name, &anchor);
+        let id = ctx.toc.anchorize(&name);
+        ctx.toc.add_entry(0, &name, &id);
 
         AllSymbolsEntrypointCtx {
           name,
@@ -441,6 +442,7 @@ impl AllSymbolsCtx {
             ctx.get_current_resolve(),
             UrlResolveKind::File { file: short_path },
           ),
+          anchor: AnchorCtx::new(id),
           module_doc: ModuleDocCtx::new(ctx, short_path, true, true),
         }
       })

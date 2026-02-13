@@ -21,7 +21,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "functions"
+              "id": "d_functions"
             },
             "href": null,
             "doc": null
@@ -69,7 +69,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "functions"
+              "id": "foo_functions"
             },
             "href": null,
             "doc": null
@@ -108,7 +108,7 @@ expression: module_docs
           "header": {
             "title": "Variables",
             "anchor": {
-              "id": "variables"
+              "id": "foo_variables"
             },
             "href": null,
             "doc": null
@@ -156,7 +156,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "functions"
+              "id": "c_functions"
             },
             "href": null,
             "doc": null

@@ -277,8 +277,8 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.anchorize(title);
-            render_ctx.toc.add_entry(1, title, &anchor);
+            let id = render_ctx.toc.anchorize(title);
+            render_ctx.toc.add_entry(1, title, &id);
 
             util::SectionCtx {
               header: Some(SectionHeaderCtx {
@@ -287,7 +287,7 @@ impl IndexCtx {
                   short_path.as_resolve_kind(),
                 )),
                 title: title.to_string(),
-                anchor: AnchorCtx::new(anchor),
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -305,8 +305,8 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.anchorize(&title);
-            render_ctx.toc.add_entry(1, &title, &anchor);
+            let id = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &id);
 
             let doc = ctx
               .category_docs
@@ -332,7 +332,7 @@ impl IndexCtx {
                   UrlResolveKind::Category { category: &title },
                 )),
                 title,
-                anchor: AnchorCtx::new(anchor),
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -397,12 +397,12 @@ impl IndexCtx {
           category_docs.get(&title).cloned().flatten()
         });
 
-        let anchorized = render_ctx.toc.anchorize(&title);
+        let id = render_ctx.toc.anchorize(&title);
 
         (
           render_ctx.clone(),
           Some(SectionHeaderCtx {
-            anchor: AnchorCtx::new(anchorized),
+            anchor: AnchorCtx::new(id),
             title,
             href: None,
             doc,
