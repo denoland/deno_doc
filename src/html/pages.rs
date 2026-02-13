@@ -287,9 +287,7 @@ impl IndexCtx {
                   short_path.as_resolve_kind(),
                 )),
                 title: title.to_string(),
-                anchor: AnchorCtx {
-                  id: util::Id::new(anchor),
-                },
+                anchor: AnchorCtx::new(util::Id::new(anchor)),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -334,9 +332,7 @@ impl IndexCtx {
                   UrlResolveKind::Category { category: &title },
                 )),
                 title,
-                anchor: AnchorCtx {
-                  id: util::Id::new(anchor),
-                },
+                anchor: AnchorCtx::new(util::Id::new(anchor)),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -401,12 +397,12 @@ impl IndexCtx {
           category_docs.get(&title).cloned().flatten()
         });
 
+        let anchorized = render_ctx.toc.anchorize(&title);
+
         (
           render_ctx.clone(),
           Some(SectionHeaderCtx {
-            anchor: AnchorCtx {
-              id: util::Id::new(title.clone()),
-            },
+            anchor: AnchorCtx::new(util::Id::new(anchorized)),
             title,
             href: None,
             doc,

@@ -4,9 +4,8 @@ use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
-use crate::html::jsdoc::MarkdownToHTMLOptions;
-use crate::html::jsdoc::markdown_to_html;
-use crate::html::render_context::ToCEntry;
+use crate::html::render_context::{Anchorized};
+use crate::html::render_context::{ToCEntry};
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -19,7 +18,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Display};
+use std::fmt::{Formatter};
 use std::rc::Rc;
 
 lazy_static! {
@@ -140,18 +140,12 @@ impl Id {
     self.0.as_str()
   }
 
-  pub fn new(s: impl Into<String>) -> Self {
-    Id(s.into())
+  pub fn new(s: Anchorized) -> Self {
+    Id(s.0)
   }
 
   pub fn empty() -> Self {
     Id(String::new())
-  }
-}
-
-impl From<String> for Id {
-  fn from(s: String) -> Self {
-    Id(s)
   }
 }
 
@@ -577,6 +571,10 @@ pub struct AnchorCtx {
 
 impl AnchorCtx {
   pub const TEMPLATE: &'static str = "anchor";
+
+  pub fn new(id: Id) -> Self {
+    Self { id }
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -600,48 +598,6 @@ pub struct SectionHeaderCtx {
   pub doc: Option<String>,
 }
 
-impl SectionHeaderCtx {
-  pub fn new_for_all_symbols(
-    render_ctx: &RenderContext,
-    path: &ShortPath,
-  ) -> Option<Self> {
-    if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      return None;
-    }
-
-    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
-
-    let doc = module_doc_nodes
-      .iter()
-      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
-      .and_then(|node| node.js_doc.doc.as_ref())
-      .and_then(|doc| {
-        markdown_to_html(
-          render_ctx,
-          doc,
-          MarkdownToHTMLOptions {
-            title_only: true,
-            no_toc: false,
-          },
-        )
-      });
-
-    let title = path.display_name();
-
-    Some(SectionHeaderCtx {
-      title: title.to_string(),
-      anchor: AnchorCtx {
-        id: Id::new(title.to_string()),
-      },
-      href: Some(render_ctx.ctx.resolve_path(
-        render_ctx.get_current_resolve(),
-        path.as_resolve_kind(),
-      )),
-      doc,
-    })
-  }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SectionCtx {
   pub header: Option<SectionHeaderCtx>,
@@ -662,9 +618,7 @@ impl SectionCtx {
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx {
-          id: Id::new(anchor),
-        },
+        anchor: AnchorCtx::new(Id::new(anchor)),
         href: None,
         doc: None,
       })
@@ -796,7 +750,7 @@ impl DocEntryCtx {
       name,
       name_href,
       content: content.to_string(),
-      anchor: AnchorCtx { id },
+      anchor: AnchorCtx::new(id),
       tags,
       js_doc: maybe_jsdoc,
       source_href,

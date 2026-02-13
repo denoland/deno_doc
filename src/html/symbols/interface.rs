@@ -80,7 +80,7 @@ pub(crate) fn render_index_signatures(
 
     items.push(IndexSignatureCtx {
       id: id.clone(),
-      anchor: AnchorCtx { id },
+      anchor: AnchorCtx::new(id),
       readonly: index_signature.readonly,
       params: render_params(ctx, &index_signature.params),
       ts_type,

@@ -342,13 +342,13 @@ impl SymbolInnerCtx {
 
           namespace::render_namespace(partitions.into_iter().map(
             |(title, nodes)| {
+              let anchorized = ctx.toc.anchorize(&title);
+
               (
                 ctx.clone(),
                 Some(crate::html::util::SectionHeaderCtx {
                   title: title.clone(),
-                  anchor: AnchorCtx {
-                    id: crate::html::util::Id::new(title),
-                  },
+                  anchor: AnchorCtx::new(crate::html::util::Id::new(anchorized)),
                   href: None,
                   doc: None,
                 }),
@@ -411,7 +411,7 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AllSymbolsItemCtx {
+pub struct AllSymbolsEntrypointCtx {
   pub name: String,
   pub href: String,
   pub module_doc: ModuleDocCtx,
@@ -419,7 +419,7 @@ pub struct AllSymbolsItemCtx {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AllSymbolsCtx {
-  pub entrypoints: Vec<AllSymbolsItemCtx>,
+  pub entrypoints: Vec<AllSymbolsEntrypointCtx>,
 }
 
 impl AllSymbolsCtx {
@@ -430,13 +430,19 @@ impl AllSymbolsCtx {
       .ctx
       .doc_nodes
       .keys()
-      .map(|short_path| AllSymbolsItemCtx {
-        name: short_path.display_name().to_string(),
-        href: ctx.ctx.resolve_path(
-          ctx.get_current_resolve(),
-          UrlResolveKind::File { file: short_path },
-        ),
-        module_doc: ModuleDocCtx::new(ctx, short_path, true, true),
+      .map(|short_path| {
+        let name = short_path.display_name().to_string();
+        let anchor = ctx.toc.anchorize(&name);
+        ctx.toc.add_entry(0, &name, &anchor);
+
+        AllSymbolsEntrypointCtx {
+          name,
+          href: ctx.ctx.resolve_path(
+            ctx.get_current_resolve(),
+            UrlResolveKind::File { file: short_path },
+          ),
+          module_doc: ModuleDocCtx::new(ctx, short_path, true, true),
+        }
       })
       .collect();
 

@@ -194,7 +194,7 @@ impl NamespaceNodeCtx {
 
     NamespaceNodeCtx {
       id: id.clone(),
-      anchor: AnchorCtx { id },
+      anchor: AnchorCtx::new(id),
       tags,
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,

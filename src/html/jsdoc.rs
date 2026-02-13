@@ -149,7 +149,7 @@ pub struct MarkdownToHTMLOptions {
   pub no_toc: bool,
 }
 
-pub type MarkdownStripper = std::rc::Rc<dyn Fn(&str) -> String>;
+pub type MarkdownStripper = Rc<dyn Fn(&str) -> String>;
 
 pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   let md = parse_links(md, render_ctx, true);
@@ -311,7 +311,7 @@ impl ExampleCtx {
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
     ExampleCtx {
-      anchor: AnchorCtx { id: id.clone() },
+      anchor: AnchorCtx::new(id.clone()),
       id,
       title,
       markdown_title,
@@ -375,13 +375,14 @@ impl ModuleDocCtx {
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {
+          let anchorized = render_ctx.toc.anchorize(&title);
+          render_ctx.toc.add_entry(1, &title, &anchorized);
+
           (
             render_ctx.clone(),
             Some(SectionHeaderCtx {
               title: title.clone(),
-              anchor: AnchorCtx {
-                id: super::util::Id::new(title),
-              },
+              anchor: AnchorCtx::new(Id::new(anchorized)),
               href: None,
               doc: None,
             }),
@@ -394,7 +395,7 @@ impl ModuleDocCtx {
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
-        id: Id::new("module_doc"),
+        id: Id::new(render_ctx.toc.anchorize("module_doc")),
         docs: html,
         sections,
       },

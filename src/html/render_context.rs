@@ -350,13 +350,16 @@ lazy_static! {
     regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -_/]").unwrap();
 }
 
+#[derive(Clone)]
+pub struct Anchorized(pub String);
+
 impl HeadingToCAdapter {
-  pub fn anchorize(&self, content: &str) -> String {
+  pub fn anchorize(&self, content: &str) -> Anchorized {
     let mut anchorizer = self.anchorizer.lock().unwrap();
-    anchorizer.anchorize(content)
+    Anchorized(anchorizer.anchorize(content))
   }
 
-  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &Anchorized) {
     let mut toc = self.toc.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
@@ -366,7 +369,7 @@ impl HeadingToCAdapter {
       toc.push(ToCEntry {
         level,
         content: content.to_owned(),
-        anchor: anchor.to_owned(),
+        anchor: anchor.0.to_owned(),
       });
     }
   }

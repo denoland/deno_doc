@@ -75,19 +75,20 @@ impl FunctionCtx {
         .index(i)
         .build();
 
+      let anchorized = ctx.toc.anchorize(overload_id.as_str());
+      let overload_id = Id::new(anchorized.clone());
+
       if overloads_count > 1 {
         ctx.toc.add_entry(
           0,
           &format!("Overload {}", i + 1),
-          overload_id.as_str(),
+          &anchorized,
         );
       }
 
       functions_content.push(OverloadRenderCtx {
         id: overload_id.clone(),
-        anchor: AnchorCtx {
-          id: overload_id.clone(),
-        },
+        anchor: AnchorCtx::new(overload_id.clone()),
         name: doc_node.get_name().to_string(),
         summary: render_function_summary(function_def, ctx),
         deprecated,
