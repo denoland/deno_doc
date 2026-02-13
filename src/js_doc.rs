@@ -86,10 +86,9 @@ impl From<String> for JsDoc {
             if current_tag_name == "description" {
               if let Some(caps) =
                 JS_DOC_TAG_WITH_VALUE_RE.captures(&current_tag)
+                && let Some(m) = caps.get(2)
               {
-                if let Some(m) = caps.get(2) {
-                  description_override = Some(m.as_str().to_string());
-                }
+                description_override = Some(m.as_str().to_string());
               }
             } else {
               tags.push(current_tag.into());
