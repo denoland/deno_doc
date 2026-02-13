@@ -203,6 +203,11 @@ export enum Enum {
   Bar = "bar",
 }
 
+/**
+ * description to be overwritten
+ * @summary the summary
+ * @description the description
+ */
 export enum Enum2 {
   Foo,
   Bar,

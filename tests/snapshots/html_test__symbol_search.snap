@@ -231,7 +231,7 @@ expression: search_index
       ],
       "name": "Enum2",
       "file": ".",
-      "doc": "",
+      "doc": "the description",
       "url": "././~/Enum2.html",
       "deprecated": false
     },
