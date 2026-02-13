@@ -155,8 +155,7 @@ fn render_single_function(
     .enumerate()
     .map(|(i, param)| {
       let (name, str_name) = crate::html::parameters::param_name(param, i);
-      let id = IdBuilder::new(ctx)
-        .component(&overload_id)
+      let id = IdBuilder::new_with_parent(ctx, &overload_id)
         .kind(IdKind::Parameter)
         .name(&str_name)
         .build();
@@ -328,8 +327,7 @@ fn render_function_return_type(
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
-  let id = IdBuilder::new(render_ctx)
-    .component(overload_id.as_str())
+  let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Return)
     .build();
 
@@ -361,8 +359,7 @@ fn render_function_throws(
   overload_id: Id,
   throws_id: usize,
 ) -> DocEntryCtx {
-  let id = IdBuilder::new(render_ctx)
-    .component(overload_id.as_str())
+  let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Throws)
     .index(throws_id)
     .build();

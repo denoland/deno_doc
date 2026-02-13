@@ -373,14 +373,18 @@ impl ModuleDocCtx {
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {
-          let anchorized = render_ctx.toc.anchorize(&title);
-          render_ctx.toc.add_entry(1, &title, &anchorized);
+          let id = IdBuilder::new(render_ctx)
+            .name(short_path.display_name())
+            .name(&title)
+            .build();
+
+          render_ctx.toc.add_entry(1, &title, &id);
 
           (
             render_ctx.clone(),
             Some(SectionHeaderCtx {
               title: title.clone(),
-              anchor: AnchorCtx::new(anchorized),
+              anchor: AnchorCtx::new(id),
               href: None,
               doc: None,
             }),

@@ -30,7 +30,7 @@ pub(crate) fn render_enum(
       let id = IdBuilder::new(render_ctx)
         .kind(IdKind::Enum)
         .name(doc_node.get_name())
-        .component(&member.name)
+        .name(&member.name)
         .build();
 
       let tags = Tag::from_js_doc(&member.js_doc);

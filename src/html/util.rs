@@ -90,6 +90,19 @@ impl<'a> IdBuilder<'a> {
     builder
   }
 
+  pub fn new_with_parent(ctx: &'a RenderContext<'a>, parent: &Id) -> Self {
+    let mut builder = Self::new(ctx);
+
+    let component = parent.as_ref();
+    if !component.is_empty() {
+      builder
+        .components
+        .push(Cow::Owned(sanitize_id_part(component)));
+    }
+
+    builder
+  }
+
   pub fn kind(mut self, kind: IdKind) -> Self {
     self.components.push(Cow::Borrowed(kind.as_str()));
     self
@@ -104,16 +117,6 @@ impl<'a> IdBuilder<'a> {
 
   pub fn index(mut self, index: usize) -> Self {
     self.components.push(Cow::Owned(index.to_string()));
-    self
-  }
-
-  pub fn component<C: AsRef<str>>(mut self, component: C) -> Self {
-    let component = component.as_ref();
-    if !component.is_empty() {
-      self
-        .components
-        .push(Cow::Owned(sanitize_id_part(component)));
-    }
     self
   }
 
