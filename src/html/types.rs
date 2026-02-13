@@ -156,10 +156,10 @@ pub(crate) fn render_type_def(
       } else if ctx.contains_type_param(&type_ref.type_name) {
         Some(format!(
           "#{}",
-          IdBuilder::new(ctx.ctx)
+          IdBuilder::new(ctx)
             .kind(IdKind::TypeParam)
             .name(&type_ref.type_name)
-            .build()
+            .build_unregistered()
         ))
       } else {
         ctx.lookup_symbol_href(&type_ref.type_name)
@@ -713,7 +713,7 @@ pub(crate) fn render_type_params(
     .collect::<std::collections::HashMap<&str, &str>>();
 
   for type_param in type_params.iter() {
-    let id = IdBuilder::new(ctx.ctx)
+    let id = IdBuilder::new(ctx)
       .kind(IdKind::TypeParam)
       .name(&type_param.name)
       .build();

@@ -101,7 +101,6 @@ impl Eq for NamespaceNodeSubItemCtx {}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceNodeCtx {
-  pub id: Id,
   pub anchor: AnchorCtx,
   pub tags: IndexSet<Tag>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
@@ -119,7 +118,7 @@ impl NamespaceNodeCtx {
     name: String,
     nodes: Vec<DocNodeWithContext>,
   ) -> Self {
-    let id = IdBuilder::new(ctx.ctx)
+    let id = IdBuilder::new(ctx)
       .kind(IdKind::Namespace)
       .name(&name)
       .build();
@@ -148,26 +147,26 @@ impl NamespaceNodeCtx {
             })
             .map(|symbol| {
               let target_id = match symbol.kind {
-                DocNodeKind::Property => IdBuilder::new(ctx.ctx)
+                DocNodeKind::Property => IdBuilder::new(ctx)
                   .kind(IdKind::Property)
                   .name(&symbol.drilldown_name.as_ref().unwrap().to_lowercase())
-                  .build(),
+                  .build_unregistered(),
                 DocNodeKind::Method(kind) => {
                   if matches!(kind, MethodKind::Getter | MethodKind::Setter) {
-                    IdBuilder::new(ctx.ctx)
+                    IdBuilder::new(ctx)
                       .kind(IdKind::Accessor)
                       .name(
                         &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
                       )
-                      .build()
+                      .build_unregistered()
                   } else {
-                    IdBuilder::new(ctx.ctx)
+                    IdBuilder::new(ctx)
                       .kind(IdKind::Method)
                       .name(
                         &symbol.drilldown_name.as_ref().unwrap().to_lowercase(),
                       )
                       .index(0)
-                      .build()
+                      .build_unregistered()
                   }
                 }
                 _ => unreachable!(),
@@ -193,8 +192,7 @@ impl NamespaceNodeCtx {
     subitems.sort();
 
     NamespaceNodeCtx {
-      id: id.clone(),
-      anchor: AnchorCtx { id },
+      anchor: AnchorCtx::new(id),
       tags,
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,

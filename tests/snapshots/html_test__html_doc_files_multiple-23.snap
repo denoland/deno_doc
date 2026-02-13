@@ -319,7 +319,7 @@ Constructors</h2></div><div class="space-y-8"><div class="anchorable docEntry" i
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">Foo</span><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>value<span>: <a href="#type_param_T" class="link td-ref">T</a></span></span></span>)</span>
+<span class="font-bold font-lg">Foo</span><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>value<span>: <a href="#type_param_t" class="link td-ref">T</a></span></span></span>)</span>
       </code>
     </div></div></div>
 </div></section>

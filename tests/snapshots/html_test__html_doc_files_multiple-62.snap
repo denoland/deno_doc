@@ -102,8 +102,8 @@ expression: files.get(file_name).unwrap()
 </nav>
 <div id="searchResults"></div><div id="content">
     <main><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="Functions"><div>
-      <h2 class="anchorable mb-1"><a href="#Functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="c_functions"><div>
+      <h2 class="anchorable mb-1"><a href="#c_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -217,7 +217,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
   />
 </svg>
 </a></nav><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#c_functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>

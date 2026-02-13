@@ -21,7 +21,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "Functions"
+              "id": "d_functions"
             },
             "href": null,
             "doc": null
@@ -30,7 +30,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_externalfunction",
                 "anchor": {
                   "id": "namespace_externalfunction"
                 },
@@ -70,7 +69,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "Functions"
+              "id": "foo_functions"
             },
             "href": null,
             "doc": null
@@ -79,7 +78,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
                 },
@@ -110,7 +108,7 @@ expression: module_docs
           "header": {
             "title": "Variables",
             "anchor": {
-              "id": "Variables"
+              "id": "foo_variables"
             },
             "href": null,
             "doc": null
@@ -119,7 +117,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_default",
                 "anchor": {
                   "id": "namespace_default"
                 },
@@ -159,7 +156,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "Functions"
+              "id": "c_functions"
             },
             "href": null,
             "doc": null
@@ -168,7 +165,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
                 },

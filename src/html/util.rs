@@ -4,8 +4,6 @@ use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
-use crate::html::jsdoc::MarkdownToHTMLOptions;
-use crate::html::jsdoc::markdown_to_html;
 use crate::html::render_context::ToCEntry;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
@@ -19,7 +17,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 lazy_static! {
@@ -73,17 +72,32 @@ impl IdKind {
 }
 
 pub struct IdBuilder<'a> {
+  ctx: &'a RenderContext<'a>,
   components: Vec<Cow<'a, str>>,
 }
 
 impl<'a> IdBuilder<'a> {
-  pub fn new(ctx: &'a GenerateCtx) -> Self {
+  pub fn new(ctx: &'a RenderContext<'a>) -> Self {
     let mut builder = Self {
+      ctx,
       components: Vec::new(),
     };
 
-    if let Some(prefix) = &ctx.id_prefix {
+    if let Some(prefix) = &ctx.ctx.id_prefix {
       builder.components.push(Cow::Borrowed(prefix));
+    }
+
+    builder
+  }
+
+  pub fn new_with_parent(ctx: &'a RenderContext<'a>, parent: &Id) -> Self {
+    let mut builder = Self::new(ctx);
+
+    let component = parent.as_ref();
+    if !component.is_empty() {
+      builder
+        .components
+        .push(Cow::Owned(sanitize_id_part(component)));
     }
 
     builder
@@ -106,18 +120,14 @@ impl<'a> IdBuilder<'a> {
     self
   }
 
-  pub fn component<C: AsRef<str>>(mut self, component: C) -> Self {
-    let component = component.as_ref();
-    if !component.is_empty() {
-      self
-        .components
-        .push(Cow::Owned(sanitize_id_part(component)));
-    }
-    self
+  pub fn build(self) -> Id {
+    self.ctx.toc.anchorize(&self.components.join("_"))
   }
 
-  pub fn build(self) -> Id {
-    Id(self.components.join("_"))
+  /// Build an ID without registering it in the anchorizer.
+  /// Use this for IDs that reference anchors on other pages (e.g. href targets).
+  pub fn build_unregistered(self) -> Id {
+    self.ctx.toc.sanitize(&self.components.join("_"))
   }
 }
 
@@ -140,18 +150,12 @@ impl Id {
     self.0.as_str()
   }
 
-  pub fn new(s: impl Into<String>) -> Self {
-    Id(s.into())
+  pub(crate) fn from_raw(s: String) -> Self {
+    Id(s)
   }
 
   pub fn empty() -> Self {
     Id(String::new())
-  }
-}
-
-impl From<String> for Id {
-  fn from(s: String) -> Self {
-    Id(s)
   }
 }
 
@@ -577,6 +581,10 @@ pub struct AnchorCtx {
 
 impl AnchorCtx {
   pub const TEMPLATE: &'static str = "anchor";
+
+  pub fn new(id: Id) -> Self {
+    Self { id }
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -600,48 +608,6 @@ pub struct SectionHeaderCtx {
   pub doc: Option<String>,
 }
 
-impl SectionHeaderCtx {
-  pub fn new_for_all_symbols(
-    render_ctx: &RenderContext,
-    path: &ShortPath,
-  ) -> Option<Self> {
-    if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      return None;
-    }
-
-    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
-
-    let doc = module_doc_nodes
-      .iter()
-      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
-      .and_then(|node| node.js_doc.doc.as_ref())
-      .and_then(|doc| {
-        markdown_to_html(
-          render_ctx,
-          doc,
-          MarkdownToHTMLOptions {
-            title_only: true,
-            no_toc: false,
-          },
-        )
-      });
-
-    let title = path.display_name();
-
-    Some(SectionHeaderCtx {
-      title: title.to_string(),
-      anchor: AnchorCtx {
-        id: Id::new(title.to_string()),
-      },
-      href: Some(render_ctx.ctx.resolve_path(
-        render_ctx.get_current_resolve(),
-        path.as_resolve_kind(),
-      )),
-      doc,
-    })
-  }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SectionCtx {
   pub header: Option<SectionHeaderCtx>,
@@ -654,17 +620,15 @@ impl SectionCtx {
   pub fn new(
     render_context: &RenderContext,
     title: &str,
-    mut content: SectionContentCtx,
+    content: SectionContentCtx,
   ) -> Self {
     let header = if !title.is_empty() {
-      let anchor = render_context.toc.anchorize(title);
-      render_context.toc.add_entry(1, title, &anchor);
+      let id = render_context.toc.anchorize(title);
+      render_context.toc.add_entry(1, title, &id);
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx {
-          id: Id::new(anchor),
-        },
+        anchor: AnchorCtx::new(id),
         href: None,
         doc: None,
       })
@@ -672,44 +636,29 @@ impl SectionCtx {
       None
     };
 
-    match &mut content {
+    match &content {
       SectionContentCtx::DocEntry(entries) => {
         for entry in entries {
           let Some(name) = &entry.name else {
             continue;
           };
 
-          let anchor = render_context.toc.anchorize(entry.id.as_str());
-
-          render_context.toc.add_entry(2, name, &anchor);
-
-          entry.id = Id::new(anchor.clone());
-          entry.anchor.id = Id::new(anchor);
+          render_context.toc.add_entry(2, name, &entry.anchor.id);
         }
       }
       SectionContentCtx::Example(examples) => {
         for example in examples {
-          let anchor = render_context.toc.anchorize(example.id.as_str());
-
           render_context.toc.add_entry(
             2,
             &super::jsdoc::strip(render_context, &example.title),
-            &anchor,
+            &example.anchor.id,
           );
-
-          example.id = Id::new(anchor.clone());
-          example.anchor.id = Id::new(anchor);
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          let anchor = render_context.toc.anchorize(node.id.as_str());
-
-          render_context.toc.add_entry(2, &node.name, &anchor);
-
-          node.id = Id::new(anchor.clone());
-          node.anchor.id = Id::new(anchor);
+          render_context.toc.add_entry(2, &node.name, &node.anchor.id);
         }
       }
       SectionContentCtx::See(_) => {}
@@ -763,7 +712,6 @@ impl Tag {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
-  id: Id,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
@@ -792,11 +740,10 @@ impl DocEntryCtx {
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
-      id: id.clone(),
       name,
       name_href,
       content: content.to_string(),
-      anchor: AnchorCtx { id },
+      anchor: AnchorCtx::new(id),
       tags,
       js_doc: maybe_jsdoc,
       source_href,

@@ -145,7 +145,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_Baz_foo">
+Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_baz_foo">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span>

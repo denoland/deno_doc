@@ -61,6 +61,7 @@ export interface AllSymbolsCtx {
 export interface AllSymbolsItemCtx {
   name: string;
   href: string;
+  anchor: AnchorCtx;
   module_doc: ModuleDocCtx;
 }
 

@@ -197,7 +197,7 @@ Type Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">E</span><span class="font-medium text-stone-500 dark:text-stone-200"><span><span class="td-kw"> extends </span><a href="#type_param_T" class="link td-ref">T</a></span></span>
+<span class="font-bold font-lg">E</span><span class="font-medium text-stone-500 dark:text-stone-200"><span><span class="td-kw"> extends </span><a href="#type_param_t" class="link td-ref">T</a></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="type_param_r">
@@ -476,7 +476,7 @@ Methods</h2></div><div class="space-y-8"><div class="anchorable docEntry" id="me
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.computedMethod.html">[computedMethod]</a><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>a<span>: <a href="#type_param_T" class="link td-ref">T</a> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <a href="#type_param_R" class="link td-ref">R</a> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.computedMethod.html">[computedMethod]</a><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>a<span>: <a href="#type_param_t" class="link td-ref">T</a> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <a href="#type_param_r" class="link td-ref">R</a> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span>
       </code>
     </div></div></div>
 </div></section>
