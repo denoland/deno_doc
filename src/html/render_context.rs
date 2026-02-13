@@ -351,12 +351,21 @@ lazy_static! {
 }
 
 impl HeadingToCAdapter {
-  pub fn anchorize(&self, content: &str) -> String {
+  pub fn anchorize(&self, content: &str) -> super::util::Id {
     let mut anchorizer = self.anchorizer.lock().unwrap();
-    anchorizer.anchorize(content)
+    super::util::Id::from_raw(anchorizer.anchorize(content))
   }
 
-  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
+  /// Apply the same GFM sanitization as anchorize but without registering
+  /// in the deduplication map. Use for IDs referencing anchors on other pages.
+  pub fn sanitize(&self, content: &str) -> super::util::Id {
+    let s = REJECTED_CHARS
+      .replace_all(&content.to_lowercase(), "")
+      .replace(' ', "-");
+    super::util::Id::from_raw(s)
+  }
+
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &super::util::Id) {
     let mut toc = self.toc.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
@@ -366,7 +375,7 @@ impl HeadingToCAdapter {
       toc.push(ToCEntry {
         level,
         content: content.to_owned(),
-        anchor: anchor.to_owned(),
+        anchor: anchor.as_str().to_owned(),
       });
     }
   }

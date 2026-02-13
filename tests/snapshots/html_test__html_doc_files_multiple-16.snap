@@ -221,7 +221,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><a href="#type_param_T" class="link td-ref">T</a> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.foo.html">foo</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><a href="#type_param_t" class="link td-ref">T</a> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span></span>
       </code>
     </div></div></div>
 </div></section>

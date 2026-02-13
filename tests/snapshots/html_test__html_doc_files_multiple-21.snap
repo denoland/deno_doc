@@ -121,7 +121,8 @@ expression: files.get(file_name).unwrap()
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-Enum">enum</span>&nbsp;<span class="font-bold">Enum2</span>
-          </div></div></div><div><div class="space-y-7" id=""><section class="section"  id="members"><div>
+          </div></div></div><div><div class="space-y-7" id=""><div class="markdown"><p>the description</p>
+</div><section class="section"  id="members"><div>
       <h2 class="anchorable mb-1"><a href="#members" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"

@@ -128,8 +128,8 @@ expression: files.get(file_name).unwrap()
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-Namespace">namespace</span>&nbsp;<span class="font-bold">Testing</span>
-          </div></div></div><div><div class="space-y-7" id=""><section class="section"  id="Functions"><div>
-      <h2 class="anchorable mb-1"><a href="#Functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+          </div></div></div><div><div class="space-y-7" id=""><section class="section"  id="functions"><div>
+      <h2 class="anchorable mb-1"><a href="#functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -204,7 +204,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_testing_ext
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_testing_externalfunction" title="Testing.externalFunction">Testing.externalFunction</a></li><li><a href="#namespace_testing_t" title="Testing.t">Testing.t</a></li><li><a href="#namespace_testing_x" title="Testing.x">Testing.x</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#functions-1" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_testing_externalfunction" title="Testing.externalFunction">Testing.externalFunction</a></li><li><a href="#namespace_testing_t" title="Testing.t">Testing.t</a></li><li><a href="#namespace_testing_x" title="Testing.x">Testing.x</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>

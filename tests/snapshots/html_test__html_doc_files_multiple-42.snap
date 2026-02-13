@@ -122,8 +122,8 @@ expression: files.get(file_name).unwrap()
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-Method">method</span>&nbsp;<span class="font-bold">Hello.optionalMethod</span>
-          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_Hello_optionalMethod_0">
-      <code class="anchorable text-base break-words"><a href="#function_Hello_optionalMethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_hello_optionalmethod_0">
+      <code class="anchorable text-base break-words"><a href="#function_hello_optionalmethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -169,7 +169,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_Hello_optionalMethod_0_return">
+Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_hello_optionalmethod_0_return">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span>[<span class="td-kw">string</span>]</span></span>

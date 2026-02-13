@@ -41,7 +41,7 @@ pub(crate) fn render_type_alias(
     }
   });
 
-  let id = IdBuilder::new(ctx.ctx)
+  let id = IdBuilder::new(ctx)
     .kind(IdKind::TypeAlias)
     .name(name)
     .build();

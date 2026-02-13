@@ -6,7 +6,7 @@ expression: search_index
   "kind": "search",
   "nodes": [
     {
-      "id": "namespace_A",
+      "id": "namespace_a",
       "kind": [
         {
           "char": "c",
@@ -21,7 +21,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_AbstractClass",
+      "id": "namespace_abstractclass",
       "kind": [
         {
           "char": "c",
@@ -36,7 +36,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_AbstractClass",
+      "id": "namespace_abstractclass",
       "kind": [
         {
           "char": "m",
@@ -51,7 +51,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_AbstractClass",
+      "id": "namespace_abstractclass",
       "kind": [
         {
           "char": "m",
@@ -66,7 +66,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_AbstractClass",
+      "id": "namespace_abstractclass",
       "kind": [
         {
           "char": "p",
@@ -81,7 +81,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_B",
+      "id": "namespace_b",
       "kind": [
         {
           "char": "c",
@@ -96,7 +96,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Bar",
+      "id": "namespace_bar",
       "kind": [
         {
           "char": "c",
@@ -111,7 +111,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Baz",
+      "id": "namespace_baz",
       "kind": [
         {
           "char": "T",
@@ -126,7 +126,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Baz",
+      "id": "namespace_baz",
       "kind": [
         {
           "char": "m",
@@ -141,7 +141,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Baz",
+      "id": "namespace_baz",
       "kind": [
         {
           "char": "p",
@@ -156,7 +156,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_CompoundType",
+      "id": "namespace_compoundtype",
       "kind": [
         {
           "char": "I",
@@ -176,7 +176,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_CompoundType",
+      "id": "namespace_compoundtype",
       "kind": [
         {
           "char": "p",
@@ -191,7 +191,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_EmptyInterface",
+      "id": "namespace_emptyinterface",
       "kind": [
         {
           "char": "I",
@@ -206,7 +206,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Enum",
+      "id": "namespace_enum",
       "kind": [
         {
           "char": "E",
@@ -221,7 +221,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Enum2",
+      "id": "namespace_enum2",
       "kind": [
         {
           "char": "E",
@@ -231,12 +231,12 @@ expression: search_index
       ],
       "name": "Enum2",
       "file": ".",
-      "doc": "",
+      "doc": "the description",
       "url": "././~/Enum2.html",
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "c",
@@ -251,7 +251,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -266,7 +266,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -281,7 +281,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -296,7 +296,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -311,7 +311,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -326,7 +326,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -341,7 +341,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -356,7 +356,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -371,7 +371,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -386,7 +386,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -401,7 +401,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "m",
@@ -416,7 +416,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "p",
@@ -431,7 +431,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "p",
@@ -446,7 +446,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "p",
@@ -461,7 +461,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "p",
@@ -476,7 +476,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foo",
+      "id": "namespace_foo",
       "kind": [
         {
           "char": "p",
@@ -491,7 +491,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Foobar",
+      "id": "namespace_foobar",
       "kind": [
         {
           "char": "c",
@@ -506,7 +506,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "I",
@@ -521,7 +521,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "m",
@@ -536,7 +536,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "m",
@@ -551,7 +551,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "p",
@@ -566,7 +566,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "p",
@@ -581,7 +581,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "p",
@@ -596,7 +596,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Hello",
+      "id": "namespace_hello",
       "kind": [
         {
           "char": "p",
@@ -611,7 +611,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_InterfaceWithIndexSignature",
+      "id": "namespace_interfacewithindexsignature",
       "kind": [
         {
           "char": "I",
@@ -626,7 +626,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Testing",
+      "id": "namespace_testing",
       "kind": [
         {
           "char": "c",
@@ -646,7 +646,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Testing_t",
+      "id": "namespace_testing_t",
       "kind": [
         {
           "char": "f",
@@ -661,7 +661,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_TypeAlias",
+      "id": "namespace_typealias",
       "kind": [
         {
           "char": "T",
@@ -676,7 +676,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_anotherVariable",
+      "id": "namespace_anothervariable",
       "kind": [
         {
           "char": "v",
@@ -691,7 +691,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_anotherVariable",
+      "id": "namespace_anothervariable",
       "kind": [
         {
           "char": "m",
@@ -706,7 +706,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_anotherVariable",
+      "id": "namespace_anothervariable",
       "kind": [
         {
           "char": "p",
@@ -751,7 +751,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_functionWithOptionalParameters",
+      "id": "namespace_functionwithoptionalparameters",
       "kind": [
         {
           "char": "f",
@@ -791,7 +791,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_someVariable",
+      "id": "namespace_somevariable",
       "kind": [
         {
           "char": "v",
@@ -806,7 +806,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Testing_externalFunction",
+      "id": "namespace_testing_externalfunction",
       "kind": [
         {
           "char": "f",
@@ -821,7 +821,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_externalFunction",
+      "id": "namespace_externalfunction",
       "kind": [
         {
           "char": "f",
@@ -836,7 +836,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_Testing_x",
+      "id": "namespace_testing_x",
       "kind": [
         {
           "char": "f",

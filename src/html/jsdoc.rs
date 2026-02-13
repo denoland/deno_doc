@@ -149,7 +149,7 @@ pub struct MarkdownToHTMLOptions {
   pub no_toc: bool,
 }
 
-pub type MarkdownStripper = std::rc::Rc<dyn Fn(&str) -> String>;
+pub type MarkdownStripper = Rc<dyn Fn(&str) -> String>;
 
 pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   let md = parse_links(md, render_ctx, true);
@@ -236,7 +236,24 @@ pub(crate) fn jsdoc_body_to_html(
   js_doc: &JsDoc,
   summary: bool,
 ) -> Option<String> {
-  if let Some(doc) = js_doc.doc.as_deref() {
+  if summary
+    && let Some(doc) = js_doc.tags.iter().find_map(|tag| {
+      if let JsDocTag::Summary { doc } = tag {
+        Some(doc)
+      } else {
+        None
+      }
+    })
+  {
+    markdown_to_html(
+      ctx,
+      doc,
+      MarkdownToHTMLOptions {
+        title_only: false,
+        no_toc: false,
+      },
+    )
+  } else if let Some(doc) = js_doc.doc.as_deref() {
     markdown_to_html(
       ctx,
       doc,
@@ -284,7 +301,6 @@ pub(crate) fn jsdoc_examples(
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ExampleCtx {
   pub anchor: AnchorCtx,
-  pub id: Id,
   pub title: String,
   pub markdown_title: String,
   markdown_body: String,
@@ -294,7 +310,7 @@ impl ExampleCtx {
   pub const TEMPLATE: &'static str = "example";
 
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
-    let id = IdBuilder::new(render_ctx.ctx)
+    let id = IdBuilder::new(render_ctx)
       .kind(IdKind::Example)
       .index(i)
       .build();
@@ -311,8 +327,7 @@ impl ExampleCtx {
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
     ExampleCtx {
-      anchor: AnchorCtx { id: id.clone() },
-      id,
+      anchor: AnchorCtx::new(id),
       title,
       markdown_title,
       markdown_body,
@@ -375,13 +390,18 @@ impl ModuleDocCtx {
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {
+          let id = IdBuilder::new(render_ctx)
+            .name(short_path.display_name())
+            .name(&title)
+            .build();
+
+          render_ctx.toc.add_entry(1, &title, &id);
+
           (
             render_ctx.clone(),
             Some(SectionHeaderCtx {
               title: title.clone(),
-              anchor: AnchorCtx {
-                id: super::util::Id::new(title),
-              },
+              anchor: AnchorCtx::new(id),
               href: None,
               doc: None,
             }),
@@ -394,7 +414,7 @@ impl ModuleDocCtx {
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
-        id: Id::new("module_doc"),
+        id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
         sections,
       },

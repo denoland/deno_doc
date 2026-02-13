@@ -1,6 +1,6 @@
 <div class="namespaceSection">
   {{~#each this~}}
-    <div id="{{this.id}}" class="namespaceItem" {{#if this.deprecated}}aria-label="deprecated"{{/if}}>
+    <div id="{{this.anchor.id}}" class="namespaceItem" {{#if this.deprecated}}aria-label="deprecated"{{/if}}>
 	    {{~> doc_node_kind_icon this.doc_node_kind_ctx ~}}
 
 	    <div class="namespaceItemContent">

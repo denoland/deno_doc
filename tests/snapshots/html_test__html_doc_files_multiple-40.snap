@@ -122,8 +122,8 @@ expression: files.get(file_name).unwrap()
         <div>
           <div class="text-2xl leading-none break-all">
             <span class="text-Method">method</span>&nbsp;<span class="font-bold">Hello.computedMethod</span>
-          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_Hello_computedMethod_0">
-      <code class="anchorable text-base break-words"><a href="#function_Hello_computedMethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_hello_computedmethod_0">
+      <code class="anchorable text-base break-words"><a href="#function_hello_computedmethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -221,7 +221,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_Hello_computedMethod_0_return">
+Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_hello_computedmethod_0_return">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-kw">void</span></span>

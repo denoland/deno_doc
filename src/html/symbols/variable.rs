@@ -37,7 +37,7 @@ pub(crate) fn render_variable(
     }
   });
 
-  let id = IdBuilder::new(ctx.ctx)
+  let id = IdBuilder::new(ctx)
     .kind(IdKind::Variable)
     .name(doc_node.get_qualified_name())
     .build();

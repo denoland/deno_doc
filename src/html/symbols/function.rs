@@ -19,7 +19,6 @@ use std::ops::Deref;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct OverloadRenderCtx {
-  id: Id,
   anchor: AnchorCtx,
   name: String,
   summary: String,
@@ -71,29 +70,24 @@ impl FunctionCtx {
         }
       });
 
-      let overload_id = IdBuilder::new(ctx.ctx)
+      let overload_id = IdBuilder::new(ctx)
         .kind(IdKind::Function)
         .name(doc_node.get_name())
         .index(i)
         .build();
 
       if overloads_count > 1 {
-        ctx.toc.add_entry(
-          0,
-          &format!("Overload {}", i + 1),
-          overload_id.as_str(),
-        );
+        ctx
+          .toc
+          .add_entry(0, &format!("Overload {}", i + 1), &overload_id);
       }
 
       functions_content.push(OverloadRenderCtx {
-        id: overload_id.clone(),
-        anchor: AnchorCtx {
-          id: overload_id.clone(),
-        },
+        anchor: AnchorCtx::new(overload_id.clone()),
         name: doc_node.get_name().to_string(),
         summary: render_function_summary(function_def, ctx),
         deprecated,
-        content: render_single_function(ctx, doc_node, overload_id.clone()),
+        content: render_single_function(ctx, doc_node, overload_id),
       });
     }
 
@@ -180,8 +174,7 @@ fn render_single_function(
     .enumerate()
     .map(|(i, param)| {
       let (name, str_name) = crate::html::parameters::param_name(param, i);
-      let id = IdBuilder::new(ctx.ctx)
-        .component(&overload_id)
+      let id = IdBuilder::new_with_parent(ctx, &overload_id)
         .kind(IdKind::Parameter)
         .name(&str_name)
         .build();
@@ -369,8 +362,7 @@ fn render_function_return_type(
 ) -> Option<DocEntryCtx> {
   let return_type = def.return_type.as_ref()?;
 
-  let id = IdBuilder::new(render_ctx.ctx)
-    .component(overload_id.as_str())
+  let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Return)
     .build();
 
@@ -497,8 +489,7 @@ fn render_function_throws(
   overload_id: Id,
   throws_id: usize,
 ) -> DocEntryCtx {
-  let id = IdBuilder::new(render_ctx.ctx)
-    .component(overload_id.as_str())
+  let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Throws)
     .index(throws_id)
     .build();
