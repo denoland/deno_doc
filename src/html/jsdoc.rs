@@ -284,7 +284,6 @@ pub(crate) fn jsdoc_examples(
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ExampleCtx {
   pub anchor: AnchorCtx,
-  pub id: Id,
   pub title: String,
   pub markdown_title: String,
   markdown_body: String,
@@ -311,8 +310,7 @@ impl ExampleCtx {
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
     ExampleCtx {
-      anchor: AnchorCtx::new(id.clone()),
-      id,
+      anchor: AnchorCtx::new(id),
       title,
       markdown_title,
       markdown_body,

@@ -160,7 +160,6 @@ fn render_constructors(
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct IndexSignatureCtx {
-  pub id: Id,
   pub anchor: AnchorCtx,
   pub readonly: bool,
   pub params: String,

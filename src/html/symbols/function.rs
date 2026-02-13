@@ -17,7 +17,6 @@ use std::ops::Deref;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct OverloadRenderCtx {
-  id: Id,
   anchor: AnchorCtx,
   name: String,
   summary: String,
@@ -76,20 +75,17 @@ impl FunctionCtx {
         .build();
 
       if overloads_count > 1 {
-        ctx.toc.add_entry(
-          0,
-          &format!("Overload {}", i + 1),
-          &overload_id,
-        );
+        ctx
+          .toc
+          .add_entry(0, &format!("Overload {}", i + 1), &overload_id);
       }
 
       functions_content.push(OverloadRenderCtx {
-        id: overload_id.clone(),
         anchor: AnchorCtx::new(overload_id.clone()),
         name: doc_node.get_name().to_string(),
         summary: render_function_summary(function_def, ctx),
         deprecated,
-        content: render_single_function(ctx, doc_node, overload_id.clone()),
+        content: render_single_function(ctx, doc_node, overload_id),
       });
     }
 

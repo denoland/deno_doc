@@ -101,7 +101,6 @@ impl Eq for NamespaceNodeSubItemCtx {}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceNodeCtx {
-  pub id: Id,
   pub anchor: AnchorCtx,
   pub tags: IndexSet<Tag>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
@@ -193,7 +192,6 @@ impl NamespaceNodeCtx {
     subitems.sort();
 
     NamespaceNodeCtx {
-      id: id.clone(),
       anchor: AnchorCtx::new(id),
       tags,
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),

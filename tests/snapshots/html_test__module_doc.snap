@@ -30,7 +30,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_externalfunction",
                 "anchor": {
                   "id": "namespace_externalfunction"
                 },
@@ -79,7 +78,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
                 },
@@ -119,7 +117,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_default",
                 "anchor": {
                   "id": "namespace_default"
                 },
@@ -168,7 +165,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
                 },

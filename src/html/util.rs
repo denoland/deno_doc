@@ -4,7 +4,7 @@ use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
-use crate::html::render_context::{ToCEntry};
+use crate::html::render_context::ToCEntry;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -17,8 +17,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt::{Display};
-use std::fmt::{Formatter};
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 lazy_static! {
@@ -640,7 +640,7 @@ impl SectionCtx {
             continue;
           };
 
-          render_context.toc.add_entry(2, name, &entry.id);
+          render_context.toc.add_entry(2, name, &entry.anchor.id);
         }
       }
       SectionContentCtx::Example(examples) => {
@@ -648,14 +648,14 @@ impl SectionCtx {
           render_context.toc.add_entry(
             2,
             &super::jsdoc::strip(render_context, &example.title),
-            &example.id,
+            &example.anchor.id,
           );
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          render_context.toc.add_entry(2, &node.name, &node.id);
+          render_context.toc.add_entry(2, &node.name, &node.anchor.id);
         }
       }
       SectionContentCtx::See(_) => {}
@@ -709,7 +709,6 @@ impl Tag {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
-  id: Id,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
@@ -738,7 +737,6 @@ impl DocEntryCtx {
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
-      id: id.clone(),
       name,
       name_href,
       content: content.to_string(),
