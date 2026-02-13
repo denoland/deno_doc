@@ -162,7 +162,7 @@ fn render_interface_index_signatures(
   let mut items = Vec::with_capacity(index_signatures.len());
 
   for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = IdBuilder::new(ctx.ctx)
+    let id = IdBuilder::new(ctx)
       .kind(IdKind::IndexSignature)
       .index(i)
       .build();
@@ -200,7 +200,6 @@ fn render_interface_index_signatures(
     };
 
     items.push(IndexSignatureCtx {
-      id: id.clone(),
       anchor: AnchorCtx { id },
       readonly: index_signature.readonly,
       params: render_params(ctx, &index_signature.params),
@@ -218,7 +217,7 @@ fn render_interface_index_signatures(
   // Inject removed index signatures
   if let Some(diff) = idx_diff {
     for removed_sig in &diff.removed {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::IndexSignature)
         .index(items.len())
         .build();
@@ -230,7 +229,6 @@ fn render_interface_index_signatures(
         .unwrap_or_default();
 
       items.push(IndexSignatureCtx {
-        id: id.clone(),
         anchor: AnchorCtx { id },
         readonly: removed_sig.readonly,
         params: render_params(ctx, &removed_sig.params),
@@ -317,7 +315,7 @@ fn render_interface_call_signatures(
     .iter()
     .enumerate()
     .map(|(i, call_signature)| {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::CallSignature)
         .index(i)
         .build();
@@ -379,7 +377,7 @@ fn render_interface_call_signatures(
   // Inject removed call signatures
   if let Some(diff) = cs_diff {
     for removed_sig in &diff.removed {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::CallSignature)
         .index(items.len())
         .build();
@@ -438,7 +436,7 @@ fn render_interface_constructors(
     .iter()
     .enumerate()
     .map(|(i, constructor)| {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Constructor)
         .index(i)
         .build();
@@ -490,7 +488,7 @@ fn render_interface_constructors(
   // Inject removed constructors
   if let Some(diff) = ctor_diff {
     for removed_ctor in &diff.removed {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Constructor)
         .index(items.len())
         .build();
@@ -589,7 +587,7 @@ fn inject_removed_properties(
 ) {
   if let Some(prop_diff) = &iface_diff.property_changes {
     for removed_prop in &prop_diff.removed {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Property)
         .name(&removed_prop.name)
         .build();
@@ -626,7 +624,7 @@ fn inject_removed_methods(
 ) {
   if let Some(method_diff) = &iface_diff.method_changes {
     for removed_method in &method_diff.removed {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::Method)
         .name(&removed_method.name)
         .index(0)

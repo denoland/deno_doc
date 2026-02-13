@@ -451,8 +451,7 @@ fn inject_removed_params(
 
   for removed_param in &params_change.removed {
     let (name, str_name) = crate::html::parameters::param_name(removed_param, entries.len());
-    let id = IdBuilder::new(ctx.ctx)
-      .component(overload_id)
+    let id = IdBuilder::new_with_parent(ctx, overload_id)
       .kind(IdKind::Parameter)
       .name(&str_name)
       .build();

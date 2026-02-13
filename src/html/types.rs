@@ -765,7 +765,7 @@ pub(crate) fn render_type_params(
   // Inject removed type params
   if let Some(diff) = type_params_diff {
     for removed_tp in &diff.removed {
-      let id = IdBuilder::new(ctx.ctx)
+      let id = IdBuilder::new(ctx)
         .kind(IdKind::TypeParam)
         .name(&removed_tp.name)
         .build();

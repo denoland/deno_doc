@@ -126,10 +126,10 @@ fn inject_removed_members(
   entries: &mut Vec<DocEntryCtx>,
 ) {
   for removed_member in &enum_diff.removed_members {
-    let id = IdBuilder::new(render_ctx.ctx)
+    let id = IdBuilder::new(render_ctx)
       .kind(IdKind::Enum)
       .name(enum_name)
-      .component(&removed_member.name)
+      .name(&removed_member.name)
       .build();
 
     entries.push(DocEntryCtx::new_with_diff(
