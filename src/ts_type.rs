@@ -1780,6 +1780,10 @@ fn infer_ts_type_from_obj_inner(
   let mut methods = Vec::<MethodDef>::new();
   let mut properties = Vec::<PropertyDef>::new();
   for obj_prop in &obj.props {
+    let Some(js_doc) = js_doc_for_range(module_info, &obj_prop.range()) else {
+      continue;
+    };
+
     match obj_prop {
       PropOrSpread::Prop(prop) => match &**prop {
         Prop::Shorthand(shorthand) => {
@@ -1787,7 +1791,7 @@ fn infer_ts_type_from_obj_inner(
           // from the previous symbol.
           properties.push(PropertyDef {
             name: shorthand.sym.to_string(),
-            js_doc: Default::default(),
+            js_doc,
             location: get_location(module_info, shorthand.start()),
             params: vec![],
             readonly: false,
@@ -1800,7 +1804,7 @@ fn infer_ts_type_from_obj_inner(
         Prop::KeyValue(kv) => {
           properties.push(PropertyDef {
             name: prop_name_to_string(module_info, &kv.key),
-            js_doc: Default::default(),
+            js_doc,
             location: get_location(module_info, kv.start()),
             params: vec![],
             readonly: false,
@@ -1820,7 +1824,7 @@ fn infer_ts_type_from_obj_inner(
             .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
           methods.push(MethodDef {
             name,
-            js_doc: Default::default(),
+            js_doc,
             kind: MethodKind::Getter,
             location: get_location(module_info, getter.start()),
             params: vec![],
@@ -1836,7 +1840,7 @@ fn infer_ts_type_from_obj_inner(
           let param = pat_to_param_def(module_info, setter.param.as_ref());
           methods.push(MethodDef {
             name,
-            js_doc: Default::default(),
+            js_doc,
             kind: MethodKind::Setter,
             location: get_location(module_info, setter.start()),
             params: vec![param],
@@ -1866,7 +1870,7 @@ fn infer_ts_type_from_obj_inner(
           );
           methods.push(MethodDef {
             name,
-            js_doc: Default::default(),
+            js_doc,
             kind: MethodKind::Method,
             location: get_location(module_info, method.start()),
             params,
