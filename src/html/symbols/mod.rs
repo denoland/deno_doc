@@ -8,6 +8,7 @@ use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::util::is_symbol_added;
 use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -487,6 +488,10 @@ impl SymbolInnerCtx {
         ));
       }
 
+      if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
+        crate::html::util::filter_sections_diff_only(&mut sections);
+      }
+
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
         id: crate::html::util::Id::empty(),
         sections,
@@ -531,7 +536,7 @@ impl AllSymbolsCtx {
   pub const TEMPLATE: &'static str = "all_symbols";
 
   pub fn new(ctx: &RenderContext) -> Self {
-    let entrypoints = ctx
+    let mut entrypoints: Vec<AllSymbolsEntrypointCtx> = ctx
       .ctx
       .doc_nodes
       .keys()
@@ -551,6 +556,11 @@ impl AllSymbolsCtx {
         }
       })
       .collect();
+
+    if ctx.ctx.diff_only {
+      entrypoints
+        .retain(|ep| !ep.module_doc.sections.sections.is_empty());
+    }
 
     Self { entrypoints }
   }

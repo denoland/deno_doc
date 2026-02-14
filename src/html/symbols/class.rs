@@ -637,8 +637,13 @@ fn render_class_method(
 
     let old_content = method_diff
       .and_then(|md| md.function_diff.as_ref())
-      .and_then(|fd| fd.return_type_change.as_ref())
-      .map(|tc| format!(": {}", &tc.old.repr));
+      .and_then(|fd| {
+        super::function::render_old_function_summary(
+          &method.function_def.params,
+          &method.function_def.return_type,
+          fd,
+        )
+      });
 
     let old_tags = method_diff.map(|md| compute_old_method_tags(&tags, md));
 

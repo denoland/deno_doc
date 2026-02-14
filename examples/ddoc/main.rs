@@ -409,6 +409,7 @@ fn generate_docs_directory(
       )
     })),
     id_prefix: None,
+    diff_only: false,
   };
   let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url)?;
   let html = deno_doc::html::generate(ctx)?;

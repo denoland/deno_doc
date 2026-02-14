@@ -795,9 +795,21 @@ fn render_methods_vec(
           .and_then(|d| d.method_changes.as_ref())
           .and_then(|mc| mc.modified.iter().find(|m| m.name == *method.name));
 
-        let old_content = method_diff
-          .and_then(|md| md.return_type_change.as_ref())
-          .map(|tc| format!(": {}", &tc.old.repr));
+        let old_content = method_diff.and_then(|md| {
+          let func_diff = crate::diff::FunctionDiff {
+            params_change: md.params_change.clone(),
+            return_type_change: md.return_type_change.clone(),
+            is_async_change: None,
+            is_generator_change: None,
+            type_params_change: None,
+            decorators_change: None,
+          };
+          super::function::render_old_function_summary(
+            &method.params,
+            &method.return_type,
+            &func_diff,
+          )
+        });
 
         let old_tags = method_diff.map(|md| compute_old_iface_method_tags(&tags, md));
 

@@ -114,6 +114,88 @@ pub(crate) fn render_function_summary(
   )
 }
 
+/// Reconstruct the old function/method summary as plain text from the new
+/// params/return_type and the diff. Returns None if there are no signature-level
+/// changes (params or return type).
+pub(crate) fn render_old_function_summary(
+  params: &[crate::params::ParamDef],
+  return_type: &Option<crate::ts_type::TsTypeDef>,
+  func_diff: &FunctionDiff,
+) -> Option<String> {
+  let params_change = func_diff.params_change.as_ref();
+  let return_type_change = func_diff.return_type_change.as_ref();
+
+  if params_change.is_none() && return_type_change.is_none() {
+    return None;
+  }
+
+  // shared_count = params that existed in both old and new (matched by index)
+  let added_count = params_change.map_or(0, |pc| pc.added.len());
+  let shared_count = params.len() - added_count;
+
+  let mut old_params = Vec::new();
+
+  // Shared params: use old values from diff if modified, otherwise use new
+  for i in 0..shared_count {
+    let new_param = &params[i];
+
+    let modified = params_change
+      .and_then(|pc| pc.modified.iter().find(|p| p.index == i));
+
+    if let Some(param_diff) = modified {
+      let name = if let Some(pc) = &param_diff.pattern_change {
+        crate::html::parameters::param_name(&pc.old, i).1
+      } else {
+        crate::html::parameters::param_name(new_param, i).1
+      };
+      let type_str = if let Some(tc) = &param_diff.type_change {
+        format!(": {}", tc.old.repr)
+      } else {
+        new_param
+          .ts_type
+          .as_ref()
+          .map(|t| format!(": {}", t.repr))
+          .unwrap_or_default()
+      };
+      old_params.push(format!("{name}{type_str}"));
+    } else {
+      let (_, str_name) =
+        crate::html::parameters::param_name(new_param, i);
+      let type_str = new_param
+        .ts_type
+        .as_ref()
+        .map(|t| format!(": {}", t.repr))
+        .unwrap_or_default();
+      old_params.push(format!("{str_name}{type_str}"));
+    }
+  }
+
+  // Removed params (existed in old but not in new)
+  if let Some(pc) = params_change {
+    for (j, removed) in pc.removed.iter().enumerate() {
+      let (_, str_name) =
+        crate::html::parameters::param_name(removed, shared_count + j);
+      let type_str = removed
+        .ts_type
+        .as_ref()
+        .map(|t| format!(": {}", t.repr))
+        .unwrap_or_default();
+      old_params.push(format!("{str_name}{type_str}"));
+    }
+  }
+
+  let old_return_type = if let Some(rt) = return_type_change {
+    format!(": {}", rt.old.repr)
+  } else {
+    return_type
+      .as_ref()
+      .map(|t| format!(": {}", t.repr))
+      .unwrap_or_default()
+  };
+
+  Some(format!("({}){old_return_type}", old_params.join(", ")))
+}
+
 fn render_single_function(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
@@ -128,8 +210,8 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  // Extract FunctionDiff if available
-  let func_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+  // Extract FunctionDiff if available (direct lookup for top-level functions)
+  let direct_func_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     let info = diff_index.get_node_diff(
       &doc_node.origin.specifier,
       doc_node.get_name(),
@@ -144,6 +226,15 @@ fn render_single_function(
       None
     }
   });
+
+  // For drilldown symbols (class/interface methods), look up via parent
+  let drilldown_func_diff = if direct_func_diff.is_none() {
+    get_drilldown_function_diff(ctx, doc_node)
+  } else {
+    None
+  };
+
+  let func_diff = direct_func_diff.or(drilldown_func_diff.as_ref());
 
   let param_docs = doc_node
     .js_doc
@@ -346,6 +437,10 @@ fn render_single_function(
     ));
   }
 
+  if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
+    crate::html::util::filter_sections_diff_only(&mut sections);
+  }
+
   SymbolContentCtx {
     id: Id::empty(),
     sections,
@@ -506,4 +601,51 @@ fn render_function_throws(
     doc.as_ref().map(|doc| doc.as_ref()),
     &doc_node.location,
   )
+}
+
+/// For drilldown symbols (class/interface methods), extract the FunctionDiff
+/// from the parent node's diff data.
+fn get_drilldown_function_diff(
+  ctx: &RenderContext,
+  doc_node: &DocNodeWithContext,
+) -> Option<FunctionDiff> {
+  let diff_index = ctx.ctx.diff.as_ref()?;
+  let drilldown_name = doc_node.drilldown_name.as_deref()?;
+  let parent = doc_node.parent.as_ref()?;
+
+  let parent_info = diff_index.get_node_diff(
+    &parent.origin.specifier,
+    parent.get_name(),
+    parent.def.to_kind(),
+  )?;
+  let parent_diff = parent_info.diff.as_ref()?;
+  let def_changes = parent_diff.def_changes.as_ref()?;
+
+  match def_changes {
+    crate::diff::DocNodeDefDiff::Class(class_diff) => class_diff
+      .method_changes
+      .as_ref()?
+      .modified
+      .iter()
+      .find(|m| &*m.name == drilldown_name)?
+      .function_diff
+      .clone(),
+    crate::diff::DocNodeDefDiff::Interface(iface_diff) => {
+      let imd = iface_diff
+        .method_changes
+        .as_ref()?
+        .modified
+        .iter()
+        .find(|m| m.name == drilldown_name)?;
+      Some(FunctionDiff {
+        params_change: imd.params_change.clone(),
+        return_type_change: imd.return_type_change.clone(),
+        is_async_change: None,
+        is_generator_change: None,
+        type_params_change: imd.type_params_change.clone(),
+        decorators_change: None,
+      })
+    }
+    _ => None,
+  }
 }

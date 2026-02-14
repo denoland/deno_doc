@@ -595,10 +595,12 @@ mod test {
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
         id_prefix: None,
+        diff_only: false,
       },
       None,
       Default::default(),
       doc_nodes_by_url,
+      None,
     )
     .unwrap();
 

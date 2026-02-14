@@ -2160,10 +2160,9 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
-                          "id": "constructor_0",
                           "name": null,
                           "name_href": null,
-                          "content": "new <span>&lt;<span><span class=\"td-tp\">T</span><span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span></span><span>, </span><span><span class=\"td-tp\">E</span><span><span class=\"td-kw\"> extends </span><a href=\"#type_param_T\" class=\"link td-ref\">T</a></span></span><span>, </span><span><span class=\"td-tp\">R</span><span><span> = </span><span class=\"td-kw\">number</span></span></span>&gt;</span>()<span>: <a href=\"../././~/Hello.html\" class=\"link td-ref\">Hello</a>&lt;<a href=\"#type_param_T\" class=\"link td-ref\">T</a><span>, </span><a href=\"#type_param_E\" class=\"link td-ref\">E</a><span>, </span><a href=\"#type_param_R\" class=\"link td-ref\">R</a>&gt;</span>",
+                          "content": "new <span>&lt;<span><span class=\"td-tp\">T</span><span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span></span><span>, </span><span><span class=\"td-tp\">E</span><span><span class=\"td-kw\"> extends </span><a href=\"#type_param_t\" class=\"link td-ref\">T</a></span></span><span>, </span><span><span class=\"td-tp\">R</span><span><span> = </span><span class=\"td-kw\">number</span></span></span>&gt;</span>()<span>: <a href=\"../././~/Hello.html\" class=\"link td-ref\">Hello</a>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a><span>, </span><a href=\"#type_param_e\" class=\"link td-ref\">E</a><span>, </span><a href=\"#type_param_r\" class=\"link td-ref\">R</a>&gt;</span>",
                           "anchor": {
                             "id": "constructor_0"
                           },

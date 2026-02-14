@@ -670,6 +670,34 @@ impl SectionCtx {
   }
 }
 
+/// Returns true if the symbol is newly added.
+pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
+  matches!(doc_node.diff_status, Some(DiffStatus::Added))
+}
+
+/// Filters sections in-place, retaining only entries that have a diff status.
+/// Removes sections that become empty after filtering, and drops
+/// non-diff-relevant section types (Example, See, Empty).
+pub(crate) fn filter_sections_diff_only(sections: &mut Vec<SectionCtx>) {
+  sections.retain_mut(|section| match &mut section.content {
+    SectionContentCtx::DocEntry(entries) => {
+      entries.retain(|e| e.diff_status.is_some());
+      !entries.is_empty()
+    }
+    SectionContentCtx::IndexSignature(entries) => {
+      entries.retain(|e| e.diff_status.is_some());
+      !entries.is_empty()
+    }
+    SectionContentCtx::NamespaceSection(entries) => {
+      entries.retain(|e| e.diff_status.is_some());
+      !entries.is_empty()
+    }
+    SectionContentCtx::Example(_)
+    | SectionContentCtx::See(_)
+    | SectionContentCtx::Empty => false,
+  });
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum Tag {

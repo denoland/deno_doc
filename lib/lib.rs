@@ -647,6 +647,7 @@ fn generate_html_inner(
       markdown_stripper,
       head_inject,
       id_prefix,
+      diff_only: false,
     },
     doc_nodes_by_url,
   )?;

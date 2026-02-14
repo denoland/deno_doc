@@ -278,6 +278,7 @@ pub struct GenerateOptions {
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
+  pub diff_only: bool,
 }
 
 #[non_exhaustive]
@@ -298,6 +299,7 @@ pub struct GenerateCtx {
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
+  pub diff_only: bool,
   /// Index from Location to (depth, node) for fast reference resolution.
   reference_index: std::collections::HashMap<
     crate::Location,
@@ -519,6 +521,7 @@ impl GenerateCtx {
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
+      diff_only: options.diff_only,
       reference_index,
       diff,
     })
@@ -1030,6 +1033,7 @@ impl DocNodeWithContext {
     let mut new_node = self.create_child(Arc::new(method_doc_node));
     new_node.drilldown_name = Some(original_name);
     new_node.kind = DocNodeKind::Method(method_kind.into());
+    new_node.diff_status = self.diff_status.clone();
     new_node
   }
 
@@ -1050,6 +1054,7 @@ impl DocNodeWithContext {
     let mut new_node = self.create_child(Arc::new(property_doc_node));
     new_node.drilldown_name = Some(original_name);
     new_node.kind = DocNodeKind::Property;
+    new_node.diff_status = self.diff_status.clone();
     new_node
   }
 
@@ -1413,6 +1418,8 @@ pub fn generate_json(
 ) -> Result<HashMap<String, serde_json::Value>, anyhow::Error> {
   let mut files = HashMap::new();
 
+  let diff_only = ctx.diff_only;
+
   // Index page
   {
     let (partitions_for_entrypoint_nodes, uses_categories) =
@@ -1447,7 +1454,15 @@ pub fn generate_json(
       uses_categories,
     );
 
-    files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+    if !diff_only
+      || index.overview.as_ref().is_some_and(|o| !o.sections.is_empty())
+      || index
+        .module_doc
+        .as_ref()
+        .is_some_and(|md| !md.sections.sections.is_empty())
+    {
+      files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+    }
   }
 
   let all_doc_nodes = ctx
@@ -1461,10 +1476,12 @@ pub fn generate_json(
   {
     let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
-    files.insert(
-      "./all_symbols.json".to_string(),
-      serde_json::to_value(all_symbols)?,
-    );
+    if !diff_only || !all_symbols.content.entrypoints.is_empty() {
+      files.insert(
+        "./all_symbols.json".to_string(),
+        serde_json::to_value(all_symbols)?,
+      );
+    }
   }
 
   // Category pages
@@ -1489,6 +1506,16 @@ pub fn generate_json(
           partitions,
           &all_doc_nodes,
         );
+
+        if diff_only
+          && !index
+            .overview
+            .as_ref()
+            .is_some_and(|o| !o.sections.is_empty())
+        {
+          continue;
+        }
+
         files.insert(
           format!("{}.json", util::slugify(category)),
           serde_json::to_value(index)?,
@@ -1517,6 +1544,11 @@ pub fn generate_json(
             toc_ctx,
             categories_panel,
           } => {
+            // In diff_only mode, skip unchanged symbols
+            if diff_only && symbol_group_ctx.diff_status.is_none() {
+              return vec![];
+            }
+
             let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
@@ -1555,6 +1587,11 @@ pub fn generate_json(
             current_symbol,
             href,
           } => {
+            // Skip redirects in diff_only mode
+            if diff_only {
+              return vec![];
+            }
+
             let redirect = serde_json::json!({ "path": href });
 
             let file_name =
@@ -1573,6 +1610,19 @@ pub fn generate_json(
           false,
         );
 
+        if diff_only
+          && !index
+            .overview
+            .as_ref()
+            .is_some_and(|o| !o.sections.is_empty())
+          && !index
+            .module_doc
+            .as_ref()
+            .is_some_and(|md| !md.sections.sections.is_empty())
+        {
+          continue;
+        }
+
         files.insert(
           format!("{}/index.json", short_path.path),
           serde_json::to_value(index)?,
@@ -1581,7 +1631,10 @@ pub fn generate_json(
     }
   }
 
-  files.insert("search.json".into(), generate_search_index(&ctx));
+  // Skip search index in diff_only mode
+  if !diff_only {
+    files.insert("search.json".into(), generate_search_index(&ctx));
+  }
 
   Ok(files)
 }

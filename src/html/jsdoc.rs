@@ -411,6 +411,10 @@ impl ModuleDocCtx {
       ));
     }
 
+    if render_ctx.ctx.diff_only {
+      super::util::filter_sections_diff_only(&mut sections);
+    }
+
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
@@ -524,6 +528,7 @@ mod test {
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
         id_prefix: None,
+        diff_only: false,
       },
       Default::default(),
       Default::default(),
@@ -588,6 +593,7 @@ mod test {
           )],
         ),
       ]),
+      None,
     )
     .unwrap();
 

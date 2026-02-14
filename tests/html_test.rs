@@ -174,6 +174,7 @@ async fn html_doc_dts() {
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
       id_prefix: None,
+      diff_only: false,
     },
     get_files("dts").await,
   )
@@ -231,6 +232,7 @@ async fn html_doc_files_single() {
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
       id_prefix: None,
+      diff_only: false,
     },
     get_files("single").await,
   )
@@ -309,6 +311,7 @@ async fn html_doc_files_multiple() {
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
       id_prefix: None,
+      diff_only: false,
     },
     get_files("multiple").await,
   )
@@ -453,10 +456,12 @@ async fn symbol_group() {
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
       id_prefix: None,
+      diff_only: false,
     },
     None,
     Default::default(),
     doc_nodes_by_url,
+    None,
   )
   .unwrap();
 
@@ -553,10 +558,12 @@ async fn symbol_search() {
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
       id_prefix: None,
+      diff_only: false,
     },
     None,
     Default::default(),
     doc_nodes_by_url,
+    None,
   )
   .unwrap();
 
@@ -610,10 +617,12 @@ async fn module_doc() {
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
       id_prefix: None,
+      diff_only: false,
     },
     None,
     FileMode::Single,
     doc_nodes_by_url,
+    None,
   )
   .unwrap();
 
