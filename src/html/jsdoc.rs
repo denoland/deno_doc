@@ -636,14 +636,19 @@ mod test {
       "foo [Example](https://example.com) bar"
     );
     assert_eq!(
-      parse_links("foo [Example]{@link https://example.com} bar", &render_ctx),
+      parse_links(
+        "foo [Example]{@link https://example.com} bar",
+        &render_ctx,
+        false
+      ),
       "foo [Example](https://example.com) bar"
     );
     // [label] takes precedence - consistent with the default JSDoc behaviour
     assert_eq!(
       parse_links(
         "foo [Example (pre)]{@link https://example.com|Example (after)} bar",
-        &render_ctx
+        &render_ctx,
+        false,
       ),
       "foo [Example (pre)](https://example.com) bar"
     );
@@ -658,7 +663,8 @@ mod test {
     assert_eq!(
       parse_links(
         "foo [Example]{@linkcode https://example.com} bar",
-        &render_ctx
+        &render_ctx,
+        false
       ),
       "foo [`Example`](https://example.com) bar"
     );
