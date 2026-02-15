@@ -11,7 +11,7 @@ use std::rc::Rc;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
-    r"(?m)\{\s*@link(?P<modifier>code|plain)?\s+(?P<value>[^}]+)}"
+    r"(?m)(?:\[(?P<label>[^]]+)])?\{\s*@link(?P<modifier>code|plain)?\s+(?P<value>[^}]+)}"
   )
   .unwrap();
   static ref LINK_RE: regex::Regex =
@@ -31,6 +31,7 @@ fn parse_links<'a>(
       .map_or("plain", |modifier_match| modifier_match.as_str())
       == "code";
     let value = captures.name("value").unwrap().as_str();
+    let label = captures.name("label").map(|x| x.as_str());
 
     let (link, mut title) = if let Some((link, title)) =
       value.split_once('|').or_else(|| value.split_once(' '))
@@ -39,6 +40,9 @@ fn parse_links<'a>(
     } else {
       (value, "".to_string())
     };
+    if let Some(label) = label {
+      title = label.trim().to_string();
+    }
 
     let link = if let Some(module_link_captures) = MODULE_LINK_RE.captures(link)
     {
@@ -639,9 +643,34 @@ mod test {
     );
     assert_eq!(
       parse_links(
+        "foo [Example]{@link https://example.com} bar",
+        &render_ctx,
+        false
+      ),
+      "foo [Example](https://example.com) bar"
+    );
+    // [label] takes precedence - consistent with the default JSDoc behaviour
+    assert_eq!(
+      parse_links(
+        "foo [Example (pre)]{@link https://example.com|Example (after)} bar",
+        &render_ctx,
+        false,
+      ),
+      "foo [Example (pre)](https://example.com) bar"
+    );
+    assert_eq!(
+      parse_links(
         "foo {@linkcode https://example.com Example} bar",
         &render_ctx,
         false,
+      ),
+      "foo [`Example`](https://example.com) bar"
+    );
+    assert_eq!(
+      parse_links(
+        "foo [Example]{@linkcode https://example.com} bar",
+        &render_ctx,
+        false
       ),
       "foo [`Example`](https://example.com) bar"
     );
