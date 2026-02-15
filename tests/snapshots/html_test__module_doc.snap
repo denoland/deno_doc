@@ -8,12 +8,20 @@ expression: module_docs
     "sections": {
       "id": "module_doc",
       "docs": null,
+      "sections": []
+    }
+  },
+  {
+    "deprecated": null,
+    "sections": {
+      "id": "module_doc",
+      "docs": null,
       "sections": [
         {
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "Functions"
+              "id": "d_functions"
             },
             "href": null,
             "doc": null
@@ -22,7 +30,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_externalfunction",
                 "anchor": {
                   "id": "namespace_externalfunction"
                 },
@@ -38,6 +45,10 @@ expression: module_docs
                 ],
                 "href": ".././d/~/externalFunction.html",
                 "name": "externalFunction",
+                "ty": {
+                  "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                  "info": null
+                },
                 "docs": null,
                 "deprecated": false,
                 "subitems": []
@@ -53,20 +64,12 @@ expression: module_docs
     "sections": {
       "id": "module_doc",
       "docs": null,
-      "sections": []
-    }
-  },
-  {
-    "deprecated": null,
-    "sections": {
-      "id": "module_doc",
-      "docs": null,
       "sections": [
         {
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "Functions"
+              "id": "foo_functions"
             },
             "href": null,
             "doc": null
@@ -75,7 +78,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
                 },
@@ -91,6 +93,10 @@ expression: module_docs
                 ],
                 "href": ".././foo/~/x.html",
                 "name": "x",
+                "ty": {
+                  "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                  "info": null
+                },
                 "docs": null,
                 "deprecated": false,
                 "subitems": []
@@ -102,7 +108,7 @@ expression: module_docs
           "header": {
             "title": "Variables",
             "anchor": {
-              "id": "Variables"
+              "id": "foo_variables"
             },
             "href": null,
             "doc": null
@@ -111,7 +117,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_default",
                 "anchor": {
                   "id": "namespace_default"
                 },
@@ -127,6 +132,10 @@ expression: module_docs
                 ],
                 "href": ".././foo/~/default.html",
                 "name": "default",
+                "ty": {
+                  "ty": ": <span class=\"td-kw\">number</span>",
+                  "info": null
+                },
                 "docs": "<div class=\"markdown_summary\"><p>The default export item.</p>\n</div>",
                 "deprecated": false,
                 "subitems": []
@@ -147,7 +156,7 @@ expression: module_docs
           "header": {
             "title": "Functions",
             "anchor": {
-              "id": "Functions"
+              "id": "c_functions"
             },
             "href": null,
             "doc": null
@@ -156,7 +165,6 @@ expression: module_docs
             "kind": "namespace_section",
             "content": [
               {
-                "id": "namespace_x",
                 "anchor": {
                   "id": "namespace_x"
                 },
@@ -172,6 +180,10 @@ expression: module_docs
                 ],
                 "href": ".././c/~/x.html",
                 "name": "x",
+                "ty": {
+                  "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                  "info": null
+                },
                 "docs": null,
                 "deprecated": false,
                 "subitems": []

@@ -1,29 +1,29 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::DocNode;
+use crate::Location;
+use crate::ParamDef;
+use crate::display::SliceDisplayer;
 use crate::display::display_computed;
 use crate::display::display_optional;
 use crate::display::display_readonly;
-use crate::display::SliceDisplayer;
 use crate::interface::expr_to_name;
 use crate::params::param_to_param_def;
 use crate::params::pat_to_param_def;
 use crate::params::prop_name_to_string;
 use crate::params::ts_fn_param_to_param_def;
-use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::get_location;
 use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
-use crate::DocNode;
-use crate::Location;
-use crate::ParamDef;
 
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::variable::VariableDef;
-use deno_ast::swc::ast::*;
 use deno_ast::SourceRangedForSpanned;
+use deno_ast::swc::ast::*;
 use deno_graph::symbols::EsModuleInfo;
 use deno_terminal::colors;
 use serde::Deserialize;
@@ -223,7 +223,9 @@ impl TsTypeDef {
 
     let type_name = match &other.expr_name {
       TsEntityName(entity_name) => ts_entity_name_to_name(entity_name),
-      Import(import_type) => import_type.arg.value.to_string(),
+      Import(import_type) => {
+        import_type.arg.value.to_string_lossy().into_owned()
+      }
     };
 
     TsTypeDef {
@@ -596,7 +598,7 @@ impl TsTypeDef {
     };
 
     let import_type_def = TsImportTypeDef {
-      specifier: other.arg.value.to_string(),
+      specifier: other.arg.value.to_string_lossy().into_owned(),
       qualifier: other.qualifier.as_ref().map(ts_entity_name_to_name),
       type_params,
     };
@@ -1252,7 +1254,7 @@ impl TsTypeDef {
   }
 
   pub fn string_literal(str_node: &Str) -> Self {
-    Self::string_value(str_node.value.to_string())
+    Self::string_value(str_node.value.to_string_lossy().into_owned())
   }
 
   pub fn string_value(value: String) -> Self {
@@ -1778,6 +1780,10 @@ fn infer_ts_type_from_obj_inner(
   let mut methods = Vec::<MethodDef>::new();
   let mut properties = Vec::<PropertyDef>::new();
   for obj_prop in &obj.props {
+    let Some(js_doc) = js_doc_for_range(module_info, &obj_prop.range()) else {
+      continue;
+    };
+
     match obj_prop {
       PropOrSpread::Prop(prop) => match &**prop {
         Prop::Shorthand(shorthand) => {
@@ -1785,7 +1791,7 @@ fn infer_ts_type_from_obj_inner(
           // from the previous symbol.
           properties.push(PropertyDef {
             name: shorthand.sym.to_string(),
-            js_doc: Default::default(),
+            js_doc,
             location: get_location(module_info, shorthand.start()),
             params: vec![],
             readonly: false,
@@ -1798,7 +1804,7 @@ fn infer_ts_type_from_obj_inner(
         Prop::KeyValue(kv) => {
           properties.push(PropertyDef {
             name: prop_name_to_string(module_info, &kv.key),
-            js_doc: Default::default(),
+            js_doc,
             location: get_location(module_info, kv.start()),
             params: vec![],
             readonly: false,
@@ -1818,7 +1824,7 @@ fn infer_ts_type_from_obj_inner(
             .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
           methods.push(MethodDef {
             name,
-            js_doc: Default::default(),
+            js_doc,
             kind: MethodKind::Getter,
             location: get_location(module_info, getter.start()),
             params: vec![],
@@ -1834,7 +1840,7 @@ fn infer_ts_type_from_obj_inner(
           let param = pat_to_param_def(module_info, setter.param.as_ref());
           methods.push(MethodDef {
             name,
-            js_doc: Default::default(),
+            js_doc,
             kind: MethodKind::Setter,
             location: get_location(module_info, setter.start()),
             params: vec![param],
@@ -1864,7 +1870,7 @@ fn infer_ts_type_from_obj_inner(
           );
           methods.push(MethodDef {
             name,
-            js_doc: Default::default(),
+            js_doc,
             kind: MethodKind::Method,
             location: get_location(module_info, method.start()),
             params,

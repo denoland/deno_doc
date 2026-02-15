@@ -6,6 +6,7 @@ use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposerEntry;
 use deno_doc::html::UsageToMd;
 use deno_doc::DocParser;
+use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadError;
 use deno_graph::source::LoadFuture;
@@ -15,7 +16,6 @@ use deno_graph::source::Loader;
 use deno_graph::source::ResolveError;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
-use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -72,7 +72,7 @@ impl Loader for JsLoader {
     let this = JsValue::null();
     let arg0 = JsValue::from(specifier.to_string());
     let arg1 = serde_wasm_bindgen::to_value(&JsLoadOptions {
-      is_dynamic: options.is_dynamic,
+      is_dynamic: options.in_dynamic_branch,
       cache_setting: options.cache_setting.as_js_str(),
       checksum: options.maybe_checksum.map(|c| c.into_string()),
     })
@@ -114,7 +114,7 @@ impl Resolver for ImportMapResolver {
     self
       .0
       .resolve(specifier, &referrer_range.specifier)
-      .map_err(|err| ResolveError::ImportMap(err))
+      .map_err(ResolveError::from_err)
   }
 }
 
@@ -203,7 +203,7 @@ async fn inner_doc(
       .load(
         &import_map_specifier,
         LoadOptions {
-          is_dynamic: false,
+          in_dynamic_branch: false,
           was_dynamic_root: false,
           cache_setting: CacheSetting::Use,
           maybe_checksum: None,
@@ -245,6 +245,7 @@ async fn inner_doc(
   graph
     .build(
       root_specifiers.clone(),
+      Vec::new(),
       &mut loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -292,6 +293,7 @@ pub fn generate_html(
   markdown_renderer: js_sys::Function,
   markdown_stripper: js_sys::Function,
   head_inject: Option<js_sys::Function>,
+  id_prefix: Option<String>,
 
   doc_nodes_by_url: JsValue,
 
@@ -317,6 +319,7 @@ pub fn generate_html(
     markdown_renderer,
     markdown_stripper,
     head_inject,
+    id_prefix,
     doc_nodes_by_url,
     json,
   )
@@ -532,6 +535,7 @@ fn generate_html_inner(
   markdown_renderer: js_sys::Function,
   markdown_stripper: js_sys::Function,
   head_inject: Option<js_sys::Function>,
+  id_prefix: Option<String>,
 
   doc_nodes_by_url: JsValue,
 
@@ -642,6 +646,7 @@ fn generate_html_inner(
       markdown_renderer,
       markdown_stripper,
       head_inject,
+      id_prefix,
     },
     doc_nodes_by_url,
   )?;

@@ -1,12 +1,14 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
+use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
+use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
+use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
@@ -54,30 +56,6 @@ pub(crate) fn render_class(
     sections.push(index_signatures);
   }
 
-  if !class_items.properties.is_empty() {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Properties",
-      SectionContentCtx::DocEntry(render_class_properties(
-        ctx,
-        name,
-        class_items.properties,
-      )),
-    ));
-  }
-
-  if !class_items.methods.is_empty() {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Methods",
-      SectionContentCtx::DocEntry(render_class_methods(
-        ctx,
-        name,
-        class_items.methods,
-      )),
-    ));
-  }
-
   if !class_items.static_properties.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
@@ -102,6 +80,30 @@ pub(crate) fn render_class(
     ));
   }
 
+  if !class_items.properties.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Properties",
+      SectionContentCtx::DocEntry(render_class_properties(
+        ctx,
+        name,
+        class_items.properties,
+      )),
+    ));
+  }
+
+  if !class_items.methods.is_empty() {
+    sections.push(SectionCtx::new(
+      ctx,
+      "Methods",
+      SectionContentCtx::DocEntry(render_class_methods(
+        ctx,
+        name,
+        class_items.methods,
+      )),
+    ));
+  }
+
   sections
 }
 
@@ -116,9 +118,17 @@ fn render_constructors(
 
   let items = constructors
     .iter()
+    .filter(|constructor| {
+      !constructor.js_doc.tags.contains(&JsDocTag::Private)
+        && !constructor.js_doc.tags.contains(&JsDocTag::Internal)
+        && !matches!(constructor.accessibility, Some(Accessibility::Private))
+    })
     .enumerate()
     .map(|(i, constructor)| {
-      let id = name_to_id("constructor", &i.to_string());
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Constructor)
+        .index(i)
+        .build();
 
       let params = constructor
         .params
@@ -130,7 +140,7 @@ fn render_constructors(
 
       DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         Some(html_escape::encode_text(&name).into_owned()),
         None,
         &format!("({params})"),
@@ -148,9 +158,8 @@ fn render_constructors(
   ))
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct IndexSignatureCtx {
-  pub id: String,
   pub anchor: AnchorCtx,
   pub readonly: bool,
   pub params: String,
@@ -164,19 +173,24 @@ enum PropertyOrMethod {
 }
 
 impl PropertyOrMethod {
-  fn prop(&self) -> Option<&ClassPropertyDef> {
-    if let PropertyOrMethod::Property(ref prop) = self {
-      Some(prop)
+  fn method(&self) -> Option<&ClassMethodDef> {
+    if let PropertyOrMethod::Method(method) = self {
+      Some(method)
     } else {
       None
     }
   }
 
-  fn method(&self) -> Option<&ClassMethodDef> {
-    if let PropertyOrMethod::Method(ref method) = self {
-      Some(method)
-    } else {
-      None
+  fn name(&self) -> &str {
+    match self {
+      PropertyOrMethod::Property(prop) => &prop.name,
+      PropertyOrMethod::Method(meth) => &meth.name,
+    }
+  }
+  fn accessibility(&self) -> Option<Accessibility> {
+    match self {
+      PropertyOrMethod::Property(prop) => prop.accessibility,
+      PropertyOrMethod::Method(meth) => meth.accessibility,
     }
   }
 }
@@ -185,72 +199,49 @@ fn property_or_method_cmp(
   a: &PropertyOrMethod,
   b: &PropertyOrMethod,
 ) -> std::cmp::Ordering {
-  let name_cmp = {
-    let a_name = a
-      .prop()
-      .map(|prop| &prop.name)
-      .unwrap_or_else(|| &a.method().unwrap().name);
-    let b_name = b
-      .prop()
-      .map(|prop| &prop.name)
-      .unwrap_or_else(|| &b.method().unwrap().name);
-
-    a_name.cmp(b_name)
+  // 1. public < protected < private
+  let rank_accessibility = |item: &PropertyOrMethod| -> u8 {
+    match item.accessibility() {
+      Some(Accessibility::Public) | None => 0,
+      Some(Accessibility::Protected) => 1,
+      Some(Accessibility::Private) => 2,
+    }
   };
 
-  let accessibility_cmp = {
-    let a_accessibility = a
-      .prop()
-      .map(|prop| &prop.accessibility)
-      .unwrap_or_else(|| &a.method().unwrap().accessibility);
-    let b_accessibility = b
-      .prop()
-      .map(|prop| &prop.accessibility)
-      .unwrap_or_else(|| &b.method().unwrap().accessibility);
-
-    a_accessibility
-      .and_then(|a_accessibility| {
-        b_accessibility.map(|b_accessibility| {
-          match (a_accessibility, b_accessibility) {
-            (Accessibility::Public, Accessibility::Public) => {
-              std::cmp::Ordering::Equal
-            }
-            (Accessibility::Private, Accessibility::Private) => {
-              std::cmp::Ordering::Equal
-            }
-            (Accessibility::Protected, Accessibility::Protected) => {
-              std::cmp::Ordering::Equal
-            }
-            (Accessibility::Private, _) => std::cmp::Ordering::Greater,
-            (_, Accessibility::Private) => std::cmp::Ordering::Less,
-            (Accessibility::Protected, _) => std::cmp::Ordering::Greater,
-            (_, Accessibility::Protected) => std::cmp::Ordering::Less,
-          }
-        })
-      })
-      .unwrap_or(std::cmp::Ordering::Equal)
+  // 2. property/getter/setter < method
+  let rank_category = |item: &PropertyOrMethod| -> u8 {
+    match item {
+      PropertyOrMethod::Property(_)
+      | PropertyOrMethod::Method(ClassMethodDef {
+        kind: MethodKind::Getter | MethodKind::Setter,
+        ..
+      }) => 0,
+      _ => 1,
+    }
   };
 
-  let accessor_cmp = {
-    let a_accessor = a.method().map(|method| &method.kind);
-    let b_accessor = b.method().map(|method| &method.kind);
+  // 3. names (alphabetically)
 
-    a_accessor
-      .and_then(|a_accessor| {
-        b_accessor.map(|b_accessor| match (a_accessor, b_accessor) {
-          (MethodKind::Getter, MethodKind::Getter) => std::cmp::Ordering::Equal,
-          (MethodKind::Setter, MethodKind::Setter) => std::cmp::Ordering::Equal,
-          (MethodKind::Getter, MethodKind::Setter) => {
-            std::cmp::Ordering::Greater
-          }
-          (MethodKind::Setter, MethodKind::Getter) => std::cmp::Ordering::Less,
-          _ => unreachable!(),
-        })
-      })
-      .unwrap_or(std::cmp::Ordering::Equal)
+  // 4. getter < setter
+  let rank_kind = |item: &PropertyOrMethod| -> u8 {
+    match item {
+      PropertyOrMethod::Method(ClassMethodDef {
+        kind: MethodKind::Getter,
+        ..
+      }) => 0,
+      PropertyOrMethod::Method(ClassMethodDef {
+        kind: MethodKind::Setter,
+        ..
+      }) => 1,
+      _ => 2,
+    }
   };
 
-  accessibility_cmp.then(accessor_cmp).then(name_cmp)
+  rank_accessibility(a)
+    .cmp(&rank_accessibility(b))
+    .then_with(|| rank_category(a).cmp(&rank_category(b)))
+    .then_with(|| a.name().cmp(b.name()))
+    .then_with(|| rank_kind(a).cmp(&rank_kind(b)))
 }
 
 struct ClassItems {
@@ -315,7 +306,10 @@ fn render_class_accessor(
   let getter_or_setter = getter.or(setter).unwrap();
 
   let name = &getter_or_setter.name;
-  let id = name_to_id("accessor", name);
+  let id = IdBuilder::new(ctx)
+    .kind(IdKind::Accessor)
+    .name(name)
+    .build();
   let ts_type = getter
     .and_then(|getter| getter.function_def.return_type.as_ref())
     .or_else(|| {
@@ -345,7 +339,7 @@ fn render_class_accessor(
 
   DocEntryCtx::new(
     ctx,
-    &id,
+    id,
     Some(html_escape::encode_text(&name).into_owned()),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
@@ -369,7 +363,11 @@ fn render_class_method(
     return None;
   }
 
-  let id = name_to_id("method", &format!("{}_{i}", method.name));
+  let id = IdBuilder::new(ctx)
+    .kind(IdKind::Method)
+    .name(&method.name)
+    .index(i)
+    .build();
 
   let mut tags = Tag::from_js_doc(&method.js_doc);
   if let Some(tag) = Tag::from_accessibility(method.accessibility) {
@@ -384,7 +382,7 @@ fn render_class_method(
 
   Some(DocEntryCtx::new(
     ctx,
-    &id,
+    id,
     Some(html_escape::encode_text(&method.name).into_owned()),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,
@@ -403,7 +401,10 @@ fn render_class_property(
   class_name: &str,
   property: &ClassPropertyDef,
 ) -> DocEntryCtx {
-  let id = name_to_id("property", &property.name);
+  let id = IdBuilder::new(ctx)
+    .kind(IdKind::Property)
+    .name(&property.name)
+    .build();
 
   let mut tags = Tag::from_js_doc(&property.js_doc);
   if let Some(tag) = Tag::from_accessibility(property.accessibility) {
@@ -416,7 +417,7 @@ fn render_class_property(
     tags.insert(Tag::Readonly);
   }
   if property.optional {
-    tags.insert(Tag::Abstract);
+    tags.insert(Tag::Optional);
   }
 
   let ts_type = property
@@ -427,7 +428,7 @@ fn render_class_property(
 
   DocEntryCtx::new(
     ctx,
-    &id,
+    id,
     Some(html_escape::encode_text(&property.name).into_owned()),
     ctx.lookup_symbol_href(&qualify_drilldown_name(
       class_name,

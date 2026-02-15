@@ -1,9 +1,17 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply bg-white dark:bg-backgroundDark text-black dark:text-white;
+}
+
 .ddoc {
-  /* keep spacing in sync with #topnav in various places further down */
-  @apply flex min-h-fit items-start gap-6 p-4;
+  /*
+    keep spacing in sync with #topnav in various places further down
+    de-dup body styles to unsure compatibility `@deno/doc`
+  */
+  @apply flex bg-white items-start gap-6 p-4 dark:bg-backgroundDark
+    dark:text-white;
 
   &:has(#categoryPanel) {
     @apply lg:p-2;
@@ -72,5 +80,19 @@
     > *:last-child {
       @apply pb-4;
     }
+  }
+}
+
+#topnav {
+  @apply top-0 sticky z-50 py-3 h-14 bg-white/10 dark:bg-backgroundDark/90
+    dark:text-white/90 border-b border-gray-300 dark:border-gray-700;
+}
+
+#theme-toggle {
+  @apply text-gray-500 dark:text-gray-400 hover:bg-gray-100
+    dark:hover:bg-gray-700 rounded p-1;
+
+  * {
+    @apply size-5;
   }
 }

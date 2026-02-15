@@ -1,24 +1,24 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::DocParserOptions;
 use crate::node::DocNodeDef;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use crate::DocParserOptions;
-use deno_graph::source::MemoryLoader;
-use deno_graph::source::Source;
 use deno_graph::BuildOptions;
-use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::ast::CapturingModuleAnalyzer;
+use deno_graph::source::MemoryLoader;
+use deno_graph::source::Source;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
 type MaybeHeaders<S> = Option<Vec<(S, S)>>;
 
-pub(crate) async fn setup<S: AsRef<str> + Copy>(
+pub(crate) async fn setup<S: AsRef<str> + Copy, C: AsRef<[u8]>>(
   root: S,
-  sources: Vec<(S, MaybeHeaders<S>, S)>,
+  sources: Vec<(S, MaybeHeaders<S>, C)>,
 ) -> (ModuleGraph, CapturingModuleAnalyzer, ModuleSpecifier) {
   let sources = sources
     .into_iter()
@@ -40,6 +40,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -72,6 +73,7 @@ async fn content_type_handling() {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -123,6 +125,7 @@ async fn types_header_handling() {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -337,10 +340,12 @@ export function fooFn(a: number) {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  assert!(DocPrinter::new(&entries, false, false)
-    .to_string()
-    .as_str()
-    .contains("function fooFn(a: number)"));
+  assert!(
+    DocPrinter::new(&entries, false, false)
+      .to_string()
+      .as_str()
+      .contains("function fooFn(a: number)")
+  );
 }
 
 #[tokio::test]
@@ -481,9 +486,11 @@ async fn deep_reexports() {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  assert!(DocPrinter::new(&entries, false, false)
-    .to_string()
-    .contains("const foo"));
+  assert!(
+    DocPrinter::new(&entries, false, false)
+      .to_string()
+      .contains("const foo")
+  );
 }
 
 #[tokio::test]

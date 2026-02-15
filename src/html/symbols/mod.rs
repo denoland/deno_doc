@@ -1,16 +1,18 @@
+use crate::html::DocNodeWithContext;
+use crate::html::RenderContext;
+use crate::html::jsdoc::ModuleDocCtx;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::DocNodeKind;
-use crate::html::DocNodeWithContext;
-use crate::html::RenderContext;
+use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
+use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashSet;
@@ -23,7 +25,7 @@ pub mod namespace;
 pub mod type_alias;
 pub mod variable;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   usage: Option<UsagesCtx>,
@@ -34,7 +36,7 @@ struct SymbolCtx {
   source_href: Option<String>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SymbolGroupCtx {
   pub name: String,
   symbols: Vec<SymbolCtx>,
@@ -166,14 +168,14 @@ impl SymbolGroupCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocBlockClassSubtitleExtendsCtx {
   href: Option<String>,
   symbol: String,
   type_args: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "kind", content = "value")]
 pub enum DocBlockSubtitleCtx {
@@ -255,9 +257,9 @@ impl DocBlockSubtitleCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SymbolContentCtx {
-  pub id: String,
+  pub id: crate::html::util::Id,
   pub docs: Option<String>,
   pub sections: Vec<SectionCtx>,
 }
@@ -266,7 +268,7 @@ impl SymbolContentCtx {
   pub const TEMPLATE: &'static str = "symbol_content";
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum SymbolInnerCtx {
   Function(function::FunctionCtx),
@@ -287,12 +289,11 @@ impl SymbolInnerCtx {
       let docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
 
-      if !matches!(doc_node.def, DocNodeDef::Function { .. }) {
-        if let Some(examples) =
+      if !matches!(doc_node.def, DocNodeDef::Function { .. })
+        && let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
-        {
-          sections.push(examples);
-        }
+      {
+        sections.push(examples);
       }
 
       sections.extend(match doc_node.def {
@@ -341,11 +342,13 @@ impl SymbolInnerCtx {
 
           namespace::render_namespace(partitions.into_iter().map(
             |(title, nodes)| {
+              let id = ctx.toc.anchorize(&title);
+
               (
                 ctx.clone(),
                 Some(crate::html::util::SectionHeaderCtx {
-                  title: title.clone(),
-                  anchor: AnchorCtx { id: title },
+                  title,
+                  anchor: AnchorCtx::new(id),
                   href: None,
                   doc: None,
                 }),
@@ -354,7 +357,7 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeDef::ModuleDoc { .. }
+        DocNodeDef::ModuleDoc
         | DocNodeDef::Import { .. }
         | DocNodeDef::Reference { .. } => unreachable!(),
       });
@@ -381,7 +384,7 @@ impl SymbolInnerCtx {
       }
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {
-        id: String::new(),
+        id: crate::html::util::Id::empty(),
         sections,
         docs,
       }));
@@ -405,4 +408,46 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
   };
 
   crate::html::jsdoc::render_markdown(ctx, &doc, true)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllSymbolsEntrypointCtx {
+  pub name: String,
+  pub href: String,
+  pub anchor: AnchorCtx,
+  pub module_doc: ModuleDocCtx,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllSymbolsCtx {
+  pub entrypoints: Vec<AllSymbolsEntrypointCtx>,
+}
+
+impl AllSymbolsCtx {
+  pub const TEMPLATE: &'static str = "all_symbols";
+
+  pub fn new(ctx: &RenderContext) -> Self {
+    let entrypoints = ctx
+      .ctx
+      .doc_nodes
+      .keys()
+      .map(|short_path| {
+        let name = short_path.display_name().to_string();
+        let id = ctx.toc.anchorize(&name);
+        ctx.toc.add_entry(0, &name, &id);
+
+        AllSymbolsEntrypointCtx {
+          name,
+          href: ctx.ctx.resolve_path(
+            ctx.get_current_resolve(),
+            UrlResolveKind::File { file: short_path },
+          ),
+          anchor: AnchorCtx::new(id),
+          module_doc: ModuleDocCtx::new(ctx, short_path, true, true),
+        }
+      })
+      .collect();
+
+    Self { entrypoints }
+  }
 }

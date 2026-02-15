@@ -1,10 +1,10 @@
+use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
@@ -67,7 +67,10 @@ pub(crate) fn render_index_signatures(
   let mut items = Vec::with_capacity(index_signatures.len());
 
   for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = name_to_id("index_signature", &i.to_string());
+    let id = IdBuilder::new(ctx)
+      .kind(IdKind::IndexSignature)
+      .index(i)
+      .build();
 
     let ts_type = index_signature
       .ts_type
@@ -76,8 +79,7 @@ pub(crate) fn render_index_signatures(
       .unwrap_or_default();
 
     items.push(IndexSignatureCtx {
-      id: id.clone(),
-      anchor: AnchorCtx { id },
+      anchor: AnchorCtx::new(id),
       readonly: index_signature.readonly,
       params: render_params(ctx, &index_signature.params),
       ts_type,
@@ -107,7 +109,10 @@ pub(crate) fn render_call_signatures(
     .iter()
     .enumerate()
     .map(|(i, call_signature)| {
-      let id = name_to_id("call_signature", &i.to_string());
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::CallSignature)
+        .index(i)
+        .build();
 
       let ts_type = call_signature
         .ts_type
@@ -119,12 +124,12 @@ pub(crate) fn render_call_signatures(
 
       DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         None,
         None,
         &format!(
           "{}({}){ts_type}",
-          type_params_summary(ctx, &call_signature.type_params,),
+          type_params_summary(ctx, &call_signature.type_params),
           render_params(ctx, &call_signature.params),
         ),
         tags,
@@ -153,7 +158,10 @@ pub(crate) fn render_properties(
   let items = properties
     .iter()
     .map(|property| {
-      let id = name_to_id("property", &property.name);
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Property)
+        .name(&property.name)
+        .build();
       let default_value = property
         .js_doc
         .tags
@@ -186,7 +194,7 @@ pub(crate) fn render_properties(
 
       DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         Some(if property.computed {
           format!("[{}]", html_escape::encode_text(&property.name))
         } else {
@@ -225,7 +233,11 @@ pub(crate) fn render_methods(
     .iter()
     .enumerate()
     .map(|(i, method)| {
-      let id = name_to_id("methods", &format!("{}_{i}", method.name));
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Method)
+        .name(&method.name)
+        .index(i)
+        .build();
 
       let name = if method.name == "new" {
         "<span>new</span>".to_string()
@@ -248,7 +260,7 @@ pub(crate) fn render_methods(
 
       DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         Some(name),
         ctx.lookup_symbol_href(&qualify_drilldown_name(
           interface_name,

@@ -15,19 +15,24 @@ a {
   --ddoc-selection-selected-border-color: #2564eb;
   --ddoc-selection-selected-bg: #056cf00c;
   --ddoc-selection-padding: 9px 15px;
+  --ddoc-usage-active-bg: #ebf6ff;
+
+  &:is(.dark *) {
+    --ddoc-usage-active-bg: theme("colors.stone.800");
+  }
 }
 
 .link {
-  @apply text-blue-600 transition duration-75;
+  @apply text-blue-600 transition duration-75 dark:text-blue-400;
 }
 
 .link:hover {
-  @apply text-blue-400;
+  @apply text-blue-400 dark:text-blue-500;
 }
 
 .anchor {
   @apply hidden float-left leading-none text-stone-600 ml-[-24px] p-1 pr-1 pt-1
-    top-0 bottom-0;
+    top-0 bottom-0 dark:text-stone-400;
 }
 
 .anchorable {
@@ -40,7 +45,7 @@ a {
 
 .deprecated {
   > div:first-child {
-    @apply py-1 text-red-500 flex gap-1 items-center;
+    @apply py-1 text-red-500 flex gap-1 items-center dark:text-red-400;
 
     > span {
       @apply font-semibold leading-6;
@@ -48,7 +53,7 @@ a {
   }
 
   > div:nth-child(2) {
-    @apply ml-1 pl-2 border-l-4 border-red-300;
+    @apply ml-1 pl-2 border-l-4 border-red-300 dark:border-red-600;
   }
 }
 
@@ -56,12 +61,16 @@ a {
   @apply space-y-0.5 text-sm leading-4;
 
   .type {
-    @apply text-stone-400 italic;
+    @apply text-stone-400 italic dark:text-stone-500;
   }
 }
 
 .docEntry {
   @apply mb-4 space-y-2;
+
+  &:hover .sourceButton {
+    @apply flex;
+  }
 
   .docEntryHeader {
     @apply flex justify-between items-start md:text-base;
@@ -79,7 +88,7 @@ a {
     @apply space-y-2;
 
     > h2 {
-      @apply text-xl leading-6 font-semibold py-1 mb-0;
+      @apply text-xl leading-6 font-semibold py-1 mb-4;
     }
 
     /* markdown */
@@ -90,13 +99,13 @@ a {
 }
 
 .namespaceSection {
-  @apply space-y-4 mt-4 max-w-prose;
+  @apply space-y-3 mt-4 max-w-prose;
 
   .namespaceItem {
-    @apply flex gap-x-2.5 md:min-h-[4rem] lg:pr-4 min-h-0;
+    @apply flex gap-x-2.5 lg:pr-4;
 
     .docNodeKindIcon {
-      @apply w-auto flex-col justify-start;
+      @apply w-auto flex-col justify-start gap-1;
 
       > * + * {
         @apply ml-0 -mt-0.5;
@@ -106,37 +115,67 @@ a {
       @apply opacity-60;
 
       .namespaceItemContent > a {
-        @apply line-through decoration-2 decoration-stone-500/70 text-stone-500;
+        @apply line-through decoration-2 decoration-stone-500/70 text-stone-500
+          dark:text-stone-400;
       }
     }
 
     .namespaceItemContent {
-      > a, .namespaceItemContentSubItems a {
-        @apply underline decoration-stone-300;
+      flex: 1;
+      width: 0;
 
-        &:hover {
-          @apply no-underline;
+      > a, .namespaceItemContentSubItems > li > a {
+        @apply block font-mono underline decoration-stone-300
+          dark:decoration-stone-500 hover:no-underline;
+
+        span:first-child {
+          @apply leading-none break-all font-medium;
+        }
+        span:last-child {
+          @apply font-light opacity-85;
         }
       }
 
-      > a {
-        @apply block leading-tight break-all font-medium;
+      .namespaceItemContentTypeInfo {
+        @apply italic text-xs ml-2 text-stone-600 dark:text-stone-400;
       }
 
       .namespaceItemContentDoc {
-        @apply mt-2 text-sm leading-5 text-stone-600;
+        @apply text-sm leading-5 text-stone-600 dark:text-stone-400;
+      }
+
+      > a .namespaceItemContentDoc {
+        @apply mt-2;
       }
 
       .namespaceItemContentSubItems {
-        @apply mt-1.5 flex flex-wrap gap-y-1 text-sm;
+        @apply space-y-3 text-sm mt-3 ml-3;
 
-        > li:not(:last-child):after {
-          content: "|";
-          @apply mx-2 text-gray-300 select-none;
+        .namespaceItemContentDoc {
+          @apply mt-1;
         }
       }
     }
   }
+}
+
+.td-kw {
+  @apply text-cyan-500;
+}
+.td-lit {
+  @apply text-orange-500;
+}
+.td-str {
+  @apply text-green-500;
+}
+.td-ref {
+  @apply text-blue-500;
+}
+.td-tp {
+  @apply text-yellow-500;
+}
+.td-op {
+  @apply text-pink-500;
 }
 
 .symbolGroup {
@@ -145,8 +184,12 @@ a {
   article {
     @apply space-y-5;
 
-    > div:first-child {
+    .symbolTitle {
       @apply flex justify-between items-start;
+
+      &:hover .sourceButton {
+        @apply flex;
+      }
 
       > div:first-child {
         @apply font-medium space-y-1;
@@ -159,7 +202,7 @@ a {
   @apply inline-flex justify-end shrink-0;
 
   div {
-    @apply rounded-full size-5 font-medium text-xs leading-5 text-center
+    @apply rounded-full size-4 font-medium text-xs leading-4 text-center
       align-middle shrink-0 select-none font-mono;
   }
 
@@ -227,13 +270,14 @@ a {
       }
 
       ul {
-        @apply ml-3.5 space-y-2 text-gray-1 text-[0.8rem] leading-none;
+        @apply ml-3.5 space-y-2 text-gray-1 text-[0.8rem] leading-none
+          dark:text-gray-400;
 
         li {
           @apply mt-1 !important;
 
           a {
-            @apply hover:text-black p-1;
+            @apply hover:text-black p-1 dark:hover:text-white;
           }
         }
       }
@@ -253,7 +297,7 @@ a {
     details {
       > summary {
         @apply flex gap-1 select-none cursor-pointer rounded border
-          border-gray-300 py-2 px-3;
+          border-gray-300 py-2 px-3 dark:border-gray-600;
       }
 
       > div {
@@ -261,11 +305,12 @@ a {
 
         > div {
           @apply absolute max-md:inset-x-0 mt-1.5 p-2 block z-30 md:w-48
-            bg-white md:rounded border max-md:border-x-0 border-gray-300;
+            bg-white md:rounded border max-md:border-x-0 border-gray-300
+            dark:border-gray-600;
 
           label {
             @apply flex items-center gap-2 cursor-pointer select-none px-2 py-1
-              leading-normal rounded-sm hover:bg-gray-50;
+              leading-normal rounded-sm hover:bg-gray-50 dark:hover:bg-gray-800;
           }
         }
       }
@@ -280,7 +325,7 @@ a {
 
   /* markdown */
   > div {
-    @apply text-xs text-[#686868];
+    @apply text-xs text-gray-400 dark:text-gray-500;
 
     p {
       @apply m-0;
@@ -288,25 +333,31 @@ a {
   }
 
   pre.highlight {
-    @apply border border-gray-300 max-md:border-x-0 bg-white;
-    @apply mt-1 !important;
+    @apply border border-gray-300 max-md:border-x-0 bg-white
+      dark:border-gray-600 dark:bg-gray-800;
 
     > code:first-child {
-      @apply py-2 px-3;
+      @apply pt-2 pr-10 pb-2 pl-2;
       scrollbar-width: thin;
     }
 
-    .context_button {
-      @apply top-1 right-2 hidden border-0;
-
-      svg rect {
-        @apply fill-white;
-      }
+    .copyButton {
+      @apply top-1 right-2 opacity-0;
     }
 
-    &:hover .context_button {
-      @apply block opacity-100;
+    &:hover .copyButton {
+      @apply opacity-100;
     }
+  }
+}
+
+pre.highlight {
+  .copyButton {
+    @apply absolute opacity-0 top-3 right-4;
+  }
+
+  &:hover .copyButton {
+    @apply opacity-60 hover:opacity-100;
   }
 }
 
@@ -330,7 +381,8 @@ a {
 .contextLink {
   @apply text-contextLink/80 underline decoration-[1.5px]
     decoration-contextLink/50 underline-offset-[0.15em] hover:text-contextLink
-    hover:decoration-contextLink;
+    hover:decoration-contextLink dark:text-contextLinkDark/70
+    dark:hover:text-contextLinkDark;
   text-decoration-skip-ink: auto;
 }
 
@@ -346,15 +398,25 @@ a {
   }
 }
 
-.context_button {
-  @apply z-10 rounded p-1.5 cursor-pointer border bg-inherit hover:bg-stone-200
-    leading-[0];
-}
-
 .see {
   @apply list-disc list-inside;
 
   > li * {
     display: inline-block;
+  }
+}
+
+.sourceButton, .copyButton {
+  @apply z-10 rounded no-underline p-1.5 cursor-pointer bg-inherit
+    hover:bg-stone-200 leading-[0] dark:hover:bg-stone-800 transition
+    duration-75;
+}
+
+.sourceButton {
+  @apply flex-row gap-2 items-center relative mr-2 hidden;
+
+  &:before {
+    content: "View code";
+    @apply hidden md:block text-xs leading-none;
   }
 }

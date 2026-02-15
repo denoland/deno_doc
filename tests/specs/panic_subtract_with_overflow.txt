@@ -1,0 +1,65 @@
+# mod.ts
+export { Audio } from './audio.ts';
+
+# audio.ts
+import { Speech } from './speech.ts';
+
+/** Some documentation. */
+export namespace Audio {
+  export { Speech as Speech };
+}
+
+# speech.ts
+/** Some documentation. */
+export namespace Speech {}
+
+# output.txt
+Defined in file:///audio.ts:4:1
+
+namespace Audio
+  Some documentation.
+
+  namespace Speech
+    Some documentation.
+
+
+# output.json
+[
+  {
+    "name": "Audio",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///audio.ts",
+      "line": 4,
+      "col": 0,
+      "byteIndex": 66
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Some documentation."
+    },
+    "kind": "namespace",
+    "namespaceDef": {
+      "elements": [
+        {
+          "name": "Speech",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///speech.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 27
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Some documentation."
+          },
+          "kind": "namespace",
+          "namespaceDef": {
+            "elements": []
+          }
+        }
+      ]
+    }
+  }
+]

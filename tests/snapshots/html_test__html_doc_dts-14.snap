@@ -1,0 +1,7 @@
+---
+source: tests/html_test.rs
+expression: files.get(file_name).unwrap()
+---
+(function () {
+  window.DENO_DOC_SEARCH_INDEX = {"kind":"search","nodes":[{"id":"namespace_responseinit","kind":[{"char":"I","kind":"Interface","title":"Interface"}],"name":"ResponseInit","file":".","doc":"","url":"././~/ResponseInit.html","deprecated":false},{"id":"namespace_responseinit","kind":[{"char":"p","kind":"Property","title":"Property"}],"name":"ResponseInit.status","file":".","doc":"","url":"././~/ResponseInit.status.html","deprecated":false},{"id":"namespace_responseinit","kind":[{"char":"p","kind":"Property","title":"Property"}],"name":"ResponseInit.statusText","file":".","doc":"","url":"././~/ResponseInit.statusText.html","deprecated":false},{"id":"namespace_websocket","kind":[{"char":"I","kind":"Interface","title":"Interface"},{"char":"v","kind":"Variable","title":"Variable"}],"name":"WebSocket","file":".","doc":"","url":"././~/WebSocket.html","deprecated":false},{"id":"namespace_websocket","kind":[{"char":"p","kind":"Property","title":"Property"}],"name":"WebSocket.bufferedAmount","file":".","doc":"","url":"././~/WebSocket.bufferedAmount.html","deprecated":false},{"id":"namespace_websocket","kind":[{"char":"p","kind":"Property","title":"Property"}],"name":"WebSocket.prototype","file":".","doc":"","url":"././~/WebSocket.prototype.html","deprecated":false},{"id":"namespace_websocket","kind":[{"char":"p","kind":"Property","title":"Property"}],"name":"WebSocket.OPEN","file":".","doc":"","url":"././~/WebSocket.OPEN.html","deprecated":false}]};
+})()

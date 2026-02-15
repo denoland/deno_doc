@@ -1,11 +1,12 @@
-use crate::html::util::BreadcrumbCtx;
-use crate::html::util::BreadcrumbsCtx;
-use crate::html::util::NamespacedSymbols;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
+use crate::html::util::BreadcrumbCtx;
+use crate::html::util::BreadcrumbsCtx;
+use crate::html::util::NamespacedSymbols;
 use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
+use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -26,6 +27,7 @@ pub struct RenderContext<'ctx> {
   /// Only some when in `FileMode::SingleDts` and using categories
   pub category: Option<&'ctx str>,
   pub toc: HeadingToCAdapter,
+  pub disable_links: bool,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -43,6 +45,7 @@ impl<'ctx> RenderContext<'ctx> {
       namespace_parts: Rc::new([]),
       category: None,
       toc: Default::default(),
+      disable_links: false,
     }
   }
 
@@ -82,11 +85,18 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_disable_links(&self, disable_links: bool) -> Self {
+    Self {
+      disable_links,
+      ..self.clone()
+    }
+  }
+
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_current_resolve(&self) -> UrlResolveKind {
+  pub fn get_current_resolve(&self) -> UrlResolveKind<'_> {
     self.current_resolve
   }
 
@@ -142,21 +152,20 @@ impl<'ctx> RenderContext<'ctx> {
     }
 
     if let Some(src) = self.current_imports.get(target_symbol) {
-      if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if let Some(short_path) = self
+      if let Ok(module_specifier) = ModuleSpecifier::parse(src)
+        && let Some(short_path) = self
           .ctx
           .doc_nodes
           .keys()
           .find(|short_path| short_path.specifier == module_specifier)
-        {
-          return Some(self.ctx.resolve_path(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: short_path,
-              symbol: target_symbol,
-            },
-          ));
-        }
+      {
+        return Some(self.ctx.resolve_path(
+          self.get_current_resolve(),
+          UrlResolveKind::Symbol {
+            file: short_path,
+            symbol: target_symbol,
+          },
+        ));
       }
 
       return self
@@ -172,145 +181,118 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
-    let index_name =
-      self.ctx.package_name.clone().unwrap_or("index".to_string());
+    let root = BreadcrumbCtx {
+      name: self.ctx.package_name.clone().unwrap_or("index".to_string()),
+      href: self
+        .ctx
+        .resolve_path(self.current_resolve, UrlResolveKind::Root),
+    };
+    let mut current_entrypoint = None;
 
-    let parts = match self.current_resolve {
-      UrlResolveKind::Root => vec![BreadcrumbCtx {
-        name: index_name,
-        href: "".to_string(),
-        is_symbol: false,
-        is_first_symbol: false,
-      }],
+    let mut entrypoints = self
+      .ctx
+      .doc_nodes
+      .keys()
+      .map(|short_path| BreadcrumbCtx {
+        name: short_path.display_name().to_string(),
+        href: self.ctx.resolve_path(
+          self.current_resolve,
+          UrlResolveKind::File { file: short_path },
+        ),
+      })
+      .collect::<Vec<_>>();
+
+    entrypoints.insert(
+      0,
+      BreadcrumbCtx {
+        name: "all symbols".to_string(),
+        href: self
+          .ctx
+          .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
+      },
+    );
+
+    let mut symbols = vec![];
+
+    match self.current_resolve {
+      UrlResolveKind::Root => {
+        entrypoints = vec![];
+      }
       UrlResolveKind::AllSymbols => {
-        vec![
-          BreadcrumbCtx {
-            name: index_name,
-            href: self
-              .ctx
-              .resolve_path(self.current_resolve, UrlResolveKind::Root),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-          BreadcrumbCtx {
-            name: "all symbols".to_string(),
-            href: "".to_string(),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-        ]
-      }
-      UrlResolveKind::Category { category } => {
-        vec![
-          BreadcrumbCtx {
-            name: index_name,
-            href: self
-              .ctx
-              .resolve_path(self.current_resolve, UrlResolveKind::Root),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-          BreadcrumbCtx {
-            name: category.to_owned(),
-            href: super::util::slugify(category),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-        ]
-      }
-      UrlResolveKind::File { file } => {
-        if file.is_main {
-          vec![BreadcrumbCtx {
-            name: index_name,
-            href: "".to_string(),
-            is_symbol: false,
-            is_first_symbol: false,
-          }]
-        } else {
-          vec![
-            BreadcrumbCtx {
-              name: index_name,
-              href: self
-                .ctx
-                .resolve_path(self.current_resolve, UrlResolveKind::Root),
-              is_symbol: false,
-              is_first_symbol: false,
-            },
-            BreadcrumbCtx {
-              name: file.display_name().to_string(),
-              href: "".to_string(),
-              is_symbol: false,
-              is_first_symbol: false,
-            },
-          ]
-        }
-      }
-      UrlResolveKind::Symbol { file, symbol } => {
-        let mut parts = vec![BreadcrumbCtx {
-          name: index_name,
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: "all symbols".to_string(),
           href: self
             .ctx
-            .resolve_path(self.current_resolve, UrlResolveKind::Root),
-          is_symbol: false,
-          is_first_symbol: false,
-        }];
-
-        if !file.is_main {
-          parts.push(BreadcrumbCtx {
-            name: file.display_name().to_string(),
-            href: self.ctx.resolve_path(
-              self.current_resolve,
-              UrlResolveKind::File { file },
-            ),
-            is_symbol: false,
-            is_first_symbol: false,
-          });
-        } else if let Some(category) = self.category {
-          parts.push(BreadcrumbCtx {
+            .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
+        });
+      }
+      UrlResolveKind::Category { category } => {
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: category.to_owned(),
+          href: super::util::slugify(category),
+        });
+      }
+      UrlResolveKind::File { file } => {
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: file.display_name().to_string(),
+          href: self
+            .ctx
+            .resolve_path(self.current_resolve, UrlResolveKind::File { file }),
+        });
+      }
+      UrlResolveKind::Symbol { file, symbol } => {
+        if let Some(category) = self.category {
+          current_entrypoint = Some(BreadcrumbCtx {
             name: category.to_string(),
             href: self.ctx.resolve_path(
               self.current_resolve,
               UrlResolveKind::Category { category },
             ),
-            is_symbol: false,
-            is_first_symbol: false,
+          });
+        } else {
+          current_entrypoint = Some(BreadcrumbCtx {
+            name: file.display_name().to_string(),
+            href: self.ctx.resolve_path(
+              self.current_resolve,
+              UrlResolveKind::File { file },
+            ),
           });
         }
 
-        let (_, symbol_parts) =
-          split_with_brackets(symbol).into_iter().enumerate().fold(
-            (vec![], vec![]),
-            |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
-              symbol_parts.push(symbol_part.clone());
-              let breadcrumb = BreadcrumbCtx {
-                name: symbol_part,
-                href: self.ctx.resolve_path(
-                  self.current_resolve,
-                  UrlResolveKind::Symbol {
-                    file,
-                    symbol: &symbol_parts.join("."),
-                  },
-                ),
-                is_symbol: true,
-                is_first_symbol: i == 0,
-              };
-              breadcrumbs.push(breadcrumb);
+        let (_, symbol_parts) = split_with_brackets(symbol).into_iter().fold(
+          (vec![], vec![]),
+          |(mut symbol_parts, mut breadcrumbs), symbol_part| {
+            symbol_parts.push(symbol_part.clone());
+            let breadcrumb = BreadcrumbCtx {
+              name: symbol_part,
+              href: self.ctx.resolve_path(
+                self.current_resolve,
+                UrlResolveKind::Symbol {
+                  file,
+                  symbol: &symbol_parts.join("."),
+                },
+              ),
+            };
+            breadcrumbs.push(breadcrumb);
 
-              (symbol_parts, breadcrumbs)
-            },
-          );
+            (symbol_parts, breadcrumbs)
+          },
+        );
 
-        parts.extend(symbol_parts);
-
-        parts
+        symbols = symbol_parts;
       }
-    };
+    }
 
-    BreadcrumbsCtx { parts }
+    BreadcrumbsCtx {
+      root,
+      current_entrypoint,
+      entrypoints,
+      symbol: symbols,
+    }
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCEntry {
   pub level: u8,
   pub content: String,
@@ -365,26 +347,35 @@ impl Default for HeadingToCAdapter {
 
 lazy_static! {
   static ref REJECTED_CHARS: regex::Regex =
-    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap();
+    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -_/]").unwrap();
 }
 
 impl HeadingToCAdapter {
-  pub fn anchorize(&self, content: &str) -> String {
+  pub fn anchorize(&self, content: &str) -> super::util::Id {
     let mut anchorizer = self.anchorizer.lock().unwrap();
-    anchorizer.anchorize(content)
+    super::util::Id::from_raw(anchorizer.anchorize(content))
   }
 
-  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
+  /// Apply the same GFM sanitization as anchorize but without registering
+  /// in the deduplication map. Use for IDs referencing anchors on other pages.
+  pub fn sanitize(&self, content: &str) -> super::util::Id {
+    let s = REJECTED_CHARS
+      .replace_all(&content.to_lowercase(), "")
+      .replace(' ', "-");
+    super::util::Id::from_raw(s)
+  }
+
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &super::util::Id) {
     let mut toc = self.toc.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
     *offset = level;
 
-    if toc.last().map_or(true, |toc| toc.content != content) {
+    if toc.last().is_none_or(|toc| toc.content != content) {
       toc.push(ToCEntry {
         level,
         content: content.to_owned(),
-        anchor: anchor.to_owned(),
+        anchor: anchor.as_str().to_owned(),
       });
     }
   }
@@ -488,14 +479,14 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::DocNode;
+  use crate::Location;
   use crate::html::HrefResolver;
   use crate::html::{
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
-  use crate::DocNode;
-  use crate::Location;
   use indexmap::IndexMap;
 
   struct TestResolver;
@@ -603,6 +594,7 @@ mod test {
         ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
+        id_prefix: None,
       },
       None,
       Default::default(),

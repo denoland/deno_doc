@@ -1,12 +1,12 @@
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::ShortPath;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::cmp::Ordering;
-use std::rc::Rc;
+use std::collections::HashMap;
 
 pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
@@ -30,10 +30,7 @@ where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
     for node in doc_nodes {
-      if matches!(
-        node.def,
-        DocNodeDef::ModuleDoc { .. } | DocNodeDef::Import { .. }
-      ) {
+      if matches!(node.def, DocNodeDef::ModuleDoc | DocNodeDef::Import { .. }) {
         continue;
       }
 
@@ -96,7 +93,7 @@ pub fn partition_nodes_by_name<'a>(
     flatten_namespaces,
     &|partitions, node| {
       partitions
-        .entry(node.get_qualified_name())
+        .entry(node.get_qualified_name().to_string())
         .or_default()
         .push(node.clone());
     },
@@ -116,29 +113,29 @@ pub fn partition_nodes_by_kind<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
+  let name_to_kind = RefCell::new(HashMap::<String, super::DocNodeKind>::new());
+
   let mut partitions = create_partitioner(
     ctx,
     doc_nodes,
     flatten_namespaces,
     &|partitions, node| {
-      let maybe_nodes = partitions.values_mut().find(|nodes| {
-        nodes
-          .iter()
-          .any(|n| n.get_qualified_name() == node.get_qualified_name())
-      });
+      let qname = node.get_qualified_name();
+      let mut index = name_to_kind.borrow_mut();
 
-      if let Some(nodes) = maybe_nodes {
-        nodes.push(node.clone());
+      if let Some(&existing_kind) = index.get(qname) {
+        partitions
+          .get_mut(&existing_kind)
+          .unwrap()
+          .push(node.clone());
       } else {
-        let entry = partitions.entry(node.kind).or_default();
-        entry.push(node.clone());
+        index.insert(qname.to_string(), node.kind);
+        partitions.entry(node.kind).or_default().push(node.clone());
       }
     },
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
+  sort_nodes(&mut partitions);
 
   partitions
     .sorted_by(|kind1, _nodes1, kind2, _nodes2| kind1.cmp(kind2))
@@ -156,6 +153,11 @@ pub fn partition_nodes_by_category<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
+  let seen = RefCell::new(std::collections::HashSet::<(
+    String,
+    super::DocNodeKind,
+  )>::new());
+
   let mut partitions = create_partitioner(
     ctx,
     doc_nodes,
@@ -174,20 +176,15 @@ pub fn partition_nodes_by_category<'a>(
         })
         .unwrap_or(String::from("Uncategorized"));
 
-      let entry = partitions.entry(category).or_default();
-
-      if !entry.iter().any(|n| {
-        n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
-      }) {
+      let key = (node.get_qualified_name().to_string(), node.kind);
+      if seen.borrow_mut().insert(key) {
+        let entry = partitions.entry(category).or_default();
         entry.push(node.clone());
       }
     },
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
+  sort_nodes(&mut partitions);
 
   partitions
     .sorted_by(|key1, _value1, key2, _value2| {
@@ -204,54 +201,38 @@ pub fn partition_nodes_by_category<'a>(
     .collect()
 }
 
-pub fn partition_nodes_by_entrypoint<'a>(
-  ctx: &GenerateCtx,
-  doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
-  flatten_namespaces: bool,
-) -> Partitions<Rc<ShortPath>> {
-  let mut partitions = create_partitioner(
-    ctx,
-    doc_nodes,
-    flatten_namespaces,
-    &|partitions, node| {
-      let entry = partitions.entry(node.origin.clone()).or_default();
+fn sort_nodes<T>(partitions: &mut Partitions<T>) {
+  for (_key, nodes) in partitions.iter_mut() {
+    nodes.sort_by_cached_key(|node| {
+      let is_deprecated = node
+        .js_doc
+        .tags
+        .iter()
+        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
 
-      entry.push(node.clone());
-    },
-  );
+      let priority = node
+        .js_doc
+        .tags
+        .iter()
+        .find_map(|tag| {
+          if let JsDocTag::Priority { priority } = tag {
+            Some(*priority)
+          } else {
+            None
+          }
+        })
+        .unwrap_or(0);
 
-  for (_file, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
+      let qname_lower = node.get_qualified_name().to_ascii_lowercase();
+      let qname = node.get_qualified_name().to_string();
+
+      (
+        is_deprecated,
+        std::cmp::Reverse(priority),
+        qname_lower,
+        qname,
+        node.kind,
+      )
+    });
   }
-
-  partitions.sort_keys();
-
-  partitions
-}
-
-fn compare_node(
-  node1: &DocNodeWithContext,
-  node2: &DocNodeWithContext,
-) -> Ordering {
-  let node1_is_deprecated = node1
-    .js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-  let node2_is_deprecated = node2
-    .js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-
-  (!node2_is_deprecated)
-    .cmp(&!node1_is_deprecated)
-    .then_with(|| {
-      node1
-        .get_qualified_name()
-        .to_ascii_lowercase()
-        .cmp(&node2.get_qualified_name().to_ascii_lowercase())
-    })
-    .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
-    .then_with(|| node1.kind.cmp(&node2.kind))
 }

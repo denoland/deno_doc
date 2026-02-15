@@ -1,13 +1,13 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::swc::ast::ModuleExportName;
-use deno_ast::swc::common::comments::Comment;
-use deno_ast::swc::common::comments::CommentKind;
 use deno_ast::ParsedSource;
 use deno_ast::SourcePos;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
 use deno_ast::SourceTextInfo;
+use deno_ast::swc::ast::ModuleExportName;
+use deno_ast::swc::common::comments::Comment;
+use deno_ast::swc::common::comments::CommentKind;
 use deno_graph::symbols::EsModuleInfo;
 use regex::Regex;
 
@@ -136,7 +136,7 @@ pub fn module_export_name_value(
 ) -> String {
   match module_export_name {
     ModuleExportName::Ident(ident) => ident.sym.to_string(),
-    ModuleExportName::Str(str) => str.value.to_string(),
+    ModuleExportName::Str(str) => str.value.to_string_lossy().into_owned(),
   }
 }
 

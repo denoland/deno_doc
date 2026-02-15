@@ -1,20 +1,20 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use deno_ast::ModuleSpecifier;
-use deno_doc::html::pages::SymbolPage;
-use deno_doc::html::*;
-use deno_doc::DocNode;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
+use deno_doc::ParseOutput;
+use deno_doc::html::pages::SymbolPage;
+use deno_doc::html::*;
+use deno_graph::BuildOptions;
+use deno_graph::GraphKind;
+use deno_graph::ModuleGraph;
+use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::LoadError;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use deno_graph::BuildOptions;
-use deno_graph::CapturingModuleAnalyzer;
-use deno_graph::GraphKind;
-use deno_graph::ModuleGraph;
 use futures::future;
 use indexmap::IndexMap;
 use std::fs;
@@ -36,6 +36,7 @@ impl Loader for SourceFileLoader {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
             maybe_headers: None,
+            mtime: None,
             content: content.into(),
           })
         })
@@ -108,7 +109,7 @@ impl UsageComposer for EmptyResolver {
   }
 }
 
-async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
+async fn get_files(subpath: &str) -> ParseOutput {
   let files = fs::read_dir(
     std::env::current_dir()
       .unwrap()
@@ -133,6 +134,7 @@ async fn get_files(subpath: &str) -> IndexMap<ModuleSpecifier, Vec<DocNode>> {
   graph
     .build(
       source_files.clone(),
+      Vec::new(),
       &loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -171,6 +173,7 @@ async fn html_doc_dts() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     get_files("dts").await,
   )
@@ -193,6 +196,7 @@ async fn html_doc_dts() {
       "./~/WebSocket.html",
       "./~/WebSocket.prototype.html",
       "comrak.css",
+      "darkmode_toggle.js",
       "fuse.js",
       "page.css",
       "reset.css",
@@ -226,6 +230,7 @@ async fn html_doc_files_single() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     get_files("single").await,
   )
@@ -247,6 +252,7 @@ async fn html_doc_files_single() {
       "./~/Foobar.html",
       "./~/Foobar.prototype.html",
       "comrak.css",
+      "darkmode_toggle.js",
       "fuse.js",
       "page.css",
       "reset.css",
@@ -302,6 +308,7 @@ async fn html_doc_files_multiple() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     get_files("multiple").await,
   )
@@ -380,6 +387,7 @@ async fn html_doc_files_multiple() {
       "comrak.css",
       "d/index.html",
       "d/~/externalFunction.html",
+      "darkmode_toggle.js",
       "foo/index.html",
       "foo/~/default.html",
       "foo/~/x.html",
@@ -444,6 +452,7 @@ async fn symbol_group() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     None,
     Default::default(),
@@ -543,6 +552,7 @@ async fn symbol_search() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     None,
     Default::default(),
@@ -599,6 +609,7 @@ async fn module_doc() {
       markdown_renderer: comrak::create_renderer(None, None, None),
       markdown_stripper: Rc::new(comrak::strip),
       head_inject: None,
+      id_prefix: None,
     },
     None,
     FileMode::Single,
@@ -614,7 +625,12 @@ async fn module_doc() {
       doc_nodes,
       UrlResolveKind::File { file: short_path },
     );
-    let module_doc = jsdoc::ModuleDocCtx::new(&render_ctx, short_path);
+    let module_doc = jsdoc::ModuleDocCtx::new(
+      &render_ctx,
+      short_path,
+      !short_path.is_main,
+      false,
+    );
 
     module_docs.push(module_doc);
   }

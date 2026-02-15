@@ -1,8 +1,8 @@
 use crate::html::ShortPath;
+use comrak::Arena;
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::AstNode;
 use comrak::nodes::NodeValue;
-use comrak::Arena;
 use std::collections::HashMap;
 use std::io::BufWriter;
 use std::io::Write;
@@ -229,7 +229,7 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     write!(output, "</code>")?;
     write!(
       output,
-      r#"<button class="context_button" data-copy="{}">{}{}</button>"#,
+      r#"<button class="copyButton" data-copy="{}">{}{}</button>"#,
       html_escape::encode_double_quoted_attribute(code),
       include_str!("./templates/icons/copy.svg"),
       include_str!("./templates/icons/check.svg"),

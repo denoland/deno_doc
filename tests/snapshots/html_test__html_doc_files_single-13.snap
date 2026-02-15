@@ -1,0 +1,7 @@
+---
+source: tests/html_test.rs
+expression: files.get(file_name).unwrap()
+---
+(function () {
+  window.DENO_DOC_SEARCH_INDEX = {"kind":"search","nodes":[{"id":"namespace_bar","kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Bar","file":".","doc":"","url":"././~/Bar.html","deprecated":false},{"id":"namespace_foo","kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Foo","file":".","doc":"","url":"././~/Foo.html","deprecated":false},{"id":"namespace_foobar","kind":[{"char":"c","kind":"Class","title":"Class"}],"name":"Foobar","file":".","doc":"","url":"././~/Foobar.html","deprecated":false}]};
+})()

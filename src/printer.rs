@@ -1,15 +1,15 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::Location;
+use crate::display::SliceDisplayer;
 use crate::display::display_abstract;
 use crate::display::display_async;
 use crate::display::display_generator;
-use crate::display::SliceDisplayer;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationKind;
 use crate::node::DocNode;
 use crate::node::DocNodeDef;
-use crate::Location;
 
 use deno_terminal::colors;
 use deno_terminal::colors::Style;
@@ -33,7 +33,7 @@ impl DocPrinter<'_> {
     doc_nodes: &[DocNode],
     use_color: bool,
     private: bool,
-  ) -> DocPrinter {
+  ) -> DocPrinter<'_> {
     DocPrinter {
       doc_nodes,
       use_color,
@@ -115,7 +115,7 @@ impl DocPrinter<'_> {
 
   fn kind_order(&self, node: &DocNode) -> i64 {
     match node.def {
-      DocNodeDef::ModuleDoc { .. } => 0,
+      DocNodeDef::ModuleDoc => 0,
       DocNodeDef::Function { .. } => 1,
       DocNodeDef::Variable { .. } => 2,
       DocNodeDef::Class { .. } => 3,
@@ -136,7 +136,7 @@ impl DocPrinter<'_> {
     has_overloads: bool,
   ) -> FmtResult {
     match node.def {
-      DocNodeDef::ModuleDoc { .. } => self.format_module_doc(w, node, indent),
+      DocNodeDef::ModuleDoc => self.format_module_doc(w, node, indent),
       DocNodeDef::Function { .. } => {
         self.format_function_signature(w, node, indent, has_overloads)
       }
@@ -168,9 +168,7 @@ impl DocPrinter<'_> {
     indent: i64,
   ) -> FmtResult {
     if let Some(doc) = &js_doc.doc {
-      for line in doc.lines() {
-        writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
-      }
+      render_markdown(w, doc, indent)?;
     }
     if !js_doc.tags.is_empty() {
       writeln!(w)?;
@@ -188,9 +186,7 @@ impl DocPrinter<'_> {
     indent: i64,
   ) -> FmtResult {
     if let Some(doc) = maybe_doc {
-      for line in doc.lines() {
-        writeln!(w, "{}{}", Indent(indent + 2), colors::gray(line))?;
-      }
+      render_markdown(w, doc, indent + 2)?;
       writeln!(w)
     } else {
       Ok(())
@@ -203,9 +199,7 @@ impl DocPrinter<'_> {
     doc: &str,
     indent: i64,
   ) -> FmtResult {
-    for line in doc.lines() {
-      writeln!(w, "{}{}", Indent(indent + 2), colors::gray(line))?;
-    }
+    render_markdown(w, doc, indent + 2)?;
     writeln!(w)
   }
 
@@ -411,6 +405,19 @@ impl DocPrinter<'_> {
       JsDocTag::Since { doc } => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("since"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
+      }
+      JsDocTag::Summary { doc } => {
+        writeln!(w, "{}@{}", Indent(indent), colors::magenta("summary"))?;
+        self.format_jsdoc_tag_doc(w, doc, indent)
+      }
+      JsDocTag::Priority { priority } => {
+        writeln!(
+          w,
+          "{}@{} {{{}}}",
+          Indent(indent),
+          colors::magenta("priority"),
+          italic_cyan(priority),
+        )
       }
       JsDocTag::Throws { type_ref, doc } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
@@ -805,5 +812,683 @@ impl Display for Indent {
       write!(f, "  ")?;
     }
     Ok(())
+  }
+}
+
+#[cfg(not(feature = "comrak"))]
+fn render_markdown(
+  w: &mut Formatter<'_>,
+  markdown: &str,
+  indent: i64,
+) -> FmtResult {
+  for line in markdown.lines() {
+    writeln!(w, "{}{}", Indent(indent), colors::gray(line))?;
+  }
+  Ok(())
+}
+
+#[cfg(feature = "comrak")]
+fn render_markdown(
+  w: &mut Formatter<'_>,
+  markdown: &str,
+  indent: i64,
+) -> FmtResult {
+  use comrak::Arena;
+  use comrak::arena_tree::NodeEdge;
+  use comrak::nodes::ListType;
+  use comrak::nodes::NodeValue;
+
+  struct MarkdownRenderer<'a, 'b> {
+    w: &'a mut Formatter<'b>,
+    indent: i64,
+    /// stack for inline text accumulation; nested inline nodes push/pop layers
+    text_stack: Vec<String>,
+    /// tracks nested list contexts for bullet/number rendering
+    list_stack: Vec<ListContext>,
+    /// stack of urls for nested link/image nodes
+    link_url_stack: Vec<String>,
+    /// depth of nested blockquotes for prefix rendering
+    block_quote_depth: usize,
+    /// whether the next content should be preceded by an indent
+    at_line_start: bool,
+    /// deferred blank line separator between block-level elements
+    pending_blank_line: bool,
+    /// stack of continuation prefixes for list item text alignment
+    line_prefix_stack: Vec<String>,
+  }
+
+  struct ListContext {
+    list_type: ListType,
+    current_item: usize,
+  }
+
+  impl MarkdownRenderer<'_, '_> {
+    /// emits a blank line separator if one is pending from a previous block
+    fn write_block_separator(&mut self) -> FmtResult {
+      if self.pending_blank_line {
+        self.pending_blank_line = false;
+        // write a plain newline to terminate the current line (which may
+        // already carry a trailing blockquote prefix from the previous
+        // paragraph's leave handler).  this avoids push_output writing a
+        // *second* prefix that would leave at_line_start=false and swallow
+        // the next block's prefix.
+        self.w.write_str("\n")?;
+        self.at_line_start = true;
+      }
+      Ok(())
+    }
+
+    /// writes text to the formatter with indent and blockquote prefixes
+    fn push_output(&mut self, text: &str) -> FmtResult {
+      let bq_prefix = if self.block_quote_depth > 0 {
+        Some(colors::gray(&"│".repeat(self.block_quote_depth)).to_string())
+      } else {
+        None
+      };
+
+      for (i, segment) in text.split('\n').enumerate() {
+        if i > 0 {
+          self.w.write_str("\n")?;
+          self.at_line_start = true;
+        }
+
+        let has_bq = bq_prefix.is_some() && (!segment.is_empty() || i > 0);
+        if (!segment.is_empty() || has_bq) && self.at_line_start {
+          write!(self.w, "{}", Indent(self.indent))?;
+          // only apply list-continuation prefix when there is actual
+          // content; on blank blockquote lines the prefix would push
+          // the │ marker to a wrong indent level
+          if !segment.is_empty()
+            && let Some(prefix) = self.line_prefix_stack.last()
+          {
+            self.w.write_str(prefix)?;
+          }
+          if let Some(ref prefix) = bq_prefix
+            && has_bq
+          {
+            self.w.write_str(prefix)?;
+            if !segment.is_empty() {
+              self.w.write_str(" ")?;
+            }
+          }
+          self.at_line_start = false;
+        }
+        if !segment.is_empty() {
+          self.w.write_str(segment)?;
+        }
+      }
+      Ok(())
+    }
+
+    /// flushes accumulated inline text from the stack to the formatter
+    fn flush_text(&mut self) -> FmtResult {
+      if self.text_stack.len() > 1 {
+        let text = self.text_stack.pop().unwrap_or_default();
+        if let Some(top) = self.text_stack.last_mut() {
+          top.push_str(&text);
+        }
+      } else if let Some(top) = self.text_stack.last_mut() {
+        let text = std::mem::take(top);
+        if !text.is_empty() {
+          self.push_output(&text)?;
+        }
+      }
+      Ok(())
+    }
+
+    fn push_inline(&mut self, text: &str) {
+      if let Some(top) = self.text_stack.last_mut() {
+        top.push_str(text);
+      }
+    }
+
+    fn handle_start(&mut self, value: &NodeValue) -> FmtResult {
+      match value {
+        NodeValue::Document | NodeValue::FrontMatter(_) => {}
+        NodeValue::Heading(_) => {
+          self.write_block_separator()?;
+          self.text_stack.push(String::new());
+        }
+        NodeValue::Paragraph => {
+          self.write_block_separator()?;
+        }
+        NodeValue::Text(s) => {
+          self.push_inline(s);
+        }
+        NodeValue::SoftBreak => {
+          self.push_inline("\n");
+        }
+        NodeValue::LineBreak => {
+          self.push_inline("\n");
+        }
+        NodeValue::Code(c) => {
+          let styled = format!("`{}`", colors::cyan(&c.literal));
+          self.push_inline(&styled);
+        }
+        NodeValue::CodeBlock(cb) => {
+          self.write_block_separator()?;
+          self.flush_text()?;
+          if cb.fenced {
+            let fence_open = if cb.info.is_empty() {
+              "```".to_string()
+            } else {
+              format!("```{}", cb.info)
+            };
+            self.push_output(&format!("{}\n", colors::gray(&fence_open)))?;
+            for line in cb.literal.lines() {
+              self.push_output(&format!("{}\n", colors::gray(line)))?;
+            }
+            self.push_output(&format!("{}\n", colors::gray("```")))?;
+          } else {
+            for line in cb.literal.lines() {
+              self.push_output(&format!("    {}\n", colors::gray(line)))?;
+            }
+          }
+          self.pending_blank_line = true;
+        }
+        NodeValue::Strong
+        | NodeValue::Superscript
+        | NodeValue::Underline
+        | NodeValue::SpoileredText => {
+          self.text_stack.push(String::new());
+        }
+        NodeValue::Emph => {
+          self.text_stack.push(String::new());
+        }
+        NodeValue::Strikethrough => {
+          self.text_stack.push(String::new());
+        }
+        NodeValue::Link(nl) => {
+          self.link_url_stack.push(nl.url.clone());
+          self.text_stack.push(String::new());
+        }
+        NodeValue::Image(nl) => {
+          self.link_url_stack.push(nl.url.clone());
+          self.text_stack.push(String::new());
+        }
+        NodeValue::WikiLink(wl) => {
+          self.link_url_stack.push(wl.url.clone());
+          self.text_stack.push(String::new());
+        }
+        NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
+          self.write_block_separator()?;
+          self.block_quote_depth += 1;
+          // when a blockquote starts mid-line (after a separator wrote a
+          // prefix at the previous depth), force a new line so the deeper
+          // prefix is emitted correctly
+          if !self.at_line_start {
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
+          }
+        }
+        NodeValue::List(nl) => {
+          self.write_block_separator()?;
+          self.list_stack.push(ListContext {
+            list_type: nl.list_type,
+            current_item: nl.start,
+          });
+        }
+        NodeValue::Item(_) => {
+          let nesting_indent =
+            "  ".repeat(self.list_stack.len().saturating_sub(1));
+          if let Some(ctx) = self.list_stack.last_mut() {
+            let marker = match ctx.list_type {
+              ListType::Bullet => "- ".to_string(),
+              ListType::Ordered => {
+                let m = format!("{}. ", ctx.current_item);
+                ctx.current_item += 1;
+                m
+              }
+            };
+            self.flush_text()?;
+            // temporarily remove parent item's prefix so the nesting indent
+            // isn't stacked on top of it (nesting_indent already accounts
+            // for the full depth)
+            let saved_prefix = self.line_prefix_stack.pop();
+            self.push_output(&nesting_indent)?;
+            self.push_output(&marker)?;
+            if let Some(p) = saved_prefix {
+              self.line_prefix_stack.push(p);
+            }
+            self
+              .line_prefix_stack
+              .push(" ".repeat(nesting_indent.len() + marker.len()));
+          }
+        }
+        NodeValue::TaskItem(checked) => {
+          let checkbox = if checked.is_some() {
+            colors::green("[x] ").to_string()
+          } else {
+            "[ ] ".to_string()
+          };
+          self.push_inline(&checkbox);
+        }
+        NodeValue::ThematicBreak => {
+          self.write_block_separator()?;
+          self.flush_text()?;
+          let rule = "─".repeat(40);
+          self.push_output(&format!("{}\n", colors::gray(&rule)))?;
+          self.pending_blank_line = true;
+        }
+        NodeValue::HtmlBlock(hb) => {
+          self.write_block_separator()?;
+          self.push_output(&colors::dimmed_gray(&hb.literal).to_string())?;
+          self.pending_blank_line = true;
+        }
+        NodeValue::HtmlInline(s) => {
+          self.push_inline(&colors::dimmed_gray(s).to_string());
+        }
+        // leaf nodes with literal text content
+        NodeValue::Math(m) => {
+          self.push_inline(&colors::cyan(&m.literal).to_string());
+        }
+        NodeValue::FootnoteReference(r) => {
+          self.push_inline(&format!("[^{}]", r.ix));
+        }
+        NodeValue::EscapedTag(s) => {
+          self.push_inline(s);
+        }
+        // container nodes whose children provide the text
+        NodeValue::Escaped
+        | NodeValue::Table(_)
+        | NodeValue::TableRow(_)
+        | NodeValue::TableCell
+        | NodeValue::DescriptionList
+        | NodeValue::DescriptionItem(_)
+        | NodeValue::DescriptionTerm
+        | NodeValue::DescriptionDetails
+        | NodeValue::FootnoteDefinition(_) => {}
+      }
+      Ok(())
+    }
+
+    fn handle_end(&mut self, value: &NodeValue) -> FmtResult {
+      match value {
+        NodeValue::Heading(h) => {
+          let heading_text = self.text_stack.pop().unwrap_or_default();
+          let prefix = "#".repeat(h.level as usize);
+          let full = format!("{} {}", prefix, heading_text.trim());
+          self.push_output(&colors::bold(&full).to_string())?;
+          self.push_output("\n")?;
+          self.pending_blank_line = true;
+        }
+        NodeValue::Paragraph => {
+          self.flush_text()?;
+          if self.list_stack.is_empty() {
+            self.push_output("\n")?;
+            self.pending_blank_line = true;
+          } else {
+            // inside a list item, write a plain newline so we don't
+            // emit a trailing blockquote prefix between list items
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
+          }
+        }
+        NodeValue::Strong => {
+          let text = self.text_stack.pop().unwrap_or_default();
+          self.push_inline(&colors::bold(&text).to_string());
+        }
+        NodeValue::Emph => {
+          let text = self.text_stack.pop().unwrap_or_default();
+          self.push_inline(&colors::italic(&text).to_string());
+        }
+        NodeValue::Strikethrough => {
+          let text = self.text_stack.pop().unwrap_or_default();
+          self.push_inline(&format!("~{}~", text));
+        }
+        NodeValue::Superscript | NodeValue::SpoileredText => {
+          // no terminal representation; just pop the accumulated text back
+          let text = self.text_stack.pop().unwrap_or_default();
+          self.push_inline(&text);
+        }
+        NodeValue::Underline => {
+          // no terminal underline in deno_terminal::colors; just pop text back
+          let text = self.text_stack.pop().unwrap_or_default();
+          self.push_inline(&text);
+        }
+        NodeValue::Link(_) | NodeValue::WikiLink(_) => {
+          let text = self.text_stack.pop().unwrap_or_default();
+          let url = self.link_url_stack.pop().unwrap_or_default();
+          let styled = if text == url || text.is_empty() {
+            colors::cyan_with_underline(&url).to_string()
+          } else {
+            format!("{} ({})", text, colors::cyan_with_underline(&url))
+          };
+          self.push_inline(&styled);
+        }
+        NodeValue::Image(_) => {
+          let alt_text = self.text_stack.pop().unwrap_or_default();
+          let url = self.link_url_stack.pop().unwrap_or_default();
+          let display = if alt_text.is_empty() {
+            format!("[image]({})", url)
+          } else {
+            format!("[{}]({})", alt_text, url)
+          };
+          self.push_inline(&colors::italic(&display).to_string());
+        }
+        NodeValue::BlockQuote | NodeValue::MultilineBlockQuote(_) => {
+          self.block_quote_depth = self.block_quote_depth.saturating_sub(1);
+          // terminate the trailing prefix line so subsequent content
+          // starts on a fresh line with a blank separator
+          if !self.at_line_start {
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
+          }
+          self.pending_blank_line = true;
+        }
+        NodeValue::List(_) => {
+          self.list_stack.pop();
+          if self.list_stack.is_empty() {
+            self.pending_blank_line = true;
+          }
+        }
+        NodeValue::Item(_) => {
+          self.flush_text()?;
+          self.line_prefix_stack.pop();
+          if !self.at_line_start {
+            self.w.write_str("\n")?;
+            self.at_line_start = true;
+          }
+        }
+        NodeValue::TableRow(_) => {
+          self.flush_text()?;
+          self.push_output("\n")?;
+        }
+        NodeValue::TableCell => {
+          self.flush_text()?;
+          self.push_output("\t")?;
+        }
+        NodeValue::DescriptionTerm => {
+          self.flush_text()?;
+          self.push_output("\n")?;
+        }
+        NodeValue::DescriptionDetails => {
+          self.flush_text()?;
+          self.push_output("\n")?;
+        }
+        // leaf nodes, no children to close
+        NodeValue::Document
+        | NodeValue::FrontMatter(_)
+        | NodeValue::Text(_)
+        | NodeValue::SoftBreak
+        | NodeValue::LineBreak
+        | NodeValue::Code(_)
+        | NodeValue::CodeBlock(_)
+        | NodeValue::ThematicBreak
+        | NodeValue::HtmlBlock(_)
+        | NodeValue::HtmlInline(_)
+        | NodeValue::TaskItem(_)
+        | NodeValue::Math(_)
+        | NodeValue::FootnoteReference(_)
+        | NodeValue::EscapedTag(_) => {}
+        // container nodes with no special end handling
+        NodeValue::Escaped
+        | NodeValue::Table(_)
+        | NodeValue::DescriptionList
+        | NodeValue::DescriptionItem(_)
+        | NodeValue::FootnoteDefinition(_) => {}
+      }
+      Ok(())
+    }
+  }
+
+  let arena = Arena::new();
+  let options = comrak::Options::default();
+  let root = comrak::parse_document(&arena, markdown, &options);
+
+  let mut renderer = MarkdownRenderer {
+    w,
+    indent,
+    text_stack: vec![String::new()],
+    list_stack: Vec::new(),
+    link_url_stack: Vec::new(),
+    block_quote_depth: 0,
+    at_line_start: true,
+    pending_blank_line: false,
+    line_prefix_stack: Vec::new(),
+  };
+
+  for edge in root.traverse() {
+    match edge {
+      NodeEdge::Start(node) => {
+        let data = node.data.borrow();
+        renderer.handle_start(&data.value)?;
+      }
+      NodeEdge::End(node) => {
+        let data = node.data.borrow();
+        renderer.handle_end(&data.value)?;
+      }
+    }
+  }
+
+  // flush any remaining text
+  renderer.flush_text()?;
+  Ok(())
+}
+
+#[cfg(test)]
+mod render_markdown_tests {
+  use super::*;
+  use std::fmt;
+
+  struct Rendered<'a> {
+    markdown: &'a str,
+    indent: i64,
+  }
+
+  impl fmt::Display for Rendered<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+      render_markdown(f, self.markdown, self.indent)
+    }
+  }
+
+  fn render(markdown: &str) -> String {
+    colors::set_use_color(false);
+    format!(
+      "{}",
+      Rendered {
+        markdown,
+        indent: 0
+      }
+    )
+  }
+
+  fn render_indented(markdown: &str, indent: i64) -> String {
+    colors::set_use_color(false);
+    format!("{}", Rendered { markdown, indent })
+  }
+
+  #[test]
+  fn plain_text() {
+    let output = render("hello world");
+    assert_eq!(output, "hello world\n");
+  }
+
+  #[test]
+  fn multiple_paragraphs() {
+    let output = render("first paragraph\n\nsecond paragraph");
+    assert_eq!(output, "first paragraph\n\nsecond paragraph\n");
+  }
+
+  #[test]
+  fn heading_levels() {
+    assert_eq!(render("# h1"), "# h1\n");
+    assert_eq!(render("## h2"), "## h2\n");
+    assert_eq!(render("### h3"), "### h3\n");
+  }
+
+  #[test]
+  fn heading_then_paragraph() {
+    let output = render("# title\n\nbody text");
+    assert_eq!(output, "# title\n\nbody text\n");
+  }
+
+  #[test]
+  fn bold_text() {
+    let output = render("some **bold** text");
+    assert_eq!(output, "some bold text\n");
+  }
+
+  #[test]
+  fn italic_text() {
+    let output = render("some *italic* text");
+    assert_eq!(output, "some italic text\n");
+  }
+
+  #[test]
+  fn inline_code() {
+    let output = render("use `fmt::Display`");
+    assert_eq!(output, "use `fmt::Display`\n");
+  }
+
+  #[test]
+  fn code_block() {
+    let output = render("```ts\nconst x = 1;\n```");
+    assert_eq!(output, "```ts\nconst x = 1;\n```\n");
+  }
+
+  #[test]
+  fn code_block_no_lang() {
+    let output = render("```\nplain code\n```");
+    assert_eq!(output, "```\nplain code\n```\n");
+  }
+
+  #[test]
+  fn link_with_text() {
+    let output = render("[click here](https://example.com)");
+    assert_eq!(output, "click here (https://example.com)\n");
+  }
+
+  #[test]
+  fn link_bare_url() {
+    // when link text matches url, only the url is shown
+    let output = render("[https://example.com](https://example.com)");
+    assert_eq!(output, "https://example.com\n");
+  }
+
+  #[test]
+  fn image() {
+    let output = render("![alt text](img.png)");
+    assert_eq!(output, "[alt text](img.png)\n");
+  }
+
+  #[test]
+  fn image_inside_link() {
+    // image wrapped in a link should preserve both urls
+    let output =
+      render("[![badge](https://img.example.com/b.svg)](https://example.com)");
+    assert_eq!(
+      output,
+      "[badge](https://img.example.com/b.svg) (https://example.com)\n"
+    );
+  }
+
+  #[test]
+  fn unordered_list() {
+    let output = render("- one\n- two\n- three");
+    assert_eq!(output, "- one\n- two\n- three\n");
+  }
+
+  #[test]
+  fn ordered_list() {
+    let output = render("1. first\n2. second\n3. third");
+    assert_eq!(output, "1. first\n2. second\n3. third\n");
+  }
+
+  #[test]
+  fn nested_list() {
+    let output = render("- outer\n  - inner\n- back");
+    assert_eq!(output, "- outer\n  - inner\n- back\n");
+  }
+
+  #[test]
+  fn task_list() {
+    let output = render("- [x] done\n- [ ] pending");
+    assert_eq!(output, "- [x] done\n- [ ] pending\n");
+  }
+
+  #[test]
+  fn blockquote() {
+    let output = render("> quoted text");
+    assert_eq!(output, "│ quoted text\n│\n");
+  }
+
+  #[test]
+  fn nested_blockquote() {
+    let output = render("> outer\n>> inner");
+    assert_eq!(output, "│ outer\n│\n││ inner\n││\n");
+  }
+
+  #[test]
+  fn blockquote_multiple_paragraphs() {
+    let output = render("> first paragraph\n>\n> second paragraph");
+    assert_eq!(output, "│ first paragraph\n│\n│ second paragraph\n│\n");
+  }
+
+  #[test]
+  fn thematic_break() {
+    let output = render("above\n\n---\n\nbelow");
+    let expected = format!("above\n\n{}\n\nbelow\n", "─".repeat(40));
+    assert_eq!(output, expected);
+  }
+
+  #[test]
+  fn strikethrough() {
+    // comrak's default options don't enable the strikethrough extension,
+    // so ~~text~~ is treated as literal text
+    let output = render("some ~~deleted~~ text");
+    assert_eq!(output, "some ~~deleted~~ text\n");
+  }
+
+  #[test]
+  fn html_inline() {
+    let output = render("text <br> more");
+    assert_eq!(output, "text <br> more\n");
+  }
+
+  #[test]
+  fn soft_break_preserves_newline() {
+    // a single newline inside a paragraph is a soft break; we preserve it
+    // rather than joining into one line, to respect the original wrapping
+    let output = render("line one\nline two");
+    assert_eq!(output, "line one\nline two\n");
+  }
+
+  #[test]
+  fn indent_applied() {
+    let output = render_indented("hello", 2);
+    assert_eq!(output, "    hello\n");
+  }
+
+  #[test]
+  fn indent_on_list() {
+    let output = render_indented("- a\n- b", 1);
+    assert_eq!(output, "  - a\n  - b\n");
+  }
+
+  #[test]
+  fn list_item_continuation_indent() {
+    // continuation lines in a list item should align with the text after the marker
+    let output = render("- first line\n  second line\n- next item");
+    assert_eq!(output, "- first line\n  second line\n- next item\n");
+  }
+
+  #[test]
+  fn ordered_list_continuation_indent() {
+    let output = render("1. first line\n   second line\n2. next");
+    assert_eq!(output, "1. first line\n   second line\n2. next\n");
+  }
+
+  #[test]
+  fn indented_code_block() {
+    // 4-space indented code blocks are rendered with indentation, not fences
+    let output = render("    const x = 1;\n    const y = 2;");
+    assert_eq!(output, "    const x = 1;\n    const y = 2;\n");
+  }
+
+  #[test]
+  fn empty_input() {
+    let output = render("");
+    assert_eq!(output, "");
   }
 }

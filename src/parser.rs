@@ -1,5 +1,9 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::ModuleItemRef;
+use deno_ast::SourceRange;
+use deno_ast::SourceRanged;
+use deno_ast::SourceRangedForSpanned;
 use deno_ast::swc::ast::ClassDecl;
 use deno_ast::swc::ast::Decl;
 use deno_ast::swc::ast::DefaultDecl;
@@ -17,10 +21,10 @@ use deno_ast::swc::ast::TsTypeAliasDecl;
 use deno_ast::swc::ast::VarDecl;
 use deno_ast::swc::ast::VarDeclKind;
 use deno_ast::swc::ast::VarDeclarator;
-use deno_ast::ModuleItemRef;
-use deno_ast::SourceRange;
-use deno_ast::SourceRanged;
-use deno_ast::SourceRangedForSpanned;
+use deno_graph::Module;
+use deno_graph::ModuleGraph;
+use deno_graph::ModuleSpecifier;
+use deno_graph::ast::EsParser;
 use deno_graph::symbols::EsModuleInfo;
 use deno_graph::symbols::ExpandoPropertyRef;
 use deno_graph::symbols::ExportDeclRef;
@@ -29,10 +33,6 @@ use deno_graph::symbols::Symbol;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::EsParser;
-use deno_graph::Module;
-use deno_graph::ModuleGraph;
-use deno_graph::ModuleSpecifier;
 use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -42,6 +42,8 @@ use std::fmt;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use crate::ImportDef;
+use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
@@ -50,11 +52,11 @@ use crate::node::DocNode;
 use crate::node::DocNodeDef;
 use crate::node::NamespaceDef;
 use crate::node::ReferenceDef;
-use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
+use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::util::graph::resolve_deno_graph_module;
 use crate::util::swc::get_location;
 use crate::util::swc::get_text_info_location;
@@ -64,8 +66,6 @@ use crate::util::swc::module_js_doc_for_source;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
-use crate::ImportDef;
-use crate::Location;
 
 #[derive(Debug)]
 pub enum DocError {
@@ -93,6 +93,8 @@ impl From<deno_ast::ParseDiagnostic> for DocError {
     DocError::Parse(error)
   }
 }
+
+pub type ParseOutput = IndexMap<ModuleSpecifier, Vec<DocNode>>;
 
 #[derive(Default, Clone)]
 pub struct DocParserOptions {
@@ -156,13 +158,11 @@ impl<'a> DocParser<'a> {
   fn get_module_info(
     &self,
     specifier: &ModuleSpecifier,
-  ) -> Result<ModuleInfoRef, DocError> {
+  ) -> Result<ModuleInfoRef<'_>, DocError> {
     get_module_info(&self.root_symbol, specifier)
   }
 
-  pub fn parse(
-    &self,
-  ) -> Result<IndexMap<ModuleSpecifier, Vec<DocNode>>, DocError> {
+  pub fn parse(&self) -> Result<ParseOutput, DocError> {
     let mut doc_nodes_by_url = self
       .specifiers
       .iter()
@@ -253,18 +253,18 @@ impl<'a> DocParser<'a> {
           new_name_path.extend_from_slice(name_path);
           new_name_path.push(name);
 
-          if !all_locations.contains(&reference_def.target) {
-            if let Some(new_nodes) = self.resolve_dangling_reference(
+          if !all_locations.contains(&reference_def.target)
+            && let Some(new_nodes) = self.resolve_dangling_reference(
               specifier,
               reference_def,
               new_name_path,
               false,
-            )? {
-              nodes.splice(i..=i, new_nodes);
-              all_locations
-                .extend(nodes.iter().map(|node| node.location.clone()));
-              continue;
-            }
+            )?
+          {
+            nodes.splice(i..=i, new_nodes);
+            all_locations
+              .extend(nodes.iter().map(|node| node.location.clone()));
+            continue;
           }
         }
 
@@ -341,7 +341,13 @@ impl<'a> DocParser<'a> {
                     definitions.first().unwrap().module.specifier(),
                     reference_def,
                     // -1 to include the root
-                    name_path[i - 1..].to_vec(),
+                    if i > 1 {
+                      name_path[i - 1..].to_vec()
+                    } else {
+                      let mut out = vec![root_name];
+                      out.extend_from_slice(&name_path);
+                      out
+                    },
                     false,
                   );
                 };
@@ -500,51 +506,51 @@ impl<'a> DocParser<'a> {
     let mut imports = vec![];
 
     for node in parsed_source.program_ref().body() {
-      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node {
-        if let Some(js_doc) =
+      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node
+        && let Some(js_doc) =
           js_doc_for_range(module_info, &import_decl.range())
-        {
-          let location = get_location(module_info, import_decl.start());
-          for specifier in &import_decl.specifiers {
-            use deno_ast::swc::ast::ImportSpecifier::*;
+      {
+        let location = get_location(module_info, import_decl.start());
+        for specifier in &import_decl.specifiers {
+          use deno_ast::swc::ast::ImportSpecifier::*;
 
-            let (name, maybe_imported_name, src) = match specifier {
-              Named(named_specifier) => (
-                named_specifier.local.sym.to_string(),
-                named_specifier
-                  .imported
-                  .as_ref()
-                  .map(module_export_name_value)
-                  .or_else(|| Some(named_specifier.local.sym.to_string())),
-                import_decl.src.value.to_string(),
-              ),
-              Default(default_specifier) => (
-                default_specifier.local.sym.to_string(),
-                Some("default".to_string()),
-                import_decl.src.value.to_string(),
-              ),
-              Namespace(namespace_specifier) => (
-                namespace_specifier.local.sym.to_string(),
-                None,
-                import_decl.src.value.to_string(),
-              ),
-            };
+          let (name, maybe_imported_name, src) = match specifier {
+            Named(named_specifier) => (
+              named_specifier.local.sym.to_string(),
+              named_specifier
+                .imported
+                .as_ref()
+                .map(module_export_name_value)
+                .or_else(|| Some(named_specifier.local.sym.to_string())),
+              &import_decl.src.value,
+            ),
+            Default(default_specifier) => (
+              default_specifier.local.sym.to_string(),
+              Some("default".to_string()),
+              &import_decl.src.value,
+            ),
+            Namespace(namespace_specifier) => (
+              namespace_specifier.local.sym.to_string(),
+              None,
+              &import_decl.src.value,
+            ),
+          };
 
-            let resolved_specifier = self.resolve_dependency(&src, referrer)?;
-            let import_def = ImportDef {
-              src: resolved_specifier.to_string(),
-              imported: maybe_imported_name,
-            };
+          let resolved_specifier =
+            self.resolve_dependency(&src.to_string_lossy(), referrer)?;
+          let import_def = ImportDef {
+            src: resolved_specifier.to_string(),
+            imported: maybe_imported_name,
+          };
 
-            let doc_node = DocNode::import(
-              name.into_boxed_str(),
-              location.clone(),
-              js_doc.clone(),
-              import_def,
-            );
+          let doc_node = DocNode::import(
+            name.into_boxed_str(),
+            location.clone(),
+            js_doc.clone(),
+            import_def,
+          );
 
-            imports.push(doc_node);
-          }
+          imports.push(doc_node);
         }
       }
     }
@@ -733,11 +739,26 @@ impl<'a> DocParser<'a> {
   fn get_doc_for_ts_namespace(
     &self,
     module_info: &EsModuleInfo,
-    symbol: &Symbol,
+    ns_symbol: &Symbol,
     ts_module: &TsModuleDecl,
     full_range: &SourceRange,
   ) -> Option<DocNode> {
-    let first_ns_decl = symbol
+    fn symbol_in_ancestors(
+      id: UniqueSymbolId,
+      parent: &Symbol,
+      module_info: &EsModuleInfo,
+    ) -> bool {
+      let mut current_symbol = Some(parent);
+      while let Some(symbol) = current_symbol.take() {
+        if symbol.unique_id() == id {
+          return true;
+        }
+        current_symbol = symbol.parent_id().and_then(|s| module_info.symbol(s));
+      }
+      false
+    }
+
+    let first_ns_decl = ns_symbol
       .decls()
       .iter()
       .filter_map(|d| {
@@ -761,12 +782,12 @@ impl<'a> DocParser<'a> {
 
     let namespace_name = match &ts_module.id {
       TsModuleName::Ident(ident) => ident.sym.to_string(),
-      TsModuleName::Str(str_) => str_.value.to_string(),
+      TsModuleName::Str(str_) => str_.value.to_string_lossy().into_owned(),
     };
     let mut elements = Vec::new();
     let mut handled_symbols = HashSet::new();
 
-    for (export_name, export_symbol_id) in symbol.exports() {
+    for (export_name, export_symbol_id) in ns_symbol.exports() {
       handled_symbols.insert(UniqueSymbolId::new(
         module_info.module_id(),
         *export_symbol_id,
@@ -778,7 +799,12 @@ impl<'a> DocParser<'a> {
       let original_range = &export_symbol.decls().first().unwrap().range;
 
       for definition in definitions {
-        handled_symbols.insert(definition.symbol.unique_id());
+        let definition_id = definition.symbol.unique_id();
+        if symbol_in_ancestors(definition_id, ns_symbol, module_info) {
+          continue;
+        }
+
+        handled_symbols.insert(definition_id);
 
         let maybe_docs = self.docs_for_maybe_node(
           definition.module,
@@ -799,7 +825,7 @@ impl<'a> DocParser<'a> {
     }
 
     let is_ambient = elements.is_empty() && !module_has_import(module_info);
-    for child_id in symbol.child_ids() {
+    for child_id in ns_symbol.child_ids() {
       let unique_id = UniqueSymbolId::new(module_info.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
@@ -839,10 +865,12 @@ impl<'a> DocParser<'a> {
     module_info: ModuleInfoRef,
     child_symbol: &Symbol,
   ) -> Vec<DocNode> {
-    debug_assert!(self
-      .visibility
-      .get_root_exported_deps(&child_symbol.unique_id())
-      .is_none());
+    debug_assert!(
+      self
+        .visibility
+        .get_root_exported_deps(&child_symbol.unique_id())
+        .is_none()
+    );
     let mut doc_nodes = Vec::with_capacity(child_symbol.decls().len());
     for decl in child_symbol.decls() {
       let maybe_docs = self.docs_for_maybe_node(
@@ -1132,14 +1160,14 @@ impl<'a> DocParser<'a> {
 
       self.check_private_type_in_public_diagnostic(module_info, symbol);
 
-      if let Some(node) = maybe_node {
-        if node.is_function() {
-          // find any expando properties for this function symbol
-          if let Some(expando_namespace) = self
-            .maybe_expando_property_namespace_doc(&docs[0], module_info, symbol)
-          {
-            docs.push(expando_namespace);
-          }
+      if let Some(node) = maybe_node
+        && node.is_function()
+      {
+        // find any expando properties for this function symbol
+        if let Some(expando_namespace) = self
+          .maybe_expando_property_namespace_doc(&docs[0], module_info, symbol)
+        {
+          docs.push(expando_namespace);
         }
       }
     }

@@ -1,9 +1,3 @@
-use super::partition;
-use super::symbols::SymbolContentCtx;
-use super::util;
-use super::util::AnchorCtx;
-use super::util::BreadcrumbsCtx;
-use super::util::SectionHeaderCtx;
 use super::DocNodeWithContext;
 use super::FileMode;
 use super::GenerateCtx;
@@ -11,10 +5,16 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use super::partition;
+use super::symbols::SymbolContentCtx;
+use super::util;
+use super::util::AnchorCtx;
+use super::util::BreadcrumbsCtx;
+use super::util::SectionHeaderCtx;
 use std::borrow::Cow;
-use std::cmp::Ordering;
 use std::rc::Rc;
 
+use super::DARKMODE_TOGGLE_FILENAME;
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
 use super::RESET_STYLESHEET_FILENAME;
@@ -27,9 +27,10 @@ use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
+use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct HtmlHeadCtx {
   title: String,
   current_file: String,
@@ -39,7 +40,8 @@ pub struct HtmlHeadCtx {
   url_search_index: String,
   script_js: String,
   fuse_js: String,
-  url_search: String,
+  search_js: String,
+  darkmode_toggle_js: String,
   head_inject: Option<String>,
   disable_search: bool,
 }
@@ -73,14 +75,15 @@ impl HtmlHeadCtx {
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
       script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
-      url_search: format!("{root}{SEARCH_FILENAME}"),
+      search_js: format!("{root}{SEARCH_FILENAME}"),
+      darkmode_toggle_js: format!("{root}{DARKMODE_TOGGLE_FILENAME}"),
       head_inject: ctx.head_inject.clone().map(|head_inject| head_inject(root)),
       disable_search: ctx.disable_search,
     }
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoriesPanelCtx {
   pub categories: Vec<CategoriesPanelCategoryCtx>,
   pub all_symbols_href: String,
@@ -107,7 +110,7 @@ impl CategoriesPanelCtx {
           .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
-        let mut categories = ctx
+        let categories = ctx
           .ctx
           .doc_nodes
           .keys()
@@ -122,8 +125,6 @@ impl CategoriesPanelCtx {
             }),
           })
           .collect::<Vec<_>>();
-
-        categories.sort_by(|a, b| a.name.cmp(&b.name));
 
         Some(CategoriesPanelCtx {
           categories,
@@ -187,14 +188,14 @@ impl CategoriesPanelCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoriesPanelCategoryCtx {
   pub name: String,
   pub href: String,
   pub active: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct IndexCtx {
   pub html_head_ctx: HtmlHeadCtx,
@@ -233,7 +234,12 @@ impl IndexCtx {
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
+      super::jsdoc::ModuleDocCtx::new(
+        &render_ctx,
+        short_path,
+        !short_path.is_main,
+        false,
+      )
     });
 
     let root =
@@ -254,7 +260,7 @@ impl IndexCtx {
 
     let overview = match ctx.file_mode {
       FileMode::Dts if short_path.is_none() => {
-        let mut sections = ctx
+        let sections = ctx
           .doc_nodes
           .iter()
           .map(|(short_path, nodes)| {
@@ -271,8 +277,8 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.anchorize(title);
-            render_ctx.toc.add_entry(1, title, &anchor);
+            let id = render_ctx.toc.anchorize(title);
+            render_ctx.toc.add_entry(1, title, &id);
 
             util::SectionCtx {
               header: Some(SectionHeaderCtx {
@@ -281,7 +287,7 @@ impl IndexCtx {
                   short_path.as_resolve_kind(),
                 )),
                 title: title.to_string(),
-                anchor: AnchorCtx { id: anchor },
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -289,15 +295,8 @@ impl IndexCtx {
           })
           .collect::<Vec<_>>();
 
-        sections.sort_by(|a, b| match (&a.header, &b.header) {
-          (Some(x), Some(y)) => x.title.cmp(&y.title),
-          (None, Some(_)) => Ordering::Less,
-          (Some(_), None) => Ordering::Greater,
-          (None, None) => Ordering::Equal,
-        });
-
         Some(SymbolContentCtx {
-          id: String::new(),
+          id: util::Id::empty(),
           sections,
           docs: None,
         })
@@ -306,8 +305,8 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.anchorize(&title);
-            render_ctx.toc.add_entry(1, &title, &anchor);
+            let id = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &id);
 
             let doc = ctx
               .category_docs
@@ -333,7 +332,7 @@ impl IndexCtx {
                   UrlResolveKind::Category { category: &title },
                 )),
                 title,
-                anchor: AnchorCtx { id: anchor },
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -342,7 +341,7 @@ impl IndexCtx {
           .collect::<Vec<_>>();
 
         Some(SymbolContentCtx {
-          id: String::new(),
+          id: util::Id::empty(),
           sections,
           docs: None,
         })
@@ -398,10 +397,12 @@ impl IndexCtx {
           category_docs.get(&title).cloned().flatten()
         });
 
+        let id = render_ctx.toc.anchorize(&title);
+
         (
           render_ctx.clone(),
           Some(SectionHeaderCtx {
-            anchor: AnchorCtx { id: title.clone() },
+            anchor: AnchorCtx::new(id),
             title,
             href: None,
             doc,
@@ -433,7 +434,7 @@ impl IndexCtx {
       html_head_ctx,
       module_doc: None,
       overview: Some(SymbolContentCtx {
-        id: String::new(),
+        id: util::Id::empty(),
         sections,
         docs: None,
       }),
@@ -448,44 +449,27 @@ impl IndexCtx {
 
 #[derive(Serialize)]
 #[serde(tag = "kind")]
-pub struct AllSymbolsCtx {
+pub struct AllSymbolsPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
-  pub content: SymbolContentCtx,
+  pub content: crate::html::symbols::AllSymbolsCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub disable_search: bool,
   pub categories_panel: Option<CategoriesPanelCtx>,
 }
 
-impl AllSymbolsCtx {
+impl AllSymbolsPageCtx {
   pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  pub fn new(
-    ctx: &GenerateCtx,
-    partitions: partition::Partitions<Rc<ShortPath>>,
-  ) -> Self {
+  pub fn new(ctx: &GenerateCtx) -> Self {
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
-
-    let sections = super::namespace::render_namespace(
-      partitions.into_iter().map(|(path, nodes)| {
-        let render_ctx =
-          RenderContext::new(ctx, &nodes, UrlResolveKind::AllSymbols);
-        let header = SectionHeaderCtx::new_for_all_symbols(&render_ctx, &path);
-
-        (render_ctx, header, nodes)
-      }),
-    );
 
     let html_head_ctx = HtmlHeadCtx::new(ctx, "./", Some("All Symbols"), None);
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, None);
 
-    AllSymbolsCtx {
+    AllSymbolsPageCtx {
       html_head_ctx,
-      content: SymbolContentCtx {
-        id: String::new(),
-        sections,
-        docs: None,
-      },
+      content: crate::html::symbols::AllSymbolsCtx::new(&render_ctx),
       breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
       disable_search: ctx.disable_search,
       categories_panel,
@@ -493,6 +477,7 @@ impl AllSymbolsCtx {
   }
 }
 
+#[allow(clippy::large_enum_variant)]
 pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,
@@ -574,7 +559,7 @@ pub fn generate_symbol_pages_for_module(
   generated_pages
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,

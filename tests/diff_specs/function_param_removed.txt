@@ -1,0 +1,36 @@
+# old/mod.ts
+export function greet(name: string, greeting: string) {}
+
+# new/mod.ts
+export function greet(name: string) {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "greet",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "paramsChange": {
+              "removed": [
+                {
+                  "kind": "identifier",
+                  "name": "greeting",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

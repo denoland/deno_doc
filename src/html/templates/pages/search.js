@@ -117,11 +117,11 @@ function renderResults(results) {
 
   for (const result of results) {
     const kind = result.kind.map((kind) => {
-      return `<div class="text-${kind.kind} bg-${kind.kind}/15" title="${kind.title}">${kind.char}</div>`;
+      return `<div class="text-${kind.kind} bg-${kind.kind}/15 dark:text-${kind.kind}Dark dark:bg-${kind.kind}Dark/15" title="${kind.title}">${kind.char}</div>`;
     }).join("");
 
     html += `<li class="block">
-<a href="${pathToRoot}${result.file}/~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100">
+<a href="${pathToRoot}${result.file}/~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100 dark:hover:bg-stone-800">
     <div class="flex items-center gap-2.5">
       <div class="docNodeKindIcon">
         ${kind}

@@ -1,13 +1,11 @@
-use crate::html::jsdoc::markdown_to_html;
-use crate::html::jsdoc::MarkdownToHTMLOptions;
-use crate::html::render_context::ToCEntry;
-use crate::html::usage::UsagesCtx;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
+use crate::html::render_context::ToCEntry;
+use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -15,20 +13,167 @@ use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
 use regex::Regex;
+use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 lazy_static! {
   static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
-pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
-  format!(
-    "{kind}_{}",
-    html_escape::encode_safe(&TARGET_RE.replace_all(name, "_"))
-  )
+pub enum IdKind {
+  Constructor,
+  Property,
+  Method,
+  Function,
+  Variable,
+  Class,
+  Enum,
+  Interface,
+  TypeAlias,
+  Namespace,
+  Accessor,
+  Parameter,
+  Return,
+  TypeParam,
+  Throws,
+  IndexSignature,
+  CallSignature,
+  Example,
+}
+
+impl IdKind {
+  fn as_str(&self) -> &'static str {
+    match self {
+      IdKind::Constructor => "constructor",
+      IdKind::Property => "property",
+      IdKind::Method => "method",
+      IdKind::Function => "function",
+      IdKind::Variable => "variable",
+      IdKind::Class => "class",
+      IdKind::Enum => "enum",
+      IdKind::Interface => "interface",
+      IdKind::TypeAlias => "typeAlias",
+      IdKind::Namespace => "namespace",
+      IdKind::Accessor => "accessor",
+      IdKind::Parameter => "parameter",
+      IdKind::Return => "return",
+      IdKind::TypeParam => "type_param",
+      IdKind::Throws => "throws",
+      IdKind::IndexSignature => "index_signature",
+      IdKind::CallSignature => "call_signature",
+      IdKind::Example => "example",
+    }
+  }
+}
+
+pub struct IdBuilder<'a> {
+  ctx: &'a RenderContext<'a>,
+  components: Vec<Cow<'a, str>>,
+}
+
+impl<'a> IdBuilder<'a> {
+  pub fn new(ctx: &'a RenderContext<'a>) -> Self {
+    let mut builder = Self {
+      ctx,
+      components: Vec::new(),
+    };
+
+    if let Some(prefix) = &ctx.ctx.id_prefix {
+      builder.components.push(Cow::Borrowed(prefix));
+    }
+
+    builder
+  }
+
+  pub fn new_with_parent(ctx: &'a RenderContext<'a>, parent: &Id) -> Self {
+    let mut builder = Self::new(ctx);
+
+    let component = parent.as_ref();
+    if !component.is_empty() {
+      builder
+        .components
+        .push(Cow::Owned(sanitize_id_part(component)));
+    }
+
+    builder
+  }
+
+  pub fn kind(mut self, kind: IdKind) -> Self {
+    self.components.push(Cow::Borrowed(kind.as_str()));
+    self
+  }
+
+  pub fn name(mut self, name: &str) -> Self {
+    if !name.is_empty() {
+      self.components.push(Cow::Owned(sanitize_id_part(name)));
+    }
+    self
+  }
+
+  pub fn index(mut self, index: usize) -> Self {
+    self.components.push(Cow::Owned(index.to_string()));
+    self
+  }
+
+  pub fn build(self) -> Id {
+    self.ctx.toc.anchorize(&self.components.join("_"))
+  }
+
+  /// Build an ID without registering it in the anchorizer.
+  /// Use this for IDs that reference anchors on other pages (e.g. href targets).
+  pub fn build_unregistered(self) -> Id {
+    self.ctx.toc.sanitize(&self.components.join("_"))
+  }
+}
+
+#[derive(
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
+  Ord,
+  PartialOrd,
+  Eq,
+  PartialEq,
+  Hash,
+  Default,
+)]
+pub struct Id(String);
+
+impl Id {
+  pub(crate) fn as_str(&self) -> &str {
+    self.0.as_str()
+  }
+
+  pub(crate) fn from_raw(s: String) -> Self {
+    Id(s)
+  }
+
+  pub fn empty() -> Self {
+    Id(String::new())
+  }
+}
+
+impl Display for Id {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.0)
+  }
+}
+
+impl AsRef<str> for Id {
+  fn as_ref(&self) -> &str {
+    self.0.as_str()
+  }
+}
+
+fn sanitize_id_part(part: &str) -> String {
+  html_escape::encode_quoted_attribute(&TARGET_RE.replace_all(part, "_"))
+    .into_owned()
 }
 
 /// A container to hold a list of symbols with their namespaces:
@@ -326,7 +471,7 @@ pub trait HrefResolver {
 
   /// Resolver for symbols from non-relative imports
   fn resolve_import_href(&self, symbol: &[String], src: &str)
-    -> Option<String>;
+  -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
@@ -340,46 +485,52 @@ pub trait HrefResolver {
   ) -> Option<(String, String)>;
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbCtx {
   pub name: String,
   pub href: String,
-  pub is_symbol: bool,
-  pub is_first_symbol: bool,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbsCtx {
-  pub parts: Vec<BreadcrumbCtx>,
+  pub root: BreadcrumbCtx,
+  pub current_entrypoint: Option<BreadcrumbCtx>,
+  pub entrypoints: Vec<BreadcrumbCtx>,
+  pub symbol: Vec<BreadcrumbCtx>,
 }
 
 impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
 
-  pub fn to_strings(&self) -> Vec<Cow<str>> {
-    let mut title_parts = vec![];
-    let mut symbol_parts = vec![];
+  pub fn to_strings(&self) -> Vec<Cow<'_, str>> {
+    let mut title_parts = vec![Cow::Borrowed(self.root.name.as_str())];
 
-    for breadcrumb in self.parts.iter() {
-      if breadcrumb.is_symbol {
-        symbol_parts.push(breadcrumb.name.as_str());
-      } else {
-        title_parts.push(Cow::Borrowed(breadcrumb.name.as_str()));
-      }
+    if let Some(entrypoint) = &self.current_entrypoint {
+      title_parts.push(Cow::Borrowed(entrypoint.name.as_str()));
     }
-    title_parts.push(Cow::Owned(symbol_parts.join(".")));
+
+    if !self.symbol.is_empty() {
+      title_parts.push(Cow::Owned(
+        self
+          .symbol
+          .iter()
+          .map(|crumb| crumb.name.as_str())
+          .collect::<Vec<_>>()
+          .join("."),
+      ));
+    }
 
     title_parts
   }
 }
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 pub struct DocNodeKindCtx {
-  pub kind: &'static str,
+  pub kind: Cow<'static, str>,
   pub char: char,
-  pub title: &'static str,
-  pub title_lowercase: &'static str,
-  pub title_plural: &'static str,
+  pub title: Cow<'static, str>,
+  pub title_lowercase: Cow<'static, str>,
+  pub title_plural: Cow<'static, str>,
 }
 
 impl From<DocNodeKind> for DocNodeKindCtx {
@@ -412,25 +563,31 @@ impl From<DocNodeKind> for DocNodeKindCtx {
     };
 
     Self {
-      kind,
+      kind: kind.into(),
       char,
-      title,
-      title_lowercase,
-      title_plural,
+      title: title.into(),
+      title_lowercase: title_lowercase.into(),
+      title_plural: title_plural.into(),
     }
   }
 }
 
-#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct AnchorCtx {
-  pub id: String,
+  pub id: Id,
 }
 
 impl AnchorCtx {
   pub const TEMPLATE: &'static str = "anchor";
+
+  pub fn new(id: Id) -> Self {
+    Self { id }
+  }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
   DocEntry(Vec<DocEntryCtx>),
@@ -441,7 +598,9 @@ pub enum SectionContentCtx {
   Empty,
 }
 
-#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct SectionHeaderCtx {
   pub title: String,
   pub anchor: AnchorCtx,
@@ -449,49 +608,7 @@ pub struct SectionHeaderCtx {
   pub doc: Option<String>,
 }
 
-impl SectionHeaderCtx {
-  pub fn new_for_all_symbols(
-    render_ctx: &RenderContext,
-    path: &ShortPath,
-  ) -> Option<Self> {
-    if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      return None;
-    }
-
-    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
-
-    let doc = module_doc_nodes
-      .iter()
-      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
-      .and_then(|node| node.js_doc.doc.as_ref())
-      .and_then(|doc| {
-        markdown_to_html(
-          render_ctx,
-          doc,
-          MarkdownToHTMLOptions {
-            title_only: true,
-            no_toc: false,
-          },
-        )
-      });
-
-    let title = path.display_name();
-
-    Some(SectionHeaderCtx {
-      title: title.to_string(),
-      anchor: AnchorCtx {
-        id: title.to_string(),
-      },
-      href: Some(render_ctx.ctx.resolve_path(
-        render_ctx.get_current_resolve(),
-        path.as_resolve_kind(),
-      )),
-      doc,
-    })
-  }
-}
-
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SectionCtx {
   pub header: Option<SectionHeaderCtx>,
   pub content: SectionContentCtx,
@@ -503,15 +620,15 @@ impl SectionCtx {
   pub fn new(
     render_context: &RenderContext,
     title: &str,
-    mut content: SectionContentCtx,
+    content: SectionContentCtx,
   ) -> Self {
     let header = if !title.is_empty() {
-      let anchor = render_context.toc.anchorize(title);
-      render_context.toc.add_entry(1, title, &anchor);
+      let id = render_context.toc.anchorize(title);
+      render_context.toc.add_entry(1, title, &id);
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx { id: anchor },
+        anchor: AnchorCtx::new(id),
         href: None,
         doc: None,
       })
@@ -519,44 +636,29 @@ impl SectionCtx {
       None
     };
 
-    match &mut content {
+    match &content {
       SectionContentCtx::DocEntry(entries) => {
         for entry in entries {
           let Some(name) = &entry.name else {
             continue;
           };
 
-          let anchor = render_context.toc.anchorize(&entry.id);
-
-          render_context.toc.add_entry(2, name, &anchor);
-
-          entry.id = anchor.clone();
-          entry.anchor.id = anchor;
+          render_context.toc.add_entry(2, name, &entry.anchor.id);
         }
       }
       SectionContentCtx::Example(examples) => {
         for example in examples {
-          let anchor = render_context.toc.anchorize(&example.id);
-
           render_context.toc.add_entry(
             2,
             &super::jsdoc::strip(render_context, &example.title),
-            &anchor,
+            &example.anchor.id,
           );
-
-          example.id = anchor.clone();
-          example.anchor.id = anchor;
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          let anchor = render_context.toc.anchorize(&node.id);
-
-          render_context.toc.add_entry(2, &node.name, &anchor);
-
-          node.id = anchor.clone();
-          node.anchor.id = anchor;
+          render_context.toc.add_entry(2, &node.name, &node.anchor.id);
         }
       }
       SectionContentCtx::See(_) => {}
@@ -567,7 +669,7 @@ impl SectionCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum Tag {
   New,
@@ -608,9 +710,8 @@ impl Tag {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
-  id: String,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
@@ -626,7 +727,7 @@ impl DocEntryCtx {
   #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,
-    id: &str,
+    id: Id,
     name: Option<String>,
     name_href: Option<String>,
     content: &str,
@@ -639,11 +740,10 @@ impl DocEntryCtx {
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
-      id: id.to_string(),
       name,
       name_href,
       content: content.to_string(),
-      anchor: AnchorCtx { id: id.to_string() },
+      anchor: AnchorCtx::new(id),
       tags,
       js_doc: maybe_jsdoc,
       source_href,
@@ -672,14 +772,14 @@ pub fn qualify_drilldown_name(
   )
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TopSymbolCtx {
   pub kind: IndexSet<DocNodeKindCtx>,
   pub name: String,
   pub href: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TopSymbolsCtx {
   pub symbols: Vec<TopSymbolCtx>,
   pub total_symbols: usize,
@@ -734,7 +834,7 @@ impl TopSymbolsCtx {
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCCtx {
   pub usages: Option<UsagesCtx>,
   pub top_symbols: Option<TopSymbolsCtx>,

@@ -98,6 +98,7 @@ export class Bar extends Foo<string> {
  * ## sub heading
  *
  * @see https://example.com
+ * @priority 10
  */
 export default class Foobar {
 }
@@ -108,6 +109,9 @@ export abstract class AbstractClass {
   abstract get getter(): string;
 }
 
+/**
+ * @priority 5
+ */
 export interface Hello<T extends string, E extends T, R = number> {
   (a: string): string;
   /**
@@ -199,6 +203,11 @@ export enum Enum {
   Bar = "bar",
 }
 
+/**
+ * description to be overwritten
+ * @summary the summary
+ * @description the description
+ */
 export enum Enum2 {
   Foo,
   Bar,

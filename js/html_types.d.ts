@@ -26,10 +26,15 @@ export interface CategoriesPanelCategoryCtx {
   active: boolean;
 }
 
-export type Page = IndexCtx | AllSymbolsCtx | SymbolPageCtx | Redirect | Search;
+export type Page =
+  | IndexCtx
+  | AllSymbolsPageCtx
+  | SymbolPageCtx
+  | Redirect
+  | Search;
 
 export interface PageBase {
-  kind: "IndexCtx" | "AllSymbolsCtx" | "SymbolPageCtx";
+  kind: "IndexCtx" | "AllSymbolsPageCtx" | "SymbolPageCtx";
   html_head_ctx: HtmlHeadCtx;
   disable_search: boolean;
   categories_panel: CategoriesPanelCtx | null;
@@ -44,9 +49,20 @@ export interface IndexCtx extends PageBase {
   toc_ctx: ToCCtx;
 }
 
-export interface AllSymbolsCtx extends PageBase {
-  kind: "AllSymbolsCtx";
-  content: SymbolContentCtx;
+export interface AllSymbolsPageCtx extends PageBase {
+  kind: "AllSymbolsPageCtx";
+  content: AllSymbolsCtx;
+}
+
+export interface AllSymbolsCtx {
+  entrypoints: AllSymbolsItemCtx[];
+}
+
+export interface AllSymbolsItemCtx {
+  name: string;
+  href: string;
+  anchor: AnchorCtx;
+  module_doc: ModuleDocCtx;
 }
 
 export interface SymbolPageCtx extends PageBase {
@@ -107,14 +123,15 @@ export interface UsageCtx {
 }
 
 export interface BreadcrumbsCtx {
-  parts: BreadcrumbCtx[];
+  root: BreadcrumbCtx;
+  current_entrypoint: BreadcrumbCtx | null;
+  entrypoints: BreadcrumbCtx[];
+  symbol: BreadcrumbCtx[];
 }
 
 export interface BreadcrumbCtx {
   name: string;
   href: string;
-  is_symbol: boolean;
-  is_first_symbol: boolean;
 }
 
 export interface TopSymbolsCtx {
@@ -304,6 +321,7 @@ export interface NamespaceNodeCtx {
   doc_node_kind_ctx: DocNodeKindCtx[];
   href: string;
   name: string;
+  ty: TypeSummaryCtx | null;
   docs: string | null;
   deprecated: boolean;
   subitems: NamespaceNodeSubItemCtx[];
@@ -311,7 +329,14 @@ export interface NamespaceNodeCtx {
 
 export interface NamespaceNodeSubItemCtx {
   title: string;
+  docs: string | null;
+  ty: TypeSummaryCtx | null;
   href: string;
+}
+
+export interface TypeSummaryCtx {
+  ty: string;
+  info: string | null;
 }
 
 export type Tag =

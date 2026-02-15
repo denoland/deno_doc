@@ -16,16 +16,16 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:3
+ --> /mod.ts:2:3
   | 
-3 |   constructor (a: number);
+2 |   constructor (a: string);
   |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:4:3
+ --> /mod.ts:3:3
   | 
-4 |   constructor (a: string | number) {
+3 |   constructor (a: number);
   |   ^
 
 # output.txt

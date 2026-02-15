@@ -1,0 +1,34 @@
+# old/mod.ts
+export type ID = string;
+
+# new/mod.ts
+export type ID = number;
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "ID",
+          "kind": "typeAlias",
+          "defChanges": {
+            "type": "typeAlias",
+            "tsTypeChange": {
+              "old": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "new": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

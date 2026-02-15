@@ -6,13 +6,13 @@ use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 
 use deno_ast::SourceRange;
+use deno_graph::ModuleGraph;
 use deno_graph::symbols::DefinitionPathNode;
 use deno_graph::symbols::DefinitionPathNodeResolved;
 use deno_graph::symbols::ResolveDepsMode;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::ModuleGraph;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 
@@ -158,9 +158,8 @@ impl SymbolVisibility {
         }
 
         for dep_symbol_id in dep_symbol_ids {
-          if !root_exported_ids.contains_key(&dep_symbol_id)
-            && non_exported_public_ids.insert(dep_symbol_id)
-          {
+          if !root_exported_ids.contains_key(&dep_symbol_id) {
+            // always record this as a dependency of the current symbol
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
               dep_ids.add(
                 decl_symbol.unique_id(),
@@ -170,8 +169,11 @@ impl SymbolVisibility {
               );
             }
 
-            // examine the private types of this private type
-            pending_symbol_ids.push(dep_symbol_id);
+            // only analyze this private type's dependencies once
+            if non_exported_public_ids.insert(dep_symbol_id) {
+              // examine the private types of this private type
+              pending_symbol_ids.push(dep_symbol_id);
+            }
           }
         }
       }
@@ -206,7 +208,10 @@ fn analyze_root_exported_ids(
   {
     let mut pending_symbols = Vec::new();
     for root in &graph.roots {
-      let module = resolve_deno_graph_module(graph, root)?;
+      let Ok(module) = resolve_deno_graph_module(graph, root) else {
+        // leave invalid roots up to the caller
+        continue;
+      };
       let module_info = get_module_info(root_symbol, module.specifier())?;
       let exports = module_info.exports(root_symbol);
       for (_name, export) in &exports.resolved {

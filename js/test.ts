@@ -1,6 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-import { assert, assertEquals, assertRejects } from "jsr:@std/assert@0.223";
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import { doc, generateHtml, generateHtmlAsJSON } from "./mod.ts";
 
 Deno.test({
@@ -149,7 +149,7 @@ Deno.test({
       },
     });
 
-    assertEquals(Object.keys(files).length, 61);
+    assertEquals(Object.keys(files).length, 62);
   },
 });
 

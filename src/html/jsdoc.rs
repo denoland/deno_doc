@@ -4,6 +4,7 @@ use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
+use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::rc::Rc;
@@ -19,7 +20,11 @@ lazy_static! {
     regex::Regex::new(r"^\[(\S+)\](?:\.(\S+)|\s|)$").unwrap();
 }
 
-fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
+fn parse_links<'a>(
+  md: &'a str,
+  ctx: &RenderContext,
+  strip: bool,
+) -> Cow<'a, str> {
   JSDOC_LINK_RE.replace_all(md, |captures: &regex::Captures| {
     let code = captures
       .name("modifier")
@@ -115,7 +120,9 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       (title, link)
     };
 
-    if LINK_RE.is_match(&link) {
+    if strip {
+      title
+    } else if LINK_RE.is_match(&link) {
       if code {
         format!("[`{title}`]({link})")
       } else {
@@ -123,11 +130,7 @@ fn parse_links<'a>(md: &'a str, ctx: &RenderContext) -> Cow<'a, str> {
       }
     } else {
       #[allow(clippy::collapsible_if)]
-      if code {
-        format!("`{title}`")
-      } else {
-        title.to_string()
-      }
+      if code { format!("`{title}`") } else { title }
     }
   })
 }
@@ -150,10 +153,10 @@ pub struct MarkdownToHTMLOptions {
   pub no_toc: bool,
 }
 
-pub type MarkdownStripper = std::rc::Rc<dyn (Fn(&str) -> String)>;
+pub type MarkdownStripper = Rc<dyn Fn(&str) -> String>;
 
 pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
-  let md = parse_links(md, render_ctx);
+  let md = parse_links(md, render_ctx, true);
 
   (render_ctx.ctx.markdown_stripper)(&md)
 }
@@ -165,7 +168,7 @@ pub type Anchorizer =
   std::sync::Arc<dyn Fn(String, u8) -> String + Send + Sync>;
 
 pub type MarkdownRenderer =
-  Rc<dyn (Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>)>;
+  Rc<dyn Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>>;
 
 pub fn markdown_to_html(
   render_ctx: &RenderContext,
@@ -204,7 +207,7 @@ pub fn markdown_to_html(
     anchorizer.as_ref(),
   );
 
-  let md = parse_links(md, render_ctx);
+  let md = parse_links(md, render_ctx, false);
 
   let file = render_ctx.get_current_resolve().get_file().cloned();
 
@@ -237,7 +240,24 @@ pub(crate) fn jsdoc_body_to_html(
   js_doc: &JsDoc,
   summary: bool,
 ) -> Option<String> {
-  if let Some(doc) = js_doc.doc.as_deref() {
+  if summary
+    && let Some(doc) = js_doc.tags.iter().find_map(|tag| {
+      if let JsDocTag::Summary { doc } = tag {
+        Some(doc)
+      } else {
+        None
+      }
+    })
+  {
+    markdown_to_html(
+      ctx,
+      doc,
+      MarkdownToHTMLOptions {
+        title_only: false,
+        no_toc: false,
+      },
+    )
+  } else if let Some(doc) = js_doc.doc.as_deref() {
     markdown_to_html(
       ctx,
       doc,
@@ -282,10 +302,9 @@ pub(crate) fn jsdoc_examples(
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ExampleCtx {
   pub anchor: AnchorCtx,
-  pub id: String,
   pub title: String,
   pub markdown_title: String,
   markdown_body: String,
@@ -295,7 +314,10 @@ impl ExampleCtx {
   pub const TEMPLATE: &'static str = "example";
 
   pub fn new(render_ctx: &RenderContext, example: &str, i: usize) -> Self {
-    let id = name_to_id("example", &i.to_string());
+    let id = IdBuilder::new(render_ctx)
+      .kind(IdKind::Example)
+      .index(i)
+      .build();
 
     let (maybe_title, body) = split_markdown_title(example);
     let title = if let Some(title) = maybe_title {
@@ -309,8 +331,7 @@ impl ExampleCtx {
       render_markdown(render_ctx, body.unwrap_or_default(), true);
 
     ExampleCtx {
-      anchor: AnchorCtx { id: id.to_string() },
-      id: id.to_string(),
+      anchor: AnchorCtx::new(id),
       title,
       markdown_title,
       markdown_body,
@@ -318,7 +339,7 @@ impl ExampleCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ModuleDocCtx {
   pub deprecated: Option<String>,
   pub sections: super::SymbolContentCtx,
@@ -327,7 +348,12 @@ pub struct ModuleDocCtx {
 impl ModuleDocCtx {
   pub const TEMPLATE: &'static str = "module_doc";
 
-  pub fn new(render_ctx: &RenderContext, short_path: &ShortPath) -> Self {
+  pub fn new(
+    render_ctx: &RenderContext,
+    short_path: &ShortPath,
+    render_symbols: bool,
+    summary: bool,
+  ) -> Self {
     let module_doc_nodes = render_ctx.ctx.doc_nodes.get(short_path).unwrap();
 
     let mut sections = Vec::with_capacity(7);
@@ -352,14 +378,14 @@ impl ModuleDocCtx {
         sections.push(examples);
       }
 
-      let html = jsdoc_body_to_html(render_ctx, &node.js_doc, false);
+      let html = jsdoc_body_to_html(render_ctx, &node.js_doc, summary);
 
       (deprecated, html)
     } else {
       (None, None)
     };
 
-    if !short_path.is_main {
+    if render_symbols {
       let partitions_by_kind = super::partition::partition_nodes_by_kind(
         render_ctx.ctx,
         module_doc_nodes.iter().map(Cow::Borrowed),
@@ -368,11 +394,18 @@ impl ModuleDocCtx {
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {
+          let id = IdBuilder::new(render_ctx)
+            .name(short_path.display_name())
+            .name(&title)
+            .build();
+
+          render_ctx.toc.add_entry(1, &title, &id);
+
           (
             render_ctx.clone(),
             Some(SectionHeaderCtx {
               title: title.clone(),
-              anchor: AnchorCtx { id: title },
+              anchor: AnchorCtx::new(id),
               href: None,
               doc: None,
             }),
@@ -385,7 +418,7 @@ impl ModuleDocCtx {
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
-        id: "module_doc".to_string(),
+        id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
         sections,
       },
@@ -395,22 +428,22 @@ impl ModuleDocCtx {
 
 #[cfg(test)]
 mod test {
-  use crate::html::href_path_resolve;
-  use crate::html::jsdoc::parse_links;
+  use crate::DocNode;
+  use crate::Location;
   use crate::html::GenerateCtx;
   use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
   use crate::html::UsageComposer;
   use crate::html::UsageComposerEntry;
-  use crate::DocNode;
-  use crate::Location;
+  use crate::html::href_path_resolve;
+  use crate::html::jsdoc::parse_links;
   use deno_ast::ModuleSpecifier;
   use indexmap::IndexMap;
   use std::rc::Rc;
 
-  use crate::html::usage::UsageToMd;
   use crate::html::RenderContext;
   use crate::html::UrlResolveKind;
+  use crate::html::usage::UsageToMd;
   use crate::interface::InterfaceDef;
   use crate::js_doc::JsDoc;
   use crate::node::DeclarationKind;
@@ -494,6 +527,7 @@ mod test {
         ),
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
+        id_prefix: None,
       },
       Default::default(),
       Default::default(),
@@ -573,20 +607,32 @@ mod test {
     );
 
     assert_eq!(
-      parse_links("foo {@link https://example.com} bar", &render_ctx),
+      parse_links("foo {@link https://example.com} bar", &render_ctx, false),
       "foo [https://example.com](https://example.com) bar"
     );
     assert_eq!(
-      parse_links("foo {@linkcode https://example.com} bar", &render_ctx),
+      parse_links(
+        "foo {@linkcode https://example.com} bar",
+        &render_ctx,
+        false
+      ),
       "foo [`https://example.com`](https://example.com) bar"
     );
 
     assert_eq!(
-      parse_links("foo {@link https://example.com Example} bar", &render_ctx),
+      parse_links(
+        "foo {@link https://example.com Example} bar",
+        &render_ctx,
+        false
+      ),
       "foo [Example](https://example.com) bar"
     );
     assert_eq!(
-      parse_links("foo {@link https://example.com|Example} bar", &render_ctx),
+      parse_links(
+        "foo {@link https://example.com|Example} bar",
+        &render_ctx,
+        false
+      ),
       "foo [Example](https://example.com) bar"
     );
     assert_eq!(
@@ -604,7 +650,8 @@ mod test {
     assert_eq!(
       parse_links(
         "foo {@linkcode https://example.com Example} bar",
-        &render_ctx
+        &render_ctx,
+        false,
       ),
       "foo [`Example`](https://example.com) bar"
     );
@@ -617,41 +664,41 @@ mod test {
     );
 
     assert_eq!(
-      parse_links("foo {@link unknownSymbol} bar", &render_ctx),
+      parse_links("foo {@link unknownSymbol} bar", &render_ctx, false),
       "foo unknownSymbol bar"
     );
     assert_eq!(
-      parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx),
+      parse_links("foo {@linkcode unknownSymbol} bar", &render_ctx, false),
       "foo `unknownSymbol` bar"
     );
 
     #[cfg(not(target_os = "windows"))]
     {
       assert_eq!(
-        parse_links("foo {@link bar} bar", &render_ctx),
-        "foo [bar](../../.././/a.ts/~/bar.html) bar"
+        parse_links("foo {@link bar} bar", &render_ctx, false),
+        "foo [bar](../.././a.ts/~/bar.html) bar"
       );
       assert_eq!(
-        parse_links("foo {@linkcode bar} bar", &render_ctx),
-        "foo [`bar`](../../.././/a.ts/~/bar.html) bar"
-      );
-
-      assert_eq!(
-        parse_links("foo {@link [b.ts]} bar", &render_ctx),
-        "foo [b.ts](../../.././/b.ts/index.html) bar"
-      );
-      assert_eq!(
-        parse_links("foo {@linkcode [b.ts]} bar", &render_ctx),
-        "foo [`b.ts`](../../.././/b.ts/index.html) bar"
+        parse_links("foo {@linkcode bar} bar", &render_ctx, false),
+        "foo [`bar`](../.././a.ts/~/bar.html) bar"
       );
 
       assert_eq!(
-        parse_links("foo {@link [b.ts].baz} bar", &render_ctx),
-        "foo [b.ts baz](../../.././/b.ts/~/baz.html) bar"
+        parse_links("foo {@link [b.ts]} bar", &render_ctx, false),
+        "foo [b.ts](../.././b.ts/index.html) bar"
       );
       assert_eq!(
-        parse_links("foo {@linkcode [b.ts].baz} bar", &render_ctx),
-        "foo [`b.ts baz`](../../.././/b.ts/~/baz.html) bar"
+        parse_links("foo {@linkcode [b.ts]} bar", &render_ctx, false),
+        "foo [`b.ts`](../.././b.ts/index.html) bar"
+      );
+
+      assert_eq!(
+        parse_links("foo {@link [b.ts].baz} bar", &render_ctx, false),
+        "foo [b.ts baz](../.././b.ts/~/baz.html) bar"
+      );
+      assert_eq!(
+        parse_links("foo {@linkcode [b.ts].baz} bar", &render_ctx, false),
+        "foo [`b.ts baz`](../.././b.ts/~/baz.html) bar"
       );
     }
   }

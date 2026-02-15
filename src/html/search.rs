@@ -1,39 +1,48 @@
 use super::DocNodeKindCtx;
 use super::DocNodeWithContext;
 use super::GenerateCtx;
+use super::RenderContext;
+use super::UrlResolveKind;
+use crate::html::util::Id;
+use crate::html::util::IdBuilder;
+use crate::html::util::IdKind;
 use crate::js_doc::JsDocTag;
+use serde::Deserialize;
 use serde::Serialize;
 use serde_json::json;
+use std::borrow::Cow;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct SlimKindCtx {
-  char: char,
-  pub kind: &'static str,
-  pub title: &'static str,
+pub struct SlimKindCtx {
+  pub char: char,
+  pub kind: Cow<'static, str>,
+  pub title: Cow<'static, str>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct SearchIndexNode {
-  kind: Vec<SlimKindCtx>,
-  name: Box<str>,
-  file: Box<str>,
-  doc: Box<str>,
-  url: Box<str>,
+pub struct SearchIndexNode {
+  pub id: Id,
+  pub kind: Vec<SlimKindCtx>,
+  pub name: Box<str>,
+  pub file: Box<str>,
+  pub doc: Box<str>,
+  pub url: Box<str>,
   #[serde(skip_serializing_if = "is_empty", default)]
-  category: Box<str>,
-  deprecated: bool,
+  pub category: Box<str>,
+  pub deprecated: bool,
 }
 
 fn is_empty(s: &str) -> bool {
   s.is_empty()
 }
 
-fn doc_nodes_into_search_index_node(
-  ctx: &GenerateCtx,
+pub fn doc_nodes_into_search_index_node(
+  ctx: &RenderContext,
   doc_nodes: Vec<DocNodeWithContext>,
   name: String,
+  parent_id: Option<Id>,
 ) -> Vec<SearchIndexNode> {
   let kinds = doc_nodes
     .iter()
@@ -49,9 +58,13 @@ fn doc_nodes_into_search_index_node(
   let deprecated =
     super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
 
-  let doc = doc_nodes[0].js_doc.doc.clone().unwrap_or_default();
+  let doc = super::jsdoc::strip(
+    ctx,
+    &doc_nodes[0].js_doc.doc.clone().unwrap_or_default(),
+  )
+  .into_boxed_str();
 
-  let abs_url = ctx.resolve_path(
+  let abs_url = ctx.ctx.resolve_path(
     super::UrlResolveKind::Root,
     super::UrlResolveKind::Symbol {
       file: &doc_nodes[0].origin,
@@ -72,7 +85,15 @@ fn doc_nodes_into_search_index_node(
     })
     .unwrap_or_default();
 
+  let id = parent_id.unwrap_or_else(|| {
+    IdBuilder::new(ctx)
+      .kind(IdKind::Namespace)
+      .name(&name)
+      .build_unregistered()
+  });
+
   let mut out = vec![SearchIndexNode {
+    id: id.clone(),
     kind: kinds,
     name: html_escape::encode_text(&name).into(),
     file: html_escape::encode_double_quoted_attribute(
@@ -91,9 +112,14 @@ fn doc_nodes_into_search_index_node(
       .filter_map(|node| node.get_drilldown_symbols())
       .flatten()
       .flat_map(|drilldown_node| {
-        let name = drilldown_node.get_qualified_name();
+        let name = drilldown_node.get_qualified_name().to_string();
 
-        doc_nodes_into_search_index_node(ctx, vec![drilldown_node], name)
+        doc_nodes_into_search_index_node(
+          ctx,
+          vec![drilldown_node],
+          name,
+          Some(id.clone()),
+        )
       }),
   );
 
@@ -109,10 +135,12 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
   let partitions =
     super::partition::partition_nodes_by_name(ctx, doc_nodes, true);
 
+  let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
+
   let mut doc_nodes = partitions
     .into_iter()
     .flat_map(|(name, nodes)| {
-      doc_nodes_into_search_index_node(ctx, nodes, name)
+      doc_nodes_into_search_index_node(&render_ctx, nodes, name, None)
     })
     .collect::<Vec<_>>();
 

@@ -13,7 +13,9 @@
               <li>
                 <a href="{{this.href}}" title="{{this.name}}">
                   {{~> doc_node_kind_icon this.kind~}}
-                  <span class="hover:bg-{{this.kind.[0].kind}}/15">{{this.name}}</span>
+                  <span class="hover:bg-{{this.kind.[0].kind}}/15 hover:bg-{{this.kind.[0].kind}}Dark/15">
+                    {{this.name}}
+                  </span>
                 </a>
               </li>
             {{~/each~}}

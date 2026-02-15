@@ -1,15 +1,15 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::decorators::decorators_to_defs;
 use crate::decorators::DecoratorDef;
-use crate::display::display_optional;
+use crate::decorators::decorators_to_defs;
 use crate::display::SliceDisplayer;
+use crate::display::display_optional;
 use crate::ts_type::TsTypeDef;
 
+use deno_ast::SourceRangedForSpanned;
 use deno_ast::swc::ast::ObjectPatProp;
 use deno_ast::swc::ast::Pat;
 use deno_ast::swc::ast::TsFnParam;
-use deno_ast::SourceRangedForSpanned;
 use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
@@ -316,7 +316,7 @@ pub fn prop_name_to_string(
   use deno_ast::swc::ast::PropName;
   match prop_name {
     PropName::Ident(ident) => ident.sym.to_string(),
-    PropName::Str(str_) => str_.value.to_string(),
+    PropName::Str(str_) => str_.value.to_string_lossy().into_owned(),
     PropName::Num(num) => num.value.to_string(),
     PropName::BigInt(num) => num.value.to_string(),
     PropName::Computed(comp_prop_name) => comp_prop_name

@@ -1,3 +1,4 @@
+use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::interface::render_call_signatures;
 use crate::html::symbols::interface::render_index_signatures;
@@ -5,7 +6,6 @@ use crate::html::symbols::interface::render_methods;
 use crate::html::symbols::interface::render_properties;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
 
 pub(crate) fn render_variable(
   ctx: &RenderContext,
@@ -18,7 +18,10 @@ pub(crate) fn render_variable(
     return vec![];
   };
 
-  let id = name_to_id("variable", &doc_node.get_qualified_name());
+  let id = IdBuilder::new(ctx)
+    .kind(IdKind::Variable)
+    .name(doc_node.get_qualified_name())
+    .build();
 
   let mut sections = vec![];
 
@@ -50,7 +53,7 @@ pub(crate) fn render_variable(
       "Type",
       SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
-        &id,
+        id,
         None,
         None,
         &render_type_def(ctx, ts_type),

@@ -1,7 +1,9 @@
+use crate::r#enum::EnumMemberDef;
+use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
 use crate::html::util::*;
-use crate::html::DocNodeWithContext;
+use crate::js_doc::JsDocTag;
 
 pub(crate) fn render_enum(
   render_ctx: &RenderContext,
@@ -9,21 +11,33 @@ pub(crate) fn render_enum(
 ) -> Vec<SectionCtx> {
   let mut members = doc_node.enum_def().unwrap().members.clone();
 
-  members.sort_by(|a, b| a.name.cmp(&b.name));
+  members.sort_by(|a, b| {
+    let is_deprecated = |m: &EnumMemberDef| {
+      m.js_doc
+        .tags
+        .iter()
+        .any(|t| matches!(t, JsDocTag::Deprecated { .. }))
+    };
+
+    is_deprecated(a)
+      .cmp(&is_deprecated(b))
+      .then_with(|| a.name.cmp(&b.name))
+  });
 
   let items = members
     .into_iter()
     .map(|member| {
-      let id = name_to_id(
-        "enum",
-        &format!("{}_{}", doc_node.get_name(), &member.name),
-      );
+      let id = IdBuilder::new(render_ctx)
+        .kind(IdKind::Enum)
+        .name(doc_node.get_name())
+        .name(&member.name)
+        .build();
 
       let tags = Tag::from_js_doc(&member.js_doc);
 
       DocEntryCtx::new(
         render_ctx,
-        &id,
+        id,
         Some(html_escape::encode_text(&member.name).into_owned()),
         None,
         &member
