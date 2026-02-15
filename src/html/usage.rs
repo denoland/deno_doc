@@ -138,6 +138,30 @@ fn usage_to_md(
       }
 
       usage_statement
+    } else if ctx.ctx.doc_nodes.len() == 1
+      && let nodes = ctx.ctx.doc_nodes.values().next().unwrap()
+      && nodes.len() == 1
+    {
+      let is_default = nodes[0].is_default.is_some_and(|is_default| is_default)
+        || &*nodes[0].name == "default";
+
+      if is_default {
+        format!(
+          r#"import {} from "{url}";"#,
+          get_identifier_for_file(ctx, custom_file_identifier),
+        )
+      } else {
+        let is_type = matches!(
+        nodes[0].def,
+        DocNodeDef::TypeAlias { .. } | DocNodeDef::Interface { .. }
+      );
+
+        format!(
+          r#"import {}{{ {} }} from "{url}";"#,
+          if is_type { "type " } else { "" },
+          html_escape::encode_text(&nodes[0].get_name()),
+        )
+      }
     } else {
       let module_import_symbol =
         get_identifier_for_file(ctx, custom_file_identifier);

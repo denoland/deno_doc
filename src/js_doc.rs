@@ -13,14 +13,14 @@ lazy_static! {
   /// @tag value
   static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority|summary|description)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
-  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
-  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
   /// @tag {type} [name] maybe_value
   /// @tag {type} [name=default] maybe_value
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
-    r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?P<doc>.+))?"
+    r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?:-\s+)?(?P<doc>.+))?"
   )
   .unwrap();
   /// @tag {maybe_type} maybe_value
@@ -988,6 +988,34 @@ const a = "a";
           "name": "a",
           "type": "string",
           "doc": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
+    // hyphen separator should be stripped
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@param foo - The foo".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "foo",
+          "doc": "The foo",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@param {string} foo - The foo".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "foo",
+          "type": "string",
+          "doc": "The foo",
         }]
       })
     );
