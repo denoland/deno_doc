@@ -19,7 +19,10 @@ expression: files.get(file_name).unwrap()
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
-    <div class="flex items-center"><ul class="breadcrumbs"><li><a href="..&#x2F;" class="contextLink">index</a></li><span class="text-black dark:text-white"><svg
+    <div class="flex items-center"><ul class="breadcrumbs">
+  <li>
+    <a href="..&#x2F;" class="contextLink">index</a>
+  </li><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -33,7 +36,7 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span><li>foo</li></ul>
+</span>foo</ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -99,8 +102,8 @@ expression: files.get(file_name).unwrap()
 </nav>
 <div id="searchResults"></div><div id="content">
     <main><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="Functions"><div>
-      <h2 class="anchorable mb-1"><a href="#Functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="foo_functions"><div>
+      <h2 class="anchorable mb-1"><a href="#foo_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -124,13 +127,12 @@ expression: files.get(file_name).unwrap()
 </a>
 Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">x</a>
-
-	      <div class="namespaceItemContentDoc"><span class="italic">No documentation available</span></div></div>
+		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;x.html" title="x">
+			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div></div>
 </section>
-<section class="section"  id="Variables"><div>
-      <h2 class="anchorable mb-1"><a href="#Variables" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<section class="section"  id="foo_variables"><div>
+      <h2 class="anchorable mb-1"><a href="#foo_variables" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -154,9 +156,8 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
 </a>
 Variables</h2></div><div class="namespaceSection"><div id="namespace_default" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">default</a>
-
-	      <div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
+		    <a href="..&#x2F;.&#x2F;foo&#x2F;~&#x2F;default.html" title="default">
+			    <span>default</span><span>: <span class="td-kw">number</span></span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>The default export item.</p>
 </div></div></div>
     </div></div>
 </section>
@@ -201,12 +202,6 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 </div></div><nav class="topSymbols">
           <h3>Symbols</h3>
           <ul><li>
-                <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<span class="hover:bg-Function/15 hover:bg-FunctionDark/15">
-                    externalFunction
-                  </span>
-                </a>
-              </li><li>
                 <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15 hover:bg-ClassDark/15">
                     AbstractClass
@@ -230,6 +225,12 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
                     CompoundType
                   </span>
                 </a>
+              </li><li>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;EmptyInterface.html" title="EmptyInterface"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
+<span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
+                    EmptyInterface
+                  </span>
+                </a>
               </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
               <span class="leading-none">view all 27 symbols</span><svg
   width="16"
@@ -246,7 +247,7 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
   />
 </svg>
 </a></nav><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li><li><a href="#variables" title="Variables">Variables</a></li><li><ul><li><a href="#namespace_default" title="default">default</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#foo_functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_x" title="x">x</a></li></ul></li><li><a href="#foo_variables" title="Variables">Variables</a></li><li><ul><li><a href="#namespace_default" title="default">default</a></li></ul></li></ul></nav></div>
   </div></div>
 </div>
 </div>

@@ -1,0 +1,37 @@
+# old/mod.ts
+/** Adds two numbers */
+export function add(a: number, b: number): number { return a + b; }
+
+# new/mod.ts
+/**
+ * Adds two numbers
+ * @example
+ * ```ts
+ * add(1, 2) // returns 3
+ * ```
+ */
+export function add(a: number, b: number): number { return a + b; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "add",
+          "kind": "function",
+          "jsDocChanges": {
+            "tagsChange": {
+              "added": [
+                {
+                  "kind": "example",
+                  "doc": "```ts\nadd(1, 2) // returns 3\n```"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

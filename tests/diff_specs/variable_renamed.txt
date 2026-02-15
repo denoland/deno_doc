@@ -1,0 +1,23 @@
+# old/mod.ts
+export const foo: string = "";
+
+# new/mod.ts
+export const bar: string = "";
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "bar",
+          "kind": "variable",
+          "nameChange": {
+            "old": "foo",
+            "new": "bar"
+          }
+        }
+      ]
+    }
+  }
+}

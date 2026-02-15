@@ -22,7 +22,7 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let id = IdBuilder::new(ctx.ctx)
+  let id = IdBuilder::new(ctx)
     .kind(IdKind::TypeAlias)
     .name(name)
     .build();

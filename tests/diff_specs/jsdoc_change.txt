@@ -1,0 +1,27 @@
+# old/mod.ts
+/** Old description */
+export function foo() {}
+
+# new/mod.ts
+/** New description */
+export function foo() {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "kind": "function",
+          "jsDocChanges": {
+            "docChange": {
+              "old": "Old description",
+              "new": "New description"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

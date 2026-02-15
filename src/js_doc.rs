@@ -11,7 +11,7 @@ lazy_static! {
   /// @tag maybe_value
   static ref JS_DOC_TAG_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(deprecated|module)(?:\s+(.+))?").unwrap();
   /// @tag value
-  static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority)(?:\s+(.+))").unwrap();
+  static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority|summary|description)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
   static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
   /// @tag {type} name maybe_value
@@ -71,6 +71,7 @@ impl From<String> for JsDoc {
     let mut tag_is_codeblock = false;
     let mut current_tag: Option<String> = None;
     let mut current_tag_name = "";
+    let mut description_override: Option<String> = None;
     for line in value.lines() {
       let caps = JS_DOC_TAG_RE.captures(line);
       if is_tag || caps.is_some() {
@@ -82,7 +83,16 @@ impl From<String> for JsDoc {
           tag_is_codeblock = false;
           let current_tag = std::mem::take(&mut current_tag);
           if let Some(current_tag) = current_tag {
-            tags.push(current_tag.into());
+            if current_tag_name == "description" {
+              if let Some(caps) =
+                JS_DOC_TAG_WITH_VALUE_RE.captures(&current_tag)
+                && let Some(m) = caps.get(2)
+              {
+                description_override = Some(m.as_str().to_string());
+              }
+            } else {
+              tags.push(current_tag.into());
+            }
           }
         }
         if let Some(caps) = caps {
@@ -118,9 +128,22 @@ impl From<String> for JsDoc {
       }
     }
     if let Some(current_tag) = current_tag {
-      tags.push(current_tag.into());
+      if current_tag_name == "description" {
+        if let Some(rest) = current_tag.strip_prefix("@description") {
+          let desc = rest.trim_start();
+          if !desc.is_empty() {
+            description_override = Some(desc.to_string());
+          }
+        }
+      } else {
+        tags.push(current_tag.into());
+      }
     }
-    let doc = doc_lines.map(|doc_lines| doc_lines.into_boxed_str());
+    let doc = if let Some(desc) = description_override {
+      Some(desc.into_boxed_str())
+    } else {
+      doc_lines.map(|doc_lines| doc_lines.into_boxed_str())
+    };
     Self {
       doc,
       tags: tags.into_boxed_slice(),
@@ -270,6 +293,11 @@ pub enum JsDocTag {
   See {
     doc: Box<str>,
   },
+  /// `@summary comment`
+  Summary {
+    #[serde(default)]
+    doc: Box<str>,
+  },
   /// `@since version`
   Since {
     doc: Box<str>,
@@ -363,6 +391,7 @@ impl From<String> for JsDocTag {
         },
         "see" => Self::See { doc },
         "since" => Self::Since { doc },
+        "summary" => Self::Summary { doc },
         "priority" => {
           let Ok(priority) = doc.parse() else {
             return Self::Unsupported {
@@ -371,6 +400,7 @@ impl From<String> for JsDocTag {
           };
           Self::Priority { priority }
         }
+        "description" => unreachable!("@description is handled earlier"),
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
@@ -804,6 +834,67 @@ const a = "a";
 
       })
     );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@summary A brief summary".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "summary",
+          "doc": "A brief summary",
+        }]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_description_tag() {
+    // @description overrides the doc field
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "Normal doc text\n@description Override description".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "Override description",
+      })
+    );
+    // @description without preceding doc text
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@description The description".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "The description",
+      })
+    );
+    // @description with other tags
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "Normal doc\n@description Override\n@param {string} a a param"
+          .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "Override",
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "type": "string",
+          "doc": "a param",
+        }]
+      })
+    );
+    // multi-line @description
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@description Line 1\nLine 2".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "Line 1\nLine 2",
+      })
+    );
   }
 
   #[test]
@@ -1206,6 +1297,16 @@ multi-line
       json!({
         "kind": "type",
         "type": "Map<string, string>",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Summary {
+        doc: "A brief summary".into(),
+      })
+      .unwrap(),
+      json!({
+        "kind": "summary",
+        "doc": "A brief summary",
       })
     );
     assert_eq!(

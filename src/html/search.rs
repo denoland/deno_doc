@@ -86,10 +86,10 @@ pub fn doc_nodes_into_search_index_node(
     .unwrap_or_default();
 
   let id = parent_id.unwrap_or_else(|| {
-    IdBuilder::new(ctx.ctx)
+    IdBuilder::new(ctx)
       .kind(IdKind::Namespace)
       .name(&name)
-      .build()
+      .build_unregistered()
   });
 
   let mut out = vec![SearchIndexNode {
@@ -112,7 +112,7 @@ pub fn doc_nodes_into_search_index_node(
       .filter_map(|node| node.get_drilldown_symbols())
       .flatten()
       .flat_map(|drilldown_node| {
-        let name = drilldown_node.get_qualified_name();
+        let name = drilldown_node.get_qualified_name().to_string();
 
         doc_nodes_into_search_index_node(
           ctx,

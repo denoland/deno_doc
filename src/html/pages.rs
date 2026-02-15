@@ -12,7 +12,6 @@ use super::util::AnchorCtx;
 use super::util::BreadcrumbsCtx;
 use super::util::SectionHeaderCtx;
 use std::borrow::Cow;
-use std::cmp::Ordering;
 use std::rc::Rc;
 
 use super::DARKMODE_TOGGLE_FILENAME;
@@ -111,7 +110,7 @@ impl CategoriesPanelCtx {
           .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
-        let mut categories = ctx
+        let categories = ctx
           .ctx
           .doc_nodes
           .keys()
@@ -126,8 +125,6 @@ impl CategoriesPanelCtx {
             }),
           })
           .collect::<Vec<_>>();
-
-        categories.sort_by(|a, b| a.name.cmp(&b.name));
 
         Some(CategoriesPanelCtx {
           categories,
@@ -237,7 +234,12 @@ impl IndexCtx {
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
+      super::jsdoc::ModuleDocCtx::new(
+        &render_ctx,
+        short_path,
+        !short_path.is_main,
+        false,
+      )
     });
 
     let root =
@@ -258,7 +260,7 @@ impl IndexCtx {
 
     let overview = match ctx.file_mode {
       FileMode::Dts if short_path.is_none() => {
-        let mut sections = ctx
+        let sections = ctx
           .doc_nodes
           .iter()
           .map(|(short_path, nodes)| {
@@ -275,8 +277,8 @@ impl IndexCtx {
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.anchorize(title);
-            render_ctx.toc.add_entry(1, title, &anchor);
+            let id = render_ctx.toc.anchorize(title);
+            render_ctx.toc.add_entry(1, title, &id);
 
             util::SectionCtx {
               header: Some(SectionHeaderCtx {
@@ -285,22 +287,13 @@ impl IndexCtx {
                   short_path.as_resolve_kind(),
                 )),
                 title: title.to_string(),
-                anchor: AnchorCtx {
-                  id: util::Id::new(anchor),
-                },
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
             }
           })
           .collect::<Vec<_>>();
-
-        sections.sort_by(|a, b| match (&a.header, &b.header) {
-          (Some(x), Some(y)) => x.title.cmp(&y.title),
-          (None, Some(_)) => Ordering::Less,
-          (Some(_), None) => Ordering::Greater,
-          (None, None) => Ordering::Equal,
-        });
 
         Some(SymbolContentCtx {
           id: util::Id::empty(),
@@ -312,8 +305,8 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.anchorize(&title);
-            render_ctx.toc.add_entry(1, &title, &anchor);
+            let id = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &id);
 
             let doc = ctx
               .category_docs
@@ -339,9 +332,7 @@ impl IndexCtx {
                   UrlResolveKind::Category { category: &title },
                 )),
                 title,
-                anchor: AnchorCtx {
-                  id: util::Id::new(anchor),
-                },
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -406,12 +397,12 @@ impl IndexCtx {
           category_docs.get(&title).cloned().flatten()
         });
 
+        let id = render_ctx.toc.anchorize(&title);
+
         (
           render_ctx.clone(),
           Some(SectionHeaderCtx {
-            anchor: AnchorCtx {
-              id: util::Id::new(title.clone()),
-            },
+            anchor: AnchorCtx::new(id),
             title,
             href: None,
             doc,
@@ -458,44 +449,27 @@ impl IndexCtx {
 
 #[derive(Serialize)]
 #[serde(tag = "kind")]
-pub struct AllSymbolsCtx {
+pub struct AllSymbolsPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
-  pub content: SymbolContentCtx,
+  pub content: crate::html::symbols::AllSymbolsCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub disable_search: bool,
   pub categories_panel: Option<CategoriesPanelCtx>,
 }
 
-impl AllSymbolsCtx {
+impl AllSymbolsPageCtx {
   pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  pub fn new(
-    ctx: &GenerateCtx,
-    partitions: partition::Partitions<Rc<ShortPath>>,
-  ) -> Self {
+  pub fn new(ctx: &GenerateCtx) -> Self {
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
-
-    let sections = super::namespace::render_namespace(
-      partitions.into_iter().map(|(path, nodes)| {
-        let render_ctx =
-          RenderContext::new(ctx, &nodes, UrlResolveKind::AllSymbols);
-        let header = SectionHeaderCtx::new_for_all_symbols(&render_ctx, &path);
-
-        (render_ctx, header, nodes)
-      }),
-    );
 
     let html_head_ctx = HtmlHeadCtx::new(ctx, "./", Some("All Symbols"), None);
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, None);
 
-    AllSymbolsCtx {
+    AllSymbolsPageCtx {
       html_head_ctx,
-      content: SymbolContentCtx {
-        id: util::Id::empty(),
-        sections,
-        docs: None,
-      },
+      content: crate::html::symbols::AllSymbolsCtx::new(&render_ctx),
       breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
       disable_search: ctx.disable_search,
       categories_panel,
@@ -503,6 +477,7 @@ impl AllSymbolsCtx {
   }
 }
 
+#[allow(clippy::large_enum_variant)]
 pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,

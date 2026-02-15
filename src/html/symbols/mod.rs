@@ -1,12 +1,13 @@
-use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
+use crate::html::jsdoc::ModuleDocCtx;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
 use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
+use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
@@ -341,13 +342,13 @@ impl SymbolInnerCtx {
 
           namespace::render_namespace(partitions.into_iter().map(
             |(title, nodes)| {
+              let id = ctx.toc.anchorize(&title);
+
               (
                 ctx.clone(),
                 Some(crate::html::util::SectionHeaderCtx {
-                  title: title.clone(),
-                  anchor: AnchorCtx {
-                    id: crate::html::util::Id::new(title),
-                  },
+                  title,
+                  anchor: AnchorCtx::new(id),
                   href: None,
                   doc: None,
                 }),
@@ -407,4 +408,46 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
   };
 
   crate::html::jsdoc::render_markdown(ctx, &doc, true)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllSymbolsEntrypointCtx {
+  pub name: String,
+  pub href: String,
+  pub anchor: AnchorCtx,
+  pub module_doc: ModuleDocCtx,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AllSymbolsCtx {
+  pub entrypoints: Vec<AllSymbolsEntrypointCtx>,
+}
+
+impl AllSymbolsCtx {
+  pub const TEMPLATE: &'static str = "all_symbols";
+
+  pub fn new(ctx: &RenderContext) -> Self {
+    let entrypoints = ctx
+      .ctx
+      .doc_nodes
+      .keys()
+      .map(|short_path| {
+        let name = short_path.display_name().to_string();
+        let id = ctx.toc.anchorize(&name);
+        ctx.toc.add_entry(0, &name, &id);
+
+        AllSymbolsEntrypointCtx {
+          name,
+          href: ctx.ctx.resolve_path(
+            ctx.get_current_resolve(),
+            UrlResolveKind::File { file: short_path },
+          ),
+          anchor: AnchorCtx::new(id),
+          module_doc: ModuleDocCtx::new(ctx, short_path, true, true),
+        }
+      })
+      .collect();
+
+    Self { entrypoints }
+  }
 }

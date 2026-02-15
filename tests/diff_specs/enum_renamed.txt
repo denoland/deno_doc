@@ -1,0 +1,31 @@
+# old/mod.ts
+export enum Foo {
+  A,
+  B,
+  C,
+}
+
+# new/mod.ts
+export enum Bar {
+  A,
+  B,
+  C,
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Bar",
+          "kind": "enum",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Bar"
+          }
+        }
+      ]
+    }
+  }
+}

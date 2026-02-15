@@ -1,0 +1,53 @@
+# old/mod.ts
+export namespace Utils {
+  export function foo() {}
+  export function bar() {}
+}
+
+# new/mod.ts
+export namespace Utils {
+  export function foo() {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Utils",
+          "kind": "namespace",
+          "defChanges": {
+            "type": "namespace",
+            "removedElements": [
+              {
+                "name": "bar",
+                "isDefault": false,
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 54
+                },
+                "declarationKind": "export",
+                "kind": "function",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

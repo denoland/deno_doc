@@ -1,0 +1,57 @@
+# old/mod.ts
+export class Foo {
+  bar() {}
+  baz() {}
+}
+
+# new/mod.ts
+export class Foo {
+  bar() {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "methodChanges": {
+              "removed": [
+                {
+                  "accessibility": null,
+                  "optional": false,
+                  "isAbstract": false,
+                  "isStatic": false,
+                  "name": "baz",
+                  "kind": "method",
+                  "functionDef": {
+                    "params": [],
+                    "returnType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "keyword": "void"
+                    },
+                    "hasBody": true,
+                    "isAsync": false,
+                    "isGenerator": false,
+                    "typeParams": []
+                  },
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 3,
+                    "col": 2,
+                    "byteIndex": 32
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

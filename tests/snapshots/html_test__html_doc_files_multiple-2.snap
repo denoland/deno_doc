@@ -19,7 +19,10 @@ expression: files.get(file_name).unwrap()
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
-    <div class="flex items-center"><ul class="breadcrumbs"><li>index</li></ul>
+    <div class="flex items-center"><ul class="breadcrumbs">
+  <li>
+    <a href="" class="contextLink">index</a>
+  </li></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -92,12 +95,6 @@ expression: files.get(file_name).unwrap()
     <div><nav class="topSymbols">
           <h3>Symbols</h3>
           <ul><li>
-                <a href=".&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction"><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<span class="hover:bg-Function/15 hover:bg-FunctionDark/15">
-                    externalFunction
-                  </span>
-                </a>
-              </li><li>
                 <a href=".&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15 hover:bg-ClassDark/15">
                     AbstractClass
@@ -119,6 +116,12 @@ expression: files.get(file_name).unwrap()
                 <a href=".&#x2F;.&#x2F;~&#x2F;CompoundType.html" title="CompoundType"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
 <span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
                     CompoundType
+                  </span>
+                </a>
+              </li><li>
+                <a href=".&#x2F;.&#x2F;~&#x2F;EmptyInterface.html" title="EmptyInterface"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
+<span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
+                    EmptyInterface
                   </span>
                 </a>
               </li></ul><a class="flex items-center gap-0.5" href=".&#x2F;all_symbols.html">
