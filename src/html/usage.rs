@@ -152,9 +152,9 @@ fn usage_to_md(
         )
       } else {
         let is_type = matches!(
-        nodes[0].def,
-        DocNodeDef::TypeAlias { .. } | DocNodeDef::Interface { .. }
-      );
+          nodes[0].def,
+          DocNodeDef::TypeAlias { .. } | DocNodeDef::Interface { .. }
+        );
 
         format!(
           r#"import {}{{ {} }} from "{url}";"#,

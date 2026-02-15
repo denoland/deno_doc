@@ -993,10 +993,8 @@ const a = "a";
     );
     // hyphen separator should be stripped
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@param foo - The foo".to_string()
-      ))
-      .unwrap(),
+      serde_json::to_value(JsDoc::from("@param foo - The foo".to_string()))
+        .unwrap(),
       json!({
         "tags": [{
           "kind": "param",
