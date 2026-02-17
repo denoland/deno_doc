@@ -600,6 +600,36 @@ impl<'a> DocParser<'a> {
       Cow::Borrowed(full_range)
     };
     let js_doc = js_doc_for_range(module_info, &full_range)?;
+
+    if let Some(init) = &var_declarator.init
+      && let deno_ast::swc::ast::Expr::Class(class_expr) = &**init
+    {
+      let location = get_location(module_info, ident.start());
+      let name = ident.sym.to_string();
+      let def_name = class_expr
+        .ident
+        .as_ref()
+        .map(|id| id.sym.to_string().into_boxed_str());
+      let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
+        module_info,
+        &class_expr.class,
+        def_name,
+      );
+      let js_doc = if js_doc.is_empty() {
+        decorator_js_doc
+      } else {
+        js_doc
+      };
+      return Some(DocNode::class(
+        name.into_boxed_str(),
+        false,
+        location,
+        DeclarationKind::Declare,
+        js_doc,
+        class_def,
+      ));
+    }
+
     // todo(dsherret): it's not ideal to call this function over
     // and over for the same var declarator when there are a lot
     // of idents
