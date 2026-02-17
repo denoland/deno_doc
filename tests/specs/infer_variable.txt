@@ -22,7 +22,19 @@ export const j = 1 >> 1;
 /** doc11 */
 export const k = (value: string) => 1;
 
+# diagnostics
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:22:14
+   | 
+22 | export const k = (value: string) => 1;
+   |              ^
+
 # output.txt
+Defined in file:///mod.ts:22:14
+
+function k(value: string)
+  doc11
+
 Defined in file:///mod.ts:2:12
 
 let a: number
@@ -72,11 +84,6 @@ Defined in file:///mod.ts:20:14
 
 const j: number
   doc10
-
-Defined in file:///mod.ts:22:14
-
-const k: (value: string) => unknown
-  doc11
 
 
 # output.json
@@ -347,34 +354,25 @@ const k: (value: string) => unknown
     "jsDoc": {
       "doc": "doc11"
     },
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "fnOrConstructor",
-        "fnOrConstructor": {
-          "constructor": false,
+    "kind": "function",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "value",
+          "optional": false,
           "tsType": {
-            "repr": "unknown",
+            "repr": "string",
             "kind": "keyword",
-            "keyword": "unknown"
-          },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "value",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            }
-          ],
-          "typeParams": []
+            "keyword": "string"
+          }
         }
-      },
-      "kind": "const"
+      ],
+      "returnType": null,
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
     }
   }
 ]

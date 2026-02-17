@@ -62,7 +62,6 @@ class Foo
     },
     "kind": "class",
     "classDef": {
-      "defName": "Foo",
       "isAbstract": false,
       "constructors": [],
       "properties": [],
@@ -119,7 +118,6 @@ class Foo
     },
     "kind": "class",
     "classDef": {
-      "defName": "Bar",
       "isAbstract": false,
       "constructors": [
         {

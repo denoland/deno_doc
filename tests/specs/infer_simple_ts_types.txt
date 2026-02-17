@@ -121,6 +121,14 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |              ^
 
 # output.txt
+Defined in file:///mod.ts:13:14
+
+function fn1(a: string): void
+
+Defined in file:///mod.ts:14:14
+
+function fn2(a: string): void
+
 Defined in file:///mod.ts:3:14
 
 const b: false
@@ -136,14 +144,6 @@ const bi2: bigint
 Defined in file:///mod.ts:7:14
 
 const d: Date
-
-Defined in file:///mod.ts:13:14
-
-const fn1: (a: string) => void
-
-Defined in file:///mod.ts:14:14
-
-const fn2: (a: string) => void
 
 Defined in file:///mod.ts:12:14
 
@@ -478,34 +478,29 @@ const tpl: `foobar`
       "byteIndex": 370
     },
     "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "fnOrConstructor",
-        "fnOrConstructor": {
-          "constructor": false,
+    "kind": "function",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
           "tsType": {
-            "repr": "void",
+            "repr": "string",
             "kind": "keyword",
-            "keyword": "void"
-          },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            }
-          ],
-          "typeParams": []
+            "keyword": "string"
+          }
         }
+      ],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
       },
-      "kind": "const"
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
     }
   },
   {
@@ -518,34 +513,29 @@ const tpl: `foobar`
       "byteIndex": 414
     },
     "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "fnOrConstructor",
-        "fnOrConstructor": {
-          "constructor": false,
+    "kind": "function",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
           "tsType": {
-            "repr": "void",
+            "repr": "string",
             "kind": "keyword",
-            "keyword": "void"
-          },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            }
-          ],
-          "typeParams": []
+            "keyword": "string"
+          }
         }
+      ],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
       },
-      "kind": "const"
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
     }
   },
   {
