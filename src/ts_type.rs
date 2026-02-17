@@ -210,8 +210,20 @@ impl TsTypeDef {
         .as_ref()
         .map(|t| Box::new(TsTypeDef::new(module_info, &t.type_ann))),
     };
+    let mut repr_parts = Vec::new();
+    if pred.asserts {
+      repr_parts.push("asserts".to_string());
+    }
+    repr_parts.push(match &pred.param {
+      ThisOrIdent::This => "this".to_string(),
+      ThisOrIdent::Identifier { name } => name.clone(),
+    });
+    if let Some(ty) = &pred.r#type {
+      repr_parts.push("is".to_string());
+      repr_parts.push(ty.repr.clone());
+    }
     TsTypeDef {
-      repr: pred.to_string(),
+      repr: repr_parts.join(" "),
       kind: Some(TsTypeDefKind::TypePredicate),
       type_predicate: Some(pred),
       ..Default::default()
