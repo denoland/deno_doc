@@ -135,7 +135,7 @@ const b: false
 
 Defined in file:///mod.ts:4:14
 
-const bi: 100
+const bi: 100n
 
 Defined in file:///mod.ts:10:14
 

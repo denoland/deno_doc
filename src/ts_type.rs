@@ -2073,7 +2073,7 @@ impl Display for TsTypeDef {
             colors::yellow(&literal.number.unwrap().to_string())
           ),
           LiteralDefKind::BigInt => {
-            write!(f, "{}", colors::yellow(&literal.string.as_ref().unwrap()))
+            write!(f, "{}n", colors::yellow(&literal.string.as_ref().unwrap()))
           }
         }
       }
