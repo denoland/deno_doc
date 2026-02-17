@@ -1043,10 +1043,26 @@ impl<'a> DocParser<'a> {
     module_info: &EsModuleInfo,
     export_expr: &ExportDefaultExpr,
   ) -> Option<DocNode> {
-    if let Some(js_doc) = js_doc_for_range(module_info, &export_expr.range()) {
-      let location = get_location(module_info, export_expr.start());
+    let js_doc = js_doc_for_range(module_info, &export_expr.range())?;
+    let location = get_location(module_info, export_expr.start());
+    let name = "default";
+
+    if let deno_ast::swc::ast::Expr::Arrow(arrow_expr) = &*export_expr.expr {
+      let function_def = crate::function::arrow_to_function_def(
+        module_info,
+        arrow_expr,
+      );
+      Some(DocNode::function(
+        name.into(),
+        true,
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        function_def,
+      ))
+    } else {
       Some(DocNode::variable(
-        "default".into(),
+        name.into(),
         true,
         location,
         DeclarationKind::Export,
@@ -1060,8 +1076,6 @@ impl<'a> DocParser<'a> {
           ),
         },
       ))
-    } else {
-      None
     }
   }
 
