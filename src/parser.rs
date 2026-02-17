@@ -452,13 +452,37 @@ impl<'a> DocParser<'a> {
                 )?;
                 let doc_nodes = self
                   .parse_with_reexports_inner(specifier, visited.clone())?;
-                // hoist any module doc to be the exported namespaces module doc
-                let mut js_doc = JsDoc::default();
-                for doc_node in &doc_nodes {
-                  if matches!(doc_node.def, DocNodeDef::ModuleDoc) {
-                    js_doc = doc_node.js_doc.clone();
+                // Use the JSDoc from the export statement itself if present,
+                // otherwise hoist module doc from the re-exported module.
+                let js_doc = (|| {
+                  if let ModuleInfoRef::Esm(esm) = export.module {
+                    // Find the full export statement range, since the
+                    // definition range may start at `*` rather than `export`.
+                    for item in esm.source().program_ref().body() {
+                      if let ModuleItemRef::ModuleDecl(decl) = item {
+                        let decl_range = decl.range();
+                        if decl_range.contains(first_def.range())
+                          && let Some(js_doc) =
+                            js_doc_for_range(esm, &decl_range)
+                        {
+                          if !js_doc.is_empty() {
+                            return js_doc;
+                          }
+                          break;
+                        }
+                      }
+                    }
                   }
-                }
+
+                  // hoist any module doc to be the exported namespaces module doc
+                  let mut js_doc = JsDoc::default();
+                  for doc_node in &doc_nodes {
+                    if matches!(doc_node.def, DocNodeDef::ModuleDoc) {
+                      js_doc = doc_node.js_doc.clone();
+                    }
+                  }
+                  js_doc
+                })();
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
                     .into_iter()
@@ -565,24 +589,17 @@ impl<'a> DocParser<'a> {
   ) -> Option<DocNode> {
     let location =
       get_location(module_info, expando_property.prop_name_range().start());
-    let ts_type = infer_simple_ts_type_from_init(
-      module_info,
-      Some(expando_property.assignment()),
-      /* is const */ true,
-    );
     let js_doc =
       js_doc_for_range(module_info, &expando_property.inner().range())?;
+    let name = expando_property.prop_name().to_string().into_boxed_str();
+    let init = expando_property.assignment();
 
-    Some(DocNode::variable(
-      expando_property.prop_name().to_string().into_boxed_str(),
-      false,
+    Some(doc_node_from_expr(
+      module_info,
+      init,
+      name,
       location,
-      DeclarationKind::Declare,
       js_doc,
-      VariableDef {
-        ts_type,
-        kind: VarDeclKind::Const,
-      },
     ))
   }
 
@@ -600,6 +617,26 @@ impl<'a> DocParser<'a> {
       Cow::Borrowed(full_range)
     };
     let js_doc = js_doc_for_range(module_info, &full_range)?;
+
+    if let Some(init) = &var_declarator.init
+      && matches!(
+        &**init,
+        deno_ast::swc::ast::Expr::Class(_)
+          | deno_ast::swc::ast::Expr::Fn(_)
+          | deno_ast::swc::ast::Expr::Arrow(_)
+      )
+    {
+      let location = get_location(module_info, ident.start());
+      let name = ident.sym.to_string().into_boxed_str();
+      return Some(doc_node_from_expr(
+        module_info,
+        init,
+        name,
+        location,
+        js_doc,
+      ));
+    }
+
     // todo(dsherret): it's not ideal to call this function over
     // and over for the same var declarator when there are a lot
     // of idents
@@ -976,10 +1013,24 @@ impl<'a> DocParser<'a> {
     module_info: &EsModuleInfo,
     export_expr: &ExportDefaultExpr,
   ) -> Option<DocNode> {
-    if let Some(js_doc) = js_doc_for_range(module_info, &export_expr.range()) {
-      let location = get_location(module_info, export_expr.start());
+    let js_doc = js_doc_for_range(module_info, &export_expr.range())?;
+    let location = get_location(module_info, export_expr.start());
+    let name = "default";
+
+    if let deno_ast::swc::ast::Expr::Arrow(arrow_expr) = &*export_expr.expr {
+      let function_def =
+        crate::function::arrow_to_function_def(module_info, arrow_expr);
+      Some(DocNode::function(
+        name.into(),
+        true,
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        function_def,
+      ))
+    } else {
       Some(DocNode::variable(
-        "default".into(),
+        name.into(),
         true,
         location,
         DeclarationKind::Export,
@@ -993,8 +1044,6 @@ impl<'a> DocParser<'a> {
           ),
         },
       ))
-    } else {
-      None
     }
   }
 
@@ -1438,6 +1487,84 @@ impl<'a> DocParser<'a> {
           specifier, referrer
         ))
       })
+  }
+}
+
+fn doc_node_from_expr(
+  module_info: &EsModuleInfo,
+  expr: &deno_ast::swc::ast::Expr,
+  name: Box<str>,
+  location: Location,
+  js_doc: JsDoc,
+) -> DocNode {
+  match expr {
+    deno_ast::swc::ast::Expr::Class(class_expr) => {
+      let def_name = class_expr
+        .ident
+        .as_ref()
+        .map(|id| id.sym.to_string().into_boxed_str());
+      let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
+        module_info,
+        &class_expr.class,
+        def_name,
+      );
+      let js_doc = if js_doc.is_empty() {
+        decorator_js_doc
+      } else {
+        js_doc
+      };
+      DocNode::class(
+        name,
+        false,
+        location,
+        DeclarationKind::Declare,
+        js_doc,
+        class_def,
+      )
+    }
+    deno_ast::swc::ast::Expr::Fn(fn_expr) => {
+      let def_name = fn_expr.ident.as_ref().map(|id| id.sym.to_string());
+      let function_def = crate::function::function_to_function_def(
+        module_info,
+        &fn_expr.function,
+        def_name,
+      );
+      DocNode::function(
+        name,
+        false,
+        location,
+        DeclarationKind::Declare,
+        js_doc,
+        function_def,
+      )
+    }
+    deno_ast::swc::ast::Expr::Arrow(arrow_expr) => {
+      let function_def =
+        crate::function::arrow_to_function_def(module_info, arrow_expr);
+      DocNode::function(
+        name,
+        false,
+        location,
+        DeclarationKind::Declare,
+        js_doc,
+        function_def,
+      )
+    }
+    _ => {
+      let ts_type =
+        infer_simple_ts_type_from_init(module_info, Some(expr), true);
+      DocNode::variable(
+        name,
+        false,
+        location,
+        DeclarationKind::Declare,
+        js_doc,
+        VariableDef {
+          ts_type,
+          kind: VarDeclKind::Const,
+        },
+      )
+    }
   }
 }
 

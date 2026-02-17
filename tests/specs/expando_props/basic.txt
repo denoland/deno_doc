@@ -24,7 +24,7 @@ Defined in file:///mod.ts:6:6
 namespace test
   Additional properties on the `test` function.
 
-  const skip: (param: string) => void
+  function skip(param: string): void
     doc1
   const textProp: "asdf"
     doc2
@@ -90,34 +90,29 @@ namespace test
           "jsDoc": {
             "doc": "doc1"
           },
-          "kind": "variable",
-          "variableDef": {
-            "tsType": {
-              "repr": "",
-              "kind": "fnOrConstructor",
-              "fnOrConstructor": {
-                "constructor": false,
+          "kind": "function",
+          "functionDef": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "param",
+                "optional": false,
                 "tsType": {
-                  "repr": "void",
+                  "repr": "string",
                   "kind": "keyword",
-                  "keyword": "void"
-                },
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "param",
-                    "optional": false,
-                    "tsType": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    }
-                  }
-                ],
-                "typeParams": []
+                  "keyword": "string"
+                }
               }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
             },
-            "kind": "const"
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
           }
         },
         {

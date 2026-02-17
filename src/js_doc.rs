@@ -13,14 +13,14 @@ lazy_static! {
   /// @tag value
   static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority|summary|description)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
-  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
-  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
   /// @tag {type} [name] maybe_value
   /// @tag {type} [name=default] maybe_value
   static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
-    r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?P<doc>.+))?"
+    r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?:-\s+)?(?P<doc>.+))?"
   )
   .unwrap();
   /// @tag {maybe_type} maybe_value
@@ -73,7 +73,11 @@ impl From<String> for JsDoc {
     let mut current_tag_name = "";
     let mut description_override: Option<String> = None;
     for line in value.lines() {
-      let caps = JS_DOC_TAG_RE.captures(line);
+      let caps = if tag_is_codeblock || is_codeblock {
+        None
+      } else {
+        JS_DOC_TAG_RE.captures(line)
+      };
       if is_tag || caps.is_some() {
         if !is_tag {
           is_tag = true;
@@ -521,6 +525,76 @@ if (true) {
           {
             "kind": "return",
             "doc": "nothing"
+          }
+        ]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_example_with_decorator() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"
+Some JSDoc goes here
+
+@example Usage with decorators
+```ts
+const migrations = new MigrationRegistry();
+
+@migrations.register()
+class MyMigration {
+  up() {}
+  down() {}
+}
+```
+
+@param a some param
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "\nSome JSDoc goes here\n",
+        "tags": [
+          {
+            "kind": "example",
+            "doc": "Usage with decorators\n```ts\nconst migrations = new MigrationRegistry();\n\n@migrations.register()\nclass MyMigration {\n  up() {}\n  down() {}\n}\n```\n"
+          },
+          {
+            "kind": "param",
+            "name": "a",
+            "doc": "some param"
+          }
+        ]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_doc_codeblock_with_at_symbol() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"
+Some description
+
+```ts
+@decorator
+class Foo {}
+```
+
+@param a some param
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "\nSome description\n\n```ts\n@decorator\nclass Foo {}\n```\n",
+        "tags": [
+          {
+            "kind": "param",
+            "name": "a",
+            "doc": "some param"
           }
         ]
       })
@@ -988,6 +1062,32 @@ const a = "a";
           "name": "a",
           "type": "string",
           "doc": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
+    // hyphen separator should be stripped
+    assert_eq!(
+      serde_json::to_value(JsDoc::from("@param foo - The foo".to_string()))
+        .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "foo",
+          "doc": "The foo",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        "@param {string} foo - The foo".to_string()
+      ))
+      .unwrap(),
+      json!({
+        "tags": [{
+          "kind": "param",
+          "name": "foo",
+          "type": "string",
+          "doc": "The foo",
         }]
       })
     );

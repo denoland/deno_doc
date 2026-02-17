@@ -1,0 +1,129 @@
+# mod.ts
+/**
+ * A migration registry
+ *
+ * @example
+ * ```ts
+ * const migrations = new MigrationRegistry();
+ *
+ * @migrations.register()
+ * class MyMigration {
+ *   up() {}
+ *   down() {}
+ * }
+ * ```
+ *
+ * @param T the type
+ */
+export class A {}
+
+/**
+ * Decorator in doc codeblock
+ *
+ * ```ts
+ * @decorator
+ * class Foo {}
+ * ```
+ */
+export class B {}
+
+# output.txt
+Defined in file:///mod.ts:17:1
+
+class A
+  A migration registry
+
+  @example
+      ```ts
+      const migrations = new MigrationRegistry();
+
+      @migrations.register()
+      class MyMigration {
+        up() {}
+        down() {}
+      }
+      ```
+
+  @param T
+      the type
+
+
+
+Defined in file:///mod.ts:27:1
+
+class B
+  Decorator in doc codeblock
+
+  ```ts
+  @decorator
+  class Foo {}
+  ```
+
+
+
+# output.json
+[
+  {
+    "name": "A",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 17,
+      "col": 0,
+      "byteIndex": 219
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "A migration registry\n",
+      "tags": [
+        {
+          "kind": "example",
+          "doc": "```ts\nconst migrations = new MigrationRegistry();\n\n@migrations.register()\nclass MyMigration {\n  up() {}\n  down() {}\n}\n```\n"
+        },
+        {
+          "kind": "param",
+          "name": "T",
+          "doc": "the type"
+        }
+      ]
+    },
+    "kind": "class",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  },
+  {
+    "name": "B",
+    "isDefault": false,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 27,
+      "col": 0,
+      "byteIndex": 325
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "Decorator in doc codeblock\n\n```ts\n@decorator\nclass Foo {}\n```"
+    },
+    "kind": "class",
+    "classDef": {
+      "isAbstract": false,
+      "constructors": [],
+      "properties": [],
+      "indexSignatures": [],
+      "methods": [],
+      "extends": null,
+      "implements": [],
+      "typeParams": [],
+      "superTypeParams": []
+    }
+  }
+]

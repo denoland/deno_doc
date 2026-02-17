@@ -265,7 +265,7 @@ class C
         }
       ],
       "returnType": {
-        "repr": "asserts val4 is NonNullable<T>",
+        "repr": "asserts val4 is NonNullable",
         "kind": "typePredicate",
         "typePredicate": {
           "asserts": true,

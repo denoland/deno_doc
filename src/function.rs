@@ -91,6 +91,38 @@ pub fn function_to_function_def(
   }
 }
 
+pub fn arrow_to_function_def(
+  module_info: &EsModuleInfo,
+  arrow: &deno_ast::swc::ast::ArrowExpr,
+) -> FunctionDef {
+  let params = arrow
+    .params
+    .iter()
+    .map(|pat| crate::params::pat_to_param_def(module_info, pat))
+    .collect();
+
+  let maybe_return_type = arrow
+    .return_type
+    .as_deref()
+    .map(|return_type| TsTypeDef::new(module_info, &return_type.type_ann));
+
+  let type_params = maybe_type_param_decl_to_type_param_defs(
+    module_info,
+    arrow.type_params.as_deref(),
+  );
+
+  FunctionDef {
+    def_name: None,
+    params,
+    return_type: maybe_return_type,
+    has_body: true,
+    is_async: arrow.is_async,
+    is_generator: arrow.is_generator,
+    type_params,
+    decorators: Box::new([]),
+  }
+}
+
 pub fn get_doc_for_fn_decl(
   module_info: &EsModuleInfo,
   fn_decl: &deno_ast::swc::ast::FnDecl,

@@ -219,7 +219,7 @@ impl Display for ClassMethodDef {
 #[serde(rename_all = "camelCase")]
 pub struct ClassDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  /// set when the class is a default export and has a name in its declaration
+  /// set when the class is a default export or a class expression, and has a name in its declaration
   pub def_name: Option<Box<str>>,
   pub is_abstract: bool,
   pub constructors: Box<[ClassConstructorDef]>,

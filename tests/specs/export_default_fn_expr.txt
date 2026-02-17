@@ -1,0 +1,52 @@
+# mod.ts
+/** A default arrow fn */
+export default (a: string): void => {};
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+function default(a: string): void
+  A default arrow fn
+
+
+# output.json
+[
+  {
+    "name": "default",
+    "isDefault": true,
+    "location": {
+      "filename": "file:///mod.ts",
+      "line": 2,
+      "col": 0,
+      "byteIndex": 26
+    },
+    "declarationKind": "export",
+    "jsDoc": {
+      "doc": "A default arrow fn"
+    },
+    "kind": "function",
+    "functionDef": {
+      "params": [
+        {
+          "kind": "identifier",
+          "name": "a",
+          "optional": false,
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          }
+        }
+      ],
+      "returnType": {
+        "repr": "void",
+        "kind": "keyword",
+        "keyword": "void"
+      },
+      "hasBody": true,
+      "isAsync": false,
+      "isGenerator": false,
+      "typeParams": []
+    }
+  }
+]
