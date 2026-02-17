@@ -73,7 +73,11 @@ impl From<String> for JsDoc {
     let mut current_tag_name = "";
     let mut description_override: Option<String> = None;
     for line in value.lines() {
-      let caps = JS_DOC_TAG_RE.captures(line);
+      let caps = if tag_is_codeblock || is_codeblock {
+        None
+      } else {
+        JS_DOC_TAG_RE.captures(line)
+      };
       if is_tag || caps.is_some() {
         if !is_tag {
           is_tag = true;
@@ -521,6 +525,76 @@ if (true) {
           {
             "kind": "return",
             "doc": "nothing"
+          }
+        ]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_example_with_decorator() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"
+Some JSDoc goes here
+
+@example Usage with decorators
+```ts
+const migrations = new MigrationRegistry();
+
+@migrations.register()
+class MyMigration {
+  up() {}
+  down() {}
+}
+```
+
+@param a some param
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "\nSome JSDoc goes here\n",
+        "tags": [
+          {
+            "kind": "example",
+            "doc": "Usage with decorators\n```ts\nconst migrations = new MigrationRegistry();\n\n@migrations.register()\nclass MyMigration {\n  up() {}\n  down() {}\n}\n```\n"
+          },
+          {
+            "kind": "param",
+            "name": "a",
+            "doc": "some param"
+          }
+        ]
+      })
+    );
+  }
+
+  #[test]
+  fn test_js_doc_doc_codeblock_with_at_symbol() {
+    assert_eq!(
+      serde_json::to_value(JsDoc::from(
+        r#"
+Some description
+
+```ts
+@decorator
+class Foo {}
+```
+
+@param a some param
+"#
+        .to_string()
+      ))
+      .unwrap(),
+      json!({
+        "doc": "\nSome description\n\n```ts\n@decorator\nclass Foo {}\n```\n",
+        "tags": [
+          {
+            "kind": "param",
+            "name": "a",
+            "doc": "some param"
           }
         ]
       })
