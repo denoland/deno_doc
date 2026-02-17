@@ -1,3 +1,4 @@
+use crate::diff::DocNodeDefDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
@@ -72,6 +73,8 @@ pub struct NamespaceNodeSubItemCtx {
   docs: Option<String>,
   ty: Option<TypeSummaryCtx>,
   href: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl std::hash::Hash for NamespaceNodeSubItemCtx {
@@ -142,6 +145,16 @@ impl NamespaceNodeCtx {
     );
 
     for node in &nodes {
+      // Look up parent node diff for subitem diff status
+      let node_def_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+        let info = diff_index.get_node_diff(
+          &node.origin.specifier,
+          node.get_name(),
+          node.def.to_kind(),
+        )?;
+        info.diff.as_ref()?.def_changes.as_ref()
+      });
+
       if let Some(drilldown_symbols) = node.get_drilldown_symbols() {
         subitems.extend(
           drilldown_symbols
@@ -181,11 +194,21 @@ impl NamespaceNodeCtx {
                 true,
               );
 
+              let drilldown_name =
+                symbol.drilldown_name.as_ref().unwrap();
+
+              let diff_status = get_subitem_diff_status(
+                node_def_diff,
+                drilldown_name,
+                &symbol.kind,
+              );
+
               NamespaceNodeSubItemCtx {
-                title: symbol.drilldown_name.as_ref().unwrap().to_string(),
+                title: drilldown_name.to_string(),
                 docs,
                 ty: summary_for_nodes(ctx, &[symbol]),
                 href: format!("{href}#{}", target_id.as_str()),
+                diff_status,
               }
             }),
         );
@@ -317,4 +340,74 @@ fn summary_for_nodes(
 pub struct TypeSummaryCtx {
   pub ty: String,
   pub info: Option<String>,
+}
+
+fn get_subitem_diff_status(
+  node_def_diff: Option<&DocNodeDefDiff>,
+  name: &str,
+  kind: &DocNodeKind,
+) -> Option<DiffStatus> {
+  let def_diff = node_def_diff?;
+
+  match def_diff {
+    DocNodeDefDiff::Class(class_diff) => match kind {
+      DocNodeKind::Method(_) => {
+        let mc = class_diff.method_changes.as_ref()?;
+        if mc.added.iter().any(|m| &*m.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if mc.removed.iter().any(|m| &*m.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if mc.modified.iter().any(|m| &*m.name == name) {
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      DocNodeKind::Property => {
+        let pc = class_diff.property_changes.as_ref()?;
+        if pc.added.iter().any(|p| &*p.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if pc.removed.iter().any(|p| &*p.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if pc.modified.iter().any(|p| &*p.name == name) {
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      _ => None,
+    },
+    DocNodeDefDiff::Interface(iface_diff) => match kind {
+      DocNodeKind::Method(_) => {
+        let mc = iface_diff.method_changes.as_ref()?;
+        if mc.added.iter().any(|m| m.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if mc.removed.iter().any(|m| m.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if mc.modified.iter().any(|m| m.name == name) {
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      DocNodeKind::Property => {
+        let pc = iface_diff.property_changes.as_ref()?;
+        if pc.added.iter().any(|p| p.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if pc.removed.iter().any(|p| p.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if pc.modified.iter().any(|p| p.name == name) {
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      _ => None,
+    },
+    _ => None,
+  }
 }

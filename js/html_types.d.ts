@@ -378,6 +378,7 @@ export interface NamespaceNodeSubItemCtx {
   docs: string | null;
   ty: TypeSummaryCtx | null;
   href: string;
+  diff_status?: DiffStatus;
 }
 
 export interface TypeSummaryCtx {
