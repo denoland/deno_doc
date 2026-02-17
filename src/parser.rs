@@ -452,13 +452,37 @@ impl<'a> DocParser<'a> {
                 )?;
                 let doc_nodes = self
                   .parse_with_reexports_inner(specifier, visited.clone())?;
-                // hoist any module doc to be the exported namespaces module doc
-                let mut js_doc = JsDoc::default();
-                for doc_node in &doc_nodes {
-                  if matches!(doc_node.def, DocNodeDef::ModuleDoc) {
-                    js_doc = doc_node.js_doc.clone();
+                // Use the JSDoc from the export statement itself if present,
+                // otherwise hoist module doc from the re-exported module.
+                let js_doc = (|| {
+                  if let ModuleInfoRef::Esm(esm) = export.module {
+                    // Find the full export statement range, since the
+                    // definition range may start at `*` rather than `export`.
+                    for item in esm.source().program_ref().body() {
+                      if let ModuleItemRef::ModuleDecl(decl) = item {
+                        let decl_range = decl.range();
+                        if decl_range.contains(first_def.range())
+                          && let Some(js_doc) =
+                            js_doc_for_range(esm, &decl_range)
+                        {
+                          if !js_doc.is_empty() {
+                            return js_doc;
+                          }
+                          break;
+                        }
+                      }
+                    }
                   }
-                }
+
+                  // hoist any module doc to be the exported namespaces module doc
+                  let mut js_doc = JsDoc::default();
+                  for doc_node in &doc_nodes {
+                    if matches!(doc_node.def, DocNodeDef::ModuleDoc) {
+                      js_doc = doc_node.js_doc.clone();
+                    }
+                  }
+                  js_doc
+                })();
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
                     .into_iter()
