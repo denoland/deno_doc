@@ -4,6 +4,7 @@ use deno_ast::ModuleSpecifier;
 use deno_doc::DocParser;
 use deno_doc::DocParserOptions;
 use deno_doc::ParseOutput;
+use deno_doc::diff::DocDiff;
 use deno_doc::html::pages::SymbolPage;
 use deno_doc::html::*;
 use deno_graph::BuildOptions;
@@ -15,6 +16,8 @@ use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadOptions;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
+use deno_graph::source::MemoryLoader;
+use deno_graph::source::Source;
 use futures::future;
 use indexmap::IndexMap;
 use std::fs;
@@ -645,4 +648,184 @@ async fn module_doc() {
   }
 
   insta::assert_json_snapshot!(module_docs);
+}
+
+async fn parse_source(source: &str) -> ParseOutput {
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+  let mut loader = MemoryLoader::default();
+  loader.add_source(
+    specifier.clone(),
+    Source::Module {
+      specifier: specifier.to_string(),
+      maybe_headers: None,
+      content: source.to_string(),
+    },
+  );
+
+  let analyzer = CapturingModuleAnalyzer::default();
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      vec![specifier.clone()],
+      Vec::new(),
+      &loader,
+      BuildOptions {
+        module_analyzer: &analyzer,
+        ..Default::default()
+      },
+    )
+    .await;
+
+  DocParser::new(
+    &graph,
+    &analyzer,
+    &[specifier],
+    DocParserOptions {
+      private: false,
+      diagnostics: false,
+    },
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+}
+
+async fn parse_file(path: &std::path::Path) -> ParseOutput {
+  let content = fs::read_to_string(path).unwrap();
+  parse_source(&content).await
+}
+
+#[tokio::test]
+async fn diff_kind_change() {
+  let test_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("diff_kind_change");
+
+  let old_docs = parse_file(&test_dir.join("old.ts")).await;
+  let new_docs = parse_file(&test_dir.join("new.ts")).await;
+
+  let diff = DocDiff::diff(&old_docs, &new_docs);
+
+  let ctx = GenerateCtx::create_basic_with_diff(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    new_docs,
+    diff,
+  )
+  .unwrap();
+
+  let json_output = generate_json(ctx).unwrap();
+
+  let mut keys: Vec<_> = json_output.keys().collect();
+  keys.sort();
+
+  let pages: Vec<_> = keys
+    .iter()
+    .filter(|k| k.ends_with(".json"))
+    .map(|k| (k.to_string(), json_output.get(*k).unwrap().clone()))
+    .collect();
+
+  insta::assert_json_snapshot!(pages);
+}
+
+#[tokio::test]
+async fn diff_comprehensive() {
+  let test_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("diff_comprehensive");
+
+  let old_docs = parse_file(&test_dir.join("old.ts")).await;
+  let new_docs = parse_file(&test_dir.join("new.ts")).await;
+
+  let diff = DocDiff::diff(&old_docs, &new_docs);
+
+  // Test with diff_only: false (full output with diff annotations)
+  let ctx = GenerateCtx::create_basic_with_diff(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    new_docs.clone(),
+    diff.clone(),
+  )
+  .unwrap();
+
+  let json_output = generate_json(ctx).unwrap();
+
+  let mut keys: Vec<_> = json_output.keys().collect();
+  keys.sort();
+
+  let pages: Vec<_> = keys
+    .iter()
+    .filter(|k| k.ends_with(".json"))
+    .map(|k| (k.to_string(), json_output.get(*k).unwrap().clone()))
+    .collect();
+
+  insta::assert_json_snapshot!("diff_comprehensive_full", pages);
+
+  // Test with diff_only: true (only changed content)
+  let ctx = GenerateCtx::create_basic_with_diff(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Rc::new(EmptyResolver),
+      usage_composer: Rc::new(EmptyResolver),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Rc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: true,
+    },
+    new_docs,
+    diff,
+  )
+  .unwrap();
+
+  let json_output = generate_json(ctx).unwrap();
+
+  let mut keys: Vec<_> = json_output.keys().collect();
+  keys.sort();
+
+  let pages: Vec<_> = keys
+    .iter()
+    .filter(|k| k.ends_with(".json"))
+    .map(|k| (k.to_string(), json_output.get(*k).unwrap().clone()))
+    .collect();
+
+  insta::assert_json_snapshot!("diff_comprehensive_diff_only", pages);
 }

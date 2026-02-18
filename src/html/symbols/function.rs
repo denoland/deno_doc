@@ -438,7 +438,7 @@ fn render_single_function(
   }
 
   if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
-    crate::html::util::filter_sections_diff_only(&mut sections);
+    crate::html::util::filter_sections_diff_only(&mut sections, &ctx.toc);
   }
 
   SymbolContentCtx {

@@ -678,10 +678,23 @@ pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
 /// Filters sections in-place, retaining only entries that have a diff status.
 /// Removes sections that become empty after filtering, and drops
 /// non-diff-relevant section types (Example, See, Empty).
-pub(crate) fn filter_sections_diff_only(sections: &mut Vec<SectionCtx>) {
+/// Also cleans up the ToC to match the surviving sections/entries.
+pub(crate) fn filter_sections_diff_only(
+  sections: &mut Vec<SectionCtx>,
+  toc: &crate::html::render_context::HeadingToCAdapter,
+) {
   sections.retain_mut(|section| match &mut section.content {
     SectionContentCtx::DocEntry(entries) => {
-      entries.retain(|e| e.diff_status.is_some());
+      entries.retain_mut(|e| {
+        if e.diff_status.is_some() {
+          if matches!(e.diff_status, Some(DiffStatus::Modified)) {
+            e.tags.retain(|t| t.diff.is_some());
+          }
+          true
+        } else {
+          false
+        }
+      });
       !entries.is_empty()
     }
     SectionContentCtx::IndexSignature(entries) => {
@@ -689,13 +702,53 @@ pub(crate) fn filter_sections_diff_only(sections: &mut Vec<SectionCtx>) {
       !entries.is_empty()
     }
     SectionContentCtx::NamespaceSection(entries) => {
-      entries.retain(|e| e.diff_status.is_some());
+      for entry in entries.iter_mut() {
+        entry.subitems.retain(|s| s.diff_status.is_some());
+      }
+      entries.retain_mut(|e| {
+        if e.diff_status.is_some()
+          || e.subitems.iter().any(|s| s.diff_status.is_some())
+        {
+          if matches!(e.diff_status, Some(DiffStatus::Modified)) {
+            e.tags.retain(|t| t.diff.is_some());
+          }
+          true
+        } else {
+          false
+        }
+      });
       !entries.is_empty()
     }
     SectionContentCtx::Example(_)
     | SectionContentCtx::See(_)
     | SectionContentCtx::Empty => false,
   });
+
+  // Collect surviving anchor IDs from remaining sections
+  let mut surviving_anchors =
+    std::collections::HashSet::<&str>::new();
+  for section in sections.iter() {
+    if let Some(header) = &section.header {
+      surviving_anchors.insert(header.anchor.id.as_str());
+    }
+    match &section.content {
+      SectionContentCtx::DocEntry(entries) => {
+        for entry in entries {
+          surviving_anchors.insert(entry.anchor.id.as_str());
+        }
+      }
+      SectionContentCtx::NamespaceSection(nodes) => {
+        for node in nodes {
+          surviving_anchors.insert(node.anchor.id.as_str());
+        }
+      }
+      _ => {}
+    }
+  }
+
+  // Remove ToC entries whose anchors no longer exist
+  let mut toc_entries = toc.toc.lock().unwrap();
+  toc_entries.retain(|entry| surviving_anchors.contains(entry.anchor.as_str()));
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
@@ -739,13 +792,66 @@ impl Tag {
   }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum TagDiffKind {
+  Added,
+  Removed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TagCtx {
+  #[serde(flatten)]
+  pub tag: Tag,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff: Option<TagDiffKind>,
+}
+
+/// Convert current tags and optional old tags into annotated `TagCtx` entries.
+/// For Modified entries with old_tags: tags only in current are Added, tags only
+/// in old are Removed, common tags have no annotation.
+pub fn compute_tag_ctx(
+  current: IndexSet<Tag>,
+  old: Option<IndexSet<Tag>>,
+) -> Vec<TagCtx> {
+  match old {
+    None => current
+      .into_iter()
+      .map(|tag| TagCtx { tag, diff: None })
+      .collect(),
+    Some(old) => {
+      let mut result = Vec::new();
+      for tag in &current {
+        let diff = if old.contains(tag) {
+          None
+        } else {
+          Some(TagDiffKind::Added)
+        };
+        result.push(TagCtx {
+          tag: tag.clone(),
+          diff,
+        });
+      }
+      for tag in &old {
+        if !current.contains(tag) {
+          result.push(TagCtx {
+            tag: tag.clone(),
+            diff: Some(TagDiffKind::Removed),
+          });
+        }
+      }
+      result
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
   name: Option<String>,
   name_href: Option<String>,
   content: String,
   anchor: AnchorCtx,
-  tags: IndexSet<Tag>,
+  pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -754,8 +860,6 @@ pub struct DocEntryCtx {
   pub old_name: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub old_content: Option<String>,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub old_tags: Option<IndexSet<Tag>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_changed: Option<bool>,
 }
@@ -802,13 +906,12 @@ impl DocEntryCtx {
       name_href,
       content: content.to_string(),
       anchor: AnchorCtx::new(id),
-      tags,
+      tags: compute_tag_ctx(tags, old_tags),
       js_doc: maybe_jsdoc,
       source_href,
       diff_status,
       old_name,
       old_content,
-      old_tags,
       js_doc_changed,
     }
   }

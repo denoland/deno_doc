@@ -13,7 +13,6 @@ use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
 use indexmap::IndexMap;
-use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
@@ -31,11 +30,13 @@ pub mod variable;
 struct SymbolCtx {
   kind: super::util::DocNodeKindCtx,
   usage: Option<UsagesCtx>,
-  tags: IndexSet<Tag>,
+  tags: Vec<super::util::TagCtx>,
   subtitle: Option<DocBlockSubtitleCtx>,
   content: Vec<SymbolInnerCtx>,
   deprecated: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  diff_status: Option<DiffStatus>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -150,8 +151,73 @@ impl SymbolGroupCtx {
         .then(|| UsagesCtx::new(ctx, doc_nodes))
         .flatten();
 
+        let old_tags = if doc_nodes.iter().any(|n| {
+          matches!(n.diff_status, Some(DiffStatus::Modified))
+        }) {
+          let mut old_tags = tags.clone();
+          if let Some(tags_diff) = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+            let info = diff_index.get_node_diff(
+              &doc_nodes[0].origin.specifier,
+              doc_nodes[0].get_name(),
+              doc_nodes[0].def.to_kind(),
+            )?;
+            info
+              .diff
+              .as_ref()?
+              .js_doc_changes
+              .as_ref()?
+              .tags_change
+              .as_ref()
+          }) {
+            for added in &tags_diff.added {
+              match added {
+                JsDocTag::Deprecated { .. } => {
+                  // Deprecated is not in SymbolCtx tags, skip
+                }
+                JsDocTag::Experimental => {
+                  old_tags.swap_remove(&Tag::Unstable);
+                }
+                JsDocTag::Tags { tags: tag_values } => {
+                  let new_perms: Vec<_> = tag_values
+                    .iter()
+                    .filter(|t| t.starts_with("allow-"))
+                    .collect();
+                  if !new_perms.is_empty() {
+                    // Remove permissions that were added
+                    old_tags.retain(|t| !matches!(t, Tag::Permissions(_)));
+                  }
+                }
+                _ => {}
+              }
+            }
+            for removed in &tags_diff.removed {
+              match removed {
+                JsDocTag::Experimental => {
+                  old_tags.insert(Tag::Unstable);
+                }
+                JsDocTag::Tags { tags: tag_values } => {
+                  let removed_perms: Box<[Box<str>]> = tag_values
+                    .iter()
+                    .filter(|t| t.starts_with("allow-"))
+                    .map(|t| t.clone().into())
+                    .collect();
+                  if !removed_perms.is_empty() {
+                    old_tags.insert(Tag::Permissions(removed_perms));
+                  }
+                }
+                _ => {}
+              }
+            }
+          }
+          Some(old_tags)
+        } else {
+          None
+        };
+
+        let diff_status = compute_combined_diff_status(doc_nodes);
+
         SymbolCtx {
-          tags,
+          tags: super::util::compute_tag_ctx(tags, old_tags),
           kind: doc_nodes[0].kind.into(),
           subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
           content: SymbolInnerCtx::new(ctx, doc_nodes, name),
@@ -161,19 +227,54 @@ impl SymbolGroupCtx {
             .resolve_source(&doc_nodes[0].location),
           deprecated,
           usage,
+          diff_status,
         }
       })
       .collect::<Vec<_>>();
 
-    let diff_status = doc_nodes
-      .iter()
-      .find_map(|n| n.diff_status.clone());
+    let diff_status = compute_combined_diff_status(doc_nodes);
 
     SymbolGroupCtx {
       name: name.to_string(),
       symbols,
       diff_status,
     }
+  }
+
+  /// In diff_only mode, remove tags without a diff annotation from Modified symbols.
+  pub fn strip_unchanged_tags(&mut self) {
+    if matches!(self.diff_status, Some(DiffStatus::Modified)) {
+      for symbol in &mut self.symbols {
+        symbol.tags.retain(|t| t.diff.is_some());
+      }
+    }
+  }
+}
+
+/// Compute a combined diff_status for a group of nodes with the same name.
+/// If nodes have a mix of Added and Removed (kind change), return Modified.
+fn compute_combined_diff_status(
+  nodes: &[DocNodeWithContext],
+) -> Option<DiffStatus> {
+  let mut has_added = false;
+  let mut has_removed = false;
+  let mut first_status = None;
+
+  for node in nodes {
+    match &node.diff_status {
+      Some(DiffStatus::Added) => has_added = true,
+      Some(DiffStatus::Removed) => has_removed = true,
+      _ => {}
+    }
+    if first_status.is_none() {
+      first_status = node.diff_status.clone();
+    }
+  }
+
+  if has_added && has_removed {
+    Some(DiffStatus::Modified)
+  } else {
+    first_status
   }
 }
 
@@ -489,7 +590,7 @@ impl SymbolInnerCtx {
       }
 
       if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
-        crate::html::util::filter_sections_diff_only(&mut sections);
+        crate::html::util::filter_sections_diff_only(&mut sections, &ctx.toc);
       }
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {

@@ -1549,6 +1549,11 @@ pub fn generate_json(
               return vec![];
             }
 
+            let mut symbol_group_ctx = symbol_group_ctx;
+            if diff_only {
+              symbol_group_ctx.strip_unchanged_tags();
+            }
+
             let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,

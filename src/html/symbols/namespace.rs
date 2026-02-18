@@ -106,7 +106,7 @@ impl Eq for NamespaceNodeSubItemCtx {}
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceNodeCtx {
   pub anchor: AnchorCtx,
-  pub tags: IndexSet<Tag>,
+  pub tags: Vec<TagCtx>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
   pub name: String,
@@ -217,11 +217,104 @@ impl NamespaceNodeCtx {
 
     subitems.sort();
 
-    let diff_status = nodes[0].diff_status.clone();
+    let diff_status = compute_combined_diff_status(&nodes).and_then(|status| {
+      // If the symbol is Modified and the only changes are in subitems
+      // (methods/properties), don't mark the symbol itself as changed.
+      // Skip this check if any node is Added/Removed (kind change scenario).
+      if matches!(status, DiffStatus::Modified)
+        && !nodes.iter().any(|n| {
+          matches!(
+            n.diff_status,
+            Some(DiffStatus::Added) | Some(DiffStatus::Removed)
+          )
+        })
+      {
+        let only_subitem_changes = nodes.iter().all(|node| {
+          ctx
+            .ctx
+            .diff
+            .as_ref()
+            .and_then(|diff_index| {
+              let info = diff_index.get_node_diff(
+                &node.origin.specifier,
+                node.get_name(),
+                node.def.to_kind(),
+              )?;
+              let diff = info.diff.as_ref()?;
+
+              // If there are non-def changes, it's not subitem-only
+              if diff.name_change.is_some()
+                || diff.js_doc_changes.is_some()
+                || diff.declaration_kind_change.is_some()
+              {
+                return Some(false);
+              }
+
+              Some(match diff.def_changes.as_ref()? {
+                DocNodeDefDiff::Class(class_diff) => {
+                  class_diff.is_abstract_change.is_none()
+                    && class_diff.extends_change.is_none()
+                    && class_diff.implements_change.is_none()
+                    && class_diff.type_params_change.is_none()
+                    && class_diff.super_type_params_change.is_none()
+                    && class_diff.constructor_changes.is_none()
+                    && class_diff.index_signature_changes.is_none()
+                    && class_diff.decorators_change.is_none()
+                }
+                DocNodeDefDiff::Interface(iface_diff) => {
+                  iface_diff.extends_change.is_none()
+                    && iface_diff.type_params_change.is_none()
+                    && iface_diff.constructor_changes.is_none()
+                    && iface_diff.call_signature_changes.is_none()
+                    && iface_diff.index_signature_changes.is_none()
+                }
+                _ => false,
+              })
+            })
+            .unwrap_or(true)
+        });
+        if only_subitem_changes {
+          return None;
+        }
+      }
+      Some(status)
+    });
+
+    let old_tags = if matches!(diff_status, Some(DiffStatus::Modified)) {
+      let mut old_tags = tags.clone();
+      if let Some(tags_diff) = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+        let info = diff_index.get_node_diff(
+          &nodes[0].origin.specifier,
+          nodes[0].get_name(),
+          nodes[0].def.to_kind(),
+        )?;
+        info
+          .diff
+          .as_ref()?
+          .js_doc_changes
+          .as_ref()?
+          .tags_change
+          .as_ref()
+      }) {
+        for added in &tags_diff.added {
+          if matches!(added, crate::js_doc::JsDocTag::Deprecated { .. }) {
+            old_tags.swap_remove(&Tag::Deprecated);
+          }
+        }
+        for removed in &tags_diff.removed {
+          if matches!(removed, crate::js_doc::JsDocTag::Deprecated { .. }) {
+            old_tags.insert(Tag::Deprecated);
+          }
+        }
+      }
+      Some(old_tags)
+    } else {
+      None
+    };
 
     NamespaceNodeCtx {
       anchor: AnchorCtx::new(id),
-      tags,
+      tags: compute_tag_ctx(tags, old_tags),
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,
       name,
@@ -238,6 +331,15 @@ fn summary_for_nodes(
   ctx: &RenderContext,
   nodes: &[DocNodeWithContext],
 ) -> Option<TypeSummaryCtx> {
+  // Use only non-removed nodes for the summary so we always show the current
+  // (new) state — both for normal modifications and kind changes.
+  let current: Vec<_> = nodes
+    .iter()
+    .filter(|n| !matches!(n.diff_status, Some(DiffStatus::Removed)))
+    .cloned()
+    .collect();
+  let nodes = if current.is_empty() { nodes } else { &current };
+
   match nodes[0].kind {
     DocNodeKind::Method(_) | DocNodeKind::Function => {
       let overloads = nodes
@@ -409,5 +511,32 @@ fn get_subitem_diff_status(
       _ => None,
     },
     _ => None,
+  }
+}
+
+/// Compute a combined diff_status for a group of nodes with the same name.
+/// If nodes have a mix of Added and Removed (kind change), return Modified.
+fn compute_combined_diff_status(
+  nodes: &[DocNodeWithContext],
+) -> Option<DiffStatus> {
+  let mut has_added = false;
+  let mut has_removed = false;
+  let mut first_status = None;
+
+  for node in nodes {
+    match &node.diff_status {
+      Some(DiffStatus::Added) => has_added = true,
+      Some(DiffStatus::Removed) => has_removed = true,
+      _ => {}
+    }
+    if first_status.is_none() {
+      first_status = node.diff_status.clone();
+    }
+  }
+
+  if has_added && has_removed {
+    Some(DiffStatus::Modified)
+  } else {
+    first_status
   }
 }

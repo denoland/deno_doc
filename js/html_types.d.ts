@@ -213,11 +213,12 @@ export interface SymbolGroupCtx {
 export interface SymbolCtx {
   kind: DocNodeKindCtx;
   usage: UsagesCtx | null;
-  tags: Tag[];
+  tags: TagCtx[];
   subtitle: DocBlockSubtitleCtx | null;
   content: SymbolInnerCtx[];
   deprecated: string | null;
   source_href: string | null;
+  diff_status?: DiffStatus;
 }
 
 export type DocBlockSubtitleCtx =
@@ -329,13 +330,12 @@ export interface DocEntryCtx {
   name_href: string | null;
   content: string;
   anchor: AnchorCtx;
-  tags: Tag[];
+  tags: TagCtx[];
   js_doc: string | null;
   source_href: string | null;
   diff_status?: DiffStatus;
   old_name?: string;
   old_content?: string;
-  old_tags?: Tag[];
   js_doc_changed?: boolean;
 }
 
@@ -362,7 +362,7 @@ export interface IndexSignatureCtx {
 export interface NamespaceNodeCtx {
   id: string;
   anchor: AnchorCtx;
-  tags: Tag[];
+  tags: TagCtx[];
   doc_node_kind_ctx: DocNodeKindCtx[];
   href: string;
   name: string;
@@ -385,6 +385,12 @@ export interface TypeSummaryCtx {
   ty: string;
   info: string | null;
 }
+
+export type TagDiffKind = "added" | "removed";
+
+export type TagCtx = Tag & {
+  diff?: TagDiffKind;
+};
 
 export type Tag =
   | TagNew
