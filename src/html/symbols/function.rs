@@ -310,7 +310,7 @@ fn render_single_function(
         .get(name.as_str())
         .and_then(|(doc, _, _)| doc.as_deref());
 
-      let (diff_status, old_name, old_content) =
+      let (diff_status, old_content) =
         get_param_diff_info(ctx, func_diff, i);
 
       DocEntryCtx::new_with_diff(
@@ -323,7 +323,6 @@ fn render_single_function(
         param_doc,
         &doc_node.location,
         diff_status,
-        old_name,
         old_content,
         None,
         None,
@@ -489,7 +488,6 @@ fn render_function_return_type(
     return_type_doc,
     &doc_node.location,
     diff_status,
-    None,
     old_content,
     None,
     None,
@@ -500,15 +498,15 @@ fn get_param_diff_info(
   ctx: &RenderContext,
   func_diff: Option<&FunctionDiff>,
   index: usize,
-) -> (Option<DiffStatus>, Option<String>, Option<String>) {
+) -> (Option<DiffStatus>, Option<String>) {
   let diff = match func_diff {
     Some(d) => d,
-    None => return (None, None, None),
+    None => return (None, None),
   };
 
   let params_change = match &diff.params_change {
     Some(pc) => pc,
-    None => return (None, None, None),
+    None => return (None, None),
   };
 
   // Check if this param was modified
@@ -523,10 +521,17 @@ fn get_param_diff_info(
       .type_change
       .as_ref()
       .map(|tc| render_type_def_colon(ctx, &tc.old));
-    return (Some(DiffStatus::Modified), old_name, old_content);
+
+    let status = if let Some(old_name) = old_name {
+      DiffStatus::Renamed { old_name }
+    } else {
+      DiffStatus::Modified
+    };
+
+    return (Some(status), old_content);
   }
 
-  (None, None, None)
+  (None, None)
 }
 
 fn inject_removed_params(
@@ -565,7 +570,6 @@ fn inject_removed_params(
       None,
       &doc_node.location,
       Some(DiffStatus::Removed),
-      None,
       None,
       None,
       None,

@@ -856,8 +856,6 @@ pub struct DocEntryCtx {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub old_name: Option<String>,
-  #[serde(skip_serializing_if = "Option::is_none")]
   pub old_content: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_changed: Option<bool>,
@@ -879,7 +877,7 @@ impl DocEntryCtx {
   ) -> Self {
     Self::new_with_diff(
       ctx, id, name, name_href, content, tags, jsdoc, location, None, None,
-      None, None, None,
+      None, None,
     )
   }
 
@@ -894,7 +892,6 @@ impl DocEntryCtx {
     jsdoc: Option<&str>,
     location: &crate::Location,
     diff_status: Option<DiffStatus>,
-    old_name: Option<String>,
     old_content: Option<String>,
     old_tags: Option<IndexSet<Tag>>,
     js_doc_changed: Option<bool>,
@@ -912,7 +909,6 @@ impl DocEntryCtx {
       js_doc: maybe_jsdoc,
       source_href,
       diff_status,
-      old_name,
       old_content,
       js_doc_changed,
     }

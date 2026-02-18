@@ -125,7 +125,7 @@ export function createApp(nameOrConfig: string | Config, config?: Partial<Config
  * @deprecated Use validateAsync() instead.
  * @param data The data to validate.
  */
-export function validate<T>(data: unknown, schema: Schema<T>): data is T {
+export function validate<T>(input: unknown, schema: Schema<T>): input is T {
   return true as any;
 }
 
@@ -183,7 +183,7 @@ export interface CompoundType {
 export const CompoundType: { new(): CompoundType } = null as any;
 
 /** Logger utility with severity. */
-export function log(message: string, level?: LogLevel, metadata?: Record<string, unknown>): void {}
+export function log(msg: string, level?: LogLevel, metadata?: Record<string, unknown>): void {}
 
 /**
  * A new router class.

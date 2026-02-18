@@ -82,7 +82,6 @@ pub(crate) fn render_variable(
         None,
         &doc_node.location,
         diff_status,
-        None,
         old_content,
         None,
         None,

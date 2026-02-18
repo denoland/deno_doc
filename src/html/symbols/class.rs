@@ -216,7 +216,6 @@ fn render_constructors(
         constructor.js_doc.doc.as_deref(),
         &constructor.location,
         diff_status,
-        None,
         old_content,
         old_tags,
         js_doc_changed,
@@ -250,7 +249,6 @@ fn render_constructors(
         None,
         &removed_ctor.location,
         Some(DiffStatus::Removed),
-        None,
         None,
         None,
         None,
@@ -699,7 +697,6 @@ fn render_class_accessor(
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -780,7 +777,6 @@ fn render_class_method(
     method.js_doc.doc.as_deref(),
     &method.location,
     diff_status,
-    None,
     old_content,
     old_tags,
     js_doc_changed,
@@ -858,7 +854,6 @@ fn render_class_property(
     property.js_doc.doc.as_deref(),
     &property.location,
     diff_status,
-    None,
     old_content,
     old_tags,
     js_doc_changed,
@@ -944,7 +939,6 @@ fn inject_removed_properties(
         None,
         None,
         None,
-        None,
       ));
     }
   }
@@ -986,7 +980,6 @@ fn inject_removed_methods(
         None,
         &removed_method.location,
         Some(DiffStatus::Removed),
-        None,
         None,
         None,
         None,

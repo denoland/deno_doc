@@ -334,7 +334,6 @@ export interface DocEntryCtx {
   js_doc: string | null;
   source_href: string | null;
   diff_status?: DiffStatus;
-  old_name?: string;
   old_content?: string;
   js_doc_changed?: boolean;
 }
