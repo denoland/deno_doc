@@ -167,7 +167,7 @@ expression: pages
                               "title": "describe",
                               "docs": "<div class=\"markdown_summary\"><p>Describe the animal.</p>\n</div>",
                               "ty": {
-                                "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
+                                "ty": "(<span><span>verbose<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                                 "info": null
                               },
                               "href": "./././~/Animal.html#method_describe_0",
@@ -197,6 +197,19 @@ expression: pages
                               "href": "./././~/Animal.html#method_makesound_0",
                               "diff_status": {
                                 "kind": "removed"
+                              }
+                            },
+                            {
+                              "title": "vocalize",
+                              "docs": "<div class=\"markdown_summary\"><p>Make the animal speak.</p>\n</div>",
+                              "ty": {
+                                "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Animal.html#method_vocalize_0",
+                              "diff_status": {
+                                "kind": "renamed",
+                                "old_name": "speak"
                               }
                             }
                           ],
@@ -711,6 +724,19 @@ expression: pages
                               "href": "./././~/Serializable.html#method_tojson_0",
                               "diff_status": {
                                 "kind": "modified"
+                              }
+                            },
+                            {
+                              "title": "type",
+                              "docs": null,
+                              "ty": {
+                                "ty": ": <span class=\"td-kw\">string</span>",
+                                "info": null
+                              },
+                              "href": "./././~/Serializable.html#property_type",
+                              "diff_status": {
+                                "kind": "renamed",
+                                "old_name": "kind"
                               }
                             },
                             {
@@ -2438,7 +2464,7 @@ expression: pages
                           {
                             "name": "describe",
                             "name_href": "../././~/Animal.prototype.describe.html",
-                            "content": "()<span>: <span class=\"td-kw\">string</span></span>",
+                            "content": "(<span><span>verbose<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                             "anchor": {
                               "id": "method_describe_0"
                             },
@@ -2464,6 +2490,21 @@ expression: pages
                             },
                             "old_content": "(food<span>: <span class=\"td-kw\">string</span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                             "js_doc_changed": true
+                          },
+                          {
+                            "name": "vocalize",
+                            "name_href": "../././~/Animal.prototype.vocalize.html",
+                            "content": "()<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "method_vocalize_0"
+                            },
+                            "tags": [],
+                            "js_doc": "<div class=\"markdown\"><p>Make the animal speak.</p>\n</div>",
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "renamed",
+                              "old_name": "speak"
+                            }
                           },
                           {
                             "name": "makeSound",
@@ -2533,7 +2574,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_makesound_0\" title=\"makeSound\">makeSound</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li><li><a href=\"#method_makesound_0\" title=\"makeSound\">makeSound</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -2584,6 +2625,11 @@ expression: pages
             "level": 2,
             "content": "feed",
             "anchor": "method_feed_0"
+          },
+          {
+            "level": 2,
+            "content": "vocalize",
+            "anchor": "method_vocalize_0"
           },
           {
             "level": 2,
@@ -2846,7 +2892,7 @@ expression: pages
                         "id": "function_animal_prototype_describe_0"
                       },
                       "name": "Animal.prototype.describe",
-                      "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
+                      "summary": "(<span><span>verbose<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                       "deprecated": null,
                       "content": {
                         "id": "",
@@ -3409,122 +3455,6 @@ expression: pages
     }
   ],
   [
-    "./~/Animal.prototype.speak.json",
-    {
-      "kind": "SymbolPageCtx",
-      "html_head_ctx": {
-        "title": "Animal.prototype.speak - default - documentation",
-        "current_file": ".",
-        "stylesheet_url": "../styles.css",
-        "page_stylesheet_url": "../page.css",
-        "reset_stylesheet_url": "../reset.css",
-        "url_search_index": "../search_index.js",
-        "script_js": "../script.js",
-        "fuse_js": "../fuse.js",
-        "search_js": "../search.js",
-        "darkmode_toggle_js": "../darkmode_toggle.js",
-        "head_inject": null,
-        "disable_search": false
-      },
-      "symbol_group_ctx": {
-        "name": "Animal.prototype.speak",
-        "symbols": [
-          {
-            "kind": {
-              "kind": "Method",
-              "char": "m",
-              "title": "Method",
-              "title_lowercase": "method",
-              "title_plural": "Methods"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "function",
-                "value": {
-                  "functions": [
-                    {
-                      "anchor": {
-                        "id": "function_animal_prototype_speak_0"
-                      },
-                      "name": "Animal.prototype.speak",
-                      "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
-                      "deprecated": null,
-                      "content": {
-                        "id": "",
-                        "docs": "<div class=\"markdown\"><p>Make the animal speak.</p>\n</div>",
-                        "sections": []
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null
-          }
-        ],
-        "diff_status": {
-          "kind": "modified"
-        }
-      },
-      "breadcrumbs_ctx": {
-        "root": {
-          "name": "index",
-          "href": "../"
-        },
-        "current_entrypoint": {
-          "name": "default",
-          "href": "../"
-        },
-        "entrypoints": [
-          {
-            "name": "all symbols",
-            "href": ".././all_symbols.html"
-          },
-          {
-            "name": "default",
-            "href": "../"
-          }
-        ],
-        "symbol": [
-          {
-            "name": "Animal",
-            "href": "../././~/Animal.html"
-          },
-          {
-            "name": "prototype",
-            "href": "../././~/Animal.prototype.html"
-          },
-          {
-            "name": "speak",
-            "href": "../././~/Animal.prototype.speak.html"
-          }
-        ]
-      },
-      "toc_ctx": {
-        "usages": {
-          "usages": [
-            {
-              "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { Animal } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { Animal } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
-              "icon": null,
-              "additional_css": ""
-            }
-          ],
-          "composed": false
-        },
-        "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
-      },
-      "disable_search": false,
-      "categories_panel": null
-    }
-  ],
-  [
     "./~/Animal.prototype.species.json",
     {
       "kind": "SymbolPageCtx",
@@ -3605,6 +3535,122 @@ expression: pages
           {
             "name": "species",
             "href": "../././~/Animal.prototype.species.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { Animal } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { Animal } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": null,
+        "document_navigation": []
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./~/Animal.prototype.vocalize.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "Animal.prototype.vocalize - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "Animal.prototype.vocalize",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "Method",
+              "char": "m",
+              "title": "Method",
+              "title_lowercase": "method",
+              "title_plural": "Methods"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "function",
+                "value": {
+                  "functions": [
+                    {
+                      "anchor": {
+                        "id": "function_animal_prototype_vocalize_0"
+                      },
+                      "name": "Animal.prototype.vocalize",
+                      "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
+                      "deprecated": null,
+                      "content": {
+                        "id": "",
+                        "docs": "<div class=\"markdown\"><p>Make the animal speak.</p>\n</div>",
+                        "sections": []
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "Animal",
+            "href": "../././~/Animal.html"
+          },
+          {
+            "name": "prototype",
+            "href": "../././~/Animal.prototype.html"
+          },
+          {
+            "name": "vocalize",
+            "href": "../././~/Animal.prototype.vocalize.html"
           }
         ]
       },
@@ -7203,6 +7249,25 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name": "type",
+                            "name_href": "../././~/Serializable.type.html",
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_type"
+                            },
+                            "tags": [
+                              {
+                                "kind": "readonly"
+                              }
+                            ],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "renamed",
+                              "old_name": "kind"
+                            }
+                          },
+                          {
                             "name": "version",
                             "name_href": "../././~/Serializable.version.html",
                             "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -7301,12 +7366,17 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_version\" title=\"version\">version</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_tojson_0\" title=\"toJSON\">toJSON</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_type\" title=\"type\">type</a></li><li><a href=\"#property_version\" title=\"version\">version</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_tojson_0\" title=\"toJSON\">toJSON</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
             "content": "Properties",
             "anchor": "properties"
+          },
+          {
+            "level": 2,
+            "content": "type",
+            "anchor": "property_type"
           },
           {
             "level": 2,
@@ -7324,106 +7394,6 @@ expression: pages
             "anchor": "method_tojson_0"
           }
         ]
-      },
-      "disable_search": false,
-      "categories_panel": null
-    }
-  ],
-  [
-    "./~/Serializable.kind.json",
-    {
-      "kind": "SymbolPageCtx",
-      "html_head_ctx": {
-        "title": "Serializable.kind - default - documentation",
-        "current_file": ".",
-        "stylesheet_url": "../styles.css",
-        "page_stylesheet_url": "../page.css",
-        "reset_stylesheet_url": "../reset.css",
-        "url_search_index": "../search_index.js",
-        "script_js": "../script.js",
-        "fuse_js": "../fuse.js",
-        "search_js": "../search.js",
-        "darkmode_toggle_js": "../darkmode_toggle.js",
-        "head_inject": null,
-        "disable_search": false
-      },
-      "symbol_group_ctx": {
-        "name": "Serializable.kind",
-        "symbols": [
-          {
-            "kind": {
-              "kind": "Property",
-              "char": "p",
-              "title": "Property",
-              "title_lowercase": "property",
-              "title_plural": "Properties"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "other",
-                "value": {
-                  "id": "",
-                  "docs": null,
-                  "sections": []
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null
-          }
-        ],
-        "diff_status": {
-          "kind": "modified"
-        }
-      },
-      "breadcrumbs_ctx": {
-        "root": {
-          "name": "index",
-          "href": "../"
-        },
-        "current_entrypoint": {
-          "name": "default",
-          "href": "../"
-        },
-        "entrypoints": [
-          {
-            "name": "all symbols",
-            "href": ".././all_symbols.html"
-          },
-          {
-            "name": "default",
-            "href": "../"
-          }
-        ],
-        "symbol": [
-          {
-            "name": "Serializable",
-            "href": "../././~/Serializable.html"
-          },
-          {
-            "name": "kind",
-            "href": "../././~/Serializable.kind.html"
-          }
-        ]
-      },
-      "toc_ctx": {
-        "usages": {
-          "usages": [
-            {
-              "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type Serializable } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type Serializable } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
-              "icon": null,
-              "additional_css": ""
-            }
-          ],
-          "composed": false
-        },
-        "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
       },
       "disable_search": false,
       "categories_panel": null
@@ -7618,6 +7588,106 @@ expression: pages
           {
             "name": "toJSON",
             "href": "../././~/Serializable.toJSON.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type Serializable } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type Serializable } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": null,
+        "document_navigation": []
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./~/Serializable.type.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "Serializable.type - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "Serializable.type",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "Property",
+              "char": "p",
+              "title": "Property",
+              "title_lowercase": "property",
+              "title_plural": "Properties"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": null,
+                  "sections": []
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "Serializable",
+            "href": "../././~/Serializable.html"
+          },
+          {
+            "name": "type",
+            "href": "../././~/Serializable.type.html"
           }
         ]
       },

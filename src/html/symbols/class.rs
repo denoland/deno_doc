@@ -736,7 +736,10 @@ fn render_class_method(
   );
 
   let (old_content, old_tags, js_doc_changed) =
-    if matches!(diff_status, Some(DiffStatus::Modified)) {
+    if matches!(
+      diff_status,
+      Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+    ) {
       let method_diff = class_diff
         .and_then(|d| d.method_changes.as_ref())
         .and_then(|mc| mc.modified.iter().find(|m| m.name == method.name));
@@ -817,9 +820,12 @@ fn render_class_property(
   let diff_status =
     get_property_diff_status(class_diff, &property.name, property.is_static);
 
-  // For modified properties, render the old type and old tags
+  // For modified/renamed properties, render the old type and old tags
   let (old_content, old_tags, js_doc_changed) =
-    if matches!(diff_status, Some(DiffStatus::Modified)) {
+    if matches!(
+      diff_status,
+      Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+    ) {
       let prop_diff = class_diff
         .and_then(|d| d.property_changes.as_ref())
         .and_then(|pc| {
@@ -875,7 +881,12 @@ fn get_property_diff_status(
   {
     return Some(DiffStatus::Added);
   }
-  if prop_diff.modified.iter().any(|p| &*p.name == name) {
+  if let Some(pd) = prop_diff.modified.iter().find(|p| &*p.name == name) {
+    if let Some(nc) = &pd.name_change {
+      return Some(DiffStatus::Renamed {
+        old_name: nc.old.to_string(),
+      });
+    }
     return Some(DiffStatus::Modified);
   }
   None
@@ -897,7 +908,12 @@ fn get_method_diff_status(
   {
     return Some(DiffStatus::Added);
   }
-  if method_diff.modified.iter().any(|m| &*m.name == name) {
+  if let Some(md) = method_diff.modified.iter().find(|m| &*m.name == name) {
+    if let Some(nc) = &md.name_change {
+      return Some(DiffStatus::Renamed {
+        old_name: nc.old.to_string(),
+      });
+    }
     return Some(DiffStatus::Modified);
   }
   None

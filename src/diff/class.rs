@@ -584,6 +584,62 @@ impl MethodsDiff {
       }
     }
 
+    // Detect renames: match removed → added pairs with same is_static and kind
+    let mut matched_added = IndexSet::new();
+    let mut matched_removed = IndexSet::new();
+
+    for (r_idx, removed_method) in removed.iter().enumerate() {
+      for (a_idx, added_method) in added.iter().enumerate() {
+        if matched_added.contains(&a_idx) {
+          continue;
+        }
+
+        if removed_method.is_static == added_method.is_static
+          && removed_method.kind == added_method.kind
+          && FunctionDiff::diff(
+            &removed_method.function_def,
+            &added_method.function_def,
+          )
+          .is_none()
+        {
+          let js_doc_change =
+            JsDocDiff::diff(&removed_method.js_doc, &added_method.js_doc);
+
+          modified.push(MethodDiff {
+            name: added_method.name.clone(),
+            name_change: Some(Change::new(
+              removed_method.name.clone(),
+              added_method.name.clone(),
+            )),
+            accessibility_change: None,
+            is_static_change: None,
+            is_abstract_change: None,
+            is_override_change: None,
+            optional_change: None,
+            function_diff: None,
+            js_doc_change,
+          });
+
+          matched_added.insert(a_idx);
+          matched_removed.insert(r_idx);
+          break;
+        }
+      }
+    }
+
+    let added = added
+      .into_iter()
+      .enumerate()
+      .filter(|(i, _)| !matched_added.contains(i))
+      .map(|(_, m)| m)
+      .collect::<Vec<_>>();
+    let removed = removed
+      .into_iter()
+      .enumerate()
+      .filter(|(i, _)| !matched_removed.contains(i))
+      .map(|(_, m)| m)
+      .collect::<Vec<_>>();
+
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
     }
@@ -600,6 +656,8 @@ impl MethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct MethodDiff {
   pub name: Box<str>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -689,6 +747,7 @@ impl MethodDiff {
 
     Some(MethodDiff {
       name: old_name.clone(),
+      name_change: None,
       accessibility_change,
       is_static_change,
       is_abstract_change,
@@ -748,6 +807,66 @@ impl PropertiesDiff {
       }
     }
 
+    // Detect renames: match removed → added pairs with same is_static and identical type
+    let mut matched_added = IndexSet::new();
+    let mut matched_removed = IndexSet::new();
+
+    for (r_idx, removed_prop) in removed.iter().enumerate() {
+      for (a_idx, added_prop) in added.iter().enumerate() {
+        if matched_added.contains(&a_idx) {
+          continue;
+        }
+
+        if removed_prop.is_static == added_prop.is_static
+          && TsTypeDiff::diff_optional(
+            &removed_prop.ts_type,
+            &added_prop.ts_type,
+            "unknown",
+          )
+          .is_none()
+        {
+          let js_doc_change =
+            JsDocDiff::diff(&removed_prop.js_doc, &added_prop.js_doc);
+          let decorators_change =
+            DecoratorsDiff::diff(&removed_prop.decorators, &added_prop.decorators);
+
+          modified.push(PropertyDiff {
+            name: added_prop.name.clone(),
+            name_change: Some(Change::new(
+              removed_prop.name.clone(),
+              added_prop.name.clone(),
+            )),
+            accessibility_change: None,
+            readonly_change: None,
+            is_static_change: None,
+            is_abstract_change: None,
+            is_override_change: None,
+            optional_change: None,
+            type_change: None,
+            decorators_change,
+            js_doc_change,
+          });
+
+          matched_added.insert(a_idx);
+          matched_removed.insert(r_idx);
+          break;
+        }
+      }
+    }
+
+    let added = added
+      .into_iter()
+      .enumerate()
+      .filter(|(i, _)| !matched_added.contains(i))
+      .map(|(_, p)| p)
+      .collect::<Vec<_>>();
+    let removed = removed
+      .into_iter()
+      .enumerate()
+      .filter(|(i, _)| !matched_removed.contains(i))
+      .map(|(_, p)| p)
+      .collect::<Vec<_>>();
+
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
     }
@@ -764,6 +883,8 @@ impl PropertiesDiff {
 #[serde(rename_all = "camelCase")]
 pub struct PropertyDiff {
   pub name: Box<str>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -871,6 +992,7 @@ impl PropertyDiff {
 
     Some(PropertyDiff {
       name: old_name.clone(),
+      name_change: None,
       accessibility_change,
       readonly_change,
       is_static_change,

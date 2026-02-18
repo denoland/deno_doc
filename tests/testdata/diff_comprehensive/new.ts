@@ -15,13 +15,13 @@ export class Animal<T = string> {
   constructor(name: string, age: number, color?: string) {}
 
   /** Make the animal speak. */
-  speak(): string { return ""; }
+  vocalize(): string { return ""; }
   /** Feed the animal with amount. */
   feed(food: string, amount: number): void {}
   private internalMethod(): void {}
 
   /** Describe the animal. */
-  describe(): string { return ""; }
+  describe(verbose?: boolean): string { return ""; }
 
   static create(name: string, color?: string): Animal { return new Animal(name, 0); }
   static readonly MAX_AGE: number;
@@ -54,7 +54,7 @@ export interface Serializable<T> {
   toJSON(pretty?: boolean): string;
   /** Parse from string. */
   fromString(input: string): T;
-  readonly kind: string;
+  readonly type: string;
   optional?: boolean;
   /** The serialization version. */
   version: number;

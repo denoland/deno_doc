@@ -463,7 +463,12 @@ fn get_subitem_diff_status(
         if mc.removed.iter().any(|m| &*m.name == name) {
           return Some(DiffStatus::Removed);
         }
-        if mc.modified.iter().any(|m| &*m.name == name) {
+        if let Some(md) = mc.modified.iter().find(|m| &*m.name == name) {
+          if let Some(nc) = &md.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.to_string(),
+            });
+          }
           return Some(DiffStatus::Modified);
         }
         None
@@ -476,7 +481,12 @@ fn get_subitem_diff_status(
         if pc.removed.iter().any(|p| &*p.name == name) {
           return Some(DiffStatus::Removed);
         }
-        if pc.modified.iter().any(|p| &*p.name == name) {
+        if let Some(pd) = pc.modified.iter().find(|p| &*p.name == name) {
+          if let Some(nc) = &pd.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.to_string(),
+            });
+          }
           return Some(DiffStatus::Modified);
         }
         None
@@ -492,7 +502,12 @@ fn get_subitem_diff_status(
         if mc.removed.iter().any(|m| m.name == name) {
           return Some(DiffStatus::Removed);
         }
-        if mc.modified.iter().any(|m| m.name == name) {
+        if let Some(md) = mc.modified.iter().find(|m| m.name == name) {
+          if let Some(nc) = &md.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.clone(),
+            });
+          }
           return Some(DiffStatus::Modified);
         }
         None
@@ -505,7 +520,12 @@ fn get_subitem_diff_status(
         if pc.removed.iter().any(|p| p.name == name) {
           return Some(DiffStatus::Removed);
         }
-        if pc.modified.iter().any(|p| p.name == name) {
+        if let Some(pd) = pc.modified.iter().find(|p| p.name == name) {
+          if let Some(nc) = &pd.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.clone(),
+            });
+          }
           return Some(DiffStatus::Modified);
         }
         None
