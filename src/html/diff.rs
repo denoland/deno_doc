@@ -12,7 +12,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 
 /// Diff status for a symbol or member in the rendered output.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum DiffStatus {
   Added,

@@ -224,6 +224,18 @@ expression: pages
                               "href": "./././~/Animal.html#method_internalmethod_0"
                             },
                             {
+                              "title": "makeSound",
+                              "docs": null,
+                              "ty": {
+                                "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Animal.html#method_makesound_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
+                            },
+                            {
                               "title": "name",
                               "docs": "<div class=\"markdown_summary\"><p>The animal's name.</p>\n</div>",
                               "ty": {
@@ -1614,10 +1626,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -1788,10 +1797,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -1966,10 +1972,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -2160,10 +2163,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -2363,10 +2363,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -2552,10 +2549,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -2794,10 +2788,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -2968,10 +2959,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -3104,10 +3092,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -3293,10 +3278,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -3727,10 +3709,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -3954,10 +3933,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -4094,10 +4070,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -4246,10 +4219,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -4398,10 +4368,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           },
           {
             "kind": {
@@ -4490,10 +4457,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -4694,10 +4658,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -4861,10 +4822,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5007,10 +4965,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5159,10 +5114,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5299,10 +5251,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5439,10 +5388,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5589,10 +5535,7 @@ expression: pages
               }
             ],
             "deprecated": "<div class=\"markdown\"><p>Use Dog instead.</p>\n</div>",
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5744,10 +5687,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -5934,10 +5874,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -6091,10 +6028,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -6227,10 +6161,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -6440,10 +6371,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           },
           {
             "kind": {
@@ -6626,10 +6554,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -6774,10 +6699,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -6922,10 +6844,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -7890,10 +7809,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -8083,10 +7999,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -8249,10 +8162,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -8381,10 +8291,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -8966,10 +8873,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -9530,10 +9434,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -9720,10 +9621,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -9908,10 +9806,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -10096,10 +9991,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -10270,10 +10162,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -10466,10 +10355,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -10659,10 +10545,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -10853,10 +10736,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -11041,10 +10921,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -11288,10 +11165,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -11460,10 +11334,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -11596,10 +11467,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -11774,10 +11642,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -11920,10 +11785,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -12221,10 +12083,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -12357,10 +12216,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -12696,10 +12552,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -12936,10 +12789,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -13116,10 +12966,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -13311,10 +13158,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -13530,10 +13374,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -14528,10 +14369,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "modified"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {
@@ -14760,10 +14598,7 @@ expression: pages
               }
             ],
             "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "added"
-            }
+            "source_href": null
           }
         ],
         "diff_status": {

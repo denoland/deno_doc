@@ -6,7 +6,7 @@ use crate::html::MethodKind;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::function::render_function_summary;
-use crate::html::types::{render_type_def, type_params_summary};
+use crate::html::types::{render_type_def, render_type_def_colon, type_params_summary};
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -212,6 +212,9 @@ impl NamespaceNodeCtx {
             }),
         );
       }
+
+      // Inject removed sub-items from the diff
+      inject_removed_subitems(ctx, node_def_diff, &href, &mut subitems);
     }
 
     subitems.sort();
@@ -510,6 +513,143 @@ fn get_subitem_diff_status(
       _ => None,
     },
     _ => None,
+  }
+}
+
+/// Inject removed methods and properties from the diff as sub-items.
+/// These don't appear in `get_drilldown_symbols` since they only exist in the
+/// old version.
+fn inject_removed_subitems(
+  ctx: &RenderContext,
+  node_def_diff: Option<&DocNodeDefDiff>,
+  href: &str,
+  subitems: &mut IndexSet<NamespaceNodeSubItemCtx>,
+) {
+  let def_diff = match node_def_diff {
+    Some(d) => d,
+    None => return,
+  };
+
+  let no_links_ctx = ctx.with_disable_links(true);
+
+  match def_diff {
+    DocNodeDefDiff::Class(class_diff) => {
+      if let Some(mc) = &class_diff.method_changes {
+        for method in &mc.removed {
+          if matches!(method.accessibility, Some(deno_ast::swc::ast::Accessibility::Private)) {
+            continue;
+          }
+          let target_id = if matches!(method.kind, deno_ast::swc::ast::MethodKind::Getter | deno_ast::swc::ast::MethodKind::Setter) {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Accessor)
+              .name(&method.name.to_lowercase())
+              .build_unregistered()
+          } else {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Method)
+              .name(&method.name.to_lowercase())
+              .index(0)
+              .build_unregistered()
+          };
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: method.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &method.js_doc, true),
+            ty: Some(TypeSummaryCtx {
+              ty: render_function_summary(&method.function_def, &no_links_ctx),
+              info: None,
+            }),
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+      if let Some(pc) = &class_diff.property_changes {
+        for prop in &pc.removed {
+          if matches!(prop.accessibility, Some(deno_ast::swc::ast::Accessibility::Private)) {
+            continue;
+          }
+          let target_id = IdBuilder::new(ctx)
+            .kind(IdKind::Property)
+            .name(&prop.name.to_lowercase())
+            .build_unregistered();
+
+          let ty = prop.ts_type.as_ref().map(|ts_type| TypeSummaryCtx {
+            ty: render_type_def_colon(&no_links_ctx, ts_type),
+            info: None,
+          });
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: prop.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &prop.js_doc, true),
+            ty,
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+    }
+    DocNodeDefDiff::Interface(iface_diff) => {
+      if let Some(mc) = &iface_diff.method_changes {
+        for method in &mc.removed {
+          let target_id = if matches!(method.kind, deno_ast::swc::ast::MethodKind::Getter | deno_ast::swc::ast::MethodKind::Setter) {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Accessor)
+              .name(&method.name.to_lowercase())
+              .build_unregistered()
+          } else {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Method)
+              .name(&method.name.to_lowercase())
+              .index(0)
+              .build_unregistered()
+          };
+
+          let return_type = method
+            .return_type
+            .as_ref()
+            .map(|ts_type| render_type_def_colon(&no_links_ctx, ts_type))
+            .unwrap_or_default();
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: method.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &method.js_doc, true),
+            ty: Some(TypeSummaryCtx {
+              ty: format!(
+                "{}({}){return_type}",
+                type_params_summary(&no_links_ctx, &method.type_params),
+                render_params(&no_links_ctx, &method.params),
+              ),
+              info: None,
+            }),
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+      if let Some(pc) = &iface_diff.property_changes {
+        for prop in &pc.removed {
+          let target_id = IdBuilder::new(ctx)
+            .kind(IdKind::Property)
+            .name(&prop.name.to_lowercase())
+            .build_unregistered();
+
+          let ty = prop.ts_type.as_ref().map(|ts_type| TypeSummaryCtx {
+            ty: render_type_def_colon(&no_links_ctx, ts_type),
+            info: None,
+          });
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: prop.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &prop.js_doc, true),
+            ty,
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+    }
+    _ => {}
   }
 }
 

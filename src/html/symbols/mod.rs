@@ -71,7 +71,7 @@ impl SymbolGroupCtx {
 
     split_nodes.sort_keys();
 
-    let symbols = split_nodes
+    let mut symbols = split_nodes
       .values()
       .map(|doc_nodes| {
         let all_deprecated =
@@ -236,6 +236,17 @@ impl SymbolGroupCtx {
       .collect::<Vec<_>>();
 
     let diff_status = compute_combined_diff_status(doc_nodes);
+
+    // Strip per-symbol diff_status when it matches the group status —
+    // if the whole group is Added or Removed, annotating each symbol
+    // individually is redundant.
+    if diff_status.is_some() {
+      for symbol in &mut symbols {
+        if symbol.diff_status == diff_status {
+          symbol.diff_status = None;
+        }
+      }
+    }
 
     SymbolGroupCtx {
       name: name.to_string(),
