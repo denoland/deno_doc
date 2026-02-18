@@ -114,17 +114,17 @@ pub(crate) fn render_function_summary(
   )
 }
 
-/// Reconstruct the old function/method summary as plain text from the new
-/// params/return_type and the diff. Returns None if there are no signature-level
-/// changes (params or return type).
+/// Reconstruct the old function/method/constructor summary from the new
+/// params/return_type and the diff. Uses the same render_type_def rendering as
+/// the normal path. Returns None if there are no signature-level changes
+/// (params or return type).
 pub(crate) fn render_old_function_summary(
+  ctx: &RenderContext,
   params: &[crate::params::ParamDef],
   return_type: &Option<crate::ts_type::TsTypeDef>,
-  func_diff: &FunctionDiff,
+  params_change: Option<&crate::diff::ParamsDiff>,
+  return_type_change: Option<&crate::diff::TsTypeDiff>,
 ) -> Option<String> {
-  let params_change = func_diff.params_change.as_ref();
-  let return_type_change = func_diff.return_type_change.as_ref();
-
   if params_change.is_none() && return_type_change.is_none() {
     return None;
   }
@@ -136,35 +136,32 @@ pub(crate) fn render_old_function_summary(
   let mut old_params = Vec::new();
 
   // Shared params: use old values from diff if modified, otherwise use new
-  for i in 0..shared_count {
-    let new_param = &params[i];
-
-    let modified = params_change
-      .and_then(|pc| pc.modified.iter().find(|p| p.index == i));
+  for (i, new_param) in params.iter().enumerate().take(shared_count) {
+    let modified =
+      params_change.and_then(|pc| pc.modified.iter().find(|p| p.index == i));
 
     if let Some(param_diff) = modified {
       let name = if let Some(pc) = &param_diff.pattern_change {
-        crate::html::parameters::param_name(&pc.old, i).1
+        crate::html::parameters::param_name_plain(&pc.old, i)
       } else {
-        crate::html::parameters::param_name(new_param, i).1
+        crate::html::parameters::param_name_plain(new_param, i)
       };
       let type_str = if let Some(tc) = &param_diff.type_change {
-        format!(": {}", tc.old.repr)
+        render_type_def_colon(ctx, &tc.old)
       } else {
         new_param
           .ts_type
           .as_ref()
-          .map(|t| format!(": {}", t.repr))
+          .map(|t| render_type_def_colon(ctx, t))
           .unwrap_or_default()
       };
       old_params.push(format!("{name}{type_str}"));
     } else {
-      let (_, str_name) =
-        crate::html::parameters::param_name(new_param, i);
+      let str_name = crate::html::parameters::param_name_plain(new_param, i);
       let type_str = new_param
         .ts_type
         .as_ref()
-        .map(|t| format!(": {}", t.repr))
+        .map(|t| render_type_def_colon(ctx, t))
         .unwrap_or_default();
       old_params.push(format!("{str_name}{type_str}"));
     }
@@ -173,23 +170,23 @@ pub(crate) fn render_old_function_summary(
   // Removed params (existed in old but not in new)
   if let Some(pc) = params_change {
     for (j, removed) in pc.removed.iter().enumerate() {
-      let (_, str_name) =
-        crate::html::parameters::param_name(removed, shared_count + j);
+      let str_name =
+        crate::html::parameters::param_name_plain(removed, shared_count + j);
       let type_str = removed
         .ts_type
         .as_ref()
-        .map(|t| format!(": {}", t.repr))
+        .map(|t| render_type_def_colon(ctx, t))
         .unwrap_or_default();
       old_params.push(format!("{str_name}{type_str}"));
     }
   }
 
   let old_return_type = if let Some(rt) = return_type_change {
-    format!(": {}", rt.old.repr)
+    render_type_def_colon(ctx, &rt.old)
   } else {
     return_type
       .as_ref()
-      .map(|t| format!(": {}", t.repr))
+      .map(|t| render_type_def_colon(ctx, t))
       .unwrap_or_default()
   };
 
@@ -314,7 +311,7 @@ fn render_single_function(
         .and_then(|(doc, _, _)| doc.as_deref());
 
       let (diff_status, old_name, old_content) =
-        get_param_diff_info(func_diff, i);
+        get_param_diff_info(ctx, func_diff, i);
 
       DocEntryCtx::new_with_diff(
         ctx,
@@ -473,7 +470,7 @@ fn render_function_return_type(
     if let Some(return_type_change) = &diff.return_type_change {
       (
         Some(DiffStatus::Modified),
-        Some(return_type_change.old.repr.to_string()),
+        Some(render_type_def(render_ctx, &return_type_change.old)),
       )
     } else {
       (None, None)
@@ -500,6 +497,7 @@ fn render_function_return_type(
 }
 
 fn get_param_diff_info(
+  ctx: &RenderContext,
   func_diff: Option<&FunctionDiff>,
   index: usize,
 ) -> (Option<DiffStatus>, Option<String>, Option<String>) {
@@ -514,18 +512,17 @@ fn get_param_diff_info(
   };
 
   // Check if this param was modified
-  if let Some(param_diff) = params_change.modified.iter().find(|p| p.index == index) {
-    let old_name = param_diff
-      .pattern_change
-      .as_ref()
-      .map(|pc| {
-        let (name, _) = crate::html::parameters::param_name(&pc.old, index);
-        name
-      });
+  if let Some(param_diff) =
+    params_change.modified.iter().find(|p| p.index == index)
+  {
+    let old_name = param_diff.pattern_change.as_ref().map(|pc| {
+      let (name, _) = crate::html::parameters::param_name(&pc.old, index);
+      name
+    });
     let old_content = param_diff
       .type_change
       .as_ref()
-      .map(|tc| format!(": {}", &tc.old.repr));
+      .map(|tc| render_type_def_colon(ctx, &tc.old));
     return (Some(DiffStatus::Modified), old_name, old_content);
   }
 
@@ -545,7 +542,8 @@ fn inject_removed_params(
   };
 
   for removed_param in &params_change.removed {
-    let (name, str_name) = crate::html::parameters::param_name(removed_param, entries.len());
+    let (name, str_name) =
+      crate::html::parameters::param_name(removed_param, entries.len());
     let id = IdBuilder::new_with_parent(ctx, overload_id)
       .kind(IdKind::Parameter)
       .name(&str_name)

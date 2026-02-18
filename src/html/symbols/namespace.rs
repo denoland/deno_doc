@@ -194,8 +194,7 @@ impl NamespaceNodeCtx {
                 true,
               );
 
-              let drilldown_name =
-                symbol.drilldown_name.as_ref().unwrap();
+              let drilldown_name = symbol.drilldown_name.as_ref().unwrap();
 
               let diff_status = get_subitem_diff_status(
                 node_def_diff,

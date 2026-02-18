@@ -67,8 +67,7 @@ pub(crate) fn render_variable(
       sections.push(methods);
     }
   } else {
-    let (diff_status, old_content) =
-      get_type_diff_info(var_diff);
+    let (diff_status, old_content) = get_type_diff_info(ctx, var_diff);
 
     sections.push(SectionCtx::new(
       ctx,
@@ -95,6 +94,7 @@ pub(crate) fn render_variable(
 }
 
 fn get_type_diff_info(
+  ctx: &RenderContext,
   var_diff: Option<&VariableDiff>,
 ) -> (Option<DiffStatus>, Option<String>) {
   let diff = match var_diff {
@@ -105,7 +105,7 @@ fn get_type_diff_info(
   if let Some(ts_type_change) = &diff.ts_type_change {
     (
       Some(DiffStatus::Modified),
-      Some(ts_type_change.old.repr.to_string()),
+      Some(render_type_def(ctx, &ts_type_change.old)),
     )
   } else {
     (None, None)

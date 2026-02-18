@@ -1,10 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use crate::DocNode;
 use crate::diff::DocDiff;
 use crate::diff::DocNodeDiff;
 use crate::diff::ModuleDiff;
 use crate::node::DocNodeKind as AstDocNodeKind;
-use crate::DocNode;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Deserialize;
@@ -123,9 +123,7 @@ impl DiffIndex {
     name: &str,
     kind: AstDocNodeKind,
   ) -> Option<&NodeDiffInfo> {
-    self
-      .node_index
-      .get(&(specifier.clone(), name.into(), kind))
+    self.node_index.get(&(specifier.clone(), name.into(), kind))
   }
 
   /// Get removed nodes for a module (for injecting into listings).

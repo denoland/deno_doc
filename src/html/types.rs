@@ -695,7 +695,9 @@ pub(crate) fn render_type_params(
   location: &crate::Location,
   type_params_diff: Option<&crate::diff::TypeParamsDiff>,
 ) -> Option<SectionCtx> {
-  if type_params.is_empty() && type_params_diff.map_or(true, |d| d.removed.is_empty()) {
+  if type_params.is_empty()
+    && type_params_diff.is_none_or(|d| d.removed.is_empty())
+  {
     return None;
   }
 
@@ -741,7 +743,8 @@ pub(crate) fn render_type_params(
       })
       .unwrap_or_default();
 
-    let (diff_status, old_content) = get_type_param_diff_info(type_params_diff, &type_param.name);
+    let (diff_status, old_content) =
+      get_type_param_diff_info(type_params_diff, &type_param.name);
 
     let content = DocEntryCtx::new_with_diff(
       ctx,
@@ -832,17 +835,17 @@ fn get_type_param_diff_info(
 
   if let Some(tp_diff) = diff.modified.iter().find(|tp| tp.name == name) {
     let mut old_parts = Vec::new();
-    if let Some(constraint_change) = &tp_diff.constraint_change {
-      if let Some(old_constraint) = &constraint_change.old {
-        old_parts.push(format!(" extends {}", &old_constraint.repr));
-      }
+    if let Some(constraint_change) = &tp_diff.constraint_change && let Some(old_constraint) = &constraint_change.old {
+      old_parts.push(format!(" extends {}", &old_constraint.repr));
     }
-    if let Some(default_change) = &tp_diff.default_change {
-      if let Some(old_default) = &default_change.old {
-        old_parts.push(format!(" = {}", &old_default.repr));
-      }
+    if let Some(default_change) = &tp_diff.default_change && let Some(old_default) = &default_change.old {
+      old_parts.push(format!(" = {}", &old_default.repr));
     }
-    let old_content = if old_parts.is_empty() { None } else { Some(old_parts.join("")) };
+    let old_content = if old_parts.is_empty() {
+      None
+    } else {
+      Some(old_parts.join(""))
+    };
     return (Some(crate::html::DiffStatus::Modified), old_content);
   }
 

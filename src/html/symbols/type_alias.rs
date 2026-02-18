@@ -81,8 +81,7 @@ pub(crate) fn render_type_alias(
       sections.push(methods);
     }
   } else {
-    let (diff_status, old_content) =
-      get_type_diff_info(ta_diff);
+    let (diff_status, old_content) = get_type_diff_info(ctx, ta_diff);
 
     sections.push(SectionCtx::new(
       ctx,
@@ -109,6 +108,7 @@ pub(crate) fn render_type_alias(
 }
 
 fn get_type_diff_info(
+  ctx: &RenderContext,
   ta_diff: Option<&TypeAliasDiff>,
 ) -> (Option<DiffStatus>, Option<String>) {
   let diff = match ta_diff {
@@ -119,7 +119,7 @@ fn get_type_diff_info(
   if let Some(ts_type_change) = &diff.ts_type_change {
     (
       Some(DiffStatus::Modified),
-      Some(ts_type_change.old.repr.to_string()),
+      Some(render_type_def(ctx, &ts_type_change.old)),
     )
   } else {
     (None, None)

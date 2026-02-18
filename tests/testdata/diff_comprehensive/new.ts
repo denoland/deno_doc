@@ -42,6 +42,7 @@ export class Cat extends Animal<"cat"> {
  * Base for renderers. No longer abstract.
  */
 export class AbstractRenderer {
+  constructor(width: number, height: string) {}
   render(input: string): string { return ""; }
   get canvas(): HTMLElement { return null as any; }
   format(input: string): string { return input; }
@@ -61,6 +62,7 @@ export interface Serializable<T> {
 
 /** Extended serializable. */
 export interface AdvancedSerializable<T> extends Serializable<T>, Disposable {
+  new(data: Uint8Array): AdvancedSerializable<T>;
   toBinary(): Uint8Array;
   compress(level: number, format?: string): Uint8Array;
   /** Decompress binary data. */

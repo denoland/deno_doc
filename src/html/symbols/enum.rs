@@ -1,6 +1,6 @@
 use crate::diff::EnumDiff;
-use crate::html::DiffStatus;
 use crate::r#enum::EnumMemberDef;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def;
@@ -57,18 +57,22 @@ pub(crate) fn render_enum(
 
       let diff_status = get_member_diff_status(enum_diff, &member.name);
 
-      let (old_content, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let member_diff = enum_diff
-          .and_then(|d| d.modified_members.iter().find(|m| &*m.name == &*member.name));
-        let old_content = member_diff
-          .and_then(|md| md.init_change.as_ref())
-          .map(|tc| format!(" = {}", &tc.old.repr));
-        let js_doc_changed = member_diff
-          .and_then(|md| md.js_doc_change.as_ref().map(|_| true));
-        (old_content, js_doc_changed)
-      } else {
-        (None, None)
-      };
+      let (old_content, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let member_diff = enum_diff.and_then(|d| {
+            d.modified_members
+              .iter()
+              .find(|m| m.name == member.name)
+          });
+          let old_content = member_diff
+            .and_then(|md| md.init_change.as_ref())
+            .map(|tc| format!(" = {}", render_type_def(render_ctx, &tc.old)));
+          let js_doc_changed =
+            member_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+          (old_content, js_doc_changed)
+        } else {
+          (None, None)
+        };
 
       DocEntryCtx::new_with_diff(
         render_ctx,
@@ -135,9 +139,7 @@ fn inject_removed_members(
     entries.push(DocEntryCtx::new_with_diff(
       render_ctx,
       id,
-      Some(
-        html_escape::encode_text(&removed_member.name).into_owned(),
-      ),
+      Some(html_escape::encode_text(&removed_member.name).into_owned()),
       None,
       &removed_member
         .init

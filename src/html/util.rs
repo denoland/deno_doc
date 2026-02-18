@@ -725,8 +725,7 @@ pub(crate) fn filter_sections_diff_only(
   });
 
   // Collect surviving anchor IDs from remaining sections
-  let mut surviving_anchors =
-    std::collections::HashSet::<&str>::new();
+  let mut surviving_anchors = std::collections::HashSet::<&str>::new();
   for section in sections.iter() {
     if let Some(header) = &section.header {
       surviving_anchors.insert(header.anchor.id.as_str());
@@ -878,7 +877,10 @@ impl DocEntryCtx {
     jsdoc: Option<&str>,
     location: &crate::Location,
   ) -> Self {
-    Self::new_with_diff(ctx, id, name, name_href, content, tags, jsdoc, location, None, None, None, None, None)
+    Self::new_with_diff(
+      ctx, id, name, name_href, content, tags, jsdoc, location, None, None,
+      None, None, None,
+    )
   }
 
   #[allow(clippy::too_many_arguments)]

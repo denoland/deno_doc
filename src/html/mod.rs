@@ -550,7 +550,13 @@ impl GenerateCtx {
 
     let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
 
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url, None)
+    GenerateCtx::new(
+      options,
+      common_ancestor,
+      file_mode,
+      doc_nodes_by_url,
+      None,
+    )
   }
 
   pub fn create_basic_with_diff(
@@ -761,8 +767,8 @@ fn apply_namespace_diff_inner(
 
           // If child is a namespace, recurse with its own NamespaceDiff
           if matches!(child.def, DocNodeDef::Namespace { .. }) {
-            let child_ns_diff = node_diff.def_changes.as_ref().and_then(
-              |def_diff| {
+            let child_ns_diff =
+              node_diff.def_changes.as_ref().and_then(|def_diff| {
                 if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) =
                   def_diff
                 {
@@ -770,8 +776,7 @@ fn apply_namespace_diff_inner(
                 } else {
                   None
                 }
-              },
-            );
+              });
             apply_namespace_diff_inner(child, child_ns_diff, short_path);
           }
         }
@@ -1455,7 +1460,10 @@ pub fn generate_json(
     );
 
     if !diff_only
-      || index.overview.as_ref().is_some_and(|o| !o.sections.is_empty())
+      || index
+        .overview
+        .as_ref()
+        .is_some_and(|o| !o.sections.is_empty())
       || index
         .module_doc
         .as_ref()
@@ -1508,10 +1516,10 @@ pub fn generate_json(
         );
 
         if diff_only
-          && !index
+          && index
             .overview
             .as_ref()
-            .is_some_and(|o| !o.sections.is_empty())
+            .is_none_or(|o| !o.sections.is_empty())
         {
           continue;
         }
@@ -1616,14 +1624,14 @@ pub fn generate_json(
         );
 
         if diff_only
-          && !index
+          && index
             .overview
             .as_ref()
-            .is_some_and(|o| !o.sections.is_empty())
-          && !index
+            .is_none_or(|o| !o.sections.is_empty())
+          && index
             .module_doc
             .as_ref()
-            .is_some_and(|md| !md.sections.sections.is_empty())
+            .is_none_or(|md| !md.sections.sections.is_empty())
         {
           continue;
         }

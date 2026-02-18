@@ -34,6 +34,7 @@ export class Cat extends Animal<"cat"> {
  * @deprecated Use ConcreteRenderer instead.
  */
 export abstract class AbstractRenderer {
+  constructor(width: number, height: number) {}
   abstract render(input: string): string;
   abstract get canvas(): HTMLElement;
   format(input: string): string { return input; }
@@ -51,6 +52,7 @@ export interface Serializable<T> {
 
 /** Extended serializable. */
 export interface AdvancedSerializable<T> extends Serializable<T> {
+  new(data: string): AdvancedSerializable<T>;
   toBinary(): Uint8Array;
   compress(level: number): Uint8Array;
 }

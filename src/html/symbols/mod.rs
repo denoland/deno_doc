@@ -151,24 +151,27 @@ impl SymbolGroupCtx {
         .then(|| UsagesCtx::new(ctx, doc_nodes))
         .flatten();
 
-        let old_tags = if doc_nodes.iter().any(|n| {
-          matches!(n.diff_status, Some(DiffStatus::Modified))
-        }) {
+        let old_tags = if doc_nodes
+          .iter()
+          .any(|n| matches!(n.diff_status, Some(DiffStatus::Modified)))
+        {
           let mut old_tags = tags.clone();
-          if let Some(tags_diff) = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-            let info = diff_index.get_node_diff(
-              &doc_nodes[0].origin.specifier,
-              doc_nodes[0].get_name(),
-              doc_nodes[0].def.to_kind(),
-            )?;
-            info
-              .diff
-              .as_ref()?
-              .js_doc_changes
-              .as_ref()?
-              .tags_change
-              .as_ref()
-          }) {
+          if let Some(tags_diff) =
+            ctx.ctx.diff.as_ref().and_then(|diff_index| {
+              let info = diff_index.get_node_diff(
+                &doc_nodes[0].origin.specifier,
+                doc_nodes[0].get_name(),
+                doc_nodes[0].def.to_kind(),
+              )?;
+              info
+                .diff
+                .as_ref()?
+                .js_doc_changes
+                .as_ref()?
+                .tags_change
+                .as_ref()
+            })
+          {
             for added in &tags_diff.added {
               match added {
                 JsDocTag::Deprecated { .. } => {
@@ -199,7 +202,7 @@ impl SymbolGroupCtx {
                   let removed_perms: Box<[Box<str>]> = tag_values
                     .iter()
                     .filter(|t| t.starts_with("allow-"))
-                    .map(|t| t.clone().into())
+                    .cloned()
                     .collect();
                   if !removed_perms.is_empty() {
                     old_tags.insert(Tag::Permissions(removed_perms));
@@ -370,27 +373,50 @@ impl DocBlockSubtitleCtx {
           });
         }
 
-        let is_abstract_change = class_diff.and_then(|d| d.is_abstract_change.clone());
+        let is_abstract_change =
+          class_diff.and_then(|d| d.is_abstract_change.clone());
         let extends_change = class_diff.and_then(|d| d.extends_change.clone());
 
         let implements_added = class_diff
           .and_then(|d| d.implements_change.as_ref())
-          .map(|ic| ic.added.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .map(|ic| {
+            ic.added
+              .iter()
+              .map(|t| t.repr.to_string())
+              .collect::<Vec<_>>()
+          })
           .filter(|v| !v.is_empty());
 
         let implements_removed = class_diff
           .and_then(|d| d.implements_change.as_ref())
-          .map(|ic| ic.removed.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .map(|ic| {
+            ic.removed
+              .iter()
+              .map(|t| t.repr.to_string())
+              .collect::<Vec<_>>()
+          })
           .filter(|v| !v.is_empty());
 
         let super_type_params_added = class_diff
           .and_then(|d| d.super_type_params_change.as_ref())
-          .map(|stpc| stpc.added.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .map(|stpc| {
+            stpc
+              .added
+              .iter()
+              .map(|t| t.repr.to_string())
+              .collect::<Vec<_>>()
+          })
           .filter(|v| !v.is_empty());
 
         let super_type_params_removed = class_diff
           .and_then(|d| d.super_type_params_change.as_ref())
-          .map(|stpc| stpc.removed.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .map(|stpc| {
+            stpc
+              .removed
+              .iter()
+              .map(|t| t.repr.to_string())
+              .collect::<Vec<_>>()
+          })
           .filter(|v| !v.is_empty());
 
         Some(DocBlockSubtitleCtx::Class {
@@ -424,12 +450,22 @@ impl DocBlockSubtitleCtx {
 
         let extends_added = iface_diff
           .and_then(|d| d.extends_change.as_ref())
-          .map(|ec| ec.added.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .map(|ec| {
+            ec.added
+              .iter()
+              .map(|t| t.repr.to_string())
+              .collect::<Vec<_>>()
+          })
           .filter(|v| !v.is_empty());
 
         let extends_removed = iface_diff
           .and_then(|d| d.extends_change.as_ref())
-          .map(|ec| ec.removed.iter().map(|t| t.repr.to_string()).collect::<Vec<_>>())
+          .map(|ec| {
+            ec.removed
+              .iter()
+              .map(|t| t.repr.to_string())
+              .collect::<Vec<_>>()
+          })
           .filter(|v| !v.is_empty());
 
         let has_extends = !interface_def.extends.is_empty();
@@ -659,8 +695,7 @@ impl AllSymbolsCtx {
       .collect();
 
     if ctx.ctx.diff_only {
-      entrypoints
-        .retain(|ep| !ep.module_doc.sections.sections.is_empty());
+      entrypoints.retain(|ep| !ep.module_doc.sections.sections.is_empty());
     }
 
     Self { entrypoints }

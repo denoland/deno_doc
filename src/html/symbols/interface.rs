@@ -55,9 +55,11 @@ pub(crate) fn render_interface(
     sections.push(type_params);
   }
 
-  if let Some(index_signatures) =
-    render_interface_index_signatures(ctx, &interface_def.index_signatures, iface_diff)
-  {
+  if let Some(index_signatures) = render_interface_index_signatures(
+    ctx,
+    &interface_def.index_signatures,
+    iface_diff,
+  ) {
     sections.push(index_signatures);
   }
 
@@ -67,9 +69,11 @@ pub(crate) fn render_interface(
     sections.push(constructors);
   }
 
-  if let Some(call_signatures) =
-    render_interface_call_signatures(ctx, &interface_def.call_signatures, iface_diff)
-  {
+  if let Some(call_signatures) = render_interface_call_signatures(
+    ctx,
+    &interface_def.call_signatures,
+    iface_diff,
+  ) {
     sections.push(call_signatures);
   }
 
@@ -155,7 +159,9 @@ fn render_interface_index_signatures(
 ) -> Option<SectionCtx> {
   let idx_diff = iface_diff.and_then(|d| d.index_signature_changes.as_ref());
 
-  if index_signatures.is_empty() && idx_diff.map_or(true, |d| d.removed.is_empty()) {
+  if index_signatures.is_empty()
+    && idx_diff.is_none_or( |d| d.removed.is_empty())
+  {
     return None;
   }
 
@@ -174,9 +180,13 @@ fn render_interface_index_signatures(
       .unwrap_or_default();
 
     let diff_status = if let Some(diff) = idx_diff {
-      if !diff.added.is_empty() && i >= index_signatures.len() - diff.added.len() {
+      if !diff.added.is_empty()
+        && i >= index_signatures.len() - diff.added.len()
+      {
         Some(DiffStatus::Added)
-      } else if diff.modified.iter().any(|_| true) && i < index_signatures.len().saturating_sub(diff.added.len()) {
+      } else if diff.modified.iter().any(|_| true)
+        && i < index_signatures.len().saturating_sub(diff.added.len())
+      {
         // Position-based: modified entries are at matching positions
         Some(DiffStatus::Modified)
       } else {
@@ -186,18 +196,19 @@ fn render_interface_index_signatures(
       None
     };
 
-    let (old_readonly, old_ts_type) = if matches!(diff_status, Some(DiffStatus::Modified)) {
-      let sig_diff = idx_diff.and_then(|d| d.modified.first());
-      let old_readonly = sig_diff
-        .and_then(|sd| sd.readonly_change.as_ref())
-        .map(|c| c.old);
-      let old_ts_type = sig_diff
-        .and_then(|sd| sd.type_change.as_ref())
-        .map(|tc| format!(": {}", &tc.old.repr));
-      (old_readonly, old_ts_type)
-    } else {
-      (None, None)
-    };
+    let (old_readonly, old_ts_type) =
+      if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let sig_diff = idx_diff.and_then(|d| d.modified.first());
+        let old_readonly = sig_diff
+          .and_then(|sd| sd.readonly_change.as_ref())
+          .map(|c| c.old);
+        let old_ts_type = sig_diff
+          .and_then(|sd| sd.type_change.as_ref())
+          .map(|tc| render_type_def_colon(ctx, &tc.old));
+        (old_readonly, old_ts_type)
+      } else {
+        (None, None)
+      };
 
     items.push(IndexSignatureCtx {
       anchor: AnchorCtx { id },
@@ -307,7 +318,9 @@ fn render_interface_call_signatures(
 ) -> Option<SectionCtx> {
   let cs_diff = iface_diff.and_then(|d| d.call_signature_changes.as_ref());
 
-  if call_signatures.is_empty() && cs_diff.map_or(true, |d| d.removed.is_empty()) {
+  if call_signatures.is_empty()
+    && cs_diff.is_none_or(|d| d.removed.is_empty())
+  {
     return None;
   }
 
@@ -329,9 +342,13 @@ fn render_interface_call_signatures(
       let tags = Tag::from_js_doc(&call_signature.js_doc);
 
       let diff_status = if let Some(diff) = cs_diff {
-        if !diff.added.is_empty() && i >= call_signatures.len() - diff.added.len() {
+        if !diff.added.is_empty()
+          && i >= call_signatures.len() - diff.added.len()
+        {
           Some(DiffStatus::Added)
-        } else if !diff.modified.is_empty() && i < call_signatures.len().saturating_sub(diff.added.len()) {
+        } else if !diff.modified.is_empty()
+          && i < call_signatures.len().saturating_sub(diff.added.len())
+        {
           Some(DiffStatus::Modified)
         } else {
           None
@@ -340,17 +357,18 @@ fn render_interface_call_signatures(
         None
       };
 
-      let (old_content, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let sig_diff = cs_diff.and_then(|d| d.modified.first());
-        let old_content = sig_diff
-          .and_then(|sd| sd.ts_type_change.as_ref())
-          .map(|tc| format!(": {}", &tc.old.repr));
-        let js_doc_changed = sig_diff
-          .and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
-        (old_content, js_doc_changed)
-      } else {
-        (None, None)
-      };
+      let (old_content, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let sig_diff = cs_diff.and_then(|d| d.modified.first());
+          let old_content = sig_diff
+            .and_then(|sd| sd.ts_type_change.as_ref())
+            .map(|tc| render_type_def_colon(ctx, &tc.old));
+          let js_doc_changed =
+            sig_diff.and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
+          (old_content, js_doc_changed)
+        } else {
+          (None, None)
+        };
 
       DocEntryCtx::new_with_diff(
         ctx,
@@ -428,7 +446,8 @@ fn render_interface_constructors(
 ) -> Option<SectionCtx> {
   let ctor_diff = iface_diff.and_then(|d| d.constructor_changes.as_ref());
 
-  if constructors.is_empty() && ctor_diff.map_or(true, |d| d.removed.is_empty()) {
+  if constructors.is_empty() && ctor_diff.is_none_or(|d| d.removed.is_empty())
+  {
     return None;
   }
 
@@ -451,17 +470,24 @@ fn render_interface_constructors(
 
       let diff_status = get_constructor_diff_status(ctor_diff, constructor);
 
-      let (old_content, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let cd = ctor_diff.and_then(|cc| cc.modified.iter().find(|_| true));
-        let old_content = cd
-          .and_then(|cd| cd.return_type_change.as_ref())
-          .map(|tc| format!(": {}", &tc.old.repr));
-        let js_doc_changed = cd
-          .and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
-        (old_content, js_doc_changed)
-      } else {
-        (None, None)
-      };
+      let (old_content, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let cd = ctor_diff.and_then(|cc| cc.modified.iter().find(|_| true));
+          let old_content = cd.and_then(|cd| {
+            super::function::render_old_function_summary(
+              ctx,
+              &constructor.params,
+              &constructor.return_type,
+              cd.params_change.as_ref(),
+              cd.return_type_change.as_ref(),
+            )
+          });
+          let js_doc_changed =
+            cd.and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
+          (old_content, js_doc_changed)
+        } else {
+          (None, None)
+        };
 
       DocEntryCtx::new_with_diff(
         ctx,
@@ -704,27 +730,28 @@ fn render_properties_vec(
 
       let diff_status = get_property_diff_status(iface_diff, &property.name);
 
-      let (old_content, old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let prop_diff = iface_diff
-          .and_then(|d| d.property_changes.as_ref())
-          .and_then(|pc| {
-            pc.modified.iter().find(|p| &*p.name == &*property.name)
-          });
+      let (old_content, old_tags, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let prop_diff = iface_diff
+            .and_then(|d| d.property_changes.as_ref())
+            .and_then(|pc| {
+              pc.modified.iter().find(|p| p.name == property.name)
+            });
 
-        let old_content = prop_diff
-          .and_then(|pd| pd.type_change.as_ref())
-          .map(|tc| format!(": {}", &tc.old.repr));
+          let old_content = prop_diff
+            .and_then(|pd| pd.type_change.as_ref())
+            .map(|tc| render_type_def_colon(ctx, &tc.old));
 
-        let old_tags = prop_diff.map(|pd| {
-          compute_old_iface_property_tags(&tags, pd)
-        });
+          let old_tags =
+            prop_diff.map(|pd| compute_old_iface_property_tags(&tags, pd));
 
-        let js_doc_changed = prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
+          let js_doc_changed =
+            prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
 
-        (old_content, old_tags, js_doc_changed)
-      } else {
-        (None, None, None)
-      };
+          (old_content, old_tags, js_doc_changed)
+        } else {
+          (None, None, None)
+        };
 
       DocEntryCtx::new_with_diff(
         ctx,
@@ -790,35 +817,32 @@ fn render_methods_vec(
 
       let diff_status = get_method_diff_status(iface_diff, &method.name);
 
-      let (old_content, old_tags, js_doc_changed) = if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let method_diff = iface_diff
-          .and_then(|d| d.method_changes.as_ref())
-          .and_then(|mc| mc.modified.iter().find(|m| m.name == *method.name));
+      let (old_content, old_tags, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let method_diff = iface_diff
+            .and_then(|d| d.method_changes.as_ref())
+            .and_then(|mc| mc.modified.iter().find(|m| m.name == *method.name));
 
-        let old_content = method_diff.and_then(|md| {
-          let func_diff = crate::diff::FunctionDiff {
-            params_change: md.params_change.clone(),
-            return_type_change: md.return_type_change.clone(),
-            is_async_change: None,
-            is_generator_change: None,
-            type_params_change: None,
-            decorators_change: None,
-          };
-          super::function::render_old_function_summary(
-            &method.params,
-            &method.return_type,
-            &func_diff,
-          )
-        });
+          let old_content = method_diff.and_then(|md| {
+            super::function::render_old_function_summary(
+              ctx,
+              &method.params,
+              &method.return_type,
+              md.params_change.as_ref(),
+              md.return_type_change.as_ref(),
+            )
+          });
 
-        let old_tags = method_diff.map(|md| compute_old_iface_method_tags(&tags, md));
+          let old_tags =
+            method_diff.map(|md| compute_old_iface_method_tags(&tags, md));
 
-        let js_doc_changed = method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+          let js_doc_changed =
+            method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
 
-        (old_content, old_tags, js_doc_changed)
-      } else {
-        (None, None, None)
-      };
+          (old_content, old_tags, js_doc_changed)
+        } else {
+          (None, None, None)
+        };
 
       DocEntryCtx::new_with_diff(
         ctx,
