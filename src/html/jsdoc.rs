@@ -520,7 +520,7 @@ mod test {
         package_name: None,
         main_entrypoint: None,
         href_resolver: Rc::new(EmptyResolver),
-        usage_composer: Rc::new(EmptyResolver),
+        usage_composer: Some(Rc::new(EmptyResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,

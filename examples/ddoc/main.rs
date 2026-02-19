@@ -392,7 +392,7 @@ fn generate_docs_directory(
     package_name,
     main_entrypoint,
     href_resolver: Rc::new(EmptyResolver),
-    usage_composer: Rc::new(EmptyResolver),
+    usage_composer: Some(Rc::new(EmptyResolver)),
     rewrite_map: Some(index_map),
     category_docs: None,
     disable_search: false,

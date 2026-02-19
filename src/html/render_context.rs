@@ -583,7 +583,7 @@ mod test {
         package_name: None,
         main_entrypoint: None,
         href_resolver: Rc::new(TestResolver),
-        usage_composer: Rc::new(TestResolver),
+        usage_composer: Some(Rc::new(TestResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
