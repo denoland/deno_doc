@@ -11,7 +11,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
 
-/// Diff status for a symbol or member in the rendered output.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum DiffStatus {
@@ -21,19 +20,15 @@ pub enum DiffStatus {
   Renamed { old_name: String },
 }
 
-/// Pre-indexed lookup for a node's diff status.
 pub struct NodeDiffInfo {
   pub status: DiffStatus,
   pub diff: Option<DocNodeDiff>,
 }
 
-/// Pre-indexed diff data for fast lookup during rendering.
 pub struct DiffIndex {
   added_modules: Vec<ModuleSpecifier>,
   removed_modules: Vec<ModuleSpecifier>,
-  /// Per-module diff data, keyed by specifier.
-  module_diffs: IndexMap<ModuleSpecifier, ModuleDiff>,
-  /// Per-node lookup: (specifier, name, kind) -> NodeDiffInfo
+  pub module_diffs: IndexMap<ModuleSpecifier, ModuleDiff>,
   node_index:
     HashMap<(ModuleSpecifier, Box<str>, AstDocNodeKind), NodeDiffInfo>,
 }
@@ -43,7 +38,6 @@ impl DiffIndex {
     let mut node_index = HashMap::new();
 
     for (specifier, module_diff) in &doc_diff.modified_modules {
-      // Index added nodes
       for node in &module_diff.added {
         let kind = node.def.to_kind();
         node_index.insert(
@@ -55,7 +49,6 @@ impl DiffIndex {
         );
       }
 
-      // Index removed nodes
       for node in &module_diff.removed {
         let kind = node.def.to_kind();
         node_index.insert(
@@ -67,7 +60,6 @@ impl DiffIndex {
         );
       }
 
-      // Index modified nodes
       for node_diff in &module_diff.modified {
         let kind = node_diff.kind;
         let status = if let Some(name_change) = &node_diff.name_change {
@@ -126,8 +118,6 @@ impl DiffIndex {
     self.node_index.get(&(specifier.clone(), name.into(), kind))
   }
 
-  /// Get the typed def diff for a node, combining node lookup + def_changes
-  /// extraction.
   pub fn get_def_diff(
     &self,
     specifier: &ModuleSpecifier,
@@ -138,7 +128,6 @@ impl DiffIndex {
     info.diff.as_ref()?.def_changes.as_ref()
   }
 
-  /// Get removed nodes for a module (for injecting into listings).
   pub fn get_removed_nodes(
     &self,
     specifier: &ModuleSpecifier,
