@@ -129,57 +129,10 @@ pub(crate) fn render_old_function_summary(
     return None;
   }
 
-  // shared_count = params that existed in both old and new (matched by index)
-  let added_count = params_change.map_or(0, |pc| pc.added.len());
-  let shared_count = params.len() - added_count;
-
-  let mut old_params = Vec::new();
-
-  // Shared params: use old values from diff if modified, otherwise use new
-  for (i, new_param) in params.iter().enumerate().take(shared_count) {
-    let modified =
-      params_change.and_then(|pc| pc.modified.iter().find(|p| p.index == i));
-
-    if let Some(param_diff) = modified {
-      let name = if let Some(pc) = &param_diff.pattern_change {
-        crate::html::parameters::param_name_plain(&pc.old, i)
-      } else {
-        crate::html::parameters::param_name_plain(new_param, i)
-      };
-      let type_str = if let Some(tc) = &param_diff.type_change {
-        render_type_def_colon(ctx, &tc.old)
-      } else {
-        new_param
-          .ts_type
-          .as_ref()
-          .map(|t| render_type_def_colon(ctx, t))
-          .unwrap_or_default()
-      };
-      old_params.push(format!("{name}{type_str}"));
-    } else {
-      let str_name = crate::html::parameters::param_name_plain(new_param, i);
-      let type_str = new_param
-        .ts_type
-        .as_ref()
-        .map(|t| render_type_def_colon(ctx, t))
-        .unwrap_or_default();
-      old_params.push(format!("{str_name}{type_str}"));
-    }
-  }
-
-  // Removed params (existed in old but not in new)
-  if let Some(pc) = params_change {
-    for (j, removed) in pc.removed.iter().enumerate() {
-      let str_name =
-        crate::html::parameters::param_name_plain(removed, shared_count + j);
-      let type_str = removed
-        .ts_type
-        .as_ref()
-        .map(|t| render_type_def_colon(ctx, t))
-        .unwrap_or_default();
-      old_params.push(format!("{str_name}{type_str}"));
-    }
-  }
+  let old_params_str = match params_change {
+    Some(pc) => render_old_params(ctx, params, pc),
+    None => render_params(ctx, params),
+  };
 
   let old_return_type = if let Some(rt) = return_type_change {
     render_type_def_colon(ctx, &rt.old)
@@ -190,7 +143,7 @@ pub(crate) fn render_old_function_summary(
       .unwrap_or_default()
   };
 
-  Some(format!("({}){old_return_type}", old_params.join(", ")))
+  Some(format!("({old_params_str}){old_return_type}"))
 }
 
 /// Reconstruct old params string from current params + ParamsDiff.

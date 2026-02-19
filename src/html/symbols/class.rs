@@ -373,112 +373,27 @@ fn render_class_index_signatures(
   class_diff: Option<&ClassDiff>,
 ) -> Option<SectionCtx> {
   let idx_diff = class_diff.and_then(|d| d.index_signature_changes.as_ref());
+  let empty_sigs = Vec::new();
+  let empty_mod: Vec<crate::diff::IndexSignatureDiff> = Vec::new();
 
-  if index_signatures.is_empty()
-    && idx_diff.is_none_or(|d| d.removed.is_empty())
-  {
-    return None;
-  }
-
-  let mut items = Vec::with_capacity(index_signatures.len());
-
-  for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = IdBuilder::new(ctx)
-      .kind(IdKind::IndexSignature)
-      .index(i)
-      .build();
-
-    let ts_type = index_signature
-      .ts_type
-      .as_ref()
-      .map(|ts_type| crate::html::types::render_type_def_colon(ctx, ts_type))
-      .unwrap_or_default();
-
-    let diff_status = if let Some(diff) = idx_diff {
+  super::render_index_signatures_with_diff(
+    ctx,
+    index_signatures,
+    idx_diff.map_or(&empty_sigs, |d| &d.removed),
+    idx_diff.map_or(&empty_mod, |d| &d.modified),
+    |_i, sig| {
+      let diff = idx_diff?;
       if diff.added.iter().any(|s| {
-        s.params.len() == index_signature.params.len()
-          && s.readonly == index_signature.readonly
+        s.params.len() == sig.params.len() && s.readonly == sig.readonly
       }) {
         Some(DiffStatus::Added)
-      } else if !diff.modified.is_empty() && i < index_signatures.len() {
+      } else if !diff.modified.is_empty() {
         Some(DiffStatus::Modified)
       } else {
         None
       }
-    } else {
-      None
-    };
-
-    let (old_readonly, old_params, old_ts_type) =
-      if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let sig_diff = idx_diff.and_then(|d| d.modified.first());
-        let old_readonly = sig_diff
-          .and_then(|sd| sd.readonly_change.as_ref())
-          .map(|c| c.old);
-        let old_params =
-          sig_diff.and_then(|sd| sd.params_change.as_ref()).map(|pc| {
-            super::function::render_old_params(ctx, &index_signature.params, pc)
-          });
-        let old_ts_type = sig_diff
-          .and_then(|sd| sd.type_change.as_ref())
-          .map(|tc| render_type_def_colon(ctx, &tc.old));
-        (old_readonly, old_params, old_ts_type)
-      } else {
-        (None, None, None)
-      };
-
-    items.push(IndexSignatureCtx {
-      anchor: AnchorCtx { id },
-      readonly: index_signature.readonly,
-      params: render_params(ctx, &index_signature.params),
-      ts_type,
-      source_href: ctx
-        .ctx
-        .href_resolver
-        .resolve_source(&index_signature.location),
-      diff_status,
-      old_readonly,
-      old_params,
-      old_ts_type,
-    });
-  }
-
-  // Inject removed index signatures
-  if let Some(diff) = idx_diff {
-    for removed_sig in &diff.removed {
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::IndexSignature)
-        .index(items.len())
-        .build();
-
-      let ts_type = removed_sig
-        .ts_type
-        .as_ref()
-        .map(|ts_type| crate::html::types::render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      items.push(IndexSignatureCtx {
-        anchor: AnchorCtx { id },
-        readonly: removed_sig.readonly,
-        params: render_params(ctx, &removed_sig.params),
-        ts_type,
-        source_href: ctx
-          .ctx
-          .href_resolver
-          .resolve_source(&removed_sig.location),
-        diff_status: Some(DiffStatus::Removed),
-        old_readonly: None,
-        old_params: None,
-        old_ts_type: None,
-      });
-    }
-  }
-
-  Some(SectionCtx::new(
-    ctx,
-    "Index Signatures",
-    SectionContentCtx::IndexSignature(items),
-  ))
+    },
+  )
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -930,31 +845,13 @@ fn inject_removed_properties(
       if removed_prop.is_static != is_static {
         continue;
       }
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::Property)
-        .name(&removed_prop.name)
-        .build();
-
-      let ts_type = removed_prop
-        .ts_type
-        .as_ref()
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      entries.push(DocEntryCtx::new(
+      super::push_removed_property_entry(
         ctx,
-        id,
-        Some(html_escape::encode_text(&removed_prop.name).into_owned()),
-        None,
-        &ts_type,
-        Default::default(),
-        None,
+        &removed_prop.name,
+        removed_prop.ts_type.as_ref(),
         &removed_prop.location,
-        Some(DiffStatus::Removed),
-        None,
-        None,
-        None,
-      ));
+        entries,
+      );
     }
   }
 
@@ -1054,29 +951,16 @@ fn inject_removed_methods(
       {
         continue;
       }
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::Method)
-        .name(&removed_method.name)
-        .index(0)
-        .build();
-
-      entries.push(DocEntryCtx::new(
+      super::push_removed_method_entry(
         ctx,
-        id,
-        Some(html_escape::encode_text(&removed_method.name).into_owned()),
-        None,
+        &removed_method.name,
         &super::function::render_function_summary(
           &removed_method.function_def,
           ctx,
         ),
-        Default::default(),
-        None,
         &removed_method.location,
-        Some(DiffStatus::Removed),
-        None,
-        None,
-        None,
-      ));
+        entries,
+      );
     }
   }
 }
@@ -1151,108 +1035,41 @@ fn render_class_methods(
     .collect()
 }
 
-/// Reconstruct old tags for a class property by reversing modifier diffs.
 fn compute_old_property_tags(
   current_tags: &IndexSet<Tag>,
   diff: &PropertyDiff,
 ) -> IndexSet<Tag> {
-  let mut old_tags = current_tags.clone();
-
-  // Reverse accessibility change
-  if let Some(change) = &diff.accessibility_change {
-    // Remove new accessibility tag, add old one
-    if let Some(new_tag) = Tag::from_accessibility(change.new) {
-      old_tags.swap_remove(&new_tag);
-    }
-    if let Some(old_tag) = Tag::from_accessibility(change.old) {
-      old_tags.insert(old_tag);
-    }
-  }
-
-  // Reverse readonly change
-  if let Some(change) = &diff.readonly_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Readonly);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Readonly);
-    }
-  }
-
-  // Reverse abstract change
-  if let Some(change) = &diff.is_abstract_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Abstract);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Abstract);
-    }
-  }
-
-  // Reverse optional change
-  if let Some(change) = &diff.optional_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Optional);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Optional);
-    }
-  }
-
-  old_tags
+  super::compute_old_tags(
+    current_tags,
+    diff.accessibility_change.as_ref(),
+    diff.readonly_change.as_ref(),
+    diff.is_abstract_change.as_ref(),
+    diff.optional_change.as_ref(),
+  )
 }
 
-/// Reconstruct old tags for a class method by reversing modifier diffs.
 fn compute_old_method_tags(
   current_tags: &IndexSet<Tag>,
   diff: &MethodDiff,
 ) -> IndexSet<Tag> {
-  let mut old_tags = current_tags.clone();
-
-  // Reverse accessibility change
-  if let Some(change) = &diff.accessibility_change {
-    if let Some(new_tag) = Tag::from_accessibility(change.new) {
-      old_tags.swap_remove(&new_tag);
-    }
-    if let Some(old_tag) = Tag::from_accessibility(change.old) {
-      old_tags.insert(old_tag);
-    }
-  }
-
-  // Reverse abstract change
-  if let Some(change) = &diff.is_abstract_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Abstract);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Abstract);
-    }
-  }
-
-  // Reverse optional change
-  if let Some(change) = &diff.optional_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Optional);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Optional);
-    }
-  }
-
-  old_tags
+  super::compute_old_tags(
+    current_tags,
+    diff.accessibility_change.as_ref(),
+    None,
+    diff.is_abstract_change.as_ref(),
+    diff.optional_change.as_ref(),
+  )
 }
 
-/// Reconstruct old tags for a constructor by reversing modifier diffs.
 fn compute_old_constructor_tags(
   current_tags: &IndexSet<Tag>,
   diff: &ConstructorDiff,
 ) -> IndexSet<Tag> {
-  let mut old_tags = current_tags.clone();
-
-  // Reverse accessibility change
-  if let Some(change) = &diff.accessibility_change {
-    if let Some(new_tag) = Tag::from_accessibility(change.new) {
-      old_tags.swap_remove(&new_tag);
-    }
-    if let Some(old_tag) = Tag::from_accessibility(change.old) {
-      old_tags.insert(old_tag);
-    }
-  }
-
-  old_tags
+  super::compute_old_tags(
+    current_tags,
+    diff.accessibility_change.as_ref(),
+    None,
+    None,
+    None,
+  )
 }

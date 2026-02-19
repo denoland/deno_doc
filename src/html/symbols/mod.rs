@@ -647,6 +647,250 @@ impl SymbolInnerCtx {
   }
 }
 
+/// Reconstruct old tags by reversing modifier diffs. Pass `None` for any
+/// modifier that the member type doesn't have (e.g. interfaces have no
+/// accessibility).
+pub(crate) fn compute_old_tags(
+  current_tags: &indexmap::IndexSet<Tag>,
+  accessibility_change: Option<&crate::diff::Change<Option<deno_ast::swc::ast::Accessibility>>>,
+  readonly_change: Option<&crate::diff::Change<bool>>,
+  abstract_change: Option<&crate::diff::Change<bool>>,
+  optional_change: Option<&crate::diff::Change<bool>>,
+) -> indexmap::IndexSet<Tag> {
+  let mut old_tags = current_tags.clone();
+
+  if let Some(change) = accessibility_change {
+    if let Some(new_tag) = Tag::from_accessibility(change.new) {
+      old_tags.swap_remove(&new_tag);
+    }
+    if let Some(old_tag) = Tag::from_accessibility(change.old) {
+      old_tags.insert(old_tag);
+    }
+  }
+
+  if let Some(change) = readonly_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Readonly);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Readonly);
+    }
+  }
+
+  if let Some(change) = abstract_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Abstract);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Abstract);
+    }
+  }
+
+  if let Some(change) = optional_change {
+    if change.new && !change.old {
+      old_tags.swap_remove(&Tag::Optional);
+    } else if !change.new && change.old {
+      old_tags.insert(Tag::Optional);
+    }
+  }
+
+  old_tags
+}
+
+/// Push a removed-property entry (shared between class and interface).
+pub(crate) fn push_removed_property_entry(
+  ctx: &RenderContext,
+  name: &str,
+  ts_type: Option<&crate::ts_type::TsTypeDef>,
+  location: &crate::Location,
+  entries: &mut Vec<crate::html::util::DocEntryCtx>,
+) {
+  let id = crate::html::util::IdBuilder::new(ctx)
+    .kind(crate::html::util::IdKind::Property)
+    .name(name)
+    .build();
+
+  let ts_type = ts_type
+    .map(|t| crate::html::types::render_type_def_colon(ctx, t))
+    .unwrap_or_default();
+
+  entries.push(crate::html::util::DocEntryCtx::new(
+    ctx,
+    id,
+    Some(html_escape::encode_text(name).into_owned()),
+    None,
+    &ts_type,
+    Default::default(),
+    None,
+    location,
+    Some(DiffStatus::Removed),
+    None,
+    None,
+    None,
+  ));
+}
+
+/// Push a removed-method entry (shared between class and interface).
+pub(crate) fn push_removed_method_entry(
+  ctx: &RenderContext,
+  name: &str,
+  content: &str,
+  location: &crate::Location,
+  entries: &mut Vec<crate::html::util::DocEntryCtx>,
+) {
+  let id = crate::html::util::IdBuilder::new(ctx)
+    .kind(crate::html::util::IdKind::Method)
+    .name(name)
+    .index(0)
+    .build();
+
+  entries.push(crate::html::util::DocEntryCtx::new(
+    ctx,
+    id,
+    Some(html_escape::encode_text(name).into_owned()),
+    None,
+    content,
+    Default::default(),
+    None,
+    location,
+    Some(DiffStatus::Removed),
+    None,
+    None,
+    None,
+  ));
+}
+
+/// Trait for accessing individual index signature diff fields, shared between
+/// `IndexSignatureDiff` (class) and `InterfaceIndexSignatureDiff` (interface).
+pub(crate) trait IndexSigDiffItem {
+  fn readonly_change(&self) -> Option<&crate::diff::Change<bool>>;
+  fn params_change(&self) -> Option<&crate::diff::ParamsDiff>;
+  fn type_change(&self) -> Option<&crate::diff::TsTypeDiff>;
+}
+
+impl IndexSigDiffItem for crate::diff::IndexSignatureDiff {
+  fn readonly_change(&self) -> Option<&crate::diff::Change<bool>> {
+    self.readonly_change.as_ref()
+  }
+  fn params_change(&self) -> Option<&crate::diff::ParamsDiff> {
+    self.params_change.as_ref()
+  }
+  fn type_change(&self) -> Option<&crate::diff::TsTypeDiff> {
+    self.type_change.as_ref()
+  }
+}
+
+impl IndexSigDiffItem for crate::diff::InterfaceIndexSignatureDiff {
+  fn readonly_change(&self) -> Option<&crate::diff::Change<bool>> {
+    self.readonly_change.as_ref()
+  }
+  fn params_change(&self) -> Option<&crate::diff::ParamsDiff> {
+    self.params_change.as_ref()
+  }
+  fn type_change(&self) -> Option<&crate::diff::TsTypeDiff> {
+    self.type_change.as_ref()
+  }
+}
+
+/// Shared rendering for index signatures with diff annotations.
+/// `diff_status_fn` computes the diff status for a given index signature
+/// because the strategy differs between classes and interfaces.
+pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
+  ctx: &RenderContext,
+  index_signatures: &[crate::ts_type::IndexSignatureDef],
+  removed: &[crate::ts_type::IndexSignatureDef],
+  modified: &[D],
+  diff_status_fn: impl Fn(usize, &crate::ts_type::IndexSignatureDef) -> Option<DiffStatus>,
+) -> Option<SectionCtx> {
+  if index_signatures.is_empty() && removed.is_empty() {
+    return None;
+  }
+
+  let mut items = Vec::with_capacity(index_signatures.len());
+
+  for (i, index_signature) in index_signatures.iter().enumerate() {
+    let id = crate::html::util::IdBuilder::new(ctx)
+      .kind(crate::html::util::IdKind::IndexSignature)
+      .index(i)
+      .build();
+
+    let ts_type = index_signature
+      .ts_type
+      .as_ref()
+      .map(|ts_type| crate::html::types::render_type_def_colon(ctx, ts_type))
+      .unwrap_or_default();
+
+    let diff_status = diff_status_fn(i, index_signature);
+
+    let (old_readonly, old_params, old_ts_type) =
+      if matches!(diff_status, Some(DiffStatus::Modified)) {
+        let sig_diff = modified.first();
+        let old_readonly = sig_diff.and_then(|sd| sd.readonly_change()).map(|c| c.old);
+        let old_params = sig_diff.and_then(|sd| sd.params_change()).map(|pc| {
+          function::render_old_params(ctx, &index_signature.params, pc)
+        });
+        let old_ts_type = sig_diff
+          .and_then(|sd| sd.type_change())
+          .map(|tc| crate::html::types::render_type_def_colon(ctx, &tc.old));
+        (old_readonly, old_params, old_ts_type)
+      } else {
+        (None, None, None)
+      };
+
+    items.push(class::IndexSignatureCtx {
+      anchor: AnchorCtx {
+        id,
+      },
+      readonly: index_signature.readonly,
+      params: crate::html::parameters::render_params(ctx, &index_signature.params),
+      ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&index_signature.location),
+      diff_status,
+      old_readonly,
+      old_params,
+      old_ts_type,
+    });
+  }
+
+  // Inject removed index signatures
+  for removed_sig in removed {
+    let id = crate::html::util::IdBuilder::new(ctx)
+      .kind(crate::html::util::IdKind::IndexSignature)
+      .index(items.len())
+      .build();
+
+    let ts_type = removed_sig
+      .ts_type
+      .as_ref()
+      .map(|ts_type| crate::html::types::render_type_def_colon(ctx, ts_type))
+      .unwrap_or_default();
+
+    items.push(class::IndexSignatureCtx {
+      anchor: AnchorCtx {
+        id,
+      },
+      readonly: removed_sig.readonly,
+      params: crate::html::parameters::render_params(ctx, &removed_sig.params),
+      ts_type,
+      source_href: ctx
+        .ctx
+        .href_resolver
+        .resolve_source(&removed_sig.location),
+      diff_status: Some(DiffStatus::Removed),
+      old_readonly: None,
+      old_params: None,
+      old_ts_type: None,
+    });
+  }
+
+  Some(SectionCtx::new(
+    ctx,
+    "Index Signatures",
+    SectionContentCtx::IndexSignature(items),
+  ))
+}
+
 fn generate_see(ctx: &RenderContext, doc: &str) -> String {
   let doc = if let Some(href) = ctx.lookup_symbol_href(doc) {
     format!("[{doc}]({href})")

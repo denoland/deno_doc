@@ -152,114 +152,28 @@ fn render_interface_index_signatures(
   iface_diff: Option<&InterfaceDiff>,
 ) -> Option<SectionCtx> {
   let idx_diff = iface_diff.and_then(|d| d.index_signature_changes.as_ref());
+  let empty_sigs = Vec::new();
+  let empty_mod: Vec<crate::diff::InterfaceIndexSignatureDiff> = Vec::new();
+  let total = index_signatures.len();
 
-  if index_signatures.is_empty()
-    && idx_diff.is_none_or(|d| d.removed.is_empty())
-  {
-    return None;
-  }
-
-  let mut items = Vec::with_capacity(index_signatures.len());
-
-  for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = IdBuilder::new(ctx)
-      .kind(IdKind::IndexSignature)
-      .index(i)
-      .build();
-
-    let ts_type = index_signature
-      .ts_type
-      .as_ref()
-      .map(|ts_type| render_type_def_colon(ctx, ts_type))
-      .unwrap_or_default();
-
-    let diff_status = if let Some(diff) = idx_diff {
-      if !diff.added.is_empty()
-        && i >= index_signatures.len() - diff.added.len()
-      {
+  super::render_index_signatures_with_diff(
+    ctx,
+    index_signatures,
+    idx_diff.map_or(&empty_sigs, |d| &d.removed),
+    idx_diff.map_or(&empty_mod, |d| &d.modified),
+    |i, _sig| {
+      let diff = idx_diff?;
+      if !diff.added.is_empty() && i >= total - diff.added.len() {
         Some(DiffStatus::Added)
       } else if !diff.modified.is_empty()
-        && i < index_signatures.len().saturating_sub(diff.added.len())
+        && i < total.saturating_sub(diff.added.len())
       {
-        // Position-based: modified entries are at matching positions
         Some(DiffStatus::Modified)
       } else {
         None
       }
-    } else {
-      None
-    };
-
-    let (old_readonly, old_params, old_ts_type) =
-      if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let sig_diff = idx_diff.and_then(|d| d.modified.first());
-        let old_readonly = sig_diff
-          .and_then(|sd| sd.readonly_change.as_ref())
-          .map(|c| c.old);
-        let old_params =
-          sig_diff.and_then(|sd| sd.params_change.as_ref()).map(|pc| {
-            super::function::render_old_params(ctx, &index_signature.params, pc)
-          });
-        let old_ts_type = sig_diff
-          .and_then(|sd| sd.type_change.as_ref())
-          .map(|tc| render_type_def_colon(ctx, &tc.old));
-        (old_readonly, old_params, old_ts_type)
-      } else {
-        (None, None, None)
-      };
-
-    items.push(IndexSignatureCtx {
-      anchor: AnchorCtx { id },
-      readonly: index_signature.readonly,
-      params: render_params(ctx, &index_signature.params),
-      ts_type,
-      source_href: ctx
-        .ctx
-        .href_resolver
-        .resolve_source(&index_signature.location),
-      diff_status,
-      old_readonly,
-      old_params,
-      old_ts_type,
-    });
-  }
-
-  // Inject removed index signatures
-  if let Some(diff) = idx_diff {
-    for removed_sig in &diff.removed {
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::IndexSignature)
-        .index(items.len())
-        .build();
-
-      let ts_type = removed_sig
-        .ts_type
-        .as_ref()
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      items.push(IndexSignatureCtx {
-        anchor: AnchorCtx { id },
-        readonly: removed_sig.readonly,
-        params: render_params(ctx, &removed_sig.params),
-        ts_type,
-        source_href: ctx
-          .ctx
-          .href_resolver
-          .resolve_source(&removed_sig.location),
-        diff_status: Some(DiffStatus::Removed),
-        old_readonly: None,
-        old_params: None,
-        old_ts_type: None,
-      });
-    }
-  }
-
-  Some(SectionCtx::new(
-    ctx,
-    "Index Signatures",
-    SectionContentCtx::IndexSignature(items),
-  ))
+    },
+  )
 }
 
 pub(crate) fn render_call_signatures(
@@ -625,31 +539,13 @@ fn inject_removed_properties(
 ) {
   if let Some(prop_diff) = &iface_diff.property_changes {
     for removed_prop in &prop_diff.removed {
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::Property)
-        .name(&removed_prop.name)
-        .build();
-
-      let ts_type = removed_prop
-        .ts_type
-        .as_ref()
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      entries.push(DocEntryCtx::new(
+      super::push_removed_property_entry(
         ctx,
-        id,
-        Some(html_escape::encode_text(&removed_prop.name).into_owned()),
-        None,
-        &ts_type,
-        Default::default(),
-        None,
+        &removed_prop.name,
+        removed_prop.ts_type.as_ref(),
         &removed_prop.location,
-        Some(DiffStatus::Removed),
-        None,
-        None,
-        None,
-      ));
+        entries,
+      );
     }
   }
 }
@@ -661,36 +557,23 @@ fn inject_removed_methods(
 ) {
   if let Some(method_diff) = &iface_diff.method_changes {
     for removed_method in &method_diff.removed {
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::Method)
-        .name(&removed_method.name)
-        .index(0)
-        .build();
-
       let return_type = removed_method
         .return_type
         .as_ref()
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      entries.push(DocEntryCtx::new(
+      super::push_removed_method_entry(
         ctx,
-        id,
-        Some(html_escape::encode_text(&removed_method.name).into_owned()),
-        None,
+        &removed_method.name,
         &format!(
           "{}({}){return_type}",
           type_params_summary(ctx, &removed_method.type_params),
           render_params(ctx, &removed_method.params)
         ),
-        Default::default(),
-        None,
         &removed_method.location,
-        Some(DiffStatus::Removed),
-        None,
-        None,
-        None,
-      ));
+        entries,
+      );
     }
   }
 }
@@ -917,49 +800,22 @@ pub(crate) fn render_methods(
   ))
 }
 
-/// Reconstruct old tags for an interface property by reversing modifier diffs.
 fn compute_old_iface_property_tags(
   current_tags: &IndexSet<Tag>,
   diff: &InterfacePropertyDiff,
 ) -> IndexSet<Tag> {
-  let mut old_tags = current_tags.clone();
-
-  // Reverse readonly change
-  if let Some(change) = &diff.readonly_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Readonly);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Readonly);
-    }
-  }
-
-  // Reverse optional change
-  if let Some(change) = &diff.optional_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Optional);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Optional);
-    }
-  }
-
-  old_tags
+  super::compute_old_tags(
+    current_tags,
+    None,
+    diff.readonly_change.as_ref(),
+    None,
+    diff.optional_change.as_ref(),
+  )
 }
 
-/// Reconstruct old tags for an interface method by reversing modifier diffs.
 fn compute_old_iface_method_tags(
   current_tags: &IndexSet<Tag>,
   diff: &InterfaceMethodDiff,
 ) -> IndexSet<Tag> {
-  let mut old_tags = current_tags.clone();
-
-  // Reverse optional change
-  if let Some(change) = &diff.optional_change {
-    if change.new && !change.old {
-      old_tags.swap_remove(&Tag::Optional);
-    } else if !change.new && change.old {
-      old_tags.insert(Tag::Optional);
-    }
-  }
-
-  old_tags
+  super::compute_old_tags(current_tags, None, None, None, diff.optional_change.as_ref())
 }
