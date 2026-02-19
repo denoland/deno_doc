@@ -413,18 +413,27 @@ fn render_class_index_signatures(
       None
     };
 
-    let (old_readonly, old_ts_type) =
+    let (old_readonly, old_params, old_ts_type) =
       if matches!(diff_status, Some(DiffStatus::Modified)) {
         let sig_diff = idx_diff.and_then(|d| d.modified.first());
         let old_readonly = sig_diff
           .and_then(|sd| sd.readonly_change.as_ref())
           .map(|c| c.old);
+        let old_params = sig_diff
+          .and_then(|sd| sd.params_change.as_ref())
+          .map(|pc| {
+            super::function::render_old_params(
+              ctx,
+              &index_signature.params,
+              pc,
+            )
+          });
         let old_ts_type = sig_diff
           .and_then(|sd| sd.type_change.as_ref())
           .map(|tc| render_type_def_colon(ctx, &tc.old));
-        (old_readonly, old_ts_type)
+        (old_readonly, old_params, old_ts_type)
       } else {
-        (None, None)
+        (None, None, None)
       };
 
     items.push(IndexSignatureCtx {
@@ -438,6 +447,7 @@ fn render_class_index_signatures(
         .resolve_source(&index_signature.location),
       diff_status,
       old_readonly,
+      old_params,
       old_ts_type,
     });
   }
@@ -467,6 +477,7 @@ fn render_class_index_signatures(
           .resolve_source(&removed_sig.location),
         diff_status: Some(DiffStatus::Removed),
         old_readonly: None,
+        old_params: None,
         old_ts_type: None,
       });
     }
@@ -490,6 +501,8 @@ pub struct IndexSignatureCtx {
   pub diff_status: Option<crate::html::DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub old_readonly: Option<bool>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_params: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub old_ts_type: Option<String>,
 }

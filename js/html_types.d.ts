@@ -279,7 +279,6 @@ export interface FunctionCtx {
 }
 
 export interface OverloadRenderCtx {
-  id: string;
   anchor: AnchorCtx;
   name: string;
   summary: string;
@@ -325,7 +324,6 @@ export interface SectionContentEmptyCtx {
 }
 
 export interface DocEntryCtx {
-  id: string;
   name: string | null;
   name_href: string | null;
   content: string;
@@ -340,14 +338,12 @@ export interface DocEntryCtx {
 
 export interface ExampleCtx {
   anchor: AnchorCtx;
-  id: string;
   title: string;
   markdown_title: string;
   markdown_body: string;
 }
 
 export interface IndexSignatureCtx {
-  id: string;
   anchor: AnchorCtx;
   readonly: boolean;
   params: string;
@@ -355,11 +351,11 @@ export interface IndexSignatureCtx {
   source_href: string | null;
   diff_status?: DiffStatus;
   old_readonly?: boolean;
+  old_params?: string;
   old_ts_type?: string;
 }
 
 export interface NamespaceNodeCtx {
-  id: string;
   anchor: AnchorCtx;
   tags: TagCtx[];
   doc_node_kind_ctx: DocNodeKindCtx[];

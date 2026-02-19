@@ -268,7 +268,7 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Rc<dyn UsageComposer>,
+  pub usage_composer: Option<Rc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
@@ -287,7 +287,7 @@ pub struct GenerateCtx {
   pub common_ancestor: Option<PathBuf>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Rc<dyn UsageComposer>,
+  pub usage_composer: Option<Rc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,

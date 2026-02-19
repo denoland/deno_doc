@@ -1017,7 +1017,11 @@ expression: pages
                             "anchor": {
                               "id": "constructor_0"
                             },
-                            "tags": [],
+                            "tags": [
+                              {
+                                "kind": "new"
+                              }
+                            ],
                             "js_doc": null,
                             "source_href": null,
                             "diff_status": {
@@ -7867,12 +7871,13 @@ expression: pages
                               "id": "index_signature_0"
                             },
                             "readonly": false,
-                            "params": "<span><span>key<span>: <span class=\"td-kw\">string</span></span></span></span>",
+                            "params": "<span><span>prop<span>: <span class=\"td-kw\">string</span></span></span></span>",
                             "ts_type": "<span>: <span><span class=\"td-kw\">string</span><span class=\"td-op\"> | </span><span class=\"td-kw\">number</span></span></span>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
                             },
+                            "old_params": "key<span>: <span class=\"td-kw\">string</span></span>",
                             "old_ts_type": "<span>: <span class=\"td-kw\">string</span></span>"
                           }
                         ]

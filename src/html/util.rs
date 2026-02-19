@@ -688,7 +688,7 @@ pub(crate) fn filter_sections_diff_only(
       entries.retain_mut(|e| {
         if e.diff_status.is_some() {
           if matches!(e.diff_status, Some(DiffStatus::Modified)) {
-            e.tags.retain(|t| t.diff.is_some());
+            e.tags.retain(|t| t.diff.is_some() || !t.tag.is_diffable());
           }
           true
         } else {
@@ -710,7 +710,7 @@ pub(crate) fn filter_sections_diff_only(
           || e.subitems.iter().any(|s| s.diff_status.is_some())
         {
           if matches!(e.diff_status, Some(DiffStatus::Modified)) {
-            e.tags.retain(|t| t.diff.is_some());
+            e.tags.retain(|t| t.diff.is_some() || !t.tag.is_diffable());
           }
           true
         } else {
@@ -769,6 +769,12 @@ pub enum Tag {
 impl Tag {
   pub const TEMPLATE: &'static str = "tag";
 
+  /// Whether this tag represents an actual attribute that can meaningfully
+  /// change, as opposed to a visual label (like "new" for constructors).
+  pub fn is_diffable(&self) -> bool {
+    !matches!(self, Tag::New)
+  }
+
   pub fn from_accessibility(
     accessibility: Option<Accessibility>,
   ) -> Option<Self> {
@@ -821,7 +827,7 @@ pub fn compute_tag_ctx(
     Some(old) => {
       let mut result = Vec::new();
       for tag in &current {
-        let diff = if old.contains(tag) {
+        let diff = if !tag.is_diffable() || old.contains(tag) {
           None
         } else {
           Some(TagDiffKind::Added)
@@ -832,7 +838,7 @@ pub fn compute_tag_ctx(
         });
       }
       for tag in &old {
-        if !current.contains(tag) {
+        if !current.contains(tag) && tag.is_diffable() {
           result.push(TagCtx {
             tag: tag.clone(),
             diff: Some(TagDiffKind::Removed),

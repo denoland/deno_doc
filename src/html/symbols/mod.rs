@@ -255,11 +255,13 @@ impl SymbolGroupCtx {
     }
   }
 
-  /// In diff_only mode, remove tags without a diff annotation from Modified symbols.
+  /// In diff_only mode, remove tags without a diff annotation from Modified
+  /// symbols, but keep non-diffable visual tags (like "new") which serve as
+  /// labels rather than attributes.
   pub fn strip_unchanged_tags(&mut self) {
     if matches!(self.diff_status, Some(DiffStatus::Modified)) {
       for symbol in &mut self.symbols {
-        symbol.tags.retain(|t| t.diff.is_some());
+        symbol.tags.retain(|t| t.diff.is_some() || !t.tag.is_diffable());
       }
     }
   }

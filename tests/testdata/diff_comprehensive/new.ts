@@ -74,7 +74,7 @@ export interface EmptyMarker {}
 
 /** Interface with index signature. */
 export interface StringMap {
-  [key: string]: string | number;
+  [prop: string]: string | number;
 }
 
 /** Color values. */
