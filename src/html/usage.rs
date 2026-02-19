@@ -286,7 +286,8 @@ impl UsagesCtx {
       js_sys::Function,
     >(usage_to_md_closure.as_ref());
 
-    let usages = usage_composer.compose(ctx.get_current_resolve(), &usage_to_md_closure);
+    let usages =
+      usage_composer.compose(ctx.get_current_resolve(), &usage_to_md_closure);
 
     #[cfg(target_arch = "wasm32")]
     {

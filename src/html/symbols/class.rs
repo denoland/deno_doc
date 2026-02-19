@@ -419,14 +419,9 @@ fn render_class_index_signatures(
         let old_readonly = sig_diff
           .and_then(|sd| sd.readonly_change.as_ref())
           .map(|c| c.old);
-        let old_params = sig_diff
-          .and_then(|sd| sd.params_change.as_ref())
-          .map(|pc| {
-            super::function::render_old_params(
-              ctx,
-              &index_signature.params,
-              pc,
-            )
+        let old_params =
+          sig_diff.and_then(|sd| sd.params_change.as_ref()).map(|pc| {
+            super::function::render_old_params(ctx, &index_signature.params, pc)
           });
         let old_ts_type = sig_diff
           .and_then(|sd| sd.type_change.as_ref())
@@ -748,36 +743,35 @@ fn render_class_method(
     method.kind,
   );
 
-  let (old_content, old_tags, js_doc_changed) =
-    if matches!(
-      diff_status,
-      Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
-    ) {
-      let method_diff = class_diff
-        .and_then(|d| d.method_changes.as_ref())
-        .and_then(|mc| mc.modified.iter().find(|m| m.name == method.name));
+  let (old_content, old_tags, js_doc_changed) = if matches!(
+    diff_status,
+    Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+  ) {
+    let method_diff = class_diff
+      .and_then(|d| d.method_changes.as_ref())
+      .and_then(|mc| mc.modified.iter().find(|m| m.name == method.name));
 
-      let old_content = method_diff
-        .and_then(|md| md.function_diff.as_ref())
-        .and_then(|fd| {
-          super::function::render_old_function_summary(
-            ctx,
-            &method.function_def.params,
-            &method.function_def.return_type,
-            fd.params_change.as_ref(),
-            fd.return_type_change.as_ref(),
-          )
-        });
+    let old_content = method_diff
+      .and_then(|md| md.function_diff.as_ref())
+      .and_then(|fd| {
+        super::function::render_old_function_summary(
+          ctx,
+          &method.function_def.params,
+          &method.function_def.return_type,
+          fd.params_change.as_ref(),
+          fd.return_type_change.as_ref(),
+        )
+      });
 
-      let old_tags = method_diff.map(|md| compute_old_method_tags(&tags, md));
+    let old_tags = method_diff.map(|md| compute_old_method_tags(&tags, md));
 
-      let js_doc_changed =
-        method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+    let js_doc_changed =
+      method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
 
-      (old_content, old_tags, js_doc_changed)
-    } else {
-      (None, None, None)
-    };
+    (old_content, old_tags, js_doc_changed)
+  } else {
+    (None, None, None)
+  };
 
   Some(DocEntryCtx::new_with_diff(
     ctx,
@@ -834,30 +828,27 @@ fn render_class_property(
     get_property_diff_status(class_diff, &property.name, property.is_static);
 
   // For modified/renamed properties, render the old type and old tags
-  let (old_content, old_tags, js_doc_changed) =
-    if matches!(
-      diff_status,
-      Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
-    ) {
-      let prop_diff = class_diff
-        .and_then(|d| d.property_changes.as_ref())
-        .and_then(|pc| {
-          pc.modified.iter().find(|p| p.name == property.name)
-        });
+  let (old_content, old_tags, js_doc_changed) = if matches!(
+    diff_status,
+    Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+  ) {
+    let prop_diff = class_diff
+      .and_then(|d| d.property_changes.as_ref())
+      .and_then(|pc| pc.modified.iter().find(|p| p.name == property.name));
 
-      let old_content = prop_diff
-        .and_then(|pd| pd.type_change.as_ref())
-        .map(|tc| render_type_def_colon(ctx, &tc.old));
+    let old_content = prop_diff
+      .and_then(|pd| pd.type_change.as_ref())
+      .map(|tc| render_type_def_colon(ctx, &tc.old));
 
-      let old_tags = prop_diff.map(|pd| compute_old_property_tags(&tags, pd));
+    let old_tags = prop_diff.map(|pd| compute_old_property_tags(&tags, pd));
 
-      let js_doc_changed =
-        prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
+    let js_doc_changed =
+      prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
 
-      (old_content, old_tags, js_doc_changed)
-    } else {
-      (None, None, None)
-    };
+    (old_content, old_tags, js_doc_changed)
+  } else {
+    (None, None, None)
+  };
 
   DocEntryCtx::new_with_diff(
     ctx,

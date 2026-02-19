@@ -833,10 +833,14 @@ fn get_type_param_diff_info(
 
   if let Some(tp_diff) = diff.modified.iter().find(|tp| tp.name == name) {
     let mut old_parts = Vec::new();
-    if let Some(constraint_change) = &tp_diff.constraint_change && let Some(old_constraint) = &constraint_change.old {
+    if let Some(constraint_change) = &tp_diff.constraint_change
+      && let Some(old_constraint) = &constraint_change.old
+    {
       old_parts.push(format!(" extends {}", &old_constraint.repr));
     }
-    if let Some(default_change) = &tp_diff.default_change && let Some(old_default) = &default_change.old {
+    if let Some(default_change) = &tp_diff.default_change
+      && let Some(old_default) = &default_change.old
+    {
       old_parts.push(format!(" = {}", &old_default.repr));
     }
     let old_content = if old_parts.is_empty() {

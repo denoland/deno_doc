@@ -60,9 +60,7 @@ pub(crate) fn render_enum(
       let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
           let member_diff = enum_diff.and_then(|d| {
-            d.modified_members
-              .iter()
-              .find(|m| m.name == member.name)
+            d.modified_members.iter().find(|m| m.name == member.name)
           });
           let old_content = member_diff
             .and_then(|md| md.init_change.as_ref())

@@ -1,6 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use super::Change;
+use super::RENAME_THRESHOLD;
 use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
@@ -369,7 +370,6 @@ impl InterfaceMethodsDiff {
       }
     }
 
-    // Detect renames: match removed → added pairs with same kind and identical signature
     let mut matched_added = IndexSet::new();
     let mut matched_removed = IndexSet::new();
 
@@ -379,40 +379,34 @@ impl InterfaceMethodsDiff {
           continue;
         }
 
-        if removed_method.kind == added_method.kind
-          && ParamsDiff::diff(&removed_method.params, &added_method.params)
-            .is_none()
-          && TsTypeDiff::diff_optional(
-            &removed_method.return_type,
-            &added_method.return_type,
-            "void",
-          )
-          .is_none()
-          && TypeParamsDiff::diff(
-            &removed_method.type_params,
-            &added_method.type_params,
-          )
-          .is_none()
-        {
-          let js_doc_change =
-            JsDocDiff::diff(&removed_method.js_doc, &added_method.js_doc);
-
-          modified.push(InterfaceMethodDiff {
-            name: added_method.name.clone(),
-            name_change: Some(Change::new(
+        if removed_method.kind == added_method.kind {
+          let method_diff =
+            InterfaceMethodDiff::diff(removed_method, added_method);
+          let pct = method_diff
+            .as_ref()
+            .map_or(0.0, |d| d.change_percentage());
+          if pct <= RENAME_THRESHOLD {
+            let mut diff =
+              method_diff.unwrap_or_else(|| InterfaceMethodDiff {
+                name: added_method.name.clone(),
+                name_change: None,
+                optional_change: None,
+                params_change: None,
+                return_type_change: None,
+                type_params_change: None,
+                js_doc_change: None,
+              });
+            diff.name = added_method.name.clone();
+            diff.name_change = Some(Change::new(
               removed_method.name.clone(),
               added_method.name.clone(),
-            )),
-            optional_change: None,
-            params_change: None,
-            return_type_change: None,
-            type_params_change: None,
-            js_doc_change,
-          });
+            ));
 
-          matched_added.insert(a_idx);
-          matched_removed.insert(r_idx);
-          break;
+            modified.push(diff);
+            matched_added.insert(a_idx);
+            matched_removed.insert(r_idx);
+            break;
+          }
         }
       }
     }
@@ -519,6 +513,14 @@ impl InterfaceMethodDiff {
       js_doc_change,
     })
   }
+
+  pub fn change_percentage(&self) -> f64 {
+    let changed = self.optional_change.is_some() as usize
+      + self.params_change.is_some() as usize
+      + self.return_type_change.is_some() as usize
+      + self.type_params_change.is_some() as usize;
+    changed as f64 / 4.0
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -566,7 +568,6 @@ impl InterfacePropertiesDiff {
       }
     }
 
-    // Detect renames: match removed → added pairs with identical type
     let mut matched_added = IndexSet::new();
     let mut matched_removed = IndexSet::new();
 
@@ -576,30 +577,30 @@ impl InterfacePropertiesDiff {
           continue;
         }
 
-        if TsTypeDiff::diff_optional(
-          &removed_prop.ts_type,
-          &added_prop.ts_type,
-          "unknown",
-        )
-        .is_none()
-        {
-          let js_doc_change =
-            JsDocDiff::diff(&removed_prop.js_doc, &added_prop.js_doc);
+        let prop_diff =
+          InterfacePropertyDiff::diff(removed_prop, added_prop);
+        let pct = prop_diff
+          .as_ref()
+          .map_or(0.0, |d| d.change_percentage());
+        if pct <= RENAME_THRESHOLD {
+          let mut diff =
+            prop_diff.unwrap_or_else(|| InterfacePropertyDiff {
+              name: added_prop.name.clone(),
+              name_change: None,
+              readonly_change: None,
+              optional_change: None,
+              type_change: None,
+              params_change: None,
+              type_params_change: None,
+              js_doc_change: None,
+            });
+          diff.name = added_prop.name.clone();
+          diff.name_change = Some(Change::new(
+            removed_prop.name.clone(),
+            added_prop.name.clone(),
+          ));
 
-          modified.push(InterfacePropertyDiff {
-            name: added_prop.name.clone(),
-            name_change: Some(Change::new(
-              removed_prop.name.clone(),
-              added_prop.name.clone(),
-            )),
-            readonly_change: None,
-            optional_change: None,
-            type_change: None,
-            params_change: None,
-            type_params_change: None,
-            js_doc_change,
-          });
-
+          modified.push(diff);
           matched_added.insert(a_idx);
           matched_removed.insert(r_idx);
           break;
@@ -717,6 +718,15 @@ impl InterfacePropertyDiff {
       type_params_change,
       js_doc_change,
     })
+  }
+
+  pub fn change_percentage(&self) -> f64 {
+    let changed = self.readonly_change.is_some() as usize
+      + self.optional_change.is_some() as usize
+      + self.type_change.is_some() as usize
+      + self.params_change.is_some() as usize
+      + self.type_params_change.is_some() as usize;
+    changed as f64 / 5.0
   }
 }
 

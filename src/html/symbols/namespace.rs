@@ -6,7 +6,9 @@ use crate::html::MethodKind;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::function::render_function_summary;
-use crate::html::types::{render_type_def, render_type_def_colon, type_params_summary};
+use crate::html::types::{
+  render_type_def, render_type_def_colon, type_params_summary,
+};
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -556,10 +558,17 @@ fn inject_removed_subitems(
     DocNodeDefDiff::Class(class_diff) => {
       if let Some(mc) = &class_diff.method_changes {
         for method in &mc.removed {
-          if matches!(method.accessibility, Some(deno_ast::swc::ast::Accessibility::Private)) {
+          if matches!(
+            method.accessibility,
+            Some(deno_ast::swc::ast::Accessibility::Private)
+          ) {
             continue;
           }
-          let target_id = if matches!(method.kind, deno_ast::swc::ast::MethodKind::Getter | deno_ast::swc::ast::MethodKind::Setter) {
+          let target_id = if matches!(
+            method.kind,
+            deno_ast::swc::ast::MethodKind::Getter
+              | deno_ast::swc::ast::MethodKind::Setter
+          ) {
             IdBuilder::new(ctx)
               .kind(IdKind::Accessor)
               .name(&method.name.to_lowercase())
@@ -574,7 +583,11 @@ fn inject_removed_subitems(
 
           subitems.insert(NamespaceNodeSubItemCtx {
             title: method.name.to_string(),
-            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &method.js_doc, true),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &method.js_doc,
+              true,
+            ),
             ty: Some(TypeSummaryCtx {
               ty: render_function_summary(&method.function_def, &no_links_ctx),
               info: None,
@@ -586,7 +599,10 @@ fn inject_removed_subitems(
       }
       if let Some(pc) = &class_diff.property_changes {
         for prop in &pc.removed {
-          if matches!(prop.accessibility, Some(deno_ast::swc::ast::Accessibility::Private)) {
+          if matches!(
+            prop.accessibility,
+            Some(deno_ast::swc::ast::Accessibility::Private)
+          ) {
             continue;
           }
           let target_id = IdBuilder::new(ctx)
@@ -601,7 +617,11 @@ fn inject_removed_subitems(
 
           subitems.insert(NamespaceNodeSubItemCtx {
             title: prop.name.to_string(),
-            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &prop.js_doc, true),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &prop.js_doc,
+              true,
+            ),
             ty,
             href: format!("{href}#{}", target_id.as_str()),
             diff_status: Some(DiffStatus::Removed),
@@ -612,7 +632,11 @@ fn inject_removed_subitems(
     DocNodeDefDiff::Interface(iface_diff) => {
       if let Some(mc) = &iface_diff.method_changes {
         for method in &mc.removed {
-          let target_id = if matches!(method.kind, deno_ast::swc::ast::MethodKind::Getter | deno_ast::swc::ast::MethodKind::Setter) {
+          let target_id = if matches!(
+            method.kind,
+            deno_ast::swc::ast::MethodKind::Getter
+              | deno_ast::swc::ast::MethodKind::Setter
+          ) {
             IdBuilder::new(ctx)
               .kind(IdKind::Accessor)
               .name(&method.name.to_lowercase())
@@ -633,7 +657,11 @@ fn inject_removed_subitems(
 
           subitems.insert(NamespaceNodeSubItemCtx {
             title: method.name.to_string(),
-            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &method.js_doc, true),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &method.js_doc,
+              true,
+            ),
             ty: Some(TypeSummaryCtx {
               ty: format!(
                 "{}({}){return_type}",
@@ -661,7 +689,11 @@ fn inject_removed_subitems(
 
           subitems.insert(NamespaceNodeSubItemCtx {
             title: prop.name.to_string(),
-            docs: crate::html::jsdoc::jsdoc_body_to_html(ctx, &prop.js_doc, true),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &prop.js_doc,
+              true,
+            ),
             ty,
             href: format!("{href}#{}", target_id.as_str()),
             diff_status: Some(DiffStatus::Removed),

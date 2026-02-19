@@ -41,6 +41,9 @@ pub use ts_type::TypeParamsDiff;
 pub use type_alias::TypeAliasDiff;
 pub use variable::VariableDiff;
 
+/// Maximum change percentage for two items to be considered a rename.
+pub(crate) const RENAME_THRESHOLD: f64 = 0.10;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Change<T> {
@@ -233,8 +236,6 @@ fn try_detect_rename(
   old: &DocNode,
   new: &DocNode,
 ) -> Option<Option<DocNodeDefDiff>> {
-  const RENAME_THRESHOLD: f64 = 0.10;
-
   if old.def.to_kind() != new.def.to_kind() {
     return None;
   }

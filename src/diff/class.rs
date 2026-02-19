@@ -1,6 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use super::Change;
+use super::RENAME_THRESHOLD;
 use super::function::DecoratorsDiff;
 use super::function::FunctionDiff;
 use super::function::ParamsDiff;
@@ -584,7 +585,8 @@ impl MethodsDiff {
       }
     }
 
-    // Detect renames: match removed → added pairs with same is_static and kind
+    // Detect renames: match removed → added pairs with same is_static and kind,
+    // using diff delta threshold (same approach as node-level rename detection).
     let mut matched_added = IndexSet::new();
     let mut matched_removed = IndexSet::new();
 
@@ -596,33 +598,32 @@ impl MethodsDiff {
 
         if removed_method.is_static == added_method.is_static
           && removed_method.kind == added_method.kind
-          && FunctionDiff::diff(
-            &removed_method.function_def,
-            &added_method.function_def,
-          )
-          .is_none()
         {
-          let js_doc_change =
-            JsDocDiff::diff(&removed_method.js_doc, &added_method.js_doc);
-
-          modified.push(MethodDiff {
-            name: added_method.name.clone(),
-            name_change: Some(Change::new(
+          let method_diff = MethodDiff::diff(removed_method, added_method);
+          let pct = method_diff.as_ref().map_or(0.0, |d| d.change_percentage());
+          if pct <= RENAME_THRESHOLD {
+            let mut diff = method_diff.unwrap_or_else(|| MethodDiff {
+              name: added_method.name.clone(),
+              name_change: None,
+              accessibility_change: None,
+              is_static_change: None,
+              is_abstract_change: None,
+              is_override_change: None,
+              optional_change: None,
+              function_diff: None,
+              js_doc_change: None,
+            });
+            diff.name = added_method.name.clone();
+            diff.name_change = Some(Change::new(
               removed_method.name.clone(),
               added_method.name.clone(),
-            )),
-            accessibility_change: None,
-            is_static_change: None,
-            is_abstract_change: None,
-            is_override_change: None,
-            optional_change: None,
-            function_diff: None,
-            js_doc_change,
-          });
+            ));
 
-          matched_added.insert(a_idx);
-          matched_removed.insert(r_idx);
-          break;
+            modified.push(diff);
+            matched_added.insert(a_idx);
+            matched_removed.insert(r_idx);
+            break;
+          }
         }
       }
     }
@@ -757,6 +758,20 @@ impl MethodDiff {
       js_doc_change,
     })
   }
+
+  pub fn change_percentage(&self) -> f64 {
+    let fn_pct = self
+      .function_diff
+      .as_ref()
+      .map_or(0.0, |f| f.change_percentage());
+    let field_changed = self.accessibility_change.is_some() as u8
+      + self.is_static_change.is_some() as u8
+      + self.is_abstract_change.is_some() as u8
+      + self.is_override_change.is_some() as u8
+      + self.optional_change.is_some() as u8;
+    // Average of method-level field percentage and function percentage
+    ((field_changed as f64 / 5.0) + fn_pct) / 2.0
+  }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -807,7 +822,6 @@ impl PropertiesDiff {
       }
     }
 
-    // Detect renames: match removed → added pairs with same is_static and identical type
     let mut matched_added = IndexSet::new();
     let mut matched_removed = IndexSet::new();
 
@@ -817,39 +831,34 @@ impl PropertiesDiff {
           continue;
         }
 
-        if removed_prop.is_static == added_prop.is_static
-          && TsTypeDiff::diff_optional(
-            &removed_prop.ts_type,
-            &added_prop.ts_type,
-            "unknown",
-          )
-          .is_none()
-        {
-          let js_doc_change =
-            JsDocDiff::diff(&removed_prop.js_doc, &added_prop.js_doc);
-          let decorators_change =
-            DecoratorsDiff::diff(&removed_prop.decorators, &added_prop.decorators);
-
-          modified.push(PropertyDiff {
-            name: added_prop.name.clone(),
-            name_change: Some(Change::new(
+        if removed_prop.is_static == added_prop.is_static {
+          let prop_diff = PropertyDiff::diff(removed_prop, added_prop);
+          let pct = prop_diff.as_ref().map_or(0.0, |d| d.change_percentage());
+          if pct <= RENAME_THRESHOLD {
+            let mut diff = prop_diff.unwrap_or_else(|| PropertyDiff {
+              name: added_prop.name.clone(),
+              name_change: None,
+              accessibility_change: None,
+              readonly_change: None,
+              is_static_change: None,
+              is_abstract_change: None,
+              is_override_change: None,
+              optional_change: None,
+              type_change: None,
+              decorators_change: None,
+              js_doc_change: None,
+            });
+            diff.name = added_prop.name.clone();
+            diff.name_change = Some(Change::new(
               removed_prop.name.clone(),
               added_prop.name.clone(),
-            )),
-            accessibility_change: None,
-            readonly_change: None,
-            is_static_change: None,
-            is_abstract_change: None,
-            is_override_change: None,
-            optional_change: None,
-            type_change: None,
-            decorators_change,
-            js_doc_change,
-          });
+            ));
 
-          matched_added.insert(a_idx);
-          matched_removed.insert(r_idx);
-          break;
+            modified.push(diff);
+            matched_added.insert(a_idx);
+            matched_removed.insert(r_idx);
+            break;
+          }
         }
       }
     }
@@ -1003,6 +1012,18 @@ impl PropertyDiff {
       decorators_change,
       js_doc_change,
     })
+  }
+
+  pub fn change_percentage(&self) -> f64 {
+    let changed = self.accessibility_change.is_some() as usize
+      + self.readonly_change.is_some() as usize
+      + self.is_static_change.is_some() as usize
+      + self.is_abstract_change.is_some() as usize
+      + self.is_override_change.is_some() as usize
+      + self.optional_change.is_some() as usize
+      + self.type_change.is_some() as usize
+      + self.decorators_change.is_some() as usize;
+    changed as f64 / 8.0
   }
 }
 
