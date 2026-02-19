@@ -178,7 +178,7 @@ fn render_interface_index_signatures(
         && i >= index_signatures.len() - diff.added.len()
       {
         Some(DiffStatus::Added)
-      } else if diff.modified.iter().any(|_| true)
+      } else if !diff.modified.is_empty()
         && i < index_signatures.len().saturating_sub(diff.added.len())
       {
         // Position-based: modified entries are at matching positions
@@ -472,7 +472,7 @@ fn render_interface_constructors(
 
       let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
-          let cd = ctor_diff.and_then(|cc| cc.modified.iter().find(|_| true));
+          let cd = ctor_diff.and_then(|cc| cc.modified.first());
           let old_content = cd.and_then(|cd| {
             super::function::render_old_function_summary(
               ctx,

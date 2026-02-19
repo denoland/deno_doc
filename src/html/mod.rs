@@ -1601,11 +1601,11 @@ pub fn generate_json(
           && index
             .overview
             .as_ref()
-            .is_none_or(|o| !o.sections.is_empty())
+            .is_none_or(|o| o.sections.is_empty())
           && index
             .module_doc
             .as_ref()
-            .is_none_or(|md| !md.sections.sections.is_empty())
+            .is_none_or(|md| md.sections.sections.is_empty())
         {
           continue;
         }

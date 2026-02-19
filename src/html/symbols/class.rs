@@ -85,7 +85,7 @@ pub(crate) fn render_class(
     class_diff,
   );
   if let Some(diff) = class_diff {
-    inject_removed_properties(ctx, name, diff, true, &mut static_properties);
+    inject_removed_properties(ctx, diff, true, &mut static_properties);
   }
 
   if !static_properties.is_empty() {
@@ -99,7 +99,7 @@ pub(crate) fn render_class(
   let mut static_methods =
     render_class_methods(ctx, name, class_items.static_methods, class_diff);
   if let Some(diff) = class_diff {
-    inject_removed_methods(ctx, name, diff, true, &mut static_methods);
+    inject_removed_methods(ctx, diff, true, &mut static_methods);
   }
 
   if !static_methods.is_empty() {
@@ -113,7 +113,7 @@ pub(crate) fn render_class(
   let mut properties =
     render_class_properties(ctx, name, class_items.properties, class_diff);
   if let Some(diff) = class_diff {
-    inject_removed_properties(ctx, name, diff, false, &mut properties);
+    inject_removed_properties(ctx, diff, false, &mut properties);
   }
 
   if !properties.is_empty() {
@@ -127,7 +127,7 @@ pub(crate) fn render_class(
   let mut methods =
     render_class_methods(ctx, name, class_items.methods, class_diff);
   if let Some(diff) = class_diff {
-    inject_removed_methods(ctx, name, diff, false, &mut methods);
+    inject_removed_methods(ctx, diff, false, &mut methods);
   }
 
   if !methods.is_empty() {
@@ -921,7 +921,6 @@ fn get_method_diff_status(
 
 fn inject_removed_properties(
   ctx: &RenderContext,
-  _class_name: &str,
   class_diff: &ClassDiff,
   is_static: bool,
   entries: &mut Vec<DocEntryCtx>,
@@ -1041,7 +1040,6 @@ fn inject_removed_properties(
 
 fn inject_removed_methods(
   ctx: &RenderContext,
-  _class_name: &str,
   class_diff: &ClassDiff,
   is_static: bool,
   entries: &mut Vec<DocEntryCtx>,
