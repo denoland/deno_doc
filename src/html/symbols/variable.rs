@@ -20,21 +20,14 @@ pub(crate) fn render_variable(
     return vec![];
   };
 
-  // Extract VariableDiff if available
   let var_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
-    )?;
-    let node_diff = info.diff.as_ref()?;
-    if let crate::diff::DocNodeDefDiff::Variable(var_diff) =
-      node_diff.def_changes.as_ref()?
-    {
-      Some(var_diff)
-    } else {
-      None
-    }
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_variable())
   });
 
   let id = IdBuilder::new(ctx)
@@ -72,7 +65,7 @@ pub(crate) fn render_variable(
     sections.push(SectionCtx::new(
       ctx,
       "Type",
-      SectionContentCtx::DocEntry(vec![DocEntryCtx::new_with_diff(
+      SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
         id,
         None,

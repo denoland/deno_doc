@@ -22,6 +22,9 @@ export class Animal<T = string> {
 
   get displayName(): string { return ""; }
   set displayName(value: string) {}
+
+  /** The animal's full ID. */
+  get fullId(): string { return ""; }
 }
 
 /** A cat extending Animal. */

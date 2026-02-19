@@ -746,7 +746,7 @@ pub(crate) fn render_type_params(
     let (diff_status, old_content) =
       get_type_param_diff_info(type_params_diff, &type_param.name);
 
-    let content = DocEntryCtx::new_with_diff(
+    let content = DocEntryCtx::new(
       ctx,
       id,
       Some(html_escape::encode_text(&type_param.name).into_owned()),
@@ -794,7 +794,7 @@ pub(crate) fn render_type_params(
         })
         .unwrap_or_default();
 
-      items.push(DocEntryCtx::new_with_diff(
+      items.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&removed_tp.name).into_owned()),

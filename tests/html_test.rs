@@ -180,6 +180,7 @@ async fn html_doc_dts() {
       diff_only: false,
     },
     get_files("dts").await,
+    None,
   )
   .unwrap();
   let files = generate(ctx).unwrap();
@@ -238,6 +239,7 @@ async fn html_doc_files_single() {
       diff_only: false,
     },
     get_files("single").await,
+    None,
   )
   .unwrap();
   let files = generate(ctx).unwrap();
@@ -317,6 +319,7 @@ async fn html_doc_files_multiple() {
       diff_only: false,
     },
     get_files("multiple").await,
+    None,
   )
   .unwrap();
   let files = generate(ctx).unwrap();
@@ -708,7 +711,7 @@ async fn diff_kind_change() {
 
   let diff = DocDiff::diff(&old_docs, &new_docs);
 
-  let ctx = GenerateCtx::create_basic_with_diff(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
@@ -726,7 +729,7 @@ async fn diff_kind_change() {
       diff_only: false,
     },
     new_docs,
-    diff,
+    Some(diff),
   )
   .unwrap();
 
@@ -758,7 +761,7 @@ async fn diff_comprehensive() {
   let diff = DocDiff::diff(&old_docs, &new_docs);
 
   // Test with diff_only: false (full output with diff annotations)
-  let ctx = GenerateCtx::create_basic_with_diff(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
@@ -776,7 +779,7 @@ async fn diff_comprehensive() {
       diff_only: false,
     },
     new_docs.clone(),
-    diff.clone(),
+    Some(diff.clone()),
   )
   .unwrap();
 
@@ -794,7 +797,7 @@ async fn diff_comprehensive() {
   insta::assert_json_snapshot!("diff_comprehensive_full", pages);
 
   // Test with diff_only: true (only changed content)
-  let ctx = GenerateCtx::create_basic_with_diff(
+  let ctx = GenerateCtx::create_basic(
     GenerateOptions {
       package_name: None,
       main_entrypoint: None,
@@ -812,7 +815,7 @@ async fn diff_comprehensive() {
       diff_only: true,
     },
     new_docs,
-    diff,
+    Some(diff),
   )
   .unwrap();
 

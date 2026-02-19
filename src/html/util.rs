@@ -880,23 +880,6 @@ impl DocEntryCtx {
     tags: IndexSet<Tag>,
     jsdoc: Option<&str>,
     location: &crate::Location,
-  ) -> Self {
-    Self::new_with_diff(
-      ctx, id, name, name_href, content, tags, jsdoc, location, None, None,
-      None, None,
-    )
-  }
-
-  #[allow(clippy::too_many_arguments)]
-  pub fn new_with_diff(
-    ctx: &RenderContext,
-    id: Id,
-    name: Option<String>,
-    name_href: Option<String>,
-    content: &str,
-    tags: IndexSet<Tag>,
-    jsdoc: Option<&str>,
-    location: &crate::Location,
     diff_status: Option<DiffStatus>,
     old_content: Option<String>,
     old_tags: Option<IndexSet<Tag>>,

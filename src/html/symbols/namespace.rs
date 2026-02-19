@@ -221,68 +221,69 @@ impl NamespaceNodeCtx {
 
     subitems.sort();
 
-    let diff_status = compute_combined_diff_status(&nodes).and_then(|status| {
-      // If the symbol is Modified and the only changes are in subitems
-      // (methods/properties), don't mark the symbol itself as changed.
-      // Skip this check if any node is Added/Removed (kind change scenario).
-      if matches!(status, DiffStatus::Modified)
-        && !nodes.iter().any(|n| {
-          matches!(
-            n.diff_status,
-            Some(DiffStatus::Added) | Some(DiffStatus::Removed)
-          )
-        })
-      {
-        let only_subitem_changes = nodes.iter().all(|node| {
-          ctx
-            .ctx
-            .diff
-            .as_ref()
-            .and_then(|diff_index| {
-              let info = diff_index.get_node_diff(
-                &node.origin.specifier,
-                node.get_name(),
-                node.def.to_kind(),
-              )?;
-              let diff = info.diff.as_ref()?;
+    let diff_status =
+      super::compute_combined_diff_status(&nodes).and_then(|status| {
+        // If the symbol is Modified and the only changes are in subitems
+        // (methods/properties), don't mark the symbol itself as changed.
+        // Skip this check if any node is Added/Removed (kind change scenario).
+        if matches!(status, DiffStatus::Modified)
+          && !nodes.iter().any(|n| {
+            matches!(
+              n.diff_status,
+              Some(DiffStatus::Added) | Some(DiffStatus::Removed)
+            )
+          })
+        {
+          let only_subitem_changes = nodes.iter().all(|node| {
+            ctx
+              .ctx
+              .diff
+              .as_ref()
+              .and_then(|diff_index| {
+                let info = diff_index.get_node_diff(
+                  &node.origin.specifier,
+                  node.get_name(),
+                  node.def.to_kind(),
+                )?;
+                let diff = info.diff.as_ref()?;
 
-              // If there are non-def changes, it's not subitem-only
-              if diff.name_change.is_some()
-                || diff.js_doc_changes.is_some()
-                || diff.declaration_kind_change.is_some()
-              {
-                return Some(false);
-              }
+                // If there are non-def changes, it's not subitem-only
+                if diff.name_change.is_some()
+                  || diff.js_doc_changes.is_some()
+                  || diff.declaration_kind_change.is_some()
+                {
+                  return Some(false);
+                }
 
-              Some(match diff.def_changes.as_ref()? {
-                DocNodeDefDiff::Class(class_diff) => {
-                  class_diff.is_abstract_change.is_none()
-                    && class_diff.extends_change.is_none()
-                    && class_diff.implements_change.is_none()
-                    && class_diff.type_params_change.is_none()
-                    && class_diff.super_type_params_change.is_none()
-                    && class_diff.constructor_changes.is_none()
-                    && class_diff.index_signature_changes.is_none()
-                    && class_diff.decorators_change.is_none()
-                }
-                DocNodeDefDiff::Interface(iface_diff) => {
-                  iface_diff.extends_change.is_none()
-                    && iface_diff.type_params_change.is_none()
-                    && iface_diff.constructor_changes.is_none()
-                    && iface_diff.call_signature_changes.is_none()
-                    && iface_diff.index_signature_changes.is_none()
-                }
-                _ => false,
+                Some(match diff.def_changes.as_ref()? {
+                  DocNodeDefDiff::Class(class_diff) => {
+                    class_diff.is_abstract_change.is_none()
+                      && class_diff.extends_change.is_none()
+                      && class_diff.implements_change.is_none()
+                      && class_diff.type_params_change.is_none()
+                      && class_diff.super_type_params_change.is_none()
+                      && class_diff.constructor_changes.is_none()
+                      && class_diff.index_signature_changes.is_none()
+                      && class_diff.decorators_change.is_none()
+                  }
+                  DocNodeDefDiff::Interface(iface_diff) => {
+                    iface_diff.extends_change.is_none()
+                      && iface_diff.type_params_change.is_none()
+                      && iface_diff.constructor_changes.is_none()
+                      && iface_diff.call_signature_changes.is_none()
+                      && iface_diff.index_signature_changes.is_none()
+                  }
+                  _ => false,
+                })
               })
-            })
-            .unwrap_or(true)
-        });
-        if only_subitem_changes {
-          return None;
+              .unwrap_or(true)
+          });
+          if only_subitem_changes {
+            return None;
+          }
         }
-      }
-      Some(status)
-    });
+        Some(status)
+      });
 
     let old_tags = if matches!(diff_status, Some(DiffStatus::Modified)) {
       let mut old_tags = tags.clone();
@@ -702,32 +703,5 @@ fn inject_removed_subitems(
       }
     }
     _ => {}
-  }
-}
-
-/// Compute a combined diff_status for a group of nodes with the same name.
-/// If nodes have a mix of Added and Removed (kind change), return Modified.
-fn compute_combined_diff_status(
-  nodes: &[DocNodeWithContext],
-) -> Option<DiffStatus> {
-  let mut has_added = false;
-  let mut has_removed = false;
-  let mut first_status = None;
-
-  for node in nodes {
-    match &node.diff_status {
-      Some(DiffStatus::Added) => has_added = true,
-      Some(DiffStatus::Removed) => has_removed = true,
-      _ => {}
-    }
-    if first_status.is_none() {
-      first_status = node.diff_status.clone();
-    }
-  }
-
-  if has_added && has_removed {
-    Some(DiffStatus::Modified)
-  } else {
-    first_status
   }
 }

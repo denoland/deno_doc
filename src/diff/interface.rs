@@ -1,7 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use super::Change;
-use super::RENAME_THRESHOLD;
+use super::RenameCandidate;
+use super::detect_renames;
 use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
@@ -271,6 +272,7 @@ impl InterfaceConstructorsDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceConstructorDiff {
+  pub param_count: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -316,6 +318,7 @@ impl InterfaceConstructorDiff {
     }
 
     Some(InterfaceConstructorDiff {
+      param_count: new_params.len(),
       params_change,
       type_params_change,
       return_type_change,
@@ -370,59 +373,11 @@ impl InterfaceMethodsDiff {
       }
     }
 
-    let mut matched_added = IndexSet::new();
-    let mut matched_removed = IndexSet::new();
-
-    for (r_idx, removed_method) in removed.iter().enumerate() {
-      for (a_idx, added_method) in added.iter().enumerate() {
-        if matched_added.contains(&a_idx) {
-          continue;
-        }
-
-        if removed_method.kind == added_method.kind {
-          let method_diff =
-            InterfaceMethodDiff::diff(removed_method, added_method);
-          let pct = method_diff
-            .as_ref()
-            .map_or(0.0, |d| d.change_percentage());
-          if pct <= RENAME_THRESHOLD {
-            let mut diff =
-              method_diff.unwrap_or_else(|| InterfaceMethodDiff {
-                name: added_method.name.clone(),
-                name_change: None,
-                optional_change: None,
-                params_change: None,
-                return_type_change: None,
-                type_params_change: None,
-                js_doc_change: None,
-              });
-            diff.name = added_method.name.clone();
-            diff.name_change = Some(Change::new(
-              removed_method.name.clone(),
-              added_method.name.clone(),
-            ));
-
-            modified.push(diff);
-            matched_added.insert(a_idx);
-            matched_removed.insert(r_idx);
-            break;
-          }
-        }
-      }
-    }
-
-    let added = added
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_added.contains(i))
-      .map(|(_, m)| m)
-      .collect::<Vec<_>>();
-    let removed = removed
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_removed.contains(i))
-      .map(|(_, m)| m)
-      .collect::<Vec<_>>();
+    detect_renames::<InterfaceMethodDiff>(
+      &mut added,
+      &mut removed,
+      &mut modified,
+    );
 
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
@@ -523,6 +478,37 @@ impl InterfaceMethodDiff {
   }
 }
 
+impl RenameCandidate for InterfaceMethodDiff {
+  type Item = MethodDef;
+
+  fn is_candidate(old: &MethodDef, new: &MethodDef) -> bool {
+    old.kind == new.kind
+  }
+
+  fn compute(old: &MethodDef, new: &MethodDef) -> Option<Self> {
+    InterfaceMethodDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(diff: Option<Self>, old: &MethodDef, new: &MethodDef) -> Self {
+    let mut d = diff.unwrap_or_else(|| InterfaceMethodDiff {
+      name: new.name.clone(),
+      name_change: None,
+      optional_change: None,
+      params_change: None,
+      return_type_change: None,
+      type_params_change: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
+  }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfacePropertiesDiff {
@@ -568,58 +554,11 @@ impl InterfacePropertiesDiff {
       }
     }
 
-    let mut matched_added = IndexSet::new();
-    let mut matched_removed = IndexSet::new();
-
-    for (r_idx, removed_prop) in removed.iter().enumerate() {
-      for (a_idx, added_prop) in added.iter().enumerate() {
-        if matched_added.contains(&a_idx) {
-          continue;
-        }
-
-        let prop_diff =
-          InterfacePropertyDiff::diff(removed_prop, added_prop);
-        let pct = prop_diff
-          .as_ref()
-          .map_or(0.0, |d| d.change_percentage());
-        if pct <= RENAME_THRESHOLD {
-          let mut diff =
-            prop_diff.unwrap_or_else(|| InterfacePropertyDiff {
-              name: added_prop.name.clone(),
-              name_change: None,
-              readonly_change: None,
-              optional_change: None,
-              type_change: None,
-              params_change: None,
-              type_params_change: None,
-              js_doc_change: None,
-            });
-          diff.name = added_prop.name.clone();
-          diff.name_change = Some(Change::new(
-            removed_prop.name.clone(),
-            added_prop.name.clone(),
-          ));
-
-          modified.push(diff);
-          matched_added.insert(a_idx);
-          matched_removed.insert(r_idx);
-          break;
-        }
-      }
-    }
-
-    let added = added
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_added.contains(i))
-      .map(|(_, p)| p)
-      .collect::<Vec<_>>();
-    let removed = removed
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_removed.contains(i))
-      .map(|(_, p)| p)
-      .collect::<Vec<_>>();
+    detect_renames::<InterfacePropertyDiff>(
+      &mut added,
+      &mut removed,
+      &mut modified,
+    );
 
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
@@ -727,6 +666,42 @@ impl InterfacePropertyDiff {
       + self.params_change.is_some() as usize
       + self.type_params_change.is_some() as usize;
     changed as f64 / 5.0
+  }
+}
+
+impl RenameCandidate for InterfacePropertyDiff {
+  type Item = PropertyDef;
+
+  fn is_candidate(_old: &PropertyDef, _new: &PropertyDef) -> bool {
+    true
+  }
+
+  fn compute(old: &PropertyDef, new: &PropertyDef) -> Option<Self> {
+    InterfacePropertyDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(
+    diff: Option<Self>,
+    old: &PropertyDef,
+    new: &PropertyDef,
+  ) -> Self {
+    let mut d = diff.unwrap_or_else(|| InterfacePropertyDiff {
+      name: new.name.clone(),
+      name_change: None,
+      readonly_change: None,
+      optional_change: None,
+      type_change: None,
+      params_change: None,
+      type_params_change: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
   }
 }
 

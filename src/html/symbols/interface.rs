@@ -26,21 +26,14 @@ pub(crate) fn render_interface(
     .collect::<std::collections::HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  // Extract InterfaceDiff if available
   let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
-    )?;
-    let node_diff = info.diff.as_ref()?;
-    if let crate::diff::DocNodeDefDiff::Interface(iface_diff) =
-      node_diff.def_changes.as_ref()?
-    {
-      Some(iface_diff)
-    } else {
-      None
-    }
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_interface())
   });
 
   let mut sections = vec![];
@@ -307,6 +300,10 @@ pub(crate) fn render_call_signatures(
         tags,
         call_signature.js_doc.doc.as_deref(),
         &call_signature.location,
+        None,
+        None,
+        None,
+        None,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -376,7 +373,7 @@ fn render_interface_call_signatures(
           (None, None)
         };
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         ctx,
         id,
         None,
@@ -411,7 +408,7 @@ fn render_interface_call_signatures(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      items.push(DocEntryCtx::new_with_diff(
+      items.push(DocEntryCtx::new(
         ctx,
         id,
         None,
@@ -492,7 +489,7 @@ fn render_interface_constructors(
           (None, None)
         };
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         ctx,
         id,
         None,
@@ -527,7 +524,7 @@ fn render_interface_constructors(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      items.push(DocEntryCtx::new_with_diff(
+      items.push(DocEntryCtx::new(
         ctx,
         id,
         None,
@@ -569,7 +566,11 @@ fn get_constructor_diff_status(
   if changes.added.iter().any(|c| c.params.len() == param_count) {
     return Some(DiffStatus::Added);
   }
-  if changes.modified.iter().any(|_| true) {
+  if changes
+    .modified
+    .iter()
+    .any(|m| m.param_count == param_count)
+  {
     return Some(DiffStatus::Modified);
   }
   None
@@ -635,7 +636,7 @@ fn inject_removed_properties(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      entries.push(DocEntryCtx::new_with_diff(
+      entries.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&removed_prop.name).into_owned()),
@@ -672,7 +673,7 @@ fn inject_removed_methods(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      entries.push(DocEntryCtx::new_with_diff(
+      entries.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&removed_method.name).into_owned()),
@@ -762,7 +763,7 @@ fn render_properties_vec(
         (None, None, None)
       };
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         ctx,
         id,
         Some(if property.computed {
@@ -854,7 +855,7 @@ fn render_methods_vec(
         (None, None, None)
       };
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         ctx,
         id,
         Some(name),

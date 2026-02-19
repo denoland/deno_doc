@@ -189,6 +189,18 @@ expression: pages
                               }
                             },
                             {
+                              "title": "fullId",
+                              "docs": "<div class=\"markdown_summary\"><p>The animal's full ID.</p>\n</div>",
+                              "ty": {
+                                "ty": "()<span>: <span class=\"td-kw\">string</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Animal.html#accessor_fullid",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
+                            },
+                            {
                               "title": "vocalize",
                               "docs": "<div class=\"markdown_summary\"><p>Make the animal speak.</p>\n</div>",
                               "ty": {
@@ -2438,6 +2450,24 @@ expression: pages
                             "diff_status": {
                               "kind": "added"
                             }
+                          },
+                          {
+                            "name": "fullId",
+                            "name_href": null,
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "accessor_fullid"
+                            },
+                            "tags": [
+                              {
+                                "kind": "readonly"
+                              }
+                            ],
+                            "js_doc": "<div class=\"markdown\"><p>The animal's full ID.</p>\n</div>",
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "removed"
+                            }
                           }
                         ]
                       }
@@ -2556,7 +2586,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li><li><a href=\"#accessor_fullid\" title=\"fullId\">fullId</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -2592,6 +2622,11 @@ expression: pages
             "level": 2,
             "content": "color",
             "anchor": "property_color"
+          },
+          {
+            "level": 2,
+            "content": "fullId",
+            "anchor": "accessor_fullid"
           },
           {
             "level": 1,

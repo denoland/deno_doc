@@ -44,6 +44,73 @@ pub use variable::VariableDiff;
 /// Maximum change percentage for two items to be considered a rename.
 pub(crate) const RENAME_THRESHOLD: f64 = 0.10;
 
+/// Trait for diff types that support rename detection via change percentage.
+pub(crate) trait RenameCandidate: Sized {
+  type Item;
+
+  /// Whether two items are structurally compatible for a rename
+  /// (e.g. same kind, same is_static).
+  fn is_candidate(old: &Self::Item, new: &Self::Item) -> bool;
+
+  /// Compute the diff between old and new items.
+  fn compute(old: &Self::Item, new: &Self::Item) -> Option<Self>;
+
+  /// The fraction of fields that changed (0.0 = identical, 1.0 = everything).
+  fn delta(&self) -> f64;
+
+  /// Wrap an optional diff as a rename entry (setting name and name_change).
+  fn with_rename(
+    diff: Option<Self>,
+    old: &Self::Item,
+    new: &Self::Item,
+  ) -> Self;
+}
+
+/// Detect renames among added/removed pairs using diff delta threshold.
+/// Matched pairs are moved into `modified` and removed from `added`/`removed`.
+pub(crate) fn detect_renames<D: RenameCandidate>(
+  added: &mut Vec<D::Item>,
+  removed: &mut Vec<D::Item>,
+  modified: &mut Vec<D>,
+) {
+  let mut matched_added = IndexSet::new();
+  let mut matched_removed = IndexSet::new();
+
+  for (r_idx, removed_item) in removed.iter().enumerate() {
+    for (a_idx, added_item) in added.iter().enumerate() {
+      if matched_added.contains(&a_idx) {
+        continue;
+      }
+
+      if !D::is_candidate(removed_item, added_item) {
+        continue;
+      }
+
+      let diff = D::compute(removed_item, added_item);
+      let pct = diff.as_ref().map_or(0.0, |d| d.delta());
+      if pct <= RENAME_THRESHOLD {
+        modified.push(D::with_rename(diff, removed_item, added_item));
+        matched_added.insert(a_idx);
+        matched_removed.insert(r_idx);
+        break;
+      }
+    }
+  }
+
+  let mut i = 0;
+  added.retain(|_| {
+    let keep = !matched_added.contains(&i);
+    i += 1;
+    keep
+  });
+  let mut i = 0;
+  removed.retain(|_| {
+    let keep = !matched_removed.contains(&i);
+    i += 1;
+    keep
+  });
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Change<T> {
@@ -370,6 +437,55 @@ impl DocNodeDefDiff {
         },
       ) => d.change_percentage(old_def, new_def),
       _ => 1.0,
+    }
+  }
+
+  pub fn as_function(&self) -> Option<&FunctionDiff> {
+    match self {
+      DocNodeDefDiff::Function(d) => Some(d),
+      _ => None,
+    }
+  }
+
+  pub fn as_variable(&self) -> Option<&VariableDiff> {
+    match self {
+      DocNodeDefDiff::Variable(d) => Some(d),
+      _ => None,
+    }
+  }
+
+  pub fn as_enum(&self) -> Option<&EnumDiff> {
+    match self {
+      DocNodeDefDiff::Enum(d) => Some(d),
+      _ => None,
+    }
+  }
+
+  pub fn as_class(&self) -> Option<&ClassDiff> {
+    match self {
+      DocNodeDefDiff::Class(d) => Some(d),
+      _ => None,
+    }
+  }
+
+  pub fn as_type_alias(&self) -> Option<&TypeAliasDiff> {
+    match self {
+      DocNodeDefDiff::TypeAlias(d) => Some(d),
+      _ => None,
+    }
+  }
+
+  pub fn as_namespace(&self) -> Option<&NamespaceDiff> {
+    match self {
+      DocNodeDefDiff::Namespace(d) => Some(d),
+      _ => None,
+    }
+  }
+
+  pub fn as_interface(&self) -> Option<&InterfaceDiff> {
+    match self {
+      DocNodeDefDiff::Interface(d) => Some(d),
+      _ => None,
     }
   }
 

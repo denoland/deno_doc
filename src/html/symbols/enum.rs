@@ -13,21 +13,14 @@ pub(crate) fn render_enum(
 ) -> Vec<SectionCtx> {
   let enum_def = doc_node.enum_def().unwrap();
 
-  // Extract EnumDiff if available
   let enum_diff = render_ctx.ctx.diff.as_ref().and_then(|diff_index| {
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
-    )?;
-    let node_diff = info.diff.as_ref()?;
-    if let crate::diff::DocNodeDefDiff::Enum(enum_diff) =
-      node_diff.def_changes.as_ref()?
-    {
-      Some(enum_diff)
-    } else {
-      None
-    }
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_enum())
   });
 
   let mut members = enum_def.members.clone();
@@ -72,7 +65,7 @@ pub(crate) fn render_enum(
           (None, None)
         };
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         render_ctx,
         id,
         Some(html_escape::encode_text(&member.name).into_owned()),
@@ -133,7 +126,7 @@ fn inject_removed_members(
       .name(&removed_member.name)
       .build();
 
-    entries.push(DocEntryCtx::new_with_diff(
+    entries.push(DocEntryCtx::new(
       render_ctx,
       id,
       Some(html_escape::encode_text(&removed_member.name).into_owned()),

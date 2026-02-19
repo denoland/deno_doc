@@ -1,7 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use super::Change;
-use super::RENAME_THRESHOLD;
+use super::RenameCandidate;
+use super::detect_renames;
 use super::function::DecoratorsDiff;
 use super::function::FunctionDiff;
 use super::function::ParamsDiff;
@@ -348,6 +349,7 @@ impl ConstructorsDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorDiff {
+  pub param_count: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -406,6 +408,7 @@ impl ConstructorDiff {
     }
 
     Some(ConstructorDiff {
+      param_count: new_params.len(),
       accessibility_change,
       is_optional_change,
       params_change,
@@ -585,59 +588,7 @@ impl MethodsDiff {
       }
     }
 
-    let mut matched_added = IndexSet::new();
-    let mut matched_removed = IndexSet::new();
-
-    for (r_idx, removed_method) in removed.iter().enumerate() {
-      for (a_idx, added_method) in added.iter().enumerate() {
-        if matched_added.contains(&a_idx) {
-          continue;
-        }
-
-        if removed_method.is_static == added_method.is_static
-          && removed_method.kind == added_method.kind
-        {
-          let method_diff = MethodDiff::diff(removed_method, added_method);
-          let pct = method_diff.as_ref().map_or(0.0, |d| d.change_percentage());
-          if pct <= RENAME_THRESHOLD {
-            let mut diff = method_diff.unwrap_or_else(|| MethodDiff {
-              name: added_method.name.clone(),
-              name_change: None,
-              accessibility_change: None,
-              is_static_change: None,
-              is_abstract_change: None,
-              is_override_change: None,
-              optional_change: None,
-              function_diff: None,
-              js_doc_change: None,
-            });
-            diff.name = added_method.name.clone();
-            diff.name_change = Some(Change::new(
-              removed_method.name.clone(),
-              added_method.name.clone(),
-            ));
-
-            modified.push(diff);
-            matched_added.insert(a_idx);
-            matched_removed.insert(r_idx);
-            break;
-          }
-        }
-      }
-    }
-
-    let added = added
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_added.contains(i))
-      .map(|(_, m)| m)
-      .collect::<Vec<_>>();
-    let removed = removed
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_removed.contains(i))
-      .map(|(_, m)| m)
-      .collect::<Vec<_>>();
+    detect_renames::<MethodDiff>(&mut added, &mut removed, &mut modified);
 
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
@@ -772,6 +723,43 @@ impl MethodDiff {
   }
 }
 
+impl RenameCandidate for MethodDiff {
+  type Item = ClassMethodDef;
+
+  fn is_candidate(old: &ClassMethodDef, new: &ClassMethodDef) -> bool {
+    old.is_static == new.is_static && old.kind == new.kind
+  }
+
+  fn compute(old: &ClassMethodDef, new: &ClassMethodDef) -> Option<Self> {
+    MethodDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(
+    diff: Option<Self>,
+    old: &ClassMethodDef,
+    new: &ClassMethodDef,
+  ) -> Self {
+    let mut d = diff.unwrap_or_else(|| MethodDiff {
+      name: new.name.clone(),
+      name_change: None,
+      accessibility_change: None,
+      is_static_change: None,
+      is_abstract_change: None,
+      is_override_change: None,
+      optional_change: None,
+      function_diff: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
+  }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct PropertiesDiff {
@@ -820,59 +808,7 @@ impl PropertiesDiff {
       }
     }
 
-    let mut matched_added = IndexSet::new();
-    let mut matched_removed = IndexSet::new();
-
-    for (r_idx, removed_prop) in removed.iter().enumerate() {
-      for (a_idx, added_prop) in added.iter().enumerate() {
-        if matched_added.contains(&a_idx) {
-          continue;
-        }
-
-        if removed_prop.is_static == added_prop.is_static {
-          let prop_diff = PropertyDiff::diff(removed_prop, added_prop);
-          let pct = prop_diff.as_ref().map_or(0.0, |d| d.change_percentage());
-          if pct <= RENAME_THRESHOLD {
-            let mut diff = prop_diff.unwrap_or_else(|| PropertyDiff {
-              name: added_prop.name.clone(),
-              name_change: None,
-              accessibility_change: None,
-              readonly_change: None,
-              is_static_change: None,
-              is_abstract_change: None,
-              is_override_change: None,
-              optional_change: None,
-              type_change: None,
-              decorators_change: None,
-              js_doc_change: None,
-            });
-            diff.name = added_prop.name.clone();
-            diff.name_change = Some(Change::new(
-              removed_prop.name.clone(),
-              added_prop.name.clone(),
-            ));
-
-            modified.push(diff);
-            matched_added.insert(a_idx);
-            matched_removed.insert(r_idx);
-            break;
-          }
-        }
-      }
-    }
-
-    let added = added
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_added.contains(i))
-      .map(|(_, p)| p)
-      .collect::<Vec<_>>();
-    let removed = removed
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_removed.contains(i))
-      .map(|(_, p)| p)
-      .collect::<Vec<_>>();
+    detect_renames::<PropertyDiff>(&mut added, &mut removed, &mut modified);
 
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
@@ -1022,6 +958,45 @@ impl PropertyDiff {
       + self.type_change.is_some() as usize
       + self.decorators_change.is_some() as usize;
     changed as f64 / 8.0
+  }
+}
+
+impl RenameCandidate for PropertyDiff {
+  type Item = ClassPropertyDef;
+
+  fn is_candidate(old: &ClassPropertyDef, new: &ClassPropertyDef) -> bool {
+    old.is_static == new.is_static
+  }
+
+  fn compute(old: &ClassPropertyDef, new: &ClassPropertyDef) -> Option<Self> {
+    PropertyDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(
+    diff: Option<Self>,
+    old: &ClassPropertyDef,
+    new: &ClassPropertyDef,
+  ) -> Self {
+    let mut d = diff.unwrap_or_else(|| PropertyDiff {
+      name: new.name.clone(),
+      name_change: None,
+      accessibility_change: None,
+      readonly_change: None,
+      is_static_change: None,
+      is_abstract_change: None,
+      is_override_change: None,
+      optional_change: None,
+      type_change: None,
+      decorators_change: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
   }
 }
 

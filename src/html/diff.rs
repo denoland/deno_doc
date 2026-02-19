@@ -126,6 +126,18 @@ impl DiffIndex {
     self.node_index.get(&(specifier.clone(), name.into(), kind))
   }
 
+  /// Get the typed def diff for a node, combining node lookup + def_changes
+  /// extraction.
+  pub fn get_def_diff(
+    &self,
+    specifier: &ModuleSpecifier,
+    name: &str,
+    kind: AstDocNodeKind,
+  ) -> Option<&crate::diff::DocNodeDefDiff> {
+    let info = self.get_node_diff(specifier, name, kind)?;
+    info.diff.as_ref()?.def_changes.as_ref()
+  }
+
   /// Get removed nodes for a module (for injecting into listings).
   pub fn get_removed_nodes(
     &self,

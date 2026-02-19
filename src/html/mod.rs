@@ -530,6 +530,7 @@ impl GenerateCtx {
   pub fn create_basic(
     mut options: GenerateOptions,
     doc_nodes_by_url: ParseOutput,
+    diff: Option<crate::diff::DocDiff>,
   ) -> Result<Self, anyhow::Error> {
     if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
       options.main_entrypoint =
@@ -555,40 +556,7 @@ impl GenerateCtx {
       common_ancestor,
       file_mode,
       doc_nodes_by_url,
-      None,
-    )
-  }
-
-  pub fn create_basic_with_diff(
-    mut options: GenerateOptions,
-    doc_nodes_by_url: ParseOutput,
-    diff: crate::diff::DocDiff,
-  ) -> Result<Self, anyhow::Error> {
-    if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
-      options.main_entrypoint =
-        Some(doc_nodes_by_url.keys().next().unwrap().clone());
-    }
-
-    let file_mode = match (
-      doc_nodes_by_url
-        .keys()
-        .all(|specifier| specifier.as_str().ends_with(".d.ts")),
-      doc_nodes_by_url.len(),
-    ) {
-      (false, 1) => FileMode::Single,
-      (false, _) => FileMode::Normal,
-      (true, 1) => FileMode::SingleDts,
-      (true, _) => FileMode::Dts,
-    };
-
-    let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
-
-    GenerateCtx::new(
-      options,
-      common_ancestor,
-      file_mode,
-      doc_nodes_by_url,
-      Some(diff),
+      diff,
     )
   }
 
@@ -705,13 +673,13 @@ fn apply_namespace_diff(
     .and_then(|node_diff| node_diff.def_changes.as_ref())
     .and_then(|def_diff| {
       if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff {
-        Some(ns_diff.clone())
+        Some(ns_diff)
       } else {
         None
       }
     });
 
-  apply_namespace_diff_inner(node, ns_diff.as_ref(), short_path);
+  apply_namespace_diff_inner(node, ns_diff, short_path);
 }
 
 /// Inner recursive function that applies a `NamespaceDiff` to a namespace
@@ -723,10 +691,14 @@ fn apply_namespace_diff_inner(
   short_path: &Rc<ShortPath>,
 ) {
   if let Some(ns_diff) = ns_diff {
-    // Pre-compute values needed for removed element injection
-    // before taking mutable borrow on children
-    let subqualifier: Rc<[String]> = node.sub_qualifier().into();
-    let node_snapshot = node.clone();
+    // Only clone when we need to inject removed elements
+    let removed_ctx = if !ns_diff.removed_elements.is_empty() {
+      let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+      let node_snapshot = node.clone();
+      Some((subqualifier, node_snapshot))
+    } else {
+      None
+    };
 
     if let Some(children) = &mut node.namespace_children {
       // Build lookup sets for added and modified elements
@@ -783,18 +755,20 @@ fn apply_namespace_diff_inner(
       }
 
       // Inject removed elements
-      for removed_node in &ns_diff.removed_elements {
-        children.push(DocNodeWithContext {
-          origin: short_path.clone(),
-          ns_qualifiers: subqualifier.clone(),
-          kind: DocNodeKind::from_node(removed_node),
-          inner: removed_node.clone(),
-          drilldown_name: None,
-          parent: Some(Box::new(node_snapshot.clone())),
-          namespace_children: None,
-          qualified_name: std::cell::OnceCell::new(),
-          diff_status: Some(DiffStatus::Removed),
-        });
+      if let Some((subqualifier, node_snapshot)) = &removed_ctx {
+        for removed_node in &ns_diff.removed_elements {
+          children.push(DocNodeWithContext {
+            origin: short_path.clone(),
+            ns_qualifiers: subqualifier.clone(),
+            kind: DocNodeKind::from_node(removed_node),
+            inner: removed_node.clone(),
+            drilldown_name: None,
+            parent: Some(Box::new(node_snapshot.clone())),
+            namespace_children: None,
+            qualified_name: std::cell::OnceCell::new(),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
       }
     }
   } else {
@@ -1519,7 +1493,7 @@ pub fn generate_json(
           && index
             .overview
             .as_ref()
-            .is_none_or(|o| !o.sections.is_empty())
+            .is_none_or(|o| o.sections.is_empty())
         {
           continue;
         }

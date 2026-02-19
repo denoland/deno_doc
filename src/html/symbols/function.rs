@@ -262,21 +262,14 @@ fn render_single_function(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  // Extract FunctionDiff if available (direct lookup for top-level functions)
   let direct_func_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
-    )?;
-    let node_diff = info.diff.as_ref()?;
-    if let crate::diff::DocNodeDefDiff::Function(func_diff) =
-      node_diff.def_changes.as_ref()?
-    {
-      Some(func_diff)
-    } else {
-      None
-    }
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_function())
   });
 
   // For drilldown symbols (class/interface methods), look up via parent
@@ -368,7 +361,7 @@ fn render_single_function(
       let (diff_status, old_content) =
         get_param_diff_info(ctx, func_diff, i);
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         ctx,
         id,
         Some(name),
@@ -533,7 +526,7 @@ fn render_function_return_type(
     (None, None)
   };
 
-  Some(DocEntryCtx::new_with_diff(
+  Some(DocEntryCtx::new(
     render_ctx,
     id,
     None,
@@ -615,7 +608,7 @@ fn inject_removed_params(
       .map(|ts_type| render_type_def_colon(ctx, ts_type))
       .unwrap_or_default();
 
-    entries.push(DocEntryCtx::new_with_diff(
+    entries.push(DocEntryCtx::new(
       ctx,
       id,
       Some(name),
@@ -657,6 +650,10 @@ fn render_function_throws(
     IndexSet::new(),
     doc.as_ref().map(|doc| doc.as_ref()),
     &doc_node.location,
+    None,
+    None,
+    None,
+    None,
   )
 }
 
@@ -670,13 +667,11 @@ fn get_drilldown_function_diff(
   let drilldown_name = doc_node.drilldown_name.as_deref()?;
   let parent = doc_node.parent.as_ref()?;
 
-  let parent_info = diff_index.get_node_diff(
+  let def_changes = diff_index.get_def_diff(
     &parent.origin.specifier,
     parent.get_name(),
     parent.def.to_kind(),
   )?;
-  let parent_diff = parent_info.diff.as_ref()?;
-  let def_changes = parent_diff.def_changes.as_ref()?;
 
   match def_changes {
     crate::diff::DocNodeDefDiff::Class(class_diff) => class_diff

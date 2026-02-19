@@ -13,6 +13,7 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
+use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
@@ -34,21 +35,14 @@ pub(crate) fn render_class(
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  // Extract ClassDiff if available
   let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
-    )?;
-    let node_diff = info.diff.as_ref()?;
-    if let crate::diff::DocNodeDefDiff::Class(class_diff) =
-      node_diff.def_changes.as_ref()?
-    {
-      Some(class_diff)
-    } else {
-      None
-    }
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_class())
   });
 
   let class_items = partition_visible_properties_and_classes(
@@ -191,8 +185,8 @@ fn render_constructors(
 
       let (old_content, old_tags, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
-          let ctor_diff = constructor_changes
-            .and_then(|cc| cc.modified.iter().find(|_| true));
+          let ctor_diff =
+            constructor_changes.and_then(|cc| cc.modified.first());
 
           let old_content = ctor_diff.and_then(|cd| {
             render_old_class_constructor_summary(ctx, &constructor.params, cd)
@@ -206,7 +200,7 @@ fn render_constructors(
           (None, None, None)
         };
 
-      DocEntryCtx::new_with_diff(
+      DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&name).into_owned()),
@@ -239,7 +233,7 @@ fn render_constructors(
 
       let params = render_params(ctx, &params);
 
-      items.push(DocEntryCtx::new_with_diff(
+      items.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&name).into_owned()),
@@ -278,9 +272,11 @@ fn get_constructor_diff_status(
   if changes.added.iter().any(|c| c.params.len() == param_count) {
     return Some(DiffStatus::Added);
   }
-  if changes.modified.iter().any(|_m| true) {
-    // Constructors are matched by param count, and modified means the one with
-    // matching param count was changed
+  if changes
+    .modified
+    .iter()
+    .any(|m| m.param_count == param_count)
+  {
     return Some(DiffStatus::Modified);
   }
   None
@@ -688,7 +684,7 @@ fn render_class_accessor(
     getter_or_setter.kind,
   );
 
-  DocEntryCtx::new_with_diff(
+  DocEntryCtx::new(
     ctx,
     id,
     Some(html_escape::encode_text(&name).into_owned()),
@@ -773,7 +769,7 @@ fn render_class_method(
     (None, None, None)
   };
 
-  Some(DocEntryCtx::new_with_diff(
+  Some(DocEntryCtx::new(
     ctx,
     id,
     Some(html_escape::encode_text(&method.name).into_owned()),
@@ -850,7 +846,7 @@ fn render_class_property(
     (None, None, None)
   };
 
-  DocEntryCtx::new_with_diff(
+  DocEntryCtx::new(
     ctx,
     id,
     Some(html_escape::encode_text(&property.name).into_owned()),
@@ -946,7 +942,7 @@ fn inject_removed_properties(
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      entries.push(DocEntryCtx::new_with_diff(
+      entries.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&removed_prop.name).into_owned()),
@@ -955,6 +951,85 @@ fn inject_removed_properties(
         Default::default(),
         None,
         &removed_prop.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+        None,
+      ));
+    }
+  }
+
+  // Inject removed getters/setters (skipped by inject_removed_methods)
+  if let Some(method_diff) = &class_diff.method_changes {
+    // Group removed accessors by name so getter+setter pairs become one entry
+    let mut removed_accessors: IndexMap<
+      &str,
+      (Option<&ClassMethodDef>, Option<&ClassMethodDef>),
+    > = IndexMap::new();
+
+    for removed_method in &method_diff.removed {
+      if removed_method.is_static != is_static {
+        continue;
+      }
+      match removed_method.kind {
+        MethodKind::Getter => {
+          removed_accessors.entry(&removed_method.name).or_default().0 =
+            Some(removed_method);
+        }
+        MethodKind::Setter => {
+          removed_accessors.entry(&removed_method.name).or_default().1 =
+            Some(removed_method);
+        }
+        _ => {}
+      }
+    }
+
+    for (_name, (getter, setter)) in removed_accessors {
+      let getter_or_setter = getter.or(setter).unwrap();
+      let name = &getter_or_setter.name;
+
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Accessor)
+        .name(name)
+        .build();
+
+      let ts_type = getter
+        .and_then(|g| g.function_def.return_type.as_ref())
+        .or_else(|| {
+          setter.and_then(|s| {
+            s.function_def
+              .params
+              .first()
+              .and_then(|param| param.ts_type.as_ref())
+          })
+        })
+        .map_or_else(String::new, |ts_type| {
+          render_type_def_colon(ctx, ts_type)
+        });
+
+      let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
+      if let Some(tag) = Tag::from_accessibility(getter_or_setter.accessibility)
+      {
+        tags.insert(tag);
+      }
+      if getter_or_setter.is_abstract {
+        tags.insert(Tag::Abstract);
+      }
+      if getter.is_some() && setter.is_none() {
+        tags.insert(Tag::Readonly);
+      } else if getter.is_none() && setter.is_some() {
+        tags.insert(Tag::Writeonly);
+      }
+
+      entries.push(DocEntryCtx::new(
+        ctx,
+        id,
+        Some(html_escape::encode_text(name).into_owned()),
+        None,
+        &ts_type,
+        tags,
+        getter_or_setter.js_doc.doc.as_deref(),
+        &getter_or_setter.location,
         Some(DiffStatus::Removed),
         None,
         None,
@@ -987,7 +1062,7 @@ fn inject_removed_methods(
         .index(0)
         .build();
 
-      entries.push(DocEntryCtx::new_with_diff(
+      entries.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&removed_method.name).into_owned()),

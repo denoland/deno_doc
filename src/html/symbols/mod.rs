@@ -271,7 +271,7 @@ impl SymbolGroupCtx {
 
 /// Compute a combined diff_status for a group of nodes with the same name.
 /// If nodes have a mix of Added and Removed (kind change), return Modified.
-fn compute_combined_diff_status(
+pub(crate) fn compute_combined_diff_status(
   nodes: &[DocNodeWithContext],
 ) -> Option<DiffStatus> {
   let mut has_added = false;
@@ -347,21 +347,14 @@ impl DocBlockSubtitleCtx {
 
         let ctx = &ctx.with_current_type_params(current_type_params);
 
-        // Extract ClassDiff for subtitle annotations
         let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-          let info = diff_index.get_node_diff(
-            &doc_node.origin.specifier,
-            doc_node.get_name(),
-            doc_node.def.to_kind(),
-          )?;
-          let node_diff = info.diff.as_ref()?;
-          if let crate::diff::DocNodeDefDiff::Class(class_diff) =
-            node_diff.def_changes.as_ref()?
-          {
-            Some(class_diff)
-          } else {
-            None
-          }
+          diff_index
+            .get_def_diff(
+              &doc_node.origin.specifier,
+              doc_node.get_name(),
+              doc_node.def.to_kind(),
+            )
+            .and_then(|d| d.as_class())
         });
 
         let mut class_implements = None;
@@ -446,21 +439,14 @@ impl DocBlockSubtitleCtx {
         })
       }
       DocNodeDef::Interface { interface_def } => {
-        // Extract InterfaceDiff for subtitle annotations
         let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-          let info = diff_index.get_node_diff(
-            &doc_node.origin.specifier,
-            doc_node.get_name(),
-            doc_node.def.to_kind(),
-          )?;
-          let node_diff = info.diff.as_ref()?;
-          if let crate::diff::DocNodeDefDiff::Interface(iface_diff) =
-            node_diff.def_changes.as_ref()?
-          {
-            Some(iface_diff)
-          } else {
-            None
-          }
+          diff_index
+            .get_def_diff(
+              &doc_node.origin.specifier,
+              doc_node.get_name(),
+              doc_node.def.to_kind(),
+            )
+            .and_then(|d| d.as_interface())
         });
 
         let extends_added = iface_diff

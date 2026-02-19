@@ -24,21 +24,14 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  // Extract TypeAliasDiff if available
   let ta_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
-    )?;
-    let node_diff = info.diff.as_ref()?;
-    if let crate::diff::DocNodeDefDiff::TypeAlias(ta_diff) =
-      node_diff.def_changes.as_ref()?
-    {
-      Some(ta_diff)
-    } else {
-      None
-    }
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_type_alias())
   });
 
   let id = IdBuilder::new(ctx)
@@ -86,7 +79,7 @@ pub(crate) fn render_type_alias(
     sections.push(SectionCtx::new(
       ctx,
       "Definition",
-      SectionContentCtx::DocEntry(vec![DocEntryCtx::new_with_diff(
+      SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
         ctx,
         id,
         None,

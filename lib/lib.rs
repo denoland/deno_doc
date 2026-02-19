@@ -634,10 +634,10 @@ fn generate_html_inner(
         resolve_source,
         resolve_external_jsdoc_module,
       }),
-      usage_composer: Rc::new(JsUsageComposer {
+      usage_composer: Some(Rc::new(JsUsageComposer {
         single_mode: usage_composer_single_mode,
         compose: usage_composer_compose,
-      }),
+      })),
       rewrite_map,
       category_docs,
       disable_search,
@@ -650,6 +650,7 @@ fn generate_html_inner(
       diff_only: false,
     },
     doc_nodes_by_url,
+    None,
   )?;
 
   if json {
