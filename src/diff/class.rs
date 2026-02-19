@@ -585,8 +585,6 @@ impl MethodsDiff {
       }
     }
 
-    // Detect renames: match removed → added pairs with same is_static and kind,
-    // using diff delta threshold (same approach as node-level rename detection).
     let mut matched_added = IndexSet::new();
     let mut matched_removed = IndexSet::new();
 
