@@ -64,24 +64,25 @@ export interface DocOptions {
 }
 
 /**
- * Generate asynchronously an array of documentation nodes for the supplied
- * module.
+ * Generate asynchronously a record of documentation nodes for the supplied
+ * modules.
  *
  * ### Example
  *
  * ```ts
- * import { doc } from "https://deno.land/x/deno_doc/mod.ts";
+ * import { doc } from "@deno/doc";
  *
- * const entries = await doc(["https://deno.land/std/fmt/colors.ts"]);
+ * const records = await doc(["https://deno.land/std/fmt/colors.ts"]);
+ * const colorsDoc = records["https://deno.land/std/fmt/colors.ts"];
  *
- * for (const entry of entries) {
- *   console.log(`name: ${entry.name} kind: ${entry.kind}`);
+ * for (const node of colorsDoc) {
+ *   console.log(`name: ${node.name} kind: ${node.kind}`);
  * }
  * ```
  *
  * @param specifiers List of the URL strings of the specifiers to document
  * @param options A set of options for generating the documentation
- * @returns A promise that resolves with an array of documentation nodes
+ * @returns A promise that resolves with a record of documentation nodes
  */
 export async function doc(
   specifiers: string[],

@@ -9,7 +9,7 @@ Deno.test({
     const records = await doc(
       ["https://deno.land/std@0.104.0/fmt/colors.ts"],
     );
-    const entries = Object.values(records)[0];
+    const entries = records["https://deno.land/std@0.104.0/fmt/colors.ts"];
     assertEquals(entries.length, 49);
     const fnStripColor = entries.find((n) =>
       n.kind === "function" && n.name === "stripColor"
