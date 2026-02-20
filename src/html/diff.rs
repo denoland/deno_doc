@@ -10,6 +10,8 @@ use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
+use crate::html::DocNodeWithContext;
+use crate::html::util::{SectionContentCtx, SectionCtx};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
@@ -137,4 +139,84 @@ impl DiffIndex {
       .get(specifier)
       .map(|diff| diff.removed.as_slice())
   }
+}
+
+pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
+  matches!(doc_node.diff_status, Some(DiffStatus::Added))
+}
+
+
+/// Filters sections in-place, retaining only entries that have a diff status.
+/// Removes sections that become empty after filtering, and drops
+/// non-diff-relevant section types (Example, See, Empty).
+/// Also cleans up the ToC to match the surviving sections/entries.
+pub(crate) fn filter_sections_diff_only(
+  sections: &mut Vec<SectionCtx>,
+  toc: &crate::html::render_context::HeadingToCAdapter,
+) {
+  sections.retain_mut(|section| match &mut section.content {
+    SectionContentCtx::DocEntry(entries) => {
+      entries.retain_mut(|e| {
+        if e.diff_status.is_some() {
+          if matches!(e.diff_status, Some(DiffStatus::Modified)) {
+            e.tags.retain(|t| t.diff.is_some());
+          }
+          true
+        } else {
+          false
+        }
+      });
+      !entries.is_empty()
+    }
+    SectionContentCtx::IndexSignature(entries) => {
+      entries.retain(|e| e.diff_status.is_some());
+      !entries.is_empty()
+    }
+    SectionContentCtx::NamespaceSection(entries) => {
+      for entry in entries.iter_mut() {
+        entry.subitems.retain(|s| s.diff_status.is_some());
+      }
+      entries.retain_mut(|e| {
+        if e.diff_status.is_some()
+          || e.subitems.iter().any(|s| s.diff_status.is_some())
+        {
+          if matches!(e.diff_status, Some(DiffStatus::Modified)) {
+            e.tags.retain(|t| t.diff.is_some());
+          }
+          true
+        } else {
+          false
+        }
+      });
+      !entries.is_empty()
+    }
+    SectionContentCtx::Example(_)
+    | SectionContentCtx::See(_)
+    | SectionContentCtx::Empty => false,
+  });
+
+  // Collect surviving anchor IDs from remaining sections
+  let mut surviving_anchors = std::collections::HashSet::<&str>::new();
+  for section in sections.iter() {
+    if let Some(header) = &section.header {
+      surviving_anchors.insert(header.anchor.id.as_str());
+    }
+    match &section.content {
+      SectionContentCtx::DocEntry(entries) => {
+        for entry in entries {
+          surviving_anchors.insert(entry.anchor.id.as_str());
+        }
+      }
+      SectionContentCtx::NamespaceSection(nodes) => {
+        for node in nodes {
+          surviving_anchors.insert(node.anchor.id.as_str());
+        }
+      }
+      _ => {}
+    }
+  }
+
+  // Remove ToC entries whose anchors no longer exist
+  let mut toc_entries = toc.toc.lock().unwrap();
+  toc_entries.retain(|entry| surviving_anchors.contains(entry.anchor.as_str()));
 }

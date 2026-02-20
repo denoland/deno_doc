@@ -670,86 +670,6 @@ impl SectionCtx {
   }
 }
 
-/// Returns true if the symbol is newly added.
-pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
-  matches!(doc_node.diff_status, Some(DiffStatus::Added))
-}
-
-/// Filters sections in-place, retaining only entries that have a diff status.
-/// Removes sections that become empty after filtering, and drops
-/// non-diff-relevant section types (Example, See, Empty).
-/// Also cleans up the ToC to match the surviving sections/entries.
-pub(crate) fn filter_sections_diff_only(
-  sections: &mut Vec<SectionCtx>,
-  toc: &crate::html::render_context::HeadingToCAdapter,
-) {
-  sections.retain_mut(|section| match &mut section.content {
-    SectionContentCtx::DocEntry(entries) => {
-      entries.retain_mut(|e| {
-        if e.diff_status.is_some() {
-          if matches!(e.diff_status, Some(DiffStatus::Modified)) {
-            e.tags.retain(|t| t.diff.is_some() || !t.tag.is_diffable());
-          }
-          true
-        } else {
-          false
-        }
-      });
-      !entries.is_empty()
-    }
-    SectionContentCtx::IndexSignature(entries) => {
-      entries.retain(|e| e.diff_status.is_some());
-      !entries.is_empty()
-    }
-    SectionContentCtx::NamespaceSection(entries) => {
-      for entry in entries.iter_mut() {
-        entry.subitems.retain(|s| s.diff_status.is_some());
-      }
-      entries.retain_mut(|e| {
-        if e.diff_status.is_some()
-          || e.subitems.iter().any(|s| s.diff_status.is_some())
-        {
-          if matches!(e.diff_status, Some(DiffStatus::Modified)) {
-            e.tags.retain(|t| t.diff.is_some() || !t.tag.is_diffable());
-          }
-          true
-        } else {
-          false
-        }
-      });
-      !entries.is_empty()
-    }
-    SectionContentCtx::Example(_)
-    | SectionContentCtx::See(_)
-    | SectionContentCtx::Empty => false,
-  });
-
-  // Collect surviving anchor IDs from remaining sections
-  let mut surviving_anchors = std::collections::HashSet::<&str>::new();
-  for section in sections.iter() {
-    if let Some(header) = &section.header {
-      surviving_anchors.insert(header.anchor.id.as_str());
-    }
-    match &section.content {
-      SectionContentCtx::DocEntry(entries) => {
-        for entry in entries {
-          surviving_anchors.insert(entry.anchor.id.as_str());
-        }
-      }
-      SectionContentCtx::NamespaceSection(nodes) => {
-        for node in nodes {
-          surviving_anchors.insert(node.anchor.id.as_str());
-        }
-      }
-      _ => {}
-    }
-  }
-
-  // Remove ToC entries whose anchors no longer exist
-  let mut toc_entries = toc.toc.lock().unwrap();
-  toc_entries.retain(|entry| surviving_anchors.contains(entry.anchor.as_str()));
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum Tag {
@@ -768,12 +688,6 @@ pub enum Tag {
 
 impl Tag {
   pub const TEMPLATE: &'static str = "tag";
-
-  /// Whether this tag represents an actual attribute that can meaningfully
-  /// change, as opposed to a visual label (like "new" for constructors).
-  pub fn is_diffable(&self) -> bool {
-    !matches!(self, Tag::New)
-  }
 
   pub fn from_accessibility(
     accessibility: Option<Accessibility>,
@@ -812,9 +726,6 @@ pub struct TagCtx {
   pub diff: Option<TagDiffKind>,
 }
 
-/// Convert current tags and optional old tags into annotated `TagCtx` entries.
-/// For Modified entries with old_tags: tags only in current are Added, tags only
-/// in old are Removed, common tags have no annotation.
 pub fn compute_tag_ctx(
   current: IndexSet<Tag>,
   old: Option<IndexSet<Tag>>,
@@ -827,7 +738,7 @@ pub fn compute_tag_ctx(
     Some(old) => {
       let mut result = Vec::new();
       for tag in &current {
-        let diff = if !tag.is_diffable() || old.contains(tag) {
+        let diff = if old.contains(tag) {
           None
         } else {
           Some(TagDiffKind::Added)
@@ -838,7 +749,7 @@ pub fn compute_tag_ctx(
         });
       }
       for tag in &old {
-        if !current.contains(tag) && tag.is_diffable() {
+        if !current.contains(tag) {
           result.push(TagCtx {
             tag: tag.clone(),
             diff: Some(TagDiffKind::Removed),
@@ -852,10 +763,11 @@ pub fn compute_tag_ctx(
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
+  pub name_prefix: Option<Cow<'static, str>>,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
-  anchor: AnchorCtx,
+  pub anchor: AnchorCtx,
   pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
@@ -890,6 +802,7 @@ impl DocEntryCtx {
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
+      name_prefix: None,
       name,
       name_href,
       content: content.to_string(),

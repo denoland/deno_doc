@@ -2,8 +2,6 @@ use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use crate::diff::ClassDiff;
 use crate::diff::ConstructorDiff;
-use crate::diff::MethodDiff;
-use crate::diff::PropertyDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
@@ -14,7 +12,6 @@ use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use indexmap::IndexMap;
-use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -183,7 +180,7 @@ fn render_constructors(
       let diff_status =
         get_constructor_diff_status(constructor_changes, constructor);
 
-      let (old_content, old_tags, js_doc_changed) =
+      let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
           let ctor_diff =
             constructor_changes.and_then(|cc| cc.modified.first());
@@ -191,29 +188,30 @@ fn render_constructors(
           let old_content = ctor_diff.and_then(|cd| {
             render_old_class_constructor_summary(ctx, &constructor.params, cd)
           });
-          let old_tags = ctor_diff
-            .map(|cd| compute_old_constructor_tags(&[Tag::New].into(), cd));
           let js_doc_changed =
             ctor_diff.and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
-          (old_content, old_tags, js_doc_changed)
+          (old_content, js_doc_changed)
         } else {
-          (None, None, None)
+          (None, None)
         };
 
-      DocEntryCtx::new(
+      let mut entry = DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&name).into_owned()),
         None,
         &format!("({params})"),
-        [Tag::New].into(),
+        Default::default(),
         constructor.js_doc.doc.as_deref(),
         &constructor.location,
         diff_status,
         old_content,
-        old_tags,
+        None,
         js_doc_changed,
-      )
+      );
+      entry.name_prefix = Some("new".into());
+
+      entry
     })
     .collect::<Vec<DocEntryCtx>>();
 
@@ -674,7 +672,13 @@ fn render_class_method(
         )
       });
 
-    let old_tags = method_diff.map(|md| compute_old_method_tags(&tags, md));
+    let old_tags = method_diff.map(|diff| super::compute_old_tags(
+      &tags,
+      diff.accessibility_change.as_ref(),
+      None,
+      diff.is_abstract_change.as_ref(),
+      diff.optional_change.as_ref(),
+    ));
 
     let js_doc_changed =
       method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
@@ -751,7 +755,13 @@ fn render_class_property(
       .and_then(|pd| pd.type_change.as_ref())
       .map(|tc| render_type_def_colon(ctx, &tc.old));
 
-    let old_tags = prop_diff.map(|pd| compute_old_property_tags(&tags, pd));
+    let old_tags = prop_diff.map(|diff| super::compute_old_tags(
+      &tags,
+      diff.accessibility_change.as_ref(),
+      diff.readonly_change.as_ref(),
+      diff.is_abstract_change.as_ref(),
+      diff.optional_change.as_ref(),
+    ));
 
     let js_doc_changed =
       prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
@@ -1033,43 +1043,4 @@ fn render_class_methods(
       })
     })
     .collect()
-}
-
-fn compute_old_property_tags(
-  current_tags: &IndexSet<Tag>,
-  diff: &PropertyDiff,
-) -> IndexSet<Tag> {
-  super::compute_old_tags(
-    current_tags,
-    diff.accessibility_change.as_ref(),
-    diff.readonly_change.as_ref(),
-    diff.is_abstract_change.as_ref(),
-    diff.optional_change.as_ref(),
-  )
-}
-
-fn compute_old_method_tags(
-  current_tags: &IndexSet<Tag>,
-  diff: &MethodDiff,
-) -> IndexSet<Tag> {
-  super::compute_old_tags(
-    current_tags,
-    diff.accessibility_change.as_ref(),
-    None,
-    diff.is_abstract_change.as_ref(),
-    diff.optional_change.as_ref(),
-  )
-}
-
-fn compute_old_constructor_tags(
-  current_tags: &IndexSet<Tag>,
-  diff: &ConstructorDiff,
-) -> IndexSet<Tag> {
-  super::compute_old_tags(
-    current_tags,
-    diff.accessibility_change.as_ref(),
-    None,
-    None,
-    None,
-  )
 }

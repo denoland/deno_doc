@@ -8,7 +8,7 @@ use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::util::is_symbol_added;
+use crate::html::diff::is_symbol_added;
 use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -261,9 +261,7 @@ impl SymbolGroupCtx {
   pub fn strip_unchanged_tags(&mut self) {
     if matches!(self.diff_status, Some(DiffStatus::Modified)) {
       for symbol in &mut self.symbols {
-        symbol
-          .tags
-          .retain(|t| t.diff.is_some() || !t.tag.is_diffable());
+        symbol.tags.retain(|t| t.diff.is_some());
       }
     }
   }
@@ -627,7 +625,7 @@ impl SymbolInnerCtx {
       }
 
       if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
-        crate::html::util::filter_sections_diff_only(&mut sections, &ctx.toc);
+        crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
       }
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {

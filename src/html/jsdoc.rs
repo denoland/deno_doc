@@ -416,7 +416,7 @@ impl ModuleDocCtx {
     }
 
     if render_ctx.ctx.diff_only {
-      super::util::filter_sections_diff_only(&mut sections, &render_ctx.toc);
+      super::diff::filter_sections_diff_only(&mut sections, &render_ctx.toc);
     }
 
     Self {

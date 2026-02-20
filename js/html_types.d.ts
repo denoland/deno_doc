@@ -324,6 +324,7 @@ export interface SectionContentEmptyCtx {
 }
 
 export interface DocEntryCtx {
+  name_prefix: string | null;
   name: string | null;
   name_href: string | null;
   content: string;

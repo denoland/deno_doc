@@ -434,8 +434,8 @@ fn render_single_function(
     ));
   }
 
-  if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
-    crate::html::util::filter_sections_diff_only(&mut sections, &ctx.toc);
+  if ctx.ctx.diff_only && !crate::html::diff::is_symbol_added(doc_node) {
+    crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
   }
 
   SymbolContentCtx {
