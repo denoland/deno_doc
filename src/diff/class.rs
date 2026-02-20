@@ -1,6 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use super::Change;
+use super::RenameCandidate;
+use super::detect_renames;
 use super::function::DecoratorsDiff;
 use super::function::FunctionDiff;
 use super::function::ParamsDiff;
@@ -347,6 +349,7 @@ impl ConstructorsDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorDiff {
+  pub param_count: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -405,6 +408,7 @@ impl ConstructorDiff {
     }
 
     Some(ConstructorDiff {
+      param_count: new_params.len(),
       accessibility_change,
       is_optional_change,
       params_change,
@@ -584,6 +588,8 @@ impl MethodsDiff {
       }
     }
 
+    detect_renames::<MethodDiff>(&mut added, &mut removed, &mut modified);
+
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
     }
@@ -600,6 +606,8 @@ impl MethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct MethodDiff {
   pub name: Box<str>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -689,6 +697,7 @@ impl MethodDiff {
 
     Some(MethodDiff {
       name: old_name.clone(),
+      name_change: None,
       accessibility_change,
       is_static_change,
       is_abstract_change,
@@ -697,6 +706,57 @@ impl MethodDiff {
       function_diff,
       js_doc_change,
     })
+  }
+
+  pub fn change_percentage(&self) -> f64 {
+    let fn_pct = self
+      .function_diff
+      .as_ref()
+      .map_or(0.0, |f| f.change_percentage());
+    let field_changed = self.accessibility_change.is_some() as u8
+      + self.is_static_change.is_some() as u8
+      + self.is_abstract_change.is_some() as u8
+      + self.is_override_change.is_some() as u8
+      + self.optional_change.is_some() as u8;
+    // Average of method-level field percentage and function percentage
+    ((field_changed as f64 / 5.0) + fn_pct) / 2.0
+  }
+}
+
+impl RenameCandidate for MethodDiff {
+  type Item = ClassMethodDef;
+
+  fn is_candidate(old: &ClassMethodDef, new: &ClassMethodDef) -> bool {
+    old.is_static == new.is_static && old.kind == new.kind
+  }
+
+  fn compute(old: &ClassMethodDef, new: &ClassMethodDef) -> Option<Self> {
+    MethodDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(
+    diff: Option<Self>,
+    old: &ClassMethodDef,
+    new: &ClassMethodDef,
+  ) -> Self {
+    let mut d = diff.unwrap_or_else(|| MethodDiff {
+      name: new.name.clone(),
+      name_change: None,
+      accessibility_change: None,
+      is_static_change: None,
+      is_abstract_change: None,
+      is_override_change: None,
+      optional_change: None,
+      function_diff: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
   }
 }
 
@@ -748,6 +808,8 @@ impl PropertiesDiff {
       }
     }
 
+    detect_renames::<PropertyDiff>(&mut added, &mut removed, &mut modified);
+
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
     }
@@ -764,6 +826,8 @@ impl PropertiesDiff {
 #[serde(rename_all = "camelCase")]
 pub struct PropertyDiff {
   pub name: Box<str>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub accessibility_change: Option<Change<Option<Accessibility>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -871,6 +935,7 @@ impl PropertyDiff {
 
     Some(PropertyDiff {
       name: old_name.clone(),
+      name_change: None,
       accessibility_change,
       readonly_change,
       is_static_change,
@@ -881,6 +946,57 @@ impl PropertyDiff {
       decorators_change,
       js_doc_change,
     })
+  }
+
+  pub fn change_percentage(&self) -> f64 {
+    let changed = self.accessibility_change.is_some() as usize
+      + self.readonly_change.is_some() as usize
+      + self.is_static_change.is_some() as usize
+      + self.is_abstract_change.is_some() as usize
+      + self.is_override_change.is_some() as usize
+      + self.optional_change.is_some() as usize
+      + self.type_change.is_some() as usize
+      + self.decorators_change.is_some() as usize;
+    changed as f64 / 8.0
+  }
+}
+
+impl RenameCandidate for PropertyDiff {
+  type Item = ClassPropertyDef;
+
+  fn is_candidate(old: &ClassPropertyDef, new: &ClassPropertyDef) -> bool {
+    old.is_static == new.is_static
+  }
+
+  fn compute(old: &ClassPropertyDef, new: &ClassPropertyDef) -> Option<Self> {
+    PropertyDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(
+    diff: Option<Self>,
+    old: &ClassPropertyDef,
+    new: &ClassPropertyDef,
+  ) -> Self {
+    let mut d = diff.unwrap_or_else(|| PropertyDiff {
+      name: new.name.clone(),
+      name_change: None,
+      accessibility_change: None,
+      readonly_change: None,
+      is_static_change: None,
+      is_abstract_change: None,
+      is_override_change: None,
+      optional_change: None,
+      type_change: None,
+      decorators_change: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
   }
 }
 

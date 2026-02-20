@@ -1,0 +1,497 @@
+---
+source: tests/html_test.rs
+expression: pages
+---
+[
+  [
+    "./all_symbols.json",
+    {
+      "kind": "AllSymbolsPageCtx",
+      "html_head_ctx": {
+        "title": "All Symbols - documentation",
+        "current_file": "",
+        "stylesheet_url": "./styles.css",
+        "page_stylesheet_url": "./page.css",
+        "reset_stylesheet_url": "./reset.css",
+        "url_search_index": "./search_index.js",
+        "script_js": "./script.js",
+        "fuse_js": "./fuse.js",
+        "search_js": "./search.js",
+        "darkmode_toggle_js": "./darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "content": {
+        "entrypoints": [
+          {
+            "name": "default",
+            "href": "./",
+            "anchor": {
+              "id": "default"
+            },
+            "module_doc": {
+              "deprecated": null,
+              "sections": {
+                "id": "module_doc",
+                "docs": null,
+                "sections": [
+                  {
+                    "header": {
+                      "title": "Variables",
+                      "anchor": {
+                        "id": "default_variables"
+                      },
+                      "href": null,
+                      "doc": null
+                    },
+                    "content": {
+                      "kind": "namespace_section",
+                      "content": [
+                        {
+                          "anchor": {
+                            "id": "namespace_step"
+                          },
+                          "tags": [],
+                          "doc_node_kind_ctx": [
+                            {
+                              "kind": "Function",
+                              "char": "f",
+                              "title": "Function",
+                              "title_lowercase": "function",
+                              "title_plural": "Functions"
+                            },
+                            {
+                              "kind": "Variable",
+                              "char": "v",
+                              "title": "Variable",
+                              "title_lowercase": "variable",
+                              "title_plural": "Variables"
+                            }
+                          ],
+                          "href": "./././~/step.html",
+                          "name": "step",
+                          "ty": {
+                            "ty": ": <span class=\"td-ref\">StepFunction</span>",
+                            "info": null
+                          },
+                          "docs": null,
+                          "deprecated": false,
+                          "subitems": [],
+                          "diff_status": {
+                            "kind": "modified"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "./"
+        },
+        "current_entrypoint": {
+          "name": "all symbols",
+          "href": "././all_symbols.html"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": "././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "./"
+          }
+        ],
+        "symbol": []
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./index.json",
+    {
+      "kind": "IndexCtx",
+      "html_head_ctx": {
+        "title": "documentation",
+        "current_file": "",
+        "stylesheet_url": "styles.css",
+        "page_stylesheet_url": "page.css",
+        "reset_stylesheet_url": "reset.css",
+        "url_search_index": "search_index.js",
+        "script_js": "script.js",
+        "fuse_js": "fuse.js",
+        "search_js": "search.js",
+        "darkmode_toggle_js": "darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "module_doc": {
+        "deprecated": null,
+        "sections": {
+          "id": "module_doc",
+          "docs": null,
+          "sections": []
+        }
+      },
+      "overview": null,
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": ""
+        },
+        "current_entrypoint": null,
+        "entrypoints": [],
+        "symbol": []
+      },
+      "usage": null,
+      "toc_ctx": {
+        "usages": null,
+        "top_symbols": {
+          "symbols": [
+            {
+              "kind": [
+                {
+                  "kind": "Function",
+                  "char": "f",
+                  "title": "Function",
+                  "title_lowercase": "function",
+                  "title_plural": "Functions"
+                },
+                {
+                  "kind": "Variable",
+                  "char": "v",
+                  "title": "Variable",
+                  "title_lowercase": "variable",
+                  "title_plural": "Variables"
+                }
+              ],
+              "name": "step",
+              "href": "././~/step.html"
+            }
+          ],
+          "total_symbols": 1,
+          "all_symbols_href": "./all_symbols.html"
+        },
+        "document_navigation_str": null,
+        "document_navigation": []
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./~/step.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "step - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "step",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "Function",
+              "char": "f",
+              "title": "Function",
+              "title_lowercase": "function",
+              "title_plural": "Functions"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "function",
+                "value": {
+                  "functions": [
+                    {
+                      "anchor": {
+                        "id": "function_step_0"
+                      },
+                      "name": "step",
+                      "summary": "<span>&lt;<span><span class=\"td-tp\">O</span><span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span><span><span> = </span><span class=\"td-kw\">never</span></span></span>&gt;</span>(<span><span>config<span>: <span class=\"td-ref\">StepConfig</span>&lt;<span class=\"td-ref\">O</span>&gt;</span></span></span>)<span>: <span class=\"td-ref\">Step</span>&lt;<span class=\"td-ref\">O</span>&gt;</span>",
+                      "deprecated": null,
+                      "content": {
+                        "id": "",
+                        "docs": null,
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Type Parameters",
+                              "anchor": {
+                                "id": "type-parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "O",
+                                  "name_href": null,
+                                  "content": "<span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span><span><span> = </span><span class=\"td-kw\">never</span></span>",
+                                  "anchor": {
+                                    "id": "type_param_o"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "config",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-ref\">StepConfig</span>&lt;<a href=\"#type_param_o\" class=\"link td-ref\">O</a>&gt;</span>",
+                                  "anchor": {
+                                    "id": "function_step_0_parameter_config"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Return Type",
+                              "anchor": {
+                                "id": "return-type"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "<span class=\"td-ref\">Step</span>&lt;<a href=\"#type_param_o\" class=\"link td-ref\">O</a>&gt;",
+                                  "anchor": {
+                                    "id": "function_step_0_return"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null,
+            "diff_status": {
+              "kind": "removed"
+            }
+          },
+          {
+            "kind": {
+              "kind": "Variable",
+              "char": "v",
+              "title": "Variable",
+              "title_lowercase": "variable",
+              "title_plural": "Variables"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": null,
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Type",
+                        "anchor": {
+                          "id": "type"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": null,
+                            "name_href": null,
+                            "content": "<span class=\"td-ref\">StepFunction</span>",
+                            "anchor": {
+                              "id": "variable_step"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null,
+            "diff_status": {
+              "kind": "added"
+            }
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "step",
+            "href": "../././~/step.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { step } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { step } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_o\" title=\"O\">O</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_step_0_parameter_config\" title=\"config\">config</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Type Parameters",
+            "anchor": "type-parameters"
+          },
+          {
+            "level": 2,
+            "content": "O",
+            "anchor": "type_param_o"
+          },
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "config",
+            "anchor": "function_step_0_parameter_config"
+          },
+          {
+            "level": 1,
+            "content": "Return Type",
+            "anchor": "return-type"
+          },
+          {
+            "level": 1,
+            "content": "Type",
+            "anchor": "type"
+          }
+        ]
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "search.json",
+    {
+      "kind": "search",
+      "nodes": [
+        {
+          "id": "namespace_step",
+          "kind": [
+            {
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
+            },
+            {
+              "char": "v",
+              "kind": "Variable",
+              "title": "Variable"
+            }
+          ],
+          "name": "step",
+          "file": ".",
+          "doc": "",
+          "url": "././~/step.html",
+          "deprecated": false
+        }
+      ]
+    }
+  ]
+]

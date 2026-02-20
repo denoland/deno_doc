@@ -1,3 +1,4 @@
+use crate::html::DiffStatus;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
@@ -710,15 +711,72 @@ impl Tag {
   }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum TagDiffKind {
+  Added,
+  Removed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TagCtx {
+  #[serde(flatten)]
+  pub tag: Tag,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff: Option<TagDiffKind>,
+}
+
+pub fn compute_tag_ctx(
+  current: IndexSet<Tag>,
+  old: Option<IndexSet<Tag>>,
+) -> Vec<TagCtx> {
+  match old {
+    None => current
+      .into_iter()
+      .map(|tag| TagCtx { tag, diff: None })
+      .collect(),
+    Some(old) => {
+      let mut result = Vec::new();
+      for tag in &current {
+        let diff = if old.contains(tag) {
+          None
+        } else {
+          Some(TagDiffKind::Added)
+        };
+        result.push(TagCtx {
+          tag: tag.clone(),
+          diff,
+        });
+      }
+      for tag in &old {
+        if !current.contains(tag) {
+          result.push(TagCtx {
+            tag: tag.clone(),
+            diff: Some(TagDiffKind::Removed),
+          });
+        }
+      }
+      result
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
+  pub name_prefix: Option<Cow<'static, str>>,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
-  anchor: AnchorCtx,
-  tags: IndexSet<Tag>,
+  pub anchor: AnchorCtx,
+  pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_content: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub js_doc_changed: Option<bool>,
 }
 
 impl DocEntryCtx {
@@ -734,19 +792,27 @@ impl DocEntryCtx {
     tags: IndexSet<Tag>,
     jsdoc: Option<&str>,
     location: &crate::Location,
+    diff_status: Option<DiffStatus>,
+    old_content: Option<String>,
+    old_tags: Option<IndexSet<Tag>>,
+    js_doc_changed: Option<bool>,
   ) -> Self {
     let maybe_jsdoc =
       jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true));
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
+      name_prefix: None,
       name,
       name_href,
       content: content.to_string(),
       anchor: AnchorCtx::new(id),
-      tags,
+      tags: compute_tag_ctx(tags, old_tags),
       js_doc: maybe_jsdoc,
       source_href,
+      diff_status,
+      old_content,
+      js_doc_changed,
     }
   }
 }

@@ -415,6 +415,10 @@ impl ModuleDocCtx {
       ));
     }
 
+    if render_ctx.ctx.diff_only {
+      super::diff::filter_sections_diff_only(&mut sections, &render_ctx.toc);
+    }
+
     Self {
       deprecated,
       sections: super::SymbolContentCtx {
@@ -516,7 +520,7 @@ mod test {
         package_name: None,
         main_entrypoint: None,
         href_resolver: Rc::new(EmptyResolver),
-        usage_composer: Rc::new(EmptyResolver),
+        usage_composer: Some(Rc::new(EmptyResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
@@ -528,6 +532,7 @@ mod test {
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
         id_prefix: None,
+        diff_only: false,
       },
       Default::default(),
       Default::default(),
@@ -592,6 +597,7 @@ mod test {
           )],
         ),
       ]),
+      None,
     )
     .unwrap();
 

@@ -1,5 +1,8 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
+use crate::diff::ClassDiff;
+use crate::diff::ConstructorDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
@@ -8,6 +11,7 @@ use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
+use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
@@ -28,6 +32,16 @@ pub(crate) fn render_class(
 
   let ctx = &ctx.with_current_type_params(current_type_params);
 
+  let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_class())
+  });
+
   let class_items = partition_visible_properties_and_classes(
     class_def.properties.clone(),
     class_def.methods.clone(),
@@ -35,9 +49,12 @@ pub(crate) fn render_class(
 
   let mut sections = vec![];
 
-  if let Some(constructors) =
-    render_constructors(ctx, &class_def.constructors, doc_node.get_name())
-  {
+  if let Some(constructors) = render_constructors(
+    ctx,
+    &class_def.constructors,
+    doc_node.get_name(),
+    class_diff,
+  ) {
     sections.push(constructors);
   }
 
@@ -46,61 +63,75 @@ pub(crate) fn render_class(
     &doc_node.js_doc,
     &class_def.type_params,
     &doc_node.location,
+    class_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
 
   if let Some(index_signatures) =
-    super::interface::render_index_signatures(ctx, &class_def.index_signatures)
+    render_class_index_signatures(ctx, &class_def.index_signatures, class_diff)
   {
     sections.push(index_signatures);
   }
 
-  if !class_items.static_properties.is_empty() {
+  // Collect removed static properties from diff
+  let mut static_properties = render_class_properties(
+    ctx,
+    name,
+    class_items.static_properties,
+    class_diff,
+  );
+  if let Some(diff) = class_diff {
+    inject_removed_properties(ctx, diff, true, &mut static_properties);
+  }
+
+  if !static_properties.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Static Properties",
-      SectionContentCtx::DocEntry(render_class_properties(
-        ctx,
-        name,
-        class_items.static_properties,
-      )),
+      SectionContentCtx::DocEntry(static_properties),
     ));
   }
 
-  if !class_items.static_methods.is_empty() {
+  let mut static_methods =
+    render_class_methods(ctx, name, class_items.static_methods, class_diff);
+  if let Some(diff) = class_diff {
+    inject_removed_methods(ctx, diff, true, &mut static_methods);
+  }
+
+  if !static_methods.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Static Methods",
-      SectionContentCtx::DocEntry(render_class_methods(
-        ctx,
-        name,
-        class_items.static_methods,
-      )),
+      SectionContentCtx::DocEntry(static_methods),
     ));
   }
 
-  if !class_items.properties.is_empty() {
+  let mut properties =
+    render_class_properties(ctx, name, class_items.properties, class_diff);
+  if let Some(diff) = class_diff {
+    inject_removed_properties(ctx, diff, false, &mut properties);
+  }
+
+  if !properties.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Properties",
-      SectionContentCtx::DocEntry(render_class_properties(
-        ctx,
-        name,
-        class_items.properties,
-      )),
+      SectionContentCtx::DocEntry(properties),
     ));
   }
 
-  if !class_items.methods.is_empty() {
+  let mut methods =
+    render_class_methods(ctx, name, class_items.methods, class_diff);
+  if let Some(diff) = class_diff {
+    inject_removed_methods(ctx, diff, false, &mut methods);
+  }
+
+  if !methods.is_empty() {
     sections.push(SectionCtx::new(
       ctx,
       "Methods",
-      SectionContentCtx::DocEntry(render_class_methods(
-        ctx,
-        name,
-        class_items.methods,
-      )),
+      SectionContentCtx::DocEntry(methods),
     ));
   }
 
@@ -111,12 +142,20 @@ fn render_constructors(
   ctx: &RenderContext,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
+  class_diff: Option<&ClassDiff>,
 ) -> Option<SectionCtx> {
-  if constructors.is_empty() {
+  if constructors.is_empty()
+    && class_diff
+      .and_then(|d| d.constructor_changes.as_ref())
+      .is_none_or(|c| c.removed.is_empty())
+  {
     return None;
   }
 
-  let items = constructors
+  let constructor_changes =
+    class_diff.and_then(|d| d.constructor_changes.as_ref());
+
+  let mut items = constructors
     .iter()
     .filter(|constructor| {
       !constructor.js_doc.tags.contains(&JsDocTag::Private)
@@ -138,24 +177,221 @@ fn render_constructors(
 
       let params = render_params(ctx, &params);
 
-      DocEntryCtx::new(
+      let diff_status =
+        get_constructor_diff_status(constructor_changes, constructor);
+
+      let (old_content, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let ctor_diff =
+            constructor_changes.and_then(|cc| cc.modified.first());
+
+          let old_content = ctor_diff.and_then(|cd| {
+            render_old_class_constructor_summary(ctx, &constructor.params, cd)
+          });
+          let js_doc_changed =
+            ctor_diff.and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
+          (old_content, js_doc_changed)
+        } else {
+          (None, None)
+        };
+
+      let mut entry = DocEntryCtx::new(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&name).into_owned()),
+        None,
+        &format!("({params})"),
+        Default::default(),
+        constructor.js_doc.doc.as_deref(),
+        &constructor.location,
+        diff_status,
+        old_content,
+        None,
+        js_doc_changed,
+      );
+      entry.name_prefix = Some("new".into());
+
+      entry
+    })
+    .collect::<Vec<DocEntryCtx>>();
+
+  // Inject removed constructors
+  if let Some(ctor_changes) = constructor_changes {
+    for removed_ctor in &ctor_changes.removed {
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Constructor)
+        .index(items.len())
+        .build();
+
+      let params = removed_ctor
+        .params
+        .iter()
+        .map(|param| param.param.clone())
+        .collect::<Vec<_>>();
+
+      let params = render_params(ctx, &params);
+
+      items.push(DocEntryCtx::new(
         ctx,
         id,
         Some(html_escape::encode_text(&name).into_owned()),
         None,
         &format!("({params})"),
         [Tag::New].into(),
-        constructor.js_doc.doc.as_deref(),
-        &constructor.location,
-      )
-    })
-    .collect::<Vec<DocEntryCtx>>();
+        None,
+        &removed_ctor.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+        None,
+      ));
+    }
+  }
+
+  if items.is_empty() {
+    return None;
+  }
 
   Some(SectionCtx::new(
     ctx,
     "Constructors",
     SectionContentCtx::DocEntry(items),
   ))
+}
+
+fn get_constructor_diff_status(
+  constructor_changes: Option<&crate::diff::ConstructorsDiff>,
+  constructor: &crate::class::ClassConstructorDef,
+) -> Option<DiffStatus> {
+  let changes = constructor_changes?;
+
+  let param_count = constructor.params.len();
+
+  if changes.added.iter().any(|c| c.params.len() == param_count) {
+    return Some(DiffStatus::Added);
+  }
+  if changes
+    .modified
+    .iter()
+    .any(|m| m.param_count == param_count)
+  {
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+/// Reconstruct the old constructor params signature from the new params and the
+/// diff. Class constructor params are wrapped in ClassConstructorParamDef
+/// (which carries accessibility/readonly/override around a ParamDef).
+fn render_old_class_constructor_summary(
+  ctx: &RenderContext,
+  params: &[crate::class::ClassConstructorParamDef],
+  ctor_diff: &ConstructorDiff,
+) -> Option<String> {
+  let params_change = ctor_diff.params_change.as_ref()?;
+
+  let added_count = params_change.added.len();
+  let shared_count = params.len() - added_count;
+
+  let mut old_params = Vec::new();
+
+  for (i, new_param) in params.iter().enumerate().take(shared_count) {
+    let modified = params_change.modified.iter().find(|p| p.index == i);
+
+    if let Some(param_diff) = modified {
+      if let Some(pc) = &param_diff.param_change {
+        // Inner param changed — use old name/type from the ParamsDiff
+        let old_param_diff = pc.modified.first();
+
+        let name = old_param_diff
+          .and_then(|pd| pd.pattern_change.as_ref())
+          .map(|pc| crate::html::parameters::param_name_plain(&pc.old, i))
+          .unwrap_or_else(|| {
+            crate::html::parameters::param_name_plain(&new_param.param, i)
+          });
+
+        let type_str = old_param_diff
+          .and_then(|pd| pd.type_change.as_ref())
+          .map(|tc| render_type_def_colon(ctx, &tc.old))
+          .unwrap_or_else(|| {
+            new_param
+              .param
+              .ts_type
+              .as_ref()
+              .map(|t| render_type_def_colon(ctx, t))
+              .unwrap_or_default()
+          });
+
+        old_params.push(format!("{name}{type_str}"));
+      } else {
+        // Only accessibility/readonly/override changed, not the param itself
+        let name =
+          crate::html::parameters::param_name_plain(&new_param.param, i);
+        let type_str = new_param
+          .param
+          .ts_type
+          .as_ref()
+          .map(|t| render_type_def_colon(ctx, t))
+          .unwrap_or_default();
+        old_params.push(format!("{name}{type_str}"));
+      }
+    } else {
+      let name = crate::html::parameters::param_name_plain(&new_param.param, i);
+      let type_str = new_param
+        .param
+        .ts_type
+        .as_ref()
+        .map(|t| render_type_def_colon(ctx, t))
+        .unwrap_or_default();
+      old_params.push(format!("{name}{type_str}"));
+    }
+  }
+
+  // Removed params
+  for (j, removed) in params_change.removed.iter().enumerate() {
+    let name = crate::html::parameters::param_name_plain(
+      &removed.param,
+      shared_count + j,
+    );
+    let type_str = removed
+      .param
+      .ts_type
+      .as_ref()
+      .map(|t| render_type_def_colon(ctx, t))
+      .unwrap_or_default();
+    old_params.push(format!("{name}{type_str}"));
+  }
+
+  Some(format!("({})", old_params.join(", ")))
+}
+
+fn render_class_index_signatures(
+  ctx: &RenderContext,
+  index_signatures: &[crate::ts_type::IndexSignatureDef],
+  class_diff: Option<&ClassDiff>,
+) -> Option<SectionCtx> {
+  let idx_diff = class_diff.and_then(|d| d.index_signature_changes.as_ref());
+  let empty_sigs = Vec::new();
+  let empty_mod: Vec<crate::diff::IndexSignatureDiff> = Vec::new();
+
+  super::render_index_signatures_with_diff(
+    ctx,
+    index_signatures,
+    idx_diff.map_or(&empty_sigs, |d| &d.removed),
+    idx_diff.map_or(&empty_mod, |d| &d.modified),
+    |_i, sig| {
+      let diff = idx_diff?;
+      if diff.added.iter().any(|s| {
+        s.params.len() == sig.params.len() && s.readonly == sig.readonly
+      }) {
+        Some(DiffStatus::Added)
+      } else if !diff.modified.is_empty() {
+        Some(DiffStatus::Modified)
+      } else {
+        None
+      }
+    },
+  )
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -165,6 +401,14 @@ pub struct IndexSignatureCtx {
   pub params: String,
   pub ts_type: String,
   pub source_href: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<crate::html::DiffStatus>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_readonly: Option<bool>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_params: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_ts_type: Option<String>,
 }
 
 enum PropertyOrMethod {
@@ -310,6 +554,7 @@ fn render_class_accessor(
   class_name: &str,
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
+  class_diff: Option<&ClassDiff>,
 ) -> DocEntryCtx {
   let getter_or_setter = getter.or(setter).unwrap();
 
@@ -345,6 +590,13 @@ fn render_class_accessor(
     tags.insert(Tag::Writeonly);
   }
 
+  let diff_status = get_method_diff_status(
+    class_diff,
+    name,
+    getter_or_setter.is_static,
+    getter_or_setter.kind,
+  );
+
   DocEntryCtx::new(
     ctx,
     id,
@@ -358,6 +610,10 @@ fn render_class_accessor(
     tags,
     js_doc,
     &getter_or_setter.location,
+    diff_status,
+    None,
+    None,
+    None,
   )
 }
 
@@ -366,6 +622,7 @@ fn render_class_method(
   class_name: &str,
   method: &ClassMethodDef,
   i: usize,
+  class_diff: Option<&ClassDiff>,
 ) -> Option<DocEntryCtx> {
   if method.function_def.has_body && i != 0 {
     return None;
@@ -388,6 +645,51 @@ fn render_class_method(
     tags.insert(Tag::Optional);
   }
 
+  let diff_status = get_method_diff_status(
+    class_diff,
+    &method.name,
+    method.is_static,
+    method.kind,
+  );
+
+  let (old_content, old_tags, js_doc_changed) = if matches!(
+    diff_status,
+    Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+  ) {
+    let method_diff = class_diff
+      .and_then(|d| d.method_changes.as_ref())
+      .and_then(|mc| mc.modified.iter().find(|m| m.name == method.name));
+
+    let old_content = method_diff
+      .and_then(|md| md.function_diff.as_ref())
+      .and_then(|fd| {
+        super::function::render_old_function_summary(
+          ctx,
+          &method.function_def.params,
+          &method.function_def.return_type,
+          fd.params_change.as_ref(),
+          fd.return_type_change.as_ref(),
+        )
+      });
+
+    let old_tags = method_diff.map(|diff| {
+      super::compute_old_tags(
+        &tags,
+        diff.accessibility_change.as_ref(),
+        None,
+        diff.is_abstract_change.as_ref(),
+        diff.optional_change.as_ref(),
+      )
+    });
+
+    let js_doc_changed =
+      method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+
+    (old_content, old_tags, js_doc_changed)
+  } else {
+    (None, None, None)
+  };
+
   Some(DocEntryCtx::new(
     ctx,
     id,
@@ -401,6 +703,10 @@ fn render_class_method(
     tags,
     method.js_doc.doc.as_deref(),
     &method.location,
+    diff_status,
+    old_content,
+    old_tags,
+    js_doc_changed,
   ))
 }
 
@@ -408,6 +714,7 @@ fn render_class_property(
   ctx: &RenderContext,
   class_name: &str,
   property: &ClassPropertyDef,
+  class_diff: Option<&ClassDiff>,
 ) -> DocEntryCtx {
   let id = IdBuilder::new(ctx)
     .kind(IdKind::Property)
@@ -434,6 +741,40 @@ fn render_class_property(
     .map(|ts_type| render_type_def_colon(ctx, ts_type))
     .unwrap_or_default();
 
+  let diff_status =
+    get_property_diff_status(class_diff, &property.name, property.is_static);
+
+  // For modified/renamed properties, render the old type and old tags
+  let (old_content, old_tags, js_doc_changed) = if matches!(
+    diff_status,
+    Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+  ) {
+    let prop_diff = class_diff
+      .and_then(|d| d.property_changes.as_ref())
+      .and_then(|pc| pc.modified.iter().find(|p| p.name == property.name));
+
+    let old_content = prop_diff
+      .and_then(|pd| pd.type_change.as_ref())
+      .map(|tc| render_type_def_colon(ctx, &tc.old));
+
+    let old_tags = prop_diff.map(|diff| {
+      super::compute_old_tags(
+        &tags,
+        diff.accessibility_change.as_ref(),
+        diff.readonly_change.as_ref(),
+        diff.is_abstract_change.as_ref(),
+        diff.optional_change.as_ref(),
+      )
+    });
+
+    let js_doc_changed =
+      prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
+
+    (old_content, old_tags, js_doc_changed)
+  } else {
+    (None, None, None)
+  };
+
   DocEntryCtx::new(
     ctx,
     id,
@@ -447,13 +788,202 @@ fn render_class_property(
     tags,
     property.js_doc.doc.as_deref(),
     &property.location,
+    diff_status,
+    old_content,
+    old_tags,
+    js_doc_changed,
   )
+}
+
+fn get_property_diff_status(
+  class_diff: Option<&ClassDiff>,
+  name: &str,
+  is_static: bool,
+) -> Option<DiffStatus> {
+  let diff = class_diff?;
+  let prop_diff = diff.property_changes.as_ref()?;
+
+  if prop_diff
+    .added
+    .iter()
+    .any(|p| &*p.name == name && p.is_static == is_static)
+  {
+    return Some(DiffStatus::Added);
+  }
+  if let Some(pd) = prop_diff.modified.iter().find(|p| &*p.name == name) {
+    if let Some(nc) = &pd.name_change {
+      return Some(DiffStatus::Renamed {
+        old_name: nc.old.to_string(),
+      });
+    }
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn get_method_diff_status(
+  class_diff: Option<&ClassDiff>,
+  name: &str,
+  is_static: bool,
+  kind: MethodKind,
+) -> Option<DiffStatus> {
+  let diff = class_diff?;
+  let method_diff = diff.method_changes.as_ref()?;
+
+  if method_diff
+    .added
+    .iter()
+    .any(|m| &*m.name == name && m.is_static == is_static && m.kind == kind)
+  {
+    return Some(DiffStatus::Added);
+  }
+  if let Some(md) = method_diff.modified.iter().find(|m| &*m.name == name) {
+    if let Some(nc) = &md.name_change {
+      return Some(DiffStatus::Renamed {
+        old_name: nc.old.to_string(),
+      });
+    }
+    return Some(DiffStatus::Modified);
+  }
+  None
+}
+
+fn inject_removed_properties(
+  ctx: &RenderContext,
+  class_diff: &ClassDiff,
+  is_static: bool,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  if let Some(prop_diff) = &class_diff.property_changes {
+    for removed_prop in &prop_diff.removed {
+      if removed_prop.is_static != is_static {
+        continue;
+      }
+      super::push_removed_property_entry(
+        ctx,
+        &removed_prop.name,
+        removed_prop.ts_type.as_ref(),
+        &removed_prop.location,
+        entries,
+      );
+    }
+  }
+
+  // Inject removed getters/setters (skipped by inject_removed_methods)
+  if let Some(method_diff) = &class_diff.method_changes {
+    // Group removed accessors by name so getter+setter pairs become one entry
+    let mut removed_accessors: IndexMap<
+      &str,
+      (Option<&ClassMethodDef>, Option<&ClassMethodDef>),
+    > = IndexMap::new();
+
+    for removed_method in &method_diff.removed {
+      if removed_method.is_static != is_static {
+        continue;
+      }
+      match removed_method.kind {
+        MethodKind::Getter => {
+          removed_accessors.entry(&removed_method.name).or_default().0 =
+            Some(removed_method);
+        }
+        MethodKind::Setter => {
+          removed_accessors.entry(&removed_method.name).or_default().1 =
+            Some(removed_method);
+        }
+        _ => {}
+      }
+    }
+
+    for (_name, (getter, setter)) in removed_accessors {
+      let getter_or_setter = getter.or(setter).unwrap();
+      let name = &getter_or_setter.name;
+
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Accessor)
+        .name(name)
+        .build();
+
+      let ts_type = getter
+        .and_then(|g| g.function_def.return_type.as_ref())
+        .or_else(|| {
+          setter.and_then(|s| {
+            s.function_def
+              .params
+              .first()
+              .and_then(|param| param.ts_type.as_ref())
+          })
+        })
+        .map_or_else(String::new, |ts_type| {
+          render_type_def_colon(ctx, ts_type)
+        });
+
+      let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
+      if let Some(tag) = Tag::from_accessibility(getter_or_setter.accessibility)
+      {
+        tags.insert(tag);
+      }
+      if getter_or_setter.is_abstract {
+        tags.insert(Tag::Abstract);
+      }
+      if getter.is_some() && setter.is_none() {
+        tags.insert(Tag::Readonly);
+      } else if getter.is_none() && setter.is_some() {
+        tags.insert(Tag::Writeonly);
+      }
+
+      entries.push(DocEntryCtx::new(
+        ctx,
+        id,
+        Some(html_escape::encode_text(name).into_owned()),
+        None,
+        &ts_type,
+        tags,
+        getter_or_setter.js_doc.doc.as_deref(),
+        &getter_or_setter.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+        None,
+      ));
+    }
+  }
+}
+
+fn inject_removed_methods(
+  ctx: &RenderContext,
+  class_diff: &ClassDiff,
+  is_static: bool,
+  entries: &mut Vec<DocEntryCtx>,
+) {
+  if let Some(method_diff) = &class_diff.method_changes {
+    for removed_method in &method_diff.removed {
+      if removed_method.is_static != is_static {
+        continue;
+      }
+      // Skip getters/setters (they go in properties section)
+      if matches!(removed_method.kind, MethodKind::Getter | MethodKind::Setter)
+      {
+        continue;
+      }
+      super::push_removed_method_entry(
+        ctx,
+        &removed_method.name,
+        &super::function::render_function_summary(
+          &removed_method.function_def,
+          ctx,
+        ),
+        &removed_method.location,
+        entries,
+      );
+    }
+  }
 }
 
 fn render_class_properties(
   ctx: &RenderContext,
   class_name: &str,
   properties: Vec<PropertyOrMethod>,
+  class_diff: Option<&ClassDiff>,
 ) -> Vec<DocEntryCtx> {
   let mut properties = properties.into_iter().peekable();
   let mut out = vec![];
@@ -461,7 +991,7 @@ fn render_class_properties(
   while let Some(property) = properties.next() {
     let content = match property {
       PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, class_name, &property)
+        render_class_property(ctx, class_name, &property, class_diff)
       }
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
@@ -487,7 +1017,13 @@ fn render_class_properties(
           (None, Some(method))
         };
 
-        render_class_accessor(ctx, class_name, getter, setter.as_ref())
+        render_class_accessor(
+          ctx,
+          class_name,
+          getter,
+          setter.as_ref(),
+          class_diff,
+        )
       }
     };
 
@@ -501,12 +1037,13 @@ fn render_class_methods(
   ctx: &RenderContext,
   class_name: &str,
   methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
+  class_diff: Option<&ClassDiff>,
 ) -> Vec<DocEntryCtx> {
   methods
     .values()
     .flat_map(|methods| {
       methods.iter().enumerate().filter_map(|(i, method)| {
-        render_class_method(ctx, class_name, method, i)
+        render_class_method(ctx, class_name, method, i, class_diff)
       })
     })
     .collect()
