@@ -672,13 +672,15 @@ fn render_class_method(
         )
       });
 
-    let old_tags = method_diff.map(|diff| super::compute_old_tags(
-      &tags,
-      diff.accessibility_change.as_ref(),
-      None,
-      diff.is_abstract_change.as_ref(),
-      diff.optional_change.as_ref(),
-    ));
+    let old_tags = method_diff.map(|diff| {
+      super::compute_old_tags(
+        &tags,
+        diff.accessibility_change.as_ref(),
+        None,
+        diff.is_abstract_change.as_ref(),
+        diff.optional_change.as_ref(),
+      )
+    });
 
     let js_doc_changed =
       method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
@@ -755,13 +757,15 @@ fn render_class_property(
       .and_then(|pd| pd.type_change.as_ref())
       .map(|tc| render_type_def_colon(ctx, &tc.old));
 
-    let old_tags = prop_diff.map(|diff| super::compute_old_tags(
-      &tags,
-      diff.accessibility_change.as_ref(),
-      diff.readonly_change.as_ref(),
-      diff.is_abstract_change.as_ref(),
-      diff.optional_change.as_ref(),
-    ));
+    let old_tags = prop_diff.map(|diff| {
+      super::compute_old_tags(
+        &tags,
+        diff.accessibility_change.as_ref(),
+        diff.readonly_change.as_ref(),
+        diff.is_abstract_change.as_ref(),
+        diff.optional_change.as_ref(),
+      )
+    });
 
     let js_doc_changed =
       prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));

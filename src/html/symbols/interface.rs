@@ -817,5 +817,11 @@ fn compute_old_iface_method_tags(
   current_tags: &IndexSet<Tag>,
   diff: &InterfaceMethodDiff,
 ) -> IndexSet<Tag> {
-  super::compute_old_tags(current_tags, None, None, None, diff.optional_change.as_ref())
+  super::compute_old_tags(
+    current_tags,
+    None,
+    None,
+    None,
+    diff.optional_change.as_ref(),
+  )
 }

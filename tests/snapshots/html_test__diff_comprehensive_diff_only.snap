@@ -1012,17 +1012,14 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": "new",
                             "name": "AbstractRenderer",
                             "name_href": null,
                             "content": "(<div class=\"ml-4\"><div><span>width<span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>height<span>: <span class=\"td-kw\">string</span></span></span></div></div>)",
                             "anchor": {
                               "id": "constructor_0"
                             },
-                            "tags": [
-                              {
-                                "kind": "new"
-                              }
-                            ],
+                            "tags": [],
                             "js_doc": null,
                             "source_href": null,
                             "diff_status": {
@@ -1046,6 +1043,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "canvas",
                             "name_href": "../././~/AbstractRenderer.prototype.canvas.html",
                             "content": "<span>: <span class=\"td-ref\">HTMLElement</span></span>",
@@ -1075,6 +1073,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "render",
                             "name_href": "../././~/AbstractRenderer.prototype.render.html",
                             "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
@@ -1820,6 +1819,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": null,
                             "name_href": null,
                             "content": "new (<span><span>data<span>: <span class=\"td-ref\">Uint8Array</span></span></span></span>)<span>: <a href=\"../././~/AdvancedSerializable.html\" class=\"link td-ref\">AdvancedSerializable</a>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;</span>",
@@ -1850,6 +1850,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "compress",
                             "name_href": "../././~/AdvancedSerializable.compress.html",
                             "content": "(<div class=\"ml-4\"><div><span>level<span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>format<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span></span></div></div>)<span>: <span class=\"td-ref\">Uint8Array</span></span>",
@@ -1865,6 +1866,7 @@ expression: pages
                             "old_content": "(level<span>: <span class=\"td-kw\">number</span></span>)<span>: <span class=\"td-ref\">Uint8Array</span></span>"
                           },
                           {
+                            "name_prefix": null,
                             "name": "decompress",
                             "name_href": "../././~/AdvancedSerializable.decompress.html",
                             "content": "(<span><span>data<span>: <span class=\"td-ref\">Uint8Array</span></span></span></span>)<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
@@ -2342,17 +2344,14 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": "new",
                             "name": "Animal",
                             "name_href": null,
                             "content": "(<div class=\"ml-4\"><div><span>name<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>age<span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>color<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span></span></div></div>)",
                             "anchor": {
                               "id": "constructor_0"
                             },
-                            "tags": [
-                              {
-                                "kind": "new"
-                              }
-                            ],
+                            "tags": [],
                             "js_doc": null,
                             "source_href": null,
                             "diff_status": {
@@ -2360,6 +2359,7 @@ expression: pages
                             }
                           },
                           {
+                            "name_prefix": null,
                             "name": "Animal",
                             "name_href": null,
                             "content": "(<div class=\"ml-4\"><div><span>name<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>age<span>: <span class=\"td-kw\">number</span></span></span></div></div>)",
@@ -2393,6 +2393,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "create",
                             "name_href": "../././~/Animal.create.html",
                             "content": "(<div class=\"ml-4\"><div><span>name<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>color<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span></span></div></div>)<span>: <a href=\"../././~/Animal.html\" class=\"link td-ref\">Animal</a></span>",
@@ -2423,6 +2424,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "age",
                             "name_href": "../././~/Animal.prototype.age.html",
                             "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -2438,6 +2440,7 @@ expression: pages
                             "js_doc_changed": true
                           },
                           {
+                            "name_prefix": null,
                             "name": "color",
                             "name_href": "../././~/Animal.prototype.color.html",
                             "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -2452,6 +2455,7 @@ expression: pages
                             }
                           },
                           {
+                            "name_prefix": null,
                             "name": "fullId",
                             "name_href": null,
                             "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -2485,6 +2489,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "describe",
                             "name_href": "../././~/Animal.prototype.describe.html",
                             "content": "(<span><span>verbose<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
@@ -2502,6 +2507,7 @@ expression: pages
                             "js_doc_changed": true
                           },
                           {
+                            "name_prefix": null,
                             "name": "feed",
                             "name_href": "../././~/Animal.prototype.feed.html",
                             "content": "(<div class=\"ml-4\"><div><span>food<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>amount<span>: <span class=\"td-kw\">number</span></span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -2518,6 +2524,7 @@ expression: pages
                             "js_doc_changed": true
                           },
                           {
+                            "name_prefix": null,
                             "name": "vocalize",
                             "name_href": "../././~/Animal.prototype.vocalize.html",
                             "content": "()<span>: <span class=\"td-kw\">string</span></span>",
@@ -4064,6 +4071,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "Custom",
                             "name_href": null,
                             "content": " = <span class=\"td-str\">\"custom\"</span>",
@@ -4078,6 +4086,7 @@ expression: pages
                             }
                           },
                           {
+                            "name_prefix": null,
                             "name": "Yellow",
                             "name_href": null,
                             "content": " = <span class=\"td-str\">\"yellow\"</span>",
@@ -4420,6 +4429,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "description",
                             "name_href": "../././~/CompoundType.description.html",
                             "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -4453,6 +4463,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "validate",
                             "name_href": "../././~/CompoundType.validate.html",
                             "content": "()<span>: <span class=\"td-kw\">boolean</span></span>",
@@ -4927,6 +4938,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": null,
                             "name_href": null,
                             "content": "<span><span class=\"td-kw\">string</span><span class=\"td-op\"> | </span><span class=\"td-kw\">number</span></span>",
@@ -5060,6 +5072,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "Fatal",
                             "name_href": null,
                             "content": "",
@@ -5074,6 +5087,7 @@ expression: pages
                             }
                           },
                           {
+                            "name_prefix": null,
                             "name": "Trace",
                             "name_href": null,
                             "content": "",
@@ -5216,6 +5230,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": null,
                             "name_href": null,
                             "content": "<span class=\"td-lit\">5</span>",
@@ -5349,6 +5364,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": null,
                             "name_href": null,
                             "content": "(<div class=\"ml-4\"><div><span>req<span>: <span class=\"td-ref\">Request</span></span></span>,</div><div><span>next<span>: () =&gt; <span class=\"td-ref\">Response</span></span></span></div></div>) =&gt; <span class=\"td-ref\">Response</span>",
@@ -5623,6 +5639,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "T",
                             "name_href": null,
                             "content": "<span><span> = </span><span class=\"td-kw\">string</span></span>",
@@ -5649,6 +5666,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "parse",
                             "name_href": "../././~/Parser.parse.html",
                             "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
@@ -5660,6 +5678,7 @@ expression: pages
                             "source_href": null
                           },
                           {
+                            "name_prefix": null,
                             "name": "tryParse",
                             "name_href": "../././~/Parser.tryParse.html",
                             "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><a href=\"#type_param_t\" class=\"link td-ref\">T</a><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
@@ -5821,6 +5840,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "input",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -5847,6 +5867,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span class=\"td-ref\">T</span>",
@@ -6234,6 +6255,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "input",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -6260,6 +6282,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span>",
@@ -6412,6 +6435,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "addRoute",
                             "name_href": "../././~/Router.prototype.addRoute.html",
                             "content": "(<div class=\"ml-4\"><div><span>path<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>handler<span>: <span class=\"td-ref\">Function</span></span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -6423,6 +6447,7 @@ expression: pages
                             "source_href": null
                           },
                           {
+                            "name_prefix": null,
                             "name": "handle",
                             "name_href": "../././~/Router.prototype.handle.html",
                             "content": "(<span><span>request<span>: <span class=\"td-ref\">Request</span></span></span></span>)<span>: <span class=\"td-ref\">Response</span></span>",
@@ -6434,6 +6459,7 @@ expression: pages
                             "source_href": null
                           },
                           {
+                            "name_prefix": null,
                             "name": "removeRoute",
                             "name_href": "../././~/Router.prototype.removeRoute.html",
                             "content": "(<span><span>path<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -6587,6 +6613,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "path",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -6598,6 +6625,7 @@ expression: pages
                                   "source_href": null
                                 },
                                 {
+                                  "name_prefix": null,
                                   "name": "handler",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-ref\">Function</span></span>",
@@ -6624,6 +6652,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span class=\"td-kw\">void</span>",
@@ -6788,6 +6817,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "request",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-ref\">Request</span></span>",
@@ -6814,6 +6844,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span class=\"td-ref\">Response</span>",
@@ -6973,6 +7004,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "path",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -6999,6 +7031,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span class=\"td-kw\">void</span>",
@@ -7261,6 +7294,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "type",
                             "name_href": "../././~/Serializable.type.html",
                             "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -7280,6 +7314,7 @@ expression: pages
                             }
                           },
                           {
+                            "name_prefix": null,
                             "name": "version",
                             "name_href": "../././~/Serializable.version.html",
                             "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -7309,6 +7344,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": "toJSON",
                             "name_href": "../././~/Serializable.toJSON.html",
                             "content": "(<span><span>pretty<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
@@ -8007,6 +8043,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": null,
                             "name_href": null,
                             "content": "<span class=\"td-str\">\"2.0.0\"</span>",
@@ -8283,6 +8320,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "<span>...middlewares</span>",
                                   "name_href": null,
                                   "content": "<span>: <a href=\"../././~/Middleware.html\" class=\"link td-ref\">Middleware</a>[]</span>",
@@ -8309,6 +8347,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<a href=\"../././~/Middleware.html\" class=\"link td-ref\">Middleware</a>",
@@ -8676,6 +8715,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "msg",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -8826,6 +8866,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "input",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">unknown</span></span>",
@@ -8856,6 +8897,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "input <span class=\"td-kw\">is</span> <a href=\"#type_param_t\" class=\"link td-ref\">T</a>",
@@ -9011,6 +9053,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "T",
                                   "name_href": null,
                                   "content": "",
@@ -9037,6 +9080,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "data",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">unknown</span></span>",
@@ -9048,6 +9092,7 @@ expression: pages
                                   "source_href": null
                                 },
                                 {
+                                  "name_prefix": null,
                                   "name": "schema",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-ref\">Schema</span>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;</span>",
@@ -9074,6 +9119,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span class=\"td-ref\">Promise</span>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;",

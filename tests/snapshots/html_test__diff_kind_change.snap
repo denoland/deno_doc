@@ -248,6 +248,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "O",
                                   "name_href": null,
                                   "content": "<span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span><span><span> = </span><span class=\"td-kw\">never</span></span>",
@@ -274,6 +275,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": "config",
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-ref\">StepConfig</span>&lt;<a href=\"#type_param_o\" class=\"link td-ref\">O</a>&gt;</span>",
@@ -300,6 +302,7 @@ expression: pages
                               "kind": "doc_entry",
                               "content": [
                                 {
+                                  "name_prefix": null,
                                   "name": null,
                                   "name_href": null,
                                   "content": "<span class=\"td-ref\">Step</span>&lt;<a href=\"#type_param_o\" class=\"link td-ref\">O</a>&gt;",
@@ -357,6 +360,7 @@ expression: pages
                         "kind": "doc_entry",
                         "content": [
                           {
+                            "name_prefix": null,
                             "name": null,
                             "name_href": null,
                             "content": "<span class=\"td-ref\">StepFunction</span>",

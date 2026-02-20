@@ -351,7 +351,10 @@ impl IndexCtx {
 
     let overview = if ctx.diff_only {
       overview.and_then(|mut o| {
-        crate::html::diff::filter_sections_diff_only(&mut o.sections, &render_ctx.toc);
+        crate::html::diff::filter_sections_diff_only(
+          &mut o.sections,
+          &render_ctx.toc,
+        );
         if o.sections.is_empty() { None } else { Some(o) }
       })
     } else {
@@ -422,7 +425,10 @@ impl IndexCtx {
     );
 
     if ctx.diff_only {
-      crate::html::diff::filter_sections_diff_only(&mut sections, &render_ctx.toc);
+      crate::html::diff::filter_sections_diff_only(
+        &mut sections,
+        &render_ctx.toc,
+      );
     }
 
     let root = ctx.resolve_path(

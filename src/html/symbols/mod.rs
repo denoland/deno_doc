@@ -1,6 +1,7 @@
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
+use crate::html::diff::is_symbol_added;
 use crate::html::jsdoc::ModuleDocCtx;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
@@ -8,7 +9,6 @@ use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::diff::is_symbol_added;
 use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
 use crate::node::DocNodeDef;
@@ -650,7 +650,9 @@ impl SymbolInnerCtx {
 /// accessibility).
 pub(crate) fn compute_old_tags(
   current_tags: &indexmap::IndexSet<Tag>,
-  accessibility_change: Option<&crate::diff::Change<Option<deno_ast::swc::ast::Accessibility>>>,
+  accessibility_change: Option<
+    &crate::diff::Change<Option<deno_ast::swc::ast::Accessibility>>,
+  >,
   readonly_change: Option<&crate::diff::Change<bool>>,
   abstract_change: Option<&crate::diff::Change<bool>>,
   optional_change: Option<&crate::diff::Change<bool>>,
@@ -796,7 +798,10 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
   index_signatures: &[crate::ts_type::IndexSignatureDef],
   removed: &[crate::ts_type::IndexSignatureDef],
   modified: &[D],
-  diff_status_fn: impl Fn(usize, &crate::ts_type::IndexSignatureDef) -> Option<DiffStatus>,
+  diff_status_fn: impl Fn(
+    usize,
+    &crate::ts_type::IndexSignatureDef,
+  ) -> Option<DiffStatus>,
 ) -> Option<SectionCtx> {
   if index_signatures.is_empty() && removed.is_empty() {
     return None;
@@ -821,7 +826,8 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
     let (old_readonly, old_params, old_ts_type) =
       if matches!(diff_status, Some(DiffStatus::Modified)) {
         let sig_diff = modified.first();
-        let old_readonly = sig_diff.and_then(|sd| sd.readonly_change()).map(|c| c.old);
+        let old_readonly =
+          sig_diff.and_then(|sd| sd.readonly_change()).map(|c| c.old);
         let old_params = sig_diff.and_then(|sd| sd.params_change()).map(|pc| {
           function::render_old_params(ctx, &index_signature.params, pc)
         });
@@ -834,11 +840,12 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
       };
 
     items.push(class::IndexSignatureCtx {
-      anchor: AnchorCtx {
-        id,
-      },
+      anchor: AnchorCtx { id },
       readonly: index_signature.readonly,
-      params: crate::html::parameters::render_params(ctx, &index_signature.params),
+      params: crate::html::parameters::render_params(
+        ctx,
+        &index_signature.params,
+      ),
       ts_type,
       source_href: ctx
         .ctx
@@ -865,16 +872,11 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
       .unwrap_or_default();
 
     items.push(class::IndexSignatureCtx {
-      anchor: AnchorCtx {
-        id,
-      },
+      anchor: AnchorCtx { id },
       readonly: removed_sig.readonly,
       params: crate::html::parameters::render_params(ctx, &removed_sig.params),
       ts_type,
-      source_href: ctx
-        .ctx
-        .href_resolver
-        .resolve_source(&removed_sig.location),
+      source_href: ctx.ctx.href_resolver.resolve_source(&removed_sig.location),
       diff_status: Some(DiffStatus::Removed),
       old_readonly: None,
       old_params: None,

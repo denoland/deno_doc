@@ -4,14 +4,14 @@ use crate::DocNode;
 use crate::diff::DocDiff;
 use crate::diff::DocNodeDiff;
 use crate::diff::ModuleDiff;
+use crate::html::DocNodeWithContext;
+use crate::html::util::{SectionContentCtx, SectionCtx};
 use crate::node::DocNodeKind as AstDocNodeKind;
 use deno_ast::ModuleSpecifier;
 use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashMap;
-use crate::html::DocNodeWithContext;
-use crate::html::util::{SectionContentCtx, SectionCtx};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
@@ -144,7 +144,6 @@ impl DiffIndex {
 pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
   matches!(doc_node.diff_status, Some(DiffStatus::Added))
 }
-
 
 /// Filters sections in-place, retaining only entries that have a diff status.
 /// Removes sections that become empty after filtering, and drops

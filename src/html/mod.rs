@@ -445,9 +445,11 @@ impl GenerateCtx {
     // Inject removed symbols from diff data into doc_nodes for listing
     if let Some(diff) = &diff {
       for (short_path, nodes) in &mut doc_nodes {
-        if let Some(removed) = diff.module_diffs
+        if let Some(removed) = diff
+          .module_diffs
           .get(&short_path.specifier)
-          .map(|diff| &diff.removed) {
+          .map(|diff| &diff.removed)
+        {
           for node in removed {
             nodes.push(DocNodeWithContext {
               origin: short_path.clone(),
