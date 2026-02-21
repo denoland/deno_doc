@@ -45,9 +45,11 @@ pub(crate) fn render_class(
       .and_then(|d| d.as_class())
   });
 
-  let class_items = partition_visible_properties_and_classes(
+  let class_items = partition_class_items(
     class_def.properties.clone(),
     class_def.methods.clone(),
+    class_diff.and_then(|d| d.property_changes.as_ref()),
+    class_diff.and_then(|d| d.method_changes.as_ref()),
   );
 
   let mut sections = vec![];
@@ -79,15 +81,12 @@ pub(crate) fn render_class(
     sections.push(index_signatures);
   }
 
-  let method_changes = class_diff.and_then(|d| d.method_changes.as_ref());
-  let property_changes = class_diff.and_then(|d| d.property_changes.as_ref());
   let static_properties = render_class_properties(
     ctx,
     name,
     class_items.static_properties,
-    true,
-    property_changes,
-    method_changes,
+    class_items.static_property_changes.as_ref(),
+    class_items.static_method_changes.as_ref(),
   );
 
   if !static_properties.is_empty() {
@@ -102,8 +101,7 @@ pub(crate) fn render_class(
     ctx,
     name,
     class_items.static_methods,
-    true,
-    method_changes,
+    class_items.static_method_changes.as_ref(),
   );
 
   if !static_methods.is_empty() {
@@ -118,9 +116,8 @@ pub(crate) fn render_class(
     ctx,
     name,
     class_items.properties,
-    false,
-    property_changes,
-    method_changes,
+    class_items.property_changes.as_ref(),
+    class_items.method_changes.as_ref(),
   );
 
   if !properties.is_empty() {
@@ -131,8 +128,12 @@ pub(crate) fn render_class(
     ));
   }
 
-  let methods =
-    render_class_methods(ctx, name, class_items.methods, false, method_changes);
+  let methods = render_class_methods(
+    ctx,
+    name,
+    class_items.methods,
+    class_items.method_changes.as_ref(),
+  );
 
   if !methods.is_empty() {
     sections.push(SectionCtx::new(
@@ -490,11 +491,17 @@ struct ClassItems {
   static_properties: Vec<PropertyOrMethod>,
   methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
   static_methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
+  property_changes: Option<PropertiesDiff>,
+  static_property_changes: Option<PropertiesDiff>,
+  method_changes: Option<MethodsDiff>,
+  static_method_changes: Option<MethodsDiff>,
 }
 
-fn partition_visible_properties_and_classes(
+fn partition_class_items(
   properties: Box<[ClassPropertyDef]>,
   methods: Box<[ClassMethodDef]>,
+  property_diff: Option<&PropertiesDiff>,
+  method_diff: Option<&MethodsDiff>,
 ) -> ClassItems {
   let mut out_properties = vec![];
   let mut out_static_properties = vec![];
@@ -538,12 +545,73 @@ fn partition_visible_properties_and_classes(
   out_properties.sort_by(property_or_method_cmp);
   out_static_properties.sort_by(property_or_method_cmp);
 
+  let (property_changes, static_property_changes) =
+    partition_properties_diff(property_diff);
+  let (method_changes, static_method_changes) =
+    partition_methods_diff(method_diff);
+
   ClassItems {
     properties: out_properties,
     static_properties: out_static_properties,
     methods: out_methods,
     static_methods: out_static_methods,
+    property_changes,
+    static_property_changes,
+    method_changes,
+    static_method_changes,
   }
+}
+
+fn partition_properties_diff(
+  diff: Option<&PropertiesDiff>,
+) -> (Option<PropertiesDiff>, Option<PropertiesDiff>) {
+  let Some(diff) = diff else {
+    return (None, None);
+  };
+
+  let (static_added, instance_added): (Vec<_>, Vec<_>) =
+    diff.added.iter().cloned().partition(|p| p.is_static);
+  let (static_removed, instance_removed): (Vec<_>, Vec<_>) =
+    diff.removed.iter().cloned().partition(|p| p.is_static);
+
+  let instance = PropertiesDiff {
+    added: instance_added,
+    removed: instance_removed,
+    modified: diff.modified.clone(),
+  };
+  let r#static = PropertiesDiff {
+    added: static_added,
+    removed: static_removed,
+    modified: diff.modified.clone(),
+  };
+
+  (Some(instance), Some(r#static))
+}
+
+fn partition_methods_diff(
+  diff: Option<&MethodsDiff>,
+) -> (Option<MethodsDiff>, Option<MethodsDiff>) {
+  let Some(diff) = diff else {
+    return (None, None);
+  };
+
+  let (static_added, instance_added): (Vec<_>, Vec<_>) =
+    diff.added.iter().cloned().partition(|m| m.is_static);
+  let (static_removed, instance_removed): (Vec<_>, Vec<_>) =
+    diff.removed.iter().cloned().partition(|m| m.is_static);
+
+  let instance = MethodsDiff {
+    added: instance_added,
+    removed: instance_removed,
+    modified: diff.modified.clone(),
+  };
+  let r#static = MethodsDiff {
+    added: static_added,
+    removed: static_removed,
+    modified: diff.modified.clone(),
+  };
+
+  (Some(instance), Some(r#static))
 }
 
 fn render_class_accessor(
@@ -587,12 +655,8 @@ fn render_class_accessor(
     tags.insert(Tag::Writeonly);
   }
 
-  let diff_status = get_method_diff_status(
-    method_changes,
-    name,
-    getter_or_setter.is_static,
-    getter_or_setter.kind,
-  );
+  let diff_status =
+    get_method_diff_status(method_changes, name, getter_or_setter.kind);
 
   DocEntryCtx::new(
     ctx,
@@ -642,12 +706,8 @@ fn render_class_method(
     tags.insert(Tag::Optional);
   }
 
-  let diff_status = get_method_diff_status(
-    method_changes,
-    &method.name,
-    method.is_static,
-    method.kind,
-  );
+  let diff_status =
+    get_method_diff_status(method_changes, &method.name, method.kind);
 
   let (old_content, old_tags, js_doc_changed) = if matches!(
     diff_status,
@@ -737,11 +797,7 @@ fn render_class_property(
     .map(|ts_type| render_type_def_colon(ctx, ts_type))
     .unwrap_or_default();
 
-  let diff_status = get_property_diff_status(
-    property_changes,
-    &property.name,
-    property.is_static,
-  );
+  let diff_status = get_property_diff_status(property_changes, &property.name);
 
   // For modified/renamed properties, render the old type and old tags
   let (old_content, old_tags, js_doc_changed) = if matches!(
@@ -796,15 +852,10 @@ fn render_class_property(
 fn get_property_diff_status(
   property_changes: Option<&PropertiesDiff>,
   name: &str,
-  is_static: bool,
 ) -> Option<DiffStatus> {
   let prop_diff = property_changes?;
 
-  if prop_diff
-    .added
-    .iter()
-    .any(|p| &*p.name == name && p.is_static == is_static)
-  {
+  if prop_diff.added.iter().any(|p| &*p.name == name) {
     return Some(DiffStatus::Added);
   }
   if let Some(pd) = prop_diff.modified.iter().find(|p| &*p.name == name) {
@@ -821,7 +872,6 @@ fn get_property_diff_status(
 fn get_method_diff_status(
   method_changes: Option<&MethodsDiff>,
   name: &str,
-  is_static: bool,
   kind: MethodKind,
 ) -> Option<DiffStatus> {
   let method_diff = method_changes?;
@@ -829,7 +879,7 @@ fn get_method_diff_status(
   if method_diff
     .added
     .iter()
-    .any(|m| &*m.name == name && m.is_static == is_static && m.kind == kind)
+    .any(|m| &*m.name == name && m.kind == kind)
   {
     return Some(DiffStatus::Added);
   }
@@ -848,7 +898,6 @@ fn render_class_properties(
   ctx: &RenderContext,
   class_name: &str,
   properties: Vec<PropertyOrMethod>,
-  is_static: bool,
   property_changes: Option<&PropertiesDiff>,
   method_changes: Option<&MethodsDiff>,
 ) -> Vec<DocEntryCtx> {
@@ -900,9 +949,6 @@ fn render_class_properties(
   // Inject removed properties
   if let Some(prop_diff) = property_changes {
     for removed_prop in &prop_diff.removed {
-      if removed_prop.is_static != is_static {
-        continue;
-      }
       super::push_removed_property_entry(
         ctx,
         &removed_prop.name,
@@ -921,9 +967,6 @@ fn render_class_properties(
     > = IndexMap::new();
 
     for removed_method in &method_diff.removed {
-      if removed_method.is_static != is_static {
-        continue;
-      }
       match removed_method.kind {
         MethodKind::Getter => {
           removed_accessors.entry(&removed_method.name).or_default().0 =
@@ -994,7 +1037,6 @@ fn render_class_methods(
   ctx: &RenderContext,
   class_name: &str,
   methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
-  is_static: bool,
   method_changes: Option<&MethodsDiff>,
 ) -> Vec<DocEntryCtx> {
   let mut out: Vec<DocEntryCtx> = methods
@@ -1008,9 +1050,6 @@ fn render_class_methods(
 
   if let Some(method_diff) = method_changes {
     for removed_method in &method_diff.removed {
-      if removed_method.is_static != is_static {
-        continue;
-      }
       // Skip getters/setters (they go in properties section)
       if matches!(removed_method.kind, MethodKind::Getter | MethodKind::Setter)
       {

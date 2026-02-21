@@ -1,4 +1,3 @@
-use crate::diff::EnumDiff;
 use crate::r#enum::EnumMemberDef;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
@@ -47,8 +46,20 @@ pub(crate) fn render_enum(
         .build();
 
       let tags = Tag::from_js_doc(&member.js_doc);
+      let old_tags = enum_diff
+        .map(|_| super::compute_old_tags(&tags, None, None, None, None));
 
-      let diff_status = get_member_diff_status(enum_diff, &member.name);
+      let diff_status = if let Some(diff) = enum_diff {
+        if diff.added_members.iter().any(|m| m.name == member.name) {
+          Some(DiffStatus::Added)
+        } else if diff.modified_members.iter().any(|m| m.name == member.name) {
+          Some(DiffStatus::Modified)
+        } else {
+          None
+        }
+      } else {
+        None
+      };
 
       let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
@@ -80,15 +91,38 @@ pub(crate) fn render_enum(
         &member.location,
         diff_status,
         old_content,
-        None,
+        old_tags,
         js_doc_changed,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
 
   // Inject removed members
-  if let Some(diff) = enum_diff {
-    inject_removed_members(render_ctx, doc_node.get_name(), diff, &mut items);
+  if let Some(enum_diff) = enum_diff {
+    for removed_member in &enum_diff.removed_members {
+      let id = IdBuilder::new(render_ctx)
+        .kind(IdKind::Enum)
+        .name(doc_node.get_name())
+        .name(&removed_member.name)
+        .build();
+
+      let tags = Tag::from_js_doc(&removed_member.js_doc);
+
+      items.push(DocEntryCtx::removed(
+        render_ctx,
+        id,
+        Some(html_escape::encode_text(&removed_member.name).into_owned()),
+        None,
+        &removed_member
+          .init
+          .as_ref()
+          .map(|init| format!(" = {}", render_type_def(render_ctx, init)))
+          .unwrap_or_default(),
+        tags,
+        removed_member.js_doc.doc.as_deref(),
+        &removed_member.location,
+      ));
+    }
   }
 
   vec![SectionCtx::new(
@@ -96,53 +130,4 @@ pub(crate) fn render_enum(
     "Members",
     SectionContentCtx::DocEntry(items),
   )]
-}
-
-fn get_member_diff_status(
-  enum_diff: Option<&EnumDiff>,
-  name: &str,
-) -> Option<DiffStatus> {
-  let diff = enum_diff?;
-
-  if diff.added_members.iter().any(|m| &*m.name == name) {
-    return Some(DiffStatus::Added);
-  }
-  if diff.modified_members.iter().any(|m| &*m.name == name) {
-    return Some(DiffStatus::Modified);
-  }
-  None
-}
-
-fn inject_removed_members(
-  render_ctx: &RenderContext,
-  enum_name: &str,
-  enum_diff: &EnumDiff,
-  entries: &mut Vec<DocEntryCtx>,
-) {
-  for removed_member in &enum_diff.removed_members {
-    let id = IdBuilder::new(render_ctx)
-      .kind(IdKind::Enum)
-      .name(enum_name)
-      .name(&removed_member.name)
-      .build();
-
-    entries.push(DocEntryCtx::new(
-      render_ctx,
-      id,
-      Some(html_escape::encode_text(&removed_member.name).into_owned()),
-      None,
-      &removed_member
-        .init
-        .as_ref()
-        .map(|init| format!(" = {}", render_type_def(render_ctx, init)))
-        .unwrap_or_default(),
-      Default::default(),
-      None,
-      &removed_member.location,
-      Some(DiffStatus::Removed),
-      None,
-      None,
-      None,
-    ));
-  }
 }

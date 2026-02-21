@@ -6,9 +6,9 @@ use crate::html::MethodKind;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::function::render_function_summary;
-use crate::html::types::{
-  render_type_def, render_type_def_colon, type_params_summary,
-};
+use crate::html::types::render_type_def;
+use crate::html::types::render_type_def_colon;
+use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -198,11 +198,9 @@ impl NamespaceNodeCtx {
 
               let drilldown_name = symbol.drilldown_name.as_ref().unwrap();
 
-              let diff_status = get_subitem_diff_status(
-                node_def_diff,
-                drilldown_name,
-                &symbol.kind,
-              );
+              let diff_status = node_def_diff.and_then(|diff| {
+                get_subitem_diff_status(diff, drilldown_name, &symbol.kind)
+              });
 
               NamespaceNodeSubItemCtx {
                 title: drilldown_name.to_string(),
@@ -216,7 +214,9 @@ impl NamespaceNodeCtx {
       }
 
       // Inject removed sub-items from the diff
-      inject_removed_subitems(ctx, node_def_diff, &href, &mut subitems);
+      if let Some(node_def_diff) = node_def_diff {
+        inject_removed_subitems(ctx, node_def_diff, &href, &mut subitems);
+      }
     }
 
     subitems.sort();
@@ -338,11 +338,11 @@ fn summary_for_nodes(
 ) -> Option<TypeSummaryCtx> {
   // Use only non-removed nodes for the summary so we always show the current
   // (new) state — both for normal modifications and kind changes.
-  let current: Vec<_> = nodes
+  let current = nodes
     .iter()
     .filter(|n| !matches!(n.diff_status, Some(DiffStatus::Removed)))
     .cloned()
-    .collect();
+    .collect::<Vec<_>>();
   let nodes = if current.is_empty() { nodes } else { &current };
 
   match nodes[0].kind {
@@ -450,12 +450,10 @@ pub struct TypeSummaryCtx {
 }
 
 fn get_subitem_diff_status(
-  node_def_diff: Option<&DocNodeDefDiff>,
+  def_diff: &DocNodeDefDiff,
   name: &str,
   kind: &DocNodeKind,
 ) -> Option<DiffStatus> {
-  let def_diff = node_def_diff?;
-
   match def_diff {
     DocNodeDefDiff::Class(class_diff) => match kind {
       DocNodeKind::Method(_) => {
@@ -544,15 +542,10 @@ fn get_subitem_diff_status(
 /// old version.
 fn inject_removed_subitems(
   ctx: &RenderContext,
-  node_def_diff: Option<&DocNodeDefDiff>,
+  def_diff: &DocNodeDefDiff,
   href: &str,
   subitems: &mut IndexSet<NamespaceNodeSubItemCtx>,
 ) {
-  let def_diff = match node_def_diff {
-    Some(d) => d,
-    None => return,
-  };
-
   let no_links_ctx = ctx.with_disable_links(true);
 
   match def_diff {
