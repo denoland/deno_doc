@@ -561,7 +561,7 @@ fn inject_removed_params(
       .map(|ts_type| render_type_def_colon(ctx, ts_type))
       .unwrap_or_default();
 
-    entries.push(DocEntryCtx::new(
+    entries.push(DocEntryCtx::removed(
       ctx,
       id,
       Some(name),
@@ -570,10 +570,6 @@ fn inject_removed_params(
       Default::default(),
       None,
       &doc_node.location,
-      Some(DiffStatus::Removed),
-      None,
-      None,
-      None,
     ));
   }
 }
