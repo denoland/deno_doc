@@ -1,3 +1,4 @@
+use super::diff::DiffStatus;
 use super::DocNodeWithContext;
 use super::FileMode;
 use super::GenerateCtx;
@@ -507,6 +508,7 @@ pub enum SymbolPage {
   Redirect {
     current_symbol: String,
     href: String,
+    diff_status: Option<DiffStatus>,
   },
 }
 
@@ -547,6 +549,8 @@ pub fn generate_symbol_pages_for_module(
     let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx, categories_panel) =
       render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
 
+    let diff_status = symbol_group_ctx.diff_status.clone();
+
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
       symbol_group_ctx,
@@ -571,6 +575,7 @@ pub fn generate_symbol_pages_for_module(
           },
         ),
         current_symbol: prototype_name,
+        diff_status,
       });
     }
   }

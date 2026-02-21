@@ -1321,6 +1321,7 @@ pub fn generate(
           SymbolPage::Redirect {
             current_symbol,
             href,
+            ..
           } => {
             let redirect =
               serde_json::json!({ "kind": "redirect", "path": href });
@@ -1550,9 +1551,9 @@ pub fn generate_json(
           SymbolPage::Redirect {
             current_symbol,
             href,
+            diff_status,
           } => {
-            // Skip redirects in diff_only mode
-            if diff_only {
+            if diff_only && diff_status.is_none() {
               return vec![];
             }
 
