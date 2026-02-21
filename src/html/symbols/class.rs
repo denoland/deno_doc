@@ -1,7 +1,10 @@
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
-use crate::diff::ClassDiff;
 use crate::diff::ConstructorDiff;
+use crate::diff::ConstructorsDiff;
+use crate::diff::IndexSignaturesDiff;
+use crate::diff::MethodsDiff;
+use crate::diff::PropertiesDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
@@ -42,6 +45,13 @@ pub(crate) fn render_class(
       .and_then(|d| d.as_class())
   });
 
+  let constructor_changes =
+    class_diff.and_then(|d| d.constructor_changes.as_ref());
+  let method_changes = class_diff.and_then(|d| d.method_changes.as_ref());
+  let property_changes = class_diff.and_then(|d| d.property_changes.as_ref());
+  let index_signature_changes =
+    class_diff.and_then(|d| d.index_signature_changes.as_ref());
+
   let class_items = partition_visible_properties_and_classes(
     class_def.properties.clone(),
     class_def.methods.clone(),
@@ -53,7 +63,7 @@ pub(crate) fn render_class(
     ctx,
     &class_def.constructors,
     doc_node.get_name(),
-    class_diff,
+    constructor_changes,
   ) {
     sections.push(constructors);
   }
@@ -68,22 +78,28 @@ pub(crate) fn render_class(
     sections.push(type_params);
   }
 
-  if let Some(index_signatures) =
-    render_class_index_signatures(ctx, &class_def.index_signatures, class_diff)
-  {
+  if let Some(index_signatures) = render_class_index_signatures(
+    ctx,
+    &class_def.index_signatures,
+    index_signature_changes,
+  ) {
     sections.push(index_signatures);
   }
 
-  // Collect removed static properties from diff
   let mut static_properties = render_class_properties(
     ctx,
     name,
     class_items.static_properties,
-    class_diff,
+    property_changes,
+    method_changes,
   );
-  if let Some(diff) = class_diff {
-    inject_removed_properties(ctx, diff, true, &mut static_properties);
-  }
+  inject_removed_properties(
+    ctx,
+    property_changes,
+    method_changes,
+    true,
+    &mut static_properties,
+  );
 
   if !static_properties.is_empty() {
     sections.push(SectionCtx::new(
@@ -94,10 +110,8 @@ pub(crate) fn render_class(
   }
 
   let mut static_methods =
-    render_class_methods(ctx, name, class_items.static_methods, class_diff);
-  if let Some(diff) = class_diff {
-    inject_removed_methods(ctx, diff, true, &mut static_methods);
-  }
+    render_class_methods(ctx, name, class_items.static_methods, method_changes);
+  inject_removed_methods(ctx, method_changes, true, &mut static_methods);
 
   if !static_methods.is_empty() {
     sections.push(SectionCtx::new(
@@ -107,11 +121,20 @@ pub(crate) fn render_class(
     ));
   }
 
-  let mut properties =
-    render_class_properties(ctx, name, class_items.properties, class_diff);
-  if let Some(diff) = class_diff {
-    inject_removed_properties(ctx, diff, false, &mut properties);
-  }
+  let mut properties = render_class_properties(
+    ctx,
+    name,
+    class_items.properties,
+    property_changes,
+    method_changes,
+  );
+  inject_removed_properties(
+    ctx,
+    property_changes,
+    method_changes,
+    false,
+    &mut properties,
+  );
 
   if !properties.is_empty() {
     sections.push(SectionCtx::new(
@@ -122,10 +145,8 @@ pub(crate) fn render_class(
   }
 
   let mut methods =
-    render_class_methods(ctx, name, class_items.methods, class_diff);
-  if let Some(diff) = class_diff {
-    inject_removed_methods(ctx, diff, false, &mut methods);
-  }
+    render_class_methods(ctx, name, class_items.methods, method_changes);
+  inject_removed_methods(ctx, method_changes, false, &mut methods);
 
   if !methods.is_empty() {
     sections.push(SectionCtx::new(
@@ -142,18 +163,13 @@ fn render_constructors(
   ctx: &RenderContext,
   constructors: &[crate::class::ClassConstructorDef],
   name: &str,
-  class_diff: Option<&ClassDiff>,
+  constructor_changes: Option<&ConstructorsDiff>,
 ) -> Option<SectionCtx> {
   if constructors.is_empty()
-    && class_diff
-      .and_then(|d| d.constructor_changes.as_ref())
-      .is_none_or(|c| c.removed.is_empty())
+    && constructor_changes.is_none_or(|c| c.removed.is_empty())
   {
     return None;
   }
-
-  let constructor_changes =
-    class_diff.and_then(|d| d.constructor_changes.as_ref());
 
   let mut items = constructors
     .iter()
@@ -368,9 +384,8 @@ fn render_old_class_constructor_summary(
 fn render_class_index_signatures(
   ctx: &RenderContext,
   index_signatures: &[crate::ts_type::IndexSignatureDef],
-  class_diff: Option<&ClassDiff>,
+  idx_diff: Option<&IndexSignaturesDiff>,
 ) -> Option<SectionCtx> {
-  let idx_diff = class_diff.and_then(|d| d.index_signature_changes.as_ref());
   let empty_sigs = Vec::new();
   let empty_mod = Vec::new();
 
@@ -554,7 +569,7 @@ fn render_class_accessor(
   class_name: &str,
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
-  class_diff: Option<&ClassDiff>,
+  method_changes: Option<&MethodsDiff>,
 ) -> DocEntryCtx {
   let getter_or_setter = getter.or(setter).unwrap();
 
@@ -591,7 +606,7 @@ fn render_class_accessor(
   }
 
   let diff_status = get_method_diff_status(
-    class_diff,
+    method_changes,
     name,
     getter_or_setter.is_static,
     getter_or_setter.kind,
@@ -622,7 +637,7 @@ fn render_class_method(
   class_name: &str,
   method: &ClassMethodDef,
   i: usize,
-  class_diff: Option<&ClassDiff>,
+  method_changes: Option<&MethodsDiff>,
 ) -> Option<DocEntryCtx> {
   if method.function_def.has_body && i != 0 {
     return None;
@@ -646,7 +661,7 @@ fn render_class_method(
   }
 
   let diff_status = get_method_diff_status(
-    class_diff,
+    method_changes,
     &method.name,
     method.is_static,
     method.kind,
@@ -656,8 +671,7 @@ fn render_class_method(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
-    let method_diff = class_diff
-      .and_then(|d| d.method_changes.as_ref())
+    let method_diff = method_changes
       .and_then(|mc| mc.modified.iter().find(|m| m.name == method.name));
 
     let old_content = method_diff
@@ -714,7 +728,7 @@ fn render_class_property(
   ctx: &RenderContext,
   class_name: &str,
   property: &ClassPropertyDef,
-  class_diff: Option<&ClassDiff>,
+  property_changes: Option<&PropertiesDiff>,
 ) -> DocEntryCtx {
   let id = IdBuilder::new(ctx)
     .kind(IdKind::Property)
@@ -742,15 +756,14 @@ fn render_class_property(
     .unwrap_or_default();
 
   let diff_status =
-    get_property_diff_status(class_diff, &property.name, property.is_static);
+    get_property_diff_status(property_changes, &property.name, property.is_static);
 
   // For modified/renamed properties, render the old type and old tags
   let (old_content, old_tags, js_doc_changed) = if matches!(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
-    let prop_diff = class_diff
-      .and_then(|d| d.property_changes.as_ref())
+    let prop_diff = property_changes
       .and_then(|pc| pc.modified.iter().find(|p| p.name == property.name));
 
     let old_content = prop_diff
@@ -796,12 +809,11 @@ fn render_class_property(
 }
 
 fn get_property_diff_status(
-  class_diff: Option<&ClassDiff>,
+  property_changes: Option<&PropertiesDiff>,
   name: &str,
   is_static: bool,
 ) -> Option<DiffStatus> {
-  let diff = class_diff?;
-  let prop_diff = diff.property_changes.as_ref()?;
+  let prop_diff = property_changes?;
 
   if prop_diff
     .added
@@ -822,13 +834,12 @@ fn get_property_diff_status(
 }
 
 fn get_method_diff_status(
-  class_diff: Option<&ClassDiff>,
+  method_changes: Option<&MethodsDiff>,
   name: &str,
   is_static: bool,
   kind: MethodKind,
 ) -> Option<DiffStatus> {
-  let diff = class_diff?;
-  let method_diff = diff.method_changes.as_ref()?;
+  let method_diff = method_changes?;
 
   if method_diff
     .added
@@ -850,11 +861,12 @@ fn get_method_diff_status(
 
 fn inject_removed_properties(
   ctx: &RenderContext,
-  class_diff: &ClassDiff,
+  property_changes: Option<&PropertiesDiff>,
+  method_changes: Option<&MethodsDiff>,
   is_static: bool,
   entries: &mut Vec<DocEntryCtx>,
 ) {
-  if let Some(prop_diff) = &class_diff.property_changes {
+  if let Some(prop_diff) = property_changes {
     for removed_prop in &prop_diff.removed {
       if removed_prop.is_static != is_static {
         continue;
@@ -870,7 +882,7 @@ fn inject_removed_properties(
   }
 
   // Inject removed getters/setters (skipped by inject_removed_methods)
-  if let Some(method_diff) = &class_diff.method_changes {
+  if let Some(method_diff) = method_changes {
     // Group removed accessors by name so getter+setter pairs become one entry
     let mut removed_accessors: IndexMap<
       &str,
@@ -951,11 +963,11 @@ fn inject_removed_properties(
 
 fn inject_removed_methods(
   ctx: &RenderContext,
-  class_diff: &ClassDiff,
+  method_changes: Option<&MethodsDiff>,
   is_static: bool,
   entries: &mut Vec<DocEntryCtx>,
 ) {
-  if let Some(method_diff) = &class_diff.method_changes {
+  if let Some(method_diff) = method_changes {
     for removed_method in &method_diff.removed {
       if removed_method.is_static != is_static {
         continue;
@@ -983,7 +995,8 @@ fn render_class_properties(
   ctx: &RenderContext,
   class_name: &str,
   properties: Vec<PropertyOrMethod>,
-  class_diff: Option<&ClassDiff>,
+  property_changes: Option<&PropertiesDiff>,
+  method_changes: Option<&MethodsDiff>,
 ) -> Vec<DocEntryCtx> {
   let mut properties = properties.into_iter().peekable();
   let mut out = vec![];
@@ -991,7 +1004,7 @@ fn render_class_properties(
   while let Some(property) = properties.next() {
     let content = match property {
       PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, class_name, &property, class_diff)
+        render_class_property(ctx, class_name, &property, property_changes)
       }
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
@@ -1022,7 +1035,7 @@ fn render_class_properties(
           class_name,
           getter,
           setter.as_ref(),
-          class_diff,
+          method_changes,
         )
       }
     };
@@ -1037,13 +1050,13 @@ fn render_class_methods(
   ctx: &RenderContext,
   class_name: &str,
   methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
-  class_diff: Option<&ClassDiff>,
+  method_changes: Option<&MethodsDiff>,
 ) -> Vec<DocEntryCtx> {
   methods
     .values()
     .flat_map(|methods| {
       methods.iter().enumerate().filter_map(|(i, method)| {
-        render_class_method(ctx, class_name, method, i, class_diff)
+        render_class_method(ctx, class_name, method, i, method_changes)
       })
     })
     .collect()
