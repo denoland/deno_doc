@@ -516,52 +516,6 @@ fn get_method_diff_status(
   None
 }
 
-pub(crate) fn inject_removed_properties(
-  ctx: &RenderContext,
-  iface_diff: &InterfaceDiff,
-  entries: &mut Vec<DocEntryCtx>,
-) {
-  if let Some(prop_diff) = &iface_diff.property_changes {
-    for removed_prop in &prop_diff.removed {
-      super::push_removed_property_entry(
-        ctx,
-        &removed_prop.name,
-        removed_prop.ts_type.as_ref(),
-        &removed_prop.location,
-        entries,
-      );
-    }
-  }
-}
-
-pub(crate) fn inject_removed_methods(
-  ctx: &RenderContext,
-  iface_diff: &InterfaceDiff,
-  entries: &mut Vec<DocEntryCtx>,
-) {
-  if let Some(method_diff) = &iface_diff.method_changes {
-    for removed_method in &method_diff.removed {
-      let return_type = removed_method
-        .return_type
-        .as_ref()
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      super::push_removed_method_entry(
-        ctx,
-        &removed_method.name,
-        &format!(
-          "{}({}){return_type}",
-          type_params_summary(ctx, &removed_method.type_params),
-          render_params(ctx, &removed_method.params)
-        ),
-        &removed_method.location,
-        entries,
-      );
-    }
-  }
-}
-
 pub(crate) fn render_properties(
   ctx: &RenderContext,
   interface_name: &str,
@@ -620,8 +574,15 @@ pub(crate) fn render_properties(
           .and_then(|pd| pd.type_change.as_ref())
           .map(|tc| render_type_def_colon(ctx, &tc.old));
 
-        let old_tags =
-          prop_diff.map(|pd| compute_old_iface_property_tags(&tags, pd));
+        let old_tags = prop_diff.map(|diff| {
+          super::compute_old_tags(
+            &tags,
+            None,
+            diff.readonly_change.as_ref(),
+            None,
+            diff.optional_change.as_ref(),
+          )
+        });
 
         let js_doc_changed =
           prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
@@ -656,8 +617,18 @@ pub(crate) fn render_properties(
     })
     .collect::<Vec<_>>();
 
-  if let Some(diff) = interface_diff {
-    inject_removed_properties(ctx, diff, &mut items);
+  if let Some(interface_diff) = interface_diff
+    && let Some(prop_diff) = &interface_diff.property_changes
+  {
+    for removed_prop in &prop_diff.removed {
+      super::push_removed_property_entry(
+        ctx,
+        &removed_prop.name,
+        removed_prop.ts_type.as_ref(),
+        &removed_prop.location,
+        &mut items,
+      );
+    }
   }
 
   if items.is_empty() {
@@ -726,8 +697,15 @@ pub(crate) fn render_methods(
           )
         });
 
-        let old_tags =
-          method_diff.map(|md| compute_old_iface_method_tags(&tags, md));
+        let old_tags = method_diff.map(|diff| {
+          super::compute_old_tags(
+            &tags,
+            None,
+            None,
+            None,
+            diff.optional_change.as_ref(),
+          )
+        });
 
         let js_doc_changed =
           method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
@@ -762,8 +740,28 @@ pub(crate) fn render_methods(
     })
     .collect::<Vec<_>>();
 
-  if let Some(diff) = interface_diff {
-    inject_removed_methods(ctx, diff, &mut items);
+  if let Some(interface_diff) = interface_diff
+    && let Some(method_diff) = &interface_diff.method_changes
+  {
+    for removed_method in &method_diff.removed {
+      let return_type = removed_method
+        .return_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      super::push_removed_method_entry(
+        ctx,
+        &removed_method.name,
+        &format!(
+          "{}({}){return_type}",
+          type_params_summary(ctx, &removed_method.type_params),
+          render_params(ctx, &removed_method.params)
+        ),
+        &removed_method.location,
+        &mut items,
+      );
+    }
   }
 
   if items.is_empty() {
@@ -775,30 +773,4 @@ pub(crate) fn render_methods(
       SectionContentCtx::DocEntry(items),
     ))
   }
-}
-
-fn compute_old_iface_property_tags(
-  current_tags: &IndexSet<Tag>,
-  diff: &InterfacePropertyDiff,
-) -> IndexSet<Tag> {
-  super::compute_old_tags(
-    current_tags,
-    None,
-    diff.readonly_change.as_ref(),
-    None,
-    diff.optional_change.as_ref(),
-  )
-}
-
-fn compute_old_iface_method_tags(
-  current_tags: &IndexSet<Tag>,
-  diff: &InterfaceMethodDiff,
-) -> IndexSet<Tag> {
-  super::compute_old_tags(
-    current_tags,
-    None,
-    None,
-    None,
-    diff.optional_change.as_ref(),
-  )
 }
