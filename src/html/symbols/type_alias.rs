@@ -60,13 +60,13 @@ pub(crate) fn render_type_alias(
       });
 
     if let Some(index_signatures) =
-      render_index_signatures(ctx, &ts_type_literal.index_signatures)
+      render_index_signatures(ctx, &ts_type_literal.index_signatures, type_lit_diff.as_ref())
     {
       sections.push(index_signatures);
     }
 
     if let Some(call_signatures) =
-      render_call_signatures(ctx, &ts_type_literal.call_signatures)
+      render_call_signatures(ctx, &ts_type_literal.call_signatures, type_lit_diff.as_ref())
     {
       sections.push(call_signatures);
     }

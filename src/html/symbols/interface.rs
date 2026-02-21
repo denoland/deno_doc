@@ -3,7 +3,6 @@ use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
-use crate::html::symbols::class::IndexSignatureCtx;
 use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
@@ -44,7 +43,7 @@ pub(crate) fn render_interface(
     sections.push(type_params);
   }
 
-  if let Some(index_signatures) = render_interface_index_signatures(
+  if let Some(index_signatures) = render_index_signatures(
     ctx,
     &interface_def.index_signatures,
     interface_diff,
@@ -58,7 +57,7 @@ pub(crate) fn render_interface(
     sections.push(constructors);
   }
 
-  if let Some(call_signatures) = render_interface_call_signatures(
+  if let Some(call_signatures) = render_call_signatures(
     ctx,
     &interface_def.call_signatures,
     interface_diff,
@@ -84,54 +83,9 @@ pub(crate) fn render_interface(
 pub(crate) fn render_index_signatures(
   ctx: &RenderContext,
   index_signatures: &[crate::ts_type::IndexSignatureDef],
+  interface_diff: Option<&InterfaceDiff>,
 ) -> Option<SectionCtx> {
-  if index_signatures.is_empty() {
-    return None;
-  }
-
-  let mut items = Vec::with_capacity(index_signatures.len());
-
-  for (i, index_signature) in index_signatures.iter().enumerate() {
-    let id = IdBuilder::new(ctx)
-      .kind(IdKind::IndexSignature)
-      .index(i)
-      .build();
-
-    let ts_type = index_signature
-      .ts_type
-      .as_ref()
-      .map(|ts_type| render_type_def_colon(ctx, ts_type))
-      .unwrap_or_default();
-
-    items.push(IndexSignatureCtx {
-      anchor: AnchorCtx::new(id),
-      readonly: index_signature.readonly,
-      params: render_params(ctx, &index_signature.params),
-      ts_type,
-      source_href: ctx
-        .ctx
-        .href_resolver
-        .resolve_source(&index_signature.location),
-      diff_status: None,
-      old_readonly: None,
-      old_params: None,
-      old_ts_type: None,
-    });
-  }
-
-  Some(SectionCtx::new(
-    ctx,
-    "Index Signatures",
-    SectionContentCtx::IndexSignature(items),
-  ))
-}
-
-fn render_interface_index_signatures(
-  ctx: &RenderContext,
-  index_signatures: &[crate::ts_type::IndexSignatureDef],
-  iface_diff: Option<&InterfaceDiff>,
-) -> Option<SectionCtx> {
-  let idx_diff = iface_diff.and_then(|d| d.index_signature_changes.as_ref());
+  let idx_diff = interface_diff.and_then(|d| d.index_signature_changes.as_ref());
   let empty_sigs = Vec::new();
   let empty_mod: Vec<crate::diff::InterfaceIndexSignatureDiff> = Vec::new();
   let total = index_signatures.len();
@@ -159,12 +113,16 @@ fn render_interface_index_signatures(
 pub(crate) fn render_call_signatures(
   ctx: &RenderContext,
   call_signatures: &[crate::ts_type::CallSignatureDef],
+  interface_diff: Option<&InterfaceDiff>,
 ) -> Option<SectionCtx> {
-  if call_signatures.is_empty() {
+  let cs_diff = interface_diff.and_then(|d| d.call_signature_changes.as_ref());
+
+  if call_signatures.is_empty() && cs_diff.is_none_or(|d| d.removed.is_empty())
+  {
     return None;
   }
 
-  let items = call_signatures
+  let mut items = call_signatures
     .iter()
     .enumerate()
     .map(|(i, call_signature)| {
@@ -181,6 +139,35 @@ pub(crate) fn render_call_signatures(
 
       let tags = Tag::from_js_doc(&call_signature.js_doc);
 
+      let diff_status = if let Some(diff) = cs_diff {
+        if !diff.added.is_empty()
+          && i >= call_signatures.len() - diff.added.len()
+        {
+          Some(DiffStatus::Added)
+        } else if !diff.modified.is_empty()
+          && i < call_signatures.len().saturating_sub(diff.added.len())
+        {
+          Some(DiffStatus::Modified)
+        } else {
+          None
+        }
+      } else {
+        None
+      };
+
+      let (old_content, js_doc_changed) =
+        if matches!(diff_status, Some(DiffStatus::Modified)) {
+          let sig_diff = cs_diff.and_then(|d| d.modified.first());
+          let old_content = sig_diff
+            .and_then(|sd| sd.ts_type_change.as_ref())
+            .map(|tc| render_type_def_colon(ctx, &tc.old));
+          let js_doc_changed =
+            sig_diff.and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
+          (old_content, js_doc_changed)
+        } else {
+          (None, None)
+        };
+
       DocEntryCtx::new(
         ctx,
         id,
@@ -194,13 +181,52 @@ pub(crate) fn render_call_signatures(
         tags,
         call_signature.js_doc.doc.as_deref(),
         &call_signature.location,
+        diff_status,
+        old_content,
         None,
-        None,
-        None,
-        None,
+        js_doc_changed,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
+
+  // Inject removed call signatures
+  if let Some(diff) = cs_diff {
+    for removed_sig in &diff.removed {
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::CallSignature)
+        .index(items.len())
+        .build();
+
+      let ts_type = removed_sig
+        .ts_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      items.push(DocEntryCtx::new(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "{}({}){ts_type}",
+          type_params_summary(ctx, &removed_sig.type_params),
+          render_params(ctx, &removed_sig.params),
+        ),
+        Default::default(),
+        None,
+        &removed_sig.location,
+        Some(DiffStatus::Removed),
+        None,
+        None,
+        None,
+      ));
+    }
+  }
+
+  if items.is_empty() {
+    return None;
+  }
 
   Some(SectionCtx::new(
     ctx,
@@ -497,132 +523,6 @@ pub(crate) fn render_methods(
       SectionContentCtx::DocEntry(items),
     ))
   }
-}
-
-
-fn render_interface_call_signatures(
-  ctx: &RenderContext,
-  call_signatures: &[crate::ts_type::CallSignatureDef],
-  iface_diff: Option<&InterfaceDiff>,
-) -> Option<SectionCtx> {
-  let cs_diff = iface_diff.and_then(|d| d.call_signature_changes.as_ref());
-
-  if call_signatures.is_empty() && cs_diff.is_none_or(|d| d.removed.is_empty())
-  {
-    return None;
-  }
-
-  let mut items = call_signatures
-    .iter()
-    .enumerate()
-    .map(|(i, call_signature)| {
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::CallSignature)
-        .index(i)
-        .build();
-
-      let ts_type = call_signature
-        .ts_type
-        .as_ref()
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      let tags = Tag::from_js_doc(&call_signature.js_doc);
-
-      let diff_status = if let Some(diff) = cs_diff {
-        if !diff.added.is_empty()
-          && i >= call_signatures.len() - diff.added.len()
-        {
-          Some(DiffStatus::Added)
-        } else if !diff.modified.is_empty()
-          && i < call_signatures.len().saturating_sub(diff.added.len())
-        {
-          Some(DiffStatus::Modified)
-        } else {
-          None
-        }
-      } else {
-        None
-      };
-
-      let (old_content, js_doc_changed) =
-        if matches!(diff_status, Some(DiffStatus::Modified)) {
-          let sig_diff = cs_diff.and_then(|d| d.modified.first());
-          let old_content = sig_diff
-            .and_then(|sd| sd.ts_type_change.as_ref())
-            .map(|tc| render_type_def_colon(ctx, &tc.old));
-          let js_doc_changed =
-            sig_diff.and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
-          (old_content, js_doc_changed)
-        } else {
-          (None, None)
-        };
-
-      DocEntryCtx::new(
-        ctx,
-        id,
-        None,
-        None,
-        &format!(
-          "{}({}){ts_type}",
-          type_params_summary(ctx, &call_signature.type_params),
-          render_params(ctx, &call_signature.params),
-        ),
-        tags,
-        call_signature.js_doc.doc.as_deref(),
-        &call_signature.location,
-        diff_status,
-        old_content,
-        None,
-        js_doc_changed,
-      )
-    })
-    .collect::<Vec<DocEntryCtx>>();
-
-  // Inject removed call signatures
-  if let Some(diff) = cs_diff {
-    for removed_sig in &diff.removed {
-      let id = IdBuilder::new(ctx)
-        .kind(IdKind::CallSignature)
-        .index(items.len())
-        .build();
-
-      let ts_type = removed_sig
-        .ts_type
-        .as_ref()
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      items.push(DocEntryCtx::new(
-        ctx,
-        id,
-        None,
-        None,
-        &format!(
-          "{}({}){ts_type}",
-          type_params_summary(ctx, &removed_sig.type_params),
-          render_params(ctx, &removed_sig.params),
-        ),
-        Default::default(),
-        None,
-        &removed_sig.location,
-        Some(DiffStatus::Removed),
-        None,
-        None,
-        None,
-      ));
-    }
-  }
-
-  if items.is_empty() {
-    return None;
-  }
-
-  Some(SectionCtx::new(
-    ctx,
-    "Call Signatures",
-    SectionContentCtx::DocEntry(items),
-  ))
 }
 
 fn render_interface_constructors(
