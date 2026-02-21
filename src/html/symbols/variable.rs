@@ -45,19 +45,23 @@ pub(crate) fn render_variable(
         InterfaceDiff::diff_type_literal(old_lit, ts_type_literal)
       });
 
-    if let Some(index_signatures) =
-      render_index_signatures(ctx, &ts_type_literal.index_signatures,
-                              type_lit_diff.as_ref(),
-      )
-    {
+    if let Some(index_signatures) = render_index_signatures(
+      ctx,
+      &ts_type_literal.index_signatures,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.index_signature_changes.as_ref()),
+    ) {
       sections.push(index_signatures);
     }
 
-    if let Some(call_signatures) =
-      render_call_signatures(ctx, &ts_type_literal.call_signatures,
-                             type_lit_diff.as_ref(),
-      )
-    {
+    if let Some(call_signatures) = render_call_signatures(
+      ctx,
+      &ts_type_literal.call_signatures,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.call_signature_changes.as_ref()),
+    ) {
       sections.push(call_signatures);
     }
 
@@ -65,7 +69,9 @@ pub(crate) fn render_variable(
       ctx,
       name,
       &ts_type_literal.properties,
-      type_lit_diff.as_ref(),
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.property_changes.as_ref()),
     ) {
       sections.push(properties);
     }
@@ -74,7 +80,9 @@ pub(crate) fn render_variable(
       ctx,
       name,
       &ts_type_literal.methods,
-      type_lit_diff.as_ref(),
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.method_changes.as_ref()),
     ) {
       sections.push(methods);
     }
