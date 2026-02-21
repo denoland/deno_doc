@@ -1,4 +1,3 @@
-use crate::diff::InterfaceConstructorsDiff;
 use crate::diff::InterfaceDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
@@ -23,7 +22,7 @@ pub(crate) fn render_interface(
     .collect::<std::collections::HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+  let interface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
         &doc_node.origin.specifier,
@@ -40,7 +39,7 @@ pub(crate) fn render_interface(
     &doc_node.js_doc,
     &interface_def.type_params,
     &doc_node.location,
-    iface_diff.and_then(|d| d.type_params_change.as_ref()),
+    interface_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
@@ -48,13 +47,13 @@ pub(crate) fn render_interface(
   if let Some(index_signatures) = render_interface_index_signatures(
     ctx,
     &interface_def.index_signatures,
-    iface_diff,
+    interface_diff,
   ) {
     sections.push(index_signatures);
   }
 
   if let Some(constructors) =
-    render_interface_constructors(ctx, &interface_def.constructors, iface_diff)
+    render_interface_constructors(ctx, &interface_def.constructors, interface_diff)
   {
     sections.push(constructors);
   }
@@ -62,19 +61,19 @@ pub(crate) fn render_interface(
   if let Some(call_signatures) = render_interface_call_signatures(
     ctx,
     &interface_def.call_signatures,
-    iface_diff,
+    interface_diff,
   ) {
     sections.push(call_signatures);
   }
 
   if let Some(properties) =
-    render_properties(ctx, name, &interface_def.properties, iface_diff)
+    render_properties(ctx, name, &interface_def.properties, interface_diff)
   {
     sections.push(properties);
   }
 
   if let Some(methods) =
-    render_methods(ctx, name, &interface_def.methods, iface_diff)
+    render_methods(ctx, name, &interface_def.methods, interface_diff)
   {
     sections.push(methods);
   }
@@ -654,7 +653,23 @@ fn render_interface_constructors(
 
       let tags = Tag::from_js_doc(&constructor.js_doc);
 
-      let diff_status = get_constructor_diff_status(ctor_diff, constructor);
+      let diff_status = if let Some(diff) = ctor_diff {
+        let param_count = constructor.params.len();
+
+        if diff.added.iter().any(|c| c.params.len() == param_count) {
+          Some(DiffStatus::Added)
+        } else if diff
+          .modified
+          .iter()
+          .any(|m| m.param_count == param_count)
+        {
+          Some(DiffStatus::Modified)
+        } else {
+          None
+        }
+      } else {
+        None
+      };
 
       let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
@@ -740,24 +755,4 @@ fn render_interface_constructors(
     "Constructors",
     SectionContentCtx::DocEntry(items),
   ))
-}
-
-fn get_constructor_diff_status(
-  ctor_diff: Option<&InterfaceConstructorsDiff>,
-  constructor: &crate::ts_type::ConstructorDef,
-) -> Option<DiffStatus> {
-  let changes = ctor_diff?;
-  let param_count = constructor.params.len();
-
-  if changes.added.iter().any(|c| c.params.len() == param_count) {
-    return Some(DiffStatus::Added);
-  }
-  if changes
-    .modified
-    .iter()
-    .any(|m| m.param_count == param_count)
-  {
-    return Some(DiffStatus::Modified);
-  }
-  None
 }
