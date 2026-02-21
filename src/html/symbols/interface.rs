@@ -135,6 +135,16 @@ pub(crate) fn render_call_signatures(
         .unwrap_or_default();
 
       let tags = Tag::from_js_doc(&call_signature.js_doc);
+      let old_tags = call_signatures_diff.map(|_| {
+        super::compute_old_tags(
+          &tags,
+          None,
+          None,
+          None,
+          None,
+        )
+      });
+
 
       let diff_status = if let Some(diff) = call_signatures_diff {
         if !diff.added.is_empty()
@@ -180,42 +190,40 @@ pub(crate) fn render_call_signatures(
         &call_signature.location,
         diff_status,
         old_content,
-        None,
+        old_tags,
         js_doc_changed,
       )
     })
     .collect::<Vec<DocEntryCtx>>();
 
   if let Some(diff) = call_signatures_diff {
-    for removed_sig in &diff.removed {
+    for call_signature in &diff.removed {
       let id = IdBuilder::new(ctx)
         .kind(IdKind::CallSignature)
         .index(items.len())
         .build();
 
-      let ts_type = removed_sig
+      let tags = Tag::from_js_doc(&call_signature.js_doc);
+
+      let ts_type = call_signature
         .ts_type
         .as_ref()
         .map(|ts_type| render_type_def_colon(ctx, ts_type))
         .unwrap_or_default();
 
-      items.push(DocEntryCtx::new(
+      items.push(DocEntryCtx::removed(
         ctx,
         id,
         None,
         None,
         &format!(
           "{}({}){ts_type}",
-          type_params_summary(ctx, &removed_sig.type_params),
-          render_params(ctx, &removed_sig.params),
+          type_params_summary(ctx, &call_signature.type_params),
+          render_params(ctx, &call_signature.params),
         ),
-        Default::default(),
-        None,
-        &removed_sig.location,
-        Some(DiffStatus::Removed),
-        None,
-        None,
-        None,
+        tags,
+        call_signature.js_doc.doc.as_deref(),
+        &call_signature.location,
       ));
     }
   }

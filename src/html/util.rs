@@ -815,6 +815,33 @@ impl DocEntryCtx {
       js_doc_changed,
     }
   }
+
+  #[allow(clippy::too_many_arguments)]
+  pub fn removed(
+    ctx: &RenderContext,
+    id: Id,
+    name: Option<String>,
+    name_href: Option<String>,
+    content: &str,
+    tags: IndexSet<Tag>,
+    jsdoc: Option<&str>,
+    location: &crate::Location,
+  ) -> Self {
+    Self::new(
+      ctx,
+      id,
+      name,
+      name_href,
+      content,
+      tags,
+      jsdoc,
+      location,
+      Some(DiffStatus::Removed),
+      None,
+      None,
+      None,
+    )
+  }
 }
 
 pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {

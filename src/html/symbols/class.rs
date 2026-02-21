@@ -372,7 +372,7 @@ fn render_class_index_signatures(
 ) -> Option<SectionCtx> {
   let idx_diff = class_diff.and_then(|d| d.index_signature_changes.as_ref());
   let empty_sigs = Vec::new();
-  let empty_mod: Vec<crate::diff::IndexSignatureDiff> = Vec::new();
+  let empty_mod = Vec::new();
 
   super::render_index_signatures_with_diff(
     ctx,
