@@ -474,11 +474,16 @@ impl GenerateCtx {
 
           // Look up the NamespaceDiff for this node from the DiffIndex
           let ns_diff = diff
-            .get_node_diff(&short_path.specifier, &node.name, node.def.to_kind())
+            .get_node_diff(
+              &short_path.specifier,
+              &node.name,
+              node.def.to_kind(),
+            )
             .and_then(|info| info.diff.as_ref())
             .and_then(|node_diff| node_diff.def_changes.as_ref())
             .and_then(|def_diff| {
-              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff {
+              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff
+              {
                 Some(ns_diff)
               } else {
                 None
@@ -498,10 +503,7 @@ impl GenerateCtx {
     > = HashMap::new();
     {
       fn index_node(
-        index: &mut HashMap<
-          crate::Location,
-          Vec<(usize, DocNodeWithContext)>,
-        >,
+        index: &mut HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
         node: &DocNodeWithContext,
         depth: usize,
       ) {
@@ -715,8 +717,7 @@ fn apply_namespace_diff_inner(
       if added_names.contains(&key) {
         child.diff_status = Some(DiffStatus::Added);
       } else if let Some(node_diff) = modified_map.get(&key) {
-        child.diff_status = if let Some(name_change) = &node_diff.name_change
-        {
+        child.diff_status = if let Some(name_change) = &node_diff.name_change {
           Some(DiffStatus::Renamed {
             old_name: name_change.old.to_string(),
           })
@@ -728,8 +729,7 @@ fn apply_namespace_diff_inner(
         if matches!(child.def, DocNodeDef::Namespace { .. }) {
           let child_ns_diff =
             node_diff.def_changes.as_ref().and_then(|def_diff| {
-              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) =
-                def_diff
+              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff
               {
                 Some(ns_diff)
               } else {

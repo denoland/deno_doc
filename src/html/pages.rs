@@ -1,4 +1,3 @@
-use super::diff::DiffStatus;
 use super::DocNodeWithContext;
 use super::FileMode;
 use super::GenerateCtx;
@@ -6,6 +5,7 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use super::diff::DiffStatus;
 use super::partition;
 use super::symbols::SymbolContentCtx;
 use super::util;

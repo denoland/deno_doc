@@ -1,4 +1,3 @@
-use crate::diff::VariableDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
@@ -60,7 +59,16 @@ pub(crate) fn render_variable(
       sections.push(methods);
     }
   } else {
-    let (diff_status, old_content) = get_type_diff_info(ctx, var_diff);
+    let (diff_status, old_content) = if let Some(ts_type_change) =
+      var_diff.and_then(|d| d.ts_type_change.as_ref())
+    {
+      (
+        Some(DiffStatus::Modified),
+        Some(render_type_def(ctx, &ts_type_change.old)),
+      )
+    } else {
+      (None, None)
+    };
 
     sections.push(SectionCtx::new(
       ctx,
@@ -83,23 +91,4 @@ pub(crate) fn render_variable(
   }
 
   sections
-}
-
-fn get_type_diff_info(
-  ctx: &RenderContext,
-  var_diff: Option<&VariableDiff>,
-) -> (Option<DiffStatus>, Option<String>) {
-  let diff = match var_diff {
-    Some(d) => d,
-    None => return (None, None),
-  };
-
-  if let Some(ts_type_change) = &diff.ts_type_change {
-    (
-      Some(DiffStatus::Modified),
-      Some(render_type_def(ctx, &ts_type_change.old)),
-    )
-  } else {
-    (None, None)
-  }
 }
