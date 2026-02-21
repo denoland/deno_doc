@@ -465,24 +465,40 @@ impl GenerateCtx {
           }
         }
       }
-    }
 
-    // Apply namespace diff data to namespace children
-    if let Some(diff) = &diff {
       for (short_path, nodes) in &mut doc_nodes {
         for node in nodes.iter_mut() {
-          apply_namespace_diff(node, diff, short_path);
+          if !matches!(node.def, DocNodeDef::Namespace { .. }) {
+            continue;
+          }
+
+          // Look up the NamespaceDiff for this node from the DiffIndex
+          let ns_diff = diff
+            .get_node_diff(&short_path.specifier, &node.name, node.def.to_kind())
+            .and_then(|info| info.diff.as_ref())
+            .and_then(|node_diff| node_diff.def_changes.as_ref())
+            .and_then(|def_diff| {
+              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff {
+                Some(ns_diff)
+              } else {
+                None
+              }
+            });
+
+          if let Some(ns_diff) = ns_diff {
+            apply_namespace_diff_inner(node, ns_diff, short_path)
+          }
         }
       }
     }
 
-    let mut reference_index: std::collections::HashMap<
+    let mut reference_index: HashMap<
       crate::Location,
       Vec<(usize, DocNodeWithContext)>,
-    > = std::collections::HashMap::new();
+    > = HashMap::new();
     {
       fn index_node(
-        index: &mut std::collections::HashMap<
+        index: &mut HashMap<
           crate::Location,
           Vec<(usize, DocNodeWithContext)>,
         >,
@@ -657,132 +673,91 @@ impl GenerateCtx {
   }
 }
 
-/// Recursively apply namespace diff data to namespace children.
-/// For each namespace node that has a `NamespaceDiff`, set `diff_status`
-/// on children and inject removed elements.
-fn apply_namespace_diff(
-  node: &mut DocNodeWithContext,
-  diff: &DiffIndex,
-  short_path: &Rc<ShortPath>,
-) {
-  // Only process namespace nodes
-  if !matches!(node.def, DocNodeDef::Namespace { .. }) {
-    return;
-  }
-
-  // Look up the NamespaceDiff for this node from the DiffIndex
-  let ns_diff = diff
-    .get_node_diff(&short_path.specifier, &node.name, node.def.to_kind())
-    .and_then(|info| info.diff.as_ref())
-    .and_then(|node_diff| node_diff.def_changes.as_ref())
-    .and_then(|def_diff| {
-      if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff {
-        Some(ns_diff)
-      } else {
-        None
-      }
-    });
-
-  apply_namespace_diff_inner(node, ns_diff, short_path);
-}
-
-/// Inner recursive function that applies a `NamespaceDiff` to a namespace
-/// node's children, and recurses into nested namespaces using their own
-/// `NamespaceDiff` from the parent's `modified_elements`.
 fn apply_namespace_diff_inner(
   node: &mut DocNodeWithContext,
-  ns_diff: Option<&crate::diff::NamespaceDiff>,
+  ns_diff: &crate::diff::NamespaceDiff,
   short_path: &Rc<ShortPath>,
 ) {
-  if let Some(ns_diff) = ns_diff {
-    // Only clone when we need to inject removed elements
-    let removed_ctx = if !ns_diff.removed_elements.is_empty() {
-      let subqualifier: Rc<[String]> = node.sub_qualifier().into();
-      let node_snapshot = node.clone();
-      Some((subqualifier, node_snapshot))
-    } else {
-      None
-    };
+  // Only clone when we need to inject removed elements
+  let removed_ctx = if !ns_diff.removed_elements.is_empty() {
+    let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+    let node_snapshot = node.clone();
+    Some((subqualifier, node_snapshot))
+  } else {
+    None
+  };
 
-    if let Some(children) = &mut node.namespace_children {
-      // Build lookup sets for added and modified elements
-      let added_names: std::collections::HashSet<(
-        String,
-        crate::node::DocNodeKind,
-      )> = ns_diff
-        .added_elements
-        .iter()
-        .map(|n| (n.name.to_string(), n.def.to_kind()))
-        .collect();
+  if let Some(children) = &mut node.namespace_children {
+    // Build lookup sets for added and modified elements
+    let added_names: std::collections::HashSet<(
+      String,
+      crate::node::DocNodeKind,
+    )> = ns_diff
+      .added_elements
+      .iter()
+      .map(|n| (n.name.to_string(), n.def.to_kind()))
+      .collect();
 
-      let modified_map: HashMap<
-        (String, crate::node::DocNodeKind),
-        &crate::diff::DocNodeDiff,
-      > = ns_diff
-        .modified_elements
-        .iter()
-        .map(|d| ((d.name.to_string(), d.kind), d))
-        .collect();
+    let modified_map: IndexMap<
+      (String, crate::node::DocNodeKind),
+      &crate::diff::DocNodeDiff,
+    > = ns_diff
+      .modified_elements
+      .iter()
+      .map(|d| ((d.name.to_string(), d.kind), d))
+      .collect();
 
-      // Set diff_status on existing children
-      for child in children.iter_mut() {
-        let kind = child.def.to_kind();
-        let name = child.name.to_string();
-        let key = (name, kind);
-        if added_names.contains(&key) {
-          child.diff_status = Some(DiffStatus::Added);
-        } else if let Some(node_diff) = modified_map.get(&key) {
-          child.diff_status = if let Some(name_change) = &node_diff.name_change
-          {
-            Some(DiffStatus::Renamed {
-              old_name: name_change.old.to_string(),
-            })
-          } else {
-            Some(DiffStatus::Modified)
-          };
+    // Set diff_status on existing children
+    for child in children.iter_mut() {
+      let kind = child.def.to_kind();
+      let name = child.name.to_string();
+      let key = (name, kind);
+      if added_names.contains(&key) {
+        child.diff_status = Some(DiffStatus::Added);
+      } else if let Some(node_diff) = modified_map.get(&key) {
+        child.diff_status = if let Some(name_change) = &node_diff.name_change
+        {
+          Some(DiffStatus::Renamed {
+            old_name: name_change.old.to_string(),
+          })
+        } else {
+          Some(DiffStatus::Modified)
+        };
 
-          // If child is a namespace, recurse with its own NamespaceDiff
-          if matches!(child.def, DocNodeDef::Namespace { .. }) {
-            let child_ns_diff =
-              node_diff.def_changes.as_ref().and_then(|def_diff| {
-                if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) =
-                  def_diff
-                {
-                  Some(ns_diff)
-                } else {
-                  None
-                }
-              });
+        // If child is a namespace, recurse with its own NamespaceDiff
+        if matches!(child.def, DocNodeDef::Namespace { .. }) {
+          let child_ns_diff =
+            node_diff.def_changes.as_ref().and_then(|def_diff| {
+              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) =
+                def_diff
+              {
+                Some(ns_diff)
+              } else {
+                None
+              }
+            });
+
+          if let Some(child_ns_diff) = child_ns_diff {
             apply_namespace_diff_inner(child, child_ns_diff, short_path);
           }
         }
       }
-
-      // Inject removed elements
-      if let Some((subqualifier, node_snapshot)) = &removed_ctx {
-        for removed_node in &ns_diff.removed_elements {
-          children.push(DocNodeWithContext {
-            origin: short_path.clone(),
-            ns_qualifiers: subqualifier.clone(),
-            kind: DocNodeKind::from_node(removed_node),
-            inner: removed_node.clone(),
-            drilldown_name: None,
-            parent: Some(Box::new(node_snapshot.clone())),
-            namespace_children: None,
-            qualified_name: std::cell::OnceCell::new(),
-            diff_status: Some(DiffStatus::Removed),
-          });
-        }
-      }
     }
-  } else {
-    // Even if this namespace doesn't have a diff, recurse into children
-    // in case nested namespaces do (shouldn't happen but be safe)
-    if let Some(children) = &mut node.namespace_children {
-      for child in children.iter_mut() {
-        if matches!(child.def, DocNodeDef::Namespace { .. }) {
-          apply_namespace_diff_inner(child, None, short_path);
-        }
+
+    // Inject removed elements
+    if let Some((subqualifier, node_snapshot)) = &removed_ctx {
+      for removed_node in &ns_diff.removed_elements {
+        children.push(DocNodeWithContext {
+          origin: short_path.clone(),
+          ns_qualifiers: subqualifier.clone(),
+          kind: DocNodeKind::from_node(removed_node),
+          inner: removed_node.clone(),
+          drilldown_name: None,
+          parent: Some(Box::new(node_snapshot.clone())),
+          namespace_children: None,
+          qualified_name: std::cell::OnceCell::new(),
+          diff_status: Some(DiffStatus::Removed),
+        });
       }
     }
   }
@@ -971,7 +946,6 @@ pub struct DocNodeWithContext {
   pub namespace_children: Option<Vec<DocNodeWithContext>>,
   #[serde(skip, default)]
   qualified_name: std::cell::OnceCell<String>,
-  /// Optional diff status for this node (set when diff data is provided).
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
 }
@@ -1530,7 +1504,6 @@ pub fn generate_json(
             toc_ctx,
             categories_panel,
           } => {
-            // In diff_only mode, skip unchanged symbols
             if diff_only && symbol_group_ctx.diff_status.is_none() {
               return vec![];
             }
