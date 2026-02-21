@@ -65,12 +65,14 @@ pub(crate) fn render_type_alias(
     }
 
     if let Some(properties) =
-      render_properties(ctx, name, &ts_type_literal.properties)
+      render_properties(ctx, name, &ts_type_literal.properties, None)
     {
       sections.push(properties);
     }
 
-    if let Some(methods) = render_methods(ctx, name, &ts_type_literal.methods) {
+    if let Some(methods) =
+      render_methods(ctx, name, &ts_type_literal.methods, None)
+    {
       sections.push(methods);
     }
   } else {

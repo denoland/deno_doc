@@ -70,32 +70,16 @@ pub(crate) fn render_interface(
     sections.push(call_signatures);
   }
 
-  let mut properties =
-    render_properties_vec(ctx, name, &interface_def.properties, iface_diff);
-  if let Some(diff) = iface_diff {
-    inject_removed_properties(ctx, diff, &mut properties);
+  if let Some(properties) =
+    render_properties(ctx, name, &interface_def.properties, iface_diff)
+  {
+    sections.push(properties);
   }
 
-  if !properties.is_empty() {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Properties",
-      SectionContentCtx::DocEntry(properties),
-    ));
-  }
-
-  let mut methods =
-    render_methods_vec(ctx, name, &interface_def.methods, iface_diff);
-  if let Some(diff) = iface_diff {
-    inject_removed_methods(ctx, diff, &mut methods);
-  }
-
-  if !methods.is_empty() {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Methods",
-      SectionContentCtx::DocEntry(methods),
-    ));
+  if let Some(methods) =
+    render_methods(ctx, name, &interface_def.methods, iface_diff)
+  {
+    sections.push(methods);
   }
 
   sections
@@ -532,7 +516,7 @@ fn get_method_diff_status(
   None
 }
 
-fn inject_removed_properties(
+pub(crate) fn inject_removed_properties(
   ctx: &RenderContext,
   iface_diff: &InterfaceDiff,
   entries: &mut Vec<DocEntryCtx>,
@@ -550,7 +534,7 @@ fn inject_removed_properties(
   }
 }
 
-fn inject_removed_methods(
+pub(crate) fn inject_removed_methods(
   ctx: &RenderContext,
   iface_diff: &InterfaceDiff,
   entries: &mut Vec<DocEntryCtx>,
@@ -578,13 +562,13 @@ fn inject_removed_methods(
   }
 }
 
-fn render_properties_vec(
+pub(crate) fn render_properties(
   ctx: &RenderContext,
   interface_name: &str,
   properties: &[crate::ts_type::PropertyDef],
-  iface_diff: Option<&InterfaceDiff>,
-) -> Vec<DocEntryCtx> {
-  properties
+  interface_diff: Option<&InterfaceDiff>,
+) -> Option<SectionCtx> {
+  let mut items = properties
     .iter()
     .map(|property| {
       let id = IdBuilder::new(ctx)
@@ -621,13 +605,14 @@ fn render_properties_vec(
         tags.insert(Tag::Optional);
       }
 
-      let diff_status = get_property_diff_status(iface_diff, &property.name);
+      let diff_status =
+        get_property_diff_status(interface_diff, &property.name);
 
       let (old_content, old_tags, js_doc_changed) = if matches!(
         diff_status,
         Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
       ) {
-        let prop_diff = iface_diff
+        let prop_diff = interface_diff
           .and_then(|d| d.property_changes.as_ref())
           .and_then(|pc| pc.modified.iter().find(|p| p.name == property.name));
 
@@ -669,16 +654,30 @@ fn render_properties_vec(
         js_doc_changed,
       )
     })
-    .collect()
+    .collect::<Vec<_>>();
+
+  if let Some(diff) = interface_diff {
+    inject_removed_properties(ctx, diff, &mut items);
+  }
+
+  if items.is_empty() {
+    None
+  } else {
+    Some(SectionCtx::new(
+      ctx,
+      "Properties",
+      SectionContentCtx::DocEntry(items),
+    ))
+  }
 }
 
-fn render_methods_vec(
+pub(crate) fn render_methods(
   ctx: &RenderContext,
   interface_name: &str,
   methods: &[crate::ts_type::MethodDef],
-  iface_diff: Option<&InterfaceDiff>,
-) -> Vec<DocEntryCtx> {
-  methods
+  interface_diff: Option<&InterfaceDiff>,
+) -> Option<SectionCtx> {
+  let mut items = methods
     .iter()
     .enumerate()
     .map(|(i, method)| {
@@ -707,13 +706,13 @@ fn render_methods_vec(
         tags.insert(Tag::Optional);
       }
 
-      let diff_status = get_method_diff_status(iface_diff, &method.name);
+      let diff_status = get_method_diff_status(interface_diff, &method.name);
 
       let (old_content, old_tags, js_doc_changed) = if matches!(
         diff_status,
         Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
       ) {
-        let method_diff = iface_diff
+        let method_diff = interface_diff
           .and_then(|d| d.method_changes.as_ref())
           .and_then(|mc| mc.modified.iter().find(|m| m.name == *method.name));
 
@@ -761,43 +760,21 @@ fn render_methods_vec(
         js_doc_changed,
       )
     })
-    .collect()
-}
+    .collect::<Vec<_>>();
 
-pub(crate) fn render_properties(
-  ctx: &RenderContext,
-  interface_name: &str,
-  properties: &[crate::ts_type::PropertyDef],
-) -> Option<SectionCtx> {
-  if properties.is_empty() {
-    return None;
+  if let Some(diff) = interface_diff {
+    inject_removed_methods(ctx, diff, &mut items);
   }
 
-  let items = render_properties_vec(ctx, interface_name, properties, None);
-
-  Some(SectionCtx::new(
-    ctx,
-    "Properties",
-    SectionContentCtx::DocEntry(items),
-  ))
-}
-
-pub(crate) fn render_methods(
-  ctx: &RenderContext,
-  interface_name: &str,
-  methods: &[crate::ts_type::MethodDef],
-) -> Option<SectionCtx> {
-  if methods.is_empty() {
-    return None;
+  if items.is_empty() {
+    None
+  } else {
+    Some(SectionCtx::new(
+      ctx,
+      "Methods",
+      SectionContentCtx::DocEntry(items),
+    ))
   }
-
-  let items = render_methods_vec(ctx, interface_name, methods, None);
-
-  Some(SectionCtx::new(
-    ctx,
-    "Methods",
-    SectionContentCtx::DocEntry(items),
-  ))
 }
 
 fn compute_old_iface_property_tags(

@@ -98,6 +98,42 @@ impl InterfaceDiff {
     })
   }
 
+  pub fn diff_type_literal(
+    old: &crate::ts_type::TsTypeLiteralDef,
+    new: &crate::ts_type::TsTypeLiteralDef,
+  ) -> Option<Self> {
+    let constructor_changes =
+      InterfaceConstructorsDiff::diff(&old.constructors, &new.constructors);
+    let method_changes = InterfaceMethodsDiff::diff(&old.methods, &new.methods);
+    let property_changes =
+      InterfacePropertiesDiff::diff(&old.properties, &new.properties);
+    let call_signature_changes =
+      CallSignaturesDiff::diff(&old.call_signatures, &new.call_signatures);
+    let index_signature_changes = InterfaceIndexSignaturesDiff::diff(
+      &old.index_signatures,
+      &new.index_signatures,
+    );
+
+    if constructor_changes.is_none()
+      && method_changes.is_none()
+      && property_changes.is_none()
+      && call_signature_changes.is_none()
+      && index_signature_changes.is_none()
+    {
+      return None;
+    }
+
+    Some(InterfaceDiff {
+      extends_change: None,
+      type_params_change: None,
+      constructor_changes,
+      method_changes,
+      property_changes,
+      call_signature_changes,
+      index_signature_changes,
+    })
+  }
+
   pub fn change_percentage(
     &self,
     old: &InterfaceDef,
