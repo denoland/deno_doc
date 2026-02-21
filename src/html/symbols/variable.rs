@@ -1,3 +1,4 @@
+use crate::diff::InterfaceDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
@@ -37,7 +38,10 @@ pub(crate) fn render_variable(
   let mut sections = vec![];
 
   if let Some(ts_type_literal) = &ts_type.type_literal {
-    let type_lit_diff = var_diff.and_then(|d| d.type_literal_diff.as_ref());
+    let type_lit_diff = var_diff
+      .and_then(|d| d.ts_type_change.as_ref())
+      .and_then(|tc| tc.old.type_literal.as_ref())
+      .and_then(|old_lit| InterfaceDiff::diff_type_literal(old_lit, ts_type_literal));
 
     if let Some(index_signatures) =
       render_index_signatures(ctx, &ts_type_literal.index_signatures)
@@ -52,13 +56,13 @@ pub(crate) fn render_variable(
     }
 
     if let Some(properties) =
-      render_properties(ctx, name, &ts_type_literal.properties, type_lit_diff)
+      render_properties(ctx, name, &ts_type_literal.properties, type_lit_diff.as_ref())
     {
       sections.push(properties);
     }
 
     if let Some(methods) =
-      render_methods(ctx, name, &ts_type_literal.methods, type_lit_diff)
+      render_methods(ctx, name, &ts_type_literal.methods, type_lit_diff.as_ref())
     {
       sections.push(methods);
     }

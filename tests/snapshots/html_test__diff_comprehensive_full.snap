@@ -1289,10 +1289,7 @@ expression: pages
                               },
                               "href": "./././~/mutableState.html#property_label"
                             }
-                          ],
-                          "diff_status": {
-                            "kind": "modified"
-                          }
+                          ]
                         },
                         {
                           "anchor": {
@@ -13743,10 +13740,7 @@ expression: pages
             "deprecated": null,
             "source_href": null
           }
-        ],
-        "diff_status": {
-          "kind": "modified"
-        }
+        ]
       },
       "breadcrumbs_ctx": {
         "root": {
@@ -13877,10 +13871,7 @@ expression: pages
             "deprecated": null,
             "source_href": null
           }
-        ],
-        "diff_status": {
-          "kind": "modified"
-        }
+        ]
       },
       "breadcrumbs_ctx": {
         "root": {
@@ -14023,10 +14014,7 @@ expression: pages
                             },
                             "tags": [],
                             "js_doc": null,
-                            "source_href": null,
-                            "diff_status": {
-                              "kind": "added"
-                            }
+                            "source_href": null
                           }
                         ]
                       }
@@ -14038,10 +14026,7 @@ expression: pages
             "deprecated": null,
             "source_href": null
           }
-        ],
-        "diff_status": {
-          "kind": "modified"
-        }
+        ]
       },
       "breadcrumbs_ctx": {
         "root": {
@@ -14183,10 +14168,7 @@ expression: pages
             "deprecated": null,
             "source_href": null
           }
-        ],
-        "diff_status": {
-          "kind": "modified"
-        }
+        ]
       },
       "breadcrumbs_ctx": {
         "root": {

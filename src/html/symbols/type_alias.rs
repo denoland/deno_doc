@@ -1,4 +1,4 @@
-use crate::diff::TypeAliasDiff;
+use crate::diff::InterfaceDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
@@ -24,7 +24,7 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
-  let ta_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+  let type_alias_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
         &doc_node.origin.specifier,
@@ -46,12 +46,17 @@ pub(crate) fn render_type_alias(
     &doc_node.js_doc,
     &type_alias_def.type_params,
     &doc_node.location,
-    ta_diff.and_then(|d| d.type_params_change.as_ref()),
+    type_alias_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
 
   if let Some(ts_type_literal) = type_alias_def.ts_type.type_literal.as_ref() {
+    let type_lit_diff = type_alias_diff
+      .and_then(|d| d.ts_type_change.as_ref())
+      .and_then(|tc| tc.old.type_literal.as_ref())
+      .and_then(|old_lit| InterfaceDiff::diff_type_literal(old_lit, ts_type_literal));
+
     if let Some(index_signatures) =
       render_index_signatures(ctx, &ts_type_literal.index_signatures)
     {
@@ -64,19 +69,31 @@ pub(crate) fn render_type_alias(
       sections.push(call_signatures);
     }
 
-    if let Some(properties) =
-      render_properties(ctx, name, &ts_type_literal.properties, None)
-    {
+    if let Some(properties) = render_properties(
+      ctx,
+      name,
+      &ts_type_literal.properties,
+      type_lit_diff.as_ref(),
+    ) {
       sections.push(properties);
     }
 
     if let Some(methods) =
-      render_methods(ctx, name, &ts_type_literal.methods, None)
+      render_methods(ctx, name, &ts_type_literal.methods, type_lit_diff.as_ref())
     {
       sections.push(methods);
     }
   } else {
-    let (diff_status, old_content) = get_type_diff_info(ctx, ta_diff);
+    let (diff_status, old_content) = if let Some(ts_type_change) =
+      type_alias_diff.and_then(|d| d.ts_type_change.as_ref())
+    {
+      (
+        Some(DiffStatus::Modified),
+        Some(render_type_def(ctx, &ts_type_change.old)),
+      )
+    } else {
+      (None, None)
+    };
 
     sections.push(SectionCtx::new(
       ctx,
@@ -99,23 +116,4 @@ pub(crate) fn render_type_alias(
   }
 
   sections
-}
-
-fn get_type_diff_info(
-  ctx: &RenderContext,
-  ta_diff: Option<&TypeAliasDiff>,
-) -> (Option<DiffStatus>, Option<String>) {
-  let diff = match ta_diff {
-    Some(d) => d,
-    None => return (None, None),
-  };
-
-  if let Some(ts_type_change) = &diff.ts_type_change {
-    (
-      Some(DiffStatus::Modified),
-      Some(render_type_def(ctx, &ts_type_change.old)),
-    )
-  } else {
-    (None, None)
-  }
 }
