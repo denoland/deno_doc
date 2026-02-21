@@ -135,16 +135,8 @@ pub(crate) fn render_call_signatures(
         .unwrap_or_default();
 
       let tags = Tag::from_js_doc(&call_signature.js_doc);
-      let old_tags = call_signatures_diff.map(|_| {
-        super::compute_old_tags(
-          &tags,
-          None,
-          None,
-          None,
-          None,
-        )
-      });
-
+      let old_tags = call_signatures_diff
+        .map(|_| super::compute_old_tags(&tags, None, None, None, None));
 
       let diff_status = if let Some(diff) = call_signatures_diff {
         if !diff.added.is_empty()
