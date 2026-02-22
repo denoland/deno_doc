@@ -152,19 +152,22 @@ pub(crate) fn render_old_params(
   params: &[crate::params::ParamDef],
   params_change: &crate::diff::ParamsDiff,
 ) -> String {
-  let added_count = params_change.added.len();
-  let shared_count = params.len() - added_count;
-
   let mut old_params = Vec::new();
+  let mut old_index = 0;
 
-  for (i, new_param) in params.iter().enumerate().take(shared_count) {
+  for (i, new_param) in params.iter().enumerate() {
+    // Skip params that were added (they didn't exist in the old version)
+    if params_change.added.iter().any(|p| p == new_param) {
+      continue;
+    }
+
     let modified = params_change.modified.iter().find(|p| p.index == i);
 
     if let Some(param_diff) = modified {
       let name = if let Some(pc) = &param_diff.pattern_change {
-        crate::html::parameters::param_name_plain(&pc.old, i)
+        crate::html::parameters::param_name_plain(&pc.old, old_index)
       } else {
-        crate::html::parameters::param_name_plain(new_param, i)
+        crate::html::parameters::param_name_plain(new_param, old_index)
       };
       let type_str = if let Some(tc) = &param_diff.type_change {
         render_type_def_colon(ctx, &tc.old)
@@ -177,7 +180,8 @@ pub(crate) fn render_old_params(
       };
       old_params.push(format!("{name}{type_str}"));
     } else {
-      let str_name = crate::html::parameters::param_name_plain(new_param, i);
+      let str_name =
+        crate::html::parameters::param_name_plain(new_param, old_index);
       let type_str = new_param
         .ts_type
         .as_ref()
@@ -185,17 +189,20 @@ pub(crate) fn render_old_params(
         .unwrap_or_default();
       old_params.push(format!("{str_name}{type_str}"));
     }
+
+    old_index += 1;
   }
 
-  for (j, removed) in params_change.removed.iter().enumerate() {
+  for removed in &params_change.removed {
     let str_name =
-      crate::html::parameters::param_name_plain(removed, shared_count + j);
+      crate::html::parameters::param_name_plain(removed, old_index);
     let type_str = removed
       .ts_type
       .as_ref()
       .map(|t| render_type_def_colon(ctx, t))
       .unwrap_or_default();
     old_params.push(format!("{str_name}{type_str}"));
+    old_index += 1;
   }
 
   old_params.join(", ")
@@ -312,7 +319,7 @@ fn render_single_function(
         .and_then(|(doc, _, _)| doc.as_deref());
 
       let (diff_status, old_content) =
-        get_param_diff_info(ctx, func_diff, i);
+        get_param_diff_info(ctx, func_diff, i, param);
 
       DocEntryCtx::new(
         ctx,
@@ -499,6 +506,7 @@ fn get_param_diff_info(
   ctx: &RenderContext,
   func_diff: Option<&FunctionDiff>,
   index: usize,
+  param: &crate::params::ParamDef,
 ) -> (Option<DiffStatus>, Option<String>) {
   let diff = match func_diff {
     Some(d) => d,
@@ -509,6 +517,11 @@ fn get_param_diff_info(
     Some(pc) => pc,
     None => return (None, None),
   };
+
+  // Check if this param was added (match by value, not position)
+  if params_change.added.iter().any(|p| p == param) {
+    return (Some(DiffStatus::Added), None);
+  }
 
   // Check if this param was modified
   if let Some(param_diff) =

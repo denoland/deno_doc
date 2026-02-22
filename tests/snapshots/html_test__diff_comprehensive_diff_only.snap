@@ -1585,7 +1585,42 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": null,
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "format",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                                  "anchor": {
+                                    "id": "function_advancedserializable_compress_0_parameter_format"
+                                  },
+                                  "tags": [
+                                    {
+                                      "kind": "optional"
+                                    }
+                                  ],
+                                  "js_doc": null,
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -1643,8 +1678,19 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_advancedserializable_compress_0_parameter_format\" title=\"format\">format</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "format",
+            "anchor": "function_advancedserializable_compress_0_parameter_format"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -1814,37 +1860,6 @@ expression: pages
                   "sections": [
                     {
                       "header": {
-                        "title": "Constructors",
-                        "anchor": {
-                          "id": "constructors"
-                        },
-                        "href": null,
-                        "doc": null
-                      },
-                      "content": {
-                        "kind": "doc_entry",
-                        "content": [
-                          {
-                            "name_prefix": null,
-                            "name": null,
-                            "name_href": null,
-                            "content": "new (<span><span>data<span>: <span class=\"td-ref\">Uint8Array</span></span></span></span>)<span>: <a href=\"../././~/AdvancedSerializable.html\" class=\"link td-ref\">AdvancedSerializable</a>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;</span>",
-                            "anchor": {
-                              "id": "constructor_0"
-                            },
-                            "tags": [],
-                            "js_doc": null,
-                            "source_href": null,
-                            "diff_status": {
-                              "kind": "modified"
-                            },
-                            "old_content": "(data<span>: <span class=\"td-kw\">string</span></span>)<span>: <a href=\"../././~/AdvancedSerializable.html\" class=\"link td-ref\">AdvancedSerializable</a>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;</span>"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "header": {
                         "title": "Methods",
                         "anchor": {
                           "id": "methods"
@@ -1940,13 +1955,8 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_compress_1\" title=\"compress\">compress</a></li><li><a href=\"#method_decompress_2\" title=\"decompress\">decompress</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_compress_1\" title=\"compress\">compress</a></li><li><a href=\"#method_decompress_2\" title=\"decompress\">decompress</a></li></ul></li></ul>",
         "document_navigation": [
-          {
-            "level": 1,
-            "content": "Constructors",
-            "anchor": "constructors"
-          },
           {
             "level": 1,
             "content": "Methods",
@@ -2227,7 +2237,42 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": null,
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "color",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                                  "anchor": {
+                                    "id": "function_animal_create_0_parameter_color"
+                                  },
+                                  "tags": [
+                                    {
+                                      "kind": "optional"
+                                    }
+                                  ],
+                                  "js_doc": null,
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -2285,8 +2330,19 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_create_0_parameter_color\" title=\"color\">color</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "color",
+            "anchor": "function_animal_create_0_parameter_color"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -2922,7 +2978,42 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": "<div class=\"markdown\"><p>Describe the animal.</p>\n</div>",
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "verbose",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">boolean</span></span>",
+                                  "anchor": {
+                                    "id": "function_animal_prototype_describe_0_parameter_verbose"
+                                  },
+                                  "tags": [
+                                    {
+                                      "kind": "optional"
+                                    }
+                                  ],
+                                  "js_doc": null,
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -2984,8 +3075,19 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_prototype_describe_0_parameter_verbose\" title=\"verbose\">verbose</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "verbose",
+            "anchor": "function_animal_prototype_describe_0_parameter_verbose"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -3190,7 +3292,38 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": "<div class=\"markdown\"><p>Feed the animal with amount.</p>\n</div>",
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "amount",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">number</span></span>",
+                                  "anchor": {
+                                    "id": "function_animal_prototype_feed_0_parameter_amount"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -3252,8 +3385,19 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_prototype_feed_0_parameter_amount\" title=\"amount\">amount</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "amount",
+            "anchor": "function_animal_prototype_feed_0_parameter_amount"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -7624,7 +7768,42 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": "<div class=\"markdown\"><p>Convert to JSON string with optional pretty printing.</p>\n</div>",
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "pretty",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">boolean</span></span>",
+                                  "anchor": {
+                                    "id": "function_serializable_tojson_0_parameter_pretty"
+                                  },
+                                  "tags": [
+                                    {
+                                      "kind": "optional"
+                                    }
+                                  ],
+                                  "js_doc": null,
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -7682,8 +7861,19 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_serializable_tojson_0_parameter_pretty\" title=\"pretty\">pretty</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "pretty",
+            "anchor": "function_serializable_tojson_0_parameter_pretty"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -8759,6 +8949,25 @@ expression: pages
                                     "kind": "renamed",
                                     "old_name": "message"
                                   }
+                                },
+                                {
+                                  "name_prefix": null,
+                                  "name": "metadata",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-ref\">Record</span>&lt;<span class=\"td-kw\">string</span><span>, </span><span class=\"td-kw\">unknown</span>&gt;</span>",
+                                  "anchor": {
+                                    "id": "function_log_0_parameter_metadata"
+                                  },
+                                  "tags": [
+                                    {
+                                      "kind": "optional"
+                                    }
+                                  ],
+                                  "js_doc": null,
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
@@ -8817,7 +9026,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_log_0_parameter_msg\" title=\"msg\">msg</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_log_0_parameter_msg\" title=\"msg\">msg</a></li><li><a href=\"#function_log_0_parameter_metadata\" title=\"metadata\">metadata</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -8828,6 +9037,11 @@ expression: pages
             "level": 2,
             "content": "msg",
             "anchor": "function_log_0_parameter_msg"
+          },
+          {
+            "level": 2,
+            "content": "metadata",
+            "anchor": "function_log_0_parameter_metadata"
           }
         ]
       },

@@ -2340,7 +2340,10 @@ expression: pages
                                     }
                                   ],
                                   "js_doc": null,
-                                  "source_href": null
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
@@ -2720,37 +2723,6 @@ expression: pages
                     },
                     {
                       "header": {
-                        "title": "Constructors",
-                        "anchor": {
-                          "id": "constructors"
-                        },
-                        "href": null,
-                        "doc": null
-                      },
-                      "content": {
-                        "kind": "doc_entry",
-                        "content": [
-                          {
-                            "name_prefix": null,
-                            "name": null,
-                            "name_href": null,
-                            "content": "new (<span><span>data<span>: <span class=\"td-ref\">Uint8Array</span></span></span></span>)<span>: <a href=\"../././~/AdvancedSerializable.html\" class=\"link td-ref\">AdvancedSerializable</a>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;</span>",
-                            "anchor": {
-                              "id": "constructor_0"
-                            },
-                            "tags": [],
-                            "js_doc": null,
-                            "source_href": null,
-                            "diff_status": {
-                              "kind": "modified"
-                            },
-                            "old_content": "(data<span>: <span class=\"td-kw\">string</span></span>)<span>: <a href=\"../././~/AdvancedSerializable.html\" class=\"link td-ref\">AdvancedSerializable</a>&lt;<a href=\"#type_param_t\" class=\"link td-ref\">T</a>&gt;</span>"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "header": {
                         "title": "Methods",
                         "anchor": {
                           "id": "methods"
@@ -2858,7 +2830,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_tobinary_0\" title=\"toBinary\">toBinary</a></li><li><a href=\"#method_compress_1\" title=\"compress\">compress</a></li><li><a href=\"#method_decompress_2\" title=\"decompress\">decompress</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_tobinary_0\" title=\"toBinary\">toBinary</a></li><li><a href=\"#method_compress_1\" title=\"compress\">compress</a></li><li><a href=\"#method_decompress_2\" title=\"decompress\">decompress</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -2869,11 +2841,6 @@ expression: pages
             "level": 2,
             "content": "T",
             "anchor": "type_param_t"
-          },
-          {
-            "level": 1,
-            "content": "Constructors",
-            "anchor": "constructors"
           },
           {
             "level": 1,
@@ -3267,7 +3234,10 @@ expression: pages
                                     }
                                   ],
                                   "js_doc": null,
-                                  "source_href": null
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
@@ -4264,7 +4234,10 @@ expression: pages
                                     }
                                   ],
                                   "js_doc": null,
-                                  "source_href": null
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
@@ -4719,7 +4692,10 @@ expression: pages
                                   },
                                   "tags": [],
                                   "js_doc": null,
-                                  "source_href": null
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
@@ -11656,7 +11632,10 @@ expression: pages
                                     }
                                   ],
                                   "js_doc": null,
-                                  "source_href": null
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
@@ -13548,7 +13527,10 @@ expression: pages
                                     }
                                   ],
                                   "js_doc": null,
-                                  "source_href": null
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
                                 }
                               ]
                             }
