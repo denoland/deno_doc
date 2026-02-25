@@ -72,7 +72,7 @@ expression: pages
                             "ty": "(<div class=\"ml-4\"><div><span>width<span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>height<span>: <span class=\"td-kw\">string</span></span></span></div></div>)",
                             "info": null
                           },
-                          "docs": "<div class=\"markdown_summary\"><p>Base for renderers. No longer abstract.</p>\n</div>",
+                          "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p><span class=\"diff-inline diff-removed\">Abstract base for renderers.</span><span class=\"diff-inline diff-added\">Base for renderers. No longer abstract.</span></p></div><div class=\"diff-modified\"><p>Provides the foundation for all rendering implementations.<span class=\"diff-inline diff-removed\"> Subclasses\nmust implement the <code>render</code> method and the <code>canvas</code> getter.</span><span class=\"diff-inline diff-added\">\nNow includes concrete default implementations for all methods.</span></p></div><h2 id=\"performance\">\nPerformance</h2>\n<div class=\"diff-modified\"><p>The base class handles buffering and frame timing. <span class=\"diff-inline diff-removed\">Subclasses\nshould focus only on the actual rendering logic.</span><span class=\"diff-inline diff-added\">The default\nrender implementation uses a software rasterizer.</span></p></div><div class=\"diff-added\"><h2 id=\"migration-from-abstractrenderer\">\nMigration from AbstractRenderer</h2>\n</div><div class=\"diff-added\"><p>If you were subclassing AbstractRenderer, you can now use this\nclass directly or override specific methods as needed.</p>\n</div></div>",
                           "deprecated": false,
                           "subitems": [
                             {
@@ -124,12 +124,12 @@ expression: pages
                             "ty": "<span>&lt;<span><span class=\"td-tp\">T</span><span><span> = </span><span class=\"td-kw\">string</span></span></span>&gt;</span>(<div class=\"ml-4\"><div><span>name<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>age<span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>color<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span></span></div></div>)",
                             "info": null
                           },
-                          "docs": "<div class=\"markdown_summary\"><p>A domestic animal.\nNow with better type support.</p>\n</div>",
+                          "docs": "<div class=\"markdown\"><p>A domestic animal.</p>\n<div class=\"diff-modified\"><p>This class represents a generic domestic animal with basic properties\nand behaviors. Animals can <span class=\"diff-inline diff-removed\">speak,</span><span class=\"diff-inline diff-added\">vocalize,</span> be fed, and have their information\ndisplayed.<span class=\"diff-inline diff-added\"> Now supports color tracking and descriptions.</span></p></div><h2 id=\"usage\">\nUsage</h2>\n<div class=\"diff-removed\"><pre class=\"highlight\"><code class=\"language-ts\">const dog = new Animal(&quot;Rex&quot;, 5);\ndog.speak();\ndog.feed(&quot;kibble&quot;);\n</code><button class=\"copyButton\" data-copy=\"const dog = new Animal(&quot;Rex&quot;, 5);\ndog.speak();\ndog.feed(&quot;kibble&quot;);\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><div class=\"diff-added\"><pre class=\"highlight\"><code class=\"language-ts\">const dog = new Animal(&quot;Rex&quot;, 5, &quot;brown&quot;);\ndog.vocalize();\ndog.feed(&quot;kibble&quot;, 2);\ndog.describe();\n</code><button class=\"copyButton\" data-copy=\"const dog = new Animal(&quot;Rex&quot;, 5, &quot;brown&quot;);\ndog.vocalize();\ndog.feed(&quot;kibble&quot;, 2);\ndog.describe();\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><h2 id=\"lifecycle\">\nLifecycle</h2>\n<div class=\"diff-removed\"><ol>\n<li>Create an animal with <code>new Animal(name, age)</code></li>\n<li>Set up the species and weight</li>\n<li>Use <code>speak()</code> and <code>feed()</code> methods</li>\n<li>Check status with <code>displayName</code></li>\n</ol>\n</div><div class=\"diff-added\"><ol>\n<li>Create an animal with <code>new Animal(name, age, color?)</code></li>\n<li>Set up the species and weight</li>\n<li>Use <code>vocalize()</code> and <code>feed()</code> methods</li>\n<li>Get descriptions with <code>describe()</code></li>\n<li>Check status with <code>displayName</code></li>\n</ol>\n</div></div>",
                           "deprecated": false,
                           "subitems": [
                             {
                               "title": "age",
-                              "docs": "<div class=\"markdown_summary\"><p>The animal's age in months.</p>\n</div>",
+                              "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>The animal's age in <span class=\"diff-inline diff-removed\">years.</span><span class=\"diff-inline diff-added\">months.</span></p></div><div class=\"diff-modified\"><p>Must be a non-negative integer. <span class=\"diff-inline diff-added\">This was changed from years to months\nfor better precision. </span>Fractional ages are rounded down.</p></div></div>",
                               "ty": {
                                 "ty": ": <span class=\"td-kw\">number</span>",
                                 "info": null
@@ -165,7 +165,7 @@ expression: pages
                             },
                             {
                               "title": "describe",
-                              "docs": "<div class=\"markdown_summary\"><p>Describe the animal.</p>\n</div>",
+                              "docs": "<div class=\"markdown\"><div class=\"diff-added\"><p>Describe the animal.</p>\n</div></div>",
                               "ty": {
                                 "ty": "(<span><span>verbose<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                                 "info": null
@@ -178,7 +178,7 @@ expression: pages
                             },
                             {
                               "title": "feed",
-                              "docs": "<div class=\"markdown_summary\"><p>Feed the animal with amount.</p>\n</div>",
+                              "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>Feed the <span class=\"diff-inline diff-removed\">animal.</span><span class=\"diff-inline diff-added\">animal with amount.</span></p></div><div class=\"diff-modified\"><p>Provides food to the <span class=\"diff-inline diff-removed\">animal. The type </span><span class=\"diff-inline diff-added\">animal in the specified quantity. The type\n</span>of food should match the<span class=\"diff-inline diff-removed\">\nanimal's dietary requirements.</span><span class=\"diff-inline diff-added\"> animal's dietary requirements.</span></p></div><h2 id=\"supported-foods\">\nSupported Foods</h2>\n<div class=\"diff-removed\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n</div><div class=\"diff-added\"><p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div></div>",
                               "ty": {
                                 "ty": "(<div class=\"ml-4\"><div><span>food<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>amount<span>: <span class=\"td-kw\">number</span></span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
                                 "info": null
@@ -450,7 +450,7 @@ expression: pages
                             "ty": "(<div class=\"ml-4\"><div><span>msg<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>level<span class=\"td-op\">?</span><span>: <span class=\"td-ref\">LogLevel</span></span></span>,</div><div><span>metadata<span class=\"td-op\">?</span><span>: <span class=\"td-ref\">Record</span>&lt;<span class=\"td-kw\">string</span><span>, </span><span class=\"td-kw\">unknown</span>&gt;</span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
                             "info": null
                           },
-                          "docs": "<div class=\"markdown_summary\"><p>Logger utility with severity.</p>\n</div>",
+                          "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>Logger <span class=\"diff-inline diff-removed\">utility.</span><span class=\"diff-inline diff-added\">utility with severity.</span></p></div><div class=\"diff-modified\"><p>Logs messages to the console with <span class=\"diff-inline diff-removed\">optional log levels.\nAll messages are prefixed with a timestamp.</span><span class=\"diff-inline diff-added\">required severity levels\nand optional structured metadata.</span></p></div><h2 id=\"log-format\">\nLog Format</h2>\n<div class=\"diff-removed\"><pre class=\"highlight\"><code>[TIMESTAMP] [LEVEL] message\n</code><button class=\"copyButton\" data-copy=\"[TIMESTAMP] [LEVEL] message\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><div class=\"diff-added\"><pre class=\"highlight\"><code>[TIMESTAMP] [LEVEL] message {metadata}\n</code><button class=\"copyButton\" data-copy=\"[TIMESTAMP] [LEVEL] message {metadata}\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><div class=\"diff-added\"><h2 id=\"metadata\">\nMetadata</h2>\n</div><div class=\"diff-added\"><p>Pass a record of key-value pairs as the third argument to\ninclude structured data in the log output.</p>\n</div></div>",
                           "deprecated": false,
                           "subitems": [],
                           "diff_status": {
@@ -717,7 +717,7 @@ expression: pages
                           "subitems": [
                             {
                               "title": "toJSON",
-                              "docs": "<div class=\"markdown_summary\"><p>Convert to JSON string with optional pretty printing.</p>\n</div>",
+                              "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>Convert to JSON <span class=\"diff-inline diff-removed\">string.</span><span class=\"diff-inline diff-added\">string with optional pretty printing.</span></p></div><p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<div class=\"diff-added\"><p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div></div>",
                               "ty": {
                                 "ty": "(<span><span>pretty<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                                 "info": null
@@ -813,7 +813,7 @@ expression: pages
                             "ty": " = <span><span class=\"td-kw\">string</span><span class=\"td-op\"> | </span><span class=\"td-kw\">number</span></span>",
                             "info": null
                           },
-                          "docs": "<div class=\"markdown_summary\"><p>A unique identifier.</p>\n</div>",
+                          "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p><span class=\"diff-inline diff-removed\">Simple string alias.</span><span class=\"diff-inline diff-added\">A unique identifier.</span></p></div></div>",
                           "deprecated": false,
                           "subitems": [],
                           "diff_status": {
@@ -997,7 +997,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Base for renderers. No longer abstract.</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p><span class=\"diff-inline diff-removed\">Abstract base for renderers.</span><span class=\"diff-inline diff-added\">Base for renderers. No longer abstract.</span></p></div><div class=\"diff-modified\"><p>Provides the foundation for all rendering implementations.<span class=\"diff-inline diff-removed\"> Subclasses\nmust implement the <code>render</code> method and the <code>canvas</code> getter.</span><span class=\"diff-inline diff-added\">\nNow includes concrete default implementations for all methods.</span></p></div><h2 id=\"performance-1\">\nPerformance</h2>\n<div class=\"diff-modified\"><p>The base class handles buffering and frame timing. <span class=\"diff-inline diff-removed\">Subclasses\nshould focus only on the actual rendering logic.</span><span class=\"diff-inline diff-added\">The default\nrender implementation uses a software rasterizer.</span></p></div><div class=\"diff-added\"><h2 id=\"migration-from-abstractrenderer-1\">\nMigration from AbstractRenderer</h2>\n</div><div class=\"diff-added\"><p>If you were subclassing AbstractRenderer, you can now use this\nclass directly or override specific methods as needed.</p>\n</div></div>",
                   "sections": [
                     {
                       "header": {
@@ -1146,7 +1146,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"AbstractRenderer\">AbstractRenderer</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#accessor_canvas\" title=\"canvas\">canvas</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_render_0\" title=\"render\">render</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"AbstractRenderer\">AbstractRenderer</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#accessor_canvas\" title=\"canvas\">canvas</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_render_0\" title=\"render\">render</a></li><li><ul><li><a href=\"#performance-1\" title=\"Performance\">Performance</a></li><li><a href=\"#migration-from-abstractrenderer-1\" title=\"Migration from AbstractRenderer\">Migration from AbstractRenderer</a></li></ul></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -1177,6 +1177,16 @@ expression: pages
             "level": 2,
             "content": "render",
             "anchor": "method_render_0"
+          },
+          {
+            "level": 4,
+            "content": "Performance",
+            "anchor": "performance-1"
+          },
+          {
+            "level": 4,
+            "content": "Migration from AbstractRenderer",
+            "anchor": "migration-from-abstractrenderer-1"
           }
         ]
       },
@@ -2391,7 +2401,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A domestic animal.\nNow with better type support.</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><p>A domestic animal.</p>\n<div class=\"diff-modified\"><p>This class represents a generic domestic animal with basic properties\nand behaviors. Animals can <span class=\"diff-inline diff-removed\">speak,</span><span class=\"diff-inline diff-added\">vocalize,</span> be fed, and have their information\ndisplayed.<span class=\"diff-inline diff-added\"> Now supports color tracking and descriptions.</span></p></div><h2 id=\"usage-1\">\nUsage</h2>\n<div class=\"diff-removed\"><pre class=\"highlight\"><code class=\"language-ts\">const dog = new Animal(&quot;Rex&quot;, 5);\ndog.speak();\ndog.feed(&quot;kibble&quot;);\n</code><button class=\"copyButton\" data-copy=\"const dog = new Animal(&quot;Rex&quot;, 5);\ndog.speak();\ndog.feed(&quot;kibble&quot;);\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><div class=\"diff-added\"><pre class=\"highlight\"><code class=\"language-ts\">const dog = new Animal(&quot;Rex&quot;, 5, &quot;brown&quot;);\ndog.vocalize();\ndog.feed(&quot;kibble&quot;, 2);\ndog.describe();\n</code><button class=\"copyButton\" data-copy=\"const dog = new Animal(&quot;Rex&quot;, 5, &quot;brown&quot;);\ndog.vocalize();\ndog.feed(&quot;kibble&quot;, 2);\ndog.describe();\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><h2 id=\"lifecycle-1\">\nLifecycle</h2>\n<div class=\"diff-removed\"><ol>\n<li>Create an animal with <code>new Animal(name, age)</code></li>\n<li>Set up the species and weight</li>\n<li>Use <code>speak()</code> and <code>feed()</code> methods</li>\n<li>Check status with <code>displayName</code></li>\n</ol>\n</div><div class=\"diff-added\"><ol>\n<li>Create an animal with <code>new Animal(name, age, color?)</code></li>\n<li>Set up the species and weight</li>\n<li>Use <code>vocalize()</code> and <code>feed()</code> methods</li>\n<li>Get descriptions with <code>describe()</code></li>\n<li>Check status with <code>displayName</code></li>\n</ol>\n</div></div>",
                   "sections": [
                     {
                       "header": {
@@ -2494,7 +2504,7 @@ expression: pages
                               "id": "property_age"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>The animal's age in months.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><p>The animal's age in months.</p>\n<p>Must be a non-negative integer. This was changed from years to months\nfor better precision. Fractional ages are rounded down.</p>\n</div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
@@ -2577,7 +2587,7 @@ expression: pages
                               "id": "method_feed_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Feed the animal with amount.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><p>Feed the animal with amount.</p>\n<p>Provides food to the animal in the specified quantity. The type\nof food should match the animal's dietary requirements.</p>\n<h2 id=\"supported-foods\">\nSupported Foods</h2>\n<ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n<h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n<p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
@@ -2655,7 +2665,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li><li><a href=\"#accessor_fullid\" title=\"fullId\">fullId</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li><li><a href=\"#accessor_fullid\" title=\"fullId\">fullId</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li><li><ul><li><a href=\"#usage-1\" title=\"Usage\">Usage</a></li><li><a href=\"#lifecycle-1\" title=\"Lifecycle\">Lifecycle</a></li></ul></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -2716,6 +2726,16 @@ expression: pages
             "level": 2,
             "content": "vocalize",
             "anchor": "method_vocalize_0"
+          },
+          {
+            "level": 4,
+            "content": "Usage",
+            "anchor": "usage-1"
+          },
+          {
+            "level": 4,
+            "content": "Lifecycle",
+            "anchor": "lifecycle-1"
           }
         ]
       },
@@ -2760,7 +2780,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>The animal's age in months.</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><p>The animal's age in months.</p>\n<p>Must be a non-negative integer. This was changed from years to months\nfor better precision. Fractional ages are rounded down.</p>\n</div>",
                   "sections": []
                 }
               }
@@ -2977,7 +2997,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Describe the animal.</p>\n</div>",
+                        "docs": "<div class=\"markdown\"><div class=\"diff-added\"><p>Describe the animal.</p>\n</div></div>",
                         "sections": [
                           {
                             "header": {
@@ -3291,7 +3311,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Feed the animal with amount.</p>\n</div>",
+                        "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>Feed the <span class=\"diff-inline diff-removed\">animal.</span><span class=\"diff-inline diff-added\">animal with amount.</span></p></div><div class=\"diff-modified\"><p>Provides food to the <span class=\"diff-inline diff-removed\">animal. The type </span><span class=\"diff-inline diff-added\">animal in the specified quantity. The type\n</span>of food should match the<span class=\"diff-inline diff-removed\">\nanimal's dietary requirements.</span><span class=\"diff-inline diff-added\"> animal's dietary requirements.</span></p></div><h2 id=\"supported-foods-2\">\nSupported Foods</h2>\n<div class=\"diff-removed\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><h2 id=\"portion-guidelines-2\">\nPortion Guidelines</h2>\n</div><div class=\"diff-added\"><p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div></div>",
                         "sections": [
                           {
                             "header": {
@@ -3314,7 +3334,7 @@ expression: pages
                                     "id": "function_animal_prototype_feed_0_parameter_amount"
                                   },
                                   "tags": [],
-                                  "js_doc": null,
+                                  "js_doc": "<div class=\"markdown\"><p>Number of portions.</p>\n</div>",
                                   "source_href": null,
                                   "diff_status": {
                                     "kind": "added"
@@ -3385,7 +3405,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_prototype_feed_0_parameter_amount\" title=\"amount\">amount</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_prototype_feed_0_parameter_amount\" title=\"amount\">amount</a></li><li><ul><li><a href=\"#supported-foods-2\" title=\"Supported Foods\">Supported Foods</a></li><li><a href=\"#portion-guidelines-2\" title=\"Portion Guidelines\">Portion Guidelines</a></li></ul></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -3396,6 +3416,16 @@ expression: pages
             "level": 2,
             "content": "amount",
             "anchor": "function_animal_prototype_feed_0_parameter_amount"
+          },
+          {
+            "level": 3,
+            "content": "Supported Foods",
+            "anchor": "supported-foods-2"
+          },
+          {
+            "level": 3,
+            "content": "Portion Guidelines",
+            "anchor": "portion-guidelines-2"
           }
         ]
       },
@@ -5085,7 +5115,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A unique identifier.</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p><span class=\"diff-inline diff-removed\">Simple string alias.</span><span class=\"diff-inline diff-added\">A unique identifier.</span></p></div></div>",
                   "sections": [
                     {
                       "header": {
@@ -5759,7 +5789,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A class-based parser.</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><p>A class-based parser.</p>\n<p>Parses input strings into structured data. The parser operates\nsynchronously and throws on invalid input.</p>\n<h2 id=\"error-handling\">\nError Handling</h2>\n<p>The parser throws <code>ParseError</code> for malformed input.\nUse <code>tryParse</code> for a non-throwing alternative.</p>\n</div>",
                   "sections": []
                 }
               }
@@ -5786,7 +5816,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A parser interface (was a class).</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><p>A parser interface (was a class).</p>\n<p>Defines the contract for parsing input strings into structured data.\nImplementations may operate synchronously or asynchronously.</p>\n<h2 id=\"migration-from-parser-class\">\nMigration from Parser class</h2>\n<p>The <code>Parser</code> class has been replaced with this interface.\nUse <code>createParser()</code> to get a default implementation.</p>\n</div>",
                   "sections": [
                     {
                       "header": {
@@ -5908,8 +5938,13 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#type-parameters-1\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t-1\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods-1\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0-1\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_1\" title=\"tryParse\">tryParse</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><ul><li><a href=\"#migration-from-parser-class\" title=\"Migration from Parser class\">Migration from Parser class</a></li></ul></li><li><a href=\"#type-parameters-1\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t-1\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods-1\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0-1\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_1\" title=\"tryParse\">tryParse</a></li></ul></li></ul>",
         "document_navigation": [
+          {
+            "level": 4,
+            "content": "Migration from Parser class",
+            "anchor": "migration-from-parser-class"
+          },
           {
             "level": 1,
             "content": "Type Parameters",
@@ -7526,7 +7561,7 @@ expression: pages
                               "id": "method_tojson_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Convert to JSON string with optional pretty printing.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><p>Convert to JSON string with optional pretty printing.</p>\n<p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
@@ -7767,7 +7802,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Convert to JSON string with optional pretty printing.</p>\n</div>",
+                        "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>Convert to JSON <span class=\"diff-inline diff-removed\">string.</span><span class=\"diff-inline diff-added\">string with optional pretty printing.</span></p></div><p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<div class=\"diff-added\"><p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div></div>",
                         "sections": [
                           {
                             "header": {
@@ -8920,7 +8955,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Logger utility with severity.</p>\n</div>",
+                        "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>Logger <span class=\"diff-inline diff-removed\">utility.</span><span class=\"diff-inline diff-added\">utility with severity.</span></p></div><div class=\"diff-modified\"><p>Logs messages to the console with <span class=\"diff-inline diff-removed\">optional log levels.\nAll messages are prefixed with a timestamp.</span><span class=\"diff-inline diff-added\">required severity levels\nand optional structured metadata.</span></p></div><h2 id=\"log-format-2\">\nLog Format</h2>\n<div class=\"diff-removed\"><pre class=\"highlight\"><code>[TIMESTAMP] [LEVEL] message\n</code><button class=\"copyButton\" data-copy=\"[TIMESTAMP] [LEVEL] message\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><div class=\"diff-added\"><pre class=\"highlight\"><code>[TIMESTAMP] [LEVEL] message {metadata}\n</code><button class=\"copyButton\" data-copy=\"[TIMESTAMP] [LEVEL] message {metadata}\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div><div class=\"diff-added\"><h2 id=\"metadata-2\">\nMetadata</h2>\n</div><div class=\"diff-added\"><p>Pass a record of key-value pairs as the third argument to\ninclude structured data in the log output.</p>\n</div></div>",
                         "sections": [
                           {
                             "header": {
@@ -9026,7 +9061,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_log_0_parameter_msg\" title=\"msg\">msg</a></li><li><a href=\"#function_log_0_parameter_metadata\" title=\"metadata\">metadata</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_log_0_parameter_msg\" title=\"msg\">msg</a></li><li><a href=\"#function_log_0_parameter_metadata\" title=\"metadata\">metadata</a></li><li><ul><li><a href=\"#log-format-2\" title=\"Log Format\">Log Format</a></li><li><a href=\"#metadata-2\" title=\"Metadata\">Metadata</a></li></ul></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -9042,6 +9077,16 @@ expression: pages
             "level": 2,
             "content": "metadata",
             "anchor": "function_log_0_parameter_metadata"
+          },
+          {
+            "level": 3,
+            "content": "Log Format",
+            "anchor": "log-format-2"
+          },
+          {
+            "level": 3,
+            "content": "Metadata",
+            "anchor": "metadata-2"
           }
         ]
       },

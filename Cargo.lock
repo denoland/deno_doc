@@ -709,6 +709,7 @@ dependencies = [
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
+ "similar",
  "termcolor",
  "tokio",
  "url",

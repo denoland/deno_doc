@@ -1,11 +1,36 @@
 /**
  * A domestic animal.
- * Now with better type support.
+ *
+ * This class represents a generic domestic animal with basic properties
+ * and behaviors. Animals can vocalize, be fed, and have their information
+ * displayed. Now supports color tracking and descriptions.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * const dog = new Animal("Rex", 5, "brown");
+ * dog.vocalize();
+ * dog.feed("kibble", 2);
+ * dog.describe();
+ * ```
+ *
+ * ## Lifecycle
+ *
+ * 1. Create an animal with `new Animal(name, age, color?)`
+ * 2. Set up the species and weight
+ * 3. Use `vocalize()` and `feed()` methods
+ * 4. Get descriptions with `describe()`
+ * 5. Check status with `displayName`
  */
 export class Animal<T = string> {
   /** The animal's name. */
   name: string;
-  /** The animal's age in months. */
+  /**
+   * The animal's age in months.
+   *
+   * Must be a non-negative integer. This was changed from years to months
+   * for better precision. Fractional ages are rounded down.
+   */
   age: number;
   readonly species: T;
   protected weight: number;
@@ -16,7 +41,27 @@ export class Animal<T = string> {
 
   /** Make the animal speak. */
   vocalize(): string { return ""; }
-  /** Feed the animal with amount. */
+  /**
+   * Feed the animal with amount.
+   *
+   * Provides food to the animal in the specified quantity. The type
+   * of food should match the animal's dietary requirements.
+   *
+   * ## Supported Foods
+   *
+   * - Kibble: Standard dry food
+   * - Wet food: Canned varieties
+   * - Raw food: Fresh meat and vegetables
+   * - Treats: Use sparingly
+   *
+   * ## Portion Guidelines
+   *
+   * Small animals: 1-2 portions per meal.
+   * Large animals: 3-5 portions per meal.
+   *
+   * @param food The type of food to give.
+   * @param amount Number of portions.
+   */
   feed(food: string, amount: number): void {}
   private internalMethod(): void {}
 
@@ -40,6 +85,19 @@ export class Cat extends Animal<"cat"> {
 
 /**
  * Base for renderers. No longer abstract.
+ *
+ * Provides the foundation for all rendering implementations.
+ * Now includes concrete default implementations for all methods.
+ *
+ * ## Performance
+ *
+ * The base class handles buffering and frame timing. The default
+ * render implementation uses a software rasterizer.
+ *
+ * ## Migration from AbstractRenderer
+ *
+ * If you were subclassing AbstractRenderer, you can now use this
+ * class directly or override specific methods as needed.
  */
 export class AbstractRenderer {
   constructor(width: number, height: string) {}
@@ -50,7 +108,15 @@ export class AbstractRenderer {
 
 /** Serialization interface. */
 export interface Serializable<T> {
-  /** Convert to JSON string with optional pretty printing. */
+  /**
+   * Convert to JSON string with optional pretty printing.
+   *
+   * Serializes the object into a JSON string representation.
+   * The output is always valid JSON that can be parsed back.
+   *
+   * When `pretty` is true, the output is formatted with 2-space
+   * indentation for human readability.
+   */
   toJSON(pretty?: boolean): string;
   /** Parse from string. */
   fromString(input: string): T;
@@ -147,6 +213,14 @@ export let mutableState: { count: number; label: string; active: boolean };
 
 /**
  * A parser interface (was a class).
+ *
+ * Defines the contract for parsing input strings into structured data.
+ * Implementations may operate synchronously or asynchronously.
+ *
+ * ## Migration from Parser class
+ *
+ * The `Parser` class has been replaced with this interface.
+ * Use `createParser()` to get a default implementation.
  */
 export interface Parser<T = string> {
   parse(input: string): T;
@@ -182,7 +256,23 @@ export interface CompoundType {
 
 export const CompoundType: { new(): CompoundType } = null as any;
 
-/** Logger utility with severity. */
+/**
+ * Logger utility with severity.
+ *
+ * Logs messages to the console with required severity levels
+ * and optional structured metadata.
+ *
+ * ## Log Format
+ *
+ * ```
+ * [TIMESTAMP] [LEVEL] message {metadata}
+ * ```
+ *
+ * ## Metadata
+ *
+ * Pass a record of key-value pairs as the third argument to
+ * include structured data in the log output.
+ */
 export function log(msg: string, level?: LogLevel, metadata?: Record<string, unknown>): void {}
 
 /**

@@ -345,7 +345,7 @@ fn render_single_function(
 
   let mut sections = vec![];
 
-  let docs =
+  let mut docs =
     crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
   let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
 
@@ -443,6 +443,11 @@ fn render_single_function(
 
   if ctx.ctx.diff_only && !crate::html::diff::is_symbol_added(doc_node) {
     crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
+  }
+
+  // If there's a doc text change, re-render docs with inline diff
+  if let Some(diff_docs) = render_overload_docs_with_diff(ctx, doc_node) {
+    docs = Some(diff_docs);
   }
 
   SymbolContentCtx {
@@ -662,4 +667,58 @@ fn get_drilldown_function_diff(
     }
     _ => None,
   }
+}
+
+/// If the function/method has a doc text change, render docs with inline
+/// diff annotations. Returns `None` if there's no doc change.
+fn render_overload_docs_with_diff(
+  ctx: &RenderContext,
+  doc_node: &DocNodeWithContext,
+) -> Option<String> {
+  let diff_index = ctx.ctx.diff.as_ref()?;
+
+  let js_doc_diff = if doc_node.drilldown_name.is_none() {
+    // Top-level function: check node-level js_doc_changes
+    let info = diff_index.get_node_diff(
+      &doc_node.origin.specifier,
+      doc_node.get_name(),
+      doc_node.def.to_kind(),
+    )?;
+    info.diff.as_ref()?.js_doc_changes.clone()
+  } else {
+    // Drilldown method: check parent's method diff for js_doc_change
+    let drilldown_name = doc_node.drilldown_name.as_deref()?;
+    let parent = doc_node.parent.as_ref()?;
+
+    let def_changes = diff_index.get_def_diff(
+      &parent.origin.specifier,
+      parent.get_name(),
+      parent.def.to_kind(),
+    )?;
+
+    match def_changes {
+      crate::diff::DocNodeDefDiff::Class(class_diff) => class_diff
+        .method_changes
+        .as_ref()?
+        .modified
+        .iter()
+        .find(|m| &*m.name == drilldown_name)?
+        .js_doc_change
+        .clone(),
+      crate::diff::DocNodeDefDiff::Interface(iface_diff) => iface_diff
+        .method_changes
+        .as_ref()?
+        .modified
+        .iter()
+        .find(|m| m.name == drilldown_name)?
+        .js_doc_change
+        .clone(),
+      _ => None,
+    }
+  }?;
+
+  let doc_change = js_doc_diff.doc_change.as_ref()?;
+  let old_doc = doc_change.old.as_deref().unwrap_or_default();
+  let new_doc = doc_node.js_doc.doc.as_deref().unwrap_or_default();
+  crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
 }

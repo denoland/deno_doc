@@ -170,12 +170,13 @@ pub type Anchorizer =
 pub type MarkdownRenderer =
   Rc<dyn Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>>;
 
-pub fn markdown_to_html(
+fn render_markdown_inner(
   render_ctx: &RenderContext,
   md: &str,
-  render_options: MarkdownToHTMLOptions,
+  render_options: &MarkdownToHTMLOptions,
 ) -> Option<String> {
   let toc = render_ctx.toc.clone();
+  let no_toc = render_options.no_toc;
 
   let anchorizer = move |content: String, level: u8| {
     let mut anchorizer = toc.anchorizer.lock().unwrap();
@@ -183,7 +184,7 @@ pub fn markdown_to_html(
 
     let anchor = anchorizer.anchorize(&content);
 
-    if !render_options.no_toc {
+    if !no_toc {
       let mut toc = toc.toc.lock().unwrap();
       toc.push(crate::html::render_context::ToCEntry {
         level: level + *offset,
@@ -217,6 +218,21 @@ pub fn markdown_to_html(
     file,
     anchorizer,
   )
+}
+
+pub fn markdown_to_html(
+  render_ctx: &RenderContext,
+  md: &str,
+  render_options: MarkdownToHTMLOptions,
+) -> Option<String> {
+  let class_name = if render_options.title_only {
+    "markdown_summary"
+  } else {
+    "markdown"
+  };
+
+  render_markdown_inner(render_ctx, md, &render_options)
+    .map(|html| format!(r#"<div class="{class_name}">{html}</div>"#))
 }
 
 pub(crate) fn render_markdown(
@@ -269,6 +285,406 @@ pub(crate) fn jsdoc_body_to_html(
   } else {
     None
   }
+}
+
+struct MarkdownBlock {
+  source: String,
+  is_paragraph: bool,
+}
+
+/// Parse markdown into structural blocks using comrak's AST. Each top-level
+/// node (paragraph, heading, code block, list, etc.) becomes a block with its
+/// original source text and whether it's a paragraph (eligible for inline
+/// word-level diffing).
+#[cfg(feature = "comrak")]
+fn parse_markdown_blocks(md: &str) -> Vec<MarkdownBlock> {
+  use comrak::nodes::NodeValue;
+
+  let arena = comrak::Arena::new();
+  let options = super::comrak::default_options();
+  let root = comrak::parse_document(&arena, md, &options);
+
+  let lines: Vec<&str> = md.lines().collect();
+  let mut blocks = Vec::new();
+
+  for child in root.children() {
+    let data = child.data.borrow();
+    let is_paragraph = matches!(data.value, NodeValue::Paragraph);
+    let start = data.sourcepos.start.line.saturating_sub(1);
+    let end = data.sourcepos.end.line.min(lines.len());
+    let source = lines[start..end].join("\n");
+    blocks.push(MarkdownBlock {
+      source,
+      is_paragraph,
+    });
+  }
+
+  blocks
+}
+
+/// A token from inline markdown content, used for word-level diffing.
+/// Text nodes are split into word/whitespace tokens; code spans are
+/// kept as atomic units so they diff and render correctly.
+#[derive(Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+enum InlineToken {
+  Text(String),
+  Code(String),
+}
+
+impl InlineToken {
+  fn render(&self) -> String {
+    match self {
+      InlineToken::Text(s) => html_escape::encode_text(s).into_owned(),
+      InlineToken::Code(s) => {
+        format!("<code>{}</code>", html_escape::encode_text(s))
+      }
+    }
+  }
+
+  fn is_whitespace(&self) -> bool {
+    matches!(self, InlineToken::Text(s) if s.trim().is_empty())
+  }
+}
+
+/// Tokenize a paragraph's inline content using comrak's AST.
+/// Text nodes are split into word/whitespace tokens; code spans
+/// are kept as atomic tokens.
+#[cfg(feature = "comrak")]
+fn tokenize_paragraph(md: &str) -> Vec<InlineToken> {
+  use comrak::nodes::NodeValue;
+
+  let arena = comrak::Arena::new();
+  let options = super::comrak::default_options();
+  let root = comrak::parse_document(&arena, md, &options);
+
+  let mut tokens = Vec::new();
+
+  fn split_text_into_tokens(s: &str, tokens: &mut Vec<InlineToken>) {
+    let mut current = String::new();
+    let mut in_ws = s.starts_with(|c: char| c.is_whitespace());
+    for ch in s.chars() {
+      let is_ws = ch.is_whitespace();
+      if !current.is_empty() && in_ws != is_ws {
+        tokens.push(InlineToken::Text(std::mem::take(&mut current)));
+      }
+      in_ws = is_ws;
+      current.push(ch);
+    }
+    if !current.is_empty() {
+      tokens.push(InlineToken::Text(current));
+    }
+  }
+
+  fn walk<'a>(
+    node: &'a comrak::nodes::AstNode<'a>,
+    tokens: &mut Vec<InlineToken>,
+  ) {
+    let value = node.data.borrow().value.clone();
+    match value {
+      NodeValue::Text(s) => split_text_into_tokens(&s, tokens),
+      NodeValue::Code(c) => {
+        tokens.push(InlineToken::Code(c.literal));
+      }
+      NodeValue::SoftBreak | NodeValue::LineBreak => {
+        tokens.push(InlineToken::Text("\n".to_string()));
+      }
+      _ => {
+        for child in node.children() {
+          walk(child, tokens);
+        }
+      }
+    }
+  }
+
+  if let Some(para) = root.first_child() {
+    for child in para.children() {
+      walk(child, &mut tokens);
+    }
+  }
+
+  tokens
+}
+
+/// Build inline word-level diff HTML for a modified paragraph. Tokenizes
+/// both paragraphs using comrak's AST (so code spans are atomic units),
+/// diffs the token sequences, and produces HTML with `diff-inline` spans.
+///
+/// Small equal segments (≤ 3 non-whitespace tokens) between changes are
+/// absorbed into the surrounding change group so that removed/added runs
+/// stay contiguous.
+#[cfg(feature = "comrak")]
+fn render_word_diff_inline(old_text: &str, new_text: &str) -> String {
+  use similar::DiffOp;
+
+  const ABSORB_THRESHOLD: usize = 3;
+
+  let old_tokens = tokenize_paragraph(old_text);
+  let new_tokens = tokenize_paragraph(new_text);
+
+  let ops = similar::capture_diff_slices(
+    similar::Algorithm::Patience,
+    &old_tokens,
+    &new_tokens,
+  );
+
+  // Build segments from diff ops.
+  #[derive(PartialEq)]
+  enum SegTag {
+    Equal,
+    Delete,
+    Insert,
+  }
+  struct Segment {
+    tag: SegTag,
+    tokens: Vec<InlineToken>,
+  }
+
+  let mut segments: Vec<Segment> = Vec::new();
+  for op in &ops {
+    match *op {
+      DiffOp::Equal {
+        old_index, len, ..
+      } => {
+        segments.push(Segment {
+          tag: SegTag::Equal,
+          tokens: old_tokens[old_index..old_index + len].to_vec(),
+        });
+      }
+      DiffOp::Delete {
+        old_index, old_len, ..
+      } => {
+        segments.push(Segment {
+          tag: SegTag::Delete,
+          tokens: old_tokens[old_index..old_index + old_len].to_vec(),
+        });
+      }
+      DiffOp::Insert {
+        new_index, new_len, ..
+      } => {
+        segments.push(Segment {
+          tag: SegTag::Insert,
+          tokens: new_tokens[new_index..new_index + new_len].to_vec(),
+        });
+      }
+      DiffOp::Replace {
+        old_index,
+        old_len,
+        new_index,
+        new_len,
+      } => {
+        segments.push(Segment {
+          tag: SegTag::Delete,
+          tokens: old_tokens[old_index..old_index + old_len].to_vec(),
+        });
+        segments.push(Segment {
+          tag: SegTag::Insert,
+          tokens: new_tokens[new_index..new_index + new_len].to_vec(),
+        });
+      }
+    }
+  }
+
+  // Render with absorption of small equal runs between changes.
+  let mut html = String::new();
+  let mut removed_buf: Vec<InlineToken> = Vec::new();
+  let mut added_buf: Vec<InlineToken> = Vec::new();
+  let mut in_change = false;
+
+  let flush_changes = |html: &mut String,
+                       removed: &mut Vec<InlineToken>,
+                       added: &mut Vec<InlineToken>| {
+    if !removed.is_empty() {
+      html.push_str("<span class=\"diff-inline diff-removed\">");
+      for token in removed.drain(..) {
+        html.push_str(&token.render());
+      }
+      html.push_str("</span>");
+    }
+    if !added.is_empty() {
+      html.push_str("<span class=\"diff-inline diff-added\">");
+      for token in added.drain(..) {
+        html.push_str(&token.render());
+      }
+      html.push_str("</span>");
+    }
+  };
+
+  for seg in &segments {
+    match seg.tag {
+      SegTag::Equal => {
+        let word_count =
+          seg.tokens.iter().filter(|t| !t.is_whitespace()).count();
+        if in_change && word_count <= ABSORB_THRESHOLD {
+          removed_buf.extend(seg.tokens.iter().cloned());
+          added_buf.extend(seg.tokens.iter().cloned());
+        } else {
+          flush_changes(&mut html, &mut removed_buf, &mut added_buf);
+          in_change = false;
+          for token in &seg.tokens {
+            html.push_str(&token.render());
+          }
+        }
+      }
+      SegTag::Delete => {
+        in_change = true;
+        removed_buf.extend(seg.tokens.iter().cloned());
+      }
+      SegTag::Insert => {
+        in_change = true;
+        added_buf.extend(seg.tokens.iter().cloned());
+      }
+    }
+  }
+  flush_changes(&mut html, &mut removed_buf, &mut added_buf);
+
+  html
+}
+
+/// Render docs with block-level diff annotations. Parses old and new markdown
+/// into structural blocks via comrak's AST, diffs at the block level, and
+/// marks each block as unchanged, `diff-added`, `diff-removed`, or
+/// `diff-modified` (with inline word-level highlights for paragraphs).
+pub(crate) fn render_docs_with_diff(
+  ctx: &RenderContext,
+  old_doc: &str,
+  new_doc: &str,
+) -> Option<String> {
+  use similar::DiffOp;
+  use similar::TextDiff;
+
+  if old_doc.is_empty() && new_doc.is_empty() {
+    return None;
+  }
+
+  let render_opts = MarkdownToHTMLOptions {
+    title_only: false,
+    no_toc: false,
+  };
+  let render_opts_no_toc = MarkdownToHTMLOptions {
+    title_only: false,
+    no_toc: true,
+  };
+
+  let old_blocks = parse_markdown_blocks(old_doc);
+  let new_blocks = parse_markdown_blocks(new_doc);
+
+  let old_sources =
+    old_blocks.iter().map(|b| b.source.as_str()).collect::<Vec<_>>();
+  let new_sources =
+    new_blocks.iter().map(|b| b.source.as_str()).collect::<Vec<_>>();
+
+  let diff = TextDiff::from_slices(&old_sources, &new_sources);
+
+  let mut inner_html = String::new();
+
+  for op in diff.ops() {
+    match *op {
+      DiffOp::Equal {
+        old_index, len, ..
+      } => {
+        for block in &old_blocks[old_index..old_index + len] {
+          if let Some(html) =
+            render_markdown_inner(ctx, &block.source, &render_opts)
+          {
+            inner_html.push_str(&html);
+          }
+        }
+      }
+      DiffOp::Delete {
+        old_index, old_len, ..
+      } => {
+        for block in &old_blocks[old_index..old_index + old_len] {
+          if let Some(html) =
+            render_markdown_inner(ctx, &block.source, &render_opts_no_toc)
+          {
+            inner_html.push_str(r#"<div class="diff-removed">"#);
+            inner_html.push_str(&html);
+            inner_html.push_str("</div>");
+          }
+        }
+      }
+      DiffOp::Insert {
+        new_index, new_len, ..
+      } => {
+        for block in &new_blocks[new_index..new_index + new_len] {
+          if let Some(html) =
+            render_markdown_inner(ctx, &block.source, &render_opts)
+          {
+            inner_html.push_str(r#"<div class="diff-added">"#);
+            inner_html.push_str(&html);
+            inner_html.push_str("</div>");
+          }
+        }
+      }
+      DiffOp::Replace {
+        old_index,
+        old_len,
+        new_index,
+        new_len,
+      } => {
+        let old_slice = &old_blocks[old_index..old_index + old_len];
+        let new_slice = &new_blocks[new_index..new_index + new_len];
+        let paired = old_slice.len().min(new_slice.len());
+
+        for i in 0..paired {
+          if old_slice[i].is_paragraph && new_slice[i].is_paragraph {
+            let inline = render_word_diff_inline(
+              &old_slice[i].source,
+              &new_slice[i].source,
+            );
+            inner_html.push_str(r#"<div class="diff-modified"><p>"#);
+            inner_html.push_str(&inline);
+            inner_html.push_str("</p></div>");
+          } else {
+            if let Some(html) = render_markdown_inner(
+              ctx,
+              &old_slice[i].source,
+              &render_opts_no_toc,
+            ) {
+              inner_html.push_str(r#"<div class="diff-removed">"#);
+              inner_html.push_str(&html);
+              inner_html.push_str("</div>");
+            }
+            if let Some(html) = render_markdown_inner(
+              ctx,
+              &new_slice[i].source,
+              &render_opts,
+            ) {
+              inner_html.push_str(r#"<div class="diff-added">"#);
+              inner_html.push_str(&html);
+              inner_html.push_str("</div>");
+            }
+          }
+        }
+
+        for block in &old_slice[paired..] {
+          if let Some(html) =
+            render_markdown_inner(ctx, &block.source, &render_opts_no_toc)
+          {
+            inner_html.push_str(r#"<div class="diff-removed">"#);
+            inner_html.push_str(&html);
+            inner_html.push_str("</div>");
+          }
+        }
+
+        for block in &new_slice[paired..] {
+          if let Some(html) =
+            render_markdown_inner(ctx, &block.source, &render_opts)
+          {
+            inner_html.push_str(r#"<div class="diff-added">"#);
+            inner_html.push_str(&html);
+            inner_html.push_str("</div>");
+          }
+        }
+      }
+    }
+  }
+
+  if inner_html.is_empty() {
+    return None;
+  }
+
+  Some(format!(r#"<div class="markdown">{inner_html}</div>"#))
 }
 
 pub(crate) fn jsdoc_examples(
@@ -425,6 +841,7 @@ impl ModuleDocCtx {
         id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
         sections,
+
       },
     }
   }

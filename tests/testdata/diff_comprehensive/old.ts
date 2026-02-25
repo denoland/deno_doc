@@ -1,8 +1,33 @@
-/** A domestic animal. */
+/**
+ * A domestic animal.
+ *
+ * This class represents a generic domestic animal with basic properties
+ * and behaviors. Animals can speak, be fed, and have their information
+ * displayed.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * const dog = new Animal("Rex", 5);
+ * dog.speak();
+ * dog.feed("kibble");
+ * ```
+ *
+ * ## Lifecycle
+ *
+ * 1. Create an animal with `new Animal(name, age)`
+ * 2. Set up the species and weight
+ * 3. Use `speak()` and `feed()` methods
+ * 4. Check status with `displayName`
+ */
 export class Animal<T = string> {
   /** The animal's name. */
   name: string;
-  /** The animal's age in years. */
+  /**
+   * The animal's age in years.
+   *
+   * Must be a non-negative integer. Fractional ages are rounded down.
+   */
   age: number;
   readonly species: T;
   protected weight: number;
@@ -11,7 +36,20 @@ export class Animal<T = string> {
 
   /** Make the animal speak. */
   speak(): string { return ""; }
-  /** Feed the animal. */
+  /**
+   * Feed the animal.
+   *
+   * Provides food to the animal. The type of food should match the
+   * animal's dietary requirements.
+   *
+   * ## Supported Foods
+   *
+   * - Kibble: Standard dry food
+   * - Wet food: Canned varieties
+   * - Treats: Use sparingly
+   *
+   * @param food The type of food to give.
+   */
   feed(food: string): void {}
   /** @deprecated Use speak() instead. */
   makeSound(): string { return ""; }
@@ -34,6 +72,15 @@ export class Cat extends Animal<"cat"> {
 
 /**
  * Abstract base for renderers.
+ *
+ * Provides the foundation for all rendering implementations. Subclasses
+ * must implement the `render` method and the `canvas` getter.
+ *
+ * ## Performance
+ *
+ * The base class handles buffering and frame timing. Subclasses
+ * should focus only on the actual rendering logic.
+ *
  * @deprecated Use ConcreteRenderer instead.
  */
 export abstract class AbstractRenderer {
@@ -45,7 +92,12 @@ export abstract class AbstractRenderer {
 
 /** Serialization interface. */
 export interface Serializable<T> {
-  /** Convert to JSON string. */
+  /**
+   * Convert to JSON string.
+   *
+   * Serializes the object into a JSON string representation.
+   * The output is always valid JSON that can be parsed back.
+   */
   toJSON(): string;
   /** Parse from string. */
   fromString(input: string): T;
@@ -130,6 +182,15 @@ export let mutableState: { count: number; label: string };
 
 /**
  * A class-based parser.
+ *
+ * Parses input strings into structured data. The parser operates
+ * synchronously and throws on invalid input.
+ *
+ * ## Error Handling
+ *
+ * The parser throws `ParseError` for malformed input.
+ * Use `tryParse` for a non-throwing alternative.
+ *
  * @example
  * ```ts
  * const p = new Parser();
@@ -169,7 +230,18 @@ export interface CompoundType {
 
 export const CompoundType: { new(): CompoundType } = null as any;
 
-/** Logger utility. */
+/**
+ * Logger utility.
+ *
+ * Logs messages to the console with optional log levels.
+ * All messages are prefixed with a timestamp.
+ *
+ * ## Log Format
+ *
+ * ```
+ * [TIMESTAMP] [LEVEL] message
+ * ```
+ */
 export function log(message: string, level?: LogLevel): void {}
 
 /** @deprecated Use log() instead. */

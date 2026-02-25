@@ -73,7 +73,9 @@ pub fn render_node<'a>(
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-pub fn strip(md: &str) -> String {
+/// Returns comrak options with standard extensions enabled.
+/// Used for parsing and rendering across the codebase.
+pub fn default_options() -> comrak::Options<'static> {
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
   options.extension.description_lists = true;
@@ -82,6 +84,11 @@ pub fn strip(md: &str) -> String {
   options.extension.table = true;
   options.extension.tagfilter = true;
   options.extension.tasklist = true;
+  options
+}
+
+pub fn strip(md: &str) -> String {
+  let mut options = default_options();
   options.render.escape = true;
 
   let arena = Arena::new();
@@ -116,15 +123,7 @@ pub fn create_renderer(
   node_hook: Option<NodeHook>,
   clean: Option<HtmlClean>,
 ) -> super::jsdoc::MarkdownRenderer {
-  let mut options = comrak::Options::default();
-  options.extension.autolink = true;
-  options.extension.description_lists = true;
-  options.extension.strikethrough = true;
-  options.extension.superscript = true;
-  options.extension.table = true;
-  options.extension.tagfilter = true;
-  options.extension.tasklist = true;
-
+  let mut options = default_options();
   options.render.escape = clean.is_none();
   options.render.unsafe_ = clean.is_some(); // its fine because we run the cleaner afterwards
 
@@ -164,20 +163,11 @@ pub fn create_renderer(
       }
     };
 
-    let class_name = if title_only {
-      "markdown_summary"
+    let html = if let Some(clean) = &clean {
+      clean(html)
     } else {
-      "markdown"
+      html
     };
-
-    let html = format!(
-      r#"<div class="{class_name}">{}</div>"#,
-      if let Some(clean) = &clean {
-        clean(html)
-      } else {
-        html
-      }
-    );
 
     Some(html)
   };
