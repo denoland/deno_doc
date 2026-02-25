@@ -629,25 +629,23 @@ impl SymbolInnerCtx {
       }
 
       // If there's a doc text change, re-render docs with inline diff
-      if let Some(diff_docs) =
-        ctx.ctx.diff.as_ref().and_then(|diff_index| {
-          let info = diff_index.get_node_diff(
-            &doc_node.origin.specifier,
-            doc_node.get_name(),
-            doc_node.def.to_kind(),
-          )?;
-          let doc_change = info
-            .diff
-            .as_ref()?
-            .js_doc_changes
-            .as_ref()?
-            .doc_change
-            .as_ref()?;
-          let old_doc = doc_change.old.as_deref().unwrap_or_default();
-          let new_doc = doc_node.js_doc.doc.as_deref().unwrap_or_default();
-          crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
-        })
-      {
+      if let Some(diff_docs) = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+        let info = diff_index.get_node_diff(
+          &doc_node.origin.specifier,
+          doc_node.get_name(),
+          doc_node.def.to_kind(),
+        )?;
+        let doc_change = info
+          .diff
+          .as_ref()?
+          .js_doc_changes
+          .as_ref()?
+          .doc_change
+          .as_ref()?;
+        let old_doc = doc_change.old.as_deref().unwrap_or_default();
+        let new_doc = doc_node.js_doc.doc.as_deref().unwrap_or_default();
+        crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
+      }) {
         docs = Some(diff_docs);
       }
 

@@ -131,7 +131,8 @@ impl NamespaceNodeCtx {
       .name(&name)
       .build();
 
-    let docs = crate::html::jsdoc::jsdoc_body_to_html(ctx, &nodes[0].js_doc, true);
+    let docs =
+      crate::html::jsdoc::jsdoc_body_to_html(ctx, &nodes[0].js_doc, true);
 
     let tags = Tag::from_js_doc(&nodes[0].js_doc);
 

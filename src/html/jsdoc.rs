@@ -442,9 +442,7 @@ fn render_word_diff_inline(old_text: &str, new_text: &str) -> String {
   let mut segments: Vec<Segment> = Vec::new();
   for op in &ops {
     match *op {
-      DiffOp::Equal {
-        old_index, len, ..
-      } => {
+      DiffOp::Equal { old_index, len, .. } => {
         segments.push(Segment {
           tag: SegTag::Equal,
           tokens: old_tokens[old_index..old_index + len].to_vec(),
@@ -568,10 +566,14 @@ pub(crate) fn render_docs_with_diff(
   let old_blocks = parse_markdown_blocks(old_doc);
   let new_blocks = parse_markdown_blocks(new_doc);
 
-  let old_sources =
-    old_blocks.iter().map(|b| b.source.as_str()).collect::<Vec<_>>();
-  let new_sources =
-    new_blocks.iter().map(|b| b.source.as_str()).collect::<Vec<_>>();
+  let old_sources = old_blocks
+    .iter()
+    .map(|b| b.source.as_str())
+    .collect::<Vec<_>>();
+  let new_sources = new_blocks
+    .iter()
+    .map(|b| b.source.as_str())
+    .collect::<Vec<_>>();
 
   let diff = TextDiff::from_slices(&old_sources, &new_sources);
 
@@ -579,9 +581,7 @@ pub(crate) fn render_docs_with_diff(
 
   for op in diff.ops() {
     match *op {
-      DiffOp::Equal {
-        old_index, len, ..
-      } => {
+      DiffOp::Equal { old_index, len, .. } => {
         for block in &old_blocks[old_index..old_index + len] {
           if let Some(html) =
             render_markdown_inner(ctx, &block.source, &render_opts)
@@ -645,11 +645,9 @@ pub(crate) fn render_docs_with_diff(
               inner_html.push_str(&html);
               inner_html.push_str("</div>");
             }
-            if let Some(html) = render_markdown_inner(
-              ctx,
-              &new_slice[i].source,
-              &render_opts,
-            ) {
+            if let Some(html) =
+              render_markdown_inner(ctx, &new_slice[i].source, &render_opts)
+            {
               inner_html.push_str(r#"<div class="diff-added">"#);
               inner_html.push_str(&html);
               inner_html.push_str("</div>");
@@ -841,7 +839,6 @@ impl ModuleDocCtx {
         id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
         sections,
-
       },
     }
   }
