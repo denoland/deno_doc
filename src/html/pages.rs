@@ -300,7 +300,6 @@ impl IndexCtx {
           id: util::Id::empty(),
           sections,
           docs: None,
-  
         })
       }
       FileMode::SingleDts if uses_categories => {
@@ -346,7 +345,6 @@ impl IndexCtx {
           id: util::Id::empty(),
           sections,
           docs: None,
-  
         })
       }
       _ => None,
@@ -459,7 +457,6 @@ impl IndexCtx {
         id: util::Id::empty(),
         sections,
         docs: None,
-
       }),
       breadcrumbs_ctx,
       usage,

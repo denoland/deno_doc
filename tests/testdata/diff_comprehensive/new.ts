@@ -40,7 +40,9 @@ export class Animal<T = string> {
   constructor(name: string, age: number, color?: string) {}
 
   /** Make the animal speak. */
-  vocalize(): string { return ""; }
+  vocalize(): string {
+    return "";
+  }
   /**
    * Feed the animal with amount.
    *
@@ -66,12 +68,18 @@ export class Animal<T = string> {
   private internalMethod(): void {}
 
   /** Describe the animal. */
-  describe(verbose?: boolean): string { return ""; }
+  describe(verbose?: boolean): string {
+    return "";
+  }
 
-  static create(name: string, color?: string): Animal { return new Animal(name, 0); }
+  static create(name: string, color?: string): Animal {
+    return new Animal(name, 0);
+  }
   static readonly MAX_AGE: number;
 
-  get displayName(): string { return ""; }
+  get displayName(): string {
+    return "";
+  }
   set displayName(value: string) {}
 }
 
@@ -101,9 +109,15 @@ export class Cat extends Animal<"cat"> {
  */
 export class AbstractRenderer {
   constructor(width: number, height: string) {}
-  render(input: string): string { return ""; }
-  get canvas(): HTMLElement { return null as any; }
-  format(input: string): string { return input; }
+  render(input: string): string {
+    return "";
+  }
+  get canvas(): HTMLElement {
+    return null as any;
+  }
+  format(input: string): string {
+    return input;
+  }
 }
 
 /** Serialization interface. */
@@ -128,7 +142,7 @@ export interface Serializable<T> {
 
 /** Extended serializable. */
 export interface AdvancedSerializable<T> extends Serializable<T>, Disposable {
-  new(data: Uint8Array): AdvancedSerializable<T>;
+  new (data: Uint8Array): AdvancedSerializable<T>;
   toBinary(): Uint8Array;
   compress(level: number, format?: string): Uint8Array;
   /** Decompress binary data. */
@@ -182,7 +196,11 @@ export type ID = string | number;
 export function createApp(name: string, config?: Partial<Config>): App;
 export function createApp(config: Config): App;
 export function createApp(name: string, config: Config, plugins: Plugin[]): App;
-export function createApp(nameOrConfig: string | Config, config?: Partial<Config>, plugins?: Plugin[]): App {
+export function createApp(
+  nameOrConfig: string | Config,
+  config?: Partial<Config>,
+  plugins?: Plugin[],
+): App {
   return {} as App;
 }
 
@@ -254,7 +272,7 @@ export interface CompoundType {
   validate(): boolean;
 }
 
-export const CompoundType: { new(): CompoundType } = null as any;
+export const CompoundType: { new (): CompoundType } = null as any;
 
 /**
  * Logger utility with severity.
@@ -273,7 +291,11 @@ export const CompoundType: { new(): CompoundType } = null as any;
  * Pass a record of key-value pairs as the third argument to
  * include structured data in the log output.
  */
-export function log(msg: string, level?: LogLevel, metadata?: Record<string, unknown>): void {}
+export function log(
+  msg: string,
+  level?: LogLevel,
+  metadata?: Record<string, unknown>,
+): void {}
 
 /**
  * A new router class.
@@ -284,7 +306,9 @@ export class Router {
   /** Remove a route. */
   removeRoute(path: string): void {}
   /** Handle incoming request. */
-  handle(request: Request): Response { return null as any; }
+  handle(request: Request): Response {
+    return null as any;
+  }
 }
 
 /**

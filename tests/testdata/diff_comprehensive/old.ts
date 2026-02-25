@@ -35,7 +35,9 @@ export class Animal<T = string> {
   constructor(name: string, age: number) {}
 
   /** Make the animal speak. */
-  speak(): string { return ""; }
+  speak(): string {
+    return "";
+  }
   /**
    * Feed the animal.
    *
@@ -52,17 +54,25 @@ export class Animal<T = string> {
    */
   feed(food: string): void {}
   /** @deprecated Use speak() instead. */
-  makeSound(): string { return ""; }
+  makeSound(): string {
+    return "";
+  }
   private internalMethod(): void {}
 
-  static create(name: string): Animal { return new Animal(name, 0); }
+  static create(name: string): Animal {
+    return new Animal(name, 0);
+  }
   static readonly MAX_AGE: number;
 
-  get displayName(): string { return ""; }
+  get displayName(): string {
+    return "";
+  }
   set displayName(value: string) {}
 
   /** The animal's full ID. */
-  get fullId(): string { return ""; }
+  get fullId(): string {
+    return "";
+  }
 }
 
 /** A cat extending Animal. */
@@ -87,7 +97,9 @@ export abstract class AbstractRenderer {
   constructor(width: number, height: number) {}
   abstract render(input: string): string;
   abstract get canvas(): HTMLElement;
-  format(input: string): string { return input; }
+  format(input: string): string {
+    return input;
+  }
 }
 
 /** Serialization interface. */
@@ -107,7 +119,7 @@ export interface Serializable<T> {
 
 /** Extended serializable. */
 export interface AdvancedSerializable<T> extends Serializable<T> {
-  new(data: string): AdvancedSerializable<T>;
+  new (data: string): AdvancedSerializable<T>;
   toBinary(): Uint8Array;
   compress(level: number): Uint8Array;
 }
@@ -152,7 +164,10 @@ export type ID = string;
  */
 export function createApp(name: string, config?: Partial<Config>): App;
 export function createApp(config: Config): App;
-export function createApp(nameOrConfig: string | Config, config?: Partial<Config>): App {
+export function createApp(
+  nameOrConfig: string | Config,
+  config?: Partial<Config>,
+): App {
   return {} as App;
 }
 
@@ -198,9 +213,15 @@ export let mutableState: { count: number; label: string };
  * ```
  */
 export class Parser<T = string> {
-  parse(input: string): T { return {} as T; }
-  tryParse(input: string): T | null { return null; }
-  static fromConfig(config: Config): Parser { return new Parser(); }
+  parse(input: string): T {
+    return {} as T;
+  }
+  tryParse(input: string): T | null {
+    return null;
+  }
+  static fromConfig(config: Config): Parser {
+    return new Parser();
+  }
 }
 
 /** Status codes. */
@@ -228,7 +249,7 @@ export interface CompoundType {
   process(): void;
 }
 
-export const CompoundType: { new(): CompoundType } = null as any;
+export const CompoundType: { new (): CompoundType } = null as any;
 
 /**
  * Logger utility.
