@@ -21,6 +21,7 @@ export interface Callable {
             "callSignatureChanges": {
               "modified": [
                 {
+                  "index": 0,
                   "paramsChange": {
                     "added": [
                       {

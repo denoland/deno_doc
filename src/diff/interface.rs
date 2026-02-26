@@ -766,7 +766,7 @@ impl CallSignaturesDiff {
     for i in 0..max_len {
       match (old.get(i), new.get(i)) {
         (Some(old_sig), Some(new_sig)) => {
-          if let Some(diff) = CallSignatureDiff::diff(old_sig, new_sig) {
+          if let Some(diff) = CallSignatureDiff::diff(i, old_sig, new_sig) {
             modified.push(diff);
           }
         }
@@ -795,6 +795,7 @@ impl CallSignaturesDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CallSignatureDiff {
+  pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -806,7 +807,11 @@ pub struct CallSignatureDiff {
 }
 
 impl CallSignatureDiff {
-  pub fn diff(old: &CallSignatureDef, new: &CallSignatureDef) -> Option<Self> {
+  pub fn diff(
+    index: usize,
+    old: &CallSignatureDef,
+    new: &CallSignatureDef,
+  ) -> Option<Self> {
     let CallSignatureDef {
       js_doc: old_js_doc,
       location: _, // internal, not diffed
@@ -840,6 +845,7 @@ impl CallSignatureDiff {
     }
 
     Some(CallSignatureDiff {
+      index,
       params_change,
       type_params_change,
       ts_type_change,

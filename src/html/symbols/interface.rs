@@ -135,17 +135,14 @@ pub(crate) fn render_call_signatures(
         .unwrap_or_default();
 
       let tags = Tag::from_js_doc(&call_signature.js_doc);
-      let old_tags = call_signatures_diff
-        .map(|_| super::compute_old_tags(&tags, None, None, None, None));
+
+      let sig_diff = call_signatures_diff
+        .and_then(|d| d.modified.iter().find(|m| m.index == i));
 
       let diff_status = if let Some(diff) = call_signatures_diff {
-        if !diff.added.is_empty()
-          && i >= call_signatures.len() - diff.added.len()
-        {
+        if diff.added.iter().any(|a| a == call_signature) {
           Some(DiffStatus::Added)
-        } else if !diff.modified.is_empty()
-          && i < call_signatures.len().saturating_sub(diff.added.len())
-        {
+        } else if sig_diff.is_some() {
           Some(DiffStatus::Modified)
         } else {
           None
@@ -154,12 +151,25 @@ pub(crate) fn render_call_signatures(
         None
       };
 
+      let old_tags = if diff_status.is_some() {
+        Some(super::compute_old_tags(&tags, None, None, None, None))
+      } else {
+        None
+      };
+
       let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
-          let sig_diff = call_signatures_diff.and_then(|d| d.modified.first());
-          let old_content = sig_diff
-            .and_then(|sd| sd.ts_type_change.as_ref())
-            .map(|tc| render_type_def_colon(ctx, &tc.old));
+          let old_content = sig_diff.and_then(|sd| {
+            super::function::render_old_function_summary(
+              ctx,
+              &call_signature.type_params,
+              &call_signature.params,
+              &call_signature.ts_type,
+              sd.type_params_change.as_ref(),
+              sd.params_change.as_ref(),
+              sd.ts_type_change.as_ref(),
+            )
+          });
           let js_doc_changed =
             sig_diff.and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
           (old_content, js_doc_changed)
