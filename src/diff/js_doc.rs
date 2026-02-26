@@ -114,7 +114,7 @@ fn tags_same_kind(a: &JsDocTag, b: &JsDocTag) -> bool {
     (Tags { .. }, Tags { .. }) => true,
     (Template { name: n1, .. }, Template { name: n2, .. }) => n1 == n2,
     (This { type_ref: t1, .. }, This { type_ref: t2, .. }) => t1 == t2,
-    (Throws { .. }, Throws { .. }) => true,
+    (Throws { type_ref: t1, .. }, Throws { type_ref: t2, .. }) => t1 == t2,
     (TypeDef { name: n1, .. }, TypeDef { name: n2, .. }) => n1 == n2,
     (TypeRef { type_ref: t1, .. }, TypeRef { type_ref: t2, .. }) => t1 == t2,
     (See { .. }, See { .. }) => true,

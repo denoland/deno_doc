@@ -44,6 +44,7 @@ pub use interface::InterfaceMethodsDiff;
 pub use interface::InterfacePropertiesDiff;
 pub use interface::InterfacePropertyDiff;
 pub use js_doc::JsDocDiff;
+pub use js_doc::TagsDiff;
 pub use namespace::NamespaceDiff;
 pub use ts_type::TsTypeDiff;
 pub use ts_type::TypeParamsDiff;

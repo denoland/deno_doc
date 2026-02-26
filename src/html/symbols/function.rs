@@ -409,7 +409,10 @@ fn render_single_function(
     ),
   ));
 
-  let throws = doc_node
+  let throws_tags_diff = get_js_doc_diff(ctx, doc_node)
+    .and_then(|jd| jd.tags_change);
+
+  let mut throws = doc_node
     .js_doc
     .tags
     .iter()
@@ -431,9 +434,36 @@ fn render_single_function(
         doc,
         overload_id.clone(),
         i,
+        &throws_tags_diff,
       )
     })
     .collect::<Vec<_>>();
+
+  // Inject removed throws entries
+  if let Some(td) = &throws_tags_diff {
+    for removed_tag in &td.removed {
+      if let JsDocTag::Throws { type_ref, doc } = removed_tag && (type_ref.is_some() || doc.is_some()) {
+        let id = IdBuilder::new_with_parent(ctx, &overload_id)
+          .kind(IdKind::Throws)
+          .index(throws.len())
+          .build();
+
+        throws.push(DocEntryCtx::removed(
+          ctx,
+          id,
+          None,
+          None,
+          type_ref
+            .as_ref()
+            .map(|t| t.as_ref())
+            .unwrap_or_default(),
+          IndexSet::new(),
+          doc.as_ref().map(|d| d.as_ref()),
+          &doc_node.location,
+        ));
+      }
+    }
+  }
 
   if !throws.is_empty() {
     sections.push(SectionCtx::new(
@@ -618,6 +648,7 @@ fn inject_removed_params(
   }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_function_throws(
   render_ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
@@ -625,7 +656,36 @@ fn render_function_throws(
   doc: &Option<Box<str>>,
   overload_id: Id,
   throws_id: usize,
+  diff: &Option<crate::diff::TagsDiff>,
 ) -> DocEntryCtx {
+  let (diff_status, old_content) = if let Some(td) = diff {
+    if let Some(tag_diff) = td.modified.iter().find(|m| {
+      matches!(&m.new, JsDocTag::Throws { type_ref: t, .. } if t == type_ref)
+    }) {
+      let old = if let JsDocTag::Throws {
+        type_ref: old_type_ref,
+        ..
+      } = &tag_diff.old
+      {
+        old_type_ref
+          .as_ref()
+          .map(|t| t.to_string())
+      } else {
+        None
+      };
+      (Some(DiffStatus::Modified), old)
+    } else if td.added.iter().any(|a| {
+      matches!(a, JsDocTag::Throws { type_ref: t, .. } if t == type_ref)
+    }) {
+      (Some(DiffStatus::Added), None)
+    } else {
+      (None, None)
+    }
+  } else {
+    (None, None)
+  };
+
+
   let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Throws)
     .index(throws_id)
@@ -643,8 +703,8 @@ fn render_function_throws(
     IndexSet::new(),
     doc.as_ref().map(|doc| doc.as_ref()),
     &doc_node.location,
-    None,
-    None,
+    diff_status,
+    old_content,
     None,
     None,
   )
@@ -695,15 +755,15 @@ fn get_drilldown_function_diff(
   }
 }
 
-/// If the function/method has a doc text change, render docs with inline
-/// diff annotations. Returns `None` if there's no doc change.
-fn render_overload_docs_with_diff(
+/// Look up the JsDocDiff for a function/method doc node.
+/// Works for both top-level functions and drilldown methods (class/interface).
+fn get_js_doc_diff(
   ctx: &RenderContext,
   doc_node: &DocNodeWithContext,
-) -> Option<String> {
+) -> Option<crate::diff::JsDocDiff> {
   let diff_index = ctx.ctx.diff.as_ref()?;
 
-  let js_doc_diff = if doc_node.drilldown_name.is_none() {
+  if doc_node.drilldown_name.is_none() {
     // Top-level function: check node-level js_doc_changes
     let info = diff_index.get_node_diff(
       &doc_node.origin.specifier,
@@ -741,7 +801,16 @@ fn render_overload_docs_with_diff(
         .clone(),
       _ => None,
     }
-  }?;
+  }
+}
+
+/// If the function/method has a doc text change, render docs with inline
+/// diff annotations. Returns `None` if there's no doc change.
+fn render_overload_docs_with_diff(
+  ctx: &RenderContext,
+  doc_node: &DocNodeWithContext,
+) -> Option<String> {
+  let js_doc_diff = get_js_doc_diff(ctx, doc_node)?;
 
   let doc_change = js_doc_diff.doc_change.as_ref()?;
   let old_doc = doc_change.old.as_deref().unwrap_or_default();
