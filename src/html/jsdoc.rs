@@ -412,8 +412,12 @@ fn tokenize_paragraph(md: &str) -> Vec<InlineToken> {
 /// Small equal segments (≤ 3 non-whitespace tokens) between changes are
 /// absorbed into the surrounding change group so that removed/added runs
 /// stay contiguous.
+///
+/// Returns `None` when no equal segments survive absorption (i.e. the text
+/// changed entirely), signalling the caller to render as removed + added
+/// blocks instead.
 #[cfg(feature = "comrak")]
-fn render_word_diff_inline(old_text: &str, new_text: &str) -> String {
+fn render_word_diff_inline(old_text: &str, new_text: &str) -> Option<String> {
   use similar::DiffOp;
 
   const ABSORB_THRESHOLD: usize = 3;
@@ -482,6 +486,18 @@ fn render_word_diff_inline(old_text: &str, new_text: &str) -> String {
     }
   }
 
+  // Check if any equal segment has enough content to survive absorption.
+  // If not, the text changed entirely and we should signal the caller to
+  // render as removed + added blocks instead.
+  let has_surviving_equal = segments.iter().any(|seg| {
+    seg.tag == SegTag::Equal
+      && seg.tokens.iter().filter(|t| !t.is_whitespace()).count()
+        > ABSORB_THRESHOLD
+  });
+  if !has_surviving_equal {
+    return None;
+  }
+
   // Render with absorption of small equal runs between changes.
   let mut html = String::new();
   let mut removed_buf: Vec<InlineToken> = Vec::new();
@@ -535,7 +551,7 @@ fn render_word_diff_inline(old_text: &str, new_text: &str) -> String {
   }
   flush_changes(&mut html, &mut removed_buf, &mut added_buf);
 
-  html
+  Some(html)
 }
 
 /// Render docs with block-level diff annotations. Parses old and new markdown
@@ -628,30 +644,32 @@ pub(crate) fn render_docs_with_diff(
 
         for i in 0..paired {
           if old_slice[i].is_paragraph && new_slice[i].is_paragraph {
-            let inline = render_word_diff_inline(
+            if let Some(inline) = render_word_diff_inline(
               &old_slice[i].source,
               &new_slice[i].source,
-            );
-            inner_html.push_str(r#"<div class="diff-modified"><p>"#);
-            inner_html.push_str(&inline);
-            inner_html.push_str("</p></div>");
-          } else {
-            if let Some(html) = render_markdown_inner(
-              ctx,
-              &old_slice[i].source,
-              &render_opts_no_toc,
             ) {
-              inner_html.push_str(r#"<div class="diff-removed">"#);
-              inner_html.push_str(&html);
-              inner_html.push_str("</div>");
+              inner_html.push_str(r#"<div class="diff-modified"><p>"#);
+              inner_html.push_str(&inline);
+              inner_html.push_str("</p></div>");
+              continue;
             }
-            if let Some(html) =
-              render_markdown_inner(ctx, &new_slice[i].source, &render_opts)
-            {
-              inner_html.push_str(r#"<div class="diff-added">"#);
-              inner_html.push_str(&html);
-              inner_html.push_str("</div>");
-            }
+          }
+
+          if let Some(html) = render_markdown_inner(
+            ctx,
+            &old_slice[i].source,
+            &render_opts_no_toc,
+          ) {
+            inner_html.push_str(r#"<div class="diff-removed">"#);
+            inner_html.push_str(&html);
+            inner_html.push_str("</div>");
+          }
+          if let Some(html) =
+            render_markdown_inner(ctx, &new_slice[i].source, &render_opts)
+          {
+            inner_html.push_str(r#"<div class="diff-added">"#);
+            inner_html.push_str(&html);
+            inner_html.push_str("</div>");
           }
         }
 
