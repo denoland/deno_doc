@@ -129,7 +129,7 @@ expression: pages
                           "subitems": [
                             {
                               "title": "age",
-                              "docs": "<div class=\"markdown\"><div class=\"diff-modified\"><p>The animal's age in <span class=\"diff-inline diff-removed\">years.</span><span class=\"diff-inline diff-added\">months.</span></p></div><div class=\"diff-modified\"><p>Must be a non-negative integer. <span class=\"diff-inline diff-added\">This was changed from years to months\nfor better precision. </span>Fractional ages are rounded down.</p></div></div>",
+                              "docs": "<div class=\"markdown_summary\"><p>The animal's age in months.</p>\n</div>",
                               "ty": {
                                 "ty": ": <span class=\"td-kw\">number</span>",
                                 "info": null
@@ -165,7 +165,7 @@ expression: pages
                             },
                             {
                               "title": "describe",
-                              "docs": "<div class=\"markdown\"><div class=\"diff-added\"><p>Describe the animal.</p>\n</div></div>",
+                              "docs": "<div class=\"markdown_summary\"><p>Describe the animal.</p>\n</div>",
                               "ty": {
                                 "ty": "(<span><span>verbose<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                                 "info": null
@@ -178,7 +178,7 @@ expression: pages
                             },
                             {
                               "title": "feed",
-                              "docs": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Feed the animal.</p>\n</div><div class=\"diff-added\"><p>Feed the animal with amount.</p>\n</div><div class=\"diff-modified\"><p>Provides food to the <span class=\"diff-inline diff-removed\">animal. The type </span><span class=\"diff-inline diff-added\">animal in the specified quantity. The type\n</span>of food should match the<span class=\"diff-inline diff-removed\">\nanimal's dietary requirements.</span><span class=\"diff-inline diff-added\"> animal's dietary requirements.</span></p></div><h2 id=\"supported-foods\">\nSupported Foods</h2>\n<div class=\"diff-removed\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n</div><div class=\"diff-added\"><p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div></div>",
+                              "docs": "<div class=\"markdown_summary\"><p>Feed the animal with amount.</p>\n</div>",
                               "ty": {
                                 "ty": "(<div class=\"ml-4\"><div><span>food<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>amount<span>: <span class=\"td-kw\">number</span></span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
                                 "info": null
@@ -782,7 +782,7 @@ expression: pages
                           "subitems": [
                             {
                               "title": "toJSON",
-                              "docs": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Convert to JSON string.</p>\n</div><div class=\"diff-added\"><p>Convert to JSON string with optional pretty printing.</p>\n</div><p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<div class=\"diff-added\"><p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div></div>",
+                              "docs": "<div class=\"markdown_summary\"><p>Convert to JSON string with optional pretty printing.</p>\n</div>",
                               "ty": {
                                 "ty": "(<span><span>pretty<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">boolean</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
                                 "info": null

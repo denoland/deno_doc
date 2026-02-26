@@ -147,7 +147,6 @@ impl NamespaceNodeCtx {
     );
 
     for node in &nodes {
-      // Look up parent node diff for subitem diff status
       let node_def_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
         let info = diff_index.get_node_diff(
           &node.origin.specifier,
@@ -192,9 +191,6 @@ impl NamespaceNodeCtx {
 
               let drilldown_name = symbol.drilldown_name.as_ref().unwrap();
 
-              // If the parent node is removed, subitems inherit that
-              // status so they survive diff_only filtering. The marker
-              // is stripped later when the entire symbol is removed.
               let diff_status =
                 if matches!(node.diff_status, Some(DiffStatus::Removed)) {
                   Some(DiffStatus::Removed)
@@ -204,24 +200,11 @@ impl NamespaceNodeCtx {
                   })
                 };
 
-              // If there's a doc change, render with inline diff annotations
-              let docs = node_def_diff
-                .and_then(|diff| {
-                  render_subitem_docs_with_diff(
-                    ctx,
-                    diff,
-                    drilldown_name,
-                    &symbol.kind,
-                    &symbol.js_doc,
-                  )
-                })
-                .or_else(|| {
-                  crate::html::jsdoc::jsdoc_body_to_html(
-                    ctx,
-                    &symbol.js_doc,
-                    true,
-                  )
-                });
+              let docs = crate::html::jsdoc::jsdoc_body_to_html(
+                ctx,
+                &symbol.js_doc,
+                true,
+              );
 
               NamespaceNodeSubItemCtx {
                 title: drilldown_name.to_string(),
@@ -573,64 +556,6 @@ fn get_subitem_diff_status(
     },
     _ => None,
   }
-}
-
-/// If the subitem has a doc text change, render docs with inline diff
-/// annotations. Returns `None` if there's no doc change (caller falls back
-/// to normal rendering).
-fn render_subitem_docs_with_diff(
-  ctx: &RenderContext,
-  def_diff: &DocNodeDefDiff,
-  name: &str,
-  kind: &DocNodeKind,
-  js_doc: &crate::js_doc::JsDoc,
-) -> Option<String> {
-  let js_doc_diff = match def_diff {
-    DocNodeDefDiff::Class(class_diff) => match kind {
-      DocNodeKind::Method(_) => {
-        let mc = class_diff.method_changes.as_ref()?;
-        mc.modified
-          .iter()
-          .find(|m| &*m.name == name)?
-          .js_doc_change
-          .as_ref()
-      }
-      DocNodeKind::Property => {
-        let pc = class_diff.property_changes.as_ref()?;
-        pc.modified
-          .iter()
-          .find(|p| &*p.name == name)?
-          .js_doc_change
-          .as_ref()
-      }
-      _ => None,
-    },
-    DocNodeDefDiff::Interface(iface_diff) => match kind {
-      DocNodeKind::Method(_) => {
-        let mc = iface_diff.method_changes.as_ref()?;
-        mc.modified
-          .iter()
-          .find(|m| m.name == name)?
-          .js_doc_change
-          .as_ref()
-      }
-      DocNodeKind::Property => {
-        let pc = iface_diff.property_changes.as_ref()?;
-        pc.modified
-          .iter()
-          .find(|p| p.name == name)?
-          .js_doc_change
-          .as_ref()
-      }
-      _ => None,
-    },
-    _ => None,
-  }?;
-
-  let doc_change = js_doc_diff.doc_change.as_ref()?;
-  let old_doc = doc_change.old.as_deref().unwrap_or_default();
-  let new_doc = js_doc.doc.as_deref().unwrap_or_default();
-  crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
 }
 
 /// Inject removed methods and properties from the diff as sub-items.
