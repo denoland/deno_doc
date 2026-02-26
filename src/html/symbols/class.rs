@@ -308,8 +308,7 @@ fn render_old_class_constructor_summary(
           .map(|pc| pc.old.clone())
           .unwrap_or_else(|| new_param.param.clone());
 
-        if let Some(tc) =
-          old_param_diff.and_then(|pd| pd.type_change.as_ref())
+        if let Some(tc) = old_param_diff.and_then(|pd| pd.type_change.as_ref())
         {
           param.ts_type = Some(tc.old.clone());
         }
@@ -325,10 +324,7 @@ fn render_old_class_constructor_summary(
 
   old_params.extend(params_change.removed.iter().map(|r| r.param.clone()));
 
-  Some(format!(
-    "({})",
-    render_params(ctx, &old_params)
-  ))
+  Some(format!("({})", render_params(ctx, &old_params)))
 }
 
 fn render_class_index_signatures(

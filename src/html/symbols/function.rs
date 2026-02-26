@@ -167,7 +167,7 @@ pub(crate) fn render_old_function_summary(
       old_type_params.extend(type_params_change.removed.iter().cloned());
 
       old_type_params
-    },
+    }
     None => type_params.to_vec(),
   };
 
@@ -409,8 +409,8 @@ fn render_single_function(
     ),
   ));
 
-  let throws_tags_diff = get_js_doc_diff(ctx, doc_node)
-    .and_then(|jd| jd.tags_change);
+  let throws_tags_diff =
+    get_js_doc_diff(ctx, doc_node).and_then(|jd| jd.tags_change);
 
   let mut throws = doc_node
     .js_doc
@@ -442,7 +442,9 @@ fn render_single_function(
   // Inject removed throws entries
   if let Some(td) = &throws_tags_diff {
     for removed_tag in &td.removed {
-      if let JsDocTag::Throws { type_ref, doc } = removed_tag && (type_ref.is_some() || doc.is_some()) {
+      if let JsDocTag::Throws { type_ref, doc } = removed_tag
+        && (type_ref.is_some() || doc.is_some())
+      {
         let id = IdBuilder::new_with_parent(ctx, &overload_id)
           .kind(IdKind::Throws)
           .index(throws.len())
@@ -453,10 +455,7 @@ fn render_single_function(
           id,
           None,
           None,
-          type_ref
-            .as_ref()
-            .map(|t| t.as_ref())
-            .unwrap_or_default(),
+          type_ref.as_ref().map(|t| t.as_ref()).unwrap_or_default(),
           IndexSet::new(),
           doc.as_ref().map(|d| d.as_ref()),
           &doc_node.location,
@@ -684,7 +683,6 @@ fn render_function_throws(
   } else {
     (None, None)
   };
-
 
   let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Throws)
