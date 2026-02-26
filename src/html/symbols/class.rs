@@ -234,16 +234,19 @@ fn render_constructors(
 
       let params = render_params(ctx, &params);
 
-      items.push(DocEntryCtx::removed(
+      let mut doc_entry = DocEntryCtx::removed(
         ctx,
         id,
         Some(html_escape::encode_text(&name).into_owned()),
         None,
         &format!("({params})"),
-        [Tag::New].into(),
+        Default::default(),
         None,
         &removed_ctor.location,
-      ));
+      );
+      doc_entry.name_prefix = Some("new".into());
+      
+      items.push(doc_entry);
     }
   }
 

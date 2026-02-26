@@ -145,6 +145,10 @@ pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
   matches!(doc_node.diff_status, Some(DiffStatus::Added))
 }
 
+pub(crate) fn is_symbol_removed(doc_node: &DocNodeWithContext) -> bool {
+  matches!(doc_node.diff_status, Some(DiffStatus::Removed))
+}
+
 /// Filters sections in-place, retaining only entries that have a diff status.
 /// Removes sections that become empty after filtering, and drops
 /// non-diff-relevant section types (Example, See, Empty).
@@ -173,7 +177,12 @@ pub(crate) fn filter_sections_diff_only(
     }
     SectionContentCtx::NamespaceSection(entries) => {
       for entry in entries.iter_mut() {
-        entry.subitems.retain(|s| s.diff_status.is_some());
+        if !matches!(
+          entry.diff_status,
+          Some(DiffStatus::Added) | Some(DiffStatus::Removed)
+        ) {
+          entry.subitems.retain(|s| s.diff_status.is_some());
+        }
       }
       entries.retain_mut(|e| {
         if e.diff_status.is_some()

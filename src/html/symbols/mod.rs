@@ -2,6 +2,7 @@ use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
 use crate::html::diff::is_symbol_added;
+use crate::html::diff::is_symbol_removed;
 use crate::html::jsdoc::ModuleDocCtx;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
@@ -624,7 +625,10 @@ impl SymbolInnerCtx {
         ));
       }
 
-      if ctx.ctx.diff_only && !is_symbol_added(doc_node) {
+      if ctx.ctx.diff_only
+        && !is_symbol_added(doc_node)
+        && !is_symbol_removed(doc_node)
+      {
         crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
       }
 

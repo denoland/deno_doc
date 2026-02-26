@@ -941,7 +941,10 @@ expression: pages
                                 "ty": "(<span><span>config<span>: <span class=\"td-ref\">Config</span></span></span></span>)<span>: <span class=\"td-ref\">Parser</span></span>",
                                 "info": null
                               },
-                              "href": "./././~/Parser.html#method_fromconfig_0"
+                              "href": "./././~/Parser.html#method_fromconfig_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
                             },
                             {
                               "title": "parse",
@@ -950,7 +953,10 @@ expression: pages
                                 "ty": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-ref\">T</span></span>",
                                 "info": null
                               },
-                              "href": "./././~/Parser.html#method_parse_0"
+                              "href": "./././~/Parser.html#method_parse_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
                             },
                             {
                               "title": "tryParse",
@@ -959,7 +965,10 @@ expression: pages
                                 "ty": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
                                 "info": null
                               },
-                              "href": "./././~/Parser.html#method_tryparse_0"
+                              "href": "./././~/Parser.html#method_tryparse_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
                             }
                           ],
                           "diff_status": {

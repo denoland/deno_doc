@@ -192,9 +192,19 @@ impl NamespaceNodeCtx {
 
               let drilldown_name = symbol.drilldown_name.as_ref().unwrap();
 
-              let diff_status = node_def_diff.and_then(|diff| {
-                get_subitem_diff_status(diff, drilldown_name, &symbol.kind)
-              });
+              // If the parent node is removed, subitems inherit that
+              // status so they survive diff_only filtering. The marker
+              // is stripped later when the entire symbol is removed.
+              let diff_status = if matches!(
+                node.diff_status,
+                Some(DiffStatus::Removed)
+              ) {
+                Some(DiffStatus::Removed)
+              } else {
+                node_def_diff.and_then(|diff| {
+                  get_subitem_diff_status(diff, drilldown_name, &symbol.kind)
+                })
+              };
 
               // If there's a doc change, render with inline diff annotations
               let docs = node_def_diff
@@ -329,6 +339,18 @@ impl NamespaceNodeCtx {
     } else {
       None
     };
+
+    // When the entire symbol is removed, strip the inherited removed
+    // markers from subitems — the parent's status is sufficient.
+    if matches!(diff_status, Some(DiffStatus::Removed)) {
+      subitems = subitems
+        .into_iter()
+        .map(|mut item| {
+          item.diff_status = None;
+          item
+        })
+        .collect();
+    }
 
     NamespaceNodeCtx {
       anchor: AnchorCtx::new(id),

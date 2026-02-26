@@ -237,7 +237,35 @@ expression: pages
                           "ty": null,
                           "docs": "<div class=\"markdown_summary\"><p>A new router class.</p>\n</div>",
                           "deprecated": false,
-                          "subitems": [],
+                          "subitems": [
+                            {
+                              "title": "addRoute",
+                              "docs": "<div class=\"markdown_summary\"><p>Add a route.</p>\n</div>",
+                              "ty": {
+                                "ty": "(<div class=\"ml-4\"><div><span>path<span>: <span class=\"td-kw\">string</span></span></span>,</div><div><span>handler<span>: <span class=\"td-ref\">Function</span></span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Router.html#method_addroute_0"
+                            },
+                            {
+                              "title": "handle",
+                              "docs": "<div class=\"markdown_summary\"><p>Handle incoming request.</p>\n</div>",
+                              "ty": {
+                                "ty": "(<span><span>request<span>: <span class=\"td-ref\">Request</span></span></span></span>)<span>: <span class=\"td-ref\">Response</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Router.html#method_handle_0"
+                            },
+                            {
+                              "title": "removeRoute",
+                              "docs": "<div class=\"markdown_summary\"><p>Remove a route.</p>\n</div>",
+                              "ty": {
+                                "ty": "(<span><span>path<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Router.html#method_removeroute_0"
+                            }
+                          ],
                           "diff_status": {
                             "kind": "added"
                           }
@@ -690,7 +718,44 @@ expression: pages
                           "ty": null,
                           "docs": "<div class=\"markdown_summary\"><p>A class-based parser.</p>\n</div>",
                           "deprecated": false,
-                          "subitems": [],
+                          "subitems": [
+                            {
+                              "title": "fromConfig",
+                              "docs": null,
+                              "ty": {
+                                "ty": "(<span><span>config<span>: <span class=\"td-ref\">Config</span></span></span></span>)<span>: <span class=\"td-ref\">Parser</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Parser.html#method_fromconfig_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
+                            },
+                            {
+                              "title": "parse",
+                              "docs": null,
+                              "ty": {
+                                "ty": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-ref\">T</span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Parser.html#method_parse_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
+                            },
+                            {
+                              "title": "tryParse",
+                              "docs": null,
+                              "ty": {
+                                "ty": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
+                                "info": null
+                              },
+                              "href": "./././~/Parser.html#method_tryparse_0",
+                              "diff_status": {
+                                "kind": "removed"
+                              }
+                            }
+                          ],
                           "diff_status": {
                             "kind": "modified"
                           }
@@ -5681,7 +5746,62 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": null,
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "config",
+                                  "name_href": null,
+                                  "content": "<span>: <a href=\"../././~/Config.html\" class=\"link td-ref\">Config</a></span>",
+                                  "anchor": {
+                                    "id": "function_parser_fromconfig_0_parameter_config"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Return Type",
+                              "anchor": {
+                                "id": "return-type"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "<a href=\"../././~/Parser.html\" class=\"link td-ref\">Parser</a>",
+                                  "anchor": {
+                                    "id": "function_parser_fromconfig_0_return"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -5739,8 +5859,24 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_parser_fromconfig_0_parameter_config\" title=\"config\">config</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "config",
+            "anchor": "function_parser_fromconfig_0_parameter_config"
+          },
+          {
+            "level": 1,
+            "content": "Return Type",
+            "anchor": "return-type"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -5790,7 +5926,124 @@ expression: pages
                 "value": {
                   "id": "",
                   "docs": "<div class=\"markdown\"><p>A class-based parser.</p>\n<p>Parses input strings into structured data. The parser operates\nsynchronously and throws on invalid input.</p>\n<h2 id=\"error-handling\">\nError Handling</h2>\n<p>The parser throws <code>ParseError</code> for malformed input.\nUse <code>tryParse</code> for a non-throwing alternative.</p>\n</div>",
-                  "sections": []
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Examples",
+                        "anchor": {
+                          "id": "examples"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "example",
+                        "content": [
+                          {
+                            "anchor": {
+                              "id": "example_0"
+                            },
+                            "title": "Example 1",
+                            "markdown_title": "<div class=\"markdown\"><p>Example 1</p>\n</div>",
+                            "markdown_body": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-ts\">const p = new Parser();\np.parse(&quot;input&quot;);\n</code><button class=\"copyButton\" data-copy=\"const p = new Parser();\np.parse(&quot;input&quot;);\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "header": {
+                        "title": "Type Parameters",
+                        "anchor": {
+                          "id": "type-parameters"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "T",
+                            "name_href": null,
+                            "content": "<span><span> = </span><span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "type_param_t"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "header": {
+                        "title": "Static Methods",
+                        "anchor": {
+                          "id": "static-methods"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "fromConfig",
+                            "name_href": "../././~/Parser.fromConfig.html",
+                            "content": "(<span><span>config<span>: <a href=\"../././~/Config.html\" class=\"link td-ref\">Config</a></span></span></span>)<span>: <a href=\"../././~/Parser.html\" class=\"link td-ref\">Parser</a></span>",
+                            "anchor": {
+                              "id": "method_fromconfig_0"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "header": {
+                        "title": "Methods",
+                        "anchor": {
+                          "id": "methods"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "parse",
+                            "name_href": "../././~/Parser.prototype.parse.html",
+                            "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
+                            "anchor": {
+                              "id": "method_parse_0"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          },
+                          {
+                            "name_prefix": null,
+                            "name": "tryParse",
+                            "name_href": "../././~/Parser.prototype.tryParse.html",
+                            "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><a href=\"#type_param_t\" class=\"link td-ref\">T</a><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
+                            "anchor": {
+                              "id": "method_tryparse_0"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
               }
             ],
@@ -5938,8 +6191,58 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><ul><li><a href=\"#migration-from-parser-class\" title=\"Migration from Parser class\">Migration from Parser class</a></li></ul></li><li><a href=\"#type-parameters-1\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t-1\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods-1\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0-1\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_1\" title=\"tryParse\">tryParse</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><ul><li><a href=\"#error-handling\" title=\"Error Handling\">Error Handling</a></li></ul></li><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"Example 1\">Example 1</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_fromconfig_0\" title=\"fromConfig\">fromConfig</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_0\" title=\"tryParse\">tryParse</a></li><li><ul><li><a href=\"#migration-from-parser-class\" title=\"Migration from Parser class\">Migration from Parser class</a></li></ul></li><li><a href=\"#type-parameters-1\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t-1\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods-1\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0-1\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_1\" title=\"tryParse\">tryParse</a></li></ul></li></ul></li></ul>",
         "document_navigation": [
+          {
+            "level": 2,
+            "content": "Error Handling",
+            "anchor": "error-handling"
+          },
+          {
+            "level": 1,
+            "content": "Examples",
+            "anchor": "examples"
+          },
+          {
+            "level": 2,
+            "content": "Example 1",
+            "anchor": "example_0"
+          },
+          {
+            "level": 1,
+            "content": "Type Parameters",
+            "anchor": "type-parameters"
+          },
+          {
+            "level": 2,
+            "content": "T",
+            "anchor": "type_param_t"
+          },
+          {
+            "level": 1,
+            "content": "Static Methods",
+            "anchor": "static-methods"
+          },
+          {
+            "level": 2,
+            "content": "fromConfig",
+            "anchor": "method_fromconfig_0"
+          },
+          {
+            "level": 1,
+            "content": "Methods",
+            "anchor": "methods"
+          },
+          {
+            "level": 2,
+            "content": "parse",
+            "anchor": "method_parse_0"
+          },
+          {
+            "level": 2,
+            "content": "tryParse",
+            "anchor": "method_tryparse_0"
+          },
           {
             "level": 4,
             "content": "Migration from Parser class",
@@ -6212,7 +6515,62 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": null,
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "input",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                                  "anchor": {
+                                    "id": "function_parser_prototype_parse_0_parameter_input"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Return Type",
+                              "anchor": {
+                                "id": "return-type"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "<span class=\"td-ref\">T</span>",
+                                  "anchor": {
+                                    "id": "function_parser_prototype_parse_0_return"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -6274,8 +6632,24 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_parser_prototype_parse_0_parameter_input\" title=\"input\">input</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "input",
+            "anchor": "function_parser_prototype_parse_0_parameter_input"
+          },
+          {
+            "level": 1,
+            "content": "Return Type",
+            "anchor": "return-type"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -6328,7 +6702,62 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": null,
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "input",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                                  "anchor": {
+                                    "id": "function_parser_prototype_tryparse_0_parameter_input"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Return Type",
+                              "anchor": {
+                                "id": "return-type"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "<span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span>",
+                                  "anchor": {
+                                    "id": "function_parser_prototype_tryparse_0_return"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -6390,8 +6819,24 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_parser_prototype_tryparse_0_parameter_input\" title=\"input\">input</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "input",
+            "anchor": "function_parser_prototype_tryparse_0_parameter_input"
+          },
+          {
+            "level": 1,
+            "content": "Return Type",
+            "anchor": "return-type"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -8740,7 +9185,62 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": null,
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "message",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                                  "anchor": {
+                                    "id": "function_debuglog_0_parameter_message"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Return Type",
+                              "anchor": {
+                                "id": "return-type"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "<span class=\"td-kw\">void</span>",
+                                  "anchor": {
+                                    "id": "function_debuglog_0_return"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -8794,8 +9294,24 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_debuglog_0_parameter_message\" title=\"message\">message</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "message",
+            "anchor": "function_debuglog_0_parameter_message"
+          },
+          {
+            "level": 1,
+            "content": "Return Type",
+            "anchor": "return-type"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null
@@ -8848,7 +9364,78 @@ expression: pages
                       "content": {
                         "id": "",
                         "docs": "<div class=\"markdown\"><p>Format a date to string.</p>\n</div>",
-                        "sections": []
+                        "sections": [
+                          {
+                            "header": {
+                              "title": "Parameters",
+                              "anchor": {
+                                "id": "parameters"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": "date",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-ref\">Date</span></span>",
+                                  "anchor": {
+                                    "id": "function_formatdate_0_parameter_date"
+                                  },
+                                  "tags": [],
+                                  "js_doc": "<div class=\"markdown\"><p>The date to format.</p>\n</div>",
+                                  "source_href": null
+                                },
+                                {
+                                  "name_prefix": null,
+                                  "name": "locale",
+                                  "name_href": null,
+                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                                  "anchor": {
+                                    "id": "function_formatdate_0_parameter_locale"
+                                  },
+                                  "tags": [
+                                    {
+                                      "kind": "optional"
+                                    }
+                                  ],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "header": {
+                              "title": "Return Type",
+                              "anchor": {
+                                "id": "return-type"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "<span class=\"td-kw\">string</span>",
+                                  "anchor": {
+                                    "id": "function_formatdate_0_return"
+                                  },
+                                  "tags": [],
+                                  "js_doc": null,
+                                  "source_href": null
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -8902,8 +9489,29 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": null,
-        "document_navigation": []
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_formatdate_0_parameter_date\" title=\"date\">date</a></li><li><a href=\"#function_formatdate_0_parameter_locale\" title=\"locale\">locale</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Parameters",
+            "anchor": "parameters"
+          },
+          {
+            "level": 2,
+            "content": "date",
+            "anchor": "function_formatdate_0_parameter_date"
+          },
+          {
+            "level": 2,
+            "content": "locale",
+            "anchor": "function_formatdate_0_parameter_locale"
+          },
+          {
+            "level": 1,
+            "content": "Return Type",
+            "anchor": "return-type"
+          }
+        ]
       },
       "disable_search": false,
       "categories_panel": null

@@ -441,7 +441,10 @@ fn render_single_function(
     ));
   }
 
-  if ctx.ctx.diff_only && !crate::html::diff::is_symbol_added(doc_node) {
+  if ctx.ctx.diff_only
+    && !crate::html::diff::is_symbol_added(doc_node)
+    && !crate::html::diff::is_symbol_removed(doc_node)
+  {
     crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
   }
 
