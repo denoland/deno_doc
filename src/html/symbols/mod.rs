@@ -962,27 +962,23 @@ pub(crate) fn render_type_def_sections(
       ));
     }
 
-    if let Some(index_signatures) =
-      interface::render_index_signatures(
-        ctx,
-        &ts_type_literal.index_signatures,
-        type_lit_diff
-          .as_ref()
-          .and_then(|d| d.index_signature_changes.as_ref()),
-      )
-    {
+    if let Some(index_signatures) = interface::render_index_signatures(
+      ctx,
+      &ts_type_literal.index_signatures,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.index_signature_changes.as_ref()),
+    ) {
       sections.push(index_signatures);
     }
 
-    if let Some(call_signatures) =
-      interface::render_call_signatures(
-        ctx,
-        &ts_type_literal.call_signatures,
-        type_lit_diff
-          .as_ref()
-          .and_then(|d| d.call_signature_changes.as_ref()),
-      )
-    {
+    if let Some(call_signatures) = interface::render_call_signatures(
+      ctx,
+      &ts_type_literal.call_signatures,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.call_signature_changes.as_ref()),
+    ) {
       sections.push(call_signatures);
     }
 
