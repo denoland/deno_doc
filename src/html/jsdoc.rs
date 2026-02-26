@@ -643,16 +643,17 @@ pub(crate) fn render_docs_with_diff(
         let paired = old_slice.len().min(new_slice.len());
 
         for i in 0..paired {
-          if old_slice[i].is_paragraph && new_slice[i].is_paragraph {
-            if let Some(inline) = render_word_diff_inline(
+          if old_slice[i].is_paragraph
+            && new_slice[i].is_paragraph
+            && let Some(inline) = render_word_diff_inline(
               &old_slice[i].source,
               &new_slice[i].source,
-            ) {
-              inner_html.push_str(r#"<div class="diff-modified"><p>"#);
-              inner_html.push_str(&inline);
-              inner_html.push_str("</p></div>");
-              continue;
-            }
+            )
+          {
+            inner_html.push_str(r#"<div class="diff-modified"><p>"#);
+            inner_html.push_str(&inline);
+            inner_html.push_str("</p></div>");
+            continue;
           }
 
           if let Some(html) = render_markdown_inner(
