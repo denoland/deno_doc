@@ -283,10 +283,8 @@ pub(crate) fn compute_combined_diff_status(
       Some(DiffStatus::Removed) => has_removed = true,
       _ => {}
     }
-    if first_status.is_none() {
-      if let status @ Some(_) = &node.diff_status {
-        first_status = status.clone();
-      }
+    if first_status.is_none() && node.diff_status.is_some() {
+      first_status = node.diff_status.clone();
     }
   }
 

@@ -97,9 +97,7 @@ pub(crate) fn render_index_signatures(
       let diff = index_signatures_diff?;
       if !diff.added.is_empty() && i >= total - diff.added.len() {
         Some(DiffStatus::Added)
-      } else if !diff.modified.is_empty()
-        && i < total.saturating_sub(diff.added.len())
-      {
+      } else if diff.modified.iter().any(|m| m.index == i) {
         Some(DiffStatus::Modified)
       } else {
         None
@@ -427,9 +425,11 @@ pub(crate) fn render_methods(
       }
 
       let diff_status = if let Some(diff) = methods_diff {
-        if diff.added.iter().any(|m| m.name == name) {
+        if diff.added.iter().any(|m| m.name == method.name) {
           Some(DiffStatus::Added)
-        } else if let Some(md) = diff.modified.iter().find(|m| m.name == name) {
+        } else if let Some(md) =
+          diff.modified.iter().find(|m| m.name == method.name)
+        {
           if let Some(name_change) = &md.name_change {
             Some(DiffStatus::Renamed {
               old_name: name_change.old.clone(),

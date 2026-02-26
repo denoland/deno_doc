@@ -301,9 +301,7 @@ impl ConstructorsDiff {
     for (param_count, new_ctors) in &new_by_param_count {
       match old_by_param_count.get(param_count) {
         Some(old_ctors) => {
-          for (old_ctor, new_ctor) in
-            old_ctors.iter().zip(new_ctors.iter())
-          {
+          for (old_ctor, new_ctor) in old_ctors.iter().zip(new_ctors.iter()) {
             if let Some(diff) = ConstructorDiff::diff(old_ctor, new_ctor) {
               modified.push(diff);
             }

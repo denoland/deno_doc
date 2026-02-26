@@ -185,8 +185,10 @@ fn render_constructors(
 
       let (old_content, js_doc_changed) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
-          let ctor_diff =
-            constructor_changes.and_then(|cc| cc.modified.first());
+          let param_count = constructor.params.len();
+          let ctor_diff = constructor_changes.and_then(|cc| {
+            cc.modified.iter().find(|m| m.param_count == param_count)
+          });
 
           let old_content = ctor_diff.and_then(|cd| {
             render_old_class_constructor_summary(ctx, &constructor.params, cd)
@@ -340,13 +342,13 @@ fn render_class_index_signatures(
     index_signatures,
     idx_diff.map_or(&empty_sigs, |d| &d.removed),
     idx_diff.map_or(&empty_mod, |d| &d.modified),
-    |_i, sig| {
+    |i, sig| {
       let diff = idx_diff?;
       if diff.added.iter().any(|s| {
         s.params.len() == sig.params.len() && s.readonly == sig.readonly
       }) {
         Some(DiffStatus::Added)
-      } else if !diff.modified.is_empty() {
+      } else if diff.modified.iter().any(|m| m.index == i) {
         Some(DiffStatus::Modified)
       } else {
         None
@@ -626,14 +628,10 @@ fn render_class_accessor(
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
     let getter_diff = getter.and_then(|_| {
-      method_changes.and_then(|mc| {
-        mc.modified.iter().find(|m| m.name == *name)
-      })
+      method_changes.and_then(|mc| mc.modified.iter().find(|m| m.name == *name))
     });
     let setter_diff = setter.and_then(|_| {
-      method_changes.and_then(|mc| {
-        mc.modified.iter().find(|m| m.name == *name)
-      })
+      method_changes.and_then(|mc| mc.modified.iter().find(|m| m.name == *name))
     });
     let any_diff = getter_diff.or(setter_diff);
 

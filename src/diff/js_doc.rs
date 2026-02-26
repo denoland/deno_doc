@@ -56,9 +56,10 @@ impl TagsDiff {
     let mut consumed_new = vec![false; new.len()];
 
     for (ni, new_tag) in new.iter().enumerate() {
-      let matching_old = old.iter().enumerate().find(|(oi, t)| {
-        !consumed_old[*oi] && tags_same_kind(t, new_tag)
-      });
+      let matching_old = old
+        .iter()
+        .enumerate()
+        .find(|(oi, t)| !consumed_old[*oi] && tags_same_kind(t, new_tag));
       match matching_old {
         Some((oi, old_tag)) if old_tag != new_tag => {
           consumed_old[oi] = true;
