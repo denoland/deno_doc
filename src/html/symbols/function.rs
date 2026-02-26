@@ -85,7 +85,12 @@ impl FunctionCtx {
       functions_content.push(OverloadRenderCtx {
         anchor: AnchorCtx::new(overload_id.clone()),
         name: doc_node.get_name().to_string(),
-        summary: render_function_summary(function_def, ctx),
+        summary: render_function_summary(
+          ctx,
+          &function_def.type_params,
+          &function_def.params,
+          &function_def.return_type,
+        ),
         deprecated,
         content: render_single_function(ctx, doc_node, overload_id),
       });
@@ -98,65 +103,108 @@ impl FunctionCtx {
 }
 
 pub(crate) fn render_function_summary(
-  function_def: &FunctionDef,
   render_ctx: &RenderContext,
+  type_params: &[crate::ts_type_param::TsTypeParamDef],
+  params: &[crate::params::ParamDef],
+  return_type: &Option<crate::ts_type::TsTypeDef>,
 ) -> String {
-  let return_type = function_def
-    .return_type
+  let return_type = return_type
     .as_ref()
     .map(|ts_type| render_type_def_colon(render_ctx, ts_type))
     .unwrap_or_default();
 
   format!(
     "{}({}){return_type}",
-    type_params_summary(render_ctx, &function_def.type_params),
-    render_params(render_ctx, &function_def.params)
+    type_params_summary(render_ctx, type_params),
+    render_params(render_ctx, params)
   )
 }
 
-/// Reconstruct the old function/method/constructor summary from the new
-/// params/return_type and the diff. Uses the same render_type_def rendering as
-/// the normal path. Returns None if there are no signature-level changes
-/// (params or return type).
 pub(crate) fn render_old_function_summary(
   ctx: &RenderContext,
+  type_params: &[crate::ts_type_param::TsTypeParamDef],
   params: &[crate::params::ParamDef],
   return_type: &Option<crate::ts_type::TsTypeDef>,
+  type_params_change: Option<&crate::diff::TypeParamsDiff>,
   params_change: Option<&crate::diff::ParamsDiff>,
   return_type_change: Option<&crate::diff::TsTypeDiff>,
 ) -> Option<String> {
-  if params_change.is_none() && return_type_change.is_none() {
+  if type_params_change.is_none()
+    && params_change.is_none()
+    && return_type_change.is_none()
+  {
     return None;
   }
 
-  let old_params_str = match params_change {
-    Some(pc) => render_old_params(ctx, params, pc),
-    None => render_params(ctx, params),
+  let old_type_params = match type_params_change {
+    Some(type_params_change) => {
+      let mut old_type_params = Vec::new();
+
+      for tp in type_params {
+        if type_params_change.added.iter().any(|a| a.name == tp.name) {
+          continue;
+        }
+
+        let modified = type_params_change
+          .modified
+          .iter()
+          .find(|m| m.name == tp.name);
+
+        if let Some(tp_diff) = modified {
+          let mut param = tp.clone();
+          if let Some(cc) = &tp_diff.constraint_change {
+            param.constraint = cc.old.clone();
+          }
+          if let Some(dc) = &tp_diff.default_change {
+            param.default = dc.old.clone();
+          }
+          old_type_params.push(param);
+        } else {
+          old_type_params.push(tp.clone());
+        }
+      }
+
+      old_type_params.extend(type_params_change.removed.iter().cloned());
+
+      old_type_params
+    },
+    None => type_params.to_vec(),
   };
 
-  let old_return_type = if let Some(rt) = return_type_change {
-    render_type_def_colon(ctx, &rt.old)
-  } else {
-    return_type
-      .as_ref()
-      .map(|t| render_type_def_colon(ctx, t))
-      .unwrap_or_default()
+  let old_params = match params_change {
+    Some(pc) => reconstruct_old_params(params, pc),
+    None => params.to_vec(),
   };
 
-  Some(format!("({old_params_str}){old_return_type}"))
+  let old_return_type = match return_type_change {
+    Some(rt) => Some(rt.old.clone()),
+    None => return_type.clone(),
+  };
+
+  Some(render_function_summary(
+    ctx,
+    &old_type_params,
+    &old_params,
+    &old_return_type,
+  ))
 }
 
-/// Reconstruct old params string from current params + ParamsDiff.
-pub(crate) fn render_old_params(
+pub(crate) fn render_old_index_sig_params(
   ctx: &RenderContext,
   params: &[crate::params::ParamDef],
   params_change: &crate::diff::ParamsDiff,
 ) -> String {
+  render_params(ctx, &reconstruct_old_params(params, params_change))
+}
+
+/// Reconstruct old params from current params + ParamsDiff.
+fn reconstruct_old_params(
+  params: &[crate::params::ParamDef],
+  params_change: &crate::diff::ParamsDiff,
+) -> Vec<crate::params::ParamDef> {
   let mut old_params = Vec::new();
-  let mut old_index = 0;
 
   for (i, new_param) in params.iter().enumerate() {
-    // Skip params that were added (they didn't exist in the old version)
     if params_change.added.iter().any(|p| p == new_param) {
       continue;
     }
@@ -164,48 +212,23 @@ pub(crate) fn render_old_params(
     let modified = params_change.modified.iter().find(|p| p.index == i);
 
     if let Some(param_diff) = modified {
-      let name = if let Some(pc) = &param_diff.pattern_change {
-        crate::html::parameters::param_name(&pc.old, old_index).1
+      let mut param = if let Some(pc) = &param_diff.pattern_change {
+        pc.old.clone()
       } else {
-        crate::html::parameters::param_name(new_param, old_index).1
+        new_param.clone()
       };
-      let type_str = if let Some(tc) = &param_diff.type_change {
-        render_type_def_colon(ctx, &tc.old)
-      } else {
-        new_param
-          .ts_type
-          .as_ref()
-          .map(|t| render_type_def_colon(ctx, t))
-          .unwrap_or_default()
-      };
-      old_params.push(format!("{name}{type_str}"));
+      if let Some(tc) = &param_diff.type_change {
+        param.ts_type = Some(tc.old.clone());
+      }
+      old_params.push(param);
     } else {
-      let str_name =
-        crate::html::parameters::param_name(new_param, old_index).1;
-      let type_str = new_param
-        .ts_type
-        .as_ref()
-        .map(|t| render_type_def_colon(ctx, t))
-        .unwrap_or_default();
-      old_params.push(format!("{str_name}{type_str}"));
+      old_params.push(new_param.clone());
     }
-
-    old_index += 1;
   }
 
-  for removed in &params_change.removed {
-    let str_name =
-      crate::html::parameters::param_name(removed, old_index).1;
-    let type_str = removed
-      .ts_type
-      .as_ref()
-      .map(|t| render_type_def_colon(ctx, t))
-      .unwrap_or_default();
-    old_params.push(format!("{str_name}{type_str}"));
-    old_index += 1;
-  }
+  old_params.extend(params_change.removed.iter().cloned());
 
-  old_params.join(", ")
+  old_params
 }
 
 fn render_single_function(

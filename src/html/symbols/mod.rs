@@ -854,7 +854,11 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
         let old_readonly =
           sig_diff.and_then(|sd| sd.readonly_change()).map(|c| c.old);
         let old_params = sig_diff.and_then(|sd| sd.params_change()).map(|pc| {
-          function::render_old_params(ctx, &index_signature.params, pc)
+          function::render_old_index_sig_params(
+            ctx,
+            &index_signature.params,
+            pc,
+          )
         });
         let old_ts_type = sig_diff
           .and_then(|sd| sd.type_change())

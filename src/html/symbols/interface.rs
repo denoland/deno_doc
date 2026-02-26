@@ -444,8 +444,10 @@ pub(crate) fn render_methods(
         let old_content = method_diff.and_then(|md| {
           super::function::render_old_function_summary(
             ctx,
+            &method.type_params,
             &method.params,
             &method.return_type,
+            md.type_params_change.as_ref(),
             md.params_change.as_ref(),
             md.return_type_change.as_ref(),
           )

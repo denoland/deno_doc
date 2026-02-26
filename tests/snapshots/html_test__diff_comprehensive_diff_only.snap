@@ -1090,7 +1090,7 @@ expression: pages
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "(width<span>: <span class=\"td-kw\">number</span></span>, height<span>: <span class=\"td-kw\">number</span></span>)"
+                            "old_content": "(<div class=\"ml-4\"><div><span>width<span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>height<span>: <span class=\"td-kw\">number</span></span></span></div></div>)"
                           }
                         ]
                       }
@@ -1959,7 +1959,7 @@ expression: pages
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "(level<span>: <span class=\"td-kw\">number</span></span>)<span>: <span class=\"td-ref\">Uint8Array</span></span>"
+                            "old_content": "(<span><span>level<span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-ref\">Uint8Array</span></span>"
                           },
                           {
                             "name_prefix": null,
@@ -2539,7 +2539,7 @@ expression: pages
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "(name<span>: <span class=\"td-kw\">string</span></span>)<span>: <a href=\"../././~/Animal.html\" class=\"link td-ref\">Animal</a></span>"
+                            "old_content": "(<span><span>name<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <a href=\"../././~/Animal.html\" class=\"link td-ref\">Animal</a></span>"
                           }
                         ]
                       }
@@ -2653,7 +2653,7 @@ expression: pages
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "(food<span>: <span class=\"td-kw\">string</span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                            "old_content": "(<span><span>food<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                             "js_doc_changed": true
                           },
                           {
@@ -8617,7 +8617,7 @@ expression: pages
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_params": "key<span>: <span class=\"td-kw\">string</span></span>",
+                            "old_params": "<span><span>key<span>: <span class=\"td-kw\">string</span></span></span></span>",
                             "old_ts_type": "<span>: <span class=\"td-kw\">string</span></span>"
                           }
                         ]

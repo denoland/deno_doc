@@ -282,9 +282,8 @@ fn get_constructor_diff_status(
   None
 }
 
-/// Reconstruct the old constructor params signature from the new params and the
-/// diff. Class constructor params are wrapped in ClassConstructorParamDef
-/// (which carries accessibility/readonly/override around a ParamDef).
+/// Reconstruct the old constructor params from the new params and the diff,
+/// then render through the standard `render_params` path.
 fn render_old_class_constructor_summary(
   ctx: &RenderContext,
   params: &[crate::class::ClassConstructorParamDef],
@@ -302,71 +301,34 @@ fn render_old_class_constructor_summary(
 
     if let Some(param_diff) = modified {
       if let Some(pc) = &param_diff.param_change {
-        // Inner param changed — use old name/type from the ParamsDiff
         let old_param_diff = pc.modified.first();
 
-        let name = old_param_diff
+        let mut param = old_param_diff
           .and_then(|pd| pd.pattern_change.as_ref())
-          .map(|pc| crate::html::parameters::param_name(&pc.old, i).1)
-          .unwrap_or_else(|| {
-            crate::html::parameters::param_name(&new_param.param, i).1
-          });
+          .map(|pc| pc.old.clone())
+          .unwrap_or_else(|| new_param.param.clone());
 
-        let type_str = old_param_diff
-          .and_then(|pd| pd.type_change.as_ref())
-          .map(|tc| render_type_def_colon(ctx, &tc.old))
-          .unwrap_or_else(|| {
-            new_param
-              .param
-              .ts_type
-              .as_ref()
-              .map(|t| render_type_def_colon(ctx, t))
-              .unwrap_or_default()
-          });
+        if let Some(tc) =
+          old_param_diff.and_then(|pd| pd.type_change.as_ref())
+        {
+          param.ts_type = Some(tc.old.clone());
+        }
 
-        old_params.push(format!("{name}{type_str}"));
+        old_params.push(param);
       } else {
-        // Only accessibility/readonly/override changed, not the param itself
-        let name =
-          crate::html::parameters::param_name(&new_param.param, i).1;
-        let type_str = new_param
-          .param
-          .ts_type
-          .as_ref()
-          .map(|t| render_type_def_colon(ctx, t))
-          .unwrap_or_default();
-        old_params.push(format!("{name}{type_str}"));
+        old_params.push(new_param.param.clone());
       }
     } else {
-      let name =
-        crate::html::parameters::param_name(&new_param.param, i).1;
-      let type_str = new_param
-        .param
-        .ts_type
-        .as_ref()
-        .map(|t| render_type_def_colon(ctx, t))
-        .unwrap_or_default();
-      old_params.push(format!("{name}{type_str}"));
+      old_params.push(new_param.param.clone());
     }
   }
 
-  // Removed params
-  for (j, removed) in params_change.removed.iter().enumerate() {
-    let name = crate::html::parameters::param_name(
-      &removed.param,
-      shared_count + j,
-    )
-    .1;
-    let type_str = removed
-      .param
-      .ts_type
-      .as_ref()
-      .map(|t| render_type_def_colon(ctx, t))
-      .unwrap_or_default();
-    old_params.push(format!("{name}{type_str}"));
-  }
+  old_params.extend(params_change.removed.iter().map(|r| r.param.clone()));
 
-  Some(format!("({})", old_params.join(", ")))
+  Some(format!(
+    "({})",
+    render_params(ctx, &old_params)
+  ))
 }
 
 fn render_class_index_signatures(
@@ -726,8 +688,10 @@ fn render_class_method(
       .and_then(|fd| {
         super::function::render_old_function_summary(
           ctx,
+          &method.function_def.type_params,
           &method.function_def.params,
           &method.function_def.return_type,
+          fd.type_params_change.as_ref(),
           fd.params_change.as_ref(),
           fd.return_type_change.as_ref(),
         )
@@ -760,7 +724,12 @@ fn render_class_method(
       &method.name,
       method.is_static,
     )),
-    &super::function::render_function_summary(&method.function_def, ctx),
+    &super::function::render_function_summary(
+      ctx,
+      &method.function_def.type_params,
+      &method.function_def.params,
+      &method.function_def.return_type,
+    ),
     tags,
     method.js_doc.doc.as_deref(),
     &method.location,
@@ -1064,8 +1033,10 @@ fn render_class_methods(
         ctx,
         &removed_method.name,
         &super::function::render_function_summary(
-          &removed_method.function_def,
           ctx,
+          &removed_method.function_def.type_params,
+          &removed_method.function_def.params,
+          &removed_method.function_def.return_type,
         ),
         &removed_method.location,
         &mut out,

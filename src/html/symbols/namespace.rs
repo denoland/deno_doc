@@ -404,7 +404,12 @@ fn summary_for_nodes(
       };
 
       Some(TypeSummaryCtx {
-        ty: render_function_summary(def, &ctx.with_disable_links(true)),
+        ty: render_function_summary(
+          &ctx.with_disable_links(true),
+          &def.type_params,
+          &def.params,
+          &def.return_type,
+        ),
         info,
       })
     }
@@ -676,7 +681,12 @@ fn inject_removed_subitems(
               true,
             ),
             ty: Some(TypeSummaryCtx {
-              ty: render_function_summary(&method.function_def, &no_links_ctx),
+              ty: render_function_summary(
+                &no_links_ctx,
+                &method.function_def.type_params,
+                &method.function_def.params,
+                &method.function_def.return_type,
+              ),
               info: None,
             }),
             href: format!("{href}#{}", target_id.as_str()),
