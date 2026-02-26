@@ -182,6 +182,8 @@ export function formatDate(date: Date, locale?: string): string {
 /**
  * Validate input data.
  * @param data The data to validate.
+ * @throws {TypeError} If data is not an object.
+ * @throws {RangeError} If data is out of range.
  */
 export function validate<T>(data: unknown, schema: Schema<T>): data is T {
   return true as any;

@@ -14684,6 +14684,67 @@ expression: pages
                                 }
                               ]
                             }
+                          },
+                          {
+                            "header": {
+                              "title": "Throws",
+                              "anchor": {
+                                "id": "throws"
+                              },
+                              "href": null,
+                              "doc": null
+                            },
+                            "content": {
+                              "kind": "doc_entry",
+                              "content": [
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "TypeError",
+                                  "anchor": {
+                                    "id": "function_validate_0_throws_0"
+                                  },
+                                  "tags": [],
+                                  "js_doc": "<div class=\"markdown\"><p>If input is not valid.</p>\n</div>",
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "modified"
+                                  },
+                                  "old_content": "TypeError"
+                                },
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "SyntaxError",
+                                  "anchor": {
+                                    "id": "function_validate_0_throws_1"
+                                  },
+                                  "tags": [],
+                                  "js_doc": "<div class=\"markdown\"><p>If schema is malformed.</p>\n</div>",
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "added"
+                                  }
+                                },
+                                {
+                                  "name_prefix": null,
+                                  "name": null,
+                                  "name_href": null,
+                                  "content": "RangeError",
+                                  "anchor": {
+                                    "id": "function_validate_0_throws_2"
+                                  },
+                                  "tags": [],
+                                  "js_doc": "<div class=\"markdown\"><p>If data is out of range.</p>\n</div>",
+                                  "source_href": null,
+                                  "diff_status": {
+                                    "kind": "removed"
+                                  }
+                                }
+                              ]
+                            }
                           }
                         ]
                       }
@@ -14739,7 +14800,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_validate_0_parameter_input\" title=\"input\">input</a></li><li><a href=\"#function_validate_0_parameter_schema\" title=\"schema\">schema</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_validate_0_parameter_input\" title=\"input\">input</a></li><li><a href=\"#function_validate_0_parameter_schema\" title=\"schema\">schema</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -14770,6 +14831,11 @@ expression: pages
             "level": 1,
             "content": "Return Type",
             "anchor": "return-type"
+          },
+          {
+            "level": 1,
+            "content": "Throws",
+            "anchor": "throws"
           }
         ]
       },

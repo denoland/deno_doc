@@ -208,6 +208,8 @@ export function createApp(
  * Validate input data.
  * @deprecated Use validateAsync() instead.
  * @param data The data to validate.
+ * @throws {TypeError} If input is not valid.
+ * @throws {SyntaxError} If schema is malformed.
  */
 export function validate<T>(input: unknown, schema: Schema<T>): input is T {
   return true as any;

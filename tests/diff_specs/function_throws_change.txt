@@ -1,0 +1,59 @@
+# old/mod.ts
+/**
+ * @throws {RangeError} value out of range
+ * @throws {TypeError} wrong type
+ */
+export function foo(x: number): void {}
+
+# new/mod.ts
+/**
+ * @throws {RangeError} updated message
+ * @throws {SyntaxError} bad syntax
+ */
+export function foo(x: number): void {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "kind": "function",
+          "jsDocChanges": {
+            "tagsChange": {
+              "added": [
+                {
+                  "kind": "throws",
+                  "type": "SyntaxError",
+                  "doc": "bad syntax"
+                }
+              ],
+              "removed": [
+                {
+                  "kind": "throws",
+                  "type": "TypeError",
+                  "doc": "wrong type"
+                }
+              ],
+              "modified": [
+                {
+                  "old": {
+                    "kind": "throws",
+                    "type": "RangeError",
+                    "doc": "value out of range"
+                  },
+                  "new": {
+                    "kind": "throws",
+                    "type": "RangeError",
+                    "doc": "updated message"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
