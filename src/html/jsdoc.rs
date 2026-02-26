@@ -554,10 +554,21 @@ fn render_word_diff_inline(old_text: &str, new_text: &str) -> Option<String> {
   Some(html)
 }
 
+#[cfg(not(feature = "comrak"))]
+pub(crate) fn render_docs_with_diff(
+  _ctx: &RenderContext,
+  _old_doc: &str,
+  _new_doc: &str,
+) -> Option<String> {
+  // diffing not supported in wasm for now
+  None
+}
+
 /// Render docs with block-level diff annotations. Parses old and new markdown
 /// into structural blocks via comrak's AST, diffs at the block level, and
 /// marks each block as unchanged, `diff-added`, `diff-removed`, or
 /// `diff-modified` (with inline word-level highlights for paragraphs).
+#[cfg(feature = "comrak")]
 pub(crate) fn render_docs_with_diff(
   ctx: &RenderContext,
   old_doc: &str,
