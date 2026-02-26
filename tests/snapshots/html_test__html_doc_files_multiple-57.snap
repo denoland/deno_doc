@@ -478,10 +478,10 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
 <span class="font-bold font-lg">qaz</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <a href="#type_param_t" class="link td-ref">T</a></span></span>
       </code>
     </div></div></div>
-<div class="anchorable docEntry" id="function_d_0_parameter_(___strings)">
+<div class="anchorable docEntry" id="function_d_0_parameter____strings">
 
   <div class="docEntryHeader">
-    <div><code><a href="#function_d_0_parameter_(___strings)" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    <div><code><a href="#function_d_0_parameter____strings" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -609,7 +609,7 @@ Throws</h2></div><div class="space-y-8"><div class=" docEntry" id="function_d_0_
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#examples" title="Examples">Examples</a></li><li><ul><li><a href="#example_0" title="test">test</a></li><li><a href="#example_1" title="Example 2">Example 2</a></li></ul></li><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li></ul></li><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_d_0_parameter_foo" title="foo">foo</a></li><li><a href="#function_d_0_parameter_bar" title="bar">bar</a></li><li><a href="#function_d_0_parameter_baz" title="baz">baz</a></li><li><a href="#function_d_0_parameter_qaz" title="qaz">qaz</a></li><li><a href="#function_d_0_parameter_(___strings)" title="&lt;span&gt;...strings&lt;/span&gt;"><span>...strings</span></a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li><li><a href="#throws" title="Throws">Throws</a></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#examples" title="Examples">Examples</a></li><li><ul><li><a href="#example_0" title="test">test</a></li><li><a href="#example_1" title="Example 2">Example 2</a></li></ul></li><li><a href="#type-parameters" title="Type Parameters">Type Parameters</a></li><li><ul><li><a href="#type_param_t" title="T">T</a></li></ul></li><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_d_0_parameter_foo" title="foo">foo</a></li><li><a href="#function_d_0_parameter_bar" title="bar">bar</a></li><li><a href="#function_d_0_parameter_baz" title="baz">baz</a></li><li><a href="#function_d_0_parameter_qaz" title="qaz">qaz</a></li><li><a href="#function_d_0_parameter____strings" title="&lt;span&gt;...strings&lt;/span&gt;"><span>...strings</span></a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li><li><a href="#throws" title="Throws">Throws</a></li></ul></nav></div>
   </div></div>
 </div>
 </div>

@@ -165,9 +165,9 @@ pub(crate) fn render_old_params(
 
     if let Some(param_diff) = modified {
       let name = if let Some(pc) = &param_diff.pattern_change {
-        crate::html::parameters::param_name_plain(&pc.old, old_index)
+        crate::html::parameters::param_name(&pc.old, old_index).1
       } else {
-        crate::html::parameters::param_name_plain(new_param, old_index)
+        crate::html::parameters::param_name(new_param, old_index).1
       };
       let type_str = if let Some(tc) = &param_diff.type_change {
         render_type_def_colon(ctx, &tc.old)
@@ -181,7 +181,7 @@ pub(crate) fn render_old_params(
       old_params.push(format!("{name}{type_str}"));
     } else {
       let str_name =
-        crate::html::parameters::param_name_plain(new_param, old_index);
+        crate::html::parameters::param_name(new_param, old_index).1;
       let type_str = new_param
         .ts_type
         .as_ref()
@@ -195,7 +195,7 @@ pub(crate) fn render_old_params(
 
   for removed in &params_change.removed {
     let str_name =
-      crate::html::parameters::param_name_plain(removed, old_index);
+      crate::html::parameters::param_name(removed, old_index).1;
     let type_str = removed
       .ts_type
       .as_ref()

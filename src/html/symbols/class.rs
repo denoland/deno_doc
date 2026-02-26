@@ -245,7 +245,7 @@ fn render_constructors(
         &removed_ctor.location,
       );
       doc_entry.name_prefix = Some("new".into());
-      
+
       items.push(doc_entry);
     }
   }
@@ -307,9 +307,9 @@ fn render_old_class_constructor_summary(
 
         let name = old_param_diff
           .and_then(|pd| pd.pattern_change.as_ref())
-          .map(|pc| crate::html::parameters::param_name_plain(&pc.old, i))
+          .map(|pc| crate::html::parameters::param_name(&pc.old, i).1)
           .unwrap_or_else(|| {
-            crate::html::parameters::param_name_plain(&new_param.param, i)
+            crate::html::parameters::param_name(&new_param.param, i).1
           });
 
         let type_str = old_param_diff
@@ -328,7 +328,7 @@ fn render_old_class_constructor_summary(
       } else {
         // Only accessibility/readonly/override changed, not the param itself
         let name =
-          crate::html::parameters::param_name_plain(&new_param.param, i);
+          crate::html::parameters::param_name(&new_param.param, i).1;
         let type_str = new_param
           .param
           .ts_type
@@ -338,7 +338,8 @@ fn render_old_class_constructor_summary(
         old_params.push(format!("{name}{type_str}"));
       }
     } else {
-      let name = crate::html::parameters::param_name_plain(&new_param.param, i);
+      let name =
+        crate::html::parameters::param_name(&new_param.param, i).1;
       let type_str = new_param
         .param
         .ts_type
@@ -351,10 +352,11 @@ fn render_old_class_constructor_summary(
 
   // Removed params
   for (j, removed) in params_change.removed.iter().enumerate() {
-    let name = crate::html::parameters::param_name_plain(
+    let name = crate::html::parameters::param_name(
       &removed.param,
       shared_count + j,
-    );
+    )
+    .1;
     let type_str = removed
       .param
       .ts_type

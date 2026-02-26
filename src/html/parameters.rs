@@ -73,22 +73,7 @@ pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
     }
     ParamPatternDef::Rest { arg } => (
       format!("<span>...{}</span>", param_name(arg, i).0),
-      format!("(...{})", param_name(arg, i).1),
+      format!("...{}", param_name(arg, i).1),
     ),
-  }
-}
-
-/// Plain-text param name suitable for use inside a signature reconstruction.
-/// Unlike `param_name().1`, rest params render as `...name` instead of `(...name)`.
-pub(crate) fn param_name_plain(param: &ParamDef, i: usize) -> String {
-  match &param.pattern {
-    ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => {
-      format!("unnamed {i}")
-    }
-    ParamPatternDef::Assign { left, .. } => param_name_plain(left, i),
-    ParamPatternDef::Identifier { name, .. } => name.clone(),
-    ParamPatternDef::Rest { arg } => {
-      format!("...{}", param_name_plain(arg, i))
-    }
   }
 }
