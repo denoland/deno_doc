@@ -1,0 +1,130 @@
+# old/mod.ts
+export function keepSame(): void {}
+export function toRemove(a: string, b: string): void {}
+export function toModify(x: string): string { return x; }
+
+# new/mod.ts
+export function keepSame(): void {}
+export function toModify(x: number): number { return x; }
+export function brandNew(): void {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "brandNew",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 94
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "functionDef": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ],
+      "removed": [
+        {
+          "name": "toRemove",
+          "isDefault": false,
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 36
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "functionDef": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "b",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "keyword": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ],
+      "modified": [
+        {
+          "name": "toModify",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "paramsChange": {
+              "modified": [
+                {
+                  "index": 0,
+                  "typeChange": {
+                    "old": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    "new": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  }
+                }
+              ]
+            },
+            "returnTypeChange": {
+              "old": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "new": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

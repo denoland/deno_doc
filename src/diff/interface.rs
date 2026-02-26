@@ -879,7 +879,7 @@ impl InterfaceIndexSignaturesDiff {
       match (old.get(i), new.get(i)) {
         (Some(old_sig), Some(new_sig)) => {
           if let Some(diff) =
-            InterfaceIndexSignatureDiff::diff(old_sig, new_sig)
+            InterfaceIndexSignatureDiff::diff(i, old_sig, new_sig)
           {
             modified.push(diff);
           }
@@ -909,6 +909,7 @@ impl InterfaceIndexSignaturesDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceIndexSignatureDiff {
+  pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -921,6 +922,7 @@ pub struct InterfaceIndexSignatureDiff {
 
 impl InterfaceIndexSignatureDiff {
   pub fn diff(
+    index: usize,
     old: &IndexSignatureDef,
     new: &IndexSignatureDef,
   ) -> Option<Self> {
@@ -961,6 +963,7 @@ impl InterfaceIndexSignatureDiff {
     }
 
     Some(InterfaceIndexSignatureDiff {
+      index,
       readonly_change,
       params_change,
       type_change,

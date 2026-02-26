@@ -21,6 +21,7 @@ export interface Dict {
             "indexSignatureChanges": {
               "modified": [
                 {
+                  "index": 0,
                   "typeChange": {
                     "old": {
                       "repr": "number",

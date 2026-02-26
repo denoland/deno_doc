@@ -1,0 +1,76 @@
+# old/mod.ts
+export namespace Utils {
+  export function parse(input: string): string { return input; }
+  export const VERSION = "1.0";
+}
+
+# new/mod.ts
+export namespace Utils {
+  export function parse(input: string, strict?: boolean): string { return input; }
+  export const VERSION = "2.0";
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Utils",
+          "kind": "namespace",
+          "defChanges": {
+            "type": "namespace",
+            "modifiedElements": [
+              {
+                "name": "parse",
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "paramsChange": {
+                    "added": [
+                      {
+                        "kind": "identifier",
+                        "name": "strict",
+                        "optional": true,
+                        "tsType": {
+                          "repr": "boolean",
+                          "kind": "keyword",
+                          "keyword": "boolean"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "name": "VERSION",
+                "kind": "variable",
+                "defChanges": {
+                  "type": "variable",
+                  "tsTypeChange": {
+                    "old": {
+                      "repr": "1.0",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "string",
+                        "string": "1.0"
+                      }
+                    },
+                    "new": {
+                      "repr": "2.0",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "string",
+                        "string": "2.0"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

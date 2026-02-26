@@ -301,12 +301,12 @@ impl ConstructorsDiff {
     for (param_count, new_ctors) in &new_by_param_count {
       match old_by_param_count.get(param_count) {
         Some(old_ctors) => {
-          // Compare the first constructor of each (simple case)
-          if let (Some(old_ctor), Some(new_ctor)) =
-            (old_ctors.first(), new_ctors.first())
-            && let Some(diff) = ConstructorDiff::diff(old_ctor, new_ctor)
+          for (old_ctor, new_ctor) in
+            old_ctors.iter().zip(new_ctors.iter())
           {
-            modified.push(diff);
+            if let Some(diff) = ConstructorDiff::diff(old_ctor, new_ctor) {
+              modified.push(diff);
+            }
           }
 
           // Handle extra constructors
@@ -1024,7 +1024,7 @@ impl IndexSignaturesDiff {
     for i in 0..max_len {
       match (old.get(i), new.get(i)) {
         (Some(old_sig), Some(new_sig)) => {
-          if let Some(diff) = IndexSignatureDiff::diff(old_sig, new_sig) {
+          if let Some(diff) = IndexSignatureDiff::diff(i, old_sig, new_sig) {
             modified.push(diff);
           }
         }
@@ -1053,6 +1053,7 @@ impl IndexSignaturesDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexSignatureDiff {
+  pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -1065,6 +1066,7 @@ pub struct IndexSignatureDiff {
 
 impl IndexSignatureDiff {
   pub fn diff(
+    index: usize,
     old: &IndexSignatureDef,
     new: &IndexSignatureDef,
   ) -> Option<Self> {
@@ -1105,6 +1107,7 @@ impl IndexSignatureDiff {
     }
 
     Some(IndexSignatureDiff {
+      index,
       readonly_change,
       params_change,
       type_change,

@@ -1,12 +1,8 @@
 # old/mod.ts
-export class Dict {
-  [key: string]: number;
-}
+export function create<T = string>(value: T): T { return value; }
 
 # new/mod.ts
-export class Dict {
-  [key: string]: string;
-}
+export function create<T = number>(value: T): T { return value; }
 
 # output.json
 {
@@ -14,24 +10,24 @@ export class Dict {
     "file:///mod.ts": {
       "modified": [
         {
-          "name": "Dict",
-          "kind": "class",
+          "name": "create",
+          "kind": "function",
           "defChanges": {
-            "type": "class",
-            "indexSignatureChanges": {
+            "type": "function",
+            "typeParamsChange": {
               "modified": [
                 {
-                  "index": 0,
-                  "typeChange": {
+                  "name": "T",
+                  "defaultChange": {
                     "old": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    },
-                    "new": {
                       "repr": "string",
                       "kind": "keyword",
                       "keyword": "string"
+                    },
+                    "new": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
                     }
                   }
                 }

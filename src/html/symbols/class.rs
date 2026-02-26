@@ -621,6 +621,53 @@ fn render_class_accessor(
   let diff_status =
     get_method_diff_status(method_changes, name, getter_or_setter.kind);
 
+  let (old_content, old_tags, js_doc_changed) = if matches!(
+    diff_status,
+    Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+  ) {
+    let getter_diff = getter.and_then(|_| {
+      method_changes.and_then(|mc| {
+        mc.modified.iter().find(|m| m.name == *name)
+      })
+    });
+    let setter_diff = setter.and_then(|_| {
+      method_changes.and_then(|mc| {
+        mc.modified.iter().find(|m| m.name == *name)
+      })
+    });
+    let any_diff = getter_diff.or(setter_diff);
+
+    let old_content = getter_diff
+      .and_then(|md| md.function_diff.as_ref())
+      .and_then(|fd| fd.return_type_change.as_ref())
+      .map(|tc| render_type_def_colon(ctx, &tc.old))
+      .or_else(|| {
+        setter_diff
+          .and_then(|md| md.function_diff.as_ref())
+          .and_then(|fd| fd.params_change.as_ref())
+          .and_then(|pc| pc.modified.iter().find(|pd| pd.index == 0))
+          .and_then(|pd| pd.type_change.as_ref())
+          .map(|tc| render_type_def_colon(ctx, &tc.old))
+      });
+
+    let old_tags = any_diff.map(|diff| {
+      super::compute_old_tags(
+        &tags,
+        diff.accessibility_change.as_ref(),
+        None,
+        diff.is_abstract_change.as_ref(),
+        diff.optional_change.as_ref(),
+      )
+    });
+
+    let js_doc_changed =
+      any_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
+
+    (old_content, old_tags, js_doc_changed)
+  } else {
+    (None, None, None)
+  };
+
   DocEntryCtx::new(
     ctx,
     id,
@@ -635,9 +682,9 @@ fn render_class_accessor(
     js_doc,
     &getter_or_setter.location,
     diff_status,
-    None,
-    None,
-    None,
+    old_content,
+    old_tags,
+    js_doc_changed,
   )
 }
 

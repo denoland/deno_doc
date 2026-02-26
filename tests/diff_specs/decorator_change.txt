@@ -1,0 +1,76 @@
+# old/mod.ts
+export class Foo {
+  @log
+  greet(): void {}
+
+  @deprecated
+  name: string;
+}
+
+# new/mod.ts
+export class Foo {
+  @log
+  @memoize
+  greet(): void {}
+
+  name: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "kind": "class",
+          "defChanges": {
+            "type": "class",
+            "methodChanges": {
+              "modified": [
+                {
+                  "name": "greet",
+                  "functionDiff": {
+                    "decoratorsChange": {
+                      "added": [
+                        {
+                          "name": "memoize",
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 3,
+                            "col": 3,
+                            "byteIndex": 29
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "propertyChanges": {
+              "modified": [
+                {
+                  "name": "name",
+                  "decoratorsChange": {
+                    "removed": [
+                      {
+                        "name": "deprecated",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 5,
+                          "col": 3,
+                          "byteIndex": 49
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

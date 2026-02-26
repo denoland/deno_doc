@@ -1169,7 +1169,12 @@ expression: pages
                             "anchor": {
                               "id": "accessor_canvas"
                             },
-                            "tags": [],
+                            "tags": [
+                              {
+                                "kind": "abstract",
+                                "diff": "removed"
+                              }
+                            ],
                             "js_doc": null,
                             "source_href": null,
                             "diff_status": {

@@ -1654,6 +1654,10 @@ expression: pages
                             "tags": [
                               {
                                 "kind": "readonly"
+                              },
+                              {
+                                "kind": "abstract",
+                                "diff": "removed"
                               }
                             ],
                             "js_doc": null,

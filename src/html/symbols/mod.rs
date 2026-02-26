@@ -284,7 +284,9 @@ pub(crate) fn compute_combined_diff_status(
       _ => {}
     }
     if first_status.is_none() {
-      first_status = node.diff_status.clone();
+      if let status @ Some(_) = &node.diff_status {
+        first_status = status.clone();
+      }
     }
   }
 
@@ -778,12 +780,16 @@ pub(crate) fn push_removed_method_entry(
 /// Trait for accessing individual index signature diff fields, shared between
 /// `IndexSignatureDiff` (class) and `InterfaceIndexSignatureDiff` (interface).
 pub(crate) trait IndexSigDiffItem {
+  fn index(&self) -> usize;
   fn readonly_change(&self) -> Option<&crate::diff::Change<bool>>;
   fn params_change(&self) -> Option<&crate::diff::ParamsDiff>;
   fn type_change(&self) -> Option<&crate::diff::TsTypeDiff>;
 }
 
 impl IndexSigDiffItem for crate::diff::IndexSignatureDiff {
+  fn index(&self) -> usize {
+    self.index
+  }
   fn readonly_change(&self) -> Option<&crate::diff::Change<bool>> {
     self.readonly_change.as_ref()
   }
@@ -796,6 +802,9 @@ impl IndexSigDiffItem for crate::diff::IndexSignatureDiff {
 }
 
 impl IndexSigDiffItem for crate::diff::InterfaceIndexSignatureDiff {
+  fn index(&self) -> usize {
+    self.index
+  }
   fn readonly_change(&self) -> Option<&crate::diff::Change<bool>> {
     self.readonly_change.as_ref()
   }
@@ -842,7 +851,7 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
 
     let (old_readonly, old_params, old_ts_type) =
       if matches!(diff_status, Some(DiffStatus::Modified)) {
-        let sig_diff = modified.first();
+        let sig_diff = modified.iter().find(|m| m.index() == i);
         let old_readonly =
           sig_diff.and_then(|sd| sd.readonly_change()).map(|c| c.old);
         let old_params = sig_diff.and_then(|sd| sd.params_change()).map(|pc| {
