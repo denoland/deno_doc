@@ -370,9 +370,9 @@ fn render_single_function(
 
   let mut docs =
     crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
-  let examples = crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc);
-
-  if let Some(examples) = examples {
+  if let Some(examples) =
+    crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
+  {
     sections.push(examples);
   }
 

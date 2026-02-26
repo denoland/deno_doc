@@ -227,9 +227,6 @@ impl NamespaceNodeCtx {
 
     let diff_status =
       super::compute_combined_diff_status(&nodes).and_then(|status| {
-        // If the symbol is Modified and the only changes are in subitems
-        // (methods/properties), don't mark the symbol itself as changed.
-        // Skip this check if any node is Added/Removed (kind change scenario).
         if matches!(status, DiffStatus::Modified)
           && !nodes.iter().any(|n| {
             matches!(
@@ -321,8 +318,6 @@ impl NamespaceNodeCtx {
       None
     };
 
-    // When the entire symbol is removed, strip the inherited removed
-    // markers from subitems — the parent's status is sufficient.
     if matches!(diff_status, Some(DiffStatus::Removed)) {
       subitems = subitems
         .into_iter()
@@ -352,8 +347,6 @@ fn summary_for_nodes(
   ctx: &RenderContext,
   nodes: &[DocNodeWithContext],
 ) -> Option<TypeSummaryCtx> {
-  // Use only non-removed nodes for the summary so we always show the current
-  // (new) state — both for normal modifications and kind changes.
   let current = nodes
     .iter()
     .filter(|n| !matches!(n.diff_status, Some(DiffStatus::Removed)))
@@ -558,9 +551,6 @@ fn get_subitem_diff_status(
   }
 }
 
-/// Inject removed methods and properties from the diff as sub-items.
-/// These don't appear in `get_drilldown_symbols` since they only exist in the
-/// old version.
 fn inject_removed_subitems(
   ctx: &RenderContext,
   def_diff: &DocNodeDefDiff,

@@ -149,10 +149,6 @@ pub(crate) fn is_symbol_removed(doc_node: &DocNodeWithContext) -> bool {
   matches!(doc_node.diff_status, Some(DiffStatus::Removed))
 }
 
-/// Filters sections in-place, retaining only entries that have a diff status.
-/// Removes sections that become empty after filtering, and drops
-/// non-diff-relevant section types (Example, See, Empty).
-/// Also cleans up the ToC to match the surviving sections/entries.
 pub(crate) fn filter_sections_diff_only(
   sections: &mut Vec<SectionCtx>,
   toc: &crate::html::render_context::HeadingToCAdapter,
