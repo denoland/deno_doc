@@ -920,6 +920,170 @@ pub(crate) fn render_index_signatures_with_diff<D: IndexSigDiffItem>(
   ))
 }
 
+pub(crate) fn render_type_def_sections(
+  ctx: &RenderContext,
+  name: &str,
+  ts_type: &crate::ts_type::TsTypeDef,
+  ts_type_change: Option<&crate::diff::TsTypeDiff>,
+  id: crate::html::util::Id,
+  section_title: &str,
+  location: &crate::Location,
+) -> Vec<SectionCtx> {
+  let mut sections = vec![];
+
+  if let Some(ts_type_literal) = ts_type.type_literal.as_ref() {
+    let type_lit_diff = ts_type_change.and_then(|tc| {
+      if let Some(old_lit) = tc.old.type_literal.as_ref() {
+        crate::diff::InterfaceDiff::diff_type_literal(old_lit, ts_type_literal)
+      } else {
+        let empty = crate::ts_type::TsTypeLiteralDef::default();
+        crate::diff::InterfaceDiff::diff_type_literal(&empty, ts_type_literal)
+      }
+    });
+
+    if let Some(tc) = ts_type_change
+      && tc.old.type_literal.is_none()
+    {
+      sections.push(SectionCtx::new(
+        ctx,
+        section_title,
+        SectionContentCtx::DocEntry(vec![
+          crate::html::util::DocEntryCtx::removed(
+            ctx,
+            id.clone(),
+            None,
+            None,
+            &render_type_def(ctx, &tc.old),
+            Default::default(),
+            None,
+            location,
+          ),
+        ]),
+      ));
+    }
+
+    if let Some(index_signatures) =
+      interface::render_index_signatures(
+        ctx,
+        &ts_type_literal.index_signatures,
+        type_lit_diff
+          .as_ref()
+          .and_then(|d| d.index_signature_changes.as_ref()),
+      )
+    {
+      sections.push(index_signatures);
+    }
+
+    if let Some(call_signatures) =
+      interface::render_call_signatures(
+        ctx,
+        &ts_type_literal.call_signatures,
+        type_lit_diff
+          .as_ref()
+          .and_then(|d| d.call_signature_changes.as_ref()),
+      )
+    {
+      sections.push(call_signatures);
+    }
+
+    if let Some(properties) = interface::render_properties(
+      ctx,
+      name,
+      &ts_type_literal.properties,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.property_changes.as_ref()),
+    ) {
+      sections.push(properties);
+    }
+
+    if let Some(methods) = interface::render_methods(
+      ctx,
+      name,
+      &ts_type_literal.methods,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.method_changes.as_ref()),
+    ) {
+      sections.push(methods);
+    }
+  } else {
+    let (diff_status, old_content) = if let Some(tc) = ts_type_change {
+      (
+        Some(DiffStatus::Modified),
+        Some(render_type_def(ctx, &tc.old)),
+      )
+    } else {
+      (None, None)
+    };
+
+    sections.push(SectionCtx::new(
+      ctx,
+      section_title,
+      SectionContentCtx::DocEntry(vec![crate::html::util::DocEntryCtx::new(
+        ctx,
+        id,
+        None,
+        None,
+        &render_type_def(ctx, ts_type),
+        Default::default(),
+        None,
+        location,
+        diff_status,
+        old_content,
+        None,
+        None,
+      )]),
+    ));
+
+    if let Some(old_lit) =
+      ts_type_change.and_then(|tc| tc.old.type_literal.as_ref())
+    {
+      let empty = crate::ts_type::TsTypeLiteralDef::default();
+      let type_lit_diff =
+        crate::diff::InterfaceDiff::diff_type_literal(old_lit, &empty);
+
+      if let Some(ref diff) = type_lit_diff {
+        if let Some(index_sigs) = interface::render_index_signatures(
+          ctx,
+          &[],
+          diff.index_signature_changes.as_ref(),
+        ) {
+          sections.push(index_sigs);
+        }
+
+        if let Some(call_sigs) = interface::render_call_signatures(
+          ctx,
+          &[],
+          diff.call_signature_changes.as_ref(),
+        ) {
+          sections.push(call_sigs);
+        }
+
+        if let Some(props) = interface::render_properties(
+          ctx,
+          name,
+          &[],
+          diff.property_changes.as_ref(),
+        ) {
+          sections.push(props);
+        }
+
+        if let Some(methods) = interface::render_methods(
+          ctx,
+          name,
+          &[],
+          diff.method_changes.as_ref(),
+        ) {
+          sections.push(methods);
+        }
+      }
+    }
+  }
+
+  sections
+}
+
 fn generate_see(ctx: &RenderContext, doc: &str) -> String {
   let doc = if let Some(href) = ctx.lookup_symbol_href(doc) {
     format!("[{doc}]({href})")

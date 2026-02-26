@@ -269,3 +269,12 @@ export function log(message: string, level?: LogLevel): void {}
 
 /** @deprecated Use log() instead. */
 export function debugLog(message: string): void {}
+
+/** Settings object. */
+export type Settings = {
+  theme: string;
+  lang: string;
+};
+
+/** Metadata info. */
+export const metadata: string = "";

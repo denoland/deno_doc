@@ -318,6 +318,15 @@ export class Router {
  */
 export type Middleware = (req: Request, next: () => Response) => Response;
 
+/** Settings is now a simple string. */
+export type Settings = string;
+
+/** Metadata info. */
+export const metadata: {
+  version: string;
+  author: string;
+} = {} as any;
+
 /**
  * Create middleware pipeline.
  * @param middlewares The middleware chain.

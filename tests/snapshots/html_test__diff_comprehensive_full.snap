@@ -1205,6 +1205,33 @@ expression: pages
                           "diff_status": {
                             "kind": "added"
                           }
+                        },
+                        {
+                          "anchor": {
+                            "id": "namespace_settings"
+                          },
+                          "tags": [],
+                          "doc_node_kind_ctx": [
+                            {
+                              "kind": "TypeAlias",
+                              "char": "T",
+                              "title": "Type Alias",
+                              "title_lowercase": "type alias",
+                              "title_plural": "Type Aliases"
+                            }
+                          ],
+                          "href": "./././~/Settings.html",
+                          "name": "Settings",
+                          "ty": {
+                            "ty": " = <span class=\"td-kw\">string</span>",
+                            "info": null
+                          },
+                          "docs": "<div class=\"markdown_summary\"><p>Settings is now a simple string.</p>\n</div>",
+                          "deprecated": false,
+                          "subitems": [],
+                          "diff_status": {
+                            "kind": "modified"
+                          }
                         }
                       ]
                     }
@@ -1244,6 +1271,52 @@ expression: pages
                           "docs": "<div class=\"markdown_summary\"><p>Maximum retry count.</p>\n</div>",
                           "deprecated": false,
                           "subitems": [],
+                          "diff_status": {
+                            "kind": "modified"
+                          }
+                        },
+                        {
+                          "anchor": {
+                            "id": "namespace_metadata"
+                          },
+                          "tags": [],
+                          "doc_node_kind_ctx": [
+                            {
+                              "kind": "Variable",
+                              "char": "v",
+                              "title": "Variable",
+                              "title_lowercase": "variable",
+                              "title_plural": "Variables"
+                            }
+                          ],
+                          "href": "./././~/metadata.html",
+                          "name": "metadata",
+                          "ty": {
+                            "ty": ": { version<span>: <span class=\"td-kw\">string</span></span>; author<span>: <span class=\"td-kw\">string</span></span>;  }",
+                            "info": null
+                          },
+                          "docs": "<div class=\"markdown_summary\"><p>Metadata info.</p>\n</div>",
+                          "deprecated": false,
+                          "subitems": [
+                            {
+                              "title": "author",
+                              "docs": null,
+                              "ty": {
+                                "ty": ": <span class=\"td-kw\">string</span>",
+                                "info": null
+                              },
+                              "href": "./././~/metadata.html#property_author"
+                            },
+                            {
+                              "title": "version",
+                              "docs": null,
+                              "ty": {
+                                "ty": ": <span class=\"td-kw\">string</span>",
+                                "info": null
+                              },
+                              "href": "./././~/metadata.html#property_version"
+                            }
+                          ],
                           "diff_status": {
                             "kind": "modified"
                           }
@@ -1468,7 +1541,7 @@ expression: pages
               "href": "././~/Color.html"
             }
           ],
-          "total_symbols": 28,
+          "total_symbols": 30,
           "all_symbols_href": "./all_symbols.html"
         },
         "document_navigation_str": null,
@@ -12102,6 +12175,200 @@ expression: pages
     }
   ],
   [
+    "./~/Settings.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "Settings - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "Settings",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "TypeAlias",
+              "char": "T",
+              "title": "Type Alias",
+              "title_lowercase": "type alias",
+              "title_plural": "Type Aliases"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Settings object.</p>\n</div><div class=\"diff-added\"><p>Settings is now a simple string.</p>\n</div></div>",
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Definition",
+                        "anchor": {
+                          "id": "definition"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": null,
+                            "name_href": null,
+                            "content": "<span class=\"td-kw\">string</span>",
+                            "anchor": {
+                              "id": "typealias_settings"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "modified"
+                            },
+                            "old_content": "{ theme<span>: <span class=\"td-kw\">string</span></span>; lang<span>: <span class=\"td-kw\">string</span></span>;  }"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "header": {
+                        "title": "Properties",
+                        "anchor": {
+                          "id": "properties"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "theme",
+                            "name_href": null,
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_theme"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "removed"
+                            }
+                          },
+                          {
+                            "name_prefix": null,
+                            "name": "lang",
+                            "name_href": null,
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_lang"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "removed"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "Settings",
+            "href": "../././~/Settings.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type Settings } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type Settings } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": "<ul><li><a href=\"#definition\" title=\"Definition\">Definition</a></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_theme\" title=\"theme\">theme</a></li><li><a href=\"#property_lang\" title=\"lang\">lang</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Definition",
+            "anchor": "definition"
+          },
+          {
+            "level": 1,
+            "content": "Properties",
+            "anchor": "properties"
+          },
+          {
+            "level": 2,
+            "content": "theme",
+            "anchor": "property_theme"
+          },
+          {
+            "level": 2,
+            "content": "lang",
+            "anchor": "property_lang"
+          }
+        ]
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
     "./~/Status.json",
     {
       "kind": "SymbolPageCtx",
@@ -13757,6 +14024,467 @@ expression: pages
             "level": 3,
             "content": "Metadata",
             "anchor": "metadata-2"
+          }
+        ]
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./~/metadata.author.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "metadata.author - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "metadata.author",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "Property",
+              "char": "p",
+              "title": "Property",
+              "title_lowercase": "property",
+              "title_plural": "Properties"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": null,
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Type",
+                        "anchor": {
+                          "id": "type"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": null,
+                            "name_href": null,
+                            "content": "<span class=\"td-kw\">string</span>",
+                            "anchor": {
+                              "id": "variable_metadata_author"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "metadata",
+            "href": "../././~/metadata.html"
+          },
+          {
+            "name": "author",
+            "href": "../././~/metadata.author.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { metadata } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { metadata } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Type",
+            "anchor": "type"
+          }
+        ]
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./~/metadata.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "metadata - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "metadata",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "Variable",
+              "char": "v",
+              "title": "Variable",
+              "title_lowercase": "variable",
+              "title_plural": "Variables"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": "<div class=\"markdown\"><p>Metadata info.</p>\n</div>",
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Type",
+                        "anchor": {
+                          "id": "type"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": null,
+                            "name_href": null,
+                            "content": "<span class=\"td-kw\">string</span>",
+                            "anchor": {
+                              "id": "variable_metadata"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "removed"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "header": {
+                        "title": "Properties",
+                        "anchor": {
+                          "id": "properties"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "version",
+                            "name_href": "../././~/metadata.version.html",
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_version"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "added"
+                            }
+                          },
+                          {
+                            "name_prefix": null,
+                            "name": "author",
+                            "name_href": "../././~/metadata.author.html",
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_author"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "added"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "metadata",
+            "href": "../././~/metadata.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { metadata } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { metadata } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_version\" title=\"version\">version</a></li><li><a href=\"#property_author\" title=\"author\">author</a></li></ul></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Type",
+            "anchor": "type"
+          },
+          {
+            "level": 1,
+            "content": "Properties",
+            "anchor": "properties"
+          },
+          {
+            "level": 2,
+            "content": "version",
+            "anchor": "property_version"
+          },
+          {
+            "level": 2,
+            "content": "author",
+            "anchor": "property_author"
+          }
+        ]
+      },
+      "disable_search": false,
+      "categories_panel": null
+    }
+  ],
+  [
+    "./~/metadata.version.json",
+    {
+      "kind": "SymbolPageCtx",
+      "html_head_ctx": {
+        "title": "metadata.version - default - documentation",
+        "current_file": ".",
+        "stylesheet_url": "../styles.css",
+        "page_stylesheet_url": "../page.css",
+        "reset_stylesheet_url": "../reset.css",
+        "url_search_index": "../search_index.js",
+        "script_js": "../script.js",
+        "fuse_js": "../fuse.js",
+        "search_js": "../search.js",
+        "darkmode_toggle_js": "../darkmode_toggle.js",
+        "head_inject": null,
+        "disable_search": false
+      },
+      "symbol_group_ctx": {
+        "name": "metadata.version",
+        "symbols": [
+          {
+            "kind": {
+              "kind": "Property",
+              "char": "p",
+              "title": "Property",
+              "title_lowercase": "property",
+              "title_plural": "Properties"
+            },
+            "usage": null,
+            "tags": [],
+            "subtitle": null,
+            "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": null,
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Type",
+                        "anchor": {
+                          "id": "type"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": null,
+                            "name_href": null,
+                            "content": "<span class=\"td-kw\">string</span>",
+                            "anchor": {
+                              "id": "variable_metadata_version"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "deprecated": null,
+            "source_href": null
+          }
+        ],
+        "diff_status": {
+          "kind": "modified"
+        }
+      },
+      "breadcrumbs_ctx": {
+        "root": {
+          "name": "index",
+          "href": "../"
+        },
+        "current_entrypoint": {
+          "name": "default",
+          "href": "../"
+        },
+        "entrypoints": [
+          {
+            "name": "all symbols",
+            "href": ".././all_symbols.html"
+          },
+          {
+            "name": "default",
+            "href": "../"
+          }
+        ],
+        "symbol": [
+          {
+            "name": "metadata",
+            "href": "../././~/metadata.html"
+          },
+          {
+            "name": "version",
+            "href": "../././~/metadata.version.html"
+          }
+        ]
+      },
+      "toc_ctx": {
+        "usages": {
+          "usages": [
+            {
+              "name": "",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { metadata } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { metadata } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "icon": null,
+              "additional_css": ""
+            }
+          ],
+          "composed": false
+        },
+        "top_symbols": null,
+        "document_navigation_str": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>",
+        "document_navigation": [
+          {
+            "level": 1,
+            "content": "Type",
+            "anchor": "type"
           }
         ]
       },
@@ -15992,6 +16720,21 @@ expression: pages
           "deprecated": false
         },
         {
+          "id": "namespace_settings",
+          "kind": [
+            {
+              "char": "T",
+              "kind": "TypeAlias",
+              "title": "Type Alias"
+            }
+          ],
+          "name": "Settings",
+          "file": ".",
+          "doc": "Settings is now a simple string.",
+          "url": "././~/Settings.html",
+          "deprecated": false
+        },
+        {
           "id": "namespace_status",
           "kind": [
             {
@@ -16124,6 +16867,51 @@ expression: pages
           "file": ".",
           "doc": "Logger utility with severity.Logs messages to the console with required severity levels and optional structured metadata.Log FormatMetadataPass a record of key-value pairs as the third argument to include structured data in the log output.",
           "url": "././~/log.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_metadata",
+          "kind": [
+            {
+              "char": "v",
+              "kind": "Variable",
+              "title": "Variable"
+            }
+          ],
+          "name": "metadata",
+          "file": ".",
+          "doc": "Metadata info.",
+          "url": "././~/metadata.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_metadata",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "metadata.version",
+          "file": ".",
+          "doc": "",
+          "url": "././~/metadata.version.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_metadata",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "metadata.author",
+          "file": ".",
+          "doc": "",
+          "url": "././~/metadata.author.html",
           "deprecated": false
         },
         {
