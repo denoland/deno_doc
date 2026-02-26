@@ -149,7 +149,10 @@ pub(crate) fn render_call_signatures(
         None
       };
 
-      let old_tags = if diff_status.is_some() {
+      let old_tags = if matches!(
+        diff_status,
+        Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+      ) {
         Some(super::compute_old_tags(&tags, None, None, None, None))
       } else {
         None

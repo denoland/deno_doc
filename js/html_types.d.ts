@@ -334,6 +334,7 @@ export interface DocEntryCtx {
   source_href: string | null;
   diff_status?: DiffStatus;
   old_content?: string;
+  js_doc_changed?: boolean;
 }
 
 export interface ExampleCtx {
