@@ -737,7 +737,7 @@ pub(crate) fn push_removed_property_entry(
     .map(|t| crate::html::types::render_type_def_colon(ctx, t))
     .unwrap_or_default();
 
-  entries.push(crate::html::util::DocEntryCtx::new(
+  entries.push(crate::html::util::DocEntryCtx::removed(
     ctx,
     id,
     Some(html_escape::encode_text(name).into_owned()),
@@ -746,10 +746,6 @@ pub(crate) fn push_removed_property_entry(
     Default::default(),
     None,
     location,
-    Some(DiffStatus::Removed),
-    None,
-    None,
-    None,
   ));
 }
 
@@ -767,7 +763,7 @@ pub(crate) fn push_removed_method_entry(
     .index(0)
     .build();
 
-  entries.push(crate::html::util::DocEntryCtx::new(
+  entries.push(crate::html::util::DocEntryCtx::removed(
     ctx,
     id,
     Some(html_escape::encode_text(name).into_owned()),
@@ -776,10 +772,6 @@ pub(crate) fn push_removed_method_entry(
     Default::default(),
     None,
     location,
-    Some(DiffStatus::Removed),
-    None,
-    None,
-    None,
   ));
 }
 

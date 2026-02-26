@@ -794,7 +794,7 @@ pub(crate) fn render_type_params(
         })
         .unwrap_or_default();
 
-      items.push(DocEntryCtx::new(
+      items.push(DocEntryCtx::removed(
         ctx,
         id,
         Some(html_escape::encode_text(&removed_tp.name).into_owned()),
@@ -803,10 +803,6 @@ pub(crate) fn render_type_params(
         Default::default(),
         None,
         location,
-        Some(crate::html::DiffStatus::Removed),
-        None,
-        None,
-        None,
       ));
     }
   }
