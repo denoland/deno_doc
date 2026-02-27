@@ -1,10 +1,14 @@
+use crate::diff::DocNodeDefDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::MethodKind;
 use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::symbols::function::render_function_summary;
-use crate::html::types::{render_type_def, type_params_summary};
+use crate::html::types::render_type_def;
+use crate::html::types::render_type_def_colon;
+use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
@@ -71,6 +75,8 @@ pub struct NamespaceNodeSubItemCtx {
   docs: Option<String>,
   ty: Option<TypeSummaryCtx>,
   href: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl std::hash::Hash for NamespaceNodeSubItemCtx {
@@ -102,7 +108,7 @@ impl Eq for NamespaceNodeSubItemCtx {}
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceNodeCtx {
   pub anchor: AnchorCtx,
-  pub tags: IndexSet<Tag>,
+  pub tags: Vec<TagCtx>,
   pub doc_node_kind_ctx: IndexSet<DocNodeKindCtx>,
   pub href: String,
   pub name: String,
@@ -110,6 +116,8 @@ pub struct NamespaceNodeCtx {
   pub docs: Option<String>,
   pub deprecated: bool,
   pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl NamespaceNodeCtx {
@@ -139,6 +147,15 @@ impl NamespaceNodeCtx {
     );
 
     for node in &nodes {
+      let node_def_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+        let info = diff_index.get_node_diff(
+          &node.origin.specifier,
+          node.get_name(),
+          node.def.to_kind(),
+        )?;
+        info.diff.as_ref()?.def_changes.as_ref()
+      });
+
       if let Some(drilldown_symbols) = node.get_drilldown_symbols() {
         subitems.extend(
           drilldown_symbols
@@ -172,6 +189,17 @@ impl NamespaceNodeCtx {
                 _ => unreachable!(),
               };
 
+              let drilldown_name = symbol.drilldown_name.as_ref().unwrap();
+
+              let diff_status =
+                if matches!(node.diff_status, Some(DiffStatus::Removed)) {
+                  Some(DiffStatus::Removed)
+                } else {
+                  node_def_diff.and_then(|diff| {
+                    get_subitem_diff_status(diff, drilldown_name, &symbol.kind)
+                  })
+                };
+
               let docs = crate::html::jsdoc::jsdoc_body_to_html(
                 ctx,
                 &symbol.js_doc,
@@ -179,21 +207,130 @@ impl NamespaceNodeCtx {
               );
 
               NamespaceNodeSubItemCtx {
-                title: symbol.drilldown_name.as_ref().unwrap().to_string(),
+                title: drilldown_name.to_string(),
                 docs,
                 ty: summary_for_nodes(ctx, &[symbol]),
                 href: format!("{href}#{}", target_id.as_str()),
+                diff_status,
               }
             }),
         );
+      }
+
+      // Inject removed sub-items from the diff
+      if let Some(node_def_diff) = node_def_diff {
+        inject_removed_subitems(ctx, node_def_diff, &href, &mut subitems);
       }
     }
 
     subitems.sort();
 
+    let diff_status =
+      super::compute_combined_diff_status(&nodes).and_then(|status| {
+        if matches!(status, DiffStatus::Modified)
+          && !nodes.iter().any(|n| {
+            matches!(
+              n.diff_status,
+              Some(DiffStatus::Added) | Some(DiffStatus::Removed)
+            )
+          })
+        {
+          let only_subitem_changes = nodes.iter().all(|node| {
+            ctx
+              .ctx
+              .diff
+              .as_ref()
+              .and_then(|diff_index| {
+                let info = diff_index.get_node_diff(
+                  &node.origin.specifier,
+                  node.get_name(),
+                  node.def.to_kind(),
+                )?;
+                let diff = info.diff.as_ref()?;
+
+                // If there are non-def changes, it's not subitem-only
+                if diff.name_change.is_some()
+                  || diff.js_doc_changes.is_some()
+                  || diff.declaration_kind_change.is_some()
+                {
+                  return Some(false);
+                }
+
+                Some(match diff.def_changes.as_ref()? {
+                  DocNodeDefDiff::Class(class_diff) => {
+                    class_diff.is_abstract_change.is_none()
+                      && class_diff.extends_change.is_none()
+                      && class_diff.implements_change.is_none()
+                      && class_diff.type_params_change.is_none()
+                      && class_diff.super_type_params_change.is_none()
+                      && class_diff.constructor_changes.is_none()
+                      && class_diff.index_signature_changes.is_none()
+                      && class_diff.decorators_change.is_none()
+                  }
+                  DocNodeDefDiff::Interface(iface_diff) => {
+                    iface_diff.extends_change.is_none()
+                      && iface_diff.type_params_change.is_none()
+                      && iface_diff.constructor_changes.is_none()
+                      && iface_diff.call_signature_changes.is_none()
+                      && iface_diff.index_signature_changes.is_none()
+                  }
+                  _ => false,
+                })
+              })
+              .unwrap_or(true)
+          });
+          if only_subitem_changes {
+            return None;
+          }
+        }
+        Some(status)
+      });
+
+    let old_tags = if matches!(diff_status, Some(DiffStatus::Modified)) {
+      let mut old_tags = tags.clone();
+      if let Some(tags_diff) = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+        let info = diff_index.get_node_diff(
+          &nodes[0].origin.specifier,
+          nodes[0].get_name(),
+          nodes[0].def.to_kind(),
+        )?;
+        info
+          .diff
+          .as_ref()?
+          .js_doc_changes
+          .as_ref()?
+          .tags_change
+          .as_ref()
+      }) {
+        for added in &tags_diff.added {
+          if matches!(added, crate::js_doc::JsDocTag::Deprecated { .. }) {
+            old_tags.swap_remove(&Tag::Deprecated);
+          }
+        }
+        for removed in &tags_diff.removed {
+          if matches!(removed, crate::js_doc::JsDocTag::Deprecated { .. }) {
+            old_tags.insert(Tag::Deprecated);
+          }
+        }
+      }
+      Some(old_tags)
+    } else {
+      None
+    };
+
+    if matches!(diff_status, Some(DiffStatus::Removed)) {
+      subitems = subitems
+        .into_iter()
+        .map(|mut item| {
+          item.diff_status = None;
+          item
+        })
+        .collect();
+    }
+
     NamespaceNodeCtx {
       anchor: AnchorCtx::new(id),
-      tags,
+      tags: compute_tag_ctx(tags, old_tags),
       doc_node_kind_ctx: nodes.iter().map(|node| node.kind.into()).collect(),
       href,
       name,
@@ -201,6 +338,7 @@ impl NamespaceNodeCtx {
       docs,
       deprecated: all_deprecated(&nodes.iter().collect::<Vec<_>>()),
       subitems,
+      diff_status,
     }
   }
 }
@@ -209,6 +347,13 @@ fn summary_for_nodes(
   ctx: &RenderContext,
   nodes: &[DocNodeWithContext],
 ) -> Option<TypeSummaryCtx> {
+  let current = nodes
+    .iter()
+    .filter(|n| !matches!(n.diff_status, Some(DiffStatus::Removed)))
+    .cloned()
+    .collect::<Vec<_>>();
+  let nodes = if current.is_empty() { nodes } else { &current };
+
   match nodes[0].kind {
     DocNodeKind::Method(_) | DocNodeKind::Function => {
       let overloads = nodes
@@ -226,14 +371,19 @@ fn summary_for_nodes(
             .find(|overload| overload.has_body)
             .cloned()
             .unwrap_or(overloads[0]),
-          Some(format!("{} overloads", overloads.len())),
+          Some(format!("{} overloads", overloads.len() - 1)),
         )
       } else {
         (overloads[0], None)
       };
 
       Some(TypeSummaryCtx {
-        ty: render_function_summary(def, &ctx.with_disable_links(true)),
+        ty: render_function_summary(
+          &ctx.with_disable_links(true),
+          &def.type_params,
+          &def.params,
+          &def.return_type,
+        ),
         info,
       })
     }
@@ -249,7 +399,7 @@ fn summary_for_nodes(
               .iter()
               .find(|overload| overload.has_body)
               .unwrap_or(&def.constructors[0]),
-            Some(format!("{} constructors", def.constructors.len())),
+            Some(format!("{} constructors", def.constructors.len() - 1)),
           )
         } else {
           (&def.constructors[0], None)
@@ -311,4 +461,256 @@ fn summary_for_nodes(
 pub struct TypeSummaryCtx {
   pub ty: String,
   pub info: Option<String>,
+}
+
+fn get_subitem_diff_status(
+  def_diff: &DocNodeDefDiff,
+  name: &str,
+  kind: &DocNodeKind,
+) -> Option<DiffStatus> {
+  match def_diff {
+    DocNodeDefDiff::Class(class_diff) => match kind {
+      DocNodeKind::Method(_) => {
+        let mc = class_diff.method_changes.as_ref()?;
+        if mc.added.iter().any(|m| &*m.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if mc.removed.iter().any(|m| &*m.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if let Some(md) = mc.modified.iter().find(|m| &*m.name == name) {
+          if let Some(nc) = &md.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.to_string(),
+            });
+          }
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      DocNodeKind::Property => {
+        let pc = class_diff.property_changes.as_ref()?;
+        if pc.added.iter().any(|p| &*p.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if pc.removed.iter().any(|p| &*p.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if let Some(pd) = pc.modified.iter().find(|p| &*p.name == name) {
+          if let Some(nc) = &pd.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.to_string(),
+            });
+          }
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      _ => None,
+    },
+    DocNodeDefDiff::Interface(iface_diff) => match kind {
+      DocNodeKind::Method(_) => {
+        let mc = iface_diff.method_changes.as_ref()?;
+        if mc.added.iter().any(|m| m.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if mc.removed.iter().any(|m| m.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if let Some(md) = mc.modified.iter().find(|m| m.name == name) {
+          if let Some(nc) = &md.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.clone(),
+            });
+          }
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      DocNodeKind::Property => {
+        let pc = iface_diff.property_changes.as_ref()?;
+        if pc.added.iter().any(|p| p.name == name) {
+          return Some(DiffStatus::Added);
+        }
+        if pc.removed.iter().any(|p| p.name == name) {
+          return Some(DiffStatus::Removed);
+        }
+        if let Some(pd) = pc.modified.iter().find(|p| p.name == name) {
+          if let Some(nc) = &pd.name_change {
+            return Some(DiffStatus::Renamed {
+              old_name: nc.old.clone(),
+            });
+          }
+          return Some(DiffStatus::Modified);
+        }
+        None
+      }
+      _ => None,
+    },
+    _ => None,
+  }
+}
+
+fn inject_removed_subitems(
+  ctx: &RenderContext,
+  def_diff: &DocNodeDefDiff,
+  href: &str,
+  subitems: &mut IndexSet<NamespaceNodeSubItemCtx>,
+) {
+  let no_links_ctx = ctx.with_disable_links(true);
+
+  match def_diff {
+    DocNodeDefDiff::Class(class_diff) => {
+      if let Some(mc) = &class_diff.method_changes {
+        for method in &mc.removed {
+          if matches!(
+            method.accessibility,
+            Some(deno_ast::swc::ast::Accessibility::Private)
+          ) {
+            continue;
+          }
+          let target_id = if matches!(
+            method.kind,
+            deno_ast::swc::ast::MethodKind::Getter
+              | deno_ast::swc::ast::MethodKind::Setter
+          ) {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Accessor)
+              .name(&method.name.to_lowercase())
+              .build_unregistered()
+          } else {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Method)
+              .name(&method.name.to_lowercase())
+              .index(0)
+              .build_unregistered()
+          };
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: method.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &method.js_doc,
+              true,
+            ),
+            ty: Some(TypeSummaryCtx {
+              ty: render_function_summary(
+                &no_links_ctx,
+                &method.function_def.type_params,
+                &method.function_def.params,
+                &method.function_def.return_type,
+              ),
+              info: None,
+            }),
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+      if let Some(pc) = &class_diff.property_changes {
+        for prop in &pc.removed {
+          if matches!(
+            prop.accessibility,
+            Some(deno_ast::swc::ast::Accessibility::Private)
+          ) {
+            continue;
+          }
+          let target_id = IdBuilder::new(ctx)
+            .kind(IdKind::Property)
+            .name(&prop.name.to_lowercase())
+            .build_unregistered();
+
+          let ty = prop.ts_type.as_ref().map(|ts_type| TypeSummaryCtx {
+            ty: render_type_def_colon(&no_links_ctx, ts_type),
+            info: None,
+          });
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: prop.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &prop.js_doc,
+              true,
+            ),
+            ty,
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+    }
+    DocNodeDefDiff::Interface(iface_diff) => {
+      if let Some(mc) = &iface_diff.method_changes {
+        for method in &mc.removed {
+          let target_id = if matches!(
+            method.kind,
+            deno_ast::swc::ast::MethodKind::Getter
+              | deno_ast::swc::ast::MethodKind::Setter
+          ) {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Accessor)
+              .name(&method.name.to_lowercase())
+              .build_unregistered()
+          } else {
+            IdBuilder::new(ctx)
+              .kind(IdKind::Method)
+              .name(&method.name.to_lowercase())
+              .index(0)
+              .build_unregistered()
+          };
+
+          let return_type = method
+            .return_type
+            .as_ref()
+            .map(|ts_type| render_type_def_colon(&no_links_ctx, ts_type))
+            .unwrap_or_default();
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: method.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &method.js_doc,
+              true,
+            ),
+            ty: Some(TypeSummaryCtx {
+              ty: format!(
+                "{}({}){return_type}",
+                type_params_summary(&no_links_ctx, &method.type_params),
+                render_params(&no_links_ctx, &method.params),
+              ),
+              info: None,
+            }),
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+      if let Some(pc) = &iface_diff.property_changes {
+        for prop in &pc.removed {
+          let target_id = IdBuilder::new(ctx)
+            .kind(IdKind::Property)
+            .name(&prop.name.to_lowercase())
+            .build_unregistered();
+
+          let ty = prop.ts_type.as_ref().map(|ts_type| TypeSummaryCtx {
+            ty: render_type_def_colon(&no_links_ctx, ts_type),
+            info: None,
+          });
+
+          subitems.insert(NamespaceNodeSubItemCtx {
+            title: prop.name.to_string(),
+            docs: crate::html::jsdoc::jsdoc_body_to_html(
+              ctx,
+              &prop.js_doc,
+              true,
+            ),
+            ty,
+            href: format!("{href}#{}", target_id.as_str()),
+            diff_status: Some(DiffStatus::Removed),
+          });
+        }
+      }
+    }
+    _ => {}
+  }
 }

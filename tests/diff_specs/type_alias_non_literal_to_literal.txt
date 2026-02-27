@@ -1,0 +1,80 @@
+# old/mod.ts
+export type Config = string;
+
+# new/mod.ts
+export type Config = {
+  debug: boolean;
+  verbose: boolean;
+};
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Config",
+          "kind": "typeAlias",
+          "defChanges": {
+            "type": "typeAlias",
+            "tsTypeChange": {
+              "old": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "new": {
+                "repr": "",
+                "kind": "typeLiteral",
+                "typeLiteral": {
+                  "constructors": [],
+                  "methods": [],
+                  "properties": [
+                    {
+                      "name": "debug",
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 2,
+                        "col": 2,
+                        "byteIndex": 25
+                      },
+                      "params": [],
+                      "computed": false,
+                      "optional": false,
+                      "tsType": {
+                        "repr": "boolean",
+                        "kind": "keyword",
+                        "keyword": "boolean"
+                      },
+                      "typeParams": []
+                    },
+                    {
+                      "name": "verbose",
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 3,
+                        "col": 2,
+                        "byteIndex": 43
+                      },
+                      "params": [],
+                      "computed": false,
+                      "optional": false,
+                      "tsType": {
+                        "repr": "boolean",
+                        "kind": "keyword",
+                        "keyword": "boolean"
+                      },
+                      "typeParams": []
+                    }
+                  ],
+                  "callSignatures": [],
+                  "indexSignatures": []
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

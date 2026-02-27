@@ -93,7 +93,7 @@ impl TestBuilder {
 #[allow(dead_code)]
 pub struct DiffTestBuilder {
   loader: MemoryLoader,
-  entry_point: String,
+  entry_points: Vec<String>,
 }
 
 #[allow(dead_code)]
@@ -101,8 +101,13 @@ impl DiffTestBuilder {
   pub fn new() -> Self {
     Self {
       loader: Default::default(),
-      entry_point: "file:///mod.ts".to_string(),
+      entry_points: vec!["file:///mod.ts".to_string()],
     }
+  }
+
+  pub fn set_entry_points(&mut self, entry_points: Vec<String>) -> &mut Self {
+    self.entry_points = entry_points;
+    self
   }
 
   pub fn with_loader(
@@ -116,8 +121,11 @@ impl DiffTestBuilder {
   pub async fn build(&mut self) -> ParseOutput {
     let analyzer = CapturingModuleAnalyzer::default();
     let mut graph = deno_graph::ModuleGraph::new(GraphKind::TypesOnly);
-    let entry_point_url = ModuleSpecifier::parse(&self.entry_point).unwrap();
-    let roots = vec![entry_point_url.clone()];
+    let roots = self
+      .entry_points
+      .iter()
+      .map(|ep| ModuleSpecifier::parse(ep).unwrap())
+      .collect::<Vec<_>>();
     graph
       .build(
         roots.clone(),
@@ -130,11 +138,10 @@ impl DiffTestBuilder {
       )
       .await;
     graph.valid().unwrap();
-    let entrypoints = &[entry_point_url];
     let parser = DocParser::new(
       &graph,
       &analyzer,
-      entrypoints,
+      &roots,
       DocParserOptions {
         private: false,
         diagnostics: false,

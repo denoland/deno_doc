@@ -1,0 +1,21 @@
+# old/a.ts
+export function foo(): void {}
+
+# old/b.ts
+export function bar(): void {}
+
+# new/a.ts
+export function foo(): void {}
+
+# new/c.ts
+export function baz(): void {}
+
+# output.json
+{
+  "addedModules": [
+    "file:///c.ts"
+  ],
+  "removedModules": [
+    "file:///b.ts"
+  ]
+}

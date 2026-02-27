@@ -73,7 +73,7 @@ pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
     }
     ParamPatternDef::Rest { arg } => (
       format!("<span>...{}</span>", param_name(arg, i).0),
-      format!("(...{})", param_name(arg, i).1),
+      format!("...{}", param_name(arg, i).1),
     ),
   }
 }

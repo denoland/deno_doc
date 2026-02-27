@@ -5,6 +5,7 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use super::diff::DiffStatus;
 use super::partition;
 use super::symbols::SymbolContentCtx;
 use super::util;
@@ -349,6 +350,18 @@ impl IndexCtx {
       _ => None,
     };
 
+    let overview = if ctx.diff_only {
+      overview.and_then(|mut o| {
+        crate::html::diff::filter_sections_diff_only(
+          &mut o.sections,
+          &render_ctx.toc,
+        );
+        if o.sections.is_empty() { None } else { Some(o) }
+      })
+    } else {
+      overview
+    };
+
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
     let dts_mode = matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts);
@@ -391,7 +404,7 @@ impl IndexCtx {
       UrlResolveKind::Category { category: name },
     );
 
-    let sections = super::namespace::render_namespace(
+    let mut sections = super::namespace::render_namespace(
       partitions.into_iter().map(|(title, nodes)| {
         let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
           category_docs.get(&title).cloned().flatten()
@@ -411,6 +424,13 @@ impl IndexCtx {
         )
       }),
     );
+
+    if ctx.diff_only {
+      crate::html::diff::filter_sections_diff_only(
+        &mut sections,
+        &render_ctx.toc,
+      );
+    }
 
     let root = ctx.resolve_path(
       UrlResolveKind::Category { category: name },
@@ -488,6 +508,7 @@ pub enum SymbolPage {
   Redirect {
     current_symbol: String,
     href: String,
+    diff_status: Option<DiffStatus>,
   },
 }
 
@@ -528,6 +549,8 @@ pub fn generate_symbol_pages_for_module(
     let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx, categories_panel) =
       render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
 
+    let diff_status = symbol_group_ctx.diff_status.clone();
+
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
       symbol_group_ctx,
@@ -552,6 +575,7 @@ pub fn generate_symbol_pages_for_module(
           },
         ),
         current_symbol: prototype_name,
+        diff_status,
       });
     }
   }

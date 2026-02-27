@@ -172,6 +172,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "foo",
                           "name_href": "../././~/AbstractClass.prototype.foo.html",
                           "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -187,6 +188,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "getter",
                           "name_href": "../././~/AbstractClass.prototype.getter.html",
                           "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -220,6 +222,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "method",
                           "name_href": "../././~/AbstractClass.prototype.method.html",
                           "content": "(<span><span>s<span>: <span><span class=\"td-kw\">number</span><span class=\"td-op\"> | </span><span class=\"td-kw\">string</span></span></span></span></span>)<span>: s <span class=\"td-kw\">is</span> <span class=\"td-kw\">string</span></span>",
@@ -609,6 +612,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "T",
                           "name_href": null,
                           "content": "",
@@ -635,6 +639,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "foo",
                           "name_href": "../././~/Baz.foo.html",
                           "content": "<span>: <span class=\"td-ref\">Record</span>&lt;<span class=\"td-kw\">string</span><span>, </span><a href=\"#type_param_t\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> <span class=\"td-kw\">string</span> <span class=\"td-op\">?</span> <span class=\"td-lit\">0</span> <span class=\"td-op\">:</span> <span class=\"td-lit\">1</span>&gt;</span>",
@@ -661,6 +666,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "bar",
                           "name_href": "../././~/Baz.bar.html",
                           "content": "()<span>: <a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link td-ref\">InterfaceWithIndexSignature</a>[<span class=\"td-str\">\"test\"</span>]</span>",
@@ -821,6 +827,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "bufferedAmount",
                           "name_href": "../././~/CompoundType.bufferedAmount.html",
                           "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -1091,6 +1098,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "Bar",
                           "name_href": null,
                           "content": " = <span class=\"td-str\">\"bar\"</span>",
@@ -1102,6 +1110,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "Foo",
                           "name_href": null,
                           "content": " = <span class=\"td-str\">\"foo\"</span>",
@@ -1247,6 +1256,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "Bar",
                           "name_href": null,
                           "content": "",
@@ -1258,6 +1268,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "Foo",
                           "name_href": null,
                           "content": "",
@@ -1440,17 +1451,14 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": "new",
                           "name": "Foo",
                           "name_href": null,
                           "content": "(<span><span>value<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span></span></span>)",
                           "anchor": {
                             "id": "constructor_0"
                           },
-                          "tags": [
-                            {
-                              "kind": "new"
-                            }
-                          ],
+                          "tags": [],
                           "js_doc": null,
                           "source_href": null
                         }
@@ -1470,6 +1478,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "T",
                           "name_href": null,
                           "content": "",
@@ -1496,6 +1505,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "bar",
                           "name_href": "../././~/Foo.bar.html",
                           "content": "<span>: <span class=\"td-str\">\"string\"</span></span>",
@@ -1507,6 +1517,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "staticSetter",
                           "name_href": "../././~/Foo.staticSetter.html",
                           "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -1537,6 +1548,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "staticMethod",
                           "name_href": "../././~/Foo.staticMethod.html",
                           "content": "()<span>: <span class=\"td-kw\">void</span></span>",
@@ -1563,6 +1575,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
                           "name_href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
                           "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -1574,6 +1587,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "foo",
                           "name_href": "../././~/Foo.prototype.foo.html",
                           "content": "<span>: <a href=\"../././~/A.html\" class=\"link td-ref\">A</a></span>",
@@ -1589,6 +1603,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "getterAndSetter",
                           "name_href": "../././~/Foo.prototype.getterAndSetter.html",
                           "content": "",
@@ -1600,6 +1615,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "readonlyProperty",
                           "name_href": "../././~/Foo.prototype.readonlyProperty.html",
                           "content": "<span>: <span class=\"td-kw\">boolean</span></span>",
@@ -1615,6 +1631,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "setter",
                           "name_href": "../././~/Foo.prototype.setter.html",
                           "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -1630,6 +1647,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "getter",
                           "name_href": "../././~/Foo.prototype.getter.html",
                           "content": "",
@@ -1648,6 +1666,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "protectedProperty",
                           "name_href": "../././~/Foo.prototype.protectedProperty.html",
                           "content": "<span>: <span class=\"td-kw\">boolean</span></span>",
@@ -1678,6 +1697,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "[Symbol.iterator]",
                           "name_href": "../././~/Foo.prototype.[Symbol.iterator].html",
                           "content": "()<span>: <span class=\"td-kw\">void</span></span>",
@@ -1689,6 +1709,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "test",
                           "name_href": "../././~/Foo.prototype.test.html",
                           "content": "()<span>: <span class=\"td-kw\">void</span></span>",
@@ -2077,6 +2098,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "T",
                           "name_href": null,
                           "content": "<span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span>",
@@ -2088,6 +2110,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "E",
                           "name_href": null,
                           "content": "<span><span class=\"td-kw\"> extends </span><a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
@@ -2099,6 +2122,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "R",
                           "name_href": null,
                           "content": "<span><span> = </span><span class=\"td-kw\">number</span></span>",
@@ -2125,6 +2149,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "(<span><span>a<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">string</span></span>",
@@ -2151,6 +2176,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "world",
                           "name_href": "../././~/Hello.world.html",
                           "content": "<span>: <span class=\"td-kw\">string</span></span><span><span class=\"font-normal\"> = </span>\"foo\"</span>",
@@ -2162,6 +2188,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "test",
                           "name_href": "../././~/Hello.test.html",
                           "content": "<span>: <span class=\"td-str\">\"test\"</span></span>",
@@ -2180,6 +2207,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "[ab]",
                           "name_href": "../././~/Hello.ab.html",
                           "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -2191,6 +2219,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "x",
                           "name_href": "../././~/Hello.x.html",
                           "content": "<span>: { [<span><span>foo<span>: <span class=\"td-kw\">string</span></span></span></span>]<span>: <span class=\"td-kw\">number</span></span>;  }</span>",
@@ -2217,6 +2246,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "optionalMethod",
                           "name_href": "../././~/Hello.optionalMethod.html",
                           "content": "()<span>: <span>[<span class=\"td-kw\">string</span>]</span></span>",
@@ -2232,6 +2262,7 @@ expression: files
                           "source_href": null
                         },
                         {
+                          "name_prefix": null,
                           "name": "[computedMethod]",
                           "name_href": "../././~/Hello.computedMethod.html",
                           "content": "(<span><span>a<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <a href=\"#type_param_r\" class=\"link td-ref\">R</a> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -2815,6 +2846,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
@@ -2845,6 +2877,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -3006,6 +3039,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">string</span>",
@@ -3157,6 +3191,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
@@ -3187,6 +3222,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -3339,6 +3375,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">string</span>",
@@ -3474,6 +3511,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "foo",
                           "name_href": "../././~/anotherVariable.foo.html",
                           "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -3500,6 +3538,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": "bar",
                           "name_href": "../././~/anotherVariable.bar.html",
                           "content": "()<span>: <span class=\"td-kw\">number</span></span>",
@@ -3659,6 +3698,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">string</span>",
@@ -3837,6 +3877,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "T",
                                 "name_href": null,
                                 "content": "<span><span> = </span><span class=\"td-kw\">string</span></span>",
@@ -3863,6 +3904,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "foo",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
@@ -3878,6 +3920,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "bar",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span></span><span><span class=\"font-normal\"> = </span>bar</span>",
@@ -3893,6 +3936,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "baz",
                                 "name_href": null,
                                 "content": "<span>: { hello<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span></span>;  }</span>",
@@ -3908,6 +3952,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "qaz",
                                 "name_href": null,
                                 "content": "<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
@@ -3919,11 +3964,12 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "<span>...strings</span>",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span>[]</span>",
                                 "anchor": {
-                                  "id": "function_d_0_parameter_(___strings)"
+                                  "id": "function_d_0_parameter____strings"
                                 },
                                 "tags": [],
                                 "js_doc": null,
@@ -3945,6 +3991,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">string</span>",
@@ -3971,6 +4018,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "Foo",
@@ -4047,7 +4095,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"Example 2\">Example 2</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameter_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameter_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameter_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_d_0_parameter_qaz\" title=\"qaz\">qaz</a></li><li><a href=\"#function_d_0_parameter_(___strings)\" title=\"&lt;span&gt;...strings&lt;/span&gt;\"><span>...strings</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"test\">test</a></li><li><a href=\"#example_1\" title=\"Example 2\">Example 2</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_d_0_parameter_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_d_0_parameter_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_d_0_parameter_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_d_0_parameter_qaz\" title=\"qaz\">qaz</a></li><li><a href=\"#function_d_0_parameter____strings\" title=\"&lt;span&gt;...strings&lt;/span&gt;\"><span>...strings</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -4102,7 +4150,7 @@ expression: files
         {
           "level": 2,
           "content": "<span>...strings</span>",
-          "anchor": "function_d_0_parameter_(___strings)"
+          "anchor": "function_d_0_parameter____strings"
         },
         {
           "level": 1,
@@ -4178,6 +4226,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "foo",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>1</span>",
@@ -4193,6 +4242,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "bar",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -4208,6 +4258,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "baz",
                                 "name_href": null,
                                 "content": "<span>: <span>[<span class=\"td-kw\">number</span>]</span></span>",
@@ -4223,6 +4274,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "<span class=\"italic\">unnamed 3</span>",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span>[]</span>",
@@ -4238,6 +4290,7 @@ expression: files
                                 "source_href": null
                               },
                               {
+                                "name_prefix": null,
                                 "name": "<span class=\"italic\">unnamed 4</span>",
                                 "name_href": null,
                                 "content": "<span>: { qux<span>: <span class=\"td-kw\">number</span></span>;  }</span>",
@@ -4268,6 +4321,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -4294,6 +4348,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "",
@@ -4497,6 +4552,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "a",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -4551,6 +4607,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "a",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -4849,6 +4906,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
@@ -4879,6 +4937,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -5027,6 +5086,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">string</span>",
@@ -5179,6 +5239,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">string</span>",
@@ -5334,6 +5395,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span><span class=\"td-kw\">number</span><span class=\"td-op\"> | </span><span class=\"td-kw\">string</span></span></span>",
@@ -5360,6 +5422,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "s <span class=\"td-kw\">is</span> <span class=\"td-kw\">string</span>",
@@ -5525,6 +5588,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<a href=\"../././~/InterfaceWithIndexSignature.html\" class=\"link td-ref\">InterfaceWithIndexSignature</a>[<span class=\"td-str\">\"test\"</span>]",
@@ -5667,6 +5731,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-ref\">Record</span>&lt;<span class=\"td-kw\">string</span><span>, </span><span class=\"td-ref\">T</span> <span class=\"td-kw\">extends</span> <span class=\"td-kw\">string</span> <span class=\"td-op\">?</span> <span class=\"td-lit\">0</span> <span class=\"td-op\">:</span> <span class=\"td-lit\">1</span>&gt;",
@@ -5806,6 +5871,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">number</span>",
@@ -5945,6 +6011,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-str\">\"string\"</span>",
@@ -6084,6 +6151,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">number</span>",
@@ -6236,6 +6304,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -6382,6 +6451,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<a href=\"../././~/A.html\" class=\"link td-ref\">A</a>",
@@ -6728,6 +6798,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "s",
                                 "name_href": null,
                                 "content": "",
@@ -6754,6 +6825,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -6924,6 +6996,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -6950,6 +7023,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -6990,6 +7064,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -7016,6 +7091,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -7197,6 +7273,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">boolean</span>",
@@ -7340,6 +7417,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">boolean</span>",
@@ -7492,6 +7570,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span></span>",
@@ -7518,6 +7597,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -7683,6 +7763,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -7838,6 +7919,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -7989,6 +8071,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "s",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span>",
@@ -8015,6 +8098,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -8167,6 +8251,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">string</span>",
@@ -8315,6 +8400,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "a",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-ref\">T</span> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <span class=\"td-ref\">R</span> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span>",
@@ -8341,6 +8427,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -8502,6 +8589,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span>[<span class=\"td-kw\">string</span>]</span>",
@@ -8644,6 +8732,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-str\">\"test\"</span>",
@@ -8783,6 +8872,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">string</span>",
@@ -9068,6 +9158,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">number</span>",
@@ -9210,6 +9301,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">string</span>",
@@ -9358,6 +9450,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
@@ -9388,6 +9481,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -9536,6 +9630,7 @@ expression: files
                       "kind": "doc_entry",
                       "content": [
                         {
+                          "name_prefix": null,
                           "name": null,
                           "name_href": null,
                           "content": "<span class=\"td-kw\">number</span>",
@@ -9680,6 +9775,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
@@ -9710,6 +9806,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",
@@ -9867,6 +9964,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": "_n",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">number</span></span><span><span class=\"font-normal\"> = </span>0</span>",
@@ -9897,6 +9995,7 @@ expression: files
                             "kind": "doc_entry",
                             "content": [
                               {
+                                "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
                                 "content": "<span class=\"td-kw\">void</span>",

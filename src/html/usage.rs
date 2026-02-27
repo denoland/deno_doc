@@ -234,7 +234,11 @@ impl UsagesCtx {
     ctx: &RenderContext,
     doc_nodes: &[DocNodeWithContext],
   ) -> Option<Self> {
-    let is_single_mode = ctx.ctx.usage_composer.is_single_mode();
+    let Some(usage_composer) = &ctx.ctx.usage_composer else {
+      return None;
+    };
+
+    let is_single_mode = usage_composer.is_single_mode();
 
     if is_single_mode && ctx.ctx.file_mode == FileMode::SingleDts {
       return None;
@@ -306,10 +310,8 @@ impl UsagesCtx {
       js_sys::Function,
     >(usage_to_md_closure.as_ref());
 
-    let usages = ctx
-      .ctx
-      .usage_composer
-      .compose(ctx.get_current_resolve(), &usage_to_md_closure);
+    let usages =
+      usage_composer.compose(ctx.get_current_resolve(), &usage_to_md_closure);
 
     #[cfg(target_arch = "wasm32")]
     {

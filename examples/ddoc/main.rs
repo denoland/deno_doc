@@ -392,7 +392,7 @@ fn generate_docs_directory(
     package_name,
     main_entrypoint,
     href_resolver: Rc::new(EmptyResolver),
-    usage_composer: Rc::new(EmptyResolver),
+    usage_composer: Some(Rc::new(EmptyResolver)),
     rewrite_map: Some(index_map),
     category_docs: None,
     disable_search: false,
@@ -409,8 +409,9 @@ fn generate_docs_directory(
       )
     })),
     id_prefix: None,
+    diff_only: false,
   };
-  let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url)?;
+  let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url, None)?;
   let html = deno_doc::html::generate(ctx)?;
 
   let path = &output_dir_resolved;

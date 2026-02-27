@@ -1,0 +1,27 @@
+# old/mod.ts
+export default function greet(): void {}
+
+# new/mod.ts
+export function greet(): void {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "greet",
+          "kind": "function",
+          "nameChange": {
+            "old": "default",
+            "new": "greet"
+          },
+          "isDefaultChange": {
+            "old": true,
+            "new": false
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,10 +1,5 @@
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
-use crate::html::symbols::interface::render_call_signatures;
-use crate::html::symbols::interface::render_index_signatures;
-use crate::html::symbols::interface::render_methods;
-use crate::html::symbols::interface::render_properties;
-use crate::html::types::render_type_def;
 use crate::html::util::*;
 use std::collections::HashSet;
 
@@ -22,6 +17,16 @@ pub(crate) fn render_type_alias(
     .collect::<HashSet<&str>>();
   let ctx = &ctx.with_current_type_params(current_type_params);
 
+  let type_alias_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+    diff_index
+      .get_def_diff(
+        &doc_node.origin.specifier,
+        doc_node.get_name(),
+        doc_node.def.to_kind(),
+      )
+      .and_then(|d| d.as_type_alias())
+  });
+
   let id = IdBuilder::new(ctx)
     .kind(IdKind::TypeAlias)
     .name(name)
@@ -34,48 +39,20 @@ pub(crate) fn render_type_alias(
     &doc_node.js_doc,
     &type_alias_def.type_params,
     &doc_node.location,
+    type_alias_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
   }
 
-  if let Some(ts_type_literal) = type_alias_def.ts_type.type_literal.as_ref() {
-    if let Some(index_signatures) =
-      render_index_signatures(ctx, &ts_type_literal.index_signatures)
-    {
-      sections.push(index_signatures);
-    }
-
-    if let Some(call_signatures) =
-      render_call_signatures(ctx, &ts_type_literal.call_signatures)
-    {
-      sections.push(call_signatures);
-    }
-
-    if let Some(properties) =
-      render_properties(ctx, name, &ts_type_literal.properties)
-    {
-      sections.push(properties);
-    }
-
-    if let Some(methods) = render_methods(ctx, name, &ts_type_literal.methods) {
-      sections.push(methods);
-    }
-  } else {
-    sections.push(SectionCtx::new(
-      ctx,
-      "Definition",
-      SectionContentCtx::DocEntry(vec![DocEntryCtx::new(
-        ctx,
-        id,
-        None,
-        None,
-        &render_type_def(ctx, &type_alias_def.ts_type),
-        Default::default(),
-        None,
-        &doc_node.location,
-      )]),
-    ));
-  }
+  sections.extend(super::render_type_def_sections(
+    ctx,
+    name,
+    &type_alias_def.ts_type,
+    type_alias_diff.and_then(|d| d.ts_type_change.as_ref()),
+    id,
+    "Definition",
+    &doc_node.location,
+  ));
 
   sections
 }

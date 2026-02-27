@@ -910,7 +910,7 @@ pub struct TsMappedTypeDef {
   pub ts_type: Option<Box<TsTypeDef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
@@ -919,6 +919,14 @@ pub struct ConstructorDef {
   pub return_type: Option<TsTypeDef>,
   pub type_params: Box<[TsTypeParamDef]>,
   pub location: Location,
+}
+
+impl PartialEq for ConstructorDef {
+  fn eq(&self, other: &Self) -> bool {
+    self.params == other.params
+      && self.return_type == other.return_type
+      && self.type_params == other.type_params
+  }
 }
 
 impl Display for ConstructorDef {
@@ -932,7 +940,7 @@ impl Display for ConstructorDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MethodDef {
   pub name: String,
@@ -947,6 +955,18 @@ pub struct MethodDef {
   pub optional: bool,
   pub return_type: Option<TsTypeDef>,
   pub type_params: Box<[TsTypeParamDef]>,
+}
+
+impl PartialEq for MethodDef {
+  fn eq(&self, other: &Self) -> bool {
+    self.name == other.name
+      && self.kind == other.kind
+      && self.params == other.params
+      && self.computed == other.computed
+      && self.optional == other.optional
+      && self.return_type == other.return_type
+      && self.type_params == other.type_params
+  }
 }
 
 impl From<MethodDef> for DocNode {
@@ -987,7 +1007,7 @@ impl Display for MethodDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PropertyDef {
   pub name: String,
@@ -1002,6 +1022,18 @@ pub struct PropertyDef {
   pub optional: bool,
   pub ts_type: Option<TsTypeDef>,
   pub type_params: Box<[TsTypeParamDef]>,
+}
+
+impl PartialEq for PropertyDef {
+  fn eq(&self, other: &Self) -> bool {
+    self.name == other.name
+      && self.params == other.params
+      && self.readonly == other.readonly
+      && self.computed == other.computed
+      && self.optional == other.optional
+      && self.ts_type == other.ts_type
+      && self.type_params == other.type_params
+  }
 }
 
 impl From<PropertyDef> for DocNode {
@@ -1036,7 +1068,7 @@ impl Display for PropertyDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CallSignatureDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
@@ -1046,6 +1078,14 @@ pub struct CallSignatureDef {
   pub params: Vec<ParamDef>,
   pub ts_type: Option<TsTypeDef>,
   pub type_params: Box<[TsTypeParamDef]>,
+}
+
+impl PartialEq for CallSignatureDef {
+  fn eq(&self, other: &Self) -> bool {
+    self.params == other.params
+      && self.ts_type == other.ts_type
+      && self.type_params == other.type_params
+  }
 }
 
 impl Display for CallSignatureDef {
@@ -1058,7 +1098,7 @@ impl Display for CallSignatureDef {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexSignatureDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
@@ -1068,6 +1108,14 @@ pub struct IndexSignatureDef {
   pub ts_type: Option<TsTypeDef>,
   #[serde(default)]
   pub location: Location,
+}
+
+impl PartialEq for IndexSignatureDef {
+  fn eq(&self, other: &Self) -> bool {
+    self.readonly == other.readonly
+      && self.params == other.params
+      && self.ts_type == other.ts_type
+  }
 }
 
 impl Display for IndexSignatureDef {

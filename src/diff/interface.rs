@@ -1,6 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use super::Change;
+use super::RenameCandidate;
+use super::detect_renames;
 use super::function::ParamsDiff;
 use super::js_doc::JsDocDiff;
 use super::ts_type::TsTypeDiff;
@@ -88,6 +90,42 @@ impl InterfaceDiff {
     Some(InterfaceDiff {
       extends_change,
       type_params_change,
+      constructor_changes,
+      method_changes,
+      property_changes,
+      call_signature_changes,
+      index_signature_changes,
+    })
+  }
+
+  pub fn diff_type_literal(
+    old: &crate::ts_type::TsTypeLiteralDef,
+    new: &crate::ts_type::TsTypeLiteralDef,
+  ) -> Option<Self> {
+    let constructor_changes =
+      InterfaceConstructorsDiff::diff(&old.constructors, &new.constructors);
+    let method_changes = InterfaceMethodsDiff::diff(&old.methods, &new.methods);
+    let property_changes =
+      InterfacePropertiesDiff::diff(&old.properties, &new.properties);
+    let call_signature_changes =
+      CallSignaturesDiff::diff(&old.call_signatures, &new.call_signatures);
+    let index_signature_changes = InterfaceIndexSignaturesDiff::diff(
+      &old.index_signatures,
+      &new.index_signatures,
+    );
+
+    if constructor_changes.is_none()
+      && method_changes.is_none()
+      && property_changes.is_none()
+      && call_signature_changes.is_none()
+      && index_signature_changes.is_none()
+    {
+      return None;
+    }
+
+    Some(InterfaceDiff {
+      extends_change: None,
+      type_params_change: None,
       constructor_changes,
       method_changes,
       property_changes,
@@ -270,6 +308,7 @@ impl InterfaceConstructorsDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceConstructorDiff {
+  pub param_count: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -315,6 +354,7 @@ impl InterfaceConstructorDiff {
     }
 
     Some(InterfaceConstructorDiff {
+      param_count: new_params.len(),
       params_change,
       type_params_change,
       return_type_change,
@@ -369,6 +409,12 @@ impl InterfaceMethodsDiff {
       }
     }
 
+    detect_renames::<InterfaceMethodDiff>(
+      &mut added,
+      &mut removed,
+      &mut modified,
+    );
+
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
     }
@@ -385,6 +431,8 @@ impl InterfaceMethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDiff {
   pub name: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<Change<String>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub optional_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -448,12 +496,52 @@ impl InterfaceMethodDiff {
 
     Some(InterfaceMethodDiff {
       name: old_name.clone(),
+      name_change: None,
       optional_change,
       params_change,
       return_type_change,
       type_params_change,
       js_doc_change,
     })
+  }
+
+  pub fn change_percentage(&self) -> f64 {
+    let changed = self.optional_change.is_some() as usize
+      + self.params_change.is_some() as usize
+      + self.return_type_change.is_some() as usize
+      + self.type_params_change.is_some() as usize;
+    changed as f64 / 4.0
+  }
+}
+
+impl RenameCandidate for InterfaceMethodDiff {
+  type Item = MethodDef;
+
+  fn is_candidate(old: &MethodDef, new: &MethodDef) -> bool {
+    old.kind == new.kind
+  }
+
+  fn compute(old: &MethodDef, new: &MethodDef) -> Option<Self> {
+    InterfaceMethodDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(diff: Option<Self>, old: &MethodDef, new: &MethodDef) -> Self {
+    let mut d = diff.unwrap_or_else(|| InterfaceMethodDiff {
+      name: new.name.clone(),
+      name_change: None,
+      optional_change: None,
+      params_change: None,
+      return_type_change: None,
+      type_params_change: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
   }
 }
 
@@ -502,6 +590,12 @@ impl InterfacePropertiesDiff {
       }
     }
 
+    detect_renames::<InterfacePropertyDiff>(
+      &mut added,
+      &mut removed,
+      &mut modified,
+    );
+
     if added.is_empty() && removed.is_empty() && modified.is_empty() {
       return None;
     }
@@ -518,6 +612,8 @@ impl InterfacePropertiesDiff {
 #[serde(rename_all = "camelCase")]
 pub struct InterfacePropertyDiff {
   pub name: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub name_change: Option<Change<String>>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -589,6 +685,7 @@ impl InterfacePropertyDiff {
 
     Some(InterfacePropertyDiff {
       name: old_name.clone(),
+      name_change: None,
       readonly_change,
       optional_change,
       type_change,
@@ -596,6 +693,51 @@ impl InterfacePropertyDiff {
       type_params_change,
       js_doc_change,
     })
+  }
+
+  pub fn change_percentage(&self) -> f64 {
+    let changed = self.readonly_change.is_some() as usize
+      + self.optional_change.is_some() as usize
+      + self.type_change.is_some() as usize
+      + self.params_change.is_some() as usize
+      + self.type_params_change.is_some() as usize;
+    changed as f64 / 5.0
+  }
+}
+
+impl RenameCandidate for InterfacePropertyDiff {
+  type Item = PropertyDef;
+
+  fn is_candidate(_old: &PropertyDef, _new: &PropertyDef) -> bool {
+    true
+  }
+
+  fn compute(old: &PropertyDef, new: &PropertyDef) -> Option<Self> {
+    InterfacePropertyDiff::diff(old, new)
+  }
+
+  fn delta(&self) -> f64 {
+    self.change_percentage()
+  }
+
+  fn with_rename(
+    diff: Option<Self>,
+    old: &PropertyDef,
+    new: &PropertyDef,
+  ) -> Self {
+    let mut d = diff.unwrap_or_else(|| InterfacePropertyDiff {
+      name: new.name.clone(),
+      name_change: None,
+      readonly_change: None,
+      optional_change: None,
+      type_change: None,
+      params_change: None,
+      type_params_change: None,
+      js_doc_change: None,
+    });
+    d.name = new.name.clone();
+    d.name_change = Some(Change::new(old.name.clone(), new.name.clone()));
+    d
   }
 }
 
@@ -624,7 +766,7 @@ impl CallSignaturesDiff {
     for i in 0..max_len {
       match (old.get(i), new.get(i)) {
         (Some(old_sig), Some(new_sig)) => {
-          if let Some(diff) = CallSignatureDiff::diff(old_sig, new_sig) {
+          if let Some(diff) = CallSignatureDiff::diff(i, old_sig, new_sig) {
             modified.push(diff);
           }
         }
@@ -653,6 +795,7 @@ impl CallSignaturesDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CallSignatureDiff {
+  pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub params_change: Option<ParamsDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -664,7 +807,11 @@ pub struct CallSignatureDiff {
 }
 
 impl CallSignatureDiff {
-  pub fn diff(old: &CallSignatureDef, new: &CallSignatureDef) -> Option<Self> {
+  pub fn diff(
+    index: usize,
+    old: &CallSignatureDef,
+    new: &CallSignatureDef,
+  ) -> Option<Self> {
     let CallSignatureDef {
       js_doc: old_js_doc,
       location: _, // internal, not diffed
@@ -698,6 +845,7 @@ impl CallSignatureDiff {
     }
 
     Some(CallSignatureDiff {
+      index,
       params_change,
       type_params_change,
       ts_type_change,
@@ -731,7 +879,7 @@ impl InterfaceIndexSignaturesDiff {
       match (old.get(i), new.get(i)) {
         (Some(old_sig), Some(new_sig)) => {
           if let Some(diff) =
-            InterfaceIndexSignatureDiff::diff(old_sig, new_sig)
+            InterfaceIndexSignatureDiff::diff(i, old_sig, new_sig)
           {
             modified.push(diff);
           }
@@ -761,6 +909,7 @@ impl InterfaceIndexSignaturesDiff {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceIndexSignatureDiff {
+  pub index: usize,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub readonly_change: Option<Change<bool>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -773,6 +922,7 @@ pub struct InterfaceIndexSignatureDiff {
 
 impl InterfaceIndexSignatureDiff {
   pub fn diff(
+    index: usize,
     old: &IndexSignatureDef,
     new: &IndexSignatureDef,
   ) -> Option<Self> {
@@ -813,6 +963,7 @@ impl InterfaceIndexSignatureDiff {
     }
 
     Some(InterfaceIndexSignatureDiff {
+      index,
       readonly_change,
       params_change,
       type_change,

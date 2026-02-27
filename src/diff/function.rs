@@ -126,7 +126,13 @@ impl ParamsDiff {
       match (old.get(i), new.get(i)) {
         (Some(old_param), Some(new_param)) => {
           if let Some(diff) = ParamDiff::diff(i, old_param, new_param) {
-            modified.push(diff);
+            // If both name and type changed, treat as removal + addition
+            if diff.pattern_change.is_some() && diff.type_change.is_some() {
+              removed.push(old_param.clone());
+              added.push(new_param.clone());
+            } else {
+              modified.push(diff);
+            }
           }
         }
         (Some(old_param), None) => {
@@ -137,6 +143,34 @@ impl ParamsDiff {
         }
         (None, None) => unreachable!(),
       }
+    }
+
+    // Cancel out params that appear in both added and removed (same
+    // name+type, just shifted position).
+    let mut cancelled_added = Vec::new();
+    let mut cancelled_removed = Vec::new();
+    for (a_idx, a) in added.iter().enumerate() {
+      for (r_idx, r) in removed.iter().enumerate() {
+        if !cancelled_removed.contains(&r_idx) && a == r {
+          cancelled_added.push(a_idx);
+          cancelled_removed.push(r_idx);
+          break;
+        }
+      }
+    }
+    if !cancelled_added.is_empty() {
+      let mut i = 0;
+      added.retain(|_| {
+        let keep = !cancelled_added.contains(&i);
+        i += 1;
+        keep
+      });
+      let mut i = 0;
+      removed.retain(|_| {
+        let keep = !cancelled_removed.contains(&i);
+        i += 1;
+        keep
+      });
     }
 
     if added.is_empty() && removed.is_empty() && modified.is_empty() {

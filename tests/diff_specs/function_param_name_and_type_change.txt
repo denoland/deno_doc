@@ -1,0 +1,48 @@
+# old/mod.ts
+export function foo(bar: string): string { return ''; }
+
+# new/mod.ts
+export function foo(qaz: number): string { return ''; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "kind": "function",
+          "defChanges": {
+            "type": "function",
+            "paramsChange": {
+              "added": [
+                {
+                  "kind": "identifier",
+                  "name": "qaz",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                }
+              ],
+              "removed": [
+                {
+                  "kind": "identifier",
+                  "name": "bar",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

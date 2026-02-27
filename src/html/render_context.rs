@@ -583,7 +583,7 @@ mod test {
         package_name: None,
         main_entrypoint: None,
         href_resolver: Rc::new(TestResolver),
-        usage_composer: Rc::new(TestResolver),
+        usage_composer: Some(Rc::new(TestResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
@@ -595,10 +595,12 @@ mod test {
         markdown_stripper: Rc::new(crate::html::comrak::strip),
         head_inject: None,
         id_prefix: None,
+        diff_only: false,
       },
       None,
       Default::default(),
       doc_nodes_by_url,
+      None,
     )
     .unwrap();
 

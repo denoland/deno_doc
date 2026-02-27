@@ -37,7 +37,14 @@ fn run_test(test: &CollectedTest) {
   let file_text = test.read_to_string().unwrap();
   let spec = parse_spec(file_text);
 
+  let old_entry_points = spec
+    .old_files
+    .iter()
+    .map(|f| f.url().to_string())
+    .collect::<Vec<_>>();
+
   let mut builder = DiffTestBuilder::new();
+  builder.set_entry_points(old_entry_points);
   builder.with_loader(|loader| {
     for file in &spec.old_files {
       let source = Source::Module {
@@ -56,7 +63,14 @@ fn run_test(test: &CollectedTest) {
 
   let old_docs = rt.block_on(builder.build());
 
+  let new_entry_points = spec
+    .new_files
+    .iter()
+    .map(|f| f.url().to_string())
+    .collect::<Vec<_>>();
+
   let mut builder = DiffTestBuilder::new();
+  builder.set_entry_points(new_entry_points);
   builder.with_loader(|loader| {
     for file in &spec.new_files {
       let source = Source::Module {

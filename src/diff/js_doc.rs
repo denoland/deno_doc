@@ -52,26 +52,35 @@ impl TagsDiff {
     let mut added = Vec::new();
     let mut removed = Vec::new();
     let mut modified = Vec::new();
+    let mut consumed_old = vec![false; old.len()];
+    let mut consumed_new = vec![false; new.len()];
 
-    for new_tag in new.iter() {
-      let matching_old = old.iter().find(|t| tags_same_kind(t, new_tag));
+    for (ni, new_tag) in new.iter().enumerate() {
+      let matching_old = old
+        .iter()
+        .enumerate()
+        .find(|(oi, t)| !consumed_old[*oi] && tags_same_kind(t, new_tag));
       match matching_old {
-        Some(old_tag) if old_tag != new_tag => {
+        Some((oi, old_tag)) if old_tag != new_tag => {
+          consumed_old[oi] = true;
+          consumed_new[ni] = true;
           modified.push(TagDiff {
             old: old_tag.clone(),
             new: new_tag.clone(),
           });
         }
+        Some((oi, _)) => {
+          consumed_old[oi] = true;
+          consumed_new[ni] = true;
+        }
         None => {
           added.push(new_tag.clone());
         }
-        _ => {}
       }
     }
 
-    for old_tag in old.iter() {
-      let matching_new = new.iter().find(|t| tags_same_kind(t, old_tag));
-      if matching_new.is_none() {
+    for (oi, old_tag) in old.iter().enumerate() {
+      if !consumed_old[oi] {
         removed.push(old_tag.clone());
       }
     }
@@ -114,7 +123,7 @@ fn tags_same_kind(a: &JsDocTag, b: &JsDocTag) -> bool {
     (Tags { .. }, Tags { .. }) => true,
     (Template { name: n1, .. }, Template { name: n2, .. }) => n1 == n2,
     (This { type_ref: t1, .. }, This { type_ref: t2, .. }) => t1 == t2,
-    (Throws { .. }, Throws { .. }) => true,
+    (Throws { type_ref: t1, .. }, Throws { type_ref: t2, .. }) => t1 == t2,
     (TypeDef { name: n1, .. }, TypeDef { name: n2, .. }) => n1 == n2,
     (TypeRef { type_ref: t1, .. }, TypeRef { type_ref: t2, .. }) => t1 == t2,
     (See { .. }, See { .. }) => true,

@@ -13,6 +13,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 
+pub mod diff;
 pub mod jsdoc;
 pub mod pages;
 mod parameters;
@@ -30,6 +31,8 @@ pub mod comrak;
 use crate::html::pages::SymbolPage;
 use crate::js_doc::JsDocTag;
 use crate::parser::ParseOutput;
+pub use diff::DiffIndex;
+pub use diff::DiffStatus;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
@@ -265,7 +268,7 @@ pub struct GenerateOptions {
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Rc<dyn UsageComposer>,
+  pub usage_composer: Option<Rc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
@@ -275,6 +278,7 @@ pub struct GenerateOptions {
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
+  pub diff_only: bool,
 }
 
 #[non_exhaustive]
@@ -283,7 +287,7 @@ pub struct GenerateCtx {
   pub common_ancestor: Option<PathBuf>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
   pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Rc<dyn UsageComposer>,
+  pub usage_composer: Option<Rc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub main_entrypoint: Option<Rc<ShortPath>>,
   pub file_mode: FileMode,
@@ -295,11 +299,14 @@ pub struct GenerateCtx {
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
+  pub diff_only: bool,
   /// Index from Location to (depth, node) for fast reference resolution.
   reference_index: std::collections::HashMap<
     crate::Location,
     Vec<(usize, DocNodeWithContext)>,
   >,
+  /// Optional diff index for annotating rendered output with diff status.
+  pub diff: Option<DiffIndex>,
 }
 
 impl GenerateCtx {
@@ -308,7 +315,10 @@ impl GenerateCtx {
     common_ancestor: Option<PathBuf>,
     file_mode: FileMode,
     doc_nodes_by_url: ParseOutput,
+    diff: Option<crate::diff::DocDiff>,
   ) -> Result<Self, anyhow::Error> {
+    let diff = diff.map(DiffIndex::new);
+
     let mut main_entrypoint = None;
 
     let mut doc_nodes = doc_nodes_by_url
@@ -375,6 +385,15 @@ impl GenerateCtx {
               node
             };
 
+            let diff_status = diff.as_ref().and_then(|d| {
+              d.get_node_diff(
+                &short_path.specifier,
+                &node.name,
+                node.def.to_kind(),
+              )
+              .map(|info| info.status.clone())
+            });
+
             DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
@@ -384,6 +403,7 @@ impl GenerateCtx {
               parent: None,
               namespace_children: None,
               qualified_name: std::cell::OnceCell::new(),
+              diff_status,
             }
           })
           .map(|mut node| {
@@ -422,16 +442,68 @@ impl GenerateCtx {
 
     doc_nodes.sort_by_key(|a, _| !a.is_main);
 
-    let mut reference_index: std::collections::HashMap<
+    // Inject removed symbols from diff data into doc_nodes for listing
+    if let Some(diff) = &diff {
+      for (short_path, nodes) in &mut doc_nodes {
+        if let Some(removed) = diff
+          .module_diffs
+          .get(&short_path.specifier)
+          .map(|diff| &diff.removed)
+        {
+          for node in removed {
+            nodes.push(DocNodeWithContext {
+              origin: short_path.clone(),
+              ns_qualifiers: Rc::new([]),
+              kind: DocNodeKind::from_node(node),
+              inner: Arc::new(node.clone()),
+              drilldown_name: None,
+              parent: None,
+              namespace_children: None,
+              qualified_name: std::cell::OnceCell::new(),
+              diff_status: Some(DiffStatus::Removed),
+            });
+          }
+        }
+      }
+
+      for (short_path, nodes) in &mut doc_nodes {
+        for node in nodes.iter_mut() {
+          if !matches!(node.def, DocNodeDef::Namespace { .. }) {
+            continue;
+          }
+
+          // Look up the NamespaceDiff for this node from the DiffIndex
+          let ns_diff = diff
+            .get_node_diff(
+              &short_path.specifier,
+              &node.name,
+              node.def.to_kind(),
+            )
+            .and_then(|info| info.diff.as_ref())
+            .and_then(|node_diff| node_diff.def_changes.as_ref())
+            .and_then(|def_diff| {
+              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff
+              {
+                Some(ns_diff)
+              } else {
+                None
+              }
+            });
+
+          if let Some(ns_diff) = ns_diff {
+            apply_namespace_diff_inner(node, ns_diff, short_path)
+          }
+        }
+      }
+    }
+
+    let mut reference_index: HashMap<
       crate::Location,
       Vec<(usize, DocNodeWithContext)>,
-    > = std::collections::HashMap::new();
+    > = HashMap::new();
     {
       fn index_node(
-        index: &mut std::collections::HashMap<
-          crate::Location,
-          Vec<(usize, DocNodeWithContext)>,
-        >,
+        index: &mut HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
         node: &DocNodeWithContext,
         depth: usize,
       ) {
@@ -471,13 +543,16 @@ impl GenerateCtx {
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
+      diff_only: options.diff_only,
       reference_index,
+      diff,
     })
   }
 
   pub fn create_basic(
     mut options: GenerateOptions,
     doc_nodes_by_url: ParseOutput,
+    diff: Option<crate::diff::DocDiff>,
   ) -> Result<Self, anyhow::Error> {
     if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
       options.main_entrypoint =
@@ -498,7 +573,13 @@ impl GenerateCtx {
 
     let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
 
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)
+    GenerateCtx::new(
+      options,
+      common_ancestor,
+      file_mode,
+      doc_nodes_by_url,
+      diff,
+    )
   }
 
   pub fn render<T: serde::Serialize>(
@@ -591,6 +672,94 @@ impl GenerateCtx {
           node
         }
       })
+  }
+}
+
+fn apply_namespace_diff_inner(
+  node: &mut DocNodeWithContext,
+  ns_diff: &crate::diff::NamespaceDiff,
+  short_path: &Rc<ShortPath>,
+) {
+  // Only clone when we need to inject removed elements
+  let removed_ctx = if !ns_diff.removed_elements.is_empty() {
+    let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+    let node_snapshot = node.clone();
+    Some((subqualifier, node_snapshot))
+  } else {
+    None
+  };
+
+  if let Some(children) = &mut node.namespace_children {
+    // Build lookup sets for added and modified elements
+    let added_names: std::collections::HashSet<(
+      String,
+      crate::node::DocNodeKind,
+    )> = ns_diff
+      .added_elements
+      .iter()
+      .map(|n| (n.name.to_string(), n.def.to_kind()))
+      .collect();
+
+    let modified_map: IndexMap<
+      (String, crate::node::DocNodeKind),
+      &crate::diff::DocNodeDiff,
+    > = ns_diff
+      .modified_elements
+      .iter()
+      .map(|d| ((d.name.to_string(), d.kind), d))
+      .collect();
+
+    // Set diff_status on existing children
+    for child in children.iter_mut() {
+      let kind = child.def.to_kind();
+      let name = child.name.to_string();
+      let key = (name, kind);
+      if added_names.contains(&key) {
+        child.diff_status = Some(DiffStatus::Added);
+      } else if let Some(node_diff) = modified_map.get(&key) {
+        child.diff_status = if let Some(name_change) = &node_diff.name_change {
+          Some(DiffStatus::Renamed {
+            old_name: name_change.old.to_string(),
+          })
+        } else {
+          Some(DiffStatus::Modified)
+        };
+
+        // If child is a namespace, recurse with its own NamespaceDiff
+        if matches!(child.def, DocNodeDef::Namespace { .. }) {
+          let child_ns_diff =
+            node_diff.def_changes.as_ref().and_then(|def_diff| {
+              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff
+              {
+                Some(ns_diff)
+              } else {
+                None
+              }
+            });
+
+          if let Some(child_ns_diff) = child_ns_diff {
+            apply_namespace_diff_inner(child, child_ns_diff, short_path);
+          }
+        }
+      }
+    }
+
+    // Inject removed elements
+    if let Some((subqualifier, node_snapshot)) = &removed_ctx {
+      for removed_node in &ns_diff.removed_elements {
+        children.push(DocNodeWithContext {
+          origin: short_path.clone(),
+          ns_qualifiers: subqualifier.clone(),
+          kind: DocNodeKind::from_node(removed_node),
+          inner: removed_node.clone(),
+          drilldown_name: None,
+          parent: Some(Box::new(node_snapshot.clone())),
+          namespace_children: None,
+          qualified_name: std::cell::OnceCell::new(),
+          diff_status: Some(DiffStatus::Removed),
+        });
+      }
+    }
   }
 }
 
@@ -777,6 +946,8 @@ pub struct DocNodeWithContext {
   pub namespace_children: Option<Vec<DocNodeWithContext>>,
   #[serde(skip, default)]
   qualified_name: std::cell::OnceCell<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl DocNodeWithContext {
@@ -790,6 +961,7 @@ impl DocNodeWithContext {
       parent: Some(Box::new(self.clone())),
       namespace_children: None,
       qualified_name: std::cell::OnceCell::new(),
+      diff_status: None,
     }
   }
 
@@ -818,6 +990,7 @@ impl DocNodeWithContext {
     let mut new_node = self.create_child(Arc::new(method_doc_node));
     new_node.drilldown_name = Some(original_name);
     new_node.kind = DocNodeKind::Method(method_kind.into());
+    new_node.diff_status = self.diff_status.clone();
     new_node
   }
 
@@ -838,6 +1011,7 @@ impl DocNodeWithContext {
     let mut new_node = self.create_child(Arc::new(property_doc_node));
     new_node.drilldown_name = Some(original_name);
     new_node.kind = DocNodeKind::Property;
+    new_node.diff_status = self.diff_status.clone();
     new_node
   }
 
@@ -1147,6 +1321,7 @@ pub fn generate(
           SymbolPage::Redirect {
             current_symbol,
             href,
+            ..
           } => {
             let redirect =
               serde_json::json!({ "kind": "redirect", "path": href });
@@ -1201,6 +1376,8 @@ pub fn generate_json(
 ) -> Result<HashMap<String, serde_json::Value>, anyhow::Error> {
   let mut files = HashMap::new();
 
+  let diff_only = ctx.diff_only;
+
   // Index page
   {
     let (partitions_for_entrypoint_nodes, uses_categories) =
@@ -1235,7 +1412,18 @@ pub fn generate_json(
       uses_categories,
     );
 
-    files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+    if !diff_only
+      || index
+        .overview
+        .as_ref()
+        .is_some_and(|o| !o.sections.is_empty())
+      || index
+        .module_doc
+        .as_ref()
+        .is_some_and(|md| !md.sections.sections.is_empty())
+    {
+      files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+    }
   }
 
   let all_doc_nodes = ctx
@@ -1249,10 +1437,12 @@ pub fn generate_json(
   {
     let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
-    files.insert(
-      "./all_symbols.json".to_string(),
-      serde_json::to_value(all_symbols)?,
-    );
+    if !diff_only || !all_symbols.content.entrypoints.is_empty() {
+      files.insert(
+        "./all_symbols.json".to_string(),
+        serde_json::to_value(all_symbols)?,
+      );
+    }
   }
 
   // Category pages
@@ -1277,6 +1467,16 @@ pub fn generate_json(
           partitions,
           &all_doc_nodes,
         );
+
+        if diff_only
+          && index
+            .overview
+            .as_ref()
+            .is_none_or(|o| o.sections.is_empty())
+        {
+          continue;
+        }
+
         files.insert(
           format!("{}.json", util::slugify(category)),
           serde_json::to_value(index)?,
@@ -1305,6 +1505,15 @@ pub fn generate_json(
             toc_ctx,
             categories_panel,
           } => {
+            if diff_only && symbol_group_ctx.diff_status.is_none() {
+              return vec![];
+            }
+
+            let mut symbol_group_ctx = symbol_group_ctx;
+            if diff_only {
+              symbol_group_ctx.strip_unchanged_tags();
+            }
+
             let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
@@ -1342,7 +1551,12 @@ pub fn generate_json(
           SymbolPage::Redirect {
             current_symbol,
             href,
+            diff_status,
           } => {
+            if diff_only && diff_status.is_none() {
+              return vec![];
+            }
+
             let redirect = serde_json::json!({ "path": href });
 
             let file_name =
@@ -1361,6 +1575,19 @@ pub fn generate_json(
           false,
         );
 
+        if diff_only
+          && index
+            .overview
+            .as_ref()
+            .is_none_or(|o| o.sections.is_empty())
+          && index
+            .module_doc
+            .as_ref()
+            .is_none_or(|md| md.sections.sections.is_empty())
+        {
+          continue;
+        }
+
         files.insert(
           format!("{}/index.json", short_path.path),
           serde_json::to_value(index)?,
@@ -1369,7 +1596,10 @@ pub fn generate_json(
     }
   }
 
-  files.insert("search.json".into(), generate_search_index(&ctx));
+  // Skip search index in diff_only mode
+  if !diff_only {
+    files.insert("search.json".into(), generate_search_index(&ctx));
+  }
 
   Ok(files)
 }

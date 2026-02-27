@@ -693,8 +693,11 @@ pub(crate) fn render_type_params(
   js_doc: &JsDoc,
   type_params: &[TsTypeParamDef],
   location: &crate::Location,
+  type_params_diff: Option<&crate::diff::TypeParamsDiff>,
 ) -> Option<SectionCtx> {
-  if type_params.is_empty() {
+  if type_params.is_empty()
+    && type_params_diff.is_none_or(|d| d.removed.is_empty())
+  {
     return None;
   }
 
@@ -740,6 +743,9 @@ pub(crate) fn render_type_params(
       })
       .unwrap_or_default();
 
+    let (diff_status, old_content) =
+      get_type_param_diff_info(type_params_diff, &type_param.name);
+
     let content = DocEntryCtx::new(
       ctx,
       id,
@@ -749,9 +755,56 @@ pub(crate) fn render_type_params(
       Default::default(),
       type_param_docs.get(type_param.name.as_str()).cloned(),
       location,
+      diff_status,
+      old_content,
+      None,
+      None,
     );
 
     items.push(content);
+  }
+
+  // Inject removed type params
+  if let Some(diff) = type_params_diff {
+    for removed_tp in &diff.removed {
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::TypeParam)
+        .name(&removed_tp.name)
+        .build();
+
+      let constraint = removed_tp
+        .constraint
+        .as_ref()
+        .map(|constraint| {
+          format!(
+            r#"<span><span class="td-kw"> extends </span>{}</span>"#,
+            render_type_def(ctx, constraint)
+          )
+        })
+        .unwrap_or_default();
+
+      let default = removed_tp
+        .default
+        .as_ref()
+        .map(|default| {
+          format!(
+            r#"<span><span> = </span>{}</span>"#,
+            render_type_def(ctx, default)
+          )
+        })
+        .unwrap_or_default();
+
+      items.push(DocEntryCtx::removed(
+        ctx,
+        id,
+        Some(html_escape::encode_text(&removed_tp.name).into_owned()),
+        None,
+        &format!("{constraint}{default}"),
+        Default::default(),
+        None,
+        location,
+      ));
+    }
   }
 
   Some(SectionCtx::new(
@@ -759,4 +812,40 @@ pub(crate) fn render_type_params(
     "Type Parameters",
     SectionContentCtx::DocEntry(items),
   ))
+}
+
+fn get_type_param_diff_info(
+  type_params_diff: Option<&crate::diff::TypeParamsDiff>,
+  name: &str,
+) -> (Option<crate::html::DiffStatus>, Option<String>) {
+  let diff = match type_params_diff {
+    Some(d) => d,
+    None => return (None, None),
+  };
+
+  if diff.added.iter().any(|tp| tp.name == name) {
+    return (Some(crate::html::DiffStatus::Added), None);
+  }
+
+  if let Some(tp_diff) = diff.modified.iter().find(|tp| tp.name == name) {
+    let mut old_parts = Vec::new();
+    if let Some(constraint_change) = &tp_diff.constraint_change
+      && let Some(old_constraint) = &constraint_change.old
+    {
+      old_parts.push(format!(" extends {}", &old_constraint.repr));
+    }
+    if let Some(default_change) = &tp_diff.default_change
+      && let Some(old_default) = &default_change.old
+    {
+      old_parts.push(format!(" = {}", &old_default.repr));
+    }
+    let old_content = if old_parts.is_empty() {
+      None
+    } else {
+      Some(old_parts.join(""))
+    };
+    return (Some(crate::html::DiffStatus::Modified), old_content);
+  }
+
+  (None, None)
 }
