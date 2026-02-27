@@ -500,9 +500,15 @@ fn render_single_function(
     crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
   }
 
-  // If there's a doc text change, re-render docs with inline diff
+  // If there's a doc text change, re-render docs with inline diff;
+  // otherwise in diff_only mode, hide the unchanged docs.
   if let Some(diff_docs) = render_overload_docs_with_diff(ctx, doc_node) {
     docs = Some(diff_docs);
+  } else if ctx.ctx.diff_only
+    && !crate::html::diff::is_symbol_added(doc_node)
+    && !crate::html::diff::is_symbol_removed(doc_node)
+  {
+    docs = None;
   }
 
   SymbolContentCtx {

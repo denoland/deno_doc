@@ -632,25 +632,33 @@ impl SymbolInnerCtx {
         crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
       }
 
-      // If there's a doc text change, re-render docs with inline diff
-      if let Some(diff_docs) = ctx.ctx.diff.as_ref().and_then(|diff_index| {
-        let info = diff_index.get_node_diff(
-          &doc_node.origin.specifier,
-          doc_node.get_name(),
-          doc_node.def.to_kind(),
-        )?;
-        let doc_change = info
+      let doc_change = ctx.ctx.diff.as_ref().and_then(|diff_index| {
+        diff_index
+          .get_node_diff(
+            &doc_node.origin.specifier,
+            doc_node.get_name(),
+            doc_node.def.to_kind(),
+          )?
           .diff
           .as_ref()?
           .js_doc_changes
           .as_ref()?
           .doc_change
-          .as_ref()?;
-        let old_doc = doc_change.old.as_deref().unwrap_or_default();
+          .as_ref()
+      });
+      if let Some(dc) = doc_change {
+        let old_doc = dc.old.as_deref().unwrap_or_default();
         let new_doc = doc_node.js_doc.doc.as_deref().unwrap_or_default();
-        crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
-      }) {
-        docs = Some(diff_docs);
+        if let Some(diff_docs) =
+          crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
+        {
+          docs = Some(diff_docs);
+        }
+      } else if ctx.ctx.diff_only
+        && !is_symbol_added(doc_node)
+        && !is_symbol_removed(doc_node)
+      {
+        docs = None;
       }
 
       content_parts.push(SymbolInnerCtx::Other(SymbolContentCtx {

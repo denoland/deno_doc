@@ -59,7 +59,7 @@ pub(crate) fn render_enum(
         None
       };
 
-      let (old_content, old_tags, js_doc_changed) =
+      let (old_content, old_tags, member_diff) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
           let member_diff = enum_diff.and_then(|d| {
             d.modified_members.iter().find(|m| m.name == member.name)
@@ -69,9 +69,7 @@ pub(crate) fn render_enum(
             .map(|tc| format!(" = {}", render_type_def(render_ctx, &tc.old)));
           let old_tags =
             Some(super::compute_old_tags(&tags, None, None, None, None));
-          let js_doc_changed =
-            member_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
-          (old_content, old_tags, js_doc_changed)
+          (old_content, old_tags, member_diff)
         } else {
           (None, None, None)
         };
@@ -92,7 +90,7 @@ pub(crate) fn render_enum(
         diff_status,
         old_content,
         old_tags,
-        js_doc_changed,
+        member_diff.and_then(|md| md.js_doc_change.as_ref()),
       )
     })
     .collect::<Vec<DocEntryCtx>>();

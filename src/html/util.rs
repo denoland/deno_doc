@@ -1,3 +1,4 @@
+use crate::diff::JsDocDiff;
 use crate::html::DiffStatus;
 use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
@@ -775,8 +776,6 @@ pub struct DocEntryCtx {
   pub diff_status: Option<DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub old_content: Option<String>,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub js_doc_changed: Option<bool>,
 }
 
 impl DocEntryCtx {
@@ -795,10 +794,17 @@ impl DocEntryCtx {
     diff_status: Option<DiffStatus>,
     old_content: Option<String>,
     old_tags: Option<IndexSet<Tag>>,
-    js_doc_changed: Option<bool>,
+    js_doc_diff: Option<&JsDocDiff>,
   ) -> Self {
-    let maybe_jsdoc =
-      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true));
+    let maybe_jsdoc = if let Some(doc_change) =
+      js_doc_diff.and_then(|d| d.doc_change.as_ref())
+    {
+      let old_doc = doc_change.old.as_deref().unwrap_or_default();
+      let new_doc = jsdoc.unwrap_or_default();
+      crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
+    } else {
+      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true))
+    };
     let source_href = ctx.ctx.href_resolver.resolve_source(location);
 
     DocEntryCtx {
@@ -812,7 +818,6 @@ impl DocEntryCtx {
       source_href,
       diff_status,
       old_content,
-      js_doc_changed,
     }
   }
 

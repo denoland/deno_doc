@@ -3661,12 +3661,11 @@ expression: pages
                               "id": "property_age"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>The animal's age in months.</p>\n<p>Must be a non-negative integer. This was changed from years to months\nfor better precision. Fractional ages are rounded down.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-modified\"><p>The animal's age in <span class=\"diff-inline diff-removed\">years.</span><span class=\"diff-inline diff-added\">months.</span></p></div><div class=\"diff-modified\"><p>Must be a non-negative integer. <span class=\"diff-inline diff-added\">This was changed from years to months\nfor better precision. </span>Fractional ages are rounded down.</p></div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
-                            },
-                            "js_doc_changed": true
+                            }
                           },
                           {
                             "name_prefix": null,
@@ -3782,14 +3781,13 @@ expression: pages
                               "id": "method_describe_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Describe the animal.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-added\"><p>Describe the animal.</p>\n</div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "renamed",
                               "old_name": "makeSound"
                             },
-                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>",
-                            "js_doc_changed": true
+                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>"
                           },
                           {
                             "name_prefix": null,
@@ -3800,13 +3798,12 @@ expression: pages
                               "id": "method_feed_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Feed the animal with amount.</p>\n<p>Provides food to the animal in the specified quantity. The type\nof food should match the animal's dietary requirements.</p>\n<h2 id=\"supported-foods\">\nSupported Foods</h2>\n<ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n<h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n<p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Feed the animal.</p>\n</div><div class=\"diff-added\"><p>Feed the animal with amount.</p>\n</div><div class=\"diff-modified\"><p>Provides food to the <span class=\"diff-inline diff-removed\">animal. The type </span><span class=\"diff-inline diff-added\">animal in the specified quantity. The type\n</span>of food should match the<span class=\"diff-inline diff-removed\">\nanimal's dietary requirements.</span><span class=\"diff-inline diff-added\"> animal's dietary requirements.</span></p></div><h2 id=\"supported-foods\">\nSupported Foods</h2>\n<div class=\"diff-removed\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n</div><div class=\"diff-added\"><p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "(<span><span>food<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
-                            "js_doc_changed": true
+                            "old_content": "(<span><span>food<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>"
                           },
                           {
                             "name_prefix": null,
@@ -3878,7 +3875,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><ul><li><a href=\"#usage\" title=\"Usage\">Usage</a></li><li><a href=\"#lifecycle\" title=\"Lifecycle\">Lifecycle</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_max_age\" title=\"MAX_AGE\">MAX_AGE</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li><li><a href=\"#accessor_displayname\" title=\"displayName\">displayName</a></li><li><a href=\"#property_name\" title=\"name\">name</a></li><li><a href=\"#property_species\" title=\"species\">species</a></li><li><a href=\"#property_weight\" title=\"weight\">weight</a></li><li><a href=\"#accessor_fullid\" title=\"fullId\">fullId</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li><li><ul><li><a href=\"#usage-1\" title=\"Usage\">Usage</a></li><li><a href=\"#lifecycle-1\" title=\"Lifecycle\">Lifecycle</a></li></ul></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><ul><li><a href=\"#usage\" title=\"Usage\">Usage</a></li><li><a href=\"#lifecycle\" title=\"Lifecycle\">Lifecycle</a></li></ul></li><li><a href=\"#constructors\" title=\"Constructors\">Constructors</a></li><li><ul><li><a href=\"#constructor_0\" title=\"Animal\">Animal</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#static-properties\" title=\"Static Properties\">Static Properties</a></li><li><ul><li><a href=\"#property_max_age\" title=\"MAX_AGE\">MAX_AGE</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_create_0\" title=\"create\">create</a></li></ul></li><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_age\" title=\"age\">age</a></li><li><a href=\"#property_color\" title=\"color\">color</a></li><li><a href=\"#accessor_displayname\" title=\"displayName\">displayName</a></li><li><a href=\"#property_name\" title=\"name\">name</a></li><li><a href=\"#property_species\" title=\"species\">species</a></li><li><a href=\"#property_weight\" title=\"weight\">weight</a></li><li><a href=\"#accessor_fullid\" title=\"fullId\">fullId</a></li><li><ul><li><a href=\"#supported-foods\" title=\"Supported Foods\">Supported Foods</a></li><li><a href=\"#portion-guidelines\" title=\"Portion Guidelines\">Portion Guidelines</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_describe_0\" title=\"describe\">describe</a></li><li><a href=\"#method_feed_0\" title=\"feed\">feed</a></li><li><a href=\"#method_vocalize_0\" title=\"vocalize\">vocalize</a></li><li><ul><li><a href=\"#usage-1\" title=\"Usage\">Usage</a></li><li><a href=\"#lifecycle-1\" title=\"Lifecycle\">Lifecycle</a></li></ul></li></ul></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 2,
@@ -3969,6 +3966,16 @@ expression: pages
             "level": 2,
             "content": "fullId",
             "anchor": "accessor_fullid"
+          },
+          {
+            "level": 4,
+            "content": "Supported Foods",
+            "anchor": "supported-foods"
+          },
+          {
+            "level": 4,
+            "content": "Portion Guidelines",
+            "anchor": "portion-guidelines"
           },
           {
             "level": 1,
@@ -11459,13 +11466,12 @@ expression: pages
                               "id": "method_tojson_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Convert to JSON string with optional pretty printing.</p>\n<p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Convert to JSON string.</p>\n</div><div class=\"diff-added\"><p>Convert to JSON string with optional pretty printing.</p>\n</div><p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<div class=\"diff-added\"><p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>",
-                            "js_doc_changed": true
+                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>"
                           },
                           {
                             "name_prefix": null,

@@ -158,25 +158,21 @@ pub(crate) fn render_call_signatures(
         None
       };
 
-      let (old_content, js_doc_changed) =
-        if matches!(diff_status, Some(DiffStatus::Modified)) {
-          let old_content = sig_diff.and_then(|sd| {
-            super::function::render_old_function_summary(
-              ctx,
-              &call_signature.type_params,
-              &call_signature.params,
-              &call_signature.ts_type,
-              sd.type_params_change.as_ref(),
-              sd.params_change.as_ref(),
-              sd.ts_type_change.as_ref(),
-            )
-          });
-          let js_doc_changed =
-            sig_diff.and_then(|sd| sd.js_doc_change.as_ref().map(|_| true));
-          (old_content, js_doc_changed)
-        } else {
-          (None, None)
-        };
+      let old_content = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        sig_diff.and_then(|sd| {
+          super::function::render_old_function_summary(
+            ctx,
+            &call_signature.type_params,
+            &call_signature.params,
+            &call_signature.ts_type,
+            sd.type_params_change.as_ref(),
+            sd.params_change.as_ref(),
+            sd.ts_type_change.as_ref(),
+          )
+        })
+      } else {
+        None
+      };
 
       DocEntryCtx::new(
         ctx,
@@ -194,7 +190,7 @@ pub(crate) fn render_call_signatures(
         diff_status,
         old_content,
         old_tags,
-        js_doc_changed,
+        sig_diff.and_then(|sd| sd.js_doc_change.as_ref()),
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -311,7 +307,7 @@ pub(crate) fn render_properties(
         None
       };
 
-      let (old_content, old_tags, js_doc_changed) = if matches!(
+      let (old_content, old_tags, prop_diff) = if matches!(
         diff_status,
         Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
       ) {
@@ -332,10 +328,7 @@ pub(crate) fn render_properties(
           )
         });
 
-        let js_doc_changed =
-          prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
-
-        (old_content, old_tags, js_doc_changed)
+        (old_content, old_tags, prop_diff)
       } else {
         (None, None, None)
       };
@@ -360,7 +353,7 @@ pub(crate) fn render_properties(
         diff_status,
         old_content,
         old_tags,
-        js_doc_changed,
+        prop_diff.and_then(|pd| pd.js_doc_change.as_ref()),
       )
     })
     .collect::<Vec<DocEntryCtx>>();
@@ -447,7 +440,7 @@ pub(crate) fn render_methods(
         None
       };
 
-      let (old_content, old_tags, js_doc_changed) = if matches!(
+      let (old_content, old_tags, method_diff) = if matches!(
         diff_status,
         Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
       ) {
@@ -476,10 +469,7 @@ pub(crate) fn render_methods(
           )
         });
 
-        let js_doc_changed =
-          method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
-
-        (old_content, old_tags, js_doc_changed)
+        (old_content, old_tags, method_diff)
       } else {
         (None, None, None)
       };
@@ -504,7 +494,7 @@ pub(crate) fn render_methods(
         diff_status,
         old_content,
         old_tags,
-        js_doc_changed,
+        method_diff.and_then(|md| md.js_doc_change.as_ref()),
       )
     })
     .collect::<Vec<DocEntryCtx>>();

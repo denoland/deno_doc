@@ -1876,7 +1876,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Decompress binary data.</p>\n</div>",
+                        "docs": null,
                         "sections": []
                       }
                     }
@@ -1990,7 +1990,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Extended serializable.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -2624,12 +2624,11 @@ expression: pages
                               "id": "property_age"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>The animal's age in months.</p>\n<p>Must be a non-negative integer. This was changed from years to months\nfor better precision. Fractional ages are rounded down.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-modified\"><p>The animal's age in <span class=\"diff-inline diff-removed\">years.</span><span class=\"diff-inline diff-added\">months.</span></p></div><div class=\"diff-modified\"><p>Must be a non-negative integer. <span class=\"diff-inline diff-added\">This was changed from years to months\nfor better precision. </span>Fractional ages are rounded down.</p></div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
-                            },
-                            "js_doc_changed": true
+                            }
                           },
                           {
                             "name_prefix": null,
@@ -2689,14 +2688,13 @@ expression: pages
                               "id": "method_describe_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Describe the animal.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-added\"><p>Describe the animal.</p>\n</div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "renamed",
                               "old_name": "makeSound"
                             },
-                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>",
-                            "js_doc_changed": true
+                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>"
                           },
                           {
                             "name_prefix": null,
@@ -2707,13 +2705,12 @@ expression: pages
                               "id": "method_feed_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Feed the animal with amount.</p>\n<p>Provides food to the animal in the specified quantity. The type\nof food should match the animal's dietary requirements.</p>\n<h2 id=\"supported-foods\">\nSupported Foods</h2>\n<ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n<h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n<p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Feed the animal.</p>\n</div><div class=\"diff-added\"><p>Feed the animal with amount.</p>\n</div><div class=\"diff-modified\"><p>Provides food to the <span class=\"diff-inline diff-removed\">animal. The type </span><span class=\"diff-inline diff-added\">animal in the specified quantity. The type\n</span>of food should match the<span class=\"diff-inline diff-removed\">\nanimal's dietary requirements.</span><span class=\"diff-inline diff-added\"> animal's dietary requirements.</span></p></div><h2 id=\"supported-foods\">\nSupported Foods</h2>\n<div class=\"diff-removed\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><ul>\n<li>Kibble: Standard dry food</li>\n<li>Wet food: Canned varieties</li>\n<li>Raw food: Fresh meat and vegetables</li>\n<li>Treats: Use sparingly</li>\n</ul>\n</div><div class=\"diff-added\"><h2 id=\"portion-guidelines\">\nPortion Guidelines</h2>\n</div><div class=\"diff-added\"><p>Small animals: 1-2 portions per meal.\nLarge animals: 3-5 portions per meal.</p>\n</div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "(<span><span>food<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
-                            "js_doc_changed": true
+                            "old_content": "(<span><span>food<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>"
                           },
                           {
                             "name_prefix": null,
@@ -2900,7 +2897,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>The animal's age in months.</p>\n<p>Must be a non-negative integer. This was changed from years to months\nfor better precision. Fractional ages are rounded down.</p>\n</div>",
+                  "docs": null,
                   "sections": []
                 }
               }
@@ -3004,7 +3001,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>The animal's color.</p>\n</div>",
+                  "docs": null,
                   "sections": []
                 }
               }
@@ -3712,7 +3709,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>The animal's name.</p>\n</div>",
+                  "docs": null,
                   "sections": []
                 }
               }
@@ -3929,7 +3926,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Make the animal speak.</p>\n</div>",
+                        "docs": null,
                         "sections": []
                       }
                     }
@@ -4150,7 +4147,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A cat extending Animal.</p>\n</div>",
+                  "docs": null,
                   "sections": []
                 }
               }
@@ -4368,7 +4365,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Color values.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -4726,7 +4723,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A compound type (interface + const).</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -5369,7 +5366,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Log levels.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -5527,7 +5524,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Maximum retry count.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -7885,7 +7882,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Parse from string.</p>\n</div>",
+                        "docs": null,
                         "sections": []
                       }
                     }
@@ -7988,7 +7985,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Serialization interface.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -8061,13 +8058,12 @@ expression: pages
                               "id": "method_tojson_0"
                             },
                             "tags": [],
-                            "js_doc": "<div class=\"markdown\"><p>Convert to JSON string with optional pretty printing.</p>\n<p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div>",
+                            "js_doc": "<div class=\"markdown\"><div class=\"diff-removed\"><p>Convert to JSON string.</p>\n</div><div class=\"diff-added\"><p>Convert to JSON string with optional pretty printing.</p>\n</div><p>Serializes the object into a JSON string representation.\nThe output is always valid JSON that can be parsed back.</p>\n<div class=\"diff-added\"><p>When <code>pretty</code> is true, the output is formatted with 2-space\nindentation for human readability.</p>\n</div></div>",
                             "source_href": null,
                             "diff_status": {
                               "kind": "modified"
                             },
-                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>",
-                            "js_doc_changed": true
+                            "old_content": "()<span>: <span class=\"td-kw\">string</span></span>"
                           }
                         ]
                       }
@@ -8551,7 +8547,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>The serialization version.</p>\n</div>",
+                  "docs": null,
                   "sections": []
                 }
               }
@@ -8845,7 +8841,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Interface with index signature.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -8977,7 +8973,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>The current version.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -9120,7 +9116,7 @@ expression: pages
                       "deprecated": null,
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Create the application.</p>\n</div>",
+                        "docs": null,
                         "sections": []
                       }
                     },
@@ -10088,7 +10084,7 @@ expression: pages
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>Metadata info.</p>\n</div>",
+                  "docs": null,
                   "sections": [
                     {
                       "header": {
@@ -10390,7 +10386,7 @@ expression: pages
                       "deprecated": "<div class=\"markdown\"><p>Use validateAsync() instead.</p>\n</div>",
                       "content": {
                         "id": "",
-                        "docs": "<div class=\"markdown\"><p>Validate input data.</p>\n</div>",
+                        "docs": null,
                         "sections": [
                           {
                             "header": {

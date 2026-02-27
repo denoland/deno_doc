@@ -183,7 +183,7 @@ fn render_constructors(
       let diff_status =
         get_constructor_diff_status(constructor_changes, constructor);
 
-      let (old_content, js_doc_changed) =
+      let (old_content, ctor_diff) =
         if matches!(diff_status, Some(DiffStatus::Modified)) {
           let param_count = constructor.params.len();
           let ctor_diff = constructor_changes.and_then(|cc| {
@@ -193,9 +193,7 @@ fn render_constructors(
           let old_content = ctor_diff.and_then(|cd| {
             render_old_class_constructor_summary(ctx, &constructor.params, cd)
           });
-          let js_doc_changed =
-            ctor_diff.and_then(|cd| cd.js_doc_change.as_ref().map(|_| true));
-          (old_content, js_doc_changed)
+          (old_content, ctor_diff)
         } else {
           (None, None)
         };
@@ -212,7 +210,7 @@ fn render_constructors(
         diff_status,
         old_content,
         None,
-        js_doc_changed,
+        ctor_diff.and_then(|cd| cd.js_doc_change.as_ref()),
       );
       entry.name_prefix = Some("new".into());
 
@@ -623,7 +621,7 @@ fn render_class_accessor(
   let diff_status =
     get_method_diff_status(method_changes, name, getter_or_setter.kind);
 
-  let (old_content, old_tags, js_doc_changed) = if matches!(
+  let (old_content, old_tags, any_diff) = if matches!(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
@@ -658,10 +656,7 @@ fn render_class_accessor(
       )
     });
 
-    let js_doc_changed =
-      any_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
-
-    (old_content, old_tags, js_doc_changed)
+    (old_content, old_tags, any_diff)
   } else {
     (None, None, None)
   };
@@ -682,7 +677,7 @@ fn render_class_accessor(
     diff_status,
     old_content,
     old_tags,
-    js_doc_changed,
+    any_diff.and_then(|md| md.js_doc_change.as_ref()),
   )
 }
 
@@ -717,7 +712,7 @@ fn render_class_method(
   let diff_status =
     get_method_diff_status(method_changes, &method.name, method.kind);
 
-  let (old_content, old_tags, js_doc_changed) = if matches!(
+  let (old_content, old_tags, method_diff) = if matches!(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
@@ -748,10 +743,7 @@ fn render_class_method(
       )
     });
 
-    let js_doc_changed =
-      method_diff.and_then(|md| md.js_doc_change.as_ref().map(|_| true));
-
-    (old_content, old_tags, js_doc_changed)
+    (old_content, old_tags, method_diff)
   } else {
     (None, None, None)
   };
@@ -777,7 +769,7 @@ fn render_class_method(
     diff_status,
     old_content,
     old_tags,
-    js_doc_changed,
+    method_diff.and_then(|md| md.js_doc_change.as_ref()),
   ))
 }
 
@@ -815,7 +807,7 @@ fn render_class_property(
   let diff_status = get_property_diff_status(property_changes, &property.name);
 
   // For modified/renamed properties, render the old type and old tags
-  let (old_content, old_tags, js_doc_changed) = if matches!(
+  let (old_content, old_tags, prop_diff) = if matches!(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
@@ -836,10 +828,7 @@ fn render_class_property(
       )
     });
 
-    let js_doc_changed =
-      prop_diff.and_then(|pd| pd.js_doc_change.as_ref().map(|_| true));
-
-    (old_content, old_tags, js_doc_changed)
+    (old_content, old_tags, prop_diff)
   } else {
     (None, None, None)
   };
@@ -860,7 +849,7 @@ fn render_class_property(
     diff_status,
     old_content,
     old_tags,
-    js_doc_changed,
+    prop_diff.and_then(|pd| pd.js_doc_change.as_ref()),
   )
 }
 
