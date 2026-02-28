@@ -240,12 +240,12 @@ impl ModuleDiff {
               None
             };
 
-          let is_default_change = if removed_node.is_default.unwrap_or(false)
-            != added_node.is_default.unwrap_or(false)
+          let is_default_change = if removed_node.is_default
+            != added_node.is_default
           {
             Some(Change::new(
-              removed_node.is_default.unwrap_or(false),
-              added_node.is_default.unwrap_or(false),
+              removed_node.is_default,
+              added_node.is_default,
             ))
           } else {
             None
@@ -370,10 +370,10 @@ impl DocNodeDiff {
       };
 
     let is_default_change =
-      if old.is_default.unwrap_or(false) != new.is_default.unwrap_or(false) {
+      if old.is_default != new.is_default {
         Some(Change::new(
-          old.is_default.unwrap_or(false),
-          new.is_default.unwrap_or(false),
+          old.is_default,
+          new.is_default,
         ))
       } else {
         None

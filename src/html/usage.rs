@@ -54,11 +54,11 @@ fn usage_to_md(
 
       let top_node = doc_nodes[0].get_topmost_ancestor();
 
-      let is_default = top_node.is_default.is_some_and(|is_default| is_default)
+      let is_default = top_node.is_default
         || &*top_node.name == "default";
 
       let import_symbol: Box<str> = if is_default {
-        if top_node.is_default.is_some_and(|is_default| is_default) {
+        if top_node.is_default {
           let default_name = top_node.get_name();
           if default_name == "default" {
             get_identifier_for_file(ctx, custom_file_identifier).into()
@@ -142,7 +142,7 @@ fn usage_to_md(
       && let nodes = ctx.ctx.doc_nodes.values().next().unwrap()
       && nodes.len() == 1
     {
-      let is_default = nodes[0].is_default.is_some_and(|is_default| is_default)
+      let is_default = nodes[0].is_default
         || &*nodes[0].name == "default";
 
       if is_default {

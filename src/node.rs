@@ -97,8 +97,7 @@ pub enum DeclarationKind {
 #[serde(rename_all = "camelCase")]
 pub struct DocNode {
   pub name: Box<str>,
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub is_default: Option<bool>,
+  pub is_default: bool,
   pub location: Location,
   pub declaration_kind: DeclarationKind,
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
@@ -168,7 +167,7 @@ impl DocNodeDef {
 impl Default for DocNode {
   fn default() -> Self {
     Self {
-      is_default: None,
+      is_default: false,
       name: "".into(),
       declaration_kind: DeclarationKind::Private,
       location: Location::default(),
@@ -182,7 +181,7 @@ impl DocNode {
   pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
     Self {
       name: "".into(),
-      is_default: None,
+      is_default: false,
       location,
       declaration_kind: DeclarationKind::Export,
       js_doc,
@@ -200,7 +199,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       location,
       declaration_kind,
       js_doc,
@@ -220,7 +219,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       declaration_kind,
       location,
       js_doc,
@@ -240,7 +239,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       declaration_kind,
       location,
       js_doc,
@@ -258,7 +257,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       declaration_kind,
       location,
       js_doc,
@@ -276,7 +275,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       declaration_kind,
       location,
       js_doc,
@@ -294,7 +293,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       declaration_kind,
       location,
       js_doc,
@@ -312,7 +311,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: Some(is_default),
+      is_default,
       declaration_kind,
       location,
       js_doc,
@@ -328,7 +327,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: None,
+      is_default: false,
       declaration_kind: DeclarationKind::Private,
       location,
       js_doc,
@@ -344,7 +343,7 @@ impl DocNode {
   ) -> Self {
     Self {
       name,
-      is_default: None,
+      is_default: false,
       declaration_kind: DeclarationKind::Private,
       location,
       js_doc,
