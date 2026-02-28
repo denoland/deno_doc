@@ -1137,7 +1137,7 @@ impl<'a> DocParser<'a> {
         );
         for mut doc_node in maybe_docs {
           doc_node.name = export_name.as_str().into();
-          doc_node.is_default = Some(export_name == "default");
+          doc_node.is_default = export_name == "default";
           doc_node.declaration_kind = DeclarationKind::Export;
 
           doc_nodes.push(doc_node);
@@ -1575,7 +1575,7 @@ fn parse_json_module_doc_node(
   if let Ok(value) = serde_json::from_str(source) {
     Some(DocNode {
       name: "default".into(),
-      is_default: Some(true),
+      is_default: true,
       location: Location {
         filename: specifier.to_string().into_boxed_str(),
         col: 0,

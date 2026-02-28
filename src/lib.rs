@@ -130,3 +130,17 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
     _ => vec![],
   }
 }
+
+pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<DocNode> {
+  let serde_json::Value::Array(mut arr) = value else {
+    return vec![];
+  };
+  for item in &mut arr {
+    if let serde_json::Value::Object(obj) = item {
+      obj
+        .entry("isDefault")
+        .or_insert(serde_json::Value::Bool(false));
+    }
+  }
+  serde_json::from_value(serde_json::Value::Array(arr)).unwrap_or_default()
+}

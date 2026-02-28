@@ -324,6 +324,7 @@ export function fooFn(a: number) {
     {
       "kind": "import",
       "name": "buzz",
+      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 3,
@@ -737,6 +738,7 @@ async fn exports_imported_earlier() {
     {
       "kind": "import",
       "name": "foo",
+      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -808,6 +810,7 @@ async fn exports_imported_earlier_renamed() {
     {
       "kind": "import",
       "name": "f",
+      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -880,6 +883,7 @@ async fn exports_imported_earlier_default() {
     {
       "kind": "import",
       "name": "foo",
+      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -954,6 +958,7 @@ async fn exports_imported_earlier_private() {
     {
       "kind": "import",
       "name": "foo",
+      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
