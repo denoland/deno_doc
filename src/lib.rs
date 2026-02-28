@@ -126,7 +126,7 @@ fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
         doc_nodes.push(property.into());
       }
       doc_nodes
-  }
+    }
     _ => vec![],
   }
 }

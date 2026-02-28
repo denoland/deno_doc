@@ -240,16 +240,12 @@ impl ModuleDiff {
               None
             };
 
-          let is_default_change = if removed_node.is_default
-            != added_node.is_default
-          {
-            Some(Change::new(
-              removed_node.is_default,
-              added_node.is_default,
-            ))
-          } else {
-            None
-          };
+          let is_default_change =
+            if removed_node.is_default != added_node.is_default {
+              Some(Change::new(removed_node.is_default, added_node.is_default))
+            } else {
+              None
+            };
 
           modified.push(DocNodeDiff {
             name: added_node.name.clone(),
@@ -369,15 +365,11 @@ impl DocNodeDiff {
         None
       };
 
-    let is_default_change =
-      if old.is_default != new.is_default {
-        Some(Change::new(
-          old.is_default,
-          new.is_default,
-        ))
-      } else {
-        None
-      };
+    let is_default_change = if old.is_default != new.is_default {
+      Some(Change::new(old.is_default, new.is_default))
+    } else {
+      None
+    };
 
     if def_changes.is_none()
       && js_doc_changes.is_none()
