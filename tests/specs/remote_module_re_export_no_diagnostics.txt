@@ -52,130 +52,150 @@ class PublicType2
 [
   {
     "name": "myFunction",
-    "location": {
-      "filename": "https://localhost/mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "https://localhost/mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": null,
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "PublicType",
-    "location": {
-      "filename": "https://localhost/mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 58
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "tsType": {
-            "repr": "NonExportedType",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "NonExportedType"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "https://localhost/mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 58
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "https://localhost/mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 86
-          }
+          "constructors": [],
+          "properties": [
+            {
+              "tsType": {
+                "repr": "NonExportedType",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "NonExportedType"
+                }
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "prop",
+              "location": {
+                "filename": "https://localhost/mod.ts",
+                "line": 6,
+                "col": 2,
+                "byteIndex": 86
+              }
+            }
+          ],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "myFunction2",
-    "location": {
-      "filename": "http://localhost/mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "http://localhost/mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": null,
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "PublicType2",
-    "location": {
-      "filename": "http://localhost/mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 59
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "tsType": {
-            "repr": "NonExportedType2",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "NonExportedType2"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "http://localhost/mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 59
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "http://localhost/mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 88
-          }
+          "constructors": [],
+          "properties": [
+            {
+              "tsType": {
+                "repr": "NonExportedType2",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "NonExportedType2"
+                }
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "prop",
+              "location": {
+                "filename": "http://localhost/mod.ts",
+                "line": 6,
+                "col": 2,
+                "byteIndex": 88
+              }
+            }
+          ],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

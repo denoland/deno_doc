@@ -19,25 +19,30 @@ function bar(): void
 [
   {
     "name": "bar",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 32
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 32
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

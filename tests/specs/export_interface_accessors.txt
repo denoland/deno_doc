@@ -45,77 +45,82 @@ interface Thing
 [
   {
     "name": "Thing",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [
-        {
-          "name": "size",
-          "kind": "getter",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 27
-          },
-          "params": [],
-          "optional": false,
-          "returnType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "typeParams": []
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "name": "size",
-          "kind": "setter",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 49
-          },
-          "params": [
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [
             {
-              "kind": "identifier",
-              "name": "value",
+              "name": "size",
+              "kind": "getter",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 27
+              },
+              "params": [],
               "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "union",
-                "union": [
-                  {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "keyword": "number"
-                  },
-                  {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
+              "returnType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "size",
+              "kind": "setter",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 49
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "value",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "union",
+                    "union": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "keyword": "number"
+                      },
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    ]
                   }
-                ]
-              }
+                }
+              ],
+              "optional": false,
+              "returnType": null,
+              "typeParams": []
             }
           ],
-          "optional": false,
-          "returnType": null,
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
           "typeParams": []
         }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

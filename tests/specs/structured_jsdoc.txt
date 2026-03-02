@@ -65,144 +65,149 @@ class A
 [
   {
     "name": "A",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 17
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Class doc"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [
-        {
-          "jsDoc": {
-            "doc": "Some leading documentation here.\n",
-            "tags": [
-              {
-                "kind": "param",
-                "name": "name",
-                "type": "string",
-                "doc": "some comment"
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 17
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Class doc"
+        },
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [
+            {
+              "jsDoc": {
+                "doc": "Some leading documentation here.\n",
+                "tags": [
+                  {
+                    "kind": "param",
+                    "name": "name",
+                    "type": "string",
+                    "doc": "some comment"
+                  },
+                  {
+                    "kind": "param",
+                    "name": "a",
+                    "type": "string",
+                    "doc": "some other comment that\nspans two lines"
+                  },
+                  {
+                    "kind": "param",
+                    "name": "b",
+                    "type": "number",
+                    "doc": "a number"
+                  }
+                ]
               },
-              {
-                "kind": "param",
-                "name": "a",
-                "type": "string",
-                "doc": "some other comment that\nspans two lines"
-              },
-              {
-                "kind": "param",
-                "name": "b",
-                "type": "number",
-                "doc": "a number"
+              "accessibility": null,
+              "hasBody": true,
+              "name": "constructor",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "name",
+                  "optional": false,
+                  "tsType": null
+                },
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": null
+                },
+                {
+                  "kind": "identifier",
+                  "name": "b",
+                  "optional": false,
+                  "tsType": null
+                }
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 14,
+                "col": 2,
+                "byteIndex": 289
               }
-            ]
-          },
-          "accessibility": null,
-          "hasBody": true,
-          "name": "constructor",
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "name",
-              "optional": false,
-              "tsType": null
-            },
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": null
-            },
-            {
-              "kind": "identifier",
-              "name": "b",
-              "optional": false,
-              "tsType": null
             }
           ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 14,
-            "col": 2,
-            "byteIndex": 289
-          }
-        }
-      ],
-      "properties": [
-        {
-          "jsDoc": {
-            "tags": [
-              {
-                "kind": "private"
+          "properties": [
+            {
+              "jsDoc": {
+                "tags": [
+                  {
+                    "kind": "private"
+                  }
+                ]
+              },
+              "tsType": {
+                "repr": "boolean",
+                "kind": "keyword",
+                "keyword": "boolean"
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "p",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 54
               }
-            ]
-          },
-          "tsType": {
-            "repr": "boolean",
-            "kind": "keyword",
-            "keyword": "boolean"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "p",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 54
-          }
-        }
-      ],
-      "indexSignatures": [],
-      "methods": [
-        {
-          "jsDoc": {
-            "tags": [
-              {
-                "kind": "return",
-                "type": "Promise<void>"
+            }
+          ],
+          "indexSignatures": [],
+          "methods": [
+            {
+              "jsDoc": {
+                "tags": [
+                  {
+                    "kind": "return",
+                    "type": "Promise<void>"
+                  }
+                ]
+              },
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "a",
+              "kind": "method",
+              "functionDef": {
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "keyword": "void"
+                },
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 19,
+                "col": 2,
+                "byteIndex": 361
               }
-            ]
-          },
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 19,
-            "col": 2,
-            "byteIndex": 361
-          }
+            }
+          ],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

@@ -24,10 +24,9 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::DeclarationDef;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
-use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -102,13 +101,8 @@ impl CategoriesPanelCtx {
           .doc_nodes
           .values()
           .flat_map(|nodes| {
-            partition::partition_nodes_by_name(
-              ctx.ctx,
-              nodes.iter().map(Cow::Borrowed),
-              true,
-            )
+            nodes.iter().filter(|node| !node.is_internal(ctx.ctx))
           })
-          .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
         let categories = ctx
@@ -142,13 +136,8 @@ impl CategoriesPanelCtx {
           .doc_nodes
           .values()
           .flat_map(|nodes| {
-            partition::partition_nodes_by_name(
-              ctx.ctx,
-              nodes.iter().map(Cow::Borrowed),
-              true,
-            )
+            nodes.iter().filter(|node| !node.is_internal(ctx.ctx))
           })
-          .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
         let (_, nodes) = ctx.ctx.doc_nodes.first().unwrap();
@@ -267,7 +256,12 @@ impl IndexCtx {
           .map(|(short_path, nodes)| {
             let doc = nodes
               .iter()
-              .find(|node| matches!(node.def, DocNodeDef::ModuleDoc))
+              .find_map(|node| {
+                node
+                  .declarations
+                  .iter()
+                  .find(|decl| matches!(decl.def, DeclarationDef::ModuleDoc))
+              })
               .and_then(|node| {
                 crate::html::jsdoc::jsdoc_body_to_html(
                   &render_ctx,
@@ -372,12 +366,14 @@ impl IndexCtx {
         .as_ref()
         .map(|short_path| short_path.display_name()),
     );
-    let usage = dts_mode.then(|| UsagesCtx::new(&render_ctx, &[])).flatten();
+    let usage = dts_mode
+      .then(|| UsagesCtx::new(&render_ctx, None))
+      .flatten();
 
     let toc_ctx = util::ToCCtx::new(
       render_ctx,
       !dts_mode,
-      if dts_mode { None } else { Some(&[]) },
+      if dts_mode { None } else { Some(None) },
     );
 
     IndexCtx {
@@ -442,7 +438,7 @@ impl IndexCtx {
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, Some(name));
-    let usage = UsagesCtx::new(&render_ctx, &[]);
+    let usage = UsagesCtx::new(&render_ctx, None);
 
     let toc_ctx = util::ToCCtx::new(
       render_ctx,
@@ -517,27 +513,20 @@ pub fn generate_symbol_pages_for_module(
   short_path: &ShortPath,
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
-  let mut name_partitions = partition::partition_nodes_by_name(
+  let mut symbols = partition::flatten_namespace(
     ctx,
     module_doc_nodes.iter().map(Cow::Borrowed),
-    true,
   );
 
-  let mut drilldown_partitions = IndexMap::new();
-  for doc_nodes in name_partitions.values() {
-    for doc_node in doc_nodes {
-      if let Some(drilldown_symbols) = doc_node.get_drilldown_symbols() {
-        drilldown_partitions.extend(partition::partition_nodes_by_name(
-          ctx,
-          drilldown_symbols.map(Cow::Owned),
-          false,
-        ))
-      }
+  let mut drilldown_partitions = vec![];
+  for symbol in &symbols {
+    if let Some(drilldown_symbols) = symbol.get_drilldown_symbols() {
+      drilldown_partitions.extend(drilldown_symbols.map(Cow::Owned));
     }
   }
-  name_partitions.extend(drilldown_partitions);
+  symbols.extend(drilldown_partitions);
 
-  let mut generated_pages = Vec::with_capacity(name_partitions.values().len());
+  let mut generated_pages = Vec::with_capacity(symbols.len());
 
   let render_ctx = RenderContext::new(
     ctx,
@@ -545,9 +534,9 @@ pub fn generate_symbol_pages_for_module(
     UrlResolveKind::File { file: short_path },
   );
 
-  for (name, doc_nodes) in name_partitions {
+  for symbol in symbols {
     let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx, categories_panel) =
-      render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
+      render_symbol_page(&render_ctx, short_path, &symbol);
 
     let diff_status = symbol_group_ctx.diff_status.clone();
 
@@ -558,10 +547,12 @@ pub fn generate_symbol_pages_for_module(
       categories_panel,
     });
 
-    if doc_nodes
+    if symbol
+      .declarations
       .iter()
-      .any(|doc_node| matches!(doc_node.def, DocNodeDef::Class { .. }))
+      .any(|decl| matches!(decl.def, DeclarationDef::Class { .. }))
     {
+      let name = symbol.get_qualified_name();
       let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {
         href: ctx.resolve_path(
@@ -601,8 +592,7 @@ impl SymbolPageCtx {
 pub fn render_symbol_page(
   render_ctx: &RenderContext,
   short_path: &ShortPath,
-  namespaced_name: &str,
-  doc_nodes: &[DocNodeWithContext],
+  symbol: &DocNodeWithContext,
 ) -> (
   BreadcrumbsCtx,
   SymbolGroupCtx,
@@ -612,11 +602,10 @@ pub fn render_symbol_page(
   let mut render_ctx = render_ctx
     .with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
-      symbol: namespaced_name,
+      symbol: symbol.get_qualified_name(),
     })
     .with_category(if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      doc_nodes[0]
-        .get_topmost_ancestor()
+      symbol.get_topmost_ancestor().declarations[0]
         .js_doc
         .tags
         .iter()
@@ -631,13 +620,11 @@ pub fn render_symbol_page(
       None
     });
 
-  if !doc_nodes[0].ns_qualifiers.is_empty() {
-    render_ctx = render_ctx.with_namespace(doc_nodes[0].ns_qualifiers.clone());
+  if !symbol.ns_qualifiers.is_empty() {
+    render_ctx = render_ctx.with_namespace(symbol.ns_qualifiers.clone());
   }
 
-  // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group_ctx =
-    SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
+  let symbol_group_ctx = SymbolGroupCtx::new(&render_ctx, symbol);
 
   let categories_panel = CategoriesPanelCtx::new(
     &render_ctx,
@@ -648,11 +635,14 @@ pub fn render_symbol_page(
     ),
   );
 
-  let toc_nodes = (!matches!(
+  let toc_nodes = if !matches!(
     render_ctx.ctx.file_mode,
     FileMode::SingleDts | FileMode::Dts
-  ))
-  .then_some(doc_nodes);
+  ) {
+    Some(Some(symbol))
+  } else {
+    None
+  };
 
   (
     render_ctx.get_breadcrumbs(),

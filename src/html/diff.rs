@@ -1,9 +1,11 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::DocNode;
+use crate::Symbol;
+use crate::diff::DeclarationDefDiff;
+use crate::diff::DeclarationDiff;
 use crate::diff::DocDiff;
-use crate::diff::DocNodeDiff;
 use crate::diff::ModuleDiff;
+use crate::diff::SymbolDiff;
 use crate::html::DocNodeWithContext;
 use crate::html::util::{SectionContentCtx, SectionCtx};
 use crate::node::DocNodeKind as AstDocNodeKind;
@@ -22,67 +24,61 @@ pub enum DiffStatus {
   Renamed { old_name: String },
 }
 
-pub struct NodeDiffInfo {
+pub struct SymbolDiffInfo {
   pub status: DiffStatus,
-  pub diff: Option<DocNodeDiff>,
+  pub diff: Option<SymbolDiff>,
 }
 
 pub struct DiffIndex {
   added_modules: Vec<ModuleSpecifier>,
   removed_modules: Vec<ModuleSpecifier>,
   pub module_diffs: IndexMap<ModuleSpecifier, ModuleDiff>,
-  node_index:
-    HashMap<(ModuleSpecifier, Box<str>, AstDocNodeKind), NodeDiffInfo>,
+  symbol_index: HashMap<(ModuleSpecifier, Box<str>), SymbolDiffInfo>,
 }
 
 impl DiffIndex {
   pub fn new(doc_diff: DocDiff) -> Self {
-    let mut node_index = HashMap::new();
+    let mut symbol_index = HashMap::new();
 
     for (specifier, module_diff) in &doc_diff.modified_modules {
-      for node in &module_diff.added {
-        let kind = node.def.to_kind();
-        node_index.insert(
-          (specifier.clone(), node.name.clone(), kind),
-          NodeDiffInfo {
+      for symbol in &module_diff.added {
+        symbol_index.insert(
+          (specifier.clone(), symbol.name.clone()),
+          SymbolDiffInfo {
             status: DiffStatus::Added,
             diff: None,
           },
         );
       }
 
-      for node in &module_diff.removed {
-        let kind = node.def.to_kind();
-        node_index.insert(
-          (specifier.clone(), node.name.clone(), kind),
-          NodeDiffInfo {
+      for symbol in &module_diff.removed {
+        symbol_index.insert(
+          (specifier.clone(), symbol.name.clone()),
+          SymbolDiffInfo {
             status: DiffStatus::Removed,
             diff: None,
           },
         );
       }
 
-      for node_diff in &module_diff.modified {
-        let kind = node_diff.kind;
-        let status = if let Some(name_change) = &node_diff.name_change {
+      for symbol_diff in &module_diff.modified {
+        let status = if let Some(name_change) = &symbol_diff.name_change {
           DiffStatus::Renamed {
             old_name: name_change.old.to_string(),
           }
-        } else if node_diff.def_changes.is_some()
-          || node_diff.js_doc_changes.is_some()
-          || node_diff.declaration_kind_change.is_some()
-          || node_diff.is_default_change.is_some()
+        } else if symbol_diff.declarations.is_some()
+          || symbol_diff.is_default_change.is_some()
         {
           DiffStatus::Modified
         } else {
           continue;
         };
 
-        node_index.insert(
-          (specifier.clone(), node_diff.name.clone(), kind),
-          NodeDiffInfo {
+        symbol_index.insert(
+          (specifier.clone(), symbol_diff.name.clone()),
+          SymbolDiffInfo {
             status,
-            diff: Some(node_diff.clone()),
+            diff: Some(symbol_diff.clone()),
           },
         );
       }
@@ -92,7 +88,7 @@ impl DiffIndex {
       added_modules: doc_diff.added_modules,
       removed_modules: doc_diff.removed_modules,
       module_diffs: doc_diff.modified_modules,
-      node_index,
+      symbol_index,
     }
   }
 
@@ -111,13 +107,23 @@ impl DiffIndex {
     self.module_diffs.get(specifier)
   }
 
-  pub fn get_node_diff(
+  pub fn get_symbol_diff(
+    &self,
+    specifier: &ModuleSpecifier,
+    name: &str,
+  ) -> Option<&SymbolDiffInfo> {
+    self.symbol_index.get(&(specifier.clone(), name.into()))
+  }
+
+  pub fn get_declaration_diff(
     &self,
     specifier: &ModuleSpecifier,
     name: &str,
     kind: AstDocNodeKind,
-  ) -> Option<&NodeDiffInfo> {
-    self.node_index.get(&(specifier.clone(), name.into(), kind))
+  ) -> Option<&DeclarationDiff> {
+    let info = self.get_symbol_diff(specifier, name)?;
+    let declarations = info.diff.as_ref()?.declarations.as_ref()?;
+    declarations.modified.iter().find(|d| d.kind == kind)
   }
 
   pub fn get_def_diff(
@@ -125,15 +131,17 @@ impl DiffIndex {
     specifier: &ModuleSpecifier,
     name: &str,
     kind: AstDocNodeKind,
-  ) -> Option<&crate::diff::DocNodeDefDiff> {
-    let info = self.get_node_diff(specifier, name, kind)?;
-    info.diff.as_ref()?.def_changes.as_ref()
+  ) -> Option<&DeclarationDefDiff> {
+    self
+      .get_declaration_diff(specifier, name, kind)?
+      .def_changes
+      .as_ref()
   }
 
-  pub fn get_removed_nodes(
+  pub fn get_removed_symbols(
     &self,
     specifier: &ModuleSpecifier,
-  ) -> Option<&[DocNode]> {
+  ) -> Option<&[Symbol]> {
     self
       .module_diffs
       .get(specifier)
@@ -141,12 +149,50 @@ impl DiffIndex {
   }
 }
 
-pub(crate) fn is_symbol_added(doc_node: &DocNodeWithContext) -> bool {
-  matches!(doc_node.diff_status, Some(DiffStatus::Added))
+pub(crate) fn is_symbol_added(symbol: &DocNodeWithContext) -> bool {
+  matches!(symbol.diff_status, Some(DiffStatus::Added))
 }
 
-pub(crate) fn is_symbol_removed(doc_node: &DocNodeWithContext) -> bool {
-  matches!(doc_node.diff_status, Some(DiffStatus::Removed))
+pub(crate) fn is_symbol_removed(symbol: &DocNodeWithContext) -> bool {
+  matches!(symbol.diff_status, Some(DiffStatus::Removed))
+}
+
+/// Check if a specific declaration kind was added within a symbol.
+/// Returns true if the whole symbol is added, or if this kind is in
+/// the DeclarationsDiff.added list.
+pub(crate) fn is_decl_added(
+  symbol: &DocNodeWithContext,
+  kind: crate::node::DocNodeKind,
+  diff: &Option<DiffIndex>,
+) -> bool {
+  if is_symbol_added(symbol) {
+    return true;
+  }
+  diff
+    .as_ref()
+    .and_then(|d| d.get_symbol_diff(&symbol.origin.specifier, &symbol.name))
+    .and_then(|info| info.diff.as_ref())
+    .and_then(|sd| sd.declarations.as_ref())
+    .is_some_and(|dd| dd.added.iter().any(|a| a.def.to_kind() == kind))
+}
+
+/// Check if a specific declaration kind was removed within a symbol.
+/// Returns true if the whole symbol is removed, or if this kind is in
+/// the DeclarationsDiff.removed list.
+pub(crate) fn is_decl_removed(
+  symbol: &DocNodeWithContext,
+  kind: crate::node::DocNodeKind,
+  diff: &Option<DiffIndex>,
+) -> bool {
+  if is_symbol_removed(symbol) {
+    return true;
+  }
+  diff
+    .as_ref()
+    .and_then(|d| d.get_symbol_diff(&symbol.origin.specifier, &symbol.name))
+    .and_then(|info| info.diff.as_ref())
+    .and_then(|sd| sd.declarations.as_ref())
+    .is_some_and(|dd| dd.removed.iter().any(|a| a.def.to_kind() == kind))
 }
 
 pub(crate) fn filter_sections_diff_only(
@@ -211,9 +257,9 @@ pub(crate) fn filter_sections_diff_only(
           surviving_anchors.insert(entry.anchor.id.as_str());
         }
       }
-      SectionContentCtx::NamespaceSection(nodes) => {
-        for node in nodes {
-          surviving_anchors.insert(node.anchor.id.as_str());
+      SectionContentCtx::NamespaceSection(symbols) => {
+        for symbol in symbols {
+          surviving_anchors.insert(symbol.anchor.id.as_str());
         }
       }
       _ => {}

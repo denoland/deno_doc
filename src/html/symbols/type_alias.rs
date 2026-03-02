@@ -1,3 +1,4 @@
+use crate::Declaration;
 use crate::html::DocNodeWithContext;
 use crate::html::render_context::RenderContext;
 use crate::html::util::*;
@@ -5,10 +6,11 @@ use std::collections::HashSet;
 
 pub(crate) fn render_type_alias(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
-  name: &str,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
 ) -> Vec<SectionCtx> {
-  let type_alias_def = doc_node.type_alias_def().unwrap();
+  let type_alias_def = decl.type_alias_def().unwrap();
+  let name = symbol.get_qualified_name();
 
   let current_type_params = type_alias_def
     .type_params
@@ -20,9 +22,9 @@ pub(crate) fn render_type_alias(
   let type_alias_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &doc_node.origin.specifier,
-        doc_node.get_name(),
-        doc_node.def.to_kind(),
+        &symbol.origin.specifier,
+        symbol.get_name(),
+        decl.def.to_kind(),
       )
       .and_then(|d| d.as_type_alias())
   });
@@ -36,9 +38,9 @@ pub(crate) fn render_type_alias(
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
-    &doc_node.js_doc,
+    &decl.js_doc,
     &type_alias_def.type_params,
-    &doc_node.location,
+    &decl.location,
     type_alias_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
@@ -51,7 +53,7 @@ pub(crate) fn render_type_alias(
     type_alias_diff.and_then(|d| d.ts_type_change.as_ref()),
     id,
     "Definition",
-    &doc_node.location,
+    &decl.location,
   ));
 
   sections

@@ -18,54 +18,59 @@ type T = { [key: string]: number; }
 [
   {
     "name": "T",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "typeLiteral",
-        "typeLiteral": {
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [
-            {
-              "readonly": false,
-              "params": [
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "typeAlias",
+        "typeAliasDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "typeLiteral",
+            "typeLiteral": {
+              "constructors": [],
+              "methods": [],
+              "properties": [],
+              "callSignatures": [],
+              "indexSignatures": [
                 {
-                  "kind": "identifier",
-                  "name": "key",
-                  "optional": false,
+                  "readonly": false,
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "key",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
                   "tsType": {
-                    "repr": "string",
+                    "repr": "number",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "keyword": "number"
+                  },
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 1,
+                    "col": 18,
+                    "byteIndex": 18
                   }
                 }
-              ],
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 18,
-                "byteIndex": 18
-              }
+              ]
             }
-          ]
+          },
+          "typeParams": []
         }
-      },
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

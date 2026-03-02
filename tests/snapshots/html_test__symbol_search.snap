@@ -772,23 +772,13 @@ expression: search_index
           "char": "f",
           "kind": "Function",
           "title": "Function"
-        },
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        },
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
         }
       ],
       "name": "qaz",
       "file": ".",
       "doc": "content",
       "url": "././~/qaz.html",
-      "deprecated": false
+      "deprecated": true
     },
     {
       "id": "namespace_somevariable",

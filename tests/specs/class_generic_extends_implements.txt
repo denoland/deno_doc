@@ -19,83 +19,88 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
 [
   {
     "name": "Class",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": "Map",
-      "implements": [
-        {
-          "repr": "Iterator",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
-              {
-                "repr": "A",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "A"
-                }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": "Map",
+          "implements": [
+            {
+              "repr": "Iterator",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "A",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "A"
+                    }
+                  }
+                ],
+                "typeName": "Iterator"
               }
-            ],
-            "typeName": "Iterator"
-          }
-        },
-        {
-          "repr": "Iterable",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
-              {
-                "repr": "B",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "B"
-                }
+            },
+            {
+              "repr": "Iterable",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "B",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "B"
+                    }
+                  }
+                ],
+                "typeName": "Iterable"
               }
-            ],
-            "typeName": "Iterable"
-          }
+            }
+          ],
+          "typeParams": [
+            {
+              "name": "A"
+            },
+            {
+              "name": "B"
+            }
+          ],
+          "superTypeParams": [
+            {
+              "repr": "A",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "A"
+              }
+            },
+            {
+              "repr": "B",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "B"
+              }
+            }
+          ]
         }
-      ],
-      "typeParams": [
-        {
-          "name": "A"
-        },
-        {
-          "name": "B"
-        }
-      ],
-      "superTypeParams": [
-        {
-          "repr": "A",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "A"
-          }
-        },
-        {
-          "repr": "B",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "B"
-          }
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

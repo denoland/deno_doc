@@ -19,24 +19,29 @@ abstract class Class
 [
   {
     "name": "Class",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": true,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": true,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   }
 ]

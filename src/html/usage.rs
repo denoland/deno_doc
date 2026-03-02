@@ -2,8 +2,8 @@ use super::DocNodeWithContext;
 use super::FileMode;
 use super::RenderContext;
 use super::UrlResolveKind;
+use crate::DeclarationDef;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use regex::Regex;
 use serde::Deserialize;
@@ -44,128 +44,137 @@ fn render_css_for_usage(name: &str) -> String {
 
 fn usage_to_md(
   ctx: &RenderContext,
-  doc_nodes: &[DocNodeWithContext],
+  symbol: Option<&DocNodeWithContext>,
   url: &str,
   custom_file_identifier: Option<&str>,
 ) -> String {
-  let usage =
-    if let UrlResolveKind::Symbol { symbol, .. } = ctx.get_current_resolve() {
-      let mut parts = symbol.split('.');
+  let usage = if let Some(symbol) = symbol
+    && let UrlResolveKind::Symbol {
+      symbol: symbol_name,
+      ..
+    } = ctx.get_current_resolve()
+  {
+    let mut parts = symbol_name.split('.');
 
-      let top_node = doc_nodes[0].get_topmost_ancestor();
+    let top_node = symbol.get_topmost_ancestor();
 
-      let is_default = top_node.is_default || &*top_node.name == "default";
+    let is_default = top_node.is_default || &*top_node.name == "default";
 
-      let import_symbol: Box<str> = if is_default {
-        if top_node.is_default {
-          let default_name = top_node.get_name();
-          if default_name == "default" {
-            get_identifier_for_file(ctx, custom_file_identifier).into()
-          } else {
-            default_name.into()
-          }
+    let import_symbol: Box<str> = if is_default {
+      if top_node.is_default {
+        let default_name = top_node.get_name();
+        if default_name == "default" {
+          get_identifier_for_file(ctx, custom_file_identifier).into()
         } else {
-          "module".into()
+          default_name.into()
         }
       } else {
-        parts.clone().next().unwrap().into()
-      };
+        "module".into()
+      }
+    } else {
+      parts.clone().next().unwrap().into()
+    };
 
-      let usage_symbol = if doc_nodes.iter().all(|node| node.parent.is_some()) {
-        None
-      } else {
-        let last = parts.next_back();
-        if let Some(usage_symbol) = last {
-          if usage_symbol == symbol {
-            None
-          } else {
-            Some((
-              usage_symbol,
-              // if it is namespaces within namespaces, we simply re-join them together
-              // instead of trying to figure out some sort of nested restructuring
-              if is_default {
-                import_symbol.clone()
-              } else {
-                let capacity = symbol.len() - usage_symbol.len() - 1;
-                let mut joined = String::with_capacity(capacity);
-                for part in parts {
-                  if !joined.is_empty() {
-                    joined.push('.');
-                  }
-                  joined.push_str(part);
-                }
-                joined.into_boxed_str()
-              },
-            ))
-          }
-        } else {
+    let usage_symbol = if symbol.parent.is_some() {
+      None
+    } else {
+      let last = parts.next_back();
+      if let Some(usage_symbol) = last {
+        if usage_symbol == symbol_name {
           None
+        } else {
+          Some((
+            usage_symbol,
+            // if it is namespaces within namespaces, we simply re-join them together
+            // instead of trying to figure out some sort of nested restructuring
+            if is_default {
+              import_symbol.clone()
+            } else {
+              let capacity = symbol_name.len() - usage_symbol.len() - 1;
+              let mut joined = String::with_capacity(capacity);
+              for part in parts {
+                if !joined.is_empty() {
+                  joined.push('.');
+                }
+                joined.push_str(part);
+              }
+              joined.into_boxed_str()
+            },
+          ))
         }
-      };
+      } else {
+        None
+      }
+    };
 
-      let is_type = doc_nodes.iter().all(|doc_node| {
+    let is_type = symbol
+      .parent
+      .as_ref()
+      .map_or_else(|| &symbol.inner, |parent| &parent.inner)
+      .declarations
+      .iter()
+      .all(|decl| {
         matches!(
-          doc_node
-            .parent
-            .as_ref()
-            .map_or_else(|| &doc_node.inner, |parent| &parent.inner)
-            .def,
-          DocNodeDef::TypeAlias { .. } | DocNodeDef::Interface { .. }
+          decl.def,
+          DeclarationDef::TypeAlias { .. } | DeclarationDef::Interface { .. }
         )
       });
 
-      let mut usage_statement = if is_default {
-        format!(
-          r#"import {}{} from "{url}";"#,
-          if is_type { "type " } else { "" },
-          html_escape::encode_text(&import_symbol),
-        )
-      } else {
-        format!(
-          r#"import {{ {}{} }} from "{url}";"#,
-          if is_type { "type " } else { "" },
-          html_escape::encode_text(&import_symbol),
-        )
-      };
-
-      if let Some((usage_symbol, local_var)) = usage_symbol {
-        usage_statement.push_str(&format!(
-          "\n{} {{ {} }} = {local_var};",
-          if is_type { "type" } else { "const" },
-          html_escape::encode_text(usage_symbol),
-        ));
-      }
-
-      usage_statement
-    } else if ctx.ctx.doc_nodes.len() == 1
-      && let nodes = ctx.ctx.doc_nodes.values().next().unwrap()
-      && nodes.len() == 1
-    {
-      let is_default = nodes[0].is_default || &*nodes[0].name == "default";
-
-      if is_default {
-        format!(
-          r#"import {} from "{url}";"#,
-          get_identifier_for_file(ctx, custom_file_identifier),
-        )
-      } else {
-        let is_type = matches!(
-          nodes[0].def,
-          DocNodeDef::TypeAlias { .. } | DocNodeDef::Interface { .. }
-        );
-
-        format!(
-          r#"import {}{{ {} }} from "{url}";"#,
-          if is_type { "type " } else { "" },
-          html_escape::encode_text(&nodes[0].get_name()),
-        )
-      }
+    let mut usage_statement = if is_default {
+      format!(
+        r#"import {}{} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_text(&import_symbol),
+      )
     } else {
-      let module_import_symbol =
-        get_identifier_for_file(ctx, custom_file_identifier);
-
-      format!(r#"import * as {module_import_symbol} from "{url}";"#)
+      format!(
+        r#"import {{ {}{} }} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_text(&import_symbol),
+      )
     };
+
+    if let Some((usage_symbol, local_var)) = usage_symbol {
+      usage_statement.push_str(&format!(
+        "\n{} {{ {} }} = {local_var};",
+        if is_type { "type" } else { "const" },
+        html_escape::encode_text(usage_symbol),
+      ));
+    }
+
+    usage_statement
+  } else if ctx.ctx.doc_nodes.len() == 1
+    && let nodes = ctx.ctx.doc_nodes.values().next().unwrap()
+    && nodes.len() == 1
+  {
+    // this branch is special casing for single symbol export
+    let is_default = nodes[0].is_default || &*nodes[0].name == "default";
+
+    if is_default {
+      format!(
+        r#"import {} from "{url}";"#,
+        get_identifier_for_file(ctx, custom_file_identifier),
+      )
+    } else {
+      let is_type = nodes[0].declarations.iter().all(|decl| {
+        matches!(
+          decl.def,
+          DeclarationDef::TypeAlias { .. } | DeclarationDef::Interface { .. }
+        )
+      });
+
+      format!(
+        r#"import {}{{ {} }} from "{url}";"#,
+        if is_type { "type " } else { "" },
+        html_escape::encode_text(&nodes[0].get_name()),
+      )
+    }
+  } else {
+    let module_import_symbol =
+      get_identifier_for_file(ctx, custom_file_identifier);
+
+    format!(r#"import * as {module_import_symbol} from "{url}";"#)
+  };
 
   format!("```typescript\n{usage}\n```")
 }
@@ -180,13 +189,16 @@ fn get_identifier_for_file(
         .ctx
         .doc_nodes
         .get(file)
-        .and_then(|nodes| {
-          nodes
-            .iter()
-            .find(|node| matches!(node.def, DocNodeDef::ModuleDoc))
+        .and_then(|symbols| {
+          symbols.iter().find_map(|symbol| {
+            symbol
+              .declarations
+              .iter()
+              .find(|decl| matches!(decl.def, DeclarationDef::ModuleDoc))
+          })
         })
-        .and_then(|node| {
-          node.js_doc.tags.iter().find_map(|tag| {
+        .and_then(|decl| {
+          decl.js_doc.tags.iter().find_map(|tag| {
             if let JsDocTag::Module { name } = tag {
               name.as_ref().map(|name| name.to_string())
             } else {
@@ -230,7 +242,7 @@ impl UsagesCtx {
 
   pub fn new(
     ctx: &RenderContext,
-    doc_nodes: &[DocNodeWithContext],
+    symbol: Option<&DocNodeWithContext>,
   ) -> Option<Self> {
     let Some(usage_composer) = &ctx.ctx.usage_composer else {
       return None;
@@ -245,7 +257,7 @@ impl UsagesCtx {
     #[cfg(not(target_arch = "wasm32"))]
     let usage_to_md_closure =
       move |url: &str, custom_file_identifier: Option<&str>| {
-        usage_to_md(ctx, doc_nodes, url, custom_file_identifier)
+        usage_to_md(ctx, symbol, url, custom_file_identifier)
       };
 
     #[cfg(target_arch = "wasm32")]

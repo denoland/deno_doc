@@ -43,81 +43,96 @@ const hello: "world"
 [
   {
     "name": "hello",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 6,
-      "byteIndex": 6
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "world",
-        "kind": "literal",
-        "literal": {
-          "kind": "string",
-          "string": "world"
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 6,
+          "byteIndex": 6
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "world",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "world"
+            }
+          },
+          "kind": "const"
         }
-      },
-      "kind": "const"
-    }
+      }
+    ]
   },
   {
     "name": "say",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 23
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "words",
-          "optional": false,
-          "tsType": {
-            "repr": "string",
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 23
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "words",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "void",
             "kind": "keyword",
-            "keyword": "string"
-          }
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "bar",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 61
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 3,
+          "col": 0,
+          "byteIndex": 61
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

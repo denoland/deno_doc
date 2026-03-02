@@ -19,24 +19,28 @@ var default: "foo"
   {
     "name": "default",
     "isDefault": true,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "foo",
-        "kind": "literal",
-        "literal": {
-          "kind": "string",
-          "string": "foo"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "foo",
+            "kind": "literal",
+            "literal": {
+              "kind": "string",
+              "string": "foo"
+            }
+          },
+          "kind": "var"
         }
-      },
-      "kind": "var"
-    }
+      }
+    ]
   }
 ]

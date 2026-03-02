@@ -31,69 +31,79 @@ interface Generic<T>
 [
   {
     "name": "Generic",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": [
-        {
-          "name": "T"
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": [
+            {
+              "name": "T"
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   },
   {
     "name": "f",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 31
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "Generic",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": [
-            {
-              "repr": "",
-              "kind": "tuple",
-              "tuple": [
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 31
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "Generic",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": [
                 {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
+                  "repr": "",
+                  "kind": "tuple",
+                  "tuple": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  ]
                 }
-              ]
+              ],
+              "typeName": "Generic"
             }
-          ],
-          "typeName": "Generic"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

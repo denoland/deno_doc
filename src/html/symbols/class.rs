@@ -1,3 +1,4 @@
+use crate::Declaration;
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use crate::diff::ConstructorDiff;
@@ -22,10 +23,11 @@ use std::collections::HashSet;
 
 pub(crate) fn render_class(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
-  name: &str,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
 ) -> Vec<SectionCtx> {
-  let class_def = doc_node.class_def().unwrap();
+  let class_def = decl.class_def().unwrap();
+  let name = symbol.get_qualified_name();
 
   let current_type_params = class_def
     .type_params
@@ -38,9 +40,9 @@ pub(crate) fn render_class(
   let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &doc_node.origin.specifier,
-        doc_node.get_name(),
-        doc_node.def.to_kind(),
+        &symbol.origin.specifier,
+        symbol.get_name(),
+        decl.def.to_kind(),
       )
       .and_then(|d| d.as_class())
   });
@@ -57,7 +59,7 @@ pub(crate) fn render_class(
   if let Some(constructors) = render_constructors(
     ctx,
     &class_def.constructors,
-    doc_node.get_name(),
+    symbol.get_name(),
     class_diff.and_then(|d| d.constructor_changes.as_ref()),
   ) {
     sections.push(constructors);
@@ -65,9 +67,9 @@ pub(crate) fn render_class(
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
-    &doc_node.js_doc,
+    &decl.js_doc,
     &class_def.type_params,
-    &doc_node.location,
+    &decl.location,
     class_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);

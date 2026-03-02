@@ -38,59 +38,64 @@ interface I
 [
   {
     "name": "I",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "1",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
-          },
-          "params": [],
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "typeParams": []
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "name": "2",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 36
-          },
-          "params": [],
-          "computed": false,
-          "optional": true,
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "1",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 23
+              },
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "2",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 36
+              },
+              "params": [],
+              "computed": false,
+              "optional": true,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": [],
           "typeParams": []
         }
-      ],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

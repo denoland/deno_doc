@@ -17,155 +17,165 @@ export class Bar {
       "added": [
         {
           "name": "Bar",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [
-              {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
-                "name": "a",
-                "kind": "method",
-                "functionDef": {
-                  "params": [],
-                  "returnType": {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
-                  },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
-                },
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 2,
-                  "col": 2,
-                  "byteIndex": 21
-                }
+          "isDefault": false,
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 0,
+                "byteIndex": 0
               },
-              {
-                "accessibility": null,
-                "optional": false,
+              "declarationKind": "export",
+              "kind": "class",
+              "classDef": {
                 "isAbstract": false,
-                "isStatic": false,
-                "name": "c",
-                "kind": "method",
-                "functionDef": {
-                  "params": [],
-                  "returnType": {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
+                "constructors": [],
+                "properties": [],
+                "indexSignatures": [],
+                "methods": [
+                  {
+                    "accessibility": null,
+                    "optional": false,
+                    "isAbstract": false,
+                    "isStatic": false,
+                    "name": "a",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "keyword": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 21
+                    }
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
-                },
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 3,
-                  "col": 2,
-                  "byteIndex": 36
-                }
+                  {
+                    "accessibility": null,
+                    "optional": false,
+                    "isAbstract": false,
+                    "isStatic": false,
+                    "name": "c",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "keyword": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 3,
+                      "col": 2,
+                      "byteIndex": 36
+                    }
+                  }
+                ],
+                "extends": null,
+                "implements": [],
+                "typeParams": [],
+                "superTypeParams": []
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+            }
+          ]
         }
       ],
       "removed": [
         {
           "name": "Foo",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [
-              {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
-                "name": "a",
-                "kind": "method",
-                "functionDef": {
-                  "params": [],
-                  "returnType": {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
-                  },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
-                },
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 2,
-                  "col": 2,
-                  "byteIndex": 21
-                }
+          "isDefault": false,
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 0,
+                "byteIndex": 0
               },
-              {
-                "accessibility": null,
-                "optional": false,
+              "declarationKind": "export",
+              "kind": "class",
+              "classDef": {
                 "isAbstract": false,
-                "isStatic": false,
-                "name": "b",
-                "kind": "method",
-                "functionDef": {
-                  "params": [],
-                  "returnType": {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
+                "constructors": [],
+                "properties": [],
+                "indexSignatures": [],
+                "methods": [
+                  {
+                    "accessibility": null,
+                    "optional": false,
+                    "isAbstract": false,
+                    "isStatic": false,
+                    "name": "a",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "keyword": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 21
+                    }
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
-                },
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 3,
-                  "col": 2,
-                  "byteIndex": 36
-                }
+                  {
+                    "accessibility": null,
+                    "optional": false,
+                    "isAbstract": false,
+                    "isStatic": false,
+                    "name": "b",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "keyword": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 3,
+                      "col": 2,
+                      "byteIndex": 36
+                    }
+                  }
+                ],
+                "extends": null,
+                "implements": [],
+                "typeParams": [],
+                "superTypeParams": []
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+            }
+          ]
         }
       ]
     }

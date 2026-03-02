@@ -28,68 +28,83 @@ private namespace MyNamespace
 [
   {
     "name": "PrivateProp",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 105
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Comment"
-    },
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "MyNamespace.MyInternal",
-        "kind": "typeQuery",
-        "typeQuery": "MyNamespace.MyInternal"
-      },
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 3,
+          "col": 0,
+          "byteIndex": 105
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Comment"
+        },
+        "kind": "typeAlias",
+        "typeAliasDef": {
+          "tsType": {
+            "repr": "MyNamespace.MyInternal",
+            "kind": "typeQuery",
+            "typeQuery": "MyNamespace.MyInternal"
+          },
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "MyNamespace",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 163
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "MyInternal",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 7,
-            "col": 2,
-            "byteIndex": 208
-          },
-          "declarationKind": "export",
-          "jsDoc": {
-            "tags": [
-              {
-                "kind": "internal"
-              }
-            ]
-          },
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 163
+        },
+        "declarationKind": "private",
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "MyInternal",
+              "isDefault": false,
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 7,
+                    "col": 2,
+                    "byteIndex": 208
+                  },
+                  "declarationKind": "export",
+                  "jsDoc": {
+                    "tags": [
+                      {
+                        "kind": "internal"
+                      }
+                    ]
+                  },
+                  "kind": "class",
+                  "classDef": {
+                    "isAbstract": false,
+                    "constructors": [],
+                    "properties": [],
+                    "indexSignatures": [],
+                    "methods": [],
+                    "extends": null,
+                    "implements": [],
+                    "typeParams": [],
+                    "superTypeParams": []
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

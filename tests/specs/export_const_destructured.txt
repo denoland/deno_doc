@@ -54,84 +54,104 @@ const h: number
 [
   {
     "name": "a",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 6,
-      "col": 2,
-      "byteIndex": 123
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "export a doc"
-    },
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 6,
+          "col": 2,
+          "byteIndex": 123
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "export a doc"
+        },
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   },
   {
     "name": "b",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 2,
-      "byteIndex": 150
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "export b doc"
-    },
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "number",
-        "kind": "keyword",
-        "keyword": "number"
-      },
-      "kind": "const"
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 8,
+          "col": 2,
+          "byteIndex": 150
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "export b doc"
+        },
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   },
   {
     "name": "f",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 15,
-      "byteIndex": 250
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 16,
+          "col": 15,
+          "byteIndex": 250
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   },
   {
     "name": "h",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 21,
-      "byteIndex": 256
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "number",
-        "kind": "keyword",
-        "keyword": "number"
-      },
-      "kind": "const"
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 16,
+          "col": 21,
+          "byteIndex": 256
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "number",
+            "kind": "keyword",
+            "keyword": "number"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   }
 ]

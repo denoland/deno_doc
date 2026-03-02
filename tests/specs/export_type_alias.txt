@@ -12,33 +12,38 @@ type NumberArray = Array<number>
 [
   {
     "name": "NumberArray",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 29
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Array holding numbers"
-    },
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "Array",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": [
-            {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 29
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Array holding numbers"
+        },
+        "kind": "typeAlias",
+        "typeAliasDef": {
+          "tsType": {
+            "repr": "Array",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": [
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              ],
+              "typeName": "Array"
             }
-          ],
-          "typeName": "Array"
+          },
+          "typeParams": []
         }
-      },
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

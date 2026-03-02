@@ -56,96 +56,101 @@ interface I
 [
   {
     "name": "I",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "p",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
-          },
-          "params": [],
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "typeParams": []
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "name": "po",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 36
-          },
-          "params": [],
-          "computed": false,
-          "optional": true,
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "typeParams": []
-        },
-        {
-          "name": "pro",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 51
-          },
-          "params": [],
-          "readonly": true,
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "typeParams": []
-        },
-        {
-          "name": "pc",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 2,
-            "byteIndex": 75
-          },
-          "params": [],
-          "computed": true,
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "p",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 23
+              },
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "po",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 36
+              },
+              "params": [],
+              "computed": false,
+              "optional": true,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "pro",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 51
+              },
+              "params": [],
+              "readonly": true,
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            },
+            {
+              "name": "pc",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 2,
+                "byteIndex": 75
+              },
+              "params": [],
+              "computed": true,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": [],
           "typeParams": []
         }
-      ],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

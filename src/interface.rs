@@ -78,9 +78,7 @@ pub fn get_doc_for_ts_interface_decl(
   module_info: &EsModuleInfo,
   interface_decl: &deno_ast::swc::ast::TsInterfaceDecl,
   def_name: Option<String>,
-) -> (String, InterfaceDef) {
-  let interface_name = interface_decl.id.sym.to_string();
-
+) -> InterfaceDef {
   let mut constructors = vec![];
   let mut methods = vec![];
   let mut properties = vec![];
@@ -306,7 +304,7 @@ pub fn get_doc_for_ts_interface_decl(
     .map(|expr| TsTypeDef::ts_expr_with_type_args(module_info, expr))
     .collect::<Vec<TsTypeDef>>();
 
-  let interface_def = InterfaceDef {
+  InterfaceDef {
     def_name,
     extends,
     constructors,
@@ -315,7 +313,5 @@ pub fn get_doc_for_ts_interface_decl(
     call_signatures,
     index_signatures,
     type_params,
-  };
-
-  (interface_name, interface_def)
+  }
 }

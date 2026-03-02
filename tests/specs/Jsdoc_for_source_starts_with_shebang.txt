@@ -51,6 +51,7 @@ interface B
 [
   {
     "name": "",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

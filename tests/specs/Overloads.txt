@@ -29,92 +29,110 @@ Defined in file:///mod.ts:2:1
 function a(b: number): number
 
 
-
 # output.json
 [
   {
     "name": "a",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "b",
-          "optional": false,
-          "tsType": {
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              }
+            }
+          ],
+          "returnType": {
             "repr": "string",
             "kind": "keyword",
             "keyword": "string"
-          }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
       },
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "a",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 38
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "b",
-          "optional": false,
-          "tsType": {
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 38
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            }
+          ],
+          "returnType": {
             "repr": "number",
             "kind": "keyword",
             "keyword": "number"
-          }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "number",
-        "kind": "keyword",
-        "keyword": "number"
       },
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "a",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 76
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "b",
-          "optional": false,
-          "tsType": {
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 3,
+          "col": 0,
+          "byteIndex": 76
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                ]
+              }
+            }
+          ],
+          "returnType": {
             "repr": "",
             "kind": "union",
             "union": [
@@ -129,29 +147,13 @@ function a(b: number): number
                 "keyword": "number"
               }
             ]
-          }
-        }
-      ],
-      "returnType": {
-        "repr": "",
-        "kind": "union",
-        "union": [
-          {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
           },
-          {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          }
-        ]
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

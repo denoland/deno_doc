@@ -41,103 +41,108 @@ class A
 [
   {
     "name": "A",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [
-        {
-          "accessibility": null,
-          "name": "constructor",
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            }
-          ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 19
-          }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "accessibility": null,
-          "name": "constructor",
-          "params": [
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [
             {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              }
-            }
-          ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 46
-          }
-        },
-        {
-          "accessibility": null,
-          "hasBody": true,
-          "name": "constructor",
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "union",
-                "union": [
-                  {
+              "accessibility": null,
+              "name": "constructor",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": {
                     "repr": "string",
                     "kind": "keyword",
                     "keyword": "string"
-                  },
-                  {
+                  }
+                }
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 19
+              }
+            },
+            {
+              "accessibility": null,
+              "name": "constructor",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": {
                     "repr": "number",
                     "kind": "keyword",
                     "keyword": "number"
                   }
-                ]
+                }
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 46
+              }
+            },
+            {
+              "accessibility": null,
+              "hasBody": true,
+              "name": "constructor",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "union",
+                    "union": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      },
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "keyword": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 73
               }
             }
           ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 73
-          }
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

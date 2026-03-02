@@ -18,56 +18,61 @@ function foo(n: number, b: string): void
 [
   {
     "name": "foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "assign",
-          "left": {
-            "kind": "identifier",
-            "name": "n",
-            "optional": false,
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            }
-          },
-          "right": "0",
-          "tsType": null
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "kind": "assign",
-          "left": {
-            "kind": "identifier",
-            "name": "b",
-            "optional": false,
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "assign",
+              "left": {
+                "kind": "identifier",
+                "name": "n",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              },
+              "right": "0",
+              "tsType": null
+            },
+            {
+              "kind": "assign",
+              "left": {
+                "kind": "identifier",
+                "name": "b",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "keyword": "string"
+                }
+              },
+              "right": "0",
+              "tsType": null
             }
+          ],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
           },
-          "right": "0",
-          "tsType": null
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

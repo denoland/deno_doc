@@ -20,53 +20,58 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 [
   {
     "name": "adopt",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "p",
-          "optional": false,
-          "tsType": {
-            "repr": "",
-            "kind": "importType",
-            "importType": {
-              "specifier": "./module.ts",
-              "qualifier": "Pet",
-              "typeParams": [
-                {
-                  "repr": "T",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "T"
-                  }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "p",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "importType",
+                "importType": {
+                  "specifier": "./module.ts",
+                  "qualifier": "Pet",
+                  "typeParams": [
+                    {
+                      "repr": "T",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "T"
+                      }
+                    }
+                  ]
                 }
-              ]
+              }
             }
-          }
+          ],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": [
+            {
+              "name": "T"
+            }
+          ]
         }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": [
-        {
-          "name": "T"
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

@@ -33,74 +33,79 @@ class C
 [
   {
     "name": "C",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "f",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 43
-          }
+          "constructors": [],
+          "properties": [
+            {
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "f",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 43
+              }
+            }
+          ],
+          "indexSignatures": [],
+          "methods": [
+            {
+              "jsDoc": {
+                "doc": "a doc"
+              },
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "a",
+              "kind": "method",
+              "functionDef": {
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "keyword": "void"
+                },
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 34
+              }
+            }
+          ],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "indexSignatures": [],
-      "methods": [
-        {
-          "jsDoc": {
-            "doc": "a doc"
-          },
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 34
-          }
-        }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

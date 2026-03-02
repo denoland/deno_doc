@@ -36,45 +36,50 @@ interface I
 [
   {
     "name": "I",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [
-        {
-          "params": [
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [
             {
-              "kind": "identifier",
-              "name": "name",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "name",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "returnType": null,
+              "typeParams": [],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 23
               }
             }
           ],
-          "returnType": null,
-          "typeParams": [],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
-          }
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
         }
-      ],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

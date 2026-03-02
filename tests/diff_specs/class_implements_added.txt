@@ -15,42 +15,47 @@ export class Foo implements Runnable {
       "added": [
         {
           "name": "Runnable",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "interface",
-          "interfaceDef": {
-            "extends": [],
-            "constructors": [],
-            "methods": [
-              {
-                "name": "run",
-                "kind": "method",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 1,
-                  "col": 21,
-                  "byteIndex": 21
-                },
-                "params": [],
-                "optional": false,
-                "returnType": {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "keyword": "void"
-                },
+          "isDefault": false,
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "private",
+              "kind": "interface",
+              "interfaceDef": {
+                "extends": [],
+                "constructors": [],
+                "methods": [
+                  {
+                    "name": "run",
+                    "kind": "method",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 21,
+                      "byteIndex": 21
+                    },
+                    "params": [],
+                    "optional": false,
+                    "returnType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "keyword": "void"
+                    },
+                    "typeParams": []
+                  }
+                ],
+                "properties": [],
+                "callSignatures": [],
+                "indexSignatures": [],
                 "typeParams": []
               }
-            ],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+            }
+          ]
         }
       ],
       "modified": [

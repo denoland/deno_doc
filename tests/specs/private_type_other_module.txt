@@ -164,6 +164,7 @@ Defined in file:///mod.ts:1:1
   },
   {
     "name": "MyNamespace",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -179,6 +180,7 @@ Defined in file:///mod.ts:1:1
   },
   {
     "name": "YesDiagnostic2",
+    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

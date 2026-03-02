@@ -1,10 +1,10 @@
+use crate::DeclarationDef;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
 use crate::html::util::BreadcrumbCtx;
 use crate::html::util::BreadcrumbsCtx;
 use crate::html::util::NamespacedSymbols;
-use crate::node::DocNodeDef;
 use deno_graph::ModuleSpecifier;
 use serde::Deserialize;
 use serde::Serialize;
@@ -460,15 +460,17 @@ fn split_with_brackets(s: &str) -> Vec<String> {
 }
 
 fn get_current_imports(
-  doc_nodes: &[DocNodeWithContext],
+  symbols: &[DocNodeWithContext],
 ) -> HashMap<String, String> {
   let mut imports = HashMap::new();
 
-  for doc_node in doc_nodes {
-    if let DocNodeDef::Import { import_def } = &doc_node.def {
-      // TODO: handle import aliasing
-      if import_def.imported.as_deref() == Some(doc_node.get_name()) {
-        imports.insert(doc_node.get_name().to_string(), import_def.src.clone());
+  for symbol in symbols {
+    for decl in &symbol.declarations {
+      if let DeclarationDef::Import { import_def } = &decl.def {
+        // TODO: handle import aliasing
+        if import_def.imported.as_deref() == Some(symbol.get_name()) {
+          imports.insert(symbol.get_name().to_string(), import_def.src.clone());
+        }
       }
     }
   }
@@ -479,14 +481,14 @@ fn get_current_imports(
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::DocNode;
-  use crate::Location;
   use crate::html::HrefResolver;
   use crate::html::{
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
   use crate::node::DeclarationKind;
   use crate::node::ImportDef;
+  use crate::node::Symbol;
+  use crate::{Declaration, Location};
   use indexmap::IndexMap;
 
   struct TestResolver;
@@ -558,23 +560,25 @@ mod test {
   fn lookup_symbol_href() {
     let doc_nodes_by_url = indexmap::IndexMap::from([(
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-      vec![DocNode {
+      vec![Symbol {
         name: "foo".into(),
         is_default: false,
-        location: Location {
-          filename: "a".into(),
-          line: 0,
-          col: 0,
-          byte_index: 0,
-        },
-        declaration_kind: DeclarationKind::Private,
-        js_doc: Default::default(),
-        def: crate::node::DocNodeDef::Import {
-          import_def: ImportDef {
-            src: "b".to_string(),
-            imported: Some("foo".to_string()),
+        declarations: vec![Declaration {
+          location: Location {
+            filename: "a".into(),
+            line: 0,
+            col: 0,
+            byte_index: 0,
           },
-        },
+          declaration_kind: DeclarationKind::Private,
+          js_doc: Default::default(),
+          def: crate::node::DeclarationDef::Import {
+            import_def: ImportDef {
+              src: "b".to_string(),
+              imported: Some("foo".to_string()),
+            },
+          },
+        }],
       }],
     )]);
 

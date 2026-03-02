@@ -25,52 +25,57 @@ function add<T>(a: T, b: T)
 [
   {
     "name": "add",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "a",
-          "optional": false,
-          "tsType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "T"
-            }
-          }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "kind": "identifier",
-          "name": "b",
-          "optional": false,
-          "tsType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "T"
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "a",
+              "optional": false,
+              "tsType": {
+                "repr": "T",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "T"
+                }
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": false,
+              "tsType": {
+                "repr": "T",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "T"
+                }
+              }
             }
-          }
+          ],
+          "returnType": null,
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": [
+            {
+              "name": "T"
+            }
+          ]
         }
-      ],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": [
-        {
-          "name": "T"
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

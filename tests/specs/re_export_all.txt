@@ -46,43 +46,53 @@ class Test
 [
   {
     "name": "Test",
-    "location": {
-      "filename": "file:///b.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///b.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "test1",
-    "location": {
-      "filename": "file:///a.ts",
-      "line": 1,
-      "col": 6,
-      "byteIndex": 6
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///a.ts",
+          "line": 1,
+          "col": 6,
+          "byteIndex": 6
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   }
 ]

@@ -19,33 +19,38 @@ class Class implements Iterator
 [
   {
     "name": "Class",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [
-        {
-          "repr": "Iterator",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Iterator"
-          }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [
+            {
+              "repr": "Iterator",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "Iterator"
+              }
+            }
+          ],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

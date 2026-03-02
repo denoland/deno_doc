@@ -25,21 +25,26 @@ function* g()
 [
   {
     "name": "g",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": true,
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": null,
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": true,
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

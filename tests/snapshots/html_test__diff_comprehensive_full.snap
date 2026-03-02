@@ -16796,21 +16796,6 @@ expression: pages
               "char": "f",
               "kind": "Function",
               "title": "Function"
-            },
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            },
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            },
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
             }
           ],
           "name": "createApp",

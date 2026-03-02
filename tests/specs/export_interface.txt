@@ -66,167 +66,182 @@ interface Reader extends Foo, Bar
 [
   {
     "name": "Reader",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 0,
-      "byteIndex": 64
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Interface js doc"
-    },
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [
-        {
-          "repr": "Foo",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Foo"
-          }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 8,
+          "col": 0,
+          "byteIndex": 64
         },
-        {
-          "repr": "Bar",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Bar"
-          }
-        }
-      ],
-      "constructors": [],
-      "methods": [
-        {
-          "name": "read",
-          "jsDoc": {
-            "doc": "Read n bytes"
-          },
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 10,
-            "col": 4,
-            "byteIndex": 135
-          },
-          "params": [
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Interface js doc"
+        },
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [
             {
-              "kind": "identifier",
-              "name": "buf",
-              "optional": false,
-              "tsType": {
-                "repr": "Uint8Array",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "Uint8Array"
-                }
+              "repr": "Foo",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "Foo"
               }
             },
             {
-              "kind": "identifier",
-              "name": "something",
-              "optional": false,
-              "tsType": {
-                "repr": "unknown",
-                "kind": "keyword",
-                "keyword": "unknown"
+              "repr": "Bar",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "Bar"
               }
             }
           ],
-          "optional": true,
-          "returnType": {
-            "repr": "Promise",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": [
+          "constructors": [],
+          "methods": [
+            {
+              "name": "read",
+              "jsDoc": {
+                "doc": "Read n bytes"
+              },
+              "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 10,
+                "col": 4,
+                "byteIndex": 135
+              },
+              "params": [
                 {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
+                  "kind": "identifier",
+                  "name": "buf",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "Uint8Array",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Uint8Array"
+                    }
+                  }
+                },
+                {
+                  "kind": "identifier",
+                  "name": "something",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "unknown",
+                    "kind": "keyword",
+                    "keyword": "unknown"
+                  }
                 }
               ],
-              "typeName": "Promise"
+              "optional": true,
+              "returnType": {
+                "repr": "Promise",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": [
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  ],
+                  "typeName": "Promise"
+                }
+              },
+              "typeParams": []
             }
-          },
-          "typeParams": []
-        }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [
-        {
-          "jsDoc": {
-            "doc": "Test"
-          },
-          "readonly": false,
-          "params": [
+          ],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [
             {
-              "kind": "identifier",
-              "name": "key",
-              "optional": false,
+              "jsDoc": {
+                "doc": "Test"
+              },
+              "readonly": false,
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "key",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
               "tsType": {
-                "repr": "string",
+                "repr": "number",
                 "kind": "keyword",
-                "keyword": "string"
+                "keyword": "number"
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 12,
+                "col": 4,
+                "byteIndex": 215
               }
             }
           ],
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 12,
-            "col": 4,
-            "byteIndex": 215
-          }
+          "typeParams": []
         }
-      ],
-      "typeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "Foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "private",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "Bar",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 18
-    },
-    "declarationKind": "private",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 3,
+          "col": 0,
+          "byteIndex": 18
+        },
+        "declarationKind": "private",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

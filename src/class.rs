@@ -5,7 +5,6 @@ use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 use crate::decorators::DecoratorDef;
@@ -14,6 +13,7 @@ use crate::function::FunctionDef;
 use crate::function::function_to_function_def;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
+use crate::node::Symbol;
 use crate::params::assign_pat_to_param_def;
 use crate::params::ident_to_param_def;
 use crate::params::param_to_param_def;
@@ -124,9 +124,9 @@ pub struct ClassPropertyDef {
   pub location: Location,
 }
 
-impl From<ClassPropertyDef> for DocNode {
-  fn from(def: ClassPropertyDef) -> DocNode {
-    DocNode::variable(
+impl From<ClassPropertyDef> for Symbol {
+  fn from(def: ClassPropertyDef) -> Symbol {
+    Symbol::variable(
       def.name,
       false,
       def.location,
@@ -178,9 +178,9 @@ pub struct ClassMethodDef {
   pub location: Location,
 }
 
-impl From<ClassMethodDef> for DocNode {
-  fn from(def: ClassMethodDef) -> DocNode {
-    DocNode::function(
+impl From<ClassMethodDef> for Symbol {
+  fn from(def: ClassMethodDef) -> Symbol {
+    Symbol::function(
       def.name,
       false,
       def.location,
@@ -463,10 +463,6 @@ pub fn class_to_class_def(
 pub fn get_doc_for_class_decl(
   module_info: &EsModuleInfo,
   class_decl: &deno_ast::swc::ast::ClassDecl,
-) -> (String, ClassDef, JsDoc) {
-  let class_name = class_decl.ident.sym.to_string();
-  let (class_def, js_doc) =
-    class_to_class_def(module_info, &class_decl.class, None);
-
-  (class_name, class_def, js_doc)
+) -> (ClassDef, JsDoc) {
+  class_to_class_def(module_info, &class_decl.class, None)
 }

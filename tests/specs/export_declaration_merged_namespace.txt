@@ -42,61 +42,76 @@ namespace Namespace1
 [
   {
     "name": "Namespace1",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "Test1",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 25
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+    "isDefault": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "name": "Test2",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 2,
-            "byteIndex": 74
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+        "declarationKind": "export",
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "Test1",
+              "isDefault": false,
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 2,
+                    "col": 2,
+                    "byteIndex": 25
+                  },
+                  "declarationKind": "export",
+                  "kind": "class",
+                  "classDef": {
+                    "isAbstract": false,
+                    "constructors": [],
+                    "properties": [],
+                    "indexSignatures": [],
+                    "methods": [],
+                    "extends": null,
+                    "implements": [],
+                    "typeParams": [],
+                    "superTypeParams": []
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Test2",
+              "isDefault": false,
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 5,
+                    "col": 2,
+                    "byteIndex": 74
+                  },
+                  "declarationKind": "export",
+                  "kind": "class",
+                  "classDef": {
+                    "isAbstract": false,
+                    "constructors": [],
+                    "properties": [],
+                    "indexSignatures": [],
+                    "methods": [],
+                    "extends": null,
+                    "implements": [],
+                    "typeParams": [],
+                    "superTypeParams": []
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

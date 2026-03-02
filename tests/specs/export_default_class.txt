@@ -19,77 +19,81 @@ class default
   {
     "name": "default",
     "isDefault": true,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 17
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Class doc"
-    },
-    "kind": "class",
-    "classDef": {
-      "defName": "Foobar",
-      "isAbstract": false,
-      "constructors": [
-        {
-          "jsDoc": {
-            "doc": "Constructor js doc"
-          },
-          "accessibility": null,
-          "hasBody": true,
-          "name": "constructor",
-          "params": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 17
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Class doc"
+        },
+        "kind": "class",
+        "classDef": {
+          "defName": "Foobar",
+          "isAbstract": false,
+          "constructors": [
             {
-              "kind": "identifier",
-              "name": "name",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            },
-            {
-              "accessibility": "private",
-              "kind": "identifier",
-              "name": "private2",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              }
-            },
-            {
-              "accessibility": "protected",
-              "kind": "identifier",
-              "name": "protected2",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
+              "jsDoc": {
+                "doc": "Constructor js doc"
+              },
+              "accessibility": null,
+              "hasBody": true,
+              "name": "constructor",
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "name",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                },
+                {
+                  "accessibility": "private",
+                  "kind": "identifier",
+                  "name": "private2",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                },
+                {
+                  "accessibility": "protected",
+                  "kind": "identifier",
+                  "name": "protected2",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                }
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 4,
+                "byteIndex": 81
               }
             }
           ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 4,
-            "byteIndex": 81
-          }
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

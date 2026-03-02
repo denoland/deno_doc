@@ -1,9 +1,9 @@
 use super::render_context::RenderContext;
 use super::util::*;
+use crate::DeclarationDef;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
 use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
@@ -802,11 +802,13 @@ impl ModuleDocCtx {
 
     let mut sections = Vec::with_capacity(7);
 
-    let (deprecated, html) = if let Some(node) = module_doc_nodes
-      .iter()
-      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
-    {
-      let deprecated = node.js_doc.tags.iter().find_map(|tag| {
+    let (deprecated, html) = if let Some(decl) =
+      module_doc_nodes.iter().find_map(|n| {
+        n.declarations
+          .iter()
+          .find(|decl| matches!(decl.def, DeclarationDef::ModuleDoc))
+      }) {
+      let deprecated = decl.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {
           Some(render_markdown(
             render_ctx,
@@ -818,11 +820,11 @@ impl ModuleDocCtx {
         }
       });
 
-      if let Some(examples) = jsdoc_examples(render_ctx, &node.js_doc) {
+      if let Some(examples) = jsdoc_examples(render_ctx, &decl.js_doc) {
         sections.push(examples);
       }
 
-      let html = jsdoc_body_to_html(render_ctx, &node.js_doc, summary);
+      let html = jsdoc_body_to_html(render_ctx, &decl.js_doc, summary);
 
       (deprecated, html)
     } else {
@@ -876,8 +878,6 @@ impl ModuleDocCtx {
 
 #[cfg(test)]
 mod test {
-  use crate::DocNode;
-  use crate::Location;
   use crate::html::GenerateCtx;
   use crate::html::GenerateOptions;
   use crate::html::HrefResolver;
@@ -885,6 +885,7 @@ mod test {
   use crate::html::UsageComposerEntry;
   use crate::html::href_path_resolve;
   use crate::html::jsdoc::parse_links;
+  use crate::{Location, Symbol};
   use deno_ast::ModuleSpecifier;
   use indexmap::IndexMap;
   use std::rc::Rc;
@@ -984,7 +985,7 @@ mod test {
         (
           ModuleSpecifier::parse("file:///a.ts").unwrap(),
           vec![
-            DocNode::interface(
+            Symbol::interface(
               "foo".into(),
               false,
               Location::default(),
@@ -1001,7 +1002,7 @@ mod test {
                 type_params: Box::new([]),
               },
             ),
-            DocNode::interface(
+            Symbol::interface(
               "bar".into(),
               false,
               Location::default(),
@@ -1022,7 +1023,7 @@ mod test {
         ),
         (
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
-          vec![DocNode::interface(
+          vec![Symbol::interface(
             "baz".into(),
             false,
             Location::default(),
