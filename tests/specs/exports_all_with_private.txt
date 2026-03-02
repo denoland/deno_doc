@@ -81,7 +81,6 @@ private namespace H
 [
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -105,7 +104,6 @@ private namespace H
   },
   {
     "name": "C",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -128,7 +126,6 @@ private namespace H
   },
   {
     "name": "E",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -149,7 +146,6 @@ private namespace H
   },
   {
     "name": "G",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -164,7 +160,6 @@ private namespace H
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -188,7 +183,6 @@ private namespace H
   },
   {
     "name": "D",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -211,7 +205,6 @@ private namespace H
   },
   {
     "name": "F",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -232,7 +225,6 @@ private namespace H
   },
   {
     "name": "H",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,

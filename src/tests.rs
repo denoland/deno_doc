@@ -146,7 +146,6 @@ async fn types_header_handling() {
     json!([{
       "kind": "variable",
       "name": "a",
-      "isDefault": false,
       "location": {
         "filename": "https://example.com/a.d.ts",
         "line": 1,
@@ -238,7 +237,6 @@ export function fooFn(a: number) {
     {
       "kind": "variable",
       "name": "fooConst",
-      "isDefault": false,
       "location": {
         "filename": "file:///reexport.ts",
         "line": 7,
@@ -264,7 +262,6 @@ export function fooFn(a: number) {
     {
       "kind": "variable",
       "name": "barReExport",
-      "isDefault": false,
       "location": {
         "filename": "file:///nested_reexport.ts",
         "line": 5,
@@ -290,7 +287,6 @@ export function fooFn(a: number) {
     {
       "kind": "function",
       "name": "fooFn",
-      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 6,
@@ -324,7 +320,6 @@ export function fooFn(a: number) {
     {
       "kind": "import",
       "name": "buzz",
-      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 3,
@@ -384,7 +379,6 @@ export { Hello } from "./reexport.ts";
     {
       "kind": "interface",
       "name": "Hello",
-      "isDefault": false,
       "location": {
         "filename": "file:///reexport.ts",
         "line": 2,
@@ -405,7 +399,6 @@ export { Hello } from "./reexport.ts";
     {
       "kind": "class",
       "name": "Hello",
-      "isDefault": false,
       "location": {
         "filename": "file:///reexport.ts",
         "line": 3,
@@ -466,7 +459,6 @@ async fn deep_reexports() {
     {
       "kind": "variable",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
@@ -535,7 +527,6 @@ export * as b from "./mod_doc.ts";
     {
       "kind": "namespace",
       "name": "b",
-      "isDefault": false,
       "location": {
         "filename": "file:///ns.ts",
         "line": 2,
@@ -556,7 +547,6 @@ export * as b from "./mod_doc.ts";
           {
             "kind": "variable",
             "name": "a",
-            "isDefault": false,
             "location": {
               "filename": "file:///mod_doc.ts",
               "line": 9,
@@ -718,7 +708,6 @@ async fn exports_imported_earlier() {
     {
       "kind": "variable",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
@@ -738,7 +727,6 @@ async fn exports_imported_earlier() {
     {
       "kind": "import",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -790,7 +778,6 @@ async fn exports_imported_earlier_renamed() {
     {
       "kind": "variable",
       "name": "f",
-      "isDefault": false,
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
@@ -810,7 +797,6 @@ async fn exports_imported_earlier_renamed() {
     {
       "kind": "import",
       "name": "f",
-      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -863,7 +849,6 @@ async fn exports_imported_earlier_default() {
     {
       "kind": "variable",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
@@ -883,7 +868,6 @@ async fn exports_imported_earlier_default() {
     {
       "kind": "import",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -938,7 +922,6 @@ async fn exports_imported_earlier_private() {
     {
       "kind": "variable",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///foo.ts",
         "line": 1,
@@ -958,7 +941,6 @@ async fn exports_imported_earlier_private() {
     {
       "kind": "import",
       "name": "foo",
-      "isDefault": false,
       "location": {
         "filename": "file:///test.ts",
         "line": 2,
@@ -1022,7 +1004,6 @@ async fn json_module() {
     {
       "kind": "variable",
       "name": "configFile",
-      "isDefault": false,
       "location": {
         "filename": "file:///bar.json",
         "line": 1,

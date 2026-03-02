@@ -79,7 +79,6 @@ namespace f
 [
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -95,7 +94,6 @@ namespace f
       "elements": [
         {
           "name": "a",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 4,
@@ -121,7 +119,6 @@ namespace f
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -137,7 +134,6 @@ namespace f
       "elements": [
         {
           "name": "b",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 11,
@@ -166,7 +162,6 @@ namespace f
   },
   {
     "name": "c",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 15,
@@ -184,7 +179,6 @@ namespace f
   },
   {
     "name": "d",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 20,
@@ -200,7 +194,6 @@ namespace f
       "elements": [
         {
           "name": "e",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 22,
@@ -221,7 +214,6 @@ namespace f
   },
   {
     "name": "f",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 28,
@@ -237,7 +229,6 @@ namespace f
       "elements": [
         {
           "name": "g",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 30,
@@ -253,7 +244,6 @@ namespace f
             "elements": [
               {
                 "name": "value",
-                "isDefault": false,
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 32,

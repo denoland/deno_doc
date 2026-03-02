@@ -78,7 +78,6 @@ namespace SameName
 [
   {
     "name": "SameName",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -96,7 +95,6 @@ namespace SameName
   },
   {
     "name": "SameName",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -126,7 +124,6 @@ namespace SameName
   },
   {
     "name": "test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -155,7 +152,6 @@ namespace SameName
   },
   {
     "name": "test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -182,7 +178,6 @@ namespace SameName
   },
   {
     "name": "YesDiagnostic1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -203,7 +198,6 @@ namespace SameName
   },
   {
     "name": "YesDiagnostic2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,

@@ -119,7 +119,6 @@ const tpl2: string
 [
   {
     "name": "fizzBuzz",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -145,7 +144,6 @@ const tpl2: string
   },
   {
     "name": "env",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -257,7 +255,6 @@ const tpl2: string
   },
   {
     "name": "num",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
@@ -280,7 +277,6 @@ const tpl2: string
   },
   {
     "name": "bool",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -303,7 +299,6 @@ const tpl2: string
   },
   {
     "name": "bigint",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
@@ -326,7 +321,6 @@ const tpl2: string
   },
   {
     "name": "regex",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 15,
@@ -349,7 +343,6 @@ const tpl2: string
   },
   {
     "name": "date",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
@@ -372,7 +365,6 @@ const tpl2: string
   },
   {
     "name": "tpl1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 17,
@@ -404,7 +396,6 @@ const tpl2: string
   },
   {
     "name": "tpl2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 18,

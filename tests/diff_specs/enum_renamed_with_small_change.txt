@@ -33,7 +33,6 @@ export enum Bar {
       "added": [
         {
           "name": "Bar",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,
@@ -141,7 +140,6 @@ export enum Bar {
       "removed": [
         {
           "name": "Foo",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,

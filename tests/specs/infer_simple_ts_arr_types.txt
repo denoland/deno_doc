@@ -90,7 +90,6 @@ const g: ("a" | 1 | true)[]
 [
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -114,7 +113,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -138,7 +136,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "c",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -162,7 +159,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "d",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -197,7 +193,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "e",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -221,7 +216,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "f",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -245,7 +239,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "g",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,

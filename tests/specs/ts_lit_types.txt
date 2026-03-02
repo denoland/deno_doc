@@ -66,7 +66,6 @@ type tplLitArg = `test${number}`
 [
   {
     "name": "boolLit",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -89,7 +88,6 @@ type tplLitArg = `test${number}`
   },
   {
     "name": "strLit",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -112,7 +110,6 @@ type tplLitArg = `test${number}`
   },
   {
     "name": "tplLit",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -144,7 +141,6 @@ type tplLitArg = `test${number}`
   },
   {
     "name": "tplLitArg",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -189,7 +185,6 @@ type tplLitArg = `test${number}`
   },
   {
     "name": "numLit",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,

@@ -22,7 +22,6 @@ export namespace Utils {
             "addedElements": [
               {
                 "name": "bar",
-                "isDefault": false,
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 3,

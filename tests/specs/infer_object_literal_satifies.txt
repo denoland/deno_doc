@@ -51,7 +51,6 @@ type Colors = "red" | "green" | "blue"
 [
   {
     "name": "Colors",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -96,7 +95,6 @@ type Colors = "red" | "green" | "blue"
   },
   {
     "name": "favoriteColors",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -195,7 +193,6 @@ type Colors = "red" | "green" | "blue"
   },
   {
     "name": "g",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,

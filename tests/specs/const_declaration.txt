@@ -18,7 +18,6 @@ const Const: 0
 [
   {
     "name": "Const",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -36,7 +36,6 @@ namespace test
 [
   {
     "name": "test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -63,7 +62,6 @@ namespace test
   },
   {
     "name": "test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -79,7 +77,6 @@ namespace test
       "elements": [
         {
           "name": "skip",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
@@ -117,7 +114,6 @@ namespace test
         },
         {
           "name": "textProp",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 10,
@@ -143,7 +139,6 @@ namespace test
         },
         {
           "name": "booleanProp",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 13,

@@ -18,7 +18,6 @@ type Flatten<T> = T extends Array<infer U> ? U : T
 [
   {
     "name": "Flatten",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

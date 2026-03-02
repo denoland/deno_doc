@@ -55,7 +55,6 @@ namespace Test
 [
   {
     "name": "Test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -68,7 +67,6 @@ namespace Test
       "elements": [
         {
           "name": "Other",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
@@ -94,7 +92,6 @@ namespace Test
   },
   {
     "name": "YesDiagnostic",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,

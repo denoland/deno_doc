@@ -79,7 +79,6 @@ type Test = OtherPrivateType
 [
   {
     "name": "MyClass",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -170,7 +169,6 @@ type Test = OtherPrivateType
   },
   {
     "name": "Other",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 19,
@@ -249,7 +247,6 @@ type Test = OtherPrivateType
   },
   {
     "name": "Test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 34,
@@ -272,7 +269,6 @@ type Test = OtherPrivateType
   },
   {
     "name": "PrivateType",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

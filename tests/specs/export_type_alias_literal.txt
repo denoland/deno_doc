@@ -24,7 +24,6 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
 [
   {
     "name": "A",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -18,7 +18,6 @@ type T = { [key: string]: number; }
 [
   {
     "name": "T",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

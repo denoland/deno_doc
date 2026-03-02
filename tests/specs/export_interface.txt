@@ -66,7 +66,6 @@ interface Reader extends Foo, Bar
 [
   {
     "name": "Reader",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -192,7 +191,6 @@ interface Reader extends Foo, Bar
   },
   {
     "name": "Foo",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -213,7 +211,6 @@ interface Reader extends Foo, Bar
   },
   {
     "name": "Bar",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,

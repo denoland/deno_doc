@@ -43,7 +43,6 @@ const hello: "world"
 [
   {
     "name": "hello",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -66,7 +65,6 @@ const hello: "world"
   },
   {
     "name": "say",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -101,7 +99,6 @@ const hello: "world"
   },
   {
     "name": "bar",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,

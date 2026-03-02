@@ -23,7 +23,6 @@ function foo(): void
 [
   {
     "name": "foo",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -47,7 +46,6 @@ function foo(): void
   },
   {
     "name": "bar",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

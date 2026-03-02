@@ -98,7 +98,6 @@ interface D
 [
   {
     "name": "A",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,
@@ -130,7 +129,6 @@ interface D
   },
   {
     "name": "B",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 20,
@@ -160,7 +158,6 @@ interface D
   },
   {
     "name": "C",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 32,
@@ -193,7 +190,6 @@ interface D
   },
   {
     "name": "D",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 41,

@@ -20,7 +20,6 @@ private const obj: { a: string; b: string; }
 [
   {
     "name": "obj",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -83,7 +82,6 @@ private const obj: { a: string; b: string; }
   },
   {
     "name": "a1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -99,7 +97,6 @@ private const obj: { a: string; b: string; }
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

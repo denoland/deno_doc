@@ -58,7 +58,6 @@ private interface YesDiagnostic
 [
   {
     "name": "MyClass",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -143,7 +142,6 @@ private interface YesDiagnostic
   },
   {
     "name": "YesDiagnostic",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,

@@ -28,7 +28,6 @@ private namespace MyNamespace
 [
   {
     "name": "PrivateProp",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -51,7 +50,6 @@ private namespace MyNamespace
   },
   {
     "name": "MyNamespace",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -64,7 +62,6 @@ private namespace MyNamespace
       "elements": [
         {
           "name": "MyInternal",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,

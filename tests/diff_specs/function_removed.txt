@@ -12,7 +12,6 @@ export function foo() {}
       "removed": [
         {
           "name": "bar",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,

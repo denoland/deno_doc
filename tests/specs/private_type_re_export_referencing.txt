@@ -70,7 +70,6 @@ class Data
 [
   {
     "name": "Data",
-    "isDefault": false,
     "location": {
       "filename": "file:///data.ts",
       "line": 8,

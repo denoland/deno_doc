@@ -106,7 +106,6 @@ private namespace MyNamespace3
 [
   {
     "name": "PrivatePropThroughNamespaceRef",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -126,7 +125,6 @@ private namespace MyNamespace3
   },
   {
     "name": "MyNamespace",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -139,7 +137,6 @@ private namespace MyNamespace3
       "elements": [
         {
           "name": "Export",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
@@ -185,7 +182,6 @@ private namespace MyNamespace3
   },
   {
     "name": "MyNamespace2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -198,7 +194,6 @@ private namespace MyNamespace3
       "elements": [
         {
           "name": "MyClass",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,
@@ -244,7 +239,6 @@ private namespace MyNamespace3
   },
   {
     "name": "MyNamespace3",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 11,
@@ -257,7 +251,6 @@ private namespace MyNamespace3
       "elements": [
         {
           "name": "MyClass",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 12,

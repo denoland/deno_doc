@@ -20,7 +20,6 @@ async function a(): Promise<void>
 [
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -20,7 +20,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 [
   {
     "name": "adopt",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

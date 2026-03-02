@@ -15,7 +15,6 @@ export function brandNew(): void {}
       "added": [
         {
           "name": "brandNew",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
@@ -41,7 +40,6 @@ export function brandNew(): void {}
       "removed": [
         {
           "name": "toRemove",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
