@@ -97,6 +97,7 @@ pub enum DeclarationKind {
 #[serde(rename_all = "camelCase")]
 pub struct DocNode {
   pub name: Box<str>,
+  #[serde(skip_serializing_if = "std::ops::Not::not", default)]
   pub is_default: bool,
   pub location: Location,
   pub declaration_kind: DeclarationKind,
