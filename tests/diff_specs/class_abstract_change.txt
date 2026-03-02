@@ -15,24 +15,30 @@ export abstract class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "isAbstractChange": {
-              "old": false,
-              "new": true
-            },
-            "methodChanges": {
-              "modified": [
-                {
-                  "name": "bar",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
                   "isAbstractChange": {
                     "old": false,
                     "new": true
+                  },
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "bar",
+                        "isAbstractChange": {
+                          "old": false,
+                          "new": true
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

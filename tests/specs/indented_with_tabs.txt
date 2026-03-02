@@ -47,7 +47,6 @@ namespace Tabs
 [
   {
     "name": "Tabs",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -65,7 +64,6 @@ namespace Tabs
           "elements": [
             {
               "name": "Tabs",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

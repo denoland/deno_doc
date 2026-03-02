@@ -42,7 +42,6 @@ namespace Namespace1
 [
   {
     "name": "Namespace1",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -57,7 +56,6 @@ namespace Namespace1
           "elements": [
             {
               "name": "Test1",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -84,7 +82,6 @@ namespace Namespace1
             },
             {
               "name": "Test2",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

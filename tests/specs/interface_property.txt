@@ -56,7 +56,6 @@ interface I
 [
   {
     "name": "I",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

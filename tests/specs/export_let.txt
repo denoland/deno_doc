@@ -90,7 +90,6 @@ let tpl: `foobarbaz`
 [
   {
     "name": "str",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -114,7 +113,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "num",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -138,7 +136,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "bool",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -162,7 +159,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "dateStr",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -186,7 +182,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "regex",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -213,7 +208,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "sym",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -237,7 +231,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "tpl",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -18,7 +18,6 @@ function foo(bar: any): asserts bar
 [
   {
     "name": "foo",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

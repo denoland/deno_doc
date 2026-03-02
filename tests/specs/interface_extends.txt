@@ -19,7 +19,6 @@ interface Interface extends Iterator
 [
   {
     "name": "Interface",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

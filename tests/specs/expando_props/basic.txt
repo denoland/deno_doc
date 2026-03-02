@@ -36,7 +36,6 @@ namespace test
 [
   {
     "name": "test",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

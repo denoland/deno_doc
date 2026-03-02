@@ -18,7 +18,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 [
   {
     "name": "adopt",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

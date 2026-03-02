@@ -46,7 +46,6 @@ class Test
 [
   {
     "name": "Test",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -73,7 +72,6 @@ class Test
   },
   {
     "name": "test1",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

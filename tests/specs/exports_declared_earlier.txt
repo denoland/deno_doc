@@ -43,7 +43,6 @@ const hello: "world"
 [
   {
     "name": "hello",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -70,7 +69,6 @@ const hello: "world"
   },
   {
     "name": "say",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -109,7 +107,6 @@ const hello: "world"
   },
   {
     "name": "bar",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

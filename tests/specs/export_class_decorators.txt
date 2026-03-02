@@ -50,21 +50,21 @@ error[missing-return-type]: exported function is missing an explicit return type
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:13:3
-   | 
+    |
 13 |   @enumerable(false)
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:13:3
-   | 
+    |
 13 |   @enumerable(false)
    |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:18:3
-   | 
+    |
 18 |   method(@readonly param: string) {}
    |   ^
 
@@ -87,7 +87,6 @@ class A
 [
   {
     "name": "A",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

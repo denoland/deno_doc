@@ -52,7 +52,6 @@ class PublicType2
 [
   {
     "name": "myFunction",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -76,7 +75,6 @@ class PublicType2
   },
   {
     "name": "PublicType",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -126,7 +124,6 @@ class PublicType2
   },
   {
     "name": "myFunction2",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -150,7 +147,6 @@ class PublicType2
   },
   {
     "name": "PublicType2",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

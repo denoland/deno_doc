@@ -33,7 +33,6 @@ export enum Bar {
       "added": [
         {
           "name": "Bar",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -145,7 +144,6 @@ export enum Bar {
       "removed": [
         {
           "name": "Foo",
-          "isDefault": false,
           "declarations": [
             {
               "location": {

@@ -34,14 +34,14 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:15:8
-   | 
+    |
 15 | export namespace RootNs.OtherNs {
    |        ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:16:3
-   | 
+    |
 16 |   export class Other {}
    |   ^
 
@@ -61,7 +61,6 @@ namespace RootNs
 [
   {
     "name": "RootNs",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -79,7 +78,6 @@ namespace RootNs
           "elements": [
             {
               "name": "a",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -106,7 +104,6 @@ namespace RootNs
             },
             {
               "name": "NestedNs",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -124,7 +121,6 @@ namespace RootNs
                     "elements": [
                       {
                         "name": "Foo",
-                        "isDefault": false,
                         "declarations": [
                           {
                             "location": {
@@ -200,7 +196,6 @@ namespace RootNs
             },
             {
               "name": "OtherNs",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -215,7 +210,6 @@ namespace RootNs
                     "elements": [
                       {
                         "name": "Other",
-                        "isDefault": false,
                         "declarations": [
                           {
                             "location": {

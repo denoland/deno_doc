@@ -67,7 +67,6 @@ private namespace Test
 [
   {
     "name": "Output",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -114,7 +113,6 @@ private namespace Test
   },
   {
     "name": "Test",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -129,7 +127,6 @@ private namespace Test
           "elements": [
             {
               "name": "Other",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

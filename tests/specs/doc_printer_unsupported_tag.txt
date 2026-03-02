@@ -26,7 +26,6 @@ function noop(): void
 [
   {
     "name": "noop",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

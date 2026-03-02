@@ -40,7 +40,6 @@ private class YesDiagnostic
 [
   {
     "name": "Other",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -96,7 +95,6 @@ private class YesDiagnostic
   },
   {
     "name": "YesDiagnostic",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

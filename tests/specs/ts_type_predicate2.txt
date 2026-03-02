@@ -18,7 +18,6 @@ function foo(bar: A | B): asserts bar is B
 [
   {
     "name": "foo",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

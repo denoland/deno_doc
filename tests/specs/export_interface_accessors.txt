@@ -45,7 +45,6 @@ interface Thing
 [
   {
     "name": "Thing",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

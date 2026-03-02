@@ -81,7 +81,6 @@ private namespace H
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -109,7 +108,6 @@ private namespace H
   },
   {
     "name": "C",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -136,7 +134,6 @@ private namespace H
   },
   {
     "name": "E",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -161,7 +158,6 @@ private namespace H
   },
   {
     "name": "G",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -180,7 +176,6 @@ private namespace H
   },
   {
     "name": "b",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -208,7 +203,6 @@ private namespace H
   },
   {
     "name": "D",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -235,7 +229,6 @@ private namespace H
   },
   {
     "name": "F",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -260,7 +253,6 @@ private namespace H
   },
   {
     "name": "H",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

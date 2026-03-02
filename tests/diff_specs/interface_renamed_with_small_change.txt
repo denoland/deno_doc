@@ -33,32 +33,38 @@ export interface Bar {
       "modified": [
         {
           "name": "Bar",
-          "kind": "interface",
           "nameChange": {
             "old": "Foo",
             "new": "Bar"
           },
-          "defChanges": {
-            "type": "interface",
-            "propertyChanges": {
-              "modified": [
-                {
-                  "name": "j",
-                  "typeChange": {
-                    "old": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    },
-                    "new": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "propertyChanges": {
+                    "modified": [
+                      {
+                        "name": "j",
+                        "typeChange": {
+                          "old": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "keyword": "string"
+                          },
+                          "new": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "keyword": "number"
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

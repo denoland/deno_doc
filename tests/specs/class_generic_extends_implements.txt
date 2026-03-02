@@ -19,7 +19,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
 [
   {
     "name": "Class",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

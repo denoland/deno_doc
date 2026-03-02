@@ -15,29 +15,35 @@ export enum Status {
       "modified": [
         {
           "name": "Status",
-          "kind": "enum",
-          "defChanges": {
-            "type": "enum",
-            "modifiedMembers": [
+          "declarations": {
+            "modified": [
               {
-                "name": "Active",
-                "initChange": {
-                  "old": {
-                    "repr": "1",
-                    "kind": "literal",
-                    "literal": {
-                      "kind": "number",
-                      "number": 1.0
+                "kind": "enum",
+                "defChanges": {
+                  "type": "enum",
+                  "modifiedMembers": [
+                    {
+                      "name": "Active",
+                      "initChange": {
+                        "old": {
+                          "repr": "1",
+                          "kind": "literal",
+                          "literal": {
+                            "kind": "number",
+                            "number": 1.0
+                          }
+                        },
+                        "new": {
+                          "repr": "0",
+                          "kind": "literal",
+                          "literal": {
+                            "kind": "number",
+                            "number": 0.0
+                          }
+                        }
+                      }
                     }
-                  },
-                  "new": {
-                    "repr": "0",
-                    "kind": "literal",
-                    "literal": {
-                      "kind": "number",
-                      "number": 0.0
-                    }
-                  }
+                  ]
                 }
               }
             ]

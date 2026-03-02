@@ -29,7 +29,6 @@ class Class
 [
   {
     "name": "Class",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -19,7 +19,6 @@ function bar(): void
 [
   {
     "name": "bar",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

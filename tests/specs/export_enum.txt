@@ -26,7 +26,6 @@ enum Hello
 [
   {
     "name": "Hello",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

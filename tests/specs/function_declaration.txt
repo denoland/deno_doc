@@ -18,7 +18,6 @@ function fun(): void
 [
   {
     "name": "fun",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

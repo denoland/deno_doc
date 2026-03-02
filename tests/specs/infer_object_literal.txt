@@ -36,7 +36,6 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

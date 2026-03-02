@@ -19,7 +19,6 @@ namespace Namespace
 [
   {
     "name": "Namespace",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -27,7 +27,6 @@ namespace Audio
 [
   {
     "name": "Audio",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -45,7 +44,6 @@ namespace Audio
           "elements": [
             {
               "name": "Speech",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

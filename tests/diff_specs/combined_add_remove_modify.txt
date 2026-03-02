@@ -15,7 +15,6 @@ export function brandNew(): void {}
       "added": [
         {
           "name": "brandNew",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -45,7 +44,6 @@ export function brandNew(): void {}
       "removed": [
         {
           "name": "toRemove",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -96,14 +94,32 @@ export function brandNew(): void {}
       "modified": [
         {
           "name": "toModify",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "paramsChange": {
-              "modified": [
-                {
-                  "index": 0,
-                  "typeChange": {
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "paramsChange": {
+                    "modified": [
+                      {
+                        "index": 0,
+                        "typeChange": {
+                          "old": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "keyword": "string"
+                          },
+                          "new": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "keyword": "number"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "returnTypeChange": {
                     "old": {
                       "repr": "string",
                       "kind": "keyword",
@@ -116,20 +132,8 @@ export function brandNew(): void {}
                     }
                   }
                 }
-              ]
-            },
-            "returnTypeChange": {
-              "old": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "new": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
               }
-            }
+            ]
           }
         }
       ]

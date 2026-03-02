@@ -23,7 +23,6 @@ function foo(): void
 [
   {
     "name": "foo",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -51,7 +50,6 @@ function foo(): void
   },
   {
     "name": "bar",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

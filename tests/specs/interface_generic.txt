@@ -19,7 +19,6 @@ interface Interface<T>
 [
   {
     "name": "Interface",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

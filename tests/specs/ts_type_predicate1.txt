@@ -18,7 +18,6 @@ function foo(bar: A | B): bar is A
 [
   {
     "name": "foo",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

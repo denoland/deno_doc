@@ -19,7 +19,6 @@ interface Interface
 [
   {
     "name": "Interface",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

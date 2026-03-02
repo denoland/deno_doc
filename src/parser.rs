@@ -270,7 +270,7 @@ impl<'a> DocParser<'a> {
               )?
             {
               if let Some(new_symbol) = new_symbol {
-                symbols.insert(i, new_symbol);
+                symbols[i] = new_symbol;
                 all_locations.extend(symbols.iter().flat_map(|symbol| {
                   symbol.declarations.iter().map(|decl| decl.location.clone())
                 }));

@@ -15,7 +15,6 @@ export class Foo implements Runnable {
       "added": [
         {
           "name": "Runnable",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -61,51 +60,57 @@ export class Foo implements Runnable {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "implementsChange": {
-              "added": [
-                {
-                  "repr": "Runnable",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Runnable"
-                  }
-                }
-              ]
-            },
-            "methodChanges": {
-              "added": [
-                {
-                  "accessibility": null,
-                  "optional": false,
-                  "isAbstract": false,
-                  "isStatic": false,
-                  "name": "run",
-                  "kind": "method",
-                  "functionDef": {
-                    "params": [],
-                    "returnType": {
-                      "repr": "void",
-                      "kind": "keyword",
-                      "keyword": "void"
-                    },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "implementsChange": {
+                    "added": [
+                      {
+                        "repr": "Runnable",
+                        "kind": "typeRef",
+                        "typeRef": {
+                          "typeParams": null,
+                          "typeName": "Runnable"
+                        }
+                      }
+                    ]
                   },
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 77
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "accessibility": null,
+                        "optional": false,
+                        "isAbstract": false,
+                        "isStatic": false,
+                        "name": "run",
+                        "kind": "method",
+                        "functionDef": {
+                          "params": [],
+                          "returnType": {
+                            "repr": "void",
+                            "kind": "keyword",
+                            "keyword": "void"
+                          },
+                          "hasBody": true,
+                          "isAsync": false,
+                          "isGenerator": false,
+                          "typeParams": []
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 3,
+                          "col": 2,
+                          "byteIndex": 77
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

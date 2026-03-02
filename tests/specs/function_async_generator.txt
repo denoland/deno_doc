@@ -25,7 +25,6 @@ async function* ag()
 [
   {
     "name": "ag",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

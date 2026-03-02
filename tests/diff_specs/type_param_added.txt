@@ -11,14 +11,35 @@ export function identity<T>(value: T): T { return value; }
       "modified": [
         {
           "name": "identity",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "paramsChange": {
-              "modified": [
-                {
-                  "index": 0,
-                  "typeChange": {
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "paramsChange": {
+                    "modified": [
+                      {
+                        "index": 0,
+                        "typeChange": {
+                          "old": {
+                            "repr": "unknown",
+                            "kind": "keyword",
+                            "keyword": "unknown"
+                          },
+                          "new": {
+                            "repr": "T",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "T"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "returnTypeChange": {
                     "old": {
                       "repr": "unknown",
                       "kind": "keyword",
@@ -32,32 +53,17 @@ export function identity<T>(value: T): T { return value; }
                         "typeName": "T"
                       }
                     }
+                  },
+                  "typeParamsChange": {
+                    "added": [
+                      {
+                        "name": "T"
+                      }
+                    ]
                   }
                 }
-              ]
-            },
-            "returnTypeChange": {
-              "old": {
-                "repr": "unknown",
-                "kind": "keyword",
-                "keyword": "unknown"
-              },
-              "new": {
-                "repr": "T",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "T"
-                }
               }
-            },
-            "typeParamsChange": {
-              "added": [
-                {
-                  "name": "T"
-                }
-              ]
-            }
+            ]
           }
         }
       ]

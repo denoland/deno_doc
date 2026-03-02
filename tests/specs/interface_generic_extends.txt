@@ -19,7 +19,6 @@ interface Interface<V> extends Iterable<V>
 [
   {
     "name": "Interface",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

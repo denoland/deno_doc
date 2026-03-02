@@ -98,7 +98,6 @@ interface D
 [
   {
     "name": "A",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -134,7 +133,6 @@ interface D
   },
   {
     "name": "B",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -168,7 +166,6 @@ interface D
   },
   {
     "name": "C",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -205,7 +202,6 @@ interface D
   },
   {
     "name": "D",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

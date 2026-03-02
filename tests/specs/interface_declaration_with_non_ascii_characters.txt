@@ -44,7 +44,6 @@ interface 插件描述
 [
   {
     "name": "插件描述",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

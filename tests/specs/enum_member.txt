@@ -26,7 +26,6 @@ enum Enum
 [
   {
     "name": "Enum",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

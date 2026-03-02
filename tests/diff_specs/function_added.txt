@@ -12,7 +12,6 @@ export function bar() {}
       "added": [
         {
           "name": "bar",
-          "isDefault": false,
           "declarations": [
             {
               "location": {

@@ -35,7 +35,6 @@ namespace RootNs
 [
   {
     "name": "RootNs",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -53,7 +52,6 @@ namespace RootNs
           "elements": [
             {
               "name": "a",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

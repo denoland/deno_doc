@@ -35,14 +35,14 @@ error[private-type-ref]: public type 'ClassA.prototype.prop' references private 
 
 error[private-type-ref]: public type 'ClassB.prototype.prop' references private type 'PrivateInterface'
   --> /mod.ts:12:3
-   | 
+    |
 12 |   prop: PrivateInterface;
    |   ^
    = hint: make the referenced type public or remove the reference
-   | 
+    |
  1 | export interface PrivateInterface {
    | - this is the referenced type
-   | 
+    |
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -173,7 +173,6 @@ Defined in file:///mod.ts:1:1
   },
   {
     "name": "PrivateInterface",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -1,7 +1,7 @@
 # mod.ts
 class Foo {}
 const obj = { Foo }
-    
+
 export class Bar extends obj.Foo {}
 
 # diagnostics
@@ -40,14 +40,13 @@ class Bar extends obj.Foo
 [
   {
     "name": "Bar",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
           "filename": "file:///mod.ts",
           "line": 4,
           "col": 0,
-          "byteIndex": 38
+          "byteIndex": 34
         },
         "declarationKind": "export",
         "kind": "class",
@@ -67,7 +66,6 @@ class Bar extends obj.Foo
   },
   {
     "name": "obj",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

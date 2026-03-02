@@ -46,14 +46,14 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:11:1
-   | 
+    |
 11 | export class C {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:12:3
-   | 
+    |
 12 |   isSomething(): this is Something {
    |   ^
 
@@ -85,7 +85,6 @@ class C
 [
   {
     "name": "f1",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -155,7 +154,6 @@ class C
   },
   {
     "name": "f2",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -205,7 +203,6 @@ class C
   },
   {
     "name": "f3",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -251,7 +248,6 @@ class C
   },
   {
     "name": "assertIsDefined",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -320,7 +316,6 @@ class C
   },
   {
     "name": "C",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

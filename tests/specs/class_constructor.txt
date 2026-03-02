@@ -59,7 +59,6 @@ class Class3
 [
   {
     "name": "Class",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -114,7 +113,6 @@ class Class3
   },
   {
     "name": "Class2",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -157,7 +155,6 @@ class Class3
   },
   {
     "name": "Class3",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

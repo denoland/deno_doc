@@ -13,7 +13,6 @@ export class Foo extends Other {}
       "modified": [
         {
           "name": "Other",
-          "kind": "class",
           "nameChange": {
             "old": "Base",
             "new": "Other"
@@ -21,13 +20,19 @@ export class Foo extends Other {}
         },
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "extendsChange": {
-              "old": "Base",
-              "new": "Other"
-            }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "extendsChange": {
+                    "old": "Base",
+                    "new": "Other"
+                  }
+                }
+              }
+            ]
           }
         }
       ]

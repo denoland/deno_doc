@@ -15,7 +15,6 @@ export class Baz {
       "modified": [
         {
           "name": "Baz",
-          "kind": "class",
           "nameChange": {
             "old": "Foo",
             "new": "Baz"

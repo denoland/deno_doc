@@ -40,7 +40,6 @@ namespace Namespace
 [
   {
     "name": "Namespace",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -55,7 +54,6 @@ namespace Namespace
           "elements": [
             {
               "name": "a",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -86,7 +84,6 @@ namespace Namespace
             },
             {
               "name": "B",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

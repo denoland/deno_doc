@@ -19,14 +19,14 @@ export const { f, g: h } = d;
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:16:16
-   | 
+    |
 16 | export const { f, g: h } = d;
    |                ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:16:22
-   | 
+    |
 16 | export const { f, g: h } = d;
    |                      ^
 
@@ -54,7 +54,6 @@ const h: number
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -81,7 +80,6 @@ const h: number
   },
   {
     "name": "b",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -108,7 +106,6 @@ const h: number
   },
   {
     "name": "f",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -132,7 +129,6 @@ const h: number
   },
   {
     "name": "h",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

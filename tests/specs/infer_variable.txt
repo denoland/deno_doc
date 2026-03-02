@@ -25,7 +25,7 @@ export const k = (value: string) => 1;
 # diagnostics
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:22:14
-   | 
+    |
 22 | export const k = (value: string) => 1;
    |              ^
 
@@ -90,7 +90,6 @@ const j: number
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -117,7 +116,6 @@ const j: number
   },
   {
     "name": "b",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -144,7 +142,6 @@ const j: number
   },
   {
     "name": "c",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -171,7 +168,6 @@ const j: number
   },
   {
     "name": "d",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -198,7 +194,6 @@ const j: number
   },
   {
     "name": "e",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -228,7 +223,6 @@ const j: number
   },
   {
     "name": "f",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -272,7 +266,6 @@ const j: number
   },
   {
     "name": "g",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -302,7 +295,6 @@ const j: number
   },
   {
     "name": "h",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -329,7 +321,6 @@ const j: number
   },
   {
     "name": "i",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -356,7 +347,6 @@ const j: number
   },
   {
     "name": "j",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -383,7 +373,6 @@ const j: number
   },
   {
     "name": "k",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

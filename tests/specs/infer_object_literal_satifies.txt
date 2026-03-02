@@ -29,7 +29,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:12:14
-   | 
+    |
 12 | export const g: boolean = favoriteColors.green;
    |              ^
 
@@ -51,7 +51,6 @@ type Colors = "red" | "green" | "blue"
 [
   {
     "name": "Colors",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -100,7 +99,6 @@ type Colors = "red" | "green" | "blue"
   },
   {
     "name": "favoriteColors",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -203,7 +201,6 @@ type Colors = "red" | "green" | "blue"
   },
   {
     "name": "g",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

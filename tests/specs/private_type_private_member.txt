@@ -3,7 +3,7 @@
 export class MyClass {
   protected secondMethod(): YesDiagnostic {
   }
-  
+
   private myMethod(): NoDiagnostic {
   }
 }
@@ -15,14 +15,14 @@ interface NoDiagnostic {}
 # diagnostics
 error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references private type 'YesDiagnostic'
   --> /mod.ts:3:3
-   | 
+    |
  3 |   protected secondMethod(): YesDiagnostic {
    |   ^
    = hint: make the referenced type public or remove the reference
-   | 
+    |
 10 | interface YesDiagnostic {}
    | - this is the referenced type
-   | 
+    |
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -58,7 +58,6 @@ private interface YesDiagnostic
 [
   {
     "name": "MyClass",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -147,7 +146,6 @@ private interface YesDiagnostic
   },
   {
     "name": "YesDiagnostic",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

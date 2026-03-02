@@ -17,7 +17,6 @@ export class Bar {
       "added": [
         {
           "name": "Bar",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -99,7 +98,6 @@ export class Bar {
       "removed": [
         {
           "name": "Foo",
-          "isDefault": false,
           "declarations": [
             {
               "location": {

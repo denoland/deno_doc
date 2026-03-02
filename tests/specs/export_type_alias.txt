@@ -12,7 +12,6 @@ type NumberArray = Array<number>
 [
   {
     "name": "NumberArray",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

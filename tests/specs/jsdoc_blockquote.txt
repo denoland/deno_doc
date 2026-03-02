@@ -125,7 +125,6 @@ function withList(): void
 [
   {
     "name": "simple",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -156,7 +155,6 @@ function withList(): void
   },
   {
     "name": "multiParagraph",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -187,7 +185,6 @@ function withList(): void
   },
   {
     "name": "nested",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -218,7 +215,6 @@ function withList(): void
   },
   {
     "name": "followedByText",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -249,7 +245,6 @@ function withList(): void
   },
   {
     "name": "withCodeSpan",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -280,7 +275,6 @@ function withList(): void
   },
   {
     "name": "withList",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -311,7 +305,6 @@ function withList(): void
   },
   {
     "name": "deepNested",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

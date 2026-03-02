@@ -15,20 +15,26 @@ export class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "methodChanges": {
-              "modified": [
-                {
-                  "name": "bar",
-                  "accessibilityChange": {
-                    "old": "public",
-                    "new": "protected"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "bar",
+                        "accessibilityChange": {
+                          "old": "public",
+                          "new": "protected"
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

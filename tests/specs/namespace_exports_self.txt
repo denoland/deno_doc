@@ -79,7 +79,6 @@ namespace f
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -97,7 +96,6 @@ namespace f
           "elements": [
             {
               "name": "a",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -129,7 +127,6 @@ namespace f
   },
   {
     "name": "b",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -147,7 +144,6 @@ namespace f
           "elements": [
             {
               "name": "b",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -182,7 +178,6 @@ namespace f
   },
   {
     "name": "c",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -204,7 +199,6 @@ namespace f
   },
   {
     "name": "d",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -222,7 +216,6 @@ namespace f
           "elements": [
             {
               "name": "e",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -249,7 +242,6 @@ namespace f
   },
   {
     "name": "f",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -267,7 +259,6 @@ namespace f
           "elements": [
             {
               "name": "g",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -285,7 +276,6 @@ namespace f
                     "elements": [
                       {
                         "name": "value",
-                        "isDefault": false,
                         "declarations": [
                           {
                             "location": {

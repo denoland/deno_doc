@@ -19,38 +19,44 @@ export function foo(x: number): void {}
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "jsDocChanges": {
-            "tagsChange": {
-              "added": [
-                {
-                  "kind": "throws",
-                  "type": "SyntaxError",
-                  "doc": "bad syntax"
-                }
-              ],
-              "removed": [
-                {
-                  "kind": "throws",
-                  "type": "TypeError",
-                  "doc": "wrong type"
-                }
-              ],
-              "modified": [
-                {
-                  "old": {
-                    "kind": "throws",
-                    "type": "RangeError",
-                    "doc": "value out of range"
-                  },
-                  "new": {
-                    "kind": "throws",
-                    "type": "RangeError",
-                    "doc": "updated message"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "jsDocChanges": {
+                  "tagsChange": {
+                    "added": [
+                      {
+                        "kind": "throws",
+                        "type": "SyntaxError",
+                        "doc": "bad syntax"
+                      }
+                    ],
+                    "removed": [
+                      {
+                        "kind": "throws",
+                        "type": "TypeError",
+                        "doc": "wrong type"
+                      }
+                    ],
+                    "modified": [
+                      {
+                        "old": {
+                          "kind": "throws",
+                          "type": "RangeError",
+                          "doc": "value out of range"
+                        },
+                        "new": {
+                          "kind": "throws",
+                          "type": "RangeError",
+                          "doc": "updated message"
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

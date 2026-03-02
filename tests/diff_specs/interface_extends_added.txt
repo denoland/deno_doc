@@ -17,7 +17,6 @@ export interface Foo extends Base {
       "added": [
         {
           "name": "Base",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -63,21 +62,27 @@ export interface Foo extends Base {
       "modified": [
         {
           "name": "Foo",
-          "kind": "interface",
-          "defChanges": {
-            "type": "interface",
-            "extendsChange": {
-              "added": [
-                {
-                  "repr": "Base",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Base"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "extendsChange": {
+                    "added": [
+                      {
+                        "repr": "Base",
+                        "kind": "typeRef",
+                        "typeRef": {
+                          "typeParams": null,
+                          "typeName": "Base"
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

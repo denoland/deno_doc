@@ -18,7 +18,6 @@ function f({a, b, ...c}): void
 [
   {
     "name": "f",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -85,7 +85,6 @@ Defined in file:///mod.ts:1:1
   },
   {
     "name": "MessageEntity",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -29,7 +29,6 @@ interface TypedIface<T>
 [
   {
     "name": "TypedIface",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

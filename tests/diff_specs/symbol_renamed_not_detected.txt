@@ -11,7 +11,6 @@ export function bar(a: number) {}
       "added": [
         {
           "name": "bar",
-          "isDefault": false,
           "declarations": [
             {
               "location": {
@@ -52,7 +51,6 @@ export function bar(a: number) {}
       "removed": [
         {
           "name": "foo",
-          "isDefault": false,
           "declarations": [
             {
               "location": {

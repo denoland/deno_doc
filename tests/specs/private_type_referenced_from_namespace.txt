@@ -55,7 +55,6 @@ namespace Test
 [
   {
     "name": "Test",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -70,7 +69,6 @@ namespace Test
           "elements": [
             {
               "name": "Other",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {
@@ -102,7 +100,6 @@ namespace Test
   },
   {
     "name": "YesDiagnostic",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

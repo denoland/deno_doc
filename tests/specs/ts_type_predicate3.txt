@@ -29,7 +29,6 @@ class C
 [
   {
     "name": "C",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

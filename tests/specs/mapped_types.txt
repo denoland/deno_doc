@@ -20,7 +20,6 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
 [
   {
     "name": "MappedTypeWithNewProperties",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

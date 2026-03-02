@@ -19,7 +19,6 @@ class Class extends Object
 [
   {
     "name": "Class",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -33,7 +33,6 @@ function a(b: number): number
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

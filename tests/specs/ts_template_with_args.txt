@@ -18,7 +18,6 @@ const tpl: `test${number}`
 [
   {
     "name": "tpl",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

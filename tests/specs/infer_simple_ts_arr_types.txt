@@ -90,7 +90,6 @@ const g: ("a" | 1 | true)[]
 [
   {
     "name": "a",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -118,7 +117,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "b",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -146,7 +144,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "c",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -174,7 +171,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "d",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -213,7 +209,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "e",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -241,7 +236,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "f",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -269,7 +263,6 @@ const g: ("a" | 1 | true)[]
   },
   {
     "name": "g",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -28,7 +28,6 @@ private namespace MyNamespace
 [
   {
     "name": "PrivateProp",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -55,7 +54,6 @@ private namespace MyNamespace
   },
   {
     "name": "MyNamespace",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -70,7 +68,6 @@ private namespace MyNamespace
           "elements": [
             {
               "name": "MyInternal",
-              "isDefault": false,
               "declarations": [
                 {
                   "location": {

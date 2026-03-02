@@ -18,7 +18,6 @@ type T = { readonly [key: string]: number; }
 [
   {
     "name": "T",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

@@ -18,7 +18,6 @@ function foo(n: number, b: string): void
 [
   {
     "name": "foo",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

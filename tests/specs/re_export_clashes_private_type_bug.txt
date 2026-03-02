@@ -2,7 +2,7 @@
 export * from "./other.ts";
 
 // there was a bug where it was missing some diagnostics
-// here because of clashing 
+// here because of clashing
 class Internal1 {}
 class Internal2 {}
 
@@ -39,28 +39,28 @@ export const Test10 = 1;
 # diagnostics
 error[private-type-ref]: public type 'MyClass.prototype.internal' references private type 'Internal1'
   --> /mod.ts:11:3
-   | 
+    |
 11 |   internal: Internal1;
    |   ^
    = hint: make the referenced type public or remove the reference
-   | 
+    |
  5 | class Internal1 {}
    | - this is the referenced type
-   | 
+    |
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 
 error[private-type-ref]: public type 'MyClass.prototype.internal2' references private type 'Internal2'
   --> /mod.ts:13:3
-   | 
+    |
 13 |   internal2: Internal2;
    |   ^
    = hint: make the referenced type public or remove the reference
-   | 
+    |
  6 | class Internal2 {}
    | - this is the referenced type
-   | 
+    |
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -140,7 +140,6 @@ class MyClass
 [
   {
     "name": "MyClass",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -221,7 +220,6 @@ class MyClass
   },
   {
     "name": "Test1",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -251,7 +249,6 @@ class MyClass
   },
   {
     "name": "Test2",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -281,7 +278,6 @@ class MyClass
   },
   {
     "name": "Test3",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -311,7 +307,6 @@ class MyClass
   },
   {
     "name": "Test4",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -341,7 +336,6 @@ class MyClass
   },
   {
     "name": "Test5",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -371,7 +365,6 @@ class MyClass
   },
   {
     "name": "Test6",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -401,7 +394,6 @@ class MyClass
   },
   {
     "name": "Test7",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -431,7 +423,6 @@ class MyClass
   },
   {
     "name": "Test8",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -461,7 +452,6 @@ class MyClass
   },
   {
     "name": "Test9",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -491,7 +481,6 @@ class MyClass
   },
   {
     "name": "Test10",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -521,7 +510,6 @@ class MyClass
   },
   {
     "name": "Internal1",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
@@ -548,7 +536,6 @@ class MyClass
   },
   {
     "name": "Internal2",
-    "isDefault": false,
     "declarations": [
       {
         "location": {

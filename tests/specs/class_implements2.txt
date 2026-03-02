@@ -19,7 +19,6 @@ class Class implements Iterator, Iterable
 [
   {
     "name": "Class",
-    "isDefault": false,
     "declarations": [
       {
         "location": {
