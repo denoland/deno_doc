@@ -15,7 +15,6 @@ export class Foo implements Runnable {
       "added": [
         {
           "name": "Runnable",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,

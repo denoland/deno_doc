@@ -125,7 +125,6 @@ function withList(): void
 [
   {
     "name": "simple",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -152,7 +151,6 @@ function withList(): void
   },
   {
     "name": "multiParagraph",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
@@ -179,7 +177,6 @@ function withList(): void
   },
   {
     "name": "nested",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 21,
@@ -206,7 +203,6 @@ function withList(): void
   },
   {
     "name": "followedByText",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 29,
@@ -233,7 +229,6 @@ function withList(): void
   },
   {
     "name": "withCodeSpan",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 35,
@@ -260,7 +255,6 @@ function withList(): void
   },
   {
     "name": "withList",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 43,
@@ -287,7 +281,6 @@ function withList(): void
   },
   {
     "name": "deepNested",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 51,

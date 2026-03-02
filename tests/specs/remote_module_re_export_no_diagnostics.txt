@@ -52,7 +52,6 @@ class PublicType2
 [
   {
     "name": "myFunction",
-    "isDefault": false,
     "location": {
       "filename": "https://localhost/mod.ts",
       "line": 1,
@@ -72,7 +71,6 @@ class PublicType2
   },
   {
     "name": "PublicType",
-    "isDefault": false,
     "location": {
       "filename": "https://localhost/mod.ts",
       "line": 5,
@@ -118,7 +116,6 @@ class PublicType2
   },
   {
     "name": "myFunction2",
-    "isDefault": false,
     "location": {
       "filename": "http://localhost/mod.ts",
       "line": 1,
@@ -138,7 +135,6 @@ class PublicType2
   },
   {
     "name": "PublicType2",
-    "isDefault": false,
     "location": {
       "filename": "http://localhost/mod.ts",
       "line": 5,

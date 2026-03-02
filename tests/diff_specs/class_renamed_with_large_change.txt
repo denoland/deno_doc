@@ -17,7 +17,6 @@ export class Bar {
       "added": [
         {
           "name": "Bar",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,
@@ -95,7 +94,6 @@ export class Bar {
       "removed": [
         {
           "name": "Foo",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,

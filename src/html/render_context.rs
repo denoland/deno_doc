@@ -560,7 +560,7 @@ mod test {
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
       vec![DocNode {
         name: "foo".into(),
-        is_default: None,
+        is_default: false,
         location: Location {
           filename: "a".into(),
           line: 0,

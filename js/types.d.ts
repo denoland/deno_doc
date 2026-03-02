@@ -23,7 +23,7 @@ interface DocNodeBase {
   location: Location;
   declarationKind: DeclarationKind;
   jsDoc?: JsDoc;
-  isDefault?: boolean;
+  isDefault?: true;
 }
 
 export type DocNodeKind =

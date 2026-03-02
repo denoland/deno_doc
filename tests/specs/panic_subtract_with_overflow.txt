@@ -27,7 +27,6 @@ namespace Audio
 [
   {
     "name": "Audio",
-    "isDefault": false,
     "location": {
       "filename": "file:///audio.ts",
       "line": 4,
@@ -43,7 +42,6 @@ namespace Audio
       "elements": [
         {
           "name": "Speech",
-          "isDefault": false,
           "location": {
             "filename": "file:///speech.ts",
             "line": 2,

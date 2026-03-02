@@ -20,7 +20,6 @@ namespace other
 [
   {
     "name": "other",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -36,7 +35,6 @@ namespace other
       "elements": [
         {
           "name": "foo",
-          "isDefault": false,
           "location": {
             "filename": "file:///other.ts",
             "line": 2,

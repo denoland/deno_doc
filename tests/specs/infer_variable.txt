@@ -90,7 +90,6 @@ const j: number
 [
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -113,7 +112,6 @@ const j: number
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -136,7 +134,6 @@ const j: number
   },
   {
     "name": "c",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -159,7 +156,6 @@ const j: number
   },
   {
     "name": "d",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -182,7 +178,6 @@ const j: number
   },
   {
     "name": "e",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,
@@ -208,7 +203,6 @@ const j: number
   },
   {
     "name": "f",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
@@ -248,7 +242,6 @@ const j: number
   },
   {
     "name": "g",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 14,
@@ -274,7 +267,6 @@ const j: number
   },
   {
     "name": "h",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
@@ -297,7 +289,6 @@ const j: number
   },
   {
     "name": "i",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 18,
@@ -320,7 +311,6 @@ const j: number
   },
   {
     "name": "j",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 20,
@@ -343,7 +333,6 @@ const j: number
   },
   {
     "name": "k",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 22,

@@ -47,7 +47,6 @@ namespace Tabs
 [
   {
     "name": "Tabs",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -63,7 +62,6 @@ namespace Tabs
       "elements": [
         {
           "name": "Tabs",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 16,

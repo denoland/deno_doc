@@ -17,7 +17,6 @@ export interface Foo extends Base {
       "added": [
         {
           "name": "Base",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,

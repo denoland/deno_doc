@@ -40,7 +40,6 @@ class Bar extends obj.Foo
 [
   {
     "name": "Bar",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -63,7 +62,6 @@ class Bar extends obj.Foo
   },
   {
     "name": "obj",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,

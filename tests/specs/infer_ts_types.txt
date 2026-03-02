@@ -314,7 +314,6 @@ namespace MyNamespace
 [
   {
     "name": "s",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -334,7 +333,6 @@ namespace MyNamespace
   },
   {
     "name": "n",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -354,7 +352,6 @@ namespace MyNamespace
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -374,7 +371,6 @@ namespace MyNamespace
   },
   {
     "name": "bi",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -394,7 +390,6 @@ namespace MyNamespace
   },
   {
     "name": "re",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -417,7 +412,6 @@ namespace MyNamespace
   },
   {
     "name": "tpl",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -449,7 +443,6 @@ namespace MyNamespace
   },
   {
     "name": "complexTpl",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -555,7 +548,6 @@ namespace MyNamespace
   },
   {
     "name": "test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -579,7 +571,6 @@ namespace MyNamespace
   },
   {
     "name": "testAsync",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,
@@ -612,7 +603,6 @@ namespace MyNamespace
   },
   {
     "name": "cannotInfer",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 17,
@@ -632,7 +622,6 @@ namespace MyNamespace
   },
   {
     "name": "cannotInferAsync",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 23,
@@ -652,7 +641,6 @@ namespace MyNamespace
   },
   {
     "name": "cannotInferGenerator",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 29,
@@ -672,7 +660,6 @@ namespace MyNamespace
   },
   {
     "name": "MyClass",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 32,
@@ -823,7 +810,6 @@ namespace MyNamespace
   },
   {
     "name": "MyNamespace",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 52,
@@ -836,7 +822,6 @@ namespace MyNamespace
       "elements": [
         {
           "name": "cannotInfer",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 54,

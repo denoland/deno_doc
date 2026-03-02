@@ -42,7 +42,6 @@ namespace Namespace1
 [
   {
     "name": "Namespace1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -55,7 +54,6 @@ namespace Namespace1
       "elements": [
         {
           "name": "Test1",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
@@ -78,7 +76,6 @@ namespace Namespace1
         },
         {
           "name": "Test2",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 5,

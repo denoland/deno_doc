@@ -67,7 +67,6 @@ private namespace Test
 [
   {
     "name": "Output",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -110,7 +109,6 @@ private namespace Test
   },
   {
     "name": "Test",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -123,7 +121,6 @@ private namespace Test
       "elements": [
         {
           "name": "Other",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,

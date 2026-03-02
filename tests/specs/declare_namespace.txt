@@ -42,7 +42,6 @@ namespace RootNs
 [
   {
     "name": "RootNs",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -58,7 +57,6 @@ namespace RootNs
       "elements": [
         {
           "name": "a",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 3,
@@ -81,7 +79,6 @@ namespace RootNs
         },
         {
           "name": "NestedNs",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 6,
@@ -97,7 +94,6 @@ namespace RootNs
             "elements": [
               {
                 "name": "Foo",
-                "isDefault": false,
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 7,

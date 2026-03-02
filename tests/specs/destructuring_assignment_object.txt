@@ -38,7 +38,6 @@ private const rest
 [
   {
     "name": "obj",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -101,7 +100,6 @@ private const rest
   },
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -117,7 +115,6 @@ private const rest
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -133,7 +130,6 @@ private const rest
   },
   {
     "name": "rest",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -149,7 +145,6 @@ private const rest
   },
   {
     "name": "a1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -165,7 +160,6 @@ private const rest
   },
   {
     "name": "b1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -181,7 +175,6 @@ private const rest
   },
   {
     "name": "a2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,

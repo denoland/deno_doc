@@ -27,7 +27,6 @@ function foo(a: number)
 [
   {
     "name": "foo",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

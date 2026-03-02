@@ -85,7 +85,6 @@ class C
 [
   {
     "name": "f1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -151,7 +150,6 @@ class C
   },
   {
     "name": "f2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -197,7 +195,6 @@ class C
   },
   {
     "name": "f3",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -239,7 +236,6 @@ class C
   },
   {
     "name": "assertIsDefined",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -304,7 +300,6 @@ class C
   },
   {
     "name": "C",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 11,

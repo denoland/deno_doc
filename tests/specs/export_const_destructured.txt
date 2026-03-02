@@ -54,7 +54,6 @@ const h: number
 [
   {
     "name": "a",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -77,7 +76,6 @@ const h: number
   },
   {
     "name": "b",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -100,7 +98,6 @@ const h: number
   },
   {
     "name": "f",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
@@ -120,7 +117,6 @@ const h: number
   },
   {
     "name": "h",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,

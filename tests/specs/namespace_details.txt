@@ -40,7 +40,6 @@ namespace Namespace
 [
   {
     "name": "Namespace",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -53,7 +52,6 @@ namespace Namespace
       "elements": [
         {
           "name": "a",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 7,
@@ -80,7 +78,6 @@ namespace Namespace
         },
         {
           "name": "B",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
             "line": 13,

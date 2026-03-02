@@ -41,7 +41,6 @@ async function qux(a: string): Promise<string>
 [
   {
     "name": "foo",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -79,7 +78,6 @@ async function qux(a: string): Promise<string>
   },
   {
     "name": "bar",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -128,7 +126,6 @@ async function qux(a: string): Promise<string>
   },
   {
     "name": "baz",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 10,
@@ -166,7 +163,6 @@ async function qux(a: string): Promise<string>
   },
   {
     "name": "qux",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 13,

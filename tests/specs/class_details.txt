@@ -33,7 +33,6 @@ class C
 [
   {
     "name": "C",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,

@@ -140,7 +140,6 @@ class MyClass
 [
   {
     "name": "MyClass",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,
@@ -217,7 +216,6 @@ class MyClass
   },
   {
     "name": "Test1",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 2,
@@ -243,7 +241,6 @@ class MyClass
   },
   {
     "name": "Test2",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 4,
@@ -269,7 +266,6 @@ class MyClass
   },
   {
     "name": "Test3",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 6,
@@ -295,7 +291,6 @@ class MyClass
   },
   {
     "name": "Test4",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 8,
@@ -321,7 +316,6 @@ class MyClass
   },
   {
     "name": "Test5",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 10,
@@ -347,7 +341,6 @@ class MyClass
   },
   {
     "name": "Test6",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 12,
@@ -373,7 +366,6 @@ class MyClass
   },
   {
     "name": "Test7",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 14,
@@ -399,7 +391,6 @@ class MyClass
   },
   {
     "name": "Test8",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 16,
@@ -425,7 +416,6 @@ class MyClass
   },
   {
     "name": "Test9",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 18,
@@ -451,7 +441,6 @@ class MyClass
   },
   {
     "name": "Test10",
-    "isDefault": false,
     "location": {
       "filename": "file:///other.ts",
       "line": 20,
@@ -477,7 +466,6 @@ class MyClass
   },
   {
     "name": "Internal1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -500,7 +488,6 @@ class MyClass
   },
   {
     "name": "Internal2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,

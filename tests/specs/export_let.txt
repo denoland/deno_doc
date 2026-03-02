@@ -90,7 +90,6 @@ let tpl: `foobarbaz`
 [
   {
     "name": "str",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -110,7 +109,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "num",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -130,7 +128,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "bool",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -150,7 +147,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "dateStr",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -170,7 +166,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "regex",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -193,7 +188,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "sym",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -213,7 +207,6 @@ let tpl: `foobarbaz`
   },
   {
     "name": "tpl",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,

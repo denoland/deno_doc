@@ -47,7 +47,6 @@ interface B
 [
   {
     "name": "A",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -73,7 +72,6 @@ interface B
   },
   {
     "name": "B",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 12,
@@ -97,7 +95,6 @@ interface B
   },
   {
     "name": "C",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 18,

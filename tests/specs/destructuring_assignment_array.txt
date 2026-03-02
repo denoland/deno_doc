@@ -65,7 +65,6 @@ private const rest5
 [
   {
     "name": "array",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 1,
@@ -89,7 +88,6 @@ private const rest5
   },
   {
     "name": "a1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -105,7 +103,6 @@ private const rest5
   },
   {
     "name": "b1",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 3,
@@ -121,7 +118,6 @@ private const rest5
   },
   {
     "name": "a2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -137,7 +133,6 @@ private const rest5
   },
   {
     "name": "b2",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 4,
@@ -153,7 +148,6 @@ private const rest5
   },
   {
     "name": "a3",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -169,7 +163,6 @@ private const rest5
   },
   {
     "name": "b3",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 5,
@@ -185,7 +178,6 @@ private const rest5
   },
   {
     "name": "a4",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -201,7 +193,6 @@ private const rest5
   },
   {
     "name": "b4",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -217,7 +208,6 @@ private const rest5
   },
   {
     "name": "rest4",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 6,
@@ -233,7 +223,6 @@ private const rest5
   },
   {
     "name": "a5",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -249,7 +238,6 @@ private const rest5
   },
   {
     "name": "b5",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,
@@ -265,7 +253,6 @@ private const rest5
   },
   {
     "name": "rest5",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,

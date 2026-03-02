@@ -40,7 +40,6 @@ private class YesDiagnostic
 [
   {
     "name": "Other",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -92,7 +91,6 @@ private class YesDiagnostic
   },
   {
     "name": "YesDiagnostic",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 7,

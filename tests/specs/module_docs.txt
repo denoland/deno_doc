@@ -46,7 +46,6 @@ class A
   },
   {
     "name": "A",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 9,

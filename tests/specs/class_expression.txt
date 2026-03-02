@@ -49,7 +49,6 @@ class Foo
 [
   {
     "name": "Foo",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 2,
@@ -105,7 +104,6 @@ class Foo
   },
   {
     "name": "Bar",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 8,
@@ -159,7 +157,6 @@ class Foo
   },
   {
     "name": "Baz",
-    "isDefault": false,
     "location": {
       "filename": "file:///mod.ts",
       "line": 16,
