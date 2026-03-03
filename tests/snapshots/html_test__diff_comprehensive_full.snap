@@ -15231,21 +15231,6 @@ expression: pages
           "id": "namespace_animal",
           "kind": [
             {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Animal.prototype.displayName",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Animal.prototype.displayName.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_animal",
-          "kind": [
-            {
               "char": "p",
               "kind": "Property",
               "title": "Property"

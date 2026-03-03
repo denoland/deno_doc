@@ -65,11 +65,13 @@ pub fn doc_nodes_into_search_index_node(
   )
   .into_boxed_str();
 
+  let name = symbol.get_qualified_name();
+
   let abs_url = ctx.ctx.resolve_path(
     super::UrlResolveKind::Root,
     super::UrlResolveKind::Symbol {
       file: &symbol.origin,
-      symbol: &symbol.name,
+      symbol: name,
     },
   );
 
@@ -89,14 +91,14 @@ pub fn doc_nodes_into_search_index_node(
   let id = parent_id.unwrap_or_else(|| {
     IdBuilder::new(ctx)
       .kind(IdKind::Namespace)
-      .name(&symbol.name)
+      .name(name)
       .build_unregistered()
   });
 
   let mut out = vec![SearchIndexNode {
     id: id.clone(),
     kind: kinds,
-    name: html_escape::encode_text(&symbol.name).into(),
+    name: html_escape::encode_text(name).into(),
     file: html_escape::encode_double_quoted_attribute(&symbol.origin.path)
       .into(),
     doc,
@@ -124,8 +126,10 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
 
   let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
 
+  let mut seen = std::collections::HashSet::new();
   let mut doc_nodes = doc_nodes
     .flat_map(|node| doc_nodes_into_search_index_node(&render_ctx, &node, None))
+    .filter(|node| seen.insert((node.name.clone(), node.file.clone())))
     .collect::<Vec<_>>();
 
   doc_nodes.sort_by(|a, b| a.file.cmp(&b.file));

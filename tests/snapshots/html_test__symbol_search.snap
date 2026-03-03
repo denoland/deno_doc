@@ -89,21 +89,6 @@ expression: search_index
           "title": "Method"
         }
       ],
-      "name": "Foo.prototype.getterAndSetter",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.getterAndSetter.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
       "name": "Foo.staticSetter",
       "file": ".",
       "doc": "",
@@ -138,36 +123,6 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/Foo.staticMethod.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "Foo.prototype.methodWithOverloads",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.methodWithOverloads.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "Foo.prototype.methodWithOverloads",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.methodWithOverloads.html",
       "deprecated": false
     },
     {
@@ -276,7 +231,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_default",
+      "id": "namespace_foobar",
       "kind": [
         {
           "char": "c",
@@ -284,10 +239,10 @@ expression: search_index
           "title": "Class"
         }
       ],
-      "name": "default",
+      "name": "Foobar",
       "file": ".",
       "doc": "Foobar docsheadingcontentsub heading",
-      "url": "././~/default.html",
+      "url": "././~/Foobar.html",
       "deprecated": false
     },
     {
@@ -711,7 +666,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_t",
+      "id": "namespace_testing_t",
       "kind": [
         {
           "char": "f",
@@ -719,10 +674,10 @@ expression: search_index
           "title": "Function"
         }
       ],
-      "name": "t",
+      "name": "Testing.t",
       "file": ".",
       "doc": "",
-      "url": "././~/t.html",
+      "url": "././~/Testing.t.html",
       "deprecated": false
     },
     {
@@ -796,6 +751,21 @@ expression: search_index
       "deprecated": false
     },
     {
+      "id": "namespace_testing_externalfunction",
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "Testing.externalFunction",
+      "file": "_d",
+      "doc": "",
+      "url": "./_d/~/Testing.externalFunction.html",
+      "deprecated": false
+    },
+    {
       "id": "namespace_externalfunction",
       "kind": [
         {
@@ -811,7 +781,7 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_externalfunction",
+      "id": "namespace_testing_x",
       "kind": [
         {
           "char": "f",
@@ -819,40 +789,10 @@ expression: search_index
           "title": "Function"
         }
       ],
-      "name": "externalFunction",
-      "file": "_d",
-      "doc": "",
-      "url": "./_d/~/externalFunction.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_x",
-      "kind": [
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        }
-      ],
-      "name": "x",
+      "name": "Testing.x",
       "file": "c",
       "doc": "",
-      "url": "./c/~/x.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_x",
-      "kind": [
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        }
-      ],
-      "name": "x",
-      "file": "c",
-      "doc": "",
-      "url": "./c/~/x.html",
+      "url": "./c/~/Testing.x.html",
       "deprecated": false
     },
     {
