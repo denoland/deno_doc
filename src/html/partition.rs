@@ -35,7 +35,7 @@ where
           decl.def,
           DeclarationDef::ModuleDoc | DeclarationDef::Import { .. }
         ) {
-          continue;
+          continue 'outer;
         }
 
         if flatten_namespaces
@@ -230,7 +230,7 @@ pub fn flatten_namespace<'a>(
           decl.def,
           DeclarationDef::ModuleDoc | DeclarationDef::Import { .. }
         ) {
-          continue;
+          continue 'outer;
         }
 
         if matches!(decl.def, DeclarationDef::Namespace { .. }) {

@@ -30,7 +30,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:19:3
-    |
+   | 
 19 |   a() {}
    |   ^
 

@@ -29,7 +29,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:12:14
-    |
+   | 
 12 | export const g: boolean = favoriteColors.green;
    |              ^
 

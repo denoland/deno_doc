@@ -39,28 +39,28 @@ export const Test10 = 1;
 # diagnostics
 error[private-type-ref]: public type 'MyClass.prototype.internal' references private type 'Internal1'
   --> /mod.ts:11:3
-    |
+   | 
 11 |   internal: Internal1;
    |   ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
  5 | class Internal1 {}
    | - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 
 error[private-type-ref]: public type 'MyClass.prototype.internal2' references private type 'Internal2'
   --> /mod.ts:13:3
-    |
+   | 
 13 |   internal2: Internal2;
    |   ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
  6 | class Internal2 {}
    | - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -146,7 +146,7 @@ class MyClass
           "filename": "file:///mod.ts",
           "line": 9,
           "col": 0,
-          "byteIndex": 166
+          "byteIndex": 165
         },
         "declarationKind": "export",
         "jsDoc": {
@@ -179,7 +179,7 @@ class MyClass
                 "filename": "file:///mod.ts",
                 "line": 11,
                 "col": 2,
-                "byteIndex": 205
+                "byteIndex": 204
               }
             },
             {
@@ -204,7 +204,7 @@ class MyClass
                 "filename": "file:///mod.ts",
                 "line": 13,
                 "col": 2,
-                "byteIndex": 242
+                "byteIndex": 241
               }
             }
           ],
@@ -516,7 +516,7 @@ class MyClass
           "filename": "file:///mod.ts",
           "line": 5,
           "col": 0,
-          "byteIndex": 115
+          "byteIndex": 114
         },
         "declarationKind": "private",
         "kind": "class",
@@ -542,7 +542,7 @@ class MyClass
           "filename": "file:///mod.ts",
           "line": 6,
           "col": 0,
-          "byteIndex": 134
+          "byteIndex": 133
         },
         "declarationKind": "private",
         "kind": "class",

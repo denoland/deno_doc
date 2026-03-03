@@ -29,6 +29,7 @@ Defined in file:///mod.ts:2:1
 function a(b: number): number
 
 
+
 # output.json
 [
   {

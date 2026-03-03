@@ -15,14 +15,14 @@ interface NoDiagnostic {}
 # diagnostics
 error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references private type 'YesDiagnostic'
   --> /mod.ts:3:3
-    |
+   | 
  3 |   protected secondMethod(): YesDiagnostic {
    |   ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
 10 | interface YesDiagnostic {}
    | - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -132,7 +132,7 @@ private interface YesDiagnostic
                 "filename": "file:///mod.ts",
                 "line": 6,
                 "col": 2,
-                "byteIndex": 91
+                "byteIndex": 89
               }
             }
           ],
@@ -152,7 +152,7 @@ private interface YesDiagnostic
           "filename": "file:///mod.ts",
           "line": 10,
           "col": 0,
-          "byteIndex": 133
+          "byteIndex": 131
         },
         "declarationKind": "private",
         "kind": "interface",

@@ -81,42 +81,42 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:10:14
-    |
+   | 
 10 | export const bi2 = BigInt(123);
    |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:11:14
-    |
+   | 
 11 | export const sym = Symbol("hello");
    |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:12:14
-    |
+   | 
 12 | export const m = new Map<string, string>();
    |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:13:14
-    |
+   | 
 13 | export const fn1 = (a: string): void => {};
    |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:14:14
-    |
+   | 
 14 | export const fn2 = function (a:string): void {};
    |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:15:14
-    |
+   | 
 15 | export const s3 = "VGhpcyBpcyBhIHJlYWxseSBsb25nIHN0cmluZyB0byB0cnkgdG8gZmluZCBvdXQgaWYgd2UgY2FuIHNraXAgaW5mZXJyaW5nIGEgcmVhbGx5IGxhcmdlIHZhbHVlIGZvciBhIGNvbnN0IHN0cmluZyB2YXJpYWJsZSB3aXRob3V0IGEgdHlwZSBhbm5vdGF0aW9uLg==";
    |              ^
 

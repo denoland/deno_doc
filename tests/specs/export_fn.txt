@@ -38,124 +38,132 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
 [
   {
     "name": "",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "tags": [
-        {
-          "kind": "module",
-          "name": "foo"
-        }
-      ]
-    },
-    "kind": "moduleDoc"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            {
+              "kind": "module",
+              "name": "foo"
+            }
+          ]
+        },
+        "kind": "moduleDoc"
+      }
+    ]
   },
   {
     "name": "foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 12,
-      "col": 0,
-      "byteIndex": 115
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Hello there, this is a multiline JSdoc.\n\nIt has many lines\n\nOr not that many?"
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "a",
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 12,
+          "col": 0,
+          "byteIndex": 115
         },
-        {
-          "kind": "identifier",
-          "name": "b",
-          "optional": true,
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          }
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Hello there, this is a multiline JSdoc.\n\nIt has many lines\n\nOr not that many?"
         },
-        {
-          "kind": "identifier",
-          "name": "cb",
-          "optional": false,
-          "tsType": {
-            "repr": "",
-            "kind": "fnOrConstructor",
-            "fnOrConstructor": {
-              "constructor": false,
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "a",
+              "optional": false,
               "tsType": {
-                "repr": "void",
+                "repr": "string",
                 "kind": "keyword",
-                "keyword": "void"
-              },
-              "params": [
-                {
-                  "kind": "rest",
-                  "arg": {
-                    "kind": "identifier",
-                    "name": "cbArgs",
-                    "optional": false,
-                    "tsType": null
-                  },
+                "keyword": "string"
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "b",
+              "optional": true,
+              "tsType": {
+                "repr": "number",
+                "kind": "keyword",
+                "keyword": "number"
+              }
+            },
+            {
+              "kind": "identifier",
+              "name": "cb",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "fnOrConstructor",
+                "fnOrConstructor": {
+                  "constructor": false,
                   "tsType": {
-                    "repr": "",
-                    "kind": "array",
-                    "array": {
-                      "repr": "unknown",
-                      "kind": "keyword",
-                      "keyword": "unknown"
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
+                  "params": [
+                    {
+                      "kind": "rest",
+                      "arg": {
+                        "kind": "identifier",
+                        "name": "cbArgs",
+                        "optional": false,
+                        "tsType": null
+                      },
+                      "tsType": {
+                        "repr": "",
+                        "kind": "array",
+                        "array": {
+                          "repr": "unknown",
+                          "kind": "keyword",
+                          "keyword": "unknown"
+                        }
+                      }
                     }
-                  }
+                  ],
+                  "typeParams": []
                 }
-              ],
-              "typeParams": []
+              }
+            },
+            {
+              "kind": "rest",
+              "arg": {
+                "kind": "identifier",
+                "name": "args",
+                "optional": false,
+                "tsType": null
+              },
+              "tsType": {
+                "repr": "",
+                "kind": "array",
+                "array": {
+                  "repr": "unknown",
+                  "kind": "keyword",
+                  "keyword": "unknown"
+                }
+              }
             }
-          }
-        },
-        {
-          "kind": "rest",
-          "arg": {
-            "kind": "identifier",
-            "name": "args",
-            "optional": false,
-            "tsType": null
+          ],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
           },
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "array": {
-              "repr": "unknown",
-              "kind": "keyword",
-              "keyword": "unknown"
-            }
-          }
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

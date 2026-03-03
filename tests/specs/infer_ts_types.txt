@@ -114,133 +114,133 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:13:1
-    |
+   | 
 13 | export async function testAsync() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:17:1
-    |
+   | 
 17 | export function cannotInfer() {
    | ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:17:1
-    |
+   | 
 17 | export function cannotInfer() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:23:1
-    |
+   | 
 23 | export async function cannotInferAsync() {
    | ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:23:1
-    |
+   | 
 23 | export async function cannotInferAsync() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:29:1
-    |
+   | 
 29 | export function* cannotInferGenerator() {
    | ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:29:1
-    |
+   | 
 29 | export function* cannotInferGenerator() {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:32:1
-    |
+   | 
 32 | export class MyClass {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:33:3
-    |
+   | 
 33 |   infer() {
    |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:35:3
-    |
+   | 
 35 |   async inferAync() {
    |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:38:3
-    |
+   | 
 38 |   cannotInfer() {
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:38:3
-    |
+   | 
 38 |   cannotInfer() {
    |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:44:3
-    |
+   | 
 44 |   async cannotInferAsync() {
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:44:3
-    |
+   | 
 44 |   async cannotInferAsync() {
    |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:48:3
-    |
+   | 
 48 |   *cannotInferGenerator() {
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:48:3
-    |
+   | 
 48 |   *cannotInferGenerator() {
    |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:52:1
-    |
+   | 
 52 | export namespace MyNamespace {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:54:3
-    |
+   | 
 54 |   declare function cannotInfer();
    |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
   --> /mod.ts:54:3
-    |
+   | 
 54 |   declare function cannotInfer();
    |   ^
 

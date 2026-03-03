@@ -34,14 +34,14 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:15:8
-    |
+   | 
 15 | export namespace RootNs.OtherNs {
    |        ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:16:3
-    |
+   | 
 16 |   export class Other {}
    |   ^
 

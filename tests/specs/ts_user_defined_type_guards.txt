@@ -46,14 +46,14 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:11:1
-    |
+   | 
 11 | export class C {
    | ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:12:3
-    |
+   | 
 12 |   isSomething(): this is Something {
    |   ^
 

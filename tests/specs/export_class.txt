@@ -77,21 +77,21 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:10:5
-    |
+   | 
 10 |     a = [1, "foo"];
    |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:11:5
-    |
+   | 
 11 |     fn = (a: string): void => {};
    |     ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   --> /mod.ts:31:5
-    |
+   | 
 31 |     override s() {}
    |     ^
 

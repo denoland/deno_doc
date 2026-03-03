@@ -46,28 +46,28 @@ error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references
 
 error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3'
   --> /mod.ts:1:1
-    |
+   | 
  1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
    | ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
 11 | namespace MyNamespace3 {
    | - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 
 error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3.MyClass'
   --> /mod.ts:1:1
-    |
+   | 
  1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
    | ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
 12 |   export class MyClass {
    |   - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 

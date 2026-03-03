@@ -274,6 +274,8 @@ impl<'a> DocParser<'a> {
                 all_locations.extend(symbols.iter().flat_map(|symbol| {
                   symbol.declarations.iter().map(|decl| decl.location.clone())
                 }));
+              } else {
+                symbols.remove(i);
               }
               continue 'outer;
             }
@@ -873,10 +875,12 @@ impl<'a> DocParser<'a> {
         || self.visibility.has_non_exported_public(&unique_id)
       {
         let child_symbol = module_info.symbol(child_id).unwrap();
-        elements.push(Arc::new(self.get_private_symbol_for_ast_symbol(
+        if let Some(symbol) = self.get_private_symbol_for_ast_symbol(
           ModuleInfoRef::Esm(module_info),
           child_symbol,
-        )));
+        ) {
+          elements.push(Arc::new(symbol));
+        }
       }
     }
 
@@ -894,7 +898,7 @@ impl<'a> DocParser<'a> {
     &self,
     module_info: ModuleInfoRef,
     child_symbol: &GraphSymbol,
-  ) -> Symbol {
+  ) -> Option<Symbol> {
     debug_assert!(
       self
         .visibility
@@ -961,14 +965,16 @@ impl<'a> DocParser<'a> {
       }
       declarations.extend(maybe_decls);
     }
-    debug_assert!(!declarations.is_empty());
+    if declarations.is_empty() {
+      return None;
+    }
     let name = name.unwrap_or_else(|| "".into());
     let is_default = &*name == "default";
-    Symbol {
+    Some(Symbol {
       name,
       is_default,
       declarations,
-    }
+    })
   }
 
   fn get_doc_for_export_default_decl(
@@ -1181,10 +1187,12 @@ impl<'a> DocParser<'a> {
         || self.visibility.has_non_exported_public(&unique_id)
       {
         let child_symbol = module_info.symbol(child_id).unwrap();
-        symbols.push(self.get_private_symbol_for_ast_symbol(
+        if let Some(symbol) = self.get_private_symbol_for_ast_symbol(
           ModuleInfoRef::Esm(module_info),
           child_symbol,
-        ));
+        ) {
+        symbols.push(symbol);
+        }
       }
     }
 

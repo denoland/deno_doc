@@ -20,47 +20,32 @@ interface NoDiagnostic {}
 # diagnostics
 error[private-type-ref]: public type 'SameName' references private type 'YesDiagnostic1'
   --> /mod.ts:4:1
-    |
+   | 
  4 | export function SameName(): YesDiagnostic1 {
    | ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
 13 | interface YesDiagnostic1 {}
    | - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 
 error[private-type-ref]: public type 'test' references private type 'YesDiagnostic2'
   --> /mod.ts:8:1
-    |
+   | 
  8 | export function test(): YesDiagnostic2;
    | ^
    = hint: make the referenced type public or remove the reference
-    |
+   | 
 14 | interface YesDiagnostic2 {}
    | - this is the referenced type
-    |
+   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///mod.ts:8:1
-
-function test(): YesDiagnostic2
-  Comment
-
-Defined in file:///mod.ts:13:1
-
-private interface YesDiagnostic1
-
-
-Defined in file:///mod.ts:14:1
-
-private interface YesDiagnostic2
-
-
 Defined in file:///mod.ts:2:1
 
 namespace SameName
@@ -71,6 +56,22 @@ Defined in file:///mod.ts:4:1
 
 function SameName(): YesDiagnostic1
   Comment
+
+Defined in file:///mod.ts:8:1
+
+function test(): YesDiagnostic2
+  Comment
+
+
+Defined in file:///mod.ts:13:1
+
+private interface YesDiagnostic1
+
+
+Defined in file:///mod.ts:14:1
+
+private interface YesDiagnostic2
+
 
 
 # output.json
