@@ -33,7 +33,7 @@ var default: "foo"
           "tsType": {
             "repr": "foo",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "foo"
             }

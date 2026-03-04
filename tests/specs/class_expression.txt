@@ -83,7 +83,7 @@ class Foo
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,
@@ -140,7 +140,7 @@ class Foo
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   }
                 }
               ],
@@ -190,7 +190,7 @@ class Foo
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "readonly": false,
               "accessibility": null,

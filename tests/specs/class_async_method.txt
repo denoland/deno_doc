@@ -64,12 +64,12 @@ class Class
                 "returnType": {
                   "repr": "Promise",
                   "kind": "typeRef",
-                  "typeRef": {
+                  "value": {
                     "typeParams": [
                       {
                         "repr": "void",
                         "kind": "keyword",
-                        "keyword": "void"
+                        "value": "void"
                       }
                     ],
                     "typeName": "Promise"

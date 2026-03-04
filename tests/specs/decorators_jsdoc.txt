@@ -47,7 +47,7 @@ class A
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "readonly": false,
               "accessibility": null,

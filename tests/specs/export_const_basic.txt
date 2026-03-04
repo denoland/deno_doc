@@ -136,7 +136,7 @@ const tpl2: string
           "tsType": {
             "repr": "fizzBuzz",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "fizzBuzz"
             }
@@ -162,7 +162,7 @@ const tpl2: string
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [
                 {
@@ -185,7 +185,7 @@ const tpl2: string
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
@@ -193,16 +193,16 @@ const tpl2: string
                   "returnType": {
                     "repr": "",
                     "kind": "union",
-                    "union": [
+                    "value": [
                       {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       },
                       {
                         "repr": "undefined",
                         "kind": "keyword",
-                        "keyword": "undefined"
+                        "value": "undefined"
                       }
                     ]
                   },
@@ -228,7 +228,7 @@ const tpl2: string
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     },
                     {
@@ -238,7 +238,7 @@ const tpl2: string
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
@@ -246,7 +246,7 @@ const tpl2: string
                   "returnType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "typeParams": []
                 }
@@ -277,7 +277,7 @@ const tpl2: string
           "tsType": {
             "repr": "100",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 100.0
             }
@@ -303,7 +303,7 @@ const tpl2: string
           "tsType": {
             "repr": "false",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "boolean",
               "boolean": false
             }
@@ -329,7 +329,7 @@ const tpl2: string
           "tsType": {
             "repr": "123",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "bigInt",
               "string": "123"
             }
@@ -355,7 +355,7 @@ const tpl2: string
           "tsType": {
             "repr": "hello",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "RegExp"
             }
@@ -381,7 +381,7 @@ const tpl2: string
           "tsType": {
             "repr": "Date",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "Date"
             }
@@ -407,13 +407,13 @@ const tpl2: string
           "tsType": {
             "repr": "foo",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "template",
               "tsTypes": [
                 {
                   "repr": "foo",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "foo"
                   }
@@ -442,7 +442,7 @@ const tpl2: string
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }

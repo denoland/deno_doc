@@ -115,7 +115,7 @@ Defined in file:///mod.ts:0:1
               "tsType": {
                 "repr": "MyNamespace.YesDiagnostic",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "MyNamespace.YesDiagnostic"
                 }
@@ -137,7 +137,7 @@ Defined in file:///mod.ts:0:1
               "tsType": {
                 "repr": "Uint8Array",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Uint8Array"
                 }

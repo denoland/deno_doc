@@ -51,7 +51,7 @@ class C
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               },
               "readonly": false,
               "accessibility": null,
@@ -84,7 +84,7 @@ class C
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,

@@ -30,14 +30,14 @@ export function bar(a: number) {}
                     "tsType": {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   }
                 ],
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,
@@ -70,14 +70,14 @@ export function bar(a: number) {}
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     }
                   }
                 ],
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,

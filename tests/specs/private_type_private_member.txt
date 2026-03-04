@@ -89,7 +89,7 @@ private interface YesDiagnostic
                 "returnType": {
                   "repr": "YesDiagnostic",
                   "kind": "typeRef",
-                  "typeRef": {
+                  "value": {
                     "typeParams": null,
                     "typeName": "YesDiagnostic"
                   }
@@ -118,7 +118,7 @@ private interface YesDiagnostic
                 "returnType": {
                   "repr": "NoDiagnostic",
                   "kind": "typeRef",
-                  "typeRef": {
+                  "value": {
                     "typeParams": null,
                     "typeName": "NoDiagnostic"
                   }

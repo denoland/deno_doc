@@ -34,12 +34,12 @@ interface Interface<V> extends Iterable<V>
             {
               "repr": "Iterable",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": [
                   {
                     "repr": "V",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "V"
                     }

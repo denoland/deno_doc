@@ -120,7 +120,7 @@ private namespace MyNamespace3
           "tsType": {
             "repr": "MyNamespace.Export.someProp",
             "kind": "typeQuery",
-            "typeQuery": "MyNamespace.Export.someProp"
+            "value": "MyNamespace.Export.someProp"
           },
           "typeParams": []
         }
@@ -161,7 +161,7 @@ private namespace MyNamespace3
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         },
                         "readonly": false,
                         "accessibility": null,
@@ -226,7 +226,7 @@ private namespace MyNamespace3
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         },
                         "readonly": false,
                         "accessibility": null,
@@ -291,7 +291,7 @@ private namespace MyNamespace3
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         },
                         "readonly": false,
                         "accessibility": null,

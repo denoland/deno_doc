@@ -71,7 +71,7 @@ const h: number
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -97,7 +97,7 @@ const h: number
           "tsType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "const"
         }
@@ -120,7 +120,7 @@ const h: number
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -143,7 +143,7 @@ const h: number
           "tsType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "const"
         }

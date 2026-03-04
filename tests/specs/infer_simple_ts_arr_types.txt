@@ -104,10 +104,10 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "number",
               "kind": "keyword",
-              "keyword": "number"
+              "value": "number"
             }
           },
           "kind": "const"
@@ -131,10 +131,10 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "boolean",
               "kind": "keyword",
-              "keyword": "boolean"
+              "value": "boolean"
             }
           },
           "kind": "const"
@@ -158,10 +158,10 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "string",
               "kind": "keyword",
-              "keyword": "string"
+              "value": "string"
             }
           },
           "kind": "const"
@@ -185,19 +185,19 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "",
               "kind": "union",
-              "union": [
+              "value": [
                 {
                   "repr": "number",
                   "kind": "keyword",
-                  "keyword": "number"
+                  "value": "number"
                 },
                 {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 }
               ]
             }
@@ -223,10 +223,10 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "number",
               "kind": "keyword",
-              "keyword": "number"
+              "value": "number"
             }
           },
           "kind": "const"
@@ -250,10 +250,10 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "any[]",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "any",
               "kind": "keyword",
-              "keyword": "any"
+              "value": "any"
             }
           },
           "kind": "const"
@@ -277,14 +277,14 @@ const g: ("a" | 1 | true)[]
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "",
               "kind": "union",
-              "union": [
+              "value": [
                 {
                   "repr": "a",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "a"
                   }
@@ -292,7 +292,7 @@ const g: ("a" | 1 | true)[]
                 {
                   "repr": "1",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "number",
                     "number": 1.0
                   }
@@ -300,7 +300,7 @@ const g: ("a" | 1 | true)[]
                 {
                   "repr": "true",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "boolean",
                     "boolean": true
                   }

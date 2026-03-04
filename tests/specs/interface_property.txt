@@ -85,7 +85,7 @@ interface I
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "typeParams": []
             },
@@ -103,7 +103,7 @@ interface I
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               },
               "typeParams": []
             },
@@ -122,7 +122,7 @@ interface I
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "typeParams": []
             },
@@ -140,7 +140,7 @@ interface I
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "typeParams": []
             }

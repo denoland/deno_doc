@@ -72,14 +72,14 @@ namespace Namespace
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         }
                       }
                     ],
                     "returnType": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     "isAsync": false,
                     "isGenerator": false,
@@ -104,14 +104,14 @@ namespace Namespace
                         "tsType": {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         }
                       }
                     ],
                     "returnType": {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     },
                     "isAsync": false,
                     "isGenerator": false,
@@ -136,16 +136,16 @@ namespace Namespace
                         "tsType": {
                           "repr": "",
                           "kind": "union",
-                          "union": [
+                          "value": [
                             {
                               "repr": "number",
                               "kind": "keyword",
-                              "keyword": "number"
+                              "value": "number"
                             },
                             {
                               "repr": "string",
                               "kind": "keyword",
-                              "keyword": "string"
+                              "value": "string"
                             }
                           ]
                         }
@@ -154,16 +154,16 @@ namespace Namespace
                     "returnType": {
                       "repr": "",
                       "kind": "union",
-                      "union": [
+                      "value": [
                         {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         },
                         {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         }
                       ]
                     },

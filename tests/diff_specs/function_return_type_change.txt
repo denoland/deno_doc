@@ -21,12 +21,12 @@ export function foo(): number { return 0; }
                     "old": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     "new": {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   }
                 }

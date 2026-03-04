@@ -107,7 +107,7 @@ const j: number
           "tsType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "let"
         }
@@ -133,7 +133,7 @@ const j: number
           "tsType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "const"
         }
@@ -159,7 +159,7 @@ const j: number
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -185,7 +185,7 @@ const j: number
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -211,7 +211,7 @@ const j: number
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -240,11 +240,11 @@ const j: number
           "tsType": {
             "repr": "",
             "kind": "union",
-            "union": [
+            "value": [
               {
                 "repr": "a",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "string",
                   "string": "a"
                 }
@@ -252,7 +252,7 @@ const j: number
               {
                 "repr": "1",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "number",
                   "number": 1.0
                 }
@@ -283,7 +283,7 @@ const j: number
           "tsType": {
             "repr": "a",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "a"
             }
@@ -312,7 +312,7 @@ const j: number
           "tsType": {
             "repr": "never",
             "kind": "keyword",
-            "keyword": "never"
+            "value": "never"
           },
           "kind": "const"
         }
@@ -338,7 +338,7 @@ const j: number
           "tsType": {
             "repr": "boolean",
             "kind": "keyword",
-            "keyword": "boolean"
+            "value": "boolean"
           },
           "kind": "const"
         }
@@ -364,7 +364,7 @@ const j: number
           "tsType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "const"
         }
@@ -395,7 +395,7 @@ const j: number
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],

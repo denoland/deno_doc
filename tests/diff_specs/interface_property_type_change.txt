@@ -29,12 +29,12 @@ export interface Foo {
                           "old": {
                             "repr": "string",
                             "kind": "keyword",
-                            "keyword": "string"
+                            "value": "string"
                           },
                           "new": {
                             "repr": "number",
                             "kind": "keyword",
-                            "keyword": "number"
+                            "value": "number"
                           }
                         }
                       }

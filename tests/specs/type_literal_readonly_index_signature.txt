@@ -32,7 +32,7 @@ type T = { readonly [key: string]: number; }
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [],
               "properties": [],
@@ -48,14 +48,14 @@ type T = { readonly [key: string]: number; }
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
                   "tsType": {
                     "repr": "number",
                     "kind": "keyword",
-                    "keyword": "number"
+                    "value": "number"
                   },
                   "location": {
                     "filename": "file:///mod.ts",

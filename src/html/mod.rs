@@ -1105,7 +1105,7 @@ impl DocNodeWithContext {
         DeclarationDef::Variable(variable_def) => {
           if let Some(crate::ts_type::TsTypeDefKind::TypeLiteral(
             ts_type_literal,
-          )) = variable_def.ts_type.as_ref().map(|ts_type| ts_type.kind)
+          )) = variable_def.ts_type.as_ref().map(|ts_type| &ts_type.kind)
           {
             symbols.extend(ts_type_literal.methods.iter().map(|method| {
               self.create_child_method(

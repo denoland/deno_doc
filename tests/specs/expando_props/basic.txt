@@ -54,7 +54,7 @@ namespace test
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -100,14 +100,14 @@ namespace test
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         }
                       }
                     ],
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
-                      "keyword": "void"
+                      "value": "void"
                     },
                     "hasBody": true,
                     "isAsync": false,
@@ -136,7 +136,7 @@ namespace test
                     "tsType": {
                       "repr": "asdf",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "string",
                         "string": "asdf"
                       }
@@ -165,7 +165,7 @@ namespace test
                     "tsType": {
                       "repr": "true",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "boolean",
                         "boolean": true
                       }

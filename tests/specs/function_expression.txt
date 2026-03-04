@@ -63,14 +63,14 @@ async function qux(a: string): Promise<string>
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -105,7 +105,7 @@ async function qux(a: string): Promise<string>
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             },
             {
@@ -115,14 +115,14 @@ async function qux(a: string): Promise<string>
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               }
             }
           ],
           "returnType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "hasBody": true,
           "isAsync": false,
@@ -156,14 +156,14 @@ async function qux(a: string): Promise<string>
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -197,19 +197,19 @@ async function qux(a: string): Promise<string>
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "Promise",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": [
                 {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 }
               ],
               "typeName": "Promise"

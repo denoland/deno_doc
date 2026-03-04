@@ -83,7 +83,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             },
             {
@@ -93,7 +93,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               }
             },
             {
@@ -103,12 +103,12 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
               "tsType": {
                 "repr": "",
                 "kind": "fnOrConstructor",
-                "fnOrConstructor": {
+                "value": {
                   "constructor": false,
                   "tsType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "params": [
                     {
@@ -122,10 +122,10 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
                       "tsType": {
                         "repr": "",
                         "kind": "array",
-                        "array": {
+                        "value": {
                           "repr": "unknown",
                           "kind": "keyword",
-                          "keyword": "unknown"
+                          "value": "unknown"
                         }
                       }
                     }
@@ -145,10 +145,10 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
               "tsType": {
                 "repr": "",
                 "kind": "array",
-                "array": {
+                "value": {
                   "repr": "unknown",
                   "kind": "keyword",
-                  "keyword": "unknown"
+                  "value": "unknown"
                 }
               }
             }
@@ -156,7 +156,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,

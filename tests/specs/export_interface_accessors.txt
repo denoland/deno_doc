@@ -73,7 +73,7 @@ interface Thing
               "returnType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               },
               "typeParams": []
             },
@@ -94,16 +94,16 @@ interface Thing
                   "tsType": {
                     "repr": "",
                     "kind": "union",
-                    "union": [
+                    "value": [
                       {
                         "repr": "number",
                         "kind": "keyword",
-                        "keyword": "number"
+                        "value": "number"
                       },
                       {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     ]
                   }

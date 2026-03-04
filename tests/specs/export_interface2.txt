@@ -57,7 +57,7 @@ interface TypedIface<T>
               "returnType": {
                 "repr": "T",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "T"
                 }

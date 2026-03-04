@@ -28,7 +28,7 @@ export enum Status {
                         "old": {
                           "repr": "1",
                           "kind": "literal",
-                          "literal": {
+                          "value": {
                             "kind": "number",
                             "number": 1.0
                           }
@@ -36,7 +36,7 @@ export enum Status {
                         "new": {
                           "repr": "0",
                           "kind": "literal",
-                          "literal": {
+                          "value": {
                             "kind": "number",
                             "number": 0.0
                           }

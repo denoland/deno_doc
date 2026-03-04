@@ -286,8 +286,8 @@ pub fn compute_namespaced_symbols<'a>(
           ));
         }
         DeclarationDef::TypeAlias(type_alias_def) => {
-          if let Some(type_literal) =
-            type_alias_def.ts_type.type_literal.as_ref()
+          if let crate::ts_type::TsTypeDefKind::TypeLiteral(type_literal) =
+            &type_alias_def.ts_type.kind
           {
             namespaced_symbols.extend(type_literal.methods.iter().map(
               |method| {
@@ -319,10 +319,16 @@ pub fn compute_namespaced_symbols<'a>(
           }
         }
         DeclarationDef::Variable(variable_def) => {
-          if let Some(type_literal) = variable_def
-            .ts_type
-            .as_ref()
-            .and_then(|ts_type| ts_type.type_literal.as_ref())
+          if let Some(type_literal) =
+            variable_def.ts_type.as_ref().and_then(|ts_type| {
+              if let crate::ts_type::TsTypeDefKind::TypeLiteral(tl) =
+                &ts_type.kind
+              {
+                Some(tl)
+              } else {
+                None
+              }
+            })
           {
             namespaced_symbols.extend(type_literal.methods.iter().map(
               |method| {

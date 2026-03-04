@@ -45,7 +45,7 @@ private namespace MyNamespace
           "tsType": {
             "repr": "MyNamespace.MyInternal",
             "kind": "typeQuery",
-            "typeQuery": "MyNamespace.MyInternal"
+            "value": "MyNamespace.MyInternal"
           },
           "typeParams": []
         }

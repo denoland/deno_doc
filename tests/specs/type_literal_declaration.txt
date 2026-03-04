@@ -32,7 +32,7 @@ type T = { }
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [],
               "properties": [],

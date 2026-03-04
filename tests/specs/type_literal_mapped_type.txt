@@ -32,19 +32,19 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
           "tsType": {
             "repr": "",
             "kind": "mapped",
-            "mappedType": {
+            "value": {
               "readonly": true,
               "typeParam": {
                 "name": "P",
                 "constraint": {
                   "repr": "",
                   "kind": "typeOperator",
-                  "typeOperator": {
+                  "value": {
                     "operator": "keyof",
                     "tsType": {
                       "repr": "Type",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "Type"
                       }
@@ -55,7 +55,7 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
               "nameType": {
                 "repr": "NewType",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "NewType"
                 }
@@ -63,12 +63,12 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
               "tsType": {
                 "repr": "",
                 "kind": "indexedAccess",
-                "indexedAccess": {
+                "value": {
                   "readonly": false,
                   "objType": {
                     "repr": "Type",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "Type"
                     }
@@ -76,7 +76,7 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                   "indexType": {
                     "repr": "P",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "P"
                     }

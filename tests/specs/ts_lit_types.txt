@@ -80,7 +80,7 @@ type tplLitArg = `test${number}`
           "tsType": {
             "repr": "false",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "boolean",
               "boolean": false
             }
@@ -106,7 +106,7 @@ type tplLitArg = `test${number}`
           "tsType": {
             "repr": "text",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "text"
             }
@@ -132,13 +132,13 @@ type tplLitArg = `test${number}`
           "tsType": {
             "repr": "text",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "template",
               "tsTypes": [
                 {
                   "repr": "text",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "text"
                   }
@@ -167,13 +167,13 @@ type tplLitArg = `test${number}`
           "tsType": {
             "repr": "test${number}",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "template",
               "tsTypes": [
                 {
                   "repr": "test",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "test"
                   }
@@ -181,12 +181,12 @@ type tplLitArg = `test${number}`
                 {
                   "repr": "number",
                   "kind": "keyword",
-                  "keyword": "number"
+                  "value": "number"
                 },
                 {
                   "repr": "",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": ""
                   }
@@ -215,7 +215,7 @@ type tplLitArg = `test${number}`
           "tsType": {
             "repr": "5",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 5.0
             }

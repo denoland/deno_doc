@@ -119,7 +119,7 @@ type Test = OtherPrivateType
               "tsType": {
                 "repr": "PrivateType",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "PrivateType"
                 }
@@ -269,7 +269,7 @@ type Test = OtherPrivateType
           "tsType": {
             "repr": "OtherPrivateType",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "OtherPrivateType"
             }
@@ -302,7 +302,7 @@ type Test = OtherPrivateType
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "typeParams": []
         }

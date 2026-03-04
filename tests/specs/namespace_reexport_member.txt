@@ -99,7 +99,7 @@ Defined in file:///mod.ts:0:1
               "tsType": {
                 "repr": "Chat",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Chat"
                 }
@@ -217,7 +217,7 @@ Defined in file:///mod.ts:0:1
               "tsType": {
                 "repr": "Chat",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Chat"
                 }

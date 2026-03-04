@@ -34,7 +34,7 @@ const foo: string
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }

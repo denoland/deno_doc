@@ -93,7 +93,7 @@ class PublicType2
               "tsType": {
                 "repr": "NonExportedType",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "NonExportedType"
                 }
@@ -165,7 +165,7 @@ class PublicType2
               "tsType": {
                 "repr": "NonExportedType2",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "NonExportedType2"
                 }

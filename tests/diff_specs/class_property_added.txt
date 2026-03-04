@@ -28,7 +28,7 @@ export class Foo {
                         "tsType": {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         },
                         "readonly": false,
                         "accessibility": null,

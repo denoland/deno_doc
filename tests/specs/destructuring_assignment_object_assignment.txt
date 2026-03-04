@@ -34,7 +34,7 @@ private const obj: { a: string; b: string; }
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [],
               "properties": [
@@ -52,7 +52,7 @@ private const obj: { a: string; b: string; }
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 },
@@ -70,7 +70,7 @@ private const obj: { a: string; b: string; }
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 }

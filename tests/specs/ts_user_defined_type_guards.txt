@@ -104,11 +104,11 @@ class C
               "tsType": {
                 "repr": "",
                 "kind": "union",
-                "union": [
+                "value": [
                   {
                     "repr": "A",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "A"
                     }
@@ -116,7 +116,7 @@ class C
                   {
                     "repr": "B",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "B"
                     }
@@ -128,7 +128,7 @@ class C
           "returnType": {
             "repr": "val1 is A",
             "kind": "typePredicate",
-            "typePredicate": {
+            "value": {
               "asserts": false,
               "param": {
                 "type": "identifier",
@@ -137,7 +137,7 @@ class C
               "type": {
                 "repr": "A",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "A"
                 }
@@ -173,14 +173,14 @@ class C
               "tsType": {
                 "repr": "any",
                 "kind": "keyword",
-                "keyword": "any"
+                "value": "any"
               }
             }
           ],
           "returnType": {
             "repr": "asserts val2 is string",
             "kind": "typePredicate",
-            "typePredicate": {
+            "value": {
               "asserts": true,
               "param": {
                 "type": "identifier",
@@ -189,7 +189,7 @@ class C
               "type": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           },
@@ -222,14 +222,14 @@ class C
               "tsType": {
                 "repr": "any",
                 "kind": "keyword",
-                "keyword": "any"
+                "value": "any"
               }
             }
           ],
           "returnType": {
             "repr": "asserts val3",
             "kind": "typePredicate",
-            "typePredicate": {
+            "value": {
               "asserts": true,
               "param": {
                 "type": "identifier",
@@ -267,7 +267,7 @@ class C
               "tsType": {
                 "repr": "T",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "T"
                 }
@@ -277,7 +277,7 @@ class C
           "returnType": {
             "repr": "asserts val4 is NonNullable",
             "kind": "typePredicate",
-            "typePredicate": {
+            "value": {
               "asserts": true,
               "param": {
                 "type": "identifier",
@@ -286,12 +286,12 @@ class C
               "type": {
                 "repr": "NonNullable",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": [
                     {
                       "repr": "T",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "T"
                       }
@@ -344,7 +344,7 @@ class C
                 "returnType": {
                   "repr": "this is Something",
                   "kind": "typePredicate",
-                  "typePredicate": {
+                  "value": {
                     "asserts": false,
                     "param": {
                       "type": "this"
@@ -352,7 +352,7 @@ class C
                     "type": {
                       "repr": "Something",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "Something"
                       }

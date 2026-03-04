@@ -32,11 +32,11 @@ type Flatten<T> = T extends Array<infer U> ? U : T
           "tsType": {
             "repr": "",
             "kind": "conditional",
-            "conditionalType": {
+            "value": {
               "checkType": {
                 "repr": "T",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "T"
                 }
@@ -44,12 +44,12 @@ type Flatten<T> = T extends Array<infer U> ? U : T
               "extendsType": {
                 "repr": "Array",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": [
                     {
                       "repr": "",
                       "kind": "infer",
-                      "infer": {
+                      "value": {
                         "typeParam": {
                           "name": "U"
                         }
@@ -62,7 +62,7 @@ type Flatten<T> = T extends Array<infer U> ? U : T
               "trueType": {
                 "repr": "U",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "U"
                 }
@@ -70,7 +70,7 @@ type Flatten<T> = T extends Array<infer U> ? U : T
               "falseType": {
                 "repr": "T",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "T"
                 }

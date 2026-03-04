@@ -52,12 +52,12 @@ export class Bar {
                             "old": {
                               "repr": "void",
                               "kind": "keyword",
-                              "keyword": "void"
+                              "value": "void"
                             },
                             "new": {
                               "repr": "string",
                               "kind": "keyword",
-                              "keyword": "string"
+                              "value": "string"
                             }
                           }
                         }

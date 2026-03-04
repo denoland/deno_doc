@@ -40,12 +40,12 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
             {
               "repr": "Iterator",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": [
                   {
                     "repr": "A",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "A"
                     }
@@ -57,12 +57,12 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
             {
               "repr": "Iterable",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": [
                   {
                     "repr": "B",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "B"
                     }
@@ -84,7 +84,7 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
             {
               "repr": "A",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "A"
               }
@@ -92,7 +92,7 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
             {
               "repr": "B",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "B"
               }

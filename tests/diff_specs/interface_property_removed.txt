@@ -38,7 +38,7 @@ export interface Foo {
                         "tsType": {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         },
                         "typeParams": []
                       }

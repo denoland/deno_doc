@@ -21,7 +21,7 @@ export const VERSION = "2.0.0";
                     "old": {
                       "repr": "1.0.0",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "string",
                         "string": "1.0.0"
                       }
@@ -29,7 +29,7 @@ export const VERSION = "2.0.0";
                     "new": {
                       "repr": "2.0.0",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "string",
                         "string": "2.0.0"
                       }

@@ -73,7 +73,7 @@ interface 插件描述
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "typeParams": []
             },
@@ -91,7 +91,7 @@ interface 插件描述
               "tsType": {
                 "repr": "",
                 "kind": "typeLiteral",
-                "typeLiteral": {
+                "value": {
                   "constructors": [],
                   "methods": [],
                   "properties": [
@@ -109,7 +109,7 @@ interface 插件描述
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       },
                       "typeParams": []
                     },
@@ -127,7 +127,7 @@ interface 插件描述
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       },
                       "typeParams": []
                     },
@@ -145,7 +145,7 @@ interface 插件描述
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       },
                       "typeParams": []
                     },
@@ -163,7 +163,7 @@ interface 插件描述
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       },
                       "typeParams": []
                     }

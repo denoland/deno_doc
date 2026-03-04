@@ -65,7 +65,7 @@ class A
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   }
                 }
               ],
@@ -87,7 +87,7 @@ class A
                   "tsType": {
                     "repr": "number",
                     "kind": "keyword",
-                    "keyword": "number"
+                    "value": "number"
                   }
                 }
               ],
@@ -110,16 +110,16 @@ class A
                   "tsType": {
                     "repr": "",
                     "kind": "union",
-                    "union": [
+                    "value": [
                       {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       },
                       {
                         "repr": "number",
                         "kind": "keyword",
-                        "keyword": "number"
+                        "value": "number"
                       }
                     ]
                   }

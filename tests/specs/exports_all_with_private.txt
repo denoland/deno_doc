@@ -96,7 +96,7 @@ private namespace H
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -191,7 +191,7 @@ private namespace H
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,

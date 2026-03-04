@@ -46,7 +46,7 @@ function foo(a: number)
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               }
             }
           ],

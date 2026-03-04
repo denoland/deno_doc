@@ -38,7 +38,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [
                 {
                   "params": [
@@ -49,14 +49,14 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
                   "returnType": {
                     "repr": "A",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "A"
                     }
@@ -85,7 +85,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                   "returnType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "typeParams": []
                 },
@@ -103,7 +103,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                   "returnType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "typeParams": []
                 },
@@ -121,7 +121,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                   "returnType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 },
@@ -142,7 +142,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "tsType": {
                         "repr": "number",
                         "kind": "keyword",
-                        "keyword": "number"
+                        "value": "number"
                       }
                     }
                   ],

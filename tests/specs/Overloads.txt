@@ -53,14 +53,14 @@ function a(b: number): number
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "isAsync": false,
           "isGenerator": false,
@@ -85,14 +85,14 @@ function a(b: number): number
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               }
             }
           ],
           "returnType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "isAsync": false,
           "isGenerator": false,
@@ -117,16 +117,16 @@ function a(b: number): number
               "tsType": {
                 "repr": "",
                 "kind": "union",
-                "union": [
+                "value": [
                   {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   {
                     "repr": "number",
                     "kind": "keyword",
-                    "keyword": "number"
+                    "value": "number"
                   }
                 ]
               }
@@ -135,16 +135,16 @@ function a(b: number): number
           "returnType": {
             "repr": "",
             "kind": "union",
-            "union": [
+            "value": [
               {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               }
             ]
           },

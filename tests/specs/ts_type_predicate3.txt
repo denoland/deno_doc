@@ -57,7 +57,7 @@ class C
                 "returnType": {
                   "repr": "this is Something",
                   "kind": "typePredicate",
-                  "typePredicate": {
+                  "value": {
                     "asserts": false,
                     "param": {
                       "type": "this"
@@ -65,7 +65,7 @@ class C
                     "type": {
                       "repr": "Something",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "Something"
                       }
