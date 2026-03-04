@@ -18,7 +18,7 @@ use std::ffi::c_void;
 #[cfg(target_arch = "wasm32")]
 thread_local! {
   static RENDER_CONTEXT: RefCell<*const c_void> = const { RefCell::new(std::ptr::null()) };
-  static DOC_NODES: RefCell<(*const c_void, usize)> = const { RefCell::new((std::ptr::null(), 0)) };
+  static DOC_NODE: RefCell<*const c_void> = const { RefCell::new(std::ptr::null()) };
 }
 
 lazy_static! {
@@ -264,8 +264,10 @@ impl UsagesCtx {
     {
       let ctx_ptr = ctx as *const RenderContext as *const c_void;
       RENDER_CONTEXT.set(ctx_ptr);
-      let nodes_ptr = doc_nodes as *const [DocNodeWithContext] as *const c_void;
-      DOC_NODES.set((nodes_ptr, doc_nodes.len()));
+      let node_ptr = symbol
+        .map(|s| s as *const DocNodeWithContext as *const c_void)
+        .unwrap_or(std::ptr::null());
+      DOC_NODE.set(node_ptr);
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -278,28 +280,21 @@ impl UsagesCtx {
           //  after compose is called
           let render_ctx = unsafe { &*render_ctx_ptr };
 
-          let usage = DOC_NODES.with(|nodes| {
-            let (nodes_ptr, nodes_ptr_len) = *nodes.borrow();
-            assert!(!nodes_ptr.is_null());
-            // SAFETY: the pointers are valid until destroyed, which is done
+          let usage = DOC_NODE.with(|node| {
+            let node_ptr = *node.borrow();
+            // SAFETY: the pointer is valid until destroyed, which is done
             //  after compose is called
-            let doc_nodes = unsafe {
-              std::slice::from_raw_parts(
-                nodes_ptr as *const DocNodeWithContext,
-                nodes_ptr_len,
-              )
+            let symbol = if node_ptr.is_null() {
+              None
+            } else {
+              Some(unsafe { &*(node_ptr as *const DocNodeWithContext) })
             };
 
             let usage = usage_to_md(
               &render_ctx,
-              doc_nodes,
+              symbol,
               &url,
               custom_file_identifier.as_deref(),
-            );
-
-            *nodes.borrow_mut() = (
-              doc_nodes as *const [DocNodeWithContext] as *const c_void,
-              doc_nodes.len(),
             );
 
             usage
@@ -330,15 +325,11 @@ impl UsagesCtx {
       // SAFETY: take the pointer and drop it
       let _ = unsafe { &*render_ctx };
 
-      let (doc_nodes_ptr, doc_nodes_ptr_len) =
-        DOC_NODES.replace((std::ptr::null(), 0));
+      let doc_node_ptr = DOC_NODE.replace(std::ptr::null());
       // SAFETY: take the pointer and drop it
-      let _ = unsafe {
-        std::slice::from_raw_parts(
-          doc_nodes_ptr as *const DocNodeWithContext,
-          doc_nodes_ptr_len,
-        )
-      };
+      if !doc_node_ptr.is_null() {
+        let _ = unsafe { &*(doc_node_ptr as *const DocNodeWithContext) };
+      }
     };
 
     if usages.is_empty() {
