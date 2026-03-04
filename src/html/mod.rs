@@ -350,24 +350,14 @@ impl GenerateCtx {
 
             for declaration in &mut symbol.declarations {
               // TODO(@crowlKats): support this in namespaces
-              if declaration
+              if let Some(crate::ts_type::TsTypeDefKind::FnOrConstructor(
+                fn_or_constructor,
+              )) = declaration
                 .variable_def()
                 .as_ref()
                 .and_then(|def| def.ts_type.as_ref())
-                .and_then(|ts_type| ts_type.kind.as_ref())
-                .is_some_and(|kind| {
-                  kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
-                })
+                .map(|ts_type| ts_type.kind.clone())
               {
-                let DeclarationDef::Variable(variable_def) = std::mem::replace(
-                  &mut declaration.def,
-                  DeclarationDef::ModuleDoc,
-                ) else {
-                  unreachable!()
-                };
-                let fn_or_constructor =
-                  variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
-
                 declaration.def =
                   DeclarationDef::Function(crate::function::FunctionDef {
                     def_name: None,
@@ -1097,8 +1087,8 @@ impl DocNodeWithContext {
           }));
         }
         DeclarationDef::TypeAlias(type_alias_def) => {
-          if let Some(ts_type_literal) =
-            type_alias_def.ts_type.type_literal.as_ref()
+          if let crate::ts_type::TsTypeDefKind::TypeLiteral(ts_type_literal) =
+            &type_alias_def.ts_type.kind
           {
             symbols.extend(ts_type_literal.methods.iter().map(|method| {
               self.create_child_method(
@@ -1113,10 +1103,9 @@ impl DocNodeWithContext {
           }
         }
         DeclarationDef::Variable(variable_def) => {
-          if let Some(ts_type_literal) = variable_def
-            .ts_type
-            .as_ref()
-            .and_then(|ts_type| ts_type.type_literal.as_ref())
+          if let Some(crate::ts_type::TsTypeDefKind::TypeLiteral(
+            ts_type_literal,
+          )) = variable_def.ts_type.as_ref().map(|ts_type| ts_type.kind)
           {
             symbols.extend(ts_type_literal.methods.iter().map(|method| {
               self.create_child_method(

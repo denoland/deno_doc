@@ -56,12 +56,12 @@ pub fn function_to_function_def(
       if function.is_async {
         Some(TsTypeDef {
           repr: "Promise".to_string(),
-          kind: Some(crate::ts_type::TsTypeDefKind::TypeRef),
-          type_ref: Some(crate::ts_type::TsTypeRefDef {
-            type_params: Some(Box::new([TsTypeDef::keyword("void")])),
-            type_name: "Promise".to_string(),
-          }),
-          ..Default::default()
+          kind: crate::ts_type::TsTypeDefKind::TypeRef(
+            crate::ts_type::TsTypeRefDef {
+              type_params: Some(Box::new([TsTypeDef::keyword("void")])),
+              type_name: "Promise".to_string(),
+            },
+          ),
         })
       } else {
         Some(TsTypeDef::keyword("void"))

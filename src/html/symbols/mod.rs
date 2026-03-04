@@ -12,6 +12,7 @@ use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
 use crate::js_doc::JsDocTag;
+use crate::ts_type::TsTypeDefKind;
 use crate::{Declaration, DeclarationDef};
 use indexmap::IndexMap;
 use serde::Deserialize;
@@ -920,9 +921,9 @@ pub(crate) fn render_type_def_sections(
 ) -> Vec<SectionCtx> {
   let mut sections = vec![];
 
-  if let Some(ts_type_literal) = ts_type.type_literal.as_ref() {
+  if let TsTypeDefKind::TypeLiteral(ts_type_literal) = &ts_type.kind {
     let type_lit_diff = ts_type_change.and_then(|tc| {
-      if let Some(old_lit) = tc.old.type_literal.as_ref() {
+      if let TsTypeDefKind::TypeLiteral(old_lit) = &tc.old.kind {
         crate::diff::InterfaceDiff::diff_type_literal(old_lit, ts_type_literal)
       } else {
         let empty = crate::ts_type::TsTypeLiteralDef::default();
@@ -931,7 +932,7 @@ pub(crate) fn render_type_def_sections(
     });
 
     if let Some(tc) = ts_type_change
-      && tc.old.type_literal.is_none()
+      && !matches!(tc.old.kind, TsTypeDefKind::TypeLiteral(_))
     {
       sections.push(SectionCtx::new(
         ctx,
@@ -1021,8 +1022,8 @@ pub(crate) fn render_type_def_sections(
       )]),
     ));
 
-    if let Some(old_lit) =
-      ts_type_change.and_then(|tc| tc.old.type_literal.as_ref())
+    if let Some(TsTypeDefKind::TypeLiteral(old_lit)) =
+      ts_type_change.map(|tc| &tc.old.kind)
     {
       let empty = crate::ts_type::TsTypeLiteralDef::default();
       let type_lit_diff =
