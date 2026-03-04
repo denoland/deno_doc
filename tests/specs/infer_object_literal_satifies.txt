@@ -51,163 +51,175 @@ type Colors = "red" | "green" | "blue"
 [
   {
     "name": "Colors",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "union",
-        "union": [
-          {
-            "repr": "red",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "red"
-            }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "typeAlias",
+        "typeAliasDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "union",
+            "union": [
+              {
+                "repr": "red",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "red"
+                }
+              },
+              {
+                "repr": "green",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "green"
+                }
+              },
+              {
+                "repr": "blue",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "blue"
+                }
+              }
+            ]
           },
-          {
-            "repr": "green",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "green"
-            }
-          },
-          {
-            "repr": "blue",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "blue"
-            }
-          }
-        ]
-      },
-      "typeParams": []
-    }
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "favoriteColors",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 13,
-      "byteIndex": 116
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "typeLiteral",
-        "typeLiteral": {
-          "constructors": [],
-          "methods": [],
-          "properties": [
-            {
-              "name": "red",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 5,
-                "col": 4,
-                "byteIndex": 139
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "green",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 6,
-                "col": 4,
-                "byteIndex": 157
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "boolean",
-                "kind": "keyword",
-                "keyword": "boolean"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "blue",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 7,
-                "col": 4,
-                "byteIndex": 177
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "platypus",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 8,
-                "col": 4,
-                "byteIndex": 198
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "boolean",
-                "kind": "keyword",
-                "keyword": "boolean"
-              },
-              "typeParams": []
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 4,
+          "col": 13,
+          "byteIndex": 116
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "typeLiteral",
+            "typeLiteral": {
+              "constructors": [],
+              "methods": [],
+              "properties": [
+                {
+                  "name": "red",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 5,
+                    "col": 4,
+                    "byteIndex": 139
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "green",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 6,
+                    "col": 4,
+                    "byteIndex": 157
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "keyword": "boolean"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "blue",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 7,
+                    "col": 4,
+                    "byteIndex": 177
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "platypus",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 8,
+                    "col": 4,
+                    "byteIndex": 198
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "keyword": "boolean"
+                  },
+                  "typeParams": []
+                }
+              ],
+              "callSignatures": [],
+              "indexSignatures": []
             }
-          ],
-          "callSignatures": [],
-          "indexSignatures": []
+          },
+          "kind": "const"
         }
-      },
-      "kind": "const"
-    }
+      }
+    ]
   },
   {
     "name": "g",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 12,
-      "col": 13,
-      "byteIndex": 331
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "boolean",
-        "kind": "keyword",
-        "keyword": "boolean"
-      },
-      "kind": "const"
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 12,
+          "col": 13,
+          "byteIndex": 331
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "boolean",
+            "kind": "keyword",
+            "keyword": "boolean"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   }
 ]

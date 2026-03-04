@@ -61,163 +61,187 @@ namespace RootNs
 [
   {
     "name": "RootNs",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 23
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Namespace JSdoc"
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "a",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 17,
-            "byteIndex": 66
-          },
-          "declarationKind": "export",
-          "kind": "variable",
-          "variableDef": {
-            "tsType": {
-              "repr": "a",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "a"
-              }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 23
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Namespace JSdoc"
+        },
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "a",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 3,
+                    "col": 17,
+                    "byteIndex": 66
+                  },
+                  "declarationKind": "export",
+                  "kind": "variable",
+                  "variableDef": {
+                    "tsType": {
+                      "repr": "a",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "string",
+                        "string": "a"
+                      }
+                    },
+                    "kind": "const"
+                  }
+                }
+              ]
             },
-            "kind": "const"
-          }
-        },
-        {
-          "name": "NestedNs",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 4,
-            "byteIndex": 114
-          },
-          "declarationKind": "export",
-          "jsDoc": {
-            "doc": "Nested namespace JSDoc"
-          },
-          "kind": "namespace",
-          "namespaceDef": {
-            "elements": [
-              {
-                "name": "Foo",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 7,
-                  "col": 6,
-                  "byteIndex": 148
-                },
-                "declarationKind": "export",
-                "kind": "enum",
-                "enumDef": {
-                  "members": [
-                    {
-                      "name": "a",
-                      "init": {
-                        "repr": "1",
-                        "kind": "literal",
-                        "literal": {
-                          "kind": "number",
-                          "number": 1.0
-                        }
-                      },
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 8,
-                        "col": 8,
-                        "byteIndex": 174
+            {
+              "name": "NestedNs",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 6,
+                    "col": 4,
+                    "byteIndex": 114
+                  },
+                  "declarationKind": "export",
+                  "jsDoc": {
+                    "doc": "Nested namespace JSDoc"
+                  },
+                  "kind": "namespace",
+                  "namespaceDef": {
+                    "elements": [
+                      {
+                        "name": "Foo",
+                        "declarations": [
+                          {
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 7,
+                              "col": 6,
+                              "byteIndex": 148
+                            },
+                            "declarationKind": "export",
+                            "kind": "enum",
+                            "enumDef": {
+                              "members": [
+                                {
+                                  "name": "a",
+                                  "init": {
+                                    "repr": "1",
+                                    "kind": "literal",
+                                    "literal": {
+                                      "kind": "number",
+                                      "number": 1.0
+                                    }
+                                  },
+                                  "location": {
+                                    "filename": "file:///mod.ts",
+                                    "line": 8,
+                                    "col": 8,
+                                    "byteIndex": 174
+                                  }
+                                },
+                                {
+                                  "name": "b",
+                                  "init": {
+                                    "repr": "2",
+                                    "kind": "literal",
+                                    "literal": {
+                                      "kind": "number",
+                                      "number": 2.0
+                                    }
+                                  },
+                                  "location": {
+                                    "filename": "file:///mod.ts",
+                                    "line": 9,
+                                    "col": 8,
+                                    "byteIndex": 189
+                                  }
+                                },
+                                {
+                                  "name": "c",
+                                  "init": {
+                                    "repr": "3",
+                                    "kind": "literal",
+                                    "literal": {
+                                      "kind": "number",
+                                      "number": 3.0
+                                    }
+                                  },
+                                  "location": {
+                                    "filename": "file:///mod.ts",
+                                    "line": 10,
+                                    "col": 8,
+                                    "byteIndex": 204
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
-                    },
-                    {
-                      "name": "b",
-                      "init": {
-                        "repr": "2",
-                        "kind": "literal",
-                        "literal": {
-                          "kind": "number",
-                          "number": 2.0
-                        }
-                      },
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 9,
-                        "col": 8,
-                        "byteIndex": 189
-                      }
-                    },
-                    {
-                      "name": "c",
-                      "init": {
-                        "repr": "3",
-                        "kind": "literal",
-                        "literal": {
-                          "kind": "number",
-                          "number": 3.0
-                        }
-                      },
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 10,
-                        "col": 8,
-                        "byteIndex": 204
-                      }
-                    }
-                  ]
+                    ]
+                  }
                 }
-              }
-            ]
-          }
-        },
-        {
-          "name": "OtherNs",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 15,
-            "col": 7,
-            "byteIndex": 235
-          },
-          "declarationKind": "export",
-          "kind": "namespace",
-          "namespaceDef": {
-            "elements": [
-              {
-                "name": "Other",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 16,
-                  "col": 2,
-                  "byteIndex": 264
-                },
-                "declarationKind": "export",
-                "kind": "class",
-                "classDef": {
-                  "isAbstract": false,
-                  "constructors": [],
-                  "properties": [],
-                  "indexSignatures": [],
-                  "methods": [],
-                  "extends": null,
-                  "implements": [],
-                  "typeParams": [],
-                  "superTypeParams": []
+              ]
+            },
+            {
+              "name": "OtherNs",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 15,
+                    "col": 7,
+                    "byteIndex": 235
+                  },
+                  "declarationKind": "export",
+                  "kind": "namespace",
+                  "namespaceDef": {
+                    "elements": [
+                      {
+                        "name": "Other",
+                        "declarations": [
+                          {
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 16,
+                              "col": 2,
+                              "byteIndex": 264
+                            },
+                            "declarationKind": "export",
+                            "kind": "class",
+                            "classDef": {
+                              "isAbstract": false,
+                              "constructors": [],
+                              "properties": [],
+                              "indexSignatures": [],
+                              "methods": [],
+                              "extends": null,
+                              "implements": [],
+                              "typeParams": [],
+                              "superTypeParams": []
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

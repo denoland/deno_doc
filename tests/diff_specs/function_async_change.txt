@@ -11,13 +11,19 @@ export async function fetch(): Promise<void> {}
       "modified": [
         {
           "name": "fetch",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "isAsyncChange": {
-              "old": false,
-              "new": true
-            }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "isAsyncChange": {
+                    "old": false,
+                    "new": true
+                  }
+                }
+              }
+            ]
           }
         }
       ]

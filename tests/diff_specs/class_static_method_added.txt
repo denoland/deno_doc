@@ -16,42 +16,48 @@ export class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "methodChanges": {
-              "added": [
-                {
-                  "accessibility": null,
-                  "optional": false,
-                  "isAbstract": false,
-                  "isStatic": true,
-                  "name": "create",
-                  "kind": "method",
-                  "functionDef": {
-                    "params": [],
-                    "returnType": {
-                      "repr": "Foo",
-                      "kind": "typeRef",
-                      "typeRef": {
-                        "typeParams": null,
-                        "typeName": "Foo"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "accessibility": null,
+                        "optional": false,
+                        "isAbstract": false,
+                        "isStatic": true,
+                        "name": "create",
+                        "kind": "method",
+                        "functionDef": {
+                          "params": [],
+                          "returnType": {
+                            "repr": "Foo",
+                            "kind": "typeRef",
+                            "typeRef": {
+                              "typeParams": null,
+                              "typeName": "Foo"
+                            }
+                          },
+                          "hasBody": true,
+                          "isAsync": false,
+                          "isGenerator": false,
+                          "typeParams": []
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 3,
+                          "col": 2,
+                          "byteIndex": 32
+                        }
                       }
-                    },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
-                  },
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 32
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

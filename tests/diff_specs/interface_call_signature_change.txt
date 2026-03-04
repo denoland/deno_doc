@@ -15,30 +15,36 @@ export interface Callable {
       "modified": [
         {
           "name": "Callable",
-          "kind": "interface",
-          "defChanges": {
-            "type": "interface",
-            "callSignatureChanges": {
-              "modified": [
-                {
-                  "index": 0,
-                  "paramsChange": {
-                    "added": [
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "callSignatureChanges": {
+                    "modified": [
                       {
-                        "kind": "identifier",
-                        "name": "y",
-                        "optional": false,
-                        "tsType": {
-                          "repr": "number",
-                          "kind": "keyword",
-                          "keyword": "number"
+                        "index": 0,
+                        "paramsChange": {
+                          "added": [
+                            {
+                              "kind": "identifier",
+                              "name": "y",
+                              "optional": false,
+                              "tsType": {
+                                "repr": "number",
+                                "kind": "keyword",
+                                "keyword": "number"
+                              }
+                            }
+                          ]
                         }
                       }
                     ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

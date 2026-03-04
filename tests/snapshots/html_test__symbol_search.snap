@@ -6,236 +6,6 @@ expression: search_index
   "kind": "search",
   "nodes": [
     {
-      "id": "namespace_a",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "A",
-      "file": ".",
-      "doc": "",
-      "url": "././~/A.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_abstractclass",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "AbstractClass",
-      "file": ".",
-      "doc": "",
-      "url": "././~/AbstractClass.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_abstractclass",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "AbstractClass.prototype.method",
-      "file": ".",
-      "doc": "",
-      "url": "././~/AbstractClass.prototype.method.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_abstractclass",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "AbstractClass.prototype.getter",
-      "file": ".",
-      "doc": "",
-      "url": "././~/AbstractClass.prototype.getter.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_abstractclass",
-      "kind": [
-        {
-          "char": "p",
-          "kind": "Property",
-          "title": "Property"
-        }
-      ],
-      "name": "AbstractClass.prototype.foo",
-      "file": ".",
-      "doc": "",
-      "url": "././~/AbstractClass.prototype.foo.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_b",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "B",
-      "file": ".",
-      "doc": "",
-      "url": "././~/B.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_bar",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "Bar",
-      "file": ".",
-      "doc": "Some quote in bar docs This quote part is ignored when getting the title of this docBar docs",
-      "url": "././~/Bar.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_baz",
-      "kind": [
-        {
-          "char": "T",
-          "kind": "TypeAlias",
-          "title": "Type Alias"
-        }
-      ],
-      "name": "Baz",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Baz.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_baz",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "Baz.bar",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Baz.bar.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_baz",
-      "kind": [
-        {
-          "char": "p",
-          "kind": "Property",
-          "title": "Property"
-        }
-      ],
-      "name": "Baz.foo",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Baz.foo.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_compoundtype",
-      "kind": [
-        {
-          "char": "I",
-          "kind": "Interface",
-          "title": "Interface"
-        },
-        {
-          "char": "v",
-          "kind": "Variable",
-          "title": "Variable"
-        }
-      ],
-      "name": "CompoundType",
-      "file": ".",
-      "doc": "",
-      "url": "././~/CompoundType.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_compoundtype",
-      "kind": [
-        {
-          "char": "p",
-          "kind": "Property",
-          "title": "Property"
-        }
-      ],
-      "name": "CompoundType.bufferedAmount",
-      "file": ".",
-      "doc": "",
-      "url": "././~/CompoundType.bufferedAmount.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_emptyinterface",
-      "kind": [
-        {
-          "char": "I",
-          "kind": "Interface",
-          "title": "Interface"
-        }
-      ],
-      "name": "EmptyInterface",
-      "file": ".",
-      "doc": "",
-      "url": "././~/EmptyInterface.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_enum",
-      "kind": [
-        {
-          "char": "E",
-          "kind": "Enum",
-          "title": "Enum"
-        }
-      ],
-      "name": "Enum",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Enum.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_enum2",
-      "kind": [
-        {
-          "char": "E",
-          "kind": "Enum",
-          "title": "Enum"
-        }
-      ],
-      "name": "Enum2",
-      "file": ".",
-      "doc": "the description",
-      "url": "././~/Enum2.html",
-      "deprecated": false
-    },
-    {
       "id": "namespace_foo",
       "kind": [
         {
@@ -319,21 +89,6 @@ expression: search_index
           "title": "Method"
         }
       ],
-      "name": "Foo.prototype.getterAndSetter",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.getterAndSetter.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
       "name": "Foo.staticSetter",
       "file": ".",
       "doc": "",
@@ -368,36 +123,6 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/Foo.staticMethod.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "Foo.prototype.methodWithOverloads",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.methodWithOverloads.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "Foo.prototype.methodWithOverloads",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.methodWithOverloads.html",
       "deprecated": false
     },
     {
@@ -491,6 +216,21 @@ expression: search_index
       "deprecated": false
     },
     {
+      "id": "namespace_bar",
+      "kind": [
+        {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        }
+      ],
+      "name": "Bar",
+      "file": ".",
+      "doc": "Some quote in bar docs This quote part is ignored when getting the title of this docBar docs",
+      "url": "././~/Bar.html",
+      "deprecated": false
+    },
+    {
       "id": "namespace_foobar",
       "kind": [
         {
@@ -503,6 +243,66 @@ expression: search_index
       "file": ".",
       "doc": "Foobar docsheadingcontentsub heading",
       "url": "././~/Foobar.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_abstractclass",
+      "kind": [
+        {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        }
+      ],
+      "name": "AbstractClass",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_abstractclass",
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "AbstractClass.prototype.method",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.prototype.method.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_abstractclass",
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "AbstractClass.prototype.getter",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.prototype.getter.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_abstractclass",
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "AbstractClass.prototype.foo",
+      "file": ".",
+      "doc": "",
+      "url": "././~/AbstractClass.prototype.foo.html",
       "deprecated": false
     },
     {
@@ -611,6 +411,21 @@ expression: search_index
       "deprecated": false
     },
     {
+      "id": "namespace_emptyinterface",
+      "kind": [
+        {
+          "char": "I",
+          "kind": "Interface",
+          "title": "Interface"
+        }
+      ],
+      "name": "EmptyInterface",
+      "file": ".",
+      "doc": "",
+      "url": "././~/EmptyInterface.html",
+      "deprecated": false
+    },
+    {
       "id": "namespace_interfacewithindexsignature",
       "kind": [
         {
@@ -626,38 +441,48 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_testing",
+      "id": "namespace_baz",
       "kind": [
         {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        },
-        {
-          "char": "N",
-          "kind": "Namespace",
-          "title": "Namespace"
+          "char": "T",
+          "kind": "TypeAlias",
+          "title": "Type Alias"
         }
       ],
-      "name": "Testing",
+      "name": "Baz",
       "file": ".",
       "doc": "",
-      "url": "././~/Testing.html",
+      "url": "././~/Baz.html",
       "deprecated": false
     },
     {
-      "id": "namespace_testing_t",
+      "id": "namespace_baz",
       "kind": [
         {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
         }
       ],
-      "name": "Testing.t",
+      "name": "Baz.bar",
       "file": ".",
       "doc": "",
-      "url": "././~/Testing.t.html",
+      "url": "././~/Baz.bar.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_baz",
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "Baz.foo",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Baz.foo.html",
       "deprecated": false
     },
     {
@@ -676,48 +501,33 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_anothervariable",
+      "id": "namespace_b",
       "kind": [
         {
-          "char": "v",
-          "kind": "Variable",
-          "title": "Variable"
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
         }
       ],
-      "name": "anotherVariable",
+      "name": "B",
       "file": ".",
       "doc": "",
-      "url": "././~/anotherVariable.html",
+      "url": "././~/B.html",
       "deprecated": false
     },
     {
-      "id": "namespace_anothervariable",
+      "id": "namespace_qaz",
       "kind": [
         {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
         }
       ],
-      "name": "anotherVariable.bar",
+      "name": "qaz",
       "file": ".",
-      "doc": "",
-      "url": "././~/anotherVariable.bar.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_anothervariable",
-      "kind": [
-        {
-          "char": "p",
-          "kind": "Property",
-          "title": "Property"
-        }
-      ],
-      "name": "anotherVariable.foo",
-      "file": ".",
-      "doc": "",
-      "url": "././~/anotherVariable.foo.html",
+      "doc": "content",
+      "url": "././~/qaz.html",
       "deprecated": false
     },
     {
@@ -766,28 +576,33 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_qaz",
+      "id": "namespace_enum",
       "kind": [
         {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        },
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        },
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
+          "char": "E",
+          "kind": "Enum",
+          "title": "Enum"
         }
       ],
-      "name": "qaz",
+      "name": "Enum",
       "file": ".",
-      "doc": "content",
-      "url": "././~/qaz.html",
+      "doc": "",
+      "url": "././~/Enum.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_enum2",
+      "kind": [
+        {
+          "char": "E",
+          "kind": "Enum",
+          "title": "Enum"
+        }
+      ],
+      "name": "Enum2",
+      "file": ".",
+      "doc": "the description",
+      "url": "././~/Enum2.html",
       "deprecated": false
     },
     {
@@ -803,6 +618,136 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/someVariable.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_anothervariable",
+      "kind": [
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "anotherVariable",
+      "file": ".",
+      "doc": "",
+      "url": "././~/anotherVariable.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_anothervariable",
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "anotherVariable.bar",
+      "file": ".",
+      "doc": "",
+      "url": "././~/anotherVariable.bar.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_anothervariable",
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "anotherVariable.foo",
+      "file": ".",
+      "doc": "",
+      "url": "././~/anotherVariable.foo.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_testing_t",
+      "kind": [
+        {
+          "char": "f",
+          "kind": "Function",
+          "title": "Function"
+        }
+      ],
+      "name": "Testing.t",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Testing.t.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_testing",
+      "kind": [
+        {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        },
+        {
+          "char": "N",
+          "kind": "Namespace",
+          "title": "Namespace"
+        }
+      ],
+      "name": "Testing",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Testing.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_compoundtype",
+      "kind": [
+        {
+          "char": "I",
+          "kind": "Interface",
+          "title": "Interface"
+        },
+        {
+          "char": "v",
+          "kind": "Variable",
+          "title": "Variable"
+        }
+      ],
+      "name": "CompoundType",
+      "file": ".",
+      "doc": "",
+      "url": "././~/CompoundType.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_compoundtype",
+      "kind": [
+        {
+          "char": "p",
+          "kind": "Property",
+          "title": "Property"
+        }
+      ],
+      "name": "CompoundType.bufferedAmount",
+      "file": ".",
+      "doc": "",
+      "url": "././~/CompoundType.bufferedAmount.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_a",
+      "kind": [
+        {
+          "char": "c",
+          "kind": "Class",
+          "title": "Class"
+        }
+      ],
+      "name": "A",
+      "file": ".",
+      "doc": "",
+      "url": "././~/A.html",
       "deprecated": false
     },
     {
@@ -857,12 +802,17 @@ expression: search_index
           "char": "f",
           "kind": "Function",
           "title": "Function"
-        },
-        {
-          "char": "f",
-          "kind": "Function",
-          "title": "Function"
-        },
+        }
+      ],
+      "name": "x",
+      "file": "c",
+      "doc": "",
+      "url": "./c/~/x.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_x",
+      "kind": [
         {
           "char": "f",
           "kind": "Function",
@@ -870,9 +820,9 @@ expression: search_index
         }
       ],
       "name": "x",
-      "file": "c",
+      "file": "foo",
       "doc": "",
-      "url": "./c/~/x.html",
+      "url": "./foo/~/x.html",
       "deprecated": false
     },
     {

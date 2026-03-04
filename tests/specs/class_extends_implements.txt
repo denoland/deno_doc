@@ -19,41 +19,45 @@ class Class extends Object implements Iterator, Iterable
 [
   {
     "name": "Class",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": "Object",
-      "implements": [
-        {
-          "repr": "Iterator",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Iterator"
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "repr": "Iterable",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Iterable"
-          }
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": "Object",
+          "implements": [
+            {
+              "repr": "Iterator",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "Iterator"
+              }
+            },
+            {
+              "repr": "Iterable",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": null,
+                "typeName": "Iterable"
+              }
+            }
+          ],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

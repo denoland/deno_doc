@@ -81,160 +81,192 @@ private namespace H
 [
   {
     "name": "a",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "C",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 39
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 3,
+          "col": 0,
+          "byteIndex": 39
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "E",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 68
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 68
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "G",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 0,
-      "byteIndex": 105
-    },
-    "declarationKind": "export",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 7,
+          "col": 0,
+          "byteIndex": 105
+        },
+        "declarationKind": "export",
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": []
+        }
+      }
+    ]
   },
   {
     "name": "b",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 23
-    },
-    "declarationKind": "private",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 23
+        },
+        "declarationKind": "private",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "D",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 57
-    },
-    "declarationKind": "private",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 4,
+          "col": 0,
+          "byteIndex": 57
+        },
+        "declarationKind": "private",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "F",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 6,
-      "col": 0,
-      "byteIndex": 90
-    },
-    "declarationKind": "private",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 6,
+          "col": 0,
+          "byteIndex": 90
+        },
+        "declarationKind": "private",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "H",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 0,
-      "byteIndex": 127
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 8,
+          "col": 0,
+          "byteIndex": 127
+        },
+        "declarationKind": "private",
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": []
+        }
+      }
+    ]
   }
 ]

@@ -18,46 +18,50 @@ const tpl: `test${number}`
 [
   {
     "name": "tpl",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 13,
-      "byteIndex": 13
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "test${number}",
-        "kind": "literal",
-        "literal": {
-          "kind": "template",
-          "tsTypes": [
-            {
-              "repr": "test",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "test"
-              }
-            },
-            {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            {
-              "repr": "",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": ""
-              }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 13,
+          "byteIndex": 13
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "test${number}",
+            "kind": "literal",
+            "literal": {
+              "kind": "template",
+              "tsTypes": [
+                {
+                  "repr": "test",
+                  "kind": "literal",
+                  "literal": {
+                    "kind": "string",
+                    "string": "test"
+                  }
+                },
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                },
+                {
+                  "repr": "",
+                  "kind": "literal",
+                  "literal": {
+                    "kind": "string",
+                    "string": ""
+                  }
+                }
+              ]
             }
-          ]
+          },
+          "kind": "const"
         }
-      },
-      "kind": "const"
-    }
+      }
+    ]
   }
 ]

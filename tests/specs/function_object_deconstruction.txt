@@ -18,52 +18,56 @@ function f({a, b, ...c}): void
 [
   {
     "name": "f",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "object",
-          "props": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
             {
-              "kind": "assign",
-              "key": "a",
-              "value": null
-            },
-            {
-              "kind": "assign",
-              "key": "b",
-              "value": null
-            },
-            {
-              "kind": "rest",
-              "arg": {
-                "kind": "identifier",
-                "name": "c",
-                "optional": false,
-                "tsType": null
-              }
+              "kind": "object",
+              "props": [
+                {
+                  "kind": "assign",
+                  "key": "a",
+                  "value": null
+                },
+                {
+                  "kind": "assign",
+                  "key": "b",
+                  "value": null
+                },
+                {
+                  "kind": "rest",
+                  "arg": {
+                    "kind": "identifier",
+                    "name": "c",
+                    "optional": false,
+                    "tsType": null
+                  }
+                }
+              ],
+              "optional": false,
+              "tsType": null
             }
           ],
-          "optional": false,
-          "tsType": null
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

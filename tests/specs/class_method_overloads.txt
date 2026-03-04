@@ -39,106 +39,126 @@ class A
 [
   {
     "name": "A",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [
-        {
-          "accessibility": null,
-          "optional": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "kind": "method",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "b",
-                "optional": false,
-                "tsType": {
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [
+            {
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "a",
+              "kind": "method",
+              "functionDef": {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "b",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
+                    }
+                  }
+                ],
+                "returnType": {
                   "repr": "string",
                   "kind": "keyword",
                   "keyword": "string"
-                }
+                },
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 6,
+                "byteIndex": 23
               }
-            ],
-            "returnType": {
-              "repr": "string",
-              "kind": "keyword",
-              "keyword": "string"
             },
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 6,
-            "byteIndex": 23
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "kind": "method",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "b",
-                "optional": false,
-                "tsType": {
+            {
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "a",
+              "kind": "method",
+              "functionDef": {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "b",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "keyword": "number"
+                    }
+                  }
+                ],
+                "returnType": {
                   "repr": "number",
                   "kind": "keyword",
                   "keyword": "number"
-                }
+                },
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 6,
+                "byteIndex": 51
               }
-            ],
-            "returnType": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
             },
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 6,
-            "byteIndex": 51
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "kind": "method",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "b",
-                "optional": false,
-                "tsType": {
+            {
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "a",
+              "kind": "method",
+              "functionDef": {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "b",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "",
+                      "kind": "union",
+                      "union": [
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        },
+                        {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "returnType": {
                   "repr": "",
                   "kind": "union",
                   "union": [
@@ -153,42 +173,26 @@ class A
                       "keyword": "number"
                     }
                   ]
-                }
-              }
-            ],
-            "returnType": {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
                 },
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
-                }
-              ]
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 6,
-            "byteIndex": 79
-          }
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 6,
+                "byteIndex": 79
+              }
+            }
+          ],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

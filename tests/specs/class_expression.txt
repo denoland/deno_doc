@@ -49,159 +49,171 @@ class Foo
 [
   {
     "name": "Foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 13,
-      "byteIndex": 46
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A simple class expression"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [
-        {
-          "jsDoc": {
-            "doc": "A method"
-          },
-          "accessibility": null,
-          "optional": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 13,
+          "byteIndex": 46
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "A simple class expression"
+        },
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "bar",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 80
-          }
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [
+            {
+              "jsDoc": {
+                "doc": "A method"
+              },
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "bar",
+              "kind": "method",
+              "functionDef": {
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "keyword": "void"
+                },
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 80
+              }
+            }
+          ],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "Bar",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 13,
-      "byteIndex": 156
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A class expression extending another"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [
-        {
-          "jsDoc": {
-            "doc": "A constructor"
-          },
-          "accessibility": null,
-          "hasBody": true,
-          "name": "constructor",
-          "params": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 8,
+          "col": 13,
+          "byteIndex": 156
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "A class expression extending another"
+        },
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [
             {
-              "accessibility": "public",
-              "kind": "identifier",
-              "name": "name",
-              "optional": false,
+              "jsDoc": {
+                "doc": "A constructor"
+              },
+              "accessibility": null,
+              "hasBody": true,
+              "name": "constructor",
+              "params": [
+                {
+                  "accessibility": "public",
+                  "kind": "identifier",
+                  "name": "name",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  }
+                }
+              ],
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 10,
+                "col": 2,
+                "byteIndex": 207
+              }
+            }
+          ],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": "Foo",
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
+  },
+  {
+    "name": "Baz",
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 16,
+          "col": 13,
+          "byteIndex": 308
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "A named class expression"
+        },
+        "kind": "class",
+        "classDef": {
+          "defName": "MyClass",
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [
+            {
+              "jsDoc": {
+                "doc": "A property"
+              },
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
                 "keyword": "string"
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "prop",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 18,
+                "col": 2,
+                "byteIndex": 352
               }
             }
           ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 10,
-            "col": 2,
-            "byteIndex": 207
-          }
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": "Foo",
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  },
-  {
-    "name": "Baz",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 13,
-      "byteIndex": 308
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A named class expression"
-    },
-    "kind": "class",
-    "classDef": {
-      "defName": "MyClass",
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "jsDoc": {
-            "doc": "A property"
-          },
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 18,
-            "col": 2,
-            "byteIndex": 352
-          }
-        }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   }
 ]

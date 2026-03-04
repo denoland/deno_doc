@@ -26,37 +26,41 @@ function noop(): void
 [
   {
     "name": "noop",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 48
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "tags": [
-        {
-          "kind": "unsupported",
-          "value": "@customtagone"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 48
         },
-        {
-          "kind": "unsupported",
-          "value": "@customtagtwo value"
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            {
+              "kind": "unsupported",
+              "value": "@customtagone"
+            },
+            {
+              "kind": "unsupported",
+              "value": "@customtagtwo value"
+            }
+          ]
+        },
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ]
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

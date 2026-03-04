@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
-  pub elements: Vec<Arc<DocNode>>,
+  pub elements: Vec<Arc<Symbol>>,
 }
 
 #[derive(
@@ -36,6 +36,23 @@ pub enum DocNodeKind {
   Reference,
   TypeAlias,
   Variable,
+}
+
+impl From<&DeclarationDef> for DocNodeKind {
+  fn from(def: &DeclarationDef) -> Self {
+    match def {
+      DeclarationDef::Class { .. } => Self::Class,
+      DeclarationDef::Enum { .. } => Self::Enum,
+      DeclarationDef::Function { .. } => Self::Function,
+      DeclarationDef::Import { .. } => Self::Import,
+      DeclarationDef::Interface { .. } => Self::Interface,
+      DeclarationDef::ModuleDoc => Self::ModuleDoc,
+      DeclarationDef::Namespace { .. } => Self::Namespace,
+      DeclarationDef::Reference { .. } => Self::Reference,
+      DeclarationDef::TypeAlias { .. } => Self::TypeAlias,
+      DeclarationDef::Variable { .. } => Self::Variable,
+    }
+  }
 }
 
 #[derive(
@@ -95,21 +112,27 @@ pub enum DeclarationKind {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocNode {
-  pub name: Box<str>,
-  #[serde(skip_serializing_if = "std::ops::Not::not", default)]
-  pub is_default: bool,
+pub struct Declaration {
   pub location: Location,
   pub declaration_kind: DeclarationKind,
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   #[serde(flatten)]
-  pub def: DocNodeDef,
+  pub def: DeclarationDef,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Symbol {
+  pub name: Box<str>,
+  #[serde(skip_serializing_if = "std::ops::Not::not", default)]
+  pub is_default: bool,
+  pub declarations: Vec<Declaration>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "kind", rename_all = "camelCase")]
-pub enum DocNodeDef {
+pub enum DeclarationDef {
   #[serde(rename_all = "camelCase")]
   Function {
     function_def: super::function::FunctionDef,
@@ -148,46 +171,255 @@ pub enum DocNodeDef {
   },
 }
 
-impl DocNodeDef {
+impl DeclarationDef {
   pub fn to_kind(&self) -> DocNodeKind {
     match self {
-      DocNodeDef::Function { .. } => DocNodeKind::Function,
-      DocNodeDef::Variable { .. } => DocNodeKind::Variable,
-      DocNodeDef::Enum { .. } => DocNodeKind::Enum,
-      DocNodeDef::Class { .. } => DocNodeKind::Class,
-      DocNodeDef::TypeAlias { .. } => DocNodeKind::TypeAlias,
-      DocNodeDef::Namespace { .. } => DocNodeKind::Namespace,
-      DocNodeDef::Interface { .. } => DocNodeKind::Interface,
-      DocNodeDef::Import { .. } => DocNodeKind::Import,
-      DocNodeDef::ModuleDoc => DocNodeKind::ModuleDoc,
-      DocNodeDef::Reference { .. } => DocNodeKind::Reference,
+      DeclarationDef::Function { .. } => DocNodeKind::Function,
+      DeclarationDef::Variable { .. } => DocNodeKind::Variable,
+      DeclarationDef::Enum { .. } => DocNodeKind::Enum,
+      DeclarationDef::Class { .. } => DocNodeKind::Class,
+      DeclarationDef::TypeAlias { .. } => DocNodeKind::TypeAlias,
+      DeclarationDef::Namespace { .. } => DocNodeKind::Namespace,
+      DeclarationDef::Interface { .. } => DocNodeKind::Interface,
+      DeclarationDef::Import { .. } => DocNodeKind::Import,
+      DeclarationDef::ModuleDoc => DocNodeKind::ModuleDoc,
+      DeclarationDef::Reference { .. } => DocNodeKind::Reference,
     }
   }
 }
 
-impl Default for DocNode {
+impl Declaration {
+  pub fn class_def(&self) -> Option<&super::class::ClassDef> {
+    match &self.def {
+      DeclarationDef::Class { class_def } => Some(class_def),
+      _ => None,
+    }
+  }
+
+  pub fn function_def(&self) -> Option<&super::function::FunctionDef> {
+    match &self.def {
+      DeclarationDef::Function { function_def } => Some(function_def),
+      _ => None,
+    }
+  }
+
+  pub fn variable_def(&self) -> Option<&super::variable::VariableDef> {
+    match &self.def {
+      DeclarationDef::Variable { variable_def } => Some(variable_def),
+      _ => None,
+    }
+  }
+
+  pub fn enum_def(&self) -> Option<&super::r#enum::EnumDef> {
+    match &self.def {
+      DeclarationDef::Enum { enum_def } => Some(enum_def),
+      _ => None,
+    }
+  }
+
+  pub fn type_alias_def(&self) -> Option<&super::type_alias::TypeAliasDef> {
+    match &self.def {
+      DeclarationDef::TypeAlias { type_alias_def } => Some(type_alias_def),
+      _ => None,
+    }
+  }
+
+  pub fn namespace_def(&self) -> Option<&NamespaceDef> {
+    match &self.def {
+      DeclarationDef::Namespace { namespace_def } => Some(namespace_def),
+      _ => None,
+    }
+  }
+
+  pub fn interface_def(&self) -> Option<&super::interface::InterfaceDef> {
+    match &self.def {
+      DeclarationDef::Interface { interface_def } => Some(interface_def),
+      _ => None,
+    }
+  }
+
+  pub fn import_def(&self) -> Option<&ImportDef> {
+    match &self.def {
+      DeclarationDef::Import { import_def } => Some(import_def),
+      _ => None,
+    }
+  }
+
+  pub fn reference_def(&self) -> Option<&ReferenceDef> {
+    match &self.def {
+      DeclarationDef::Reference { reference_def } => Some(reference_def),
+      _ => None,
+    }
+  }
+
+  pub fn function(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    fn_def: super::function::FunctionDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::Function {
+        function_def: fn_def,
+      },
+    }
+  }
+
+  pub fn variable(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    var_def: super::variable::VariableDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::Variable {
+        variable_def: var_def,
+      },
+    }
+  }
+
+  pub fn r#enum(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    enum_def: super::r#enum::EnumDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::Enum { enum_def },
+    }
+  }
+
+  pub fn class(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    class_def: super::class::ClassDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::Class { class_def },
+    }
+  }
+
+  pub fn type_alias(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    type_alias_def: super::type_alias::TypeAliasDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::TypeAlias { type_alias_def },
+    }
+  }
+
+  pub fn namespace(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    namespace_def: NamespaceDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::Namespace { namespace_def },
+    }
+  }
+
+  pub fn interface(
+    location: Location,
+    declaration_kind: DeclarationKind,
+    js_doc: JsDoc,
+    interface_def: super::interface::InterfaceDef,
+  ) -> Self {
+    Self {
+      location,
+      declaration_kind,
+      js_doc,
+      def: DeclarationDef::Interface { interface_def },
+    }
+  }
+
+  pub fn import(
+    location: Location,
+    js_doc: JsDoc,
+    import_def: ImportDef,
+  ) -> Self {
+    Self {
+      declaration_kind: DeclarationKind::Private,
+      location,
+      js_doc,
+      def: DeclarationDef::Import { import_def },
+    }
+  }
+
+  pub fn reference(
+    location: Location,
+    js_doc: JsDoc,
+    reference_def: ReferenceDef,
+  ) -> Self {
+    Self {
+      declaration_kind: DeclarationKind::Private,
+      location,
+      js_doc,
+      def: DeclarationDef::Reference { reference_def },
+    }
+  }
+
+  pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
+    Self {
+      location,
+      declaration_kind: DeclarationKind::Export,
+      js_doc,
+      def: DeclarationDef::ModuleDoc,
+    }
+  }
+}
+
+impl Default for Symbol {
   fn default() -> Self {
     Self {
       is_default: false,
       name: "".into(),
-      declaration_kind: DeclarationKind::Private,
-      location: Location::default(),
-      js_doc: JsDoc::default(),
-      def: DocNodeDef::ModuleDoc,
+      declarations: vec![Declaration {
+        declaration_kind: DeclarationKind::Private,
+        location: Location::default(),
+        js_doc: JsDoc::default(),
+        def: DeclarationDef::ModuleDoc,
+      }],
     }
   }
 }
 
-impl DocNode {
-  pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
+impl Symbol {
+  fn single(
+    name: Box<str>,
+    is_default: bool,
+    declaration: Declaration,
+  ) -> Self {
     Self {
-      name: "".into(),
-      is_default: false,
-      location,
-      declaration_kind: DeclarationKind::Export,
-      js_doc,
-      def: DocNodeDef::ModuleDoc,
+      name,
+      is_default,
+      declarations: vec![declaration],
     }
+  }
+
+  pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
+    Self::single("".into(), false, Declaration::module_doc(location, js_doc))
   }
 
   pub fn function(
@@ -198,16 +430,11 @@ impl DocNode {
     js_doc: JsDoc,
     fn_def: super::function::FunctionDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      location,
-      declaration_kind,
-      js_doc,
-      def: DocNodeDef::Function {
-        function_def: fn_def,
-      },
-    }
+      Declaration::function(location, declaration_kind, js_doc, fn_def),
+    )
   }
 
   pub fn variable(
@@ -218,16 +445,11 @@ impl DocNode {
     js_doc: JsDoc,
     var_def: super::variable::VariableDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      declaration_kind,
-      location,
-      js_doc,
-      def: DocNodeDef::Variable {
-        variable_def: var_def,
-      },
-    }
+      Declaration::variable(location, declaration_kind, js_doc, var_def),
+    )
   }
 
   pub fn r#enum(
@@ -238,14 +460,11 @@ impl DocNode {
     js_doc: JsDoc,
     enum_def: super::r#enum::EnumDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      declaration_kind,
-      location,
-      js_doc,
-      def: DocNodeDef::Enum { enum_def },
-    }
+      Declaration::r#enum(location, declaration_kind, js_doc, enum_def),
+    )
   }
 
   pub fn class(
@@ -256,14 +475,11 @@ impl DocNode {
     js_doc: JsDoc,
     class_def: super::class::ClassDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      declaration_kind,
-      location,
-      js_doc,
-      def: DocNodeDef::Class { class_def },
-    }
+      Declaration::class(location, declaration_kind, js_doc, class_def),
+    )
   }
 
   pub fn type_alias(
@@ -274,14 +490,16 @@ impl DocNode {
     js_doc: JsDoc,
     type_alias_def: super::type_alias::TypeAliasDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      declaration_kind,
-      location,
-      js_doc,
-      def: DocNodeDef::TypeAlias { type_alias_def },
-    }
+      Declaration::type_alias(
+        location,
+        declaration_kind,
+        js_doc,
+        type_alias_def,
+      ),
+    )
   }
 
   pub fn namespace(
@@ -292,14 +510,11 @@ impl DocNode {
     js_doc: JsDoc,
     namespace_def: NamespaceDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      declaration_kind,
-      location,
-      js_doc,
-      def: DocNodeDef::Namespace { namespace_def },
-    }
+      Declaration::namespace(location, declaration_kind, js_doc, namespace_def),
+    )
   }
 
   pub fn interface(
@@ -310,14 +525,11 @@ impl DocNode {
     js_doc: JsDoc,
     interface_def: super::interface::InterfaceDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
       is_default,
-      declaration_kind,
-      location,
-      js_doc,
-      def: DocNodeDef::Interface { interface_def },
-    }
+      Declaration::interface(location, declaration_kind, js_doc, interface_def),
+    )
   }
 
   pub fn import(
@@ -326,14 +538,11 @@ impl DocNode {
     js_doc: JsDoc,
     import_def: ImportDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
-      is_default: false,
-      declaration_kind: DeclarationKind::Private,
-      location,
-      js_doc,
-      def: DocNodeDef::Import { import_def },
-    }
+      false,
+      Declaration::import(location, js_doc, import_def),
+    )
   }
 
   pub fn reference(
@@ -342,95 +551,32 @@ impl DocNode {
     js_doc: JsDoc,
     reference_def: ReferenceDef,
   ) -> Self {
-    Self {
+    Self::single(
       name,
-      is_default: false,
-      declaration_kind: DeclarationKind::Private,
-      location,
-      js_doc,
-      def: DocNodeDef::Reference { reference_def },
-    }
+      false,
+      Declaration::reference(location, js_doc, reference_def),
+    )
   }
 
   pub fn get_name(&self) -> &str {
-    let default_name = match &self.def {
-      DocNodeDef::Class { class_def } => class_def.def_name.as_deref(),
-      DocNodeDef::Function { function_def } => function_def.def_name.as_deref(),
-      DocNodeDef::Interface { interface_def } => {
-        interface_def.def_name.as_deref()
-      }
-      DocNodeDef::Enum { .. }
-      | DocNodeDef::Import { .. }
-      | DocNodeDef::ModuleDoc
-      | DocNodeDef::Namespace { .. }
-      | DocNodeDef::TypeAlias { .. }
-      | DocNodeDef::Variable { .. }
-      | DocNodeDef::Reference { .. } => None,
-    };
+    let default_name =
+      self.declarations.iter().find_map(|decl| match &decl.def {
+        DeclarationDef::Class { class_def } => class_def.def_name.as_deref(),
+        DeclarationDef::Function { function_def } => {
+          function_def.def_name.as_deref()
+        }
+        DeclarationDef::Interface { interface_def } => {
+          interface_def.def_name.as_deref()
+        }
+        DeclarationDef::Enum { .. }
+        | DeclarationDef::Import { .. }
+        | DeclarationDef::ModuleDoc
+        | DeclarationDef::Namespace { .. }
+        | DeclarationDef::TypeAlias { .. }
+        | DeclarationDef::Variable { .. }
+        | DeclarationDef::Reference { .. } => None,
+      });
 
-    default_name.unwrap_or(&self.name)
-  }
-
-  pub fn class_def(&self) -> Option<&super::class::ClassDef> {
-    match &self.def {
-      DocNodeDef::Class { class_def } => Some(class_def),
-      _ => None,
-    }
-  }
-
-  pub fn function_def(&self) -> Option<&super::function::FunctionDef> {
-    match &self.def {
-      DocNodeDef::Function { function_def } => Some(function_def),
-      _ => None,
-    }
-  }
-
-  pub fn variable_def(&self) -> Option<&super::variable::VariableDef> {
-    match &self.def {
-      DocNodeDef::Variable { variable_def } => Some(variable_def),
-      _ => None,
-    }
-  }
-
-  pub fn enum_def(&self) -> Option<&super::r#enum::EnumDef> {
-    match &self.def {
-      DocNodeDef::Enum { enum_def } => Some(enum_def),
-      _ => None,
-    }
-  }
-
-  pub fn type_alias_def(&self) -> Option<&super::type_alias::TypeAliasDef> {
-    match &self.def {
-      DocNodeDef::TypeAlias { type_alias_def } => Some(type_alias_def),
-      _ => None,
-    }
-  }
-
-  pub fn namespace_def(&self) -> Option<&NamespaceDef> {
-    match &self.def {
-      DocNodeDef::Namespace { namespace_def } => Some(namespace_def),
-      _ => None,
-    }
-  }
-
-  pub fn interface_def(&self) -> Option<&super::interface::InterfaceDef> {
-    match &self.def {
-      DocNodeDef::Interface { interface_def } => Some(interface_def),
-      _ => None,
-    }
-  }
-
-  pub fn import_def(&self) -> Option<&ImportDef> {
-    match &self.def {
-      DocNodeDef::Import { import_def } => Some(import_def),
-      _ => None,
-    }
-  }
-
-  pub fn reference_def(&self) -> Option<&ReferenceDef> {
-    match &self.def {
-      DocNodeDef::Reference { reference_def } => Some(reference_def),
-      _ => None,
-    }
+    default_name.unwrap_or(self.name.as_ref())
   }
 }

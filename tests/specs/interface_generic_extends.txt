@@ -19,44 +19,48 @@ interface Interface<V> extends Iterable<V>
 [
   {
     "name": "Interface",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [
-        {
-          "repr": "Iterable",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
-              {
-                "repr": "V",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "V"
-                }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [
+            {
+              "repr": "Iterable",
+              "kind": "typeRef",
+              "typeRef": {
+                "typeParams": [
+                  {
+                    "repr": "V",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "V"
+                    }
+                  }
+                ],
+                "typeName": "Iterable"
               }
-            ],
-            "typeName": "Iterable"
-          }
+            }
+          ],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": [
+            {
+              "name": "V"
+            }
+          ]
         }
-      ],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": [
-        {
-          "name": "V"
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

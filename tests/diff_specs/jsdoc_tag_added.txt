@@ -16,16 +16,22 @@ export function foo() {}
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "jsDocChanges": {
-            "tagsChange": {
-              "added": [
-                {
-                  "kind": "deprecated",
-                  "doc": "Use bar instead"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "jsDocChanges": {
+                  "tagsChange": {
+                    "added": [
+                      {
+                        "kind": "deprecated",
+                        "doc": "Use bar instead"
+                      }
+                    ]
+                  }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

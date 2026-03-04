@@ -18,67 +18,71 @@ function foo(bar: A | B): bar is A
 [
   {
     "name": "foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "identifier",
-          "name": "bar",
-          "optional": false,
-          "tsType": {
-            "repr": "",
-            "kind": "union",
-            "union": [
-              {
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
+            {
+              "kind": "identifier",
+              "name": "bar",
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "union",
+                "union": [
+                  {
+                    "repr": "A",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "A"
+                    }
+                  },
+                  {
+                    "repr": "B",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "B"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "returnType": {
+            "repr": "bar is A",
+            "kind": "typePredicate",
+            "typePredicate": {
+              "asserts": false,
+              "param": {
+                "type": "identifier",
+                "name": "bar"
+              },
+              "type": {
                 "repr": "A",
                 "kind": "typeRef",
                 "typeRef": {
                   "typeParams": null,
                   "typeName": "A"
                 }
-              },
-              {
-                "repr": "B",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "B"
-                }
               }
-            ]
-          }
-        }
-      ],
-      "returnType": {
-        "repr": "bar is A",
-        "kind": "typePredicate",
-        "typePredicate": {
-          "asserts": false,
-          "param": {
-            "type": "identifier",
-            "name": "bar"
-          },
-          "type": {
-            "repr": "A",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "A"
             }
-          }
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

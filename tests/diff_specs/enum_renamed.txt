@@ -19,7 +19,6 @@ export enum Bar {
       "modified": [
         {
           "name": "Bar",
-          "kind": "enum",
           "nameChange": {
             "old": "Foo",
             "new": "Bar"

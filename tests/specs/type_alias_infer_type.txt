@@ -18,68 +18,72 @@ type Flatten<T> = T extends Array<infer U> ? U : T
 [
   {
     "name": "Flatten",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "conditional",
-        "conditionalType": {
-          "checkType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "T"
-            }
-          },
-          "extendsType": {
-            "repr": "Array",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": [
-                {
-                  "repr": "",
-                  "kind": "infer",
-                  "infer": {
-                    "typeParam": {
-                      "name": "U"
-                    }
-                  }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "typeAlias",
+        "typeAliasDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "conditional",
+            "conditionalType": {
+              "checkType": {
+                "repr": "T",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "T"
                 }
-              ],
-              "typeName": "Array"
+              },
+              "extendsType": {
+                "repr": "Array",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": [
+                    {
+                      "repr": "",
+                      "kind": "infer",
+                      "infer": {
+                        "typeParam": {
+                          "name": "U"
+                        }
+                      }
+                    }
+                  ],
+                  "typeName": "Array"
+                }
+              },
+              "trueType": {
+                "repr": "U",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "U"
+                }
+              },
+              "falseType": {
+                "repr": "T",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "T"
+                }
+              }
             }
           },
-          "trueType": {
-            "repr": "U",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "U"
+          "typeParams": [
+            {
+              "name": "T"
             }
-          },
-          "falseType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "T"
-            }
-          }
+          ]
         }
-      },
-      "typeParams": [
-        {
-          "name": "T"
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

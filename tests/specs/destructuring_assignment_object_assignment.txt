@@ -20,94 +20,106 @@ private const obj: { a: string; b: string; }
 [
   {
     "name": "obj",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 6,
-      "byteIndex": 6
-    },
-    "declarationKind": "private",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "typeLiteral",
-        "typeLiteral": {
-          "constructors": [],
-          "methods": [],
-          "properties": [
-            {
-              "name": "a",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 14,
-                "byteIndex": 14
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "b",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 24,
-                "byteIndex": 24
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "typeParams": []
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 6,
+          "byteIndex": 6
+        },
+        "declarationKind": "private",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "typeLiteral",
+            "typeLiteral": {
+              "constructors": [],
+              "methods": [],
+              "properties": [
+                {
+                  "name": "a",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 1,
+                    "col": 14,
+                    "byteIndex": 14
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "b",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 1,
+                    "col": 24,
+                    "byteIndex": 24
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                }
+              ],
+              "callSignatures": [],
+              "indexSignatures": []
             }
-          ],
-          "callSignatures": [],
-          "indexSignatures": []
+          },
+          "kind": "const"
         }
-      },
-      "kind": "const"
-    }
+      }
+    ]
   },
   {
     "name": "a1",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 11,
-      "byteIndex": 47
-    },
-    "declarationKind": "private",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": null,
-      "kind": "const"
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 11,
+          "byteIndex": 47
+        },
+        "declarationKind": "private",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": null,
+          "kind": "const"
+        }
+      }
+    ]
   },
   {
     "name": "b",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 21,
-      "byteIndex": 57
-    },
-    "declarationKind": "private",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": null,
-      "kind": "const"
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 21,
+          "byteIndex": 57
+        },
+        "declarationKind": "private",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": null,
+          "kind": "const"
+        }
+      }
+    ]
   }
 ]

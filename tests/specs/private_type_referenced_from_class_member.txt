@@ -40,75 +40,83 @@ private class YesDiagnostic
 [
   {
     "name": "Other",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 15
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Comment"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "jsDoc": {
-            "doc": "Comment"
-          },
-          "tsType": {
-            "repr": "YesDiagnostic",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "YesDiagnostic"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 15
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Comment"
+        },
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 55
-          }
+          "constructors": [],
+          "properties": [
+            {
+              "jsDoc": {
+                "doc": "Comment"
+              },
+              "tsType": {
+                "repr": "YesDiagnostic",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "YesDiagnostic"
+                }
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "prop",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 55
+              }
+            }
+          ],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "YesDiagnostic",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 0,
-      "byteIndex": 78
-    },
-    "declarationKind": "private",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 7,
+          "col": 0,
+          "byteIndex": 78
+        },
+        "declarationKind": "private",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   }
 ]

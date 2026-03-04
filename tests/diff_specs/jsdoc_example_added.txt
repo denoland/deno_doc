@@ -19,16 +19,22 @@ export function add(a: number, b: number): number { return a + b; }
       "modified": [
         {
           "name": "add",
-          "kind": "function",
-          "jsDocChanges": {
-            "tagsChange": {
-              "added": [
-                {
-                  "kind": "example",
-                  "doc": "```ts\nadd(1, 2) // returns 3\n```"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "jsDocChanges": {
+                  "tagsChange": {
+                    "added": [
+                      {
+                        "kind": "example",
+                        "doc": "```ts\nadd(1, 2) // returns 3\n```"
+                      }
+                    ]
+                  }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

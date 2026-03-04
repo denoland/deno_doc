@@ -1,6 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 use crate::display::SliceDisplayer;
@@ -8,6 +7,7 @@ use crate::display::display_computed;
 use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::interface::expr_to_name;
+use crate::node::Symbol;
 use crate::params::param_to_param_def;
 use crate::params::pat_to_param_def;
 use crate::params::prop_name_to_string;
@@ -969,9 +969,9 @@ impl PartialEq for MethodDef {
   }
 }
 
-impl From<MethodDef> for DocNode {
-  fn from(def: MethodDef) -> DocNode {
-    DocNode::function(
+impl From<MethodDef> for Symbol {
+  fn from(def: MethodDef) -> Symbol {
+    Symbol::function(
       def.name.into_boxed_str(),
       false,
       def.location,
@@ -1036,9 +1036,9 @@ impl PartialEq for PropertyDef {
   }
 }
 
-impl From<PropertyDef> for DocNode {
-  fn from(def: PropertyDef) -> DocNode {
-    DocNode::variable(
+impl From<PropertyDef> for Symbol {
+  fn from(def: PropertyDef) -> Symbol {
+    Symbol::variable(
       def.name.into_boxed_str(),
       false,
       def.location,

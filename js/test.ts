@@ -12,12 +12,14 @@ Deno.test({
     const entries = records["https://deno.land/std@0.104.0/fmt/colors.ts"];
     assertEquals(entries.length, 49);
     const fnStripColor = entries.find((n) =>
-      n.kind === "function" && n.name === "stripColor"
+      n.declarations.some((d) => d.kind === "function") &&
+      n.name === "stripColor"
     );
     assert(fnStripColor, "unable to locate specific node");
-    assert(fnStripColor.kind === "function");
-    assert(fnStripColor.functionDef);
-    assertEquals(fnStripColor.functionDef.params, [{
+    const decl = fnStripColor.declarations[0];
+    assert(decl.kind === "function");
+    assert(decl.functionDef);
+    assertEquals(decl.functionDef.params, [{
       kind: "identifier",
       name: "string",
       optional: false,
@@ -121,7 +123,7 @@ Deno.test({
     });
     const entries = Object.values(records)[0];
     assertEquals(entries.length, 1);
-    assertEquals(entries[0].kind, "class");
+    assertEquals(entries[0].declarations[0].kind, "class");
     assertEquals(entries[0].name, "B");
   },
 });

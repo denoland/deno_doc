@@ -35,42 +35,50 @@ namespace RootNs
 [
   {
     "name": "RootNs",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 23
-    },
-    "declarationKind": "declare",
-    "jsDoc": {
-      "doc": "Namespace JSdoc"
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "a",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 10,
-            "byteIndex": 60
-          },
-          "declarationKind": "export",
-          "kind": "variable",
-          "variableDef": {
-            "tsType": {
-              "repr": "a",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "a"
-              }
-            },
-            "kind": "const"
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 23
+        },
+        "declarationKind": "declare",
+        "jsDoc": {
+          "doc": "Namespace JSdoc"
+        },
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "a",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 3,
+                    "col": 10,
+                    "byteIndex": 60
+                  },
+                  "declarationKind": "export",
+                  "kind": "variable",
+                  "variableDef": {
+                    "tsType": {
+                      "repr": "a",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "string",
+                        "string": "a"
+                      }
+                    },
+                    "kind": "const"
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

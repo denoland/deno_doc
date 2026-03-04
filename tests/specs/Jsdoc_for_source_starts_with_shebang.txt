@@ -51,96 +51,112 @@ interface B
 [
   {
     "name": "",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 52
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "This module provides simple examples of a class, an interface, and a function.",
-      "tags": [
-        {
-          "kind": "module",
-          "name": "MyModule"
-        }
-      ]
-    },
-    "kind": "moduleDoc"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 52
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "This module provides simple examples of a class, an interface, and a function.",
+          "tags": [
+            {
+              "kind": "module",
+              "name": "MyModule"
+            }
+          ]
+        },
+        "kind": "moduleDoc"
+      }
+    ]
   },
   {
     "name": "A",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 10,
-      "col": 0,
-      "byteIndex": 193
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A is a simple class."
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 10,
+          "col": 0,
+          "byteIndex": 193
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "A is a simple class."
+        },
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "B",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 15,
-      "col": 0,
-      "byteIndex": 248
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "B is a simple interface."
-    },
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 15,
+          "col": 0,
+          "byteIndex": 248
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "B is a simple interface."
+        },
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "C",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 20,
-      "col": 0,
-      "byteIndex": 299
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "C is a function."
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 20,
+          "col": 0,
+          "byteIndex": 299
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "C is a function."
+        },
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

@@ -36,246 +36,36 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
 [
   {
     "name": "a",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 13,
-      "byteIndex": 84
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "typeLiteral",
-        "typeLiteral": {
-          "constructors": [],
-          "methods": [
-            {
-              "name": "d",
-              "kind": "method",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 9,
-                "col": 2,
-                "byteIndex": 166
-              },
-              "params": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 4,
+          "col": 13,
+          "byteIndex": 84
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "typeLiteral",
+            "typeLiteral": {
+              "constructors": [],
+              "methods": [
                 {
-                  "kind": "identifier",
-                  "name": "e",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              ],
-              "optional": false,
-              "returnType": {
-                "repr": "void",
-                "kind": "keyword",
-                "keyword": "void"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "h",
-              "kind": "getter",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 11,
-                "col": 2,
-                "byteIndex": 221
-              },
-              "params": [],
-              "optional": false,
-              "returnType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "h",
-              "kind": "setter",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 14,
-                "col": 2,
-                "byteIndex": 262
-              },
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "value",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              ],
-              "optional": false,
-              "returnType": null,
-              "typeParams": []
-            },
-            {
-              "name": "[t]",
-              "kind": "method",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 18,
-                "col": 2,
-                "byteIndex": 316
-              },
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "u",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              ],
-              "computed": true,
-              "optional": false,
-              "returnType": {
-                "repr": "void",
-                "kind": "keyword",
-                "keyword": "void"
-              },
-              "typeParams": []
-            }
-          ],
-          "properties": [
-            {
-              "name": "a",
-              "jsDoc": {
-                "doc": "JSDoc"
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 6,
-                "col": 2,
-                "byteIndex": 107
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "b",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 7,
-                "col": 2,
-                "byteIndex": 117
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "Map",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": [
-                    {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    },
-                    {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    }
-                  ],
-                  "typeName": "Map"
-                }
-              },
-              "typeParams": []
-            },
-            {
-              "name": "c",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 8,
-                "col": 2,
-                "byteIndex": 149
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "typeLiteral",
-                "typeLiteral": {
-                  "constructors": [],
-                  "methods": [],
-                  "properties": [
-                    {
-                      "name": "d",
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 8,
-                        "col": 7,
-                        "byteIndex": 154
-                      },
-                      "params": [],
-                      "computed": false,
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
-                      },
-                      "typeParams": []
-                    }
-                  ],
-                  "callSignatures": [],
-                  "indexSignatures": []
-                }
-              },
-              "typeParams": []
-            },
-            {
-              "name": "f",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 10,
-                "col": 2,
-                "byteIndex": 191
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "fnOrConstructor",
-                "fnOrConstructor": {
-                  "constructor": false,
-                  "tsType": {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
+                  "name": "d",
+                  "kind": "method",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 9,
+                    "col": 2,
+                    "byteIndex": 166
                   },
                   "params": [
                     {
                       "kind": "identifier",
-                      "name": "g",
+                      "name": "e",
                       "optional": false,
                       "tsType": {
                         "repr": "string",
@@ -284,50 +74,264 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       }
                     }
                   ],
+                  "optional": false,
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "h",
+                  "kind": "getter",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 11,
+                    "col": 2,
+                    "byteIndex": 221
+                  },
+                  "params": [],
+                  "optional": false,
+                  "returnType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "h",
+                  "kind": "setter",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 14,
+                    "col": 2,
+                    "byteIndex": 262
+                  },
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "value",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "optional": false,
+                  "returnType": null,
+                  "typeParams": []
+                },
+                {
+                  "name": "[t]",
+                  "kind": "method",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 18,
+                    "col": 2,
+                    "byteIndex": 316
+                  },
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "u",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "keyword": "string"
+                      }
+                    }
+                  ],
+                  "computed": true,
+                  "optional": false,
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "keyword": "void"
+                  },
                   "typeParams": []
                 }
-              },
-              "typeParams": []
-            },
-            {
-              "name": "[s]",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 17,
-                "col": 2,
-                "byteIndex": 293
-              },
-              "params": [],
-              "computed": true,
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "array",
-                "array": {
-                  "repr": "",
-                  "kind": "union",
-                  "union": [
-                    {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    },
-                    {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
+              ],
+              "properties": [
+                {
+                  "name": "a",
+                  "jsDoc": {
+                    "doc": "JSDoc"
+                  },
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 6,
+                    "col": 2,
+                    "byteIndex": 107
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "keyword": "string"
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "b",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 7,
+                    "col": 2,
+                    "byteIndex": 117
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "Map",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": [
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        },
+                        {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        }
+                      ],
+                      "typeName": "Map"
                     }
-                  ]
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "c",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 8,
+                    "col": 2,
+                    "byteIndex": 149
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "typeLiteral",
+                    "typeLiteral": {
+                      "constructors": [],
+                      "methods": [],
+                      "properties": [
+                        {
+                          "name": "d",
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 8,
+                            "col": 7,
+                            "byteIndex": 154
+                          },
+                          "params": [],
+                          "computed": false,
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "keyword": "string"
+                          },
+                          "typeParams": []
+                        }
+                      ],
+                      "callSignatures": [],
+                      "indexSignatures": []
+                    }
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "f",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 10,
+                    "col": 2,
+                    "byteIndex": 191
+                  },
+                  "params": [],
+                  "computed": false,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "fnOrConstructor",
+                    "fnOrConstructor": {
+                      "constructor": false,
+                      "tsType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "keyword": "void"
+                      },
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "g",
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "keyword": "string"
+                          }
+                        }
+                      ],
+                      "typeParams": []
+                    }
+                  },
+                  "typeParams": []
+                },
+                {
+                  "name": "[s]",
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 17,
+                    "col": 2,
+                    "byteIndex": 293
+                  },
+                  "params": [],
+                  "computed": true,
+                  "optional": false,
+                  "tsType": {
+                    "repr": "",
+                    "kind": "array",
+                    "array": {
+                      "repr": "",
+                      "kind": "union",
+                      "union": [
+                        {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "keyword": "number"
+                        },
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "keyword": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "typeParams": []
                 }
-              },
-              "typeParams": []
+              ],
+              "callSignatures": [],
+              "indexSignatures": []
             }
-          ],
-          "callSignatures": [],
-          "indexSignatures": []
+          },
+          "kind": "const"
         }
-      },
-      "kind": "const"
-    }
+      }
+    ]
   }
 ]

@@ -29,48 +29,52 @@ interface TypedIface<T>
 [
   {
     "name": "TypedIface",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [
-        {
-          "name": "something",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 4,
-            "byteIndex": 37
-          },
-          "params": [],
-          "optional": false,
-          "returnType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "T"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [
+            {
+              "name": "something",
+              "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 4,
+                "byteIndex": 37
+              },
+              "params": [],
+              "optional": false,
+              "returnType": {
+                "repr": "T",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "T"
+                }
+              },
+              "typeParams": []
             }
-          },
-          "typeParams": []
+          ],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": [
+            {
+              "name": "T"
+            }
+          ]
         }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": [
-        {
-          "name": "T"
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

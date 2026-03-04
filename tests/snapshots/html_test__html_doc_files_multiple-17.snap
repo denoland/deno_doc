@@ -157,8 +157,8 @@ Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_compou
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { type CompoundType } from &quot;.&quot;;
-</code><button class="copyButton" data-copy="import { type CompoundType } from &quot;.&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { CompoundType } from &quot;.&quot;;
+</code><button class="copyButton" data-copy="import { CompoundType } from &quot;.&quot;;
 "><svg
   class="copy"
   width="15"

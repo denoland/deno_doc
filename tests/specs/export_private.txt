@@ -20,21 +20,25 @@ const foo: string
 [
   {
     "name": "foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 6,
-      "byteIndex": 6
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 6,
+          "byteIndex": 6
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          },
+          "kind": "const"
+        }
+      }
+    ]
   }
 ]

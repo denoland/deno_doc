@@ -17,54 +17,72 @@ export namespace Utils {
       "modified": [
         {
           "name": "Utils",
-          "kind": "namespace",
-          "defChanges": {
-            "type": "namespace",
-            "modifiedElements": [
+          "declarations": {
+            "modified": [
               {
-                "name": "parse",
-                "kind": "function",
+                "kind": "namespace",
                 "defChanges": {
-                  "type": "function",
-                  "paramsChange": {
-                    "added": [
-                      {
-                        "kind": "identifier",
-                        "name": "strict",
-                        "optional": true,
-                        "tsType": {
-                          "repr": "boolean",
-                          "kind": "keyword",
-                          "keyword": "boolean"
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "name": "VERSION",
-                "kind": "variable",
-                "defChanges": {
-                  "type": "variable",
-                  "tsTypeChange": {
-                    "old": {
-                      "repr": "1.0",
-                      "kind": "literal",
-                      "literal": {
-                        "kind": "string",
-                        "string": "1.0"
+                  "type": "namespace",
+                  "modifiedElements": [
+                    {
+                      "name": "parse",
+                      "declarations": {
+                        "modified": [
+                          {
+                            "kind": "function",
+                            "defChanges": {
+                              "type": "function",
+                              "paramsChange": {
+                                "added": [
+                                  {
+                                    "kind": "identifier",
+                                    "name": "strict",
+                                    "optional": true,
+                                    "tsType": {
+                                      "repr": "boolean",
+                                      "kind": "keyword",
+                                      "keyword": "boolean"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
                       }
                     },
-                    "new": {
-                      "repr": "2.0",
-                      "kind": "literal",
-                      "literal": {
-                        "kind": "string",
-                        "string": "2.0"
+                    {
+                      "name": "VERSION",
+                      "declarations": {
+                        "modified": [
+                          {
+                            "kind": "variable",
+                            "defChanges": {
+                              "type": "variable",
+                              "tsTypeChange": {
+                                "old": {
+                                  "repr": "1.0",
+                                  "kind": "literal",
+                                  "literal": {
+                                    "kind": "string",
+                                    "string": "1.0"
+                                  }
+                                },
+                                "new": {
+                                  "repr": "2.0",
+                                  "kind": "literal",
+                                  "literal": {
+                                    "kind": "string",
+                                    "string": "2.0"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
                       }
                     }
-                  }
+                  ]
                 }
               }
             ]

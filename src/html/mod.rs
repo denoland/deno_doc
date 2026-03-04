@@ -1,9 +1,10 @@
-use crate::DocNode;
-use crate::node::DocNodeDef;
+use crate::Symbol;
+use crate::node::DeclarationDef;
 use deno_ast::ModuleSpecifier;
 use handlebars::Handlebars;
 use handlebars::handlebars_helper;
 use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
@@ -337,69 +338,64 @@ impl GenerateCtx {
 
         let nodes = nodes
           .into_iter()
-          .map(|mut node| {
-            if &*node.name == "default"
+          .map(|mut symbol| {
+            if &*symbol.name == "default"
               && let Some(default_rename) =
                 options.default_symbol_map.as_ref().and_then(
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
             {
-              node.name = default_rename.as_str().into();
+              symbol.name = default_rename.as_str().into();
             }
 
-            // TODO(@crowlKats): support this in namespaces
-            let node = if node
-              .variable_def()
-              .as_ref()
-              .and_then(|def| def.ts_type.as_ref())
-              .and_then(|ts_type| ts_type.kind.as_ref())
-              .is_some_and(|kind| {
-                kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
-              }) {
-              let DocNodeDef::Variable { variable_def } = node.def else {
-                unreachable!()
-              };
-              let fn_or_constructor =
-                variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
+            for declaration in &mut symbol.declarations {
+              // TODO(@crowlKats): support this in namespaces
+              if declaration
+                .variable_def()
+                .as_ref()
+                .and_then(|def| def.ts_type.as_ref())
+                .and_then(|ts_type| ts_type.kind.as_ref())
+                .is_some_and(|kind| {
+                  kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
+                })
+              {
+                let DeclarationDef::Variable { variable_def } =
+                  std::mem::replace(
+                    &mut declaration.def,
+                    DeclarationDef::ModuleDoc,
+                  )
+                else {
+                  unreachable!()
+                };
+                let fn_or_constructor =
+                  variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
 
-              let mut new_node = DocNode::function(
-                node.name,
-                false,
-                node.location,
-                node.declaration_kind,
-                node.js_doc,
-                crate::function::FunctionDef {
-                  def_name: None,
-                  params: fn_or_constructor.params,
-                  return_type: Some(fn_or_constructor.ts_type),
-                  has_body: false,
-                  is_async: false,
-                  is_generator: false,
-                  type_params: fn_or_constructor.type_params,
-                  decorators: Box::new([]),
-                },
-              );
-              new_node.is_default = node.is_default;
-              new_node
-            } else {
-              node
-            };
+                declaration.def = DeclarationDef::Function {
+                  function_def: crate::function::FunctionDef {
+                    def_name: None,
+                    params: fn_or_constructor.params,
+                    return_type: Some(fn_or_constructor.ts_type),
+                    has_body: false,
+                    is_async: false,
+                    is_generator: false,
+                    type_params: fn_or_constructor.type_params,
+                    decorators: Box::new([]),
+                  },
+                };
+              }
+            }
 
             let diff_status = diff.as_ref().and_then(|d| {
-              d.get_node_diff(
-                &short_path.specifier,
-                &node.name,
-                node.def.to_kind(),
-              )
-              .map(|info| info.status.clone())
+              d.get_symbol_diff(&short_path.specifier, &symbol.name)
+                .map(|info| info.status.clone())
             });
 
             DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
-              kind: DocNodeKind::from_node(&node),
-              inner: Arc::new(node),
+              inner: Arc::new(symbol),
               drilldown_name: None,
+              drilldown_kind: None,
               parent: None,
               namespace_children: None,
               qualified_name: std::cell::OnceCell::new(),
@@ -408,7 +404,11 @@ impl GenerateCtx {
           })
           .map(|mut node| {
             fn handle_node(node: &mut DocNodeWithContext) {
-              let children = if let Some(ns) = node.namespace_def() {
+              let children = if let Some(ns) = node
+                .declarations
+                .iter()
+                .find_map(|decl| decl.namespace_def())
+              {
                 let subqualifier: Rc<[String]> = node.sub_qualifier().into();
                 Some(
                   ns.elements
@@ -454,9 +454,9 @@ impl GenerateCtx {
             nodes.push(DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
-              kind: DocNodeKind::from_node(node),
               inner: Arc::new(node.clone()),
               drilldown_name: None,
+              drilldown_kind: None,
               parent: None,
               namespace_children: None,
               qualified_name: std::cell::OnceCell::new(),
@@ -466,23 +466,28 @@ impl GenerateCtx {
         }
       }
 
-      for (short_path, nodes) in &mut doc_nodes {
-        for node in nodes.iter_mut() {
-          if !matches!(node.def, DocNodeDef::Namespace { .. }) {
+      for (short_path, symbols) in &mut doc_nodes {
+        for symbol in symbols.iter_mut() {
+          let Some(decl) = symbol
+            .inner
+            .declarations
+            .iter()
+            .find(|decl| decl.namespace_def().is_some())
+          else {
             continue;
-          }
+          };
 
           // Look up the NamespaceDiff for this node from the DiffIndex
           let ns_diff = diff
-            .get_node_diff(
+            .get_declaration_diff(
               &short_path.specifier,
-              &node.name,
-              node.def.to_kind(),
+              &symbol.name,
+              decl.def.to_kind(),
             )
-            .and_then(|info| info.diff.as_ref())
             .and_then(|node_diff| node_diff.def_changes.as_ref())
             .and_then(|def_diff| {
-              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff
+              if let crate::diff::DeclarationDefDiff::Namespace(ns_diff) =
+                def_diff
               {
                 Some(ns_diff)
               } else {
@@ -491,7 +496,7 @@ impl GenerateCtx {
             });
 
           if let Some(ns_diff) = ns_diff {
-            apply_namespace_diff_inner(node, ns_diff, short_path)
+            apply_namespace_diff_inner(symbol, ns_diff, short_path)
           }
         }
       }
@@ -507,15 +512,17 @@ impl GenerateCtx {
         node: &DocNodeWithContext,
         depth: usize,
       ) {
-        index
-          .entry(node.location.clone())
-          .or_default()
-          .push((depth, node.clone()));
-        if matches!(node.def, DocNodeDef::Namespace { .. })
-          && let Some(children) = &node.namespace_children
-        {
-          for child in children {
-            index_node(index, child, depth + 1);
+        for decl in &node.declarations {
+          index
+            .entry(decl.location.clone())
+            .or_default()
+            .push((depth, node.clone()));
+          if matches!(decl.def, DeclarationDef::Namespace { .. })
+            && let Some(children) = &node.namespace_children
+          {
+            for child in children {
+              index_node(index, child, depth + 1);
+            }
           }
         }
       }
@@ -691,33 +698,26 @@ fn apply_namespace_diff_inner(
 
   if let Some(children) = &mut node.namespace_children {
     // Build lookup sets for added and modified elements
-    let added_names: std::collections::HashSet<(
-      String,
-      crate::node::DocNodeKind,
-    )> = ns_diff
+    let added_names: std::collections::HashSet<String> = ns_diff
       .added_elements
       .iter()
-      .map(|n| (n.name.to_string(), n.def.to_kind()))
+      .map(|n| n.name.to_string())
       .collect();
 
-    let modified_map: IndexMap<
-      (String, crate::node::DocNodeKind),
-      &crate::diff::DocNodeDiff,
-    > = ns_diff
+    let modified_map: IndexMap<String, &crate::diff::SymbolDiff> = ns_diff
       .modified_elements
       .iter()
-      .map(|d| ((d.name.to_string(), d.kind), d))
+      .map(|d| (d.name.to_string(), d))
       .collect();
 
     // Set diff_status on existing children
     for child in children.iter_mut() {
-      let kind = child.def.to_kind();
       let name = child.name.to_string();
-      let key = (name, kind);
-      if added_names.contains(&key) {
+      if added_names.contains(&name) {
         child.diff_status = Some(DiffStatus::Added);
-      } else if let Some(node_diff) = modified_map.get(&key) {
-        child.diff_status = if let Some(name_change) = &node_diff.name_change {
+      } else if let Some(symbol_diff) = modified_map.get(&name) {
+        child.diff_status = if let Some(name_change) = &symbol_diff.name_change
+        {
           Some(DiffStatus::Renamed {
             old_name: name_change.old.to_string(),
           })
@@ -725,16 +725,24 @@ fn apply_namespace_diff_inner(
           Some(DiffStatus::Modified)
         };
 
-        // If child is a namespace, recurse with its own NamespaceDiff
-        if matches!(child.def, DocNodeDef::Namespace { .. }) {
+        if child
+          .declarations
+          .iter()
+          .any(|decl| matches!(decl.def, DeclarationDef::Namespace { .. }))
+        {
           let child_ns_diff =
-            node_diff.def_changes.as_ref().and_then(|def_diff| {
-              if let crate::diff::DocNodeDefDiff::Namespace(ns_diff) = def_diff
-              {
-                Some(ns_diff)
-              } else {
-                None
-              }
+            symbol_diff.declarations.as_ref().and_then(|decls_diff| {
+              decls_diff.modified.iter().find_map(|decl_diff| {
+                decl_diff.def_changes.as_ref().and_then(|def_diff| {
+                  if let crate::diff::DeclarationDefDiff::Namespace(ns_diff) =
+                    def_diff
+                  {
+                    Some(ns_diff)
+                  } else {
+                    None
+                  }
+                })
+              })
             });
 
           if let Some(child_ns_diff) = child_ns_diff {
@@ -750,9 +758,9 @@ fn apply_namespace_diff_inner(
         children.push(DocNodeWithContext {
           origin: short_path.clone(),
           ns_qualifiers: subqualifier.clone(),
-          kind: DocNodeKind::from_node(removed_node),
           inner: removed_node.clone(),
           drilldown_name: None,
+          drilldown_kind: None,
           parent: Some(Box::new(node_snapshot.clone())),
           namespace_children: None,
           qualified_name: std::cell::OnceCell::new(),
@@ -899,49 +907,24 @@ impl From<deno_ast::swc::ast::MethodKind> for MethodKind {
   Ord,
   PartialOrd,
 )]
-pub enum DocNodeKind {
+pub enum DrilldownKind {
   Property,
   Method(MethodKind),
-  Class,
-  Enum,
-  Function,
-  Import,
-  Interface,
-  ModuleDoc,
-  Namespace,
-  Reference,
-  TypeAlias,
-  Variable,
 }
 
-impl DocNodeKind {
-  fn from_node(node: &DocNode) -> Self {
-    match node.def {
-      DocNodeDef::Function { .. } => Self::Function,
-      DocNodeDef::Variable { .. } => Self::Variable,
-      DocNodeDef::Enum { .. } => Self::Enum,
-      DocNodeDef::Class { .. } => Self::Class,
-      DocNodeDef::TypeAlias { .. } => Self::TypeAlias,
-      DocNodeDef::Namespace { .. } => Self::Namespace,
-      DocNodeDef::Interface { .. } => Self::Interface,
-      DocNodeDef::Import { .. } => Self::Import,
-      DocNodeDef::ModuleDoc => Self::ModuleDoc,
-      DocNodeDef::Reference { .. } => Self::Reference,
-    }
-  }
-}
-
-/// A wrapper around [`DocNode`] with additional fields to track information
-/// about the inner [`DocNode`].
+/// A wrapper around [`Symbol`] with additional fields to track information
+/// about the inner [`Symbol`].
 /// This is cheap to clone since all fields are [`Rc`]s.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
   pub origin: Rc<ShortPath>,
   pub ns_qualifiers: Rc<[String]>,
-  pub kind: DocNodeKind,
-  pub inner: Arc<DocNode>,
+  pub inner: Arc<Symbol>,
   pub drilldown_name: Option<Box<str>>,
+  /// For drilldown symbols (methods/properties), overrides the kind derived
+  /// from declarations. `None` for regular symbols.
+  pub drilldown_kind: Option<DrilldownKind>,
   pub parent: Option<Box<DocNodeWithContext>>,
   pub namespace_children: Option<Vec<DocNodeWithContext>>,
   #[serde(skip, default)]
@@ -951,13 +934,32 @@ pub struct DocNodeWithContext {
 }
 
 impl DocNodeWithContext {
-  pub fn create_child(&self, doc_node: Arc<DocNode>) -> Self {
+  /// Returns the `DocNodeKindCtx` entries for this symbol. For drilldown
+  /// symbols (methods/properties) uses the `drilldown_kind`; otherwise
+  /// derives from declarations.
+  pub fn get_kind_ctxs(&self) -> IndexSet<DocNodeKindCtx> {
+    if let Some(kind) = self.drilldown_kind {
+      IndexSet::from([kind.into()])
+    } else {
+      self
+        .inner
+        .declarations
+        .iter()
+        .filter(|d| {
+          !matches!(d.def, crate::node::DeclarationDef::Import { .. })
+        })
+        .map(|d| DocNodeKindCtx::from(crate::node::DocNodeKind::from(&d.def)))
+        .collect()
+    }
+  }
+
+  pub fn create_child(&self, doc_node: Arc<Symbol>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
-      kind: DocNodeKind::from_node(&doc_node),
       inner: doc_node,
       drilldown_name: None,
+      drilldown_kind: None,
       parent: Some(Box::new(self.clone())),
       namespace_children: None,
       qualified_name: std::cell::OnceCell::new(),
@@ -967,7 +969,7 @@ impl DocNodeWithContext {
 
   pub fn create_namespace_child(
     &self,
-    doc_node: Arc<DocNode>,
+    doc_node: Arc<Symbol>,
     qualifiers: Rc<[String]>,
   ) -> Self {
     let mut child = self.create_child(doc_node);
@@ -977,7 +979,7 @@ impl DocNodeWithContext {
 
   pub fn create_child_method(
     &self,
-    mut method_doc_node: DocNode,
+    mut method_doc_node: Symbol,
     is_static: bool,
     method_kind: deno_ast::swc::ast::MethodKind,
   ) -> Self {
@@ -985,18 +987,20 @@ impl DocNodeWithContext {
     method_doc_node.name =
       qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static)
         .into_boxed_str();
-    method_doc_node.declaration_kind = self.declaration_kind;
+    for decl in &mut method_doc_node.declarations {
+      decl.declaration_kind = self.inner.declarations[0].declaration_kind;
+    }
 
     let mut new_node = self.create_child(Arc::new(method_doc_node));
     new_node.drilldown_name = Some(original_name);
-    new_node.kind = DocNodeKind::Method(method_kind.into());
+    new_node.drilldown_kind = Some(DrilldownKind::Method(method_kind.into()));
     new_node.diff_status = self.diff_status.clone();
     new_node
   }
 
   pub fn create_child_property(
     &self,
-    mut property_doc_node: DocNode,
+    mut property_doc_node: Symbol,
     is_static: bool,
   ) -> Self {
     let original_name = property_doc_node.name.clone();
@@ -1006,11 +1010,13 @@ impl DocNodeWithContext {
       is_static,
     )
     .into_boxed_str();
-    property_doc_node.declaration_kind = self.declaration_kind;
+    for decl in &mut property_doc_node.declarations {
+      decl.declaration_kind = self.inner.declarations[0].declaration_kind;
+    }
 
     let mut new_node = self.create_child(Arc::new(property_doc_node));
     new_node.drilldown_name = Some(original_name);
-    new_node.kind = DocNodeKind::Property;
+    new_node.drilldown_kind = Some(DrilldownKind::Property);
     new_node.diff_status = self.diff_status.clone();
     new_node
   }
@@ -1032,12 +1038,17 @@ impl DocNodeWithContext {
   }
 
   pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
-    (self.inner.declaration_kind == crate::node::DeclarationKind::Private
+    (self
+      .inner
+      .declarations
+      .iter()
+      .any(|d| d.declaration_kind == crate::node::DeclarationKind::Private)
       && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts))
       || self
-        .js_doc
-        .tags
+        .inner
+        .declarations
         .iter()
+        .flat_map(|d| d.js_doc.tags.iter())
         .any(|tag| tag == &JsDocTag::Internal)
   }
 
@@ -1051,109 +1062,93 @@ impl DocNodeWithContext {
   fn get_drilldown_symbols<'a>(
     &'a self,
   ) -> Option<Box<dyn Iterator<Item = DocNodeWithContext> + 'a>> {
-    match &self.inner.def {
-      DocNodeDef::Class { class_def } => Some(Box::new(
-        class_def
-          .methods
-          .iter()
-          .map(|method| {
+    let declaration_kind = self.inner.declarations[0].declaration_kind;
+    let mut symbols = Vec::new();
+
+    for decl in &self.inner.declarations {
+      match &decl.def {
+        DeclarationDef::Class { class_def } => {
+          symbols.extend(class_def.methods.iter().map(|method| {
             self.create_child_method(
-              DocNode::function(
+              Symbol::function(
                 method.name.clone(),
                 false,
                 method.location.clone(),
-                self.declaration_kind,
+                declaration_kind,
                 method.js_doc.clone(),
                 method.function_def.clone(),
               ),
               method.is_static,
               method.kind,
             )
-          })
-          .chain(class_def.properties.iter().map(|property| {
+          }));
+          symbols.extend(class_def.properties.iter().map(|property| {
             self.create_child_property(
-              DocNode::from(property.clone()),
+              Symbol::from(property.clone()),
               property.is_static,
             )
-          })),
-      )),
-      DocNodeDef::Interface { interface_def } => Some(Box::new(
-        interface_def
-          .methods
-          .iter()
-          .map(|method| {
+          }));
+        }
+        DeclarationDef::Interface { interface_def } => {
+          symbols.extend(interface_def.methods.iter().map(|method| {
             self.create_child_method(
-              DocNode::from(method.clone()),
+              Symbol::from(method.clone()),
               true,
               method.kind,
             )
-          })
-          .chain(interface_def.properties.iter().map(|property| {
-            self.create_child_property(DocNode::from(property.clone()), true)
-          })),
-      )),
-      DocNodeDef::TypeAlias { type_alias_def } => {
-        if let Some(ts_type_literal) =
-          type_alias_def.ts_type.type_literal.as_ref()
-        {
-          Some(Box::new(
-            ts_type_literal
-              .methods
-              .iter()
-              .map(|method| {
-                self.create_child_method(
-                  DocNode::from(method.clone()),
-                  true,
-                  method.kind,
-                )
-              })
-              .chain(ts_type_literal.properties.iter().map(|property| {
-                self
-                  .create_child_property(DocNode::from(property.clone()), true)
-              })),
-          ))
-        } else {
-          None
+          }));
+          symbols.extend(interface_def.properties.iter().map(|property| {
+            self.create_child_property(Symbol::from(property.clone()), true)
+          }));
         }
-      }
-      DocNodeDef::Variable { variable_def } => {
-        if let Some(ts_type_literal) = variable_def
-          .ts_type
-          .as_ref()
-          .and_then(|ts_type| ts_type.type_literal.as_ref())
-        {
-          Some(Box::new(
-            ts_type_literal
-              .methods
-              .iter()
-              .map(|method| {
-                self.create_child_method(
-                  DocNode::from(method.clone()),
-                  true,
-                  method.kind,
-                )
-              })
-              .chain(ts_type_literal.properties.iter().map(|property| {
-                self
-                  .create_child_property(DocNode::from(property.clone()), true)
-              })),
-          ))
-        } else {
-          None
+        DeclarationDef::TypeAlias { type_alias_def } => {
+          if let Some(ts_type_literal) =
+            type_alias_def.ts_type.type_literal.as_ref()
+          {
+            symbols.extend(ts_type_literal.methods.iter().map(|method| {
+              self.create_child_method(
+                Symbol::from(method.clone()),
+                true,
+                method.kind,
+              )
+            }));
+            symbols.extend(ts_type_literal.properties.iter().map(|property| {
+              self.create_child_property(Symbol::from(property.clone()), true)
+            }));
+          }
         }
+        DeclarationDef::Variable { variable_def } => {
+          if let Some(ts_type_literal) = variable_def
+            .ts_type
+            .as_ref()
+            .and_then(|ts_type| ts_type.type_literal.as_ref())
+          {
+            symbols.extend(ts_type_literal.methods.iter().map(|method| {
+              self.create_child_method(
+                Symbol::from(method.clone()),
+                true,
+                method.kind,
+              )
+            }));
+            symbols.extend(ts_type_literal.properties.iter().map(|property| {
+              self.create_child_property(Symbol::from(property.clone()), true)
+            }));
+          }
+        }
+        _ => {}
       }
-      DocNodeDef::Function { .. } => None,
-      DocNodeDef::Enum { .. } => None,
-      DocNodeDef::Namespace { .. } => None,
-      DocNodeDef::Import { .. } => None,
-      DocNodeDef::ModuleDoc => None,
-      DocNodeDef::Reference { .. } => None,
+    }
+
+    if symbols.is_empty() {
+      None
+    } else {
+      Some(Box::new(symbols.into_iter()))
     }
   }
 }
 
 impl core::ops::Deref for DocNodeWithContext {
-  type Target = DocNode;
+  type Target = Symbol;
 
   fn deref(&self) -> &Self::Target {
     &self.inner

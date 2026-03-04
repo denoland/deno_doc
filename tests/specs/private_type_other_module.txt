@@ -97,99 +97,111 @@ Defined in file:///mod.ts:1:1
 [
   {
     "name": "MyClass",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 64
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "tsType": {
-            "repr": "MyNamespace.YesDiagnostic",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "MyNamespace.YesDiagnostic"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 112
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 3,
+          "col": 0,
+          "byteIndex": 64
         },
-        {
-          "tsType": {
-            "repr": "Uint8Array",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Uint8Array"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
           "isAbstract": false,
-          "isStatic": false,
-          "name": "other",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 2,
-            "byteIndex": 147
-          }
+          "constructors": [],
+          "properties": [
+            {
+              "tsType": {
+                "repr": "MyNamespace.YesDiagnostic",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "MyNamespace.YesDiagnostic"
+                }
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "prop",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 112
+              }
+            },
+            {
+              "tsType": {
+                "repr": "Uint8Array",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Uint8Array"
+                }
+              },
+              "readonly": false,
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "other",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 2,
+                "byteIndex": 147
+              }
+            }
+          ],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": "YesDiagnostic2",
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": "YesDiagnostic2",
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "MyNamespace",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "import",
-    "importDef": {
-      "src": "file:///diagnostic.ts",
-      "imported": "MyNamespace"
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "private",
+        "kind": "import",
+        "importDef": {
+          "src": "file:///diagnostic.ts",
+          "imported": "MyNamespace"
+        }
+      }
+    ]
   },
   {
     "name": "YesDiagnostic2",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "import",
-    "importDef": {
-      "src": "file:///diagnostic.ts",
-      "imported": "YesDiagnostic2"
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "private",
+        "kind": "import",
+        "importDef": {
+          "src": "file:///diagnostic.ts",
+          "imported": "YesDiagnostic2"
+        }
+      }
+    ]
   }
 ]

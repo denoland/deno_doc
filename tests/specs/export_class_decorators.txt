@@ -87,190 +87,194 @@ class A
 [
   {
     "name": "A",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 8
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
-        {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "decorators": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 8
+        },
+        "declarationKind": "export",
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [
             {
-              "name": "format",
-              "args": [
-                "\"Hello, %s\""
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "readonly": false,
+              "accessibility": null,
+              "decorators": [
+                {
+                  "name": "format",
+                  "args": [
+                    "\"Hello, %s\""
+                  ],
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 5,
+                    "col": 3,
+                    "byteIndex": 41
+                  }
+                }
               ],
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "greeting",
               "location": {
                 "filename": "file:///mod.ts",
                 "line": 5,
-                "col": 3,
-                "byteIndex": 41
+                "col": 2,
+                "byteIndex": 40
               }
             }
           ],
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "greeting",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 2,
-            "byteIndex": 40
-          }
-        }
-      ],
-      "indexSignatures": [],
-      "methods": [
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "x",
-          "kind": "getter",
-          "functionDef": {
-            "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": [],
-            "decorators": [
-              {
-                "name": "configurable",
-                "args": [
-                  "false"
-                ],
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 8,
-                  "col": 3,
-                  "byteIndex": 85
-                }
-              }
-            ]
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 8,
-            "col": 2,
-            "byteIndex": 84
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "greet",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": [],
-            "decorators": [
-              {
-                "name": "enumerable",
-                "args": [
-                  "false"
-                ],
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 13,
-                  "col": 3,
-                  "byteIndex": 145
-                }
-              }
-            ]
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 13,
-            "col": 2,
-            "byteIndex": 144
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "method",
-          "kind": "method",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "param",
-                "optional": false,
+          "indexSignatures": [],
+          "methods": [
+            {
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "x",
+              "kind": "getter",
+              "functionDef": {
+                "params": [],
+                "returnType": null,
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": [],
                 "decorators": [
                   {
-                    "name": "readonly",
+                    "name": "configurable",
+                    "args": [
+                      "false"
+                    ],
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 18,
-                      "col": 10,
-                      "byteIndex": 210
+                      "line": 8,
+                      "col": 3,
+                      "byteIndex": 85
+                    }
+                  }
+                ]
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 8,
+                "col": 2,
+                "byteIndex": 84
+              }
+            },
+            {
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "greet",
+              "kind": "method",
+              "functionDef": {
+                "params": [],
+                "returnType": null,
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": [],
+                "decorators": [
+                  {
+                    "name": "enumerable",
+                    "args": [
+                      "false"
+                    ],
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 13,
+                      "col": 3,
+                      "byteIndex": 145
+                    }
+                  }
+                ]
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 13,
+                "col": 2,
+                "byteIndex": 144
+              }
+            },
+            {
+              "accessibility": null,
+              "optional": false,
+              "isAbstract": false,
+              "isStatic": false,
+              "name": "method",
+              "kind": "method",
+              "functionDef": {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "param",
+                    "optional": false,
+                    "decorators": [
+                      {
+                        "name": "readonly",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 18,
+                          "col": 10,
+                          "byteIndex": 210
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "keyword": "string"
                     }
                   }
                 ],
-                "tsType": {
-                  "repr": "string",
+                "returnType": {
+                  "repr": "void",
                   "kind": "keyword",
-                  "keyword": "string"
-                }
+                  "keyword": "void"
+                },
+                "hasBody": true,
+                "isAsync": false,
+                "isGenerator": false,
+                "typeParams": []
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 18,
+                "col": 2,
+                "byteIndex": 202
               }
-            ],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 18,
-            "col": 2,
-            "byteIndex": 202
-          }
+            }
+          ],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": [],
+          "decorators": [
+            {
+              "name": "sealed",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 1,
+                "byteIndex": 1
+              }
+            }
+          ]
         }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": [],
-      "decorators": [
-        {
-          "name": "sealed",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 1,
-            "byteIndex": 1
-          }
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

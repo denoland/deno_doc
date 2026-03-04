@@ -566,7 +566,7 @@ fn generate_html_inner(
   >(default_symbol_map)
   .map_err(|err| anyhow!("defaultSymbolMap: {}", err))?;
 
-  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>> =
+  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::Symbol>> =
     serde_wasm_bindgen::from_value(doc_nodes_by_url)
       .map_err(|err| anyhow!("docNodesByUrl: {}", err))?;
 

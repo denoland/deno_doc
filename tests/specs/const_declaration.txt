@@ -18,24 +18,28 @@ const Const: 0
 [
   {
     "name": "Const",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 13,
-      "byteIndex": 13
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "0",
-        "kind": "literal",
-        "literal": {
-          "kind": "number",
-          "number": 0.0
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 13,
+          "byteIndex": 13
+        },
+        "declarationKind": "export",
+        "kind": "variable",
+        "variableDef": {
+          "tsType": {
+            "repr": "0",
+            "kind": "literal",
+            "literal": {
+              "kind": "number",
+              "number": 0.0
+            }
+          },
+          "kind": "const"
         }
-      },
-      "kind": "const"
-    }
+      }
+    ]
   }
 ]

@@ -26,38 +26,42 @@ enum Enum
 [
   {
     "name": "Enum",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "enum",
-    "enumDef": {
-      "members": [
-        {
-          "name": "First",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 21
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "name": "Second",
-          "jsDoc": {
-            "doc": "There is a JsDoc"
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 56
-          }
+        "declarationKind": "export",
+        "kind": "enum",
+        "enumDef": {
+          "members": [
+            {
+              "name": "First",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 21
+              }
+            },
+            {
+              "name": "Second",
+              "jsDoc": {
+                "doc": "There is a JsDoc"
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 56
+              }
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

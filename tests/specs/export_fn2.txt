@@ -44,157 +44,165 @@ private interface AssignOpts
 [
   {
     "name": "foo",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 39
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
-        {
-          "kind": "array",
-          "elements": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 39
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [
             {
-              "kind": "identifier",
-              "name": "e",
+              "kind": "array",
+              "elements": [
+                {
+                  "kind": "identifier",
+                  "name": "e",
+                  "optional": false,
+                  "tsType": null
+                },
+                null,
+                {
+                  "kind": "identifier",
+                  "name": "f",
+                  "optional": false,
+                  "tsType": null
+                },
+                {
+                  "kind": "rest",
+                  "arg": {
+                    "kind": "identifier",
+                    "name": "g",
+                    "optional": false,
+                    "tsType": null
+                  },
+                  "tsType": null
+                }
+              ],
+              "optional": false,
+              "tsType": {
+                "repr": "",
+                "kind": "array",
+                "array": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "keyword": "number"
+                }
+              }
+            },
+            {
+              "kind": "object",
+              "props": [
+                {
+                  "kind": "assign",
+                  "key": "c",
+                  "value": null
+                },
+                {
+                  "kind": "keyValue",
+                  "key": "d",
+                  "value": {
+                    "kind": "identifier",
+                    "name": "asdf",
+                    "optional": false,
+                    "tsType": null
+                  }
+                },
+                {
+                  "kind": "assign",
+                  "key": "i",
+                  "value": "[UNSUPPORTED]"
+                },
+                {
+                  "kind": "rest",
+                  "arg": {
+                    "kind": "identifier",
+                    "name": "rest",
+                    "optional": false,
+                    "tsType": null
+                  }
+                }
+              ],
               "optional": false,
               "tsType": null
             },
-            null,
             {
-              "kind": "identifier",
-              "name": "f",
-              "optional": false,
-              "tsType": null
-            },
-            {
-              "kind": "rest",
-              "arg": {
+              "kind": "assign",
+              "left": {
                 "kind": "identifier",
-                "name": "g",
+                "name": "ops",
                 "optional": false,
-                "tsType": null
+                "tsType": {
+                  "repr": "AssignOpts",
+                  "kind": "typeRef",
+                  "typeRef": {
+                    "typeParams": null,
+                    "typeName": "AssignOpts"
+                  }
+                }
               },
+              "right": "[UNSUPPORTED]",
               "tsType": null
             }
           ],
-          "optional": false,
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "array": {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            }
-          }
-        },
-        {
-          "kind": "object",
-          "props": [
-            {
-              "kind": "assign",
-              "key": "c",
-              "value": null
-            },
-            {
-              "kind": "keyValue",
-              "key": "d",
-              "value": {
-                "kind": "identifier",
-                "name": "asdf",
-                "optional": false,
-                "tsType": null
-              }
-            },
-            {
-              "kind": "assign",
-              "key": "i",
-              "value": "[UNSUPPORTED]"
-            },
-            {
-              "kind": "rest",
-              "arg": {
-                "kind": "identifier",
-                "name": "rest",
-                "optional": false,
-                "tsType": null
-              }
-            }
-          ],
-          "optional": false,
-          "tsType": null
-        },
-        {
-          "kind": "assign",
-          "left": {
-            "kind": "identifier",
-            "name": "ops",
-            "optional": false,
-            "tsType": {
-              "repr": "AssignOpts",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": null,
-                "typeName": "AssignOpts"
-              }
-            }
+          "returnType": {
+            "repr": "void",
+            "kind": "keyword",
+            "keyword": "void"
           },
-          "right": "[UNSUPPORTED]",
-          "tsType": null
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "AssignOpts",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "a",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 25
-          },
-          "params": [],
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "private",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "a",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 25
+              },
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "string",
+                "kind": "keyword",
+                "keyword": "string"
+              },
+              "typeParams": []
+            }
+          ],
+          "callSignatures": [],
+          "indexSignatures": [],
           "typeParams": []
         }
-      ],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

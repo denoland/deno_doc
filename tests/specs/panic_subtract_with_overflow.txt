@@ -27,37 +27,45 @@ namespace Audio
 [
   {
     "name": "Audio",
-    "location": {
-      "filename": "file:///audio.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 66
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Some documentation."
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "Speech",
-          "location": {
-            "filename": "file:///speech.ts",
-            "line": 2,
-            "col": 0,
-            "byteIndex": 27
-          },
-          "declarationKind": "export",
-          "jsDoc": {
-            "doc": "Some documentation."
-          },
-          "kind": "namespace",
-          "namespaceDef": {
-            "elements": []
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///audio.ts",
+          "line": 4,
+          "col": 0,
+          "byteIndex": 66
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Some documentation."
+        },
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "Speech",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///speech.ts",
+                    "line": 2,
+                    "col": 0,
+                    "byteIndex": 27
+                  },
+                  "declarationKind": "export",
+                  "jsDoc": {
+                    "doc": "Some documentation."
+                  },
+                  "kind": "namespace",
+                  "namespaceDef": {
+                    "elements": []
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

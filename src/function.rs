@@ -126,10 +126,8 @@ pub fn arrow_to_function_def(
 pub fn get_doc_for_fn_decl(
   module_info: &EsModuleInfo,
   fn_decl: &deno_ast::swc::ast::FnDecl,
-) -> (String, FunctionDef) {
-  let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(module_info, &fn_decl.function, None);
-  (name, fn_def)
+) -> FunctionDef {
+  function_to_function_def(module_info, &fn_decl.function, None)
 }
 
 fn get_return_stmt_with_arg_from_function(

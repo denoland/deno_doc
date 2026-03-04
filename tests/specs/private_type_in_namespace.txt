@@ -67,81 +67,93 @@ private namespace Test
 [
   {
     "name": "Output",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 44
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [
-        {
-          "name": "other",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 72
-          },
-          "params": [],
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "Test.Other",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Test.Other"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 44
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [
+            {
+              "name": "other",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 6,
+                "col": 2,
+                "byteIndex": 72
+              },
+              "params": [],
+              "computed": false,
+              "optional": false,
+              "tsType": {
+                "repr": "Test.Other",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Test.Other"
+                }
+              },
+              "typeParams": []
             }
-          },
+          ],
+          "callSignatures": [],
+          "indexSignatures": [],
           "typeParams": []
         }
-      ],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "Test",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "Other",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 19
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "private",
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "Other",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 2,
+                    "col": 2,
+                    "byteIndex": 19
+                  },
+                  "declarationKind": "export",
+                  "kind": "class",
+                  "classDef": {
+                    "isAbstract": false,
+                    "constructors": [],
+                    "properties": [],
+                    "indexSignatures": [],
+                    "methods": [],
+                    "extends": null,
+                    "implements": [],
+                    "typeParams": [],
+                    "superTypeParams": []
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

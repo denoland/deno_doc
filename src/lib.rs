@@ -34,9 +34,10 @@ mod util;
 pub mod variable;
 mod visibility;
 
-pub use node::DocNode;
-pub use node::DocNodeDef;
+pub use node::Declaration;
+pub use node::DeclarationDef;
 pub use node::Location;
+pub use node::Symbol;
 
 use node::ImportDef;
 use params::ParamDef;
@@ -60,87 +61,114 @@ mod tests;
 
 #[cfg(feature = "rust")]
 pub fn find_nodes_by_name_recursively(
-  doc_nodes: Vec<DocNode>,
+  symbols: Vec<Symbol>,
   name: &str,
-) -> Vec<DocNode> {
+) -> Vec<Symbol> {
   let mut parts = name.splitn(2, '.');
   let name = parts.next();
   let leftover = parts.next();
   if name.is_none() {
-    return doc_nodes;
+    return symbols;
   }
 
   let name = name.unwrap();
-  let doc_nodes = find_nodes_by_name(doc_nodes, name);
+  let symbol = symbols.into_iter().find(|symbol| &*symbol.name == name);
 
-  let mut found: Vec<DocNode> = vec![];
-  match leftover {
-    Some(leftover) => {
-      for node in doc_nodes {
-        let children = get_children_of_node(node);
+  let mut found: Vec<Symbol> = vec![];
+
+  if let Some(symbol) = symbol {
+    match leftover {
+      Some(leftover) => {
+        let children = get_children_of_node(symbol);
         found.extend(find_nodes_by_name_recursively(children, leftover));
       }
-      found
+      None => found.push(symbol),
     }
-    None => doc_nodes,
   }
-}
 
-#[cfg(feature = "rust")]
-fn find_nodes_by_name(doc_nodes: Vec<DocNode>, name: &str) -> Vec<DocNode> {
-  let mut found: Vec<DocNode> = vec![];
-  for node in doc_nodes {
-    if &*node.name == name {
-      found.push(node);
-    }
-  }
   found
 }
 
 #[cfg(feature = "rust")]
-fn get_children_of_node(node: DocNode) -> Vec<DocNode> {
-  use node::DocNodeDef;
+fn get_children_of_node(node: Symbol) -> Vec<Symbol> {
+  use node::DeclarationDef;
 
-  match node.def {
-    DocNodeDef::Namespace { namespace_def } => namespace_def
-      .elements
-      .into_iter()
-      .map(std::sync::Arc::unwrap_or_clone)
-      .collect(),
-    DocNodeDef::Interface { interface_def } => {
-      let mut doc_nodes: Vec<DocNode> = vec![];
-      for method in interface_def.methods {
-        doc_nodes.push(method.into());
+  let mut doc_nodes: Vec<Symbol> = vec![];
+  for decl in node.declarations {
+    match decl.def {
+      DeclarationDef::Namespace { namespace_def } => {
+        doc_nodes.extend(
+          namespace_def
+            .elements
+            .into_iter()
+            .map(std::sync::Arc::unwrap_or_clone),
+        );
       }
-      for property in interface_def.properties {
-        doc_nodes.push(property.into());
+      DeclarationDef::Interface { interface_def } => {
+        for method in interface_def.methods {
+          doc_nodes.push(method.into());
+        }
+        for property in interface_def.properties {
+          doc_nodes.push(property.into());
+        }
       }
-      doc_nodes
+      DeclarationDef::Class { class_def } => {
+        for method in class_def.methods.into_vec().into_iter() {
+          doc_nodes.push(method.into());
+        }
+        for property in class_def.properties.into_vec().into_iter() {
+          doc_nodes.push(property.into());
+        }
+      }
+      _ => {}
     }
-    DocNodeDef::Class { class_def } => {
-      let mut doc_nodes: Vec<DocNode> = vec![];
-      for method in class_def.methods.into_vec().into_iter() {
-        doc_nodes.push(method.into());
-      }
-      for property in class_def.properties.into_vec().into_iter() {
-        doc_nodes.push(property.into());
-      }
-      doc_nodes
-    }
-    _ => vec![],
   }
+  doc_nodes
 }
 
-pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<DocNode> {
-  let serde_json::Value::Array(mut arr) = value else {
+pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
+  let serde_json::Value::Array(arr) = value else {
     return vec![];
   };
-  for item in &mut arr {
-    if let serde_json::Value::Object(obj) = item {
-      obj
-        .entry("isDefault")
-        .or_insert(serde_json::Value::Bool(false));
+
+  // v1 format: flat array where each entry has "name", "kind", "location",
+  // "declarationKind", "jsDoc", and def fields all at the top level.
+  // v2 format: array of Symbol { name, isDefault, declarations: [...] }
+  // where each declaration has the remaining fields.
+  let mut symbols: indexmap::IndexMap<Box<str>, Symbol> =
+    indexmap::IndexMap::new();
+
+  for item in arr {
+    let serde_json::Value::Object(mut obj) = item else {
+      continue;
+    };
+
+    let name: Box<str> = obj
+      .remove("name")
+      .and_then(|v| v.as_str().map(|s| s.into()))
+      .unwrap_or_else(|| "".into());
+
+    let is_default = obj
+      .remove("isDefault")
+      .and_then(|v| v.as_bool())
+      .unwrap_or(false);
+
+    // The remaining fields form the declaration
+    let declaration = serde_json::Value::Object(obj);
+
+    let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {
+      name,
+      is_default,
+      declarations: vec![],
+    });
+    // If any entry is marked default, the symbol is default
+    if is_default {
+      symbol.is_default = true;
+    }
+    if let Ok(decl) = serde_json::from_value::<Declaration>(declaration) {
+      symbol.declarations.push(decl);
     }
   }
-  serde_json::from_value(serde_json::Value::Array(arr)).unwrap_or_default()
+
+  symbols.into_values().collect()
 }

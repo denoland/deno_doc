@@ -26,22 +26,26 @@ interface Options
 [
   {
     "name": "Options",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 2,
-      "byteIndex": 24
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 2,
+          "byteIndex": 24
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

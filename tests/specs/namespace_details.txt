@@ -40,68 +40,80 @@ namespace Namespace
 [
   {
     "name": "Namespace",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "a",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 7,
-            "col": 2,
-            "byteIndex": 82
-          },
-          "declarationKind": "export",
-          "jsDoc": {
-            "doc": "Doc comment 1\n\nDetails 1"
-          },
-          "kind": "function",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
         },
-        {
-          "name": "B",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 13,
-            "col": 2,
-            "byteIndex": 158
-          },
-          "declarationKind": "export",
-          "jsDoc": {
-            "doc": "Doc comment 2\n\nDetails 2"
-          },
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+        "declarationKind": "export",
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": [
+            {
+              "name": "a",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 7,
+                    "col": 2,
+                    "byteIndex": 82
+                  },
+                  "declarationKind": "export",
+                  "jsDoc": {
+                    "doc": "Doc comment 1\n\nDetails 1"
+                  },
+                  "kind": "function",
+                  "functionDef": {
+                    "params": [],
+                    "returnType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "keyword": "void"
+                    },
+                    "hasBody": true,
+                    "isAsync": false,
+                    "isGenerator": false,
+                    "typeParams": []
+                  }
+                }
+              ]
+            },
+            {
+              "name": "B",
+              "declarations": [
+                {
+                  "location": {
+                    "filename": "file:///mod.ts",
+                    "line": 13,
+                    "col": 2,
+                    "byteIndex": 158
+                  },
+                  "declarationKind": "export",
+                  "jsDoc": {
+                    "doc": "Doc comment 2\n\nDetails 2"
+                  },
+                  "kind": "class",
+                  "classDef": {
+                    "isAbstract": false,
+                    "constructors": [],
+                    "properties": [],
+                    "indexSignatures": [],
+                    "methods": [],
+                    "extends": null,
+                    "implements": [],
+                    "typeParams": [],
+                    "superTypeParams": []
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

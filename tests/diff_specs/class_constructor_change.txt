@@ -15,71 +15,77 @@ export class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "constructorChanges": {
-              "added": [
-                {
-                  "accessibility": null,
-                  "hasBody": true,
-                  "name": "constructor",
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "name",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "constructorChanges": {
+                    "added": [
+                      {
+                        "accessibility": null,
+                        "hasBody": true,
+                        "name": "constructor",
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "name",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "keyword": "string"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "age",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "keyword": "number"
+                            }
+                          }
+                        ],
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 21
+                        }
                       }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "age",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "number",
-                        "kind": "keyword",
-                        "keyword": "number"
+                    ],
+                    "removed": [
+                      {
+                        "accessibility": null,
+                        "hasBody": true,
+                        "name": "constructor",
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "name",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "keyword": "string"
+                            }
+                          }
+                        ],
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 21
+                        }
                       }
-                    }
-                  ],
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 2,
-                    "col": 2,
-                    "byteIndex": 21
+                    ]
                   }
                 }
-              ],
-              "removed": [
-                {
-                  "accessibility": null,
-                  "hasBody": true,
-                  "name": "constructor",
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "name",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
-                      }
-                    }
-                  ],
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 2,
-                    "col": 2,
-                    "byteIndex": 21
-                  }
-                }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

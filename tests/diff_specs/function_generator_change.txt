@@ -11,13 +11,19 @@ export function* items(): Iterable<number> { yield 1; }
       "modified": [
         {
           "name": "items",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "isGeneratorChange": {
-              "old": false,
-              "new": true
-            }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "isGeneratorChange": {
+                    "old": false,
+                    "new": true
+                  }
+                }
+              }
+            ]
           }
         }
       ]

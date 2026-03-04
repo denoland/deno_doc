@@ -20,77 +20,81 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
 [
   {
     "name": "MappedTypeWithNewProperties",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "",
-        "kind": "mapped",
-        "mappedType": {
-          "readonly": true,
-          "typeParam": {
-            "name": "Properties",
-            "constraint": {
-              "repr": "",
-              "kind": "typeOperator",
-              "typeOperator": {
-                "operator": "keyof",
-                "tsType": {
-                  "repr": "Type",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Type"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "typeAlias",
+        "typeAliasDef": {
+          "tsType": {
+            "repr": "",
+            "kind": "mapped",
+            "mappedType": {
+              "readonly": true,
+              "typeParam": {
+                "name": "Properties",
+                "constraint": {
+                  "repr": "",
+                  "kind": "typeOperator",
+                  "typeOperator": {
+                    "operator": "keyof",
+                    "tsType": {
+                      "repr": "Type",
+                      "kind": "typeRef",
+                      "typeRef": {
+                        "typeParams": null,
+                        "typeName": "Type"
+                      }
+                    }
+                  }
+                }
+              },
+              "nameType": {
+                "repr": "NewKeyType",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "NewKeyType"
+                }
+              },
+              "optional": true,
+              "tsType": {
+                "repr": "",
+                "kind": "indexedAccess",
+                "indexedAccess": {
+                  "readonly": false,
+                  "objType": {
+                    "repr": "Type",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Type"
+                    }
+                  },
+                  "indexType": {
+                    "repr": "Properties",
+                    "kind": "typeRef",
+                    "typeRef": {
+                      "typeParams": null,
+                      "typeName": "Properties"
+                    }
                   }
                 }
               }
             }
           },
-          "nameType": {
-            "repr": "NewKeyType",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "NewKeyType"
+          "typeParams": [
+            {
+              "name": "Type"
             }
-          },
-          "optional": true,
-          "tsType": {
-            "repr": "",
-            "kind": "indexedAccess",
-            "indexedAccess": {
-              "readonly": false,
-              "objType": {
-                "repr": "Type",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "Type"
-                }
-              },
-              "indexType": {
-                "repr": "Properties",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "Properties"
-                }
-              }
-            }
-          }
+          ]
         }
-      },
-      "typeParams": [
-        {
-          "name": "Type"
-        }
-      ]
-    }
+      }
+    ]
   }
 ]

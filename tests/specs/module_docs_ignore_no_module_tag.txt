@@ -20,27 +20,31 @@ class A
 [
   {
     "name": "A",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 9,
-      "col": 0,
-      "byteIndex": 109
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "One associated with a class"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 9,
+          "col": 0,
+          "byteIndex": 109
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "One associated with a class"
+        },
+        "kind": "class",
+        "classDef": {
+          "isAbstract": false,
+          "constructors": [],
+          "properties": [],
+          "indexSignatures": [],
+          "methods": [],
+          "extends": null,
+          "implements": [],
+          "typeParams": [],
+          "superTypeParams": []
+        }
+      }
+    ]
   }
 ]

@@ -11,27 +11,33 @@ export const VERSION = "2.0.0";
       "modified": [
         {
           "name": "VERSION",
-          "kind": "variable",
-          "defChanges": {
-            "type": "variable",
-            "tsTypeChange": {
-              "old": {
-                "repr": "1.0.0",
-                "kind": "literal",
-                "literal": {
-                  "kind": "string",
-                  "string": "1.0.0"
-                }
-              },
-              "new": {
-                "repr": "2.0.0",
-                "kind": "literal",
-                "literal": {
-                  "kind": "string",
-                  "string": "2.0.0"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "variable",
+                "defChanges": {
+                  "type": "variable",
+                  "tsTypeChange": {
+                    "old": {
+                      "repr": "1.0.0",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "string",
+                        "string": "1.0.0"
+                      }
+                    },
+                    "new": {
+                      "repr": "2.0.0",
+                      "kind": "literal",
+                      "literal": {
+                        "kind": "string",
+                        "string": "2.0.0"
+                      }
+                    }
+                  }
                 }
               }
-            }
+            ]
           }
         }
       ]

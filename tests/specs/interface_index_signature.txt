@@ -29,52 +29,56 @@ interface Interface
 [
   {
     "name": "Interface",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [
-        {
-          "readonly": false,
-          "params": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [
             {
-              "kind": "identifier",
-              "name": "index",
-              "optional": false,
+              "readonly": false,
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "index",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "keyword": "number"
+                  }
+                }
+              ],
               "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
+                "repr": "Interface",
+                "kind": "typeRef",
+                "typeRef": {
+                  "typeParams": null,
+                  "typeName": "Interface"
+                }
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 31
               }
             }
           ],
-          "tsType": {
-            "repr": "Interface",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Interface"
-            }
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 31
-          }
+          "typeParams": []
         }
-      ],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]

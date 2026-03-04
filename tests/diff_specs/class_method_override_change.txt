@@ -15,20 +15,26 @@ export class Child extends Parent {
       "modified": [
         {
           "name": "Child",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "methodChanges": {
-              "modified": [
-                {
-                  "name": "getName",
-                  "isOverrideChange": {
-                    "old": false,
-                    "new": true
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "getName",
+                        "isOverrideChange": {
+                          "old": false,
+                          "new": true
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

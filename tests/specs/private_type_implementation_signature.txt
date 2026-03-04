@@ -46,6 +46,12 @@ error[private-type-ref]: public type 'test' references private type 'YesDiagnost
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
+Defined in file:///mod.ts:2:1
+
+namespace SameName
+  Comment
+
+
 Defined in file:///mod.ts:4:1
 
 function SameName(): YesDiagnostic1
@@ -67,153 +73,161 @@ Defined in file:///mod.ts:14:1
 private interface YesDiagnostic2
 
 
-Defined in file:///mod.ts:2:1
-
-namespace SameName
-  Comment
-
-
 
 # output.json
 [
   {
     "name": "SameName",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 15
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Comment"
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": []
-    }
-  },
-  {
-    "name": "SameName",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 59
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Comment"
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "YesDiagnostic1",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": null,
-          "typeName": "YesDiagnostic1"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 2,
+          "col": 0,
+          "byteIndex": 15
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Comment"
+        },
+        "kind": "namespace",
+        "namespaceDef": {
+          "elements": []
         }
       },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "test",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 0,
-      "byteIndex": 122
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Comment"
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "YesDiagnostic2",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": null,
-          "typeName": "YesDiagnostic2"
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 4,
+          "col": 0,
+          "byteIndex": 59
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Comment"
+        },
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "YesDiagnostic1",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "YesDiagnostic1"
+            }
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
-      },
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      }
+    ]
   },
   {
     "name": "test",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 9,
-      "col": 0,
-      "byteIndex": 162
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "NoDiagnostic",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": null,
-          "typeName": "NoDiagnostic"
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 8,
+          "col": 0,
+          "byteIndex": 122
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Comment"
+        },
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "YesDiagnostic2",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "YesDiagnostic2"
+            }
+          },
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
         }
       },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 9,
+          "col": 0,
+          "byteIndex": 162
+        },
+        "declarationKind": "export",
+        "kind": "function",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "NoDiagnostic",
+            "kind": "typeRef",
+            "typeRef": {
+              "typeParams": null,
+              "typeName": "NoDiagnostic"
+            }
+          },
+          "hasBody": true,
+          "isAsync": false,
+          "isGenerator": false,
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "YesDiagnostic1",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 13,
-      "col": 0,
-      "byteIndex": 205
-    },
-    "declarationKind": "private",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 13,
+          "col": 0,
+          "byteIndex": 205
+        },
+        "declarationKind": "private",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   },
   {
     "name": "YesDiagnostic2",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 14,
-      "col": 0,
-      "byteIndex": 233
-    },
-    "declarationKind": "private",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 14,
+          "col": 0,
+          "byteIndex": 233
+        },
+        "declarationKind": "private",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [],
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
+          "typeParams": []
+        }
+      }
+    ]
   }
 ]

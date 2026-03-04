@@ -54,13 +54,6 @@ expression: pages
                           "tags": [],
                           "doc_node_kind_ctx": [
                             {
-                              "kind": "Function",
-                              "char": "f",
-                              "title": "Function",
-                              "title_lowercase": "function",
-                              "title_plural": "Functions"
-                            },
-                            {
                               "kind": "Variable",
                               "char": "v",
                               "title": "Variable",
@@ -159,13 +152,6 @@ expression: pages
             {
               "kind": [
                 {
-                  "kind": "Function",
-                  "char": "f",
-                  "title": "Function",
-                  "title_lowercase": "function",
-                  "title_plural": "Functions"
-                },
-                {
                   "kind": "Variable",
                   "char": "v",
                   "title": "Variable",
@@ -208,127 +194,6 @@ expression: pages
       "symbol_group_ctx": {
         "name": "step",
         "symbols": [
-          {
-            "kind": {
-              "kind": "Function",
-              "char": "f",
-              "title": "Function",
-              "title_lowercase": "function",
-              "title_plural": "Functions"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "function",
-                "value": {
-                  "functions": [
-                    {
-                      "anchor": {
-                        "id": "function_step_0"
-                      },
-                      "name": "step",
-                      "summary": "<span>&lt;<span><span class=\"td-tp\">O</span><span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span><span><span> = </span><span class=\"td-kw\">never</span></span></span>&gt;</span>(<span><span>config<span>: <span class=\"td-ref\">StepConfig</span>&lt;<span class=\"td-ref\">O</span>&gt;</span></span></span>)<span>: <span class=\"td-ref\">Step</span>&lt;<span class=\"td-ref\">O</span>&gt;</span>",
-                      "deprecated": null,
-                      "content": {
-                        "id": "",
-                        "docs": null,
-                        "sections": [
-                          {
-                            "header": {
-                              "title": "Type Parameters",
-                              "anchor": {
-                                "id": "type-parameters"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": "O",
-                                  "name_href": null,
-                                  "content": "<span><span class=\"td-kw\"> extends </span><span class=\"td-kw\">string</span></span><span><span> = </span><span class=\"td-kw\">never</span></span>",
-                                  "anchor": {
-                                    "id": "type_param_o"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "header": {
-                              "title": "Parameters",
-                              "anchor": {
-                                "id": "parameters"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": "config",
-                                  "name_href": null,
-                                  "content": "<span>: <span class=\"td-ref\">StepConfig</span>&lt;<a href=\"#type_param_o\" class=\"link td-ref\">O</a>&gt;</span>",
-                                  "anchor": {
-                                    "id": "function_step_0_parameter_config"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "header": {
-                              "title": "Return Type",
-                              "anchor": {
-                                "id": "return-type"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": null,
-                                  "name_href": null,
-                                  "content": "<span class=\"td-ref\">Step</span>&lt;<a href=\"#type_param_o\" class=\"link td-ref\">O</a>&gt;",
-                                  "anchor": {
-                                    "id": "function_step_0_return"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
-          },
           {
             "kind": {
               "kind": "Variable",
@@ -428,33 +293,8 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_o\" title=\"O\">O</a></li></ul></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_step_0_parameter_config\" title=\"config\">config</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#type\" title=\"Type\">Type</a></li></ul>",
         "document_navigation": [
-          {
-            "level": 1,
-            "content": "Type Parameters",
-            "anchor": "type-parameters"
-          },
-          {
-            "level": 2,
-            "content": "O",
-            "anchor": "type_param_o"
-          },
-          {
-            "level": 1,
-            "content": "Parameters",
-            "anchor": "parameters"
-          },
-          {
-            "level": 2,
-            "content": "config",
-            "anchor": "function_step_0_parameter_config"
-          },
-          {
-            "level": 1,
-            "content": "Return Type",
-            "anchor": "return-type"
-          },
           {
             "level": 1,
             "content": "Type",
@@ -474,11 +314,6 @@ expression: pages
         {
           "id": "namespace_step",
           "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            },
             {
               "char": "v",
               "kind": "Variable",

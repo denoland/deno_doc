@@ -13,7 +13,7 @@ use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
-use deno_doc::node::DocNodeDef;
+use deno_doc::node::DeclarationDef;
 use deno_graph::BuildOptions;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
@@ -213,8 +213,9 @@ async fn run() -> anyhow::Result<()> {
       let mut doc_nodes =
         doc_nodes_by_url.into_values().flatten().collect::<Vec<_>>();
 
-      doc_nodes
-        .retain(|doc_node| !matches!(doc_node.def, DocNodeDef::Import { .. }));
+      doc_nodes.retain(|doc_node| {
+        !matches!(doc_node.declarations[0].def, DeclarationDef::Import { .. })
+      });
 
       if let Some(filter) = filter {
         doc_nodes = find_nodes_by_name_recursively(doc_nodes, &filter);
@@ -378,7 +379,7 @@ fn generate_docs_directory(
   package_name: Option<String>,
   output_dir: PathBuf,
   main_entrypoint: Option<ModuleSpecifier>,
-  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
+  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::Symbol>>,
 ) -> Result<(), anyhow::Error> {
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);

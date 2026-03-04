@@ -13,12 +13,18 @@ export function foo() {}
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "jsDocChanges": {
-            "docChange": {
-              "old": "Old description",
-              "new": "New description"
-            }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "jsDocChanges": {
+                  "docChange": {
+                    "old": "Old description",
+                    "new": "New description"
+                  }
+                }
+              }
+            ]
           }
         }
       ]

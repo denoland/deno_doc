@@ -26,57 +26,61 @@ enum Hello
 [
   {
     "name": "Hello",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 38
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Some enum for good measure"
-    },
-    "kind": "enum",
-    "enumDef": {
-      "members": [
-        {
-          "name": "World",
-          "init": {
-            "repr": "world",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "world"
-            }
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 4,
-            "byteIndex": 62
-          }
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 4,
+          "col": 0,
+          "byteIndex": 38
         },
-        {
-          "name": "Fizz",
-          "init": {
-            "repr": "fizz",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "fizz"
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "Some enum for good measure"
+        },
+        "kind": "enum",
+        "enumDef": {
+          "members": [
+            {
+              "name": "World",
+              "init": {
+                "repr": "world",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "world"
+                }
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 5,
+                "col": 4,
+                "byteIndex": 62
+              }
+            },
+            {
+              "name": "Fizz",
+              "init": {
+                "repr": "fizz",
+                "kind": "literal",
+                "literal": {
+                  "kind": "string",
+                  "string": "fizz"
+                }
+              },
+              "jsDoc": {
+                "doc": "There is a JsDoc"
+              },
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 7,
+                "col": 4,
+                "byteIndex": 111
+              }
             }
-          },
-          "jsDoc": {
-            "doc": "There is a JsDoc"
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 7,
-            "col": 4,
-            "byteIndex": 111
-          }
+          ]
         }
-      ]
-    }
+      }
+    ]
   }
 ]

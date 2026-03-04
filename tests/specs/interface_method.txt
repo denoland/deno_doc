@@ -68,93 +68,97 @@ interface I
 [
   {
     "name": "I",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [
-        {
-          "name": "m",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
-          },
-          "params": [
+    "declarations": [
+      {
+        "location": {
+          "filename": "file:///mod.ts",
+          "line": 1,
+          "col": 0,
+          "byteIndex": 0
+        },
+        "declarationKind": "export",
+        "kind": "interface",
+        "interfaceDef": {
+          "extends": [],
+          "constructors": [],
+          "methods": [
             {
-              "kind": "identifier",
-              "name": "a",
+              "name": "m",
+              "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 2,
+                "col": 2,
+                "byteIndex": 23
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "a",
+                  "optional": false,
+                  "tsType": null
+                },
+                {
+                  "kind": "identifier",
+                  "name": "b",
+                  "optional": false,
+                  "tsType": null
+                }
+              ],
               "optional": false,
-              "tsType": null
+              "returnType": null,
+              "typeParams": []
             },
             {
-              "kind": "identifier",
-              "name": "b",
-              "optional": false,
-              "tsType": null
-            }
-          ],
-          "optional": false,
-          "returnType": null,
-          "typeParams": []
-        },
-        {
-          "name": "mo",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 34
-          },
-          "params": [
+              "name": "mo",
+              "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 3,
+                "col": 2,
+                "byteIndex": 34
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "c",
+                  "optional": false,
+                  "tsType": null
+                }
+              ],
+              "optional": true,
+              "returnType": null,
+              "typeParams": []
+            },
             {
-              "kind": "identifier",
-              "name": "c",
+              "name": "mc",
+              "kind": "method",
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 4,
+                "col": 2,
+                "byteIndex": 44
+              },
+              "params": [
+                {
+                  "kind": "identifier",
+                  "name": "d",
+                  "optional": false,
+                  "tsType": null
+                }
+              ],
+              "computed": true,
               "optional": false,
-              "tsType": null
+              "returnType": null,
+              "typeParams": []
             }
           ],
-          "optional": true,
-          "returnType": null,
-          "typeParams": []
-        },
-        {
-          "name": "mc",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 44
-          },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "d",
-              "optional": false,
-              "tsType": null
-            }
-          ],
-          "computed": true,
-          "optional": false,
-          "returnType": null,
+          "properties": [],
+          "callSignatures": [],
+          "indexSignatures": [],
           "typeParams": []
         }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
+      }
+    ]
   }
 ]
