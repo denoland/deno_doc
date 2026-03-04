@@ -1191,7 +1191,7 @@ impl<'a> DocParser<'a> {
           ModuleInfoRef::Esm(module_info),
           child_symbol,
         ) {
-        symbols.push(symbol);
+          symbols.push(symbol);
         }
       }
     }

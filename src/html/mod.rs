@@ -945,7 +945,9 @@ impl DocNodeWithContext {
         .inner
         .declarations
         .iter()
-        .filter(|d| !matches!(d.def, crate::node::DeclarationDef::Import { .. }))
+        .filter(|d| {
+          !matches!(d.def, crate::node::DeclarationDef::Import { .. })
+        })
         .map(|d| DocNodeKindCtx::from(crate::node::DocNodeKind::from(&d.def)))
         .collect()
     }
