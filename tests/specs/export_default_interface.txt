@@ -34,7 +34,7 @@ interface default
           "doc": "Interface js doc"
         },
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "defName": "Reader",
           "extends": [],
           "constructors": [],

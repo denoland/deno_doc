@@ -27,7 +27,7 @@ function default(a: string): void
           "doc": "A default arrow fn"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

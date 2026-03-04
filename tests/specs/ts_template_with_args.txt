@@ -28,7 +28,7 @@ const tpl: `test${number}`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "test${number}",
             "kind": "literal",

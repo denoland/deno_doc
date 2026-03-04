@@ -91,7 +91,7 @@ private interface YesDiagnostic2
           "doc": "Comment"
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": []
         }
       },
@@ -107,7 +107,7 @@ private interface YesDiagnostic2
           "doc": "Comment"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "YesDiagnostic1",
@@ -140,7 +140,7 @@ private interface YesDiagnostic2
           "doc": "Comment"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "YesDiagnostic2",
@@ -164,7 +164,7 @@ private interface YesDiagnostic2
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "NoDiagnostic",
@@ -194,7 +194,7 @@ private interface YesDiagnostic2
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -218,7 +218,7 @@ private interface YesDiagnostic2
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],

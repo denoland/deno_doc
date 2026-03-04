@@ -235,7 +235,7 @@ impl<'a> DocParser<'a> {
 
       for decl in &mut symbols[i].declarations {
         match &mut decl.def {
-          DeclarationDef::Namespace { namespace_def } => {
+          DeclarationDef::Namespace(namespace_def) => {
             let mut namespace_elements = namespace_def
               .elements
               .iter()
@@ -256,7 +256,7 @@ impl<'a> DocParser<'a> {
             namespace_def.elements =
               namespace_elements.into_iter().map(Arc::new).collect();
           }
-          DeclarationDef::Reference { reference_def } => {
+          DeclarationDef::Reference(reference_def) => {
             let mut new_name_path = Vec::with_capacity(name_path.len() + 1);
             new_name_path.extend_from_slice(name_path);
             new_name_path.push(name.clone());
@@ -518,9 +518,8 @@ impl<'a> DocParser<'a> {
                     .map(|mut node| {
                       let decl = &mut node.declarations[0];
                       let target = decl.location.clone();
-                      decl.def = DeclarationDef::Reference {
-                        reference_def: ReferenceDef { target },
-                      };
+                      decl.def =
+                        DeclarationDef::Reference(ReferenceDef { target });
                       decl.location = def_location.clone();
 
                       Arc::new(node)

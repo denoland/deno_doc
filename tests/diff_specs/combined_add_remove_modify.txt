@@ -25,7 +25,7 @@ export function brandNew(): void {}
               },
               "declarationKind": "export",
               "kind": "function",
-              "functionDef": {
+              "def": {
                 "params": [],
                 "returnType": {
                   "repr": "void",
@@ -54,7 +54,7 @@ export function brandNew(): void {}
               },
               "declarationKind": "export",
               "kind": "function",
-              "functionDef": {
+              "def": {
                 "params": [
                   {
                     "kind": "identifier",

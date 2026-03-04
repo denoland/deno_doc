@@ -466,7 +466,7 @@ fn get_current_imports(
 
   for symbol in symbols {
     for decl in &symbol.declarations {
-      if let DeclarationDef::Import { import_def } = &decl.def {
+      if let DeclarationDef::Import(import_def) = &decl.def {
         // TODO: handle import aliasing
         if import_def.imported.as_deref() == Some(symbol.get_name()) {
           imports.insert(symbol.get_name().to_string(), import_def.src.clone());
@@ -572,12 +572,10 @@ mod test {
           },
           declaration_kind: DeclarationKind::Private,
           js_doc: Default::default(),
-          def: crate::node::DeclarationDef::Import {
-            import_def: ImportDef {
-              src: "b".to_string(),
-              imported: Some("foo".to_string()),
-            },
-          },
+          def: crate::node::DeclarationDef::Import(ImportDef {
+            src: "b".to_string(),
+            imported: Some("foo".to_string()),
+          }),
         }],
       }],
     )]);

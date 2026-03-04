@@ -49,12 +49,12 @@ export interface DeclarationModuleDoc extends DeclarationBase {
 
 export interface DeclarationFunction extends DeclarationBase {
   kind: "function";
-  functionDef: FunctionDef;
+  def: FunctionDef;
 }
 
 export interface DeclarationVariable extends DeclarationBase {
   kind: "variable";
-  variableDef: VariableDef;
+  def: VariableDef;
 }
 
 export interface DeclarationEnum extends DeclarationBase {
@@ -64,27 +64,27 @@ export interface DeclarationEnum extends DeclarationBase {
 
 export interface DeclarationClass extends DeclarationBase {
   kind: "class";
-  classDef: ClassDef;
+  def: ClassDef;
 }
 
 export interface DeclarationTypeAlias extends DeclarationBase {
   kind: "typeAlias";
-  typeAliasDef: TypeAliasDef;
+  def: TypeAliasDef;
 }
 
 export interface DeclarationNamespace extends DeclarationBase {
   kind: "namespace";
-  namespaceDef: NamespaceDef;
+  def: NamespaceDef;
 }
 
 export interface DeclarationInterface extends DeclarationBase {
   kind: "interface";
-  interfaceDef: InterfaceDef;
+  def: InterfaceDef;
 }
 
 export interface DeclarationImport extends DeclarationBase {
   kind: "import";
-  importDef: ImportDef;
+  def: ImportDef;
 }
 
 export interface DeclarationReference extends DeclarationBase {
@@ -139,7 +139,7 @@ export interface ClassMethodDef {
   isOverride?: boolean;
   name: string;
   kind: MethodKind;
-  functionDef: FunctionDef;
+  def: FunctionDef;
   location: Location;
 }
 

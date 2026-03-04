@@ -42,7 +42,7 @@ function default(a: number)
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "defName": "foo",
           "params": [
             {

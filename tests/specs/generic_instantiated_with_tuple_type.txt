@@ -41,7 +41,7 @@ interface Generic<T>
         },
         "declarationKind": "export",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -69,7 +69,7 @@ interface Generic<T>
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "Generic",

@@ -50,7 +50,7 @@ namespace Namespace
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "a",
@@ -67,7 +67,7 @@ namespace Namespace
                     "doc": "Doc comment 1\n\nDetails 1"
                   },
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [],
                     "returnType": {
                       "repr": "void",
@@ -97,7 +97,7 @@ namespace Namespace
                     "doc": "Doc comment 2\n\nDetails 2"
                   },
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],

@@ -196,7 +196,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "hello",
             "kind": "literal",
@@ -222,7 +222,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "123",
             "kind": "literal",
@@ -248,7 +248,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "false",
             "kind": "literal",
@@ -274,7 +274,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "100",
             "kind": "literal",
@@ -300,7 +300,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "hello",
             "kind": "typeRef",
@@ -326,7 +326,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "foobar",
             "kind": "literal",
@@ -361,7 +361,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "Date",
             "kind": "typeRef",
@@ -387,7 +387,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "String",
             "kind": "keyword",
@@ -410,7 +410,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "Number",
             "kind": "keyword",
@@ -433,7 +433,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "BigInt",
             "kind": "keyword",
@@ -456,7 +456,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "Symbol",
             "kind": "keyword",
@@ -479,7 +479,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "Map",
             "kind": "typeRef",
@@ -516,7 +516,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -554,7 +554,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -592,7 +592,7 @@ const tpl: `foobar`
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",

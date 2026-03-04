@@ -76,7 +76,7 @@ type tplLitArg = `test${number}`
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "false",
             "kind": "literal",
@@ -102,7 +102,7 @@ type tplLitArg = `test${number}`
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "text",
             "kind": "literal",
@@ -128,7 +128,7 @@ type tplLitArg = `test${number}`
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "text",
             "kind": "literal",
@@ -163,7 +163,7 @@ type tplLitArg = `test${number}`
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "test${number}",
             "kind": "literal",
@@ -211,7 +211,7 @@ type tplLitArg = `test${number}`
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "5",
             "kind": "literal",

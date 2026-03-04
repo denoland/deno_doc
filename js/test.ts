@@ -18,8 +18,8 @@ Deno.test({
     assert(fnStripColor, "unable to locate specific node");
     const decl = fnStripColor.declarations[0];
     assert(decl.kind === "function");
-    assert(decl.functionDef);
-    assertEquals(decl.functionDef.params, [{
+    assert(decl.def);
+    assertEquals(decl.def.params, [{
       kind: "identifier",
       name: "string",
       optional: false,

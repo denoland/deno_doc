@@ -29,7 +29,7 @@ var default: "foo"
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "foo",
             "kind": "literal",

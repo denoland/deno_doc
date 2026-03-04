@@ -63,7 +63,7 @@ class A
           "doc": "One associated with a class"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],

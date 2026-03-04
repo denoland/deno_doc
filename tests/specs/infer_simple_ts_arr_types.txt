@@ -100,7 +100,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",
@@ -127,7 +127,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",
@@ -154,7 +154,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",
@@ -181,7 +181,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",
@@ -219,7 +219,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",
@@ -246,7 +246,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "any[]",
             "kind": "array",
@@ -273,7 +273,7 @@ const g: ("a" | 1 | true)[]
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",

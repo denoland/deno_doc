@@ -74,7 +74,7 @@ namespace RootNs
           "doc": "Namespace JSdoc"
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "a",
@@ -88,7 +88,7 @@ namespace RootNs
                   },
                   "declarationKind": "export",
                   "kind": "variable",
-                  "variableDef": {
+                  "def": {
                     "tsType": {
                       "repr": "a",
                       "kind": "literal",
@@ -117,7 +117,7 @@ namespace RootNs
                     "doc": "Nested namespace JSDoc"
                   },
                   "kind": "namespace",
-                  "namespaceDef": {
+                  "def": {
                     "elements": [
                       {
                         "name": "Foo",
@@ -131,7 +131,7 @@ namespace RootNs
                             },
                             "declarationKind": "export",
                             "kind": "enum",
-                            "enumDef": {
+                            "def": {
                               "members": [
                                 {
                                   "name": "a",
@@ -206,7 +206,7 @@ namespace RootNs
                   },
                   "declarationKind": "export",
                   "kind": "namespace",
-                  "namespaceDef": {
+                  "def": {
                     "elements": [
                       {
                         "name": "Other",
@@ -220,7 +220,7 @@ namespace RootNs
                             },
                             "declarationKind": "export",
                             "kind": "class",
-                            "classDef": {
+                            "def": {
                               "isAbstract": false,
                               "constructors": [],
                               "properties": [],

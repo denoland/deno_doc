@@ -25,7 +25,7 @@ type NumberArray = Array<number>
           "doc": "Array holding numbers"
         },
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "Array",
             "kind": "typeRef",

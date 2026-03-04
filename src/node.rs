@@ -41,16 +41,16 @@ pub enum DocNodeKind {
 impl From<&DeclarationDef> for DocNodeKind {
   fn from(def: &DeclarationDef) -> Self {
     match def {
-      DeclarationDef::Class { .. } => Self::Class,
-      DeclarationDef::Enum { .. } => Self::Enum,
-      DeclarationDef::Function { .. } => Self::Function,
-      DeclarationDef::Import { .. } => Self::Import,
-      DeclarationDef::Interface { .. } => Self::Interface,
+      DeclarationDef::Class(..) => Self::Class,
+      DeclarationDef::Enum(..) => Self::Enum,
+      DeclarationDef::Function(..) => Self::Function,
+      DeclarationDef::Import(..) => Self::Import,
+      DeclarationDef::Interface(..) => Self::Interface,
       DeclarationDef::ModuleDoc => Self::ModuleDoc,
-      DeclarationDef::Namespace { .. } => Self::Namespace,
-      DeclarationDef::Reference { .. } => Self::Reference,
-      DeclarationDef::TypeAlias { .. } => Self::TypeAlias,
-      DeclarationDef::Variable { .. } => Self::Variable,
+      DeclarationDef::Namespace(..) => Self::Namespace,
+      DeclarationDef::Reference(..) => Self::Reference,
+      DeclarationDef::TypeAlias(..) => Self::TypeAlias,
+      DeclarationDef::Variable(..) => Self::Variable,
     }
   }
 }
@@ -131,59 +131,33 @@ pub struct Symbol {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "kind", rename_all = "camelCase")]
+#[serde(tag = "kind", content = "def", rename_all = "camelCase")]
 pub enum DeclarationDef {
-  #[serde(rename_all = "camelCase")]
-  Function {
-    function_def: super::function::FunctionDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  Variable {
-    variable_def: super::variable::VariableDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  Enum {
-    enum_def: super::r#enum::EnumDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  Class {
-    class_def: super::class::ClassDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  TypeAlias {
-    type_alias_def: super::type_alias::TypeAliasDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  Namespace {
-    namespace_def: NamespaceDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  Interface {
-    interface_def: super::interface::InterfaceDef,
-  },
-  #[serde(rename_all = "camelCase")]
-  Import {
-    import_def: ImportDef,
-  },
+  Function(super::function::FunctionDef),
+  Variable(super::variable::VariableDef),
+  Enum(super::r#enum::EnumDef),
+  Class(super::class::ClassDef),
+  TypeAlias(super::type_alias::TypeAliasDef),
+  Namespace(NamespaceDef),
+  Interface(super::interface::InterfaceDef),
+  Import(ImportDef),
   ModuleDoc,
-  Reference {
-    reference_def: ReferenceDef,
-  },
+  Reference(ReferenceDef),
 }
 
 impl DeclarationDef {
   pub fn to_kind(&self) -> DocNodeKind {
     match self {
-      DeclarationDef::Function { .. } => DocNodeKind::Function,
-      DeclarationDef::Variable { .. } => DocNodeKind::Variable,
-      DeclarationDef::Enum { .. } => DocNodeKind::Enum,
-      DeclarationDef::Class { .. } => DocNodeKind::Class,
-      DeclarationDef::TypeAlias { .. } => DocNodeKind::TypeAlias,
-      DeclarationDef::Namespace { .. } => DocNodeKind::Namespace,
-      DeclarationDef::Interface { .. } => DocNodeKind::Interface,
-      DeclarationDef::Import { .. } => DocNodeKind::Import,
+      DeclarationDef::Function(_) => DocNodeKind::Function,
+      DeclarationDef::Variable(_) => DocNodeKind::Variable,
+      DeclarationDef::Enum(_) => DocNodeKind::Enum,
+      DeclarationDef::Class(_) => DocNodeKind::Class,
+      DeclarationDef::TypeAlias(_) => DocNodeKind::TypeAlias,
+      DeclarationDef::Namespace(_) => DocNodeKind::Namespace,
+      DeclarationDef::Interface(_) => DocNodeKind::Interface,
+      DeclarationDef::Import(_) => DocNodeKind::Import,
       DeclarationDef::ModuleDoc => DocNodeKind::ModuleDoc,
-      DeclarationDef::Reference { .. } => DocNodeKind::Reference,
+      DeclarationDef::Reference(_) => DocNodeKind::Reference,
     }
   }
 }
@@ -191,63 +165,63 @@ impl DeclarationDef {
 impl Declaration {
   pub fn class_def(&self) -> Option<&super::class::ClassDef> {
     match &self.def {
-      DeclarationDef::Class { class_def } => Some(class_def),
+      DeclarationDef::Class(class_def) => Some(class_def),
       _ => None,
     }
   }
 
   pub fn function_def(&self) -> Option<&super::function::FunctionDef> {
     match &self.def {
-      DeclarationDef::Function { function_def } => Some(function_def),
+      DeclarationDef::Function(function_def) => Some(function_def),
       _ => None,
     }
   }
 
   pub fn variable_def(&self) -> Option<&super::variable::VariableDef> {
     match &self.def {
-      DeclarationDef::Variable { variable_def } => Some(variable_def),
+      DeclarationDef::Variable(variable_def) => Some(variable_def),
       _ => None,
     }
   }
 
   pub fn enum_def(&self) -> Option<&super::r#enum::EnumDef> {
     match &self.def {
-      DeclarationDef::Enum { enum_def } => Some(enum_def),
+      DeclarationDef::Enum(enum_def) => Some(enum_def),
       _ => None,
     }
   }
 
   pub fn type_alias_def(&self) -> Option<&super::type_alias::TypeAliasDef> {
     match &self.def {
-      DeclarationDef::TypeAlias { type_alias_def } => Some(type_alias_def),
+      DeclarationDef::TypeAlias(type_alias_def) => Some(type_alias_def),
       _ => None,
     }
   }
 
   pub fn namespace_def(&self) -> Option<&NamespaceDef> {
     match &self.def {
-      DeclarationDef::Namespace { namespace_def } => Some(namespace_def),
+      DeclarationDef::Namespace(namespace_def) => Some(namespace_def),
       _ => None,
     }
   }
 
   pub fn interface_def(&self) -> Option<&super::interface::InterfaceDef> {
     match &self.def {
-      DeclarationDef::Interface { interface_def } => Some(interface_def),
+      DeclarationDef::Interface(interface_def) => Some(interface_def),
       _ => None,
     }
   }
 
   pub fn import_def(&self) -> Option<&ImportDef> {
     match &self.def {
-      DeclarationDef::Import { import_def } => Some(import_def),
+      DeclarationDef::Import(import_def) => Some(import_def),
       _ => None,
     }
   }
 
   pub fn reference_def(&self) -> Option<&ReferenceDef> {
     match &self.def {
-      DeclarationDef::Reference { reference_def } => Some(reference_def),
+      DeclarationDef::Reference(reference_def) => Some(reference_def),
       _ => None,
     }
   }
@@ -262,9 +236,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::Function {
-        function_def: fn_def,
-      },
+      def: DeclarationDef::Function(fn_def),
     }
   }
 
@@ -278,9 +250,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::Variable {
-        variable_def: var_def,
-      },
+      def: DeclarationDef::Variable(var_def),
     }
   }
 
@@ -294,7 +264,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::Enum { enum_def },
+      def: DeclarationDef::Enum(enum_def),
     }
   }
 
@@ -308,7 +278,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::Class { class_def },
+      def: DeclarationDef::Class(class_def),
     }
   }
 
@@ -322,7 +292,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::TypeAlias { type_alias_def },
+      def: DeclarationDef::TypeAlias(type_alias_def),
     }
   }
 
@@ -336,7 +306,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::Namespace { namespace_def },
+      def: DeclarationDef::Namespace(namespace_def),
     }
   }
 
@@ -350,7 +320,7 @@ impl Declaration {
       location,
       declaration_kind,
       js_doc,
-      def: DeclarationDef::Interface { interface_def },
+      def: DeclarationDef::Interface(interface_def),
     }
   }
 
@@ -363,7 +333,7 @@ impl Declaration {
       declaration_kind: DeclarationKind::Private,
       location,
       js_doc,
-      def: DeclarationDef::Import { import_def },
+      def: DeclarationDef::Import(import_def),
     }
   }
 
@@ -376,7 +346,7 @@ impl Declaration {
       declaration_kind: DeclarationKind::Private,
       location,
       js_doc,
-      def: DeclarationDef::Reference { reference_def },
+      def: DeclarationDef::Reference(reference_def),
     }
   }
 
@@ -561,20 +531,20 @@ impl Symbol {
   pub fn get_name(&self) -> &str {
     let default_name =
       self.declarations.iter().find_map(|decl| match &decl.def {
-        DeclarationDef::Class { class_def } => class_def.def_name.as_deref(),
-        DeclarationDef::Function { function_def } => {
+        DeclarationDef::Class(class_def) => class_def.def_name.as_deref(),
+        DeclarationDef::Function(function_def) => {
           function_def.def_name.as_deref()
         }
-        DeclarationDef::Interface { interface_def } => {
+        DeclarationDef::Interface(interface_def) => {
           interface_def.def_name.as_deref()
         }
-        DeclarationDef::Enum { .. }
-        | DeclarationDef::Import { .. }
+        DeclarationDef::Enum(..)
+        | DeclarationDef::Import(..)
         | DeclarationDef::ModuleDoc
-        | DeclarationDef::Namespace { .. }
-        | DeclarationDef::TypeAlias { .. }
-        | DeclarationDef::Variable { .. }
-        | DeclarationDef::Reference { .. } => None,
+        | DeclarationDef::Namespace(..)
+        | DeclarationDef::TypeAlias(..)
+        | DeclarationDef::Variable(..)
+        | DeclarationDef::Reference(..) => None,
       });
 
     default_name.unwrap_or(self.name.as_ref())

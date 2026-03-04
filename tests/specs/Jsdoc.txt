@@ -60,7 +60,7 @@ interface B
           "doc": "A is a class\n\nNothing more"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -89,7 +89,7 @@ interface B
           "doc": "B is an interface\n\nShould be"
         },
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -116,7 +116,7 @@ interface B
           "doc": "C is a function\n\nSummarised"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",

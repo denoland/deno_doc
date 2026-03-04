@@ -369,7 +369,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
       let fn_decl_count = doc_node
         .declarations
         .iter()
-        .filter(|d| matches!(d.def, DeclarationDef::Function { .. }))
+        .filter(|d| matches!(d.def, DeclarationDef::Function(..)))
         .count();
       let has_fn_overloads = fn_decl_count > 1;
 
@@ -395,16 +395,16 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
   fn visit_decl(&mut self, decl: &crate::node::Declaration) {
     fn is_js_docable_kind(def: &DeclarationDef) -> bool {
       match def {
-        DeclarationDef::Class { .. }
-        | DeclarationDef::Enum { .. }
-        | DeclarationDef::Function { .. }
-        | DeclarationDef::Interface { .. }
-        | DeclarationDef::Namespace { .. }
-        | DeclarationDef::TypeAlias { .. }
-        | DeclarationDef::Variable { .. } => true,
-        DeclarationDef::Import { .. }
+        DeclarationDef::Class(..)
+        | DeclarationDef::Enum(..)
+        | DeclarationDef::Function(..)
+        | DeclarationDef::Interface(..)
+        | DeclarationDef::Namespace(..)
+        | DeclarationDef::TypeAlias(..)
+        | DeclarationDef::Variable(..) => true,
+        DeclarationDef::Import(..)
         | DeclarationDef::ModuleDoc
-        | DeclarationDef::Reference { .. } => false,
+        | DeclarationDef::Reference(..) => false,
       }
     }
 

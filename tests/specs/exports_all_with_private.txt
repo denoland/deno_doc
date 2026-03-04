@@ -91,7 +91,7 @@ private namespace H
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -118,7 +118,7 @@ private namespace H
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -144,7 +144,7 @@ private namespace H
         },
         "declarationKind": "export",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -168,7 +168,7 @@ private namespace H
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": []
         }
       }
@@ -186,7 +186,7 @@ private namespace H
         },
         "declarationKind": "private",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -213,7 +213,7 @@ private namespace H
         },
         "declarationKind": "private",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -239,7 +239,7 @@ private namespace H
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -263,7 +263,7 @@ private namespace H
         },
         "declarationKind": "private",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": []
         }
       }

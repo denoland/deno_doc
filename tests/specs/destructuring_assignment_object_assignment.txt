@@ -30,7 +30,7 @@ private const obj: { a: string; b: string; }
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
@@ -96,7 +96,7 @@ private const obj: { a: string; b: string; }
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -115,7 +115,7 @@ private const obj: { a: string; b: string; }
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }

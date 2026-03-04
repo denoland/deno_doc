@@ -74,7 +74,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
           "doc": "Hello there, this is a multiline JSdoc.\n\nIt has many lines\n\nOr not that many?"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

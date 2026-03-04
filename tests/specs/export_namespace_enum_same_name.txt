@@ -60,7 +60,7 @@ namespace RootNs
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "NestedNs",
@@ -74,7 +74,7 @@ namespace RootNs
                   },
                   "declarationKind": "export",
                   "kind": "namespace",
-                  "namespaceDef": {
+                  "def": {
                     "elements": [
                       {
                         "name": "Foo",
@@ -88,7 +88,7 @@ namespace RootNs
                             },
                             "declarationKind": "export",
                             "kind": "enum",
-                            "enumDef": {
+                            "def": {
                               "members": []
                             }
                           }
@@ -111,7 +111,7 @@ namespace RootNs
                   },
                   "declarationKind": "export",
                   "kind": "enum",
-                  "enumDef": {
+                  "def": {
                     "members": []
                   }
                 }

@@ -39,7 +39,7 @@ class A
           "doc": "jsdoc"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [

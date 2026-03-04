@@ -30,7 +30,7 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "mapped",

@@ -154,7 +154,7 @@ async fn types_header_handling() {
           "byteIndex": 13
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "a",
             "kind": "literal",
@@ -250,7 +250,7 @@ export function fooFn(a: number) {
           "doc": "JSDoc for const",
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "foo",
             "kind": "literal",
@@ -277,7 +277,7 @@ export function fooFn(a: number) {
           "doc": "JSDoc for bar",
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "bar",
             "kind": "literal",
@@ -304,7 +304,7 @@ export function fooFn(a: number) {
           "doc": "JSDoc for function",
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
               {
                 "name": "a",
@@ -336,7 +336,7 @@ export function fooFn(a: number) {
         },
         "declarationKind": "private",
         "kind": "import",
-        "importDef": {
+        "def": {
           "src": "file:///reexport.ts",
           "imported": "fizz",
         }
@@ -398,7 +398,7 @@ export { Hello } from "./reexport.ts";
           },
           "declarationKind": "export",
           "kind": "interface",
-          "interfaceDef": {
+          "def": {
             "extends": [],
             "constructors": [],
             "methods": [],
@@ -417,7 +417,7 @@ export { Hello } from "./reexport.ts";
           },
           "declarationKind": "export",
           "kind": "class",
-          "classDef": {
+          "def": {
             "isAbstract": false,
             "constructors": [],
             "properties": [],
@@ -480,7 +480,7 @@ async fn deep_reexports() {
           "byteIndex": 13
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -558,7 +558,7 @@ export * as b from "./mod_doc.ts";
             }
           ]
         },
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "a",
@@ -574,7 +574,7 @@ export * as b from "./mod_doc.ts";
                 "jsDoc": {
                   "doc": "a variable"
                 },
-                "variableDef": {
+                "def": {
                   "tsType": {
                     "repr": "a",
                     "kind": "literal",
@@ -663,7 +663,7 @@ export namespace Deno {
   assert_eq!(found[0].name.as_ref(), "rid");
   assert!(matches!(
     found[0].declarations[0].def,
-    DeclarationDef::Variable { .. }
+    DeclarationDef::Variable(..)
   ));
 
   // Interface method
@@ -673,7 +673,7 @@ export namespace Deno {
   assert_eq!(found[0].name.as_ref(), "closeWrite");
   assert!(matches!(
     found[0].declarations[0].def,
-    DeclarationDef::Function { .. }
+    DeclarationDef::Function(..)
   ));
 
   // Class property
@@ -683,7 +683,7 @@ export namespace Deno {
   assert_eq!(found[0].name.as_ref(), "pid");
   assert!(matches!(
     found[0].declarations[0].def,
-    DeclarationDef::Variable { .. }
+    DeclarationDef::Variable(..)
   ));
 
   // Class method
@@ -693,7 +693,7 @@ export namespace Deno {
   assert_eq!(found[0].name.as_ref(), "output");
   assert!(matches!(
     found[0].declarations[0].def,
-    DeclarationDef::Function { .. }
+    DeclarationDef::Function(..)
   ));
 
   // No match
@@ -746,7 +746,7 @@ async fn exports_imported_earlier() {
           "byteIndex": 13
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -767,7 +767,7 @@ async fn exports_imported_earlier() {
           "byteIndex": 3
         },
         "declarationKind": "private",
-        "importDef": {
+        "def": {
           "src": "file:///foo.ts",
           "imported": "foo",
         },
@@ -820,7 +820,7 @@ async fn exports_imported_earlier_renamed() {
           "byteIndex": 13
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -841,7 +841,7 @@ async fn exports_imported_earlier_renamed() {
           "byteIndex": 3
         },
         "declarationKind": "private",
-        "importDef": {
+        "def": {
           "src": "file:///foo.ts",
           "imported": "foo"
         }
@@ -895,7 +895,7 @@ async fn exports_imported_earlier_default() {
           "byteIndex": 6
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -916,7 +916,7 @@ async fn exports_imported_earlier_default() {
           "byteIndex": 3
         },
         "declarationKind": "private",
-        "importDef": {
+        "def": {
           "src": "file:///foo.ts",
           "imported": "default"
         }
@@ -972,7 +972,7 @@ async fn exports_imported_earlier_private() {
           "byteIndex": 13
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -993,7 +993,7 @@ async fn exports_imported_earlier_private() {
           "byteIndex": 3
         },
         "declarationKind": "private",
-        "importDef": {
+        "def": {
           "src": "file:///foo.ts",
           "imported": "foo",
         },
@@ -1058,7 +1058,7 @@ async fn json_module() {
           "byteIndex": 0,
         },
         "declarationKind": "export",
-        "variableDef": {
+        "def": {
         "tsType": {
           "repr": "",
           "kind": "typeLiteral",

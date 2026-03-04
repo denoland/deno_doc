@@ -28,7 +28,7 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "mapped",

@@ -54,7 +54,7 @@ async function qux(a: string): Promise<string>
           "doc": "A function expression"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -95,7 +95,7 @@ async function qux(a: string): Promise<string>
           "doc": "A named function expression"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "defName": "myFunc",
           "params": [
             {
@@ -147,7 +147,7 @@ async function qux(a: string): Promise<string>
           "doc": "An arrow function"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -188,7 +188,7 @@ async function qux(a: string): Promise<string>
           "doc": "An async arrow function"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

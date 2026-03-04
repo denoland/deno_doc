@@ -116,7 +116,7 @@ private namespace MyNamespace3
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "MyNamespace.Export.someProp",
             "kind": "typeQuery",
@@ -139,7 +139,7 @@ private namespace MyNamespace3
         },
         "declarationKind": "private",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "Export",
@@ -153,7 +153,7 @@ private namespace MyNamespace3
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [
@@ -204,7 +204,7 @@ private namespace MyNamespace3
         },
         "declarationKind": "private",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "MyClass",
@@ -218,7 +218,7 @@ private namespace MyNamespace3
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [
@@ -269,7 +269,7 @@ private namespace MyNamespace3
         },
         "declarationKind": "private",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "MyClass",
@@ -283,7 +283,7 @@ private namespace MyNamespace3
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [

@@ -61,7 +61,7 @@ type Colors = "red" | "green" | "blue"
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "union",
@@ -109,7 +109,7 @@ type Colors = "red" | "green" | "blue"
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
@@ -211,7 +211,7 @@ type Colors = "red" | "green" | "blue"
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "boolean",
             "kind": "keyword",

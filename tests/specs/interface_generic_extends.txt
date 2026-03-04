@@ -29,7 +29,7 @@ interface Interface<V> extends Iterable<V>
         },
         "declarationKind": "export",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [
             {
               "repr": "Iterable",

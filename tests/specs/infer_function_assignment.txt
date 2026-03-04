@@ -28,7 +28,7 @@ function foo(n: number, b: string): void
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "assign",

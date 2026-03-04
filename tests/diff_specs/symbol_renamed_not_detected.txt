@@ -21,7 +21,7 @@ export function bar(a: number) {}
               },
               "declarationKind": "export",
               "kind": "function",
-              "functionDef": {
+              "def": {
                 "params": [
                   {
                     "kind": "identifier",
@@ -61,7 +61,7 @@ export function bar(a: number) {}
               },
               "declarationKind": "export",
               "kind": "function",
-              "functionDef": {
+              "def": {
                 "params": [
                   {
                     "kind": "identifier",

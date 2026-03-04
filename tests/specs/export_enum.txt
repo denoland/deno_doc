@@ -39,7 +39,7 @@ enum Hello
           "doc": "Some enum for good measure"
         },
         "kind": "enum",
-        "enumDef": {
+        "def": {
           "members": [
             {
               "name": "World",

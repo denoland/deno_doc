@@ -35,7 +35,7 @@ function* g()
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": null,
           "hasBody": true,

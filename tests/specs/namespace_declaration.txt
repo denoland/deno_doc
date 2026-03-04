@@ -29,7 +29,7 @@ namespace Namespace
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": []
         }
       }

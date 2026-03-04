@@ -49,7 +49,7 @@ namespace test
           "doc": "Testing"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -74,7 +74,7 @@ namespace test
           "doc": "Additional properties on the `test` function."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "skip",
@@ -91,7 +91,7 @@ namespace test
                     "doc": "doc1"
                   },
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [
                       {
                         "kind": "identifier",
@@ -132,7 +132,7 @@ namespace test
                     "doc": "doc2"
                   },
                   "kind": "variable",
-                  "variableDef": {
+                  "def": {
                     "tsType": {
                       "repr": "asdf",
                       "kind": "literal",
@@ -161,7 +161,7 @@ namespace test
                     "doc": "doc3"
                   },
                   "kind": "variable",
-                  "variableDef": {
+                  "def": {
                     "tsType": {
                       "repr": "true",
                       "kind": "literal",

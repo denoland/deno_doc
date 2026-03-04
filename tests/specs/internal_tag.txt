@@ -96,7 +96,7 @@ type Test = OtherPrivateType
           ]
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [
@@ -186,7 +186,7 @@ type Test = OtherPrivateType
           "doc": "Test"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [
@@ -265,7 +265,7 @@ type Test = OtherPrivateType
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "OtherPrivateType",
             "kind": "typeRef",
@@ -298,7 +298,7 @@ type Test = OtherPrivateType
           ]
         },
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",

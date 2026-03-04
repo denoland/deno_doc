@@ -56,7 +56,7 @@ impl SymbolGroupCtx {
       IndexMap::<crate::node::DocNodeKind, Vec<&Declaration>>::default();
 
     for decl in &symbol.declarations {
-      if matches!(decl.def, DeclarationDef::Import { .. }) {
+      if matches!(decl.def, DeclarationDef::Import(..)) {
         continue;
       }
 
@@ -119,7 +119,7 @@ impl SymbolGroupCtx {
         }
 
         let deprecated = if all_deprecated
-          && !(matches!(decls[0].def, DeclarationDef::Function { .. })
+          && !(matches!(decls[0].def, DeclarationDef::Function(..))
             && decls.len() == 1)
         {
           decls[0].js_doc.tags.iter().find_map(|tag| {
@@ -321,7 +321,7 @@ impl DocBlockSubtitleCtx {
     decl: &Declaration,
   ) -> Option<Self> {
     match &decl.def {
-      DeclarationDef::Class { class_def } => {
+      DeclarationDef::Class(class_def) => {
         let current_type_params = class_def
           .type_params
           .iter()
@@ -421,7 +421,7 @@ impl DocBlockSubtitleCtx {
           super_type_params_removed,
         })
       }
-      DeclarationDef::Interface { interface_def } => {
+      DeclarationDef::Interface(interface_def) => {
         let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
@@ -511,7 +511,7 @@ impl SymbolInnerCtx {
       let mut docs =
         crate::html::jsdoc::jsdoc_body_to_html(ctx, &decl.js_doc, false);
 
-      if !matches!(decl.def, DeclarationDef::Function { .. })
+      if !matches!(decl.def, DeclarationDef::Function(..))
         && let Some(examples) =
           crate::html::jsdoc::jsdoc_examples(ctx, &decl.js_doc)
       {
@@ -519,24 +519,24 @@ impl SymbolInnerCtx {
       }
 
       sections.extend(match decl.def {
-        DeclarationDef::Function { .. } => {
+        DeclarationDef::Function(..) => {
           functions.push(decl);
           continue;
         }
 
-        DeclarationDef::Variable { .. } => {
+        DeclarationDef::Variable(..) => {
           variable::render_variable(ctx, symbol, decl)
         }
-        DeclarationDef::Class { .. } => class::render_class(ctx, symbol, decl),
-        DeclarationDef::Enum { .. } => r#enum::render_enum(ctx, symbol, decl),
-        DeclarationDef::Interface { .. } => {
+        DeclarationDef::Class(..) => class::render_class(ctx, symbol, decl),
+        DeclarationDef::Enum(..) => r#enum::render_enum(ctx, symbol, decl),
+        DeclarationDef::Interface(..) => {
           interface::render_interface(ctx, symbol, decl)
         }
-        DeclarationDef::TypeAlias { .. } => {
+        DeclarationDef::TypeAlias(..) => {
           type_alias::render_type_alias(ctx, symbol, decl)
         }
 
-        DeclarationDef::Namespace { .. } => {
+        DeclarationDef::Namespace(..) => {
           let namespace_nodes = symbol.namespace_children.as_ref().unwrap();
           let ns_qualifiers = namespace_nodes
             .first()
@@ -584,8 +584,8 @@ impl SymbolInnerCtx {
           ))
         }
         DeclarationDef::ModuleDoc
-        | DeclarationDef::Import { .. }
-        | DeclarationDef::Reference { .. } => unreachable!(),
+        | DeclarationDef::Import(..)
+        | DeclarationDef::Reference(..) => unreachable!(),
       });
 
       let references = decl

@@ -65,7 +65,7 @@ namespace Test
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "Other",
@@ -79,7 +79,7 @@ namespace Test
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],
@@ -110,7 +110,7 @@ namespace Test
         },
         "declarationKind": "private",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],

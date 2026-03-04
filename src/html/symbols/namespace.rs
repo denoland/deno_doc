@@ -352,7 +352,7 @@ fn summary_for_symbol(
   symbol: &DocNodeWithContext,
 ) -> Option<TypeSummaryCtx> {
   match &symbol.declarations[0].def {
-    DeclarationDef::Function { .. } => {
+    DeclarationDef::Function(..) => {
       let overloads: Vec<_> = symbol
         .declarations
         .iter()
@@ -381,7 +381,7 @@ fn summary_for_symbol(
         info,
       })
     }
-    DeclarationDef::Class { class_def } => {
+    DeclarationDef::Class(class_def) => {
       if !class_def.constructors.is_empty() {
         let ctx = ctx.with_disable_links(true);
 
@@ -416,9 +416,9 @@ fn summary_for_symbol(
         None
       }
     }
-    DeclarationDef::Enum { .. } => None,
-    DeclarationDef::Interface { .. } => None,
-    DeclarationDef::TypeAlias { type_alias_def } => {
+    DeclarationDef::Enum(..) => None,
+    DeclarationDef::Interface(..) => None,
+    DeclarationDef::TypeAlias(type_alias_def) => {
       let ctx = ctx.with_disable_links(true);
 
       Some(TypeSummaryCtx {
@@ -430,7 +430,7 @@ fn summary_for_symbol(
         info: None,
       })
     }
-    DeclarationDef::Variable { variable_def } => {
+    DeclarationDef::Variable(variable_def) => {
       variable_def.ts_type.as_ref().map(|ts_type| TypeSummaryCtx {
         ty: format!(
           ": {}",
@@ -439,9 +439,9 @@ fn summary_for_symbol(
         info: None,
       })
     }
-    DeclarationDef::Reference { .. }
-    | DeclarationDef::Namespace { .. }
-    | DeclarationDef::Import { .. }
+    DeclarationDef::Reference(..)
+    | DeclarationDef::Namespace(..)
+    | DeclarationDef::Import(..)
     | DeclarationDef::ModuleDoc => None,
   }
 }

@@ -103,7 +103,7 @@ const j: number
           "doc": "doc1"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",
@@ -129,7 +129,7 @@ const j: number
           "doc": "doc2"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",
@@ -155,7 +155,7 @@ const j: number
           "doc": "doc3"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -181,7 +181,7 @@ const j: number
           "doc": "doc4"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -207,7 +207,7 @@ const j: number
           "doc": "doc5"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "1",
             "kind": "literal",
@@ -236,7 +236,7 @@ const j: number
           "doc": "doc6"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "union",
@@ -279,7 +279,7 @@ const j: number
           "doc": "doc7"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "a",
             "kind": "literal",
@@ -308,7 +308,7 @@ const j: number
           "doc": "doc8"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "never",
             "kind": "keyword",
@@ -334,7 +334,7 @@ const j: number
           "doc": "doc9"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "boolean",
             "kind": "keyword",
@@ -360,7 +360,7 @@ const j: number
           "doc": "doc10"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",
@@ -386,7 +386,7 @@ const j: number
           "doc": "doc11"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
