@@ -115,7 +115,7 @@ impl NamespaceNodeCtx {
     let name = symbol.get_qualified_name();
     let id = IdBuilder::new(ctx)
       .kind(IdKind::Namespace)
-      .name(&name)
+      .name(name)
       .build();
 
     let docs = crate::html::jsdoc::jsdoc_body_to_html(
@@ -132,7 +132,7 @@ impl NamespaceNodeCtx {
       ctx.get_current_resolve(),
       UrlResolveKind::Symbol {
         file: &symbol.origin,
-        symbol: &name,
+        symbol: name,
       },
     );
 

@@ -253,10 +253,10 @@ impl ModuleDiff {
 
     // Modifications: same name in both
     for (name, old_node) in &old_map {
-      if let Some(new_node) = new_map.get(name) {
-        if let Some(diff) = SymbolDiff::diff(old_node, new_node) {
-          modified.push(diff);
-        }
+      if let Some(new_node) = new_map.get(name)
+        && let Some(diff) = SymbolDiff::diff(old_node, new_node)
+      {
+        modified.push(diff);
       }
     }
 

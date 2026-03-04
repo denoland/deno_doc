@@ -562,7 +562,7 @@ pub fn generate_symbol_pages_for_module(
           },
           UrlResolveKind::Symbol {
             file: short_path,
-            symbol: &name,
+            symbol: name,
           },
         ),
         current_symbol: prototype_name,

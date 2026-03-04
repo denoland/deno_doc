@@ -746,7 +746,7 @@ fn apply_namespace_diff_inner(
             });
 
           if let Some(child_ns_diff) = child_ns_diff {
-            apply_namespace_diff_inner(child, &child_ns_diff, short_path);
+            apply_namespace_diff_inner(child, child_ns_diff, short_path);
           }
         }
       }

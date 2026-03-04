@@ -50,10 +50,10 @@ impl NamespaceDiff {
     }
 
     for (name, old_node) in &old_map {
-      if let Some(new_node) = new_map.get(name) {
-        if let Some(diff) = SymbolDiff::diff(old_node, new_node) {
-          modified_elements.push(diff);
-        }
+      if let Some(new_node) = new_map.get(name)
+        && let Some(diff) = SymbolDiff::diff(old_node, new_node)
+      {
+        modified_elements.push(diff);
       }
     }
 
