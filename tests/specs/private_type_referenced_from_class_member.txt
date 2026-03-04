@@ -22,7 +22,7 @@ error[private-type-ref]: public type 'Other.prototype.prop' references private t
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 class Other
   Comment
@@ -30,7 +30,7 @@ class Other
   prop: YesDiagnostic
     Comment
 
-Defined in file:///mod.ts:7:1
+Defined in file:///mod.ts:6:1
 
 private class YesDiagnostic
 
@@ -44,7 +44,7 @@ private class YesDiagnostic
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 15
         },
@@ -77,7 +77,7 @@ private class YesDiagnostic
               "name": "prop",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 4,
+                "line": 3,
                 "col": 2,
                 "byteIndex": 55
               }
@@ -99,7 +99,7 @@ private class YesDiagnostic
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 7,
+          "line": 6,
           "col": 0,
           "byteIndex": 78
         },

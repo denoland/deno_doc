@@ -46,7 +46,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |   ^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 namespace RootNs
   Namespace JSdoc
@@ -65,7 +65,7 @@ namespace RootNs
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 23
         },
@@ -82,7 +82,7 @@ namespace RootNs
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 3,
+                    "line": 2,
                     "col": 17,
                     "byteIndex": 66
                   },
@@ -108,7 +108,7 @@ namespace RootNs
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 6,
+                    "line": 5,
                     "col": 4,
                     "byteIndex": 114
                   },
@@ -125,7 +125,7 @@ namespace RootNs
                           {
                             "location": {
                               "filename": "file:///mod.ts",
-                              "line": 7,
+                              "line": 6,
                               "col": 6,
                               "byteIndex": 148
                             },
@@ -145,7 +145,7 @@ namespace RootNs
                                   },
                                   "location": {
                                     "filename": "file:///mod.ts",
-                                    "line": 8,
+                                    "line": 7,
                                     "col": 8,
                                     "byteIndex": 174
                                   }
@@ -162,7 +162,7 @@ namespace RootNs
                                   },
                                   "location": {
                                     "filename": "file:///mod.ts",
-                                    "line": 9,
+                                    "line": 8,
                                     "col": 8,
                                     "byteIndex": 189
                                   }
@@ -179,7 +179,7 @@ namespace RootNs
                                   },
                                   "location": {
                                     "filename": "file:///mod.ts",
-                                    "line": 10,
+                                    "line": 9,
                                     "col": 8,
                                     "byteIndex": 204
                                   }
@@ -200,7 +200,7 @@ namespace RootNs
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 15,
+                    "line": 14,
                     "col": 7,
                     "byteIndex": 235
                   },
@@ -214,7 +214,7 @@ namespace RootNs
                           {
                             "location": {
                               "filename": "file:///mod.ts",
-                              "line": 16,
+                              "line": 15,
                               "col": 2,
                               "byteIndex": 264
                             },

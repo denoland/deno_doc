@@ -21,7 +21,7 @@ export interface B {}
 export function C() {}
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
   This module provides simple examples of a class, an interface, and a function.
 
@@ -29,18 +29,18 @@ Defined in file:///mod.ts:2:1
       MyModule
 
 
-Defined in file:///mod.ts:20:1
+Defined in file:///mod.ts:19:1
 
 function C(): void
   C is a function.
 
-Defined in file:///mod.ts:10:1
+Defined in file:///mod.ts:9:1
 
 class A
   A is a simple class.
 
 
-Defined in file:///mod.ts:15:1
+Defined in file:///mod.ts:14:1
 
 interface B
   B is a simple interface.
@@ -55,7 +55,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 52
         },
@@ -79,7 +79,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 10,
+          "line": 9,
           "col": 0,
           "byteIndex": 193
         },
@@ -108,7 +108,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 15,
+          "line": 14,
           "col": 0,
           "byteIndex": 248
         },
@@ -135,7 +135,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 20,
+          "line": 19,
           "col": 0,
           "byteIndex": 299
         },

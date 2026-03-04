@@ -7,7 +7,7 @@ export function foo(): void {}
 export * as other from "./other.ts";
 
 # output.txt
-Defined in file:///mod.ts:2:8
+Defined in file:///mod.ts:1:8
 
 namespace other
   Re-exports of other.
@@ -24,7 +24,7 @@ namespace other
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 7,
           "byteIndex": 35
         },
@@ -41,7 +41,7 @@ namespace other
                 {
                   "location": {
                     "filename": "file:///other.ts",
-                    "line": 2,
+                    "line": 1,
                     "col": 0,
                     "byteIndex": 18
                   },

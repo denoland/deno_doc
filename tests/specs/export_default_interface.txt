@@ -7,7 +7,7 @@ export default interface Reader {
     read?(buf: Uint8Array, something: unknown): Promise<number>
 }
 # output.txt
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 interface default
   Interface js doc
@@ -25,7 +25,7 @@ interface default
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 0,
           "byteIndex": 28
         },
@@ -47,7 +47,7 @@ interface default
               "kind": "method",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 6,
+                "line": 5,
                 "col": 4,
                 "byteIndex": 90
               },

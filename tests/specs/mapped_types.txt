@@ -11,7 +11,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as NewKeyType]?: Type[Properties]
 
@@ -24,7 +24,7 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },

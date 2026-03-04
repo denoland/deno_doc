@@ -255,7 +255,7 @@ impl<'a> DiagnosticsCollector<'a> {
                 .specifier()
                 .to_string()
                 .into_boxed_str(),
-              line: 1,
+              line: 0,
               col: 0,
               byte_index: 0,
             }),

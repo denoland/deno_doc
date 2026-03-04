@@ -19,7 +19,7 @@ export function brandNew(): void {}
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 3,
+                "line": 2,
                 "col": 0,
                 "byteIndex": 94
               },
@@ -48,7 +48,7 @@ export function brandNew(): void {}
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 2,
+                "line": 1,
                 "col": 0,
                 "byteIndex": 36
               },

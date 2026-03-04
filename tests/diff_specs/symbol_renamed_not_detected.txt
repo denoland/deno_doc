@@ -15,7 +15,7 @@ export function bar(a: number) {}
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 0,
                 "byteIndex": 0
               },
@@ -55,7 +55,7 @@ export function bar(a: number) {}
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 0,
                 "byteIndex": 0
               },

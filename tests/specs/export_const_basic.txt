@@ -77,40 +77,40 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |              ^
 
 # output.txt
-Defined in file:///mod.ts:14:14
+Defined in file:///mod.ts:13:14
 
 const bigint: 123n
 
-Defined in file:///mod.ts:13:14
+Defined in file:///mod.ts:12:14
 
 const bool: false
 
-Defined in file:///mod.ts:16:14
+Defined in file:///mod.ts:15:14
 
 const date: Date
 
-Defined in file:///mod.ts:4:14
+Defined in file:///mod.ts:3:14
 
 const env: { get(key: string): string | undefined; set(key: string, value: string): void; }
 
-Defined in file:///mod.ts:2:14
+Defined in file:///mod.ts:1:14
 
 const fizzBuzz: "fizzBuzz"
   Something about fizzBuzz
 
-Defined in file:///mod.ts:12:14
+Defined in file:///mod.ts:11:14
 
 const num: 100
 
-Defined in file:///mod.ts:15:14
+Defined in file:///mod.ts:14:14
 
 const regex: RegExp
 
-Defined in file:///mod.ts:17:14
+Defined in file:///mod.ts:16:14
 
 const tpl1: `foo`
 
-Defined in file:///mod.ts:18:14
+Defined in file:///mod.ts:17:14
 
 const tpl2: string
 
@@ -123,7 +123,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 13,
           "byteIndex": 45
         },
@@ -152,7 +152,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 13,
           "byteIndex": 82
         },
@@ -173,7 +173,7 @@ const tpl2: string
                   "kind": "method",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 6,
+                    "line": 5,
                     "col": 2,
                     "byteIndex": 108
                   },
@@ -216,7 +216,7 @@ const tpl2: string
                   "kind": "method",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 9,
+                    "line": 8,
                     "col": 2,
                     "byteIndex": 166
                   },
@@ -267,7 +267,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 12,
+          "line": 11,
           "col": 13,
           "byteIndex": 221
         },
@@ -293,7 +293,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 13,
+          "line": 12,
           "col": 13,
           "byteIndex": 245
         },
@@ -319,7 +319,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 14,
+          "line": 13,
           "col": 13,
           "byteIndex": 272
         },
@@ -345,7 +345,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 15,
+          "line": 14,
           "col": 13,
           "byteIndex": 300
         },
@@ -371,7 +371,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 16,
+          "line": 15,
           "col": 13,
           "byteIndex": 330
         },
@@ -397,7 +397,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 17,
+          "line": 16,
           "col": 13,
           "byteIndex": 362
         },
@@ -432,7 +432,7 @@ const tpl2: string
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 18,
+          "line": 17,
           "col": 13,
           "byteIndex": 389
         },

@@ -29,7 +29,7 @@ export interface Foo {
                         "kind": "method",
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 3,
+                          "line": 2,
                           "col": 2,
                           "byteIndex": 40
                         },

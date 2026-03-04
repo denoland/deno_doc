@@ -21,7 +21,7 @@ export interface Foo extends Base {
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 0,
                 "byteIndex": 0
               },
@@ -36,7 +36,7 @@ export interface Foo extends Base {
                     "name": "id",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 1,
+                      "line": 0,
                       "col": 17,
                       "byteIndex": 17
                     },

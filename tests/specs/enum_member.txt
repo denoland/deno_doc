@@ -13,7 +13,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 enum Enum
 
@@ -30,7 +30,7 @@ enum Enum
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -42,7 +42,7 @@ enum Enum
               "name": "First",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 2,
+                "line": 1,
                 "col": 2,
                 "byteIndex": 21
               }
@@ -54,7 +54,7 @@ enum Enum
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 4,
+                "line": 3,
                 "col": 2,
                 "byteIndex": 56
               }

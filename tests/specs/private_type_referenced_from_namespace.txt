@@ -39,12 +39,12 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 private class YesDiagnostic
 
 
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 namespace Test
 
@@ -59,7 +59,7 @@ namespace Test
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -73,7 +73,7 @@ namespace Test
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 2,
+                    "line": 1,
                     "col": 2,
                     "byteIndex": 26
                   },
@@ -104,7 +104,7 @@ namespace Test
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 9,
+          "line": 8,
           "col": 0,
           "byteIndex": 121
         },

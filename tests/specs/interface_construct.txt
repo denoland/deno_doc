@@ -25,7 +25,7 @@ error[missing-return-type]: exported function is missing an explicit return type
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 interface I
 
@@ -40,7 +40,7 @@ interface I
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -66,7 +66,7 @@ interface I
               "typeParams": [],
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 2,
+                "line": 1,
                 "col": 2,
                 "byteIndex": 23
               }

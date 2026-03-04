@@ -51,7 +51,7 @@ export class Foo {
                         ],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 2,
+                          "line": 1,
                           "col": 2,
                           "byteIndex": 21
                         }
@@ -76,7 +76,7 @@ export class Foo {
                         ],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 2,
+                          "line": 1,
                           "col": 2,
                           "byteIndex": 21
                         }

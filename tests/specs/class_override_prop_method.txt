@@ -26,7 +26,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 class C extends B
 
@@ -42,7 +42,7 @@ class C extends B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -67,7 +67,7 @@ class C extends B
               "name": "b",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 3,
+                "line": 2,
                 "col": 2,
                 "byteIndex": 53
               }
@@ -97,7 +97,7 @@ class C extends B
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 2,
+                "line": 1,
                 "col": 2,
                 "byteIndex": 29
               }

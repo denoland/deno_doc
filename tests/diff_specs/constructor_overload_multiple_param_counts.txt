@@ -64,7 +64,7 @@ export class Builder {
                         ],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 3,
+                          "line": 2,
                           "col": 2,
                           "byteIndex": 55
                         }
@@ -107,7 +107,7 @@ export class Builder {
                         ],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 4,
+                          "line": 3,
                           "col": 2,
                           "byteIndex": 114
                         }
@@ -141,7 +141,7 @@ export class Builder {
                         ],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 3,
+                          "line": 2,
                           "col": 2,
                           "byteIndex": 54
                         }
@@ -174,7 +174,7 @@ export class Builder {
                         ],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 4,
+                          "line": 3,
                           "col": 2,
                           "byteIndex": 96
                         }

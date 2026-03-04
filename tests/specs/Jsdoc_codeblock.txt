@@ -44,7 +44,7 @@ export function C() {}
 export function D() {}
 
 # output.txt
-Defined in file:///mod.ts:35:1
+Defined in file:///mod.ts:34:1
 
 function C(): void
   C is a function
@@ -58,7 +58,7 @@ function C(): void
 
   Summarised
 
-Defined in file:///mod.ts:43:1
+Defined in file:///mod.ts:42:1
 
 function D(): void
   D
@@ -67,7 +67,7 @@ function D(): void
   const bar = "foo";
   ```
 
-Defined in file:///mod.ts:11:1
+Defined in file:///mod.ts:10:1
 
 class A
   A is a class
@@ -80,7 +80,7 @@ class A
   Nothing more
 
 
-Defined in file:///mod.ts:22:1
+Defined in file:///mod.ts:21:1
 
 interface B
   B is an interface
@@ -101,7 +101,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 11,
+          "line": 10,
           "col": 0,
           "byteIndex": 105
         },
@@ -130,7 +130,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 22,
+          "line": 21,
           "col": 0,
           "byteIndex": 232
         },
@@ -157,7 +157,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 35,
+          "line": 34,
           "col": 0,
           "byteIndex": 383
         },
@@ -187,7 +187,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 43,
+          "line": 42,
           "col": 0,
           "byteIndex": 479
         },

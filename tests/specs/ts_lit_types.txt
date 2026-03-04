@@ -41,23 +41,23 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 type boolLit = false
 
-Defined in file:///mod.ts:5:1
+Defined in file:///mod.ts:4:1
 
 type numLit = 5
 
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 type strLit = "text"
 
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 type tplLit = `text`
 
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 type tplLitArg = `test${number}`
 
@@ -70,7 +70,7 @@ type tplLitArg = `test${number}`
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -96,7 +96,7 @@ type tplLitArg = `test${number}`
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 29
         },
@@ -122,7 +122,7 @@ type tplLitArg = `test${number}`
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 3,
+          "line": 2,
           "col": 0,
           "byteIndex": 58
         },
@@ -157,7 +157,7 @@ type tplLitArg = `test${number}`
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 0,
           "byteIndex": 87
         },
@@ -205,7 +205,7 @@ type tplLitArg = `test${number}`
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 5,
+          "line": 4,
           "col": 0,
           "byteIndex": 128
         },

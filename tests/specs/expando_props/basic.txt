@@ -14,12 +14,12 @@ test.textProp = "asdf";
 test.booleanProp = true;
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 function test(): void
   Testing
 
-Defined in file:///mod.ts:6:6
+Defined in file:///mod.ts:5:6
 
 namespace test
   Additional properties on the `test` function.
@@ -40,7 +40,7 @@ namespace test
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 15
         },
@@ -65,7 +65,7 @@ namespace test
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 6,
+          "line": 5,
           "col": 5,
           "byteIndex": 60
         },
@@ -82,7 +82,7 @@ namespace test
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 6,
+                    "line": 5,
                     "col": 5,
                     "byteIndex": 60
                   },
@@ -123,7 +123,7 @@ namespace test
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 10,
+                    "line": 9,
                     "col": 5,
                     "byteIndex": 115
                   },
@@ -152,7 +152,7 @@ namespace test
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 13,
+                    "line": 12,
                     "col": 5,
                     "byteIndex": 152
                   },

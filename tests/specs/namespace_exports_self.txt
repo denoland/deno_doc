@@ -36,7 +36,7 @@ export namespace f {
 }
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 namespace a
   Description.
@@ -44,7 +44,7 @@ namespace a
   const a: string
     Description.
 
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 namespace b
   Description.
@@ -52,13 +52,13 @@ namespace b
   class b
     Description.
 
-Defined in file:///mod.ts:15:1
+Defined in file:///mod.ts:14:1
 
 namespace c
   Description.
 
 
-Defined in file:///mod.ts:20:1
+Defined in file:///mod.ts:19:1
 
 namespace d
   Description.
@@ -66,7 +66,7 @@ namespace d
   namespace e
     Description.
 
-Defined in file:///mod.ts:28:1
+Defined in file:///mod.ts:27:1
 
 namespace f
   Description.
@@ -83,7 +83,7 @@ namespace f
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 20
         },
@@ -100,7 +100,7 @@ namespace f
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 4,
+                    "line": 3,
                     "col": 8,
                     "byteIndex": 79
                   },
@@ -131,7 +131,7 @@ namespace f
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 9,
+          "line": 8,
           "col": 0,
           "byteIndex": 129
         },
@@ -148,7 +148,7 @@ namespace f
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 11,
+                    "line": 10,
                     "col": 2,
                     "byteIndex": 182
                   },
@@ -182,7 +182,7 @@ namespace f
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 15,
+          "line": 14,
           "col": 0,
           "byteIndex": 223
         },
@@ -203,7 +203,7 @@ namespace f
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 20,
+          "line": 19,
           "col": 0,
           "byteIndex": 285
         },
@@ -220,7 +220,7 @@ namespace f
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 22,
+                    "line": 21,
                     "col": 2,
                     "byteIndex": 330
                   },
@@ -246,7 +246,7 @@ namespace f
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 28,
+          "line": 27,
           "col": 0,
           "byteIndex": 396
         },
@@ -263,7 +263,7 @@ namespace f
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 30,
+                    "line": 29,
                     "col": 2,
                     "byteIndex": 441
                   },
@@ -280,7 +280,7 @@ namespace f
                           {
                             "location": {
                               "filename": "file:///mod.ts",
-                              "line": 32,
+                              "line": 31,
                               "col": 10,
                               "byteIndex": 496
                             },

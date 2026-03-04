@@ -29,7 +29,7 @@ export enum Color {
                       "name": "Blue",
                       "location": {
                         "filename": "file:///mod.ts",
-                        "line": 4,
+                        "line": 3,
                         "col": 2,
                         "byteIndex": 38
                       }

@@ -34,20 +34,20 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 class Class
 
   constructor(public a, readonly b)
 
-Defined in file:///mod.ts:8:1
+Defined in file:///mod.ts:7:1
 
 class Class2
   doc2
 
   constructor()
 
-Defined in file:///mod.ts:15:1
+Defined in file:///mod.ts:14:1
 
 class Class3
   doc3
@@ -63,7 +63,7 @@ class Class3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -94,7 +94,7 @@ class Class3
               ],
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 2,
+                "line": 1,
                 "col": 2,
                 "byteIndex": 23
               }
@@ -117,7 +117,7 @@ class Class3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 8,
+          "line": 7,
           "col": 0,
           "byteIndex": 124
         },
@@ -136,7 +136,7 @@ class Class3
               "params": [],
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 9,
+                "line": 8,
                 "col": 2,
                 "byteIndex": 148
               }
@@ -159,7 +159,7 @@ class Class3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 15,
+          "line": 14,
           "col": 0,
           "byteIndex": 238
         },
@@ -189,7 +189,7 @@ class Class3
               ],
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 16,
+                "line": 15,
                 "col": 2,
                 "byteIndex": 262
               }

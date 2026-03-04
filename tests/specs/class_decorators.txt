@@ -60,7 +60,7 @@ error[missing-return-type]: exported function is missing an explicit return type
    |   ^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 @sealed
 class A
@@ -81,7 +81,7 @@ class A
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 8
         },
@@ -107,7 +107,7 @@ class A
                   ],
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 5,
+                    "line": 4,
                     "col": 3,
                     "byteIndex": 41
                   }
@@ -119,7 +119,7 @@ class A
               "name": "greeting",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 5,
+                "line": 4,
                 "col": 2,
                 "byteIndex": 40
               }
@@ -149,7 +149,7 @@ class A
                     ],
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 8,
+                      "line": 7,
                       "col": 3,
                       "byteIndex": 85
                     }
@@ -158,7 +158,7 @@ class A
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 8,
+                "line": 7,
                 "col": 2,
                 "byteIndex": 84
               }
@@ -185,7 +185,7 @@ class A
                     ],
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 13,
+                      "line": 12,
                       "col": 3,
                       "byteIndex": 145
                     }
@@ -194,7 +194,7 @@ class A
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 13,
+                "line": 12,
                 "col": 2,
                 "byteIndex": 144
               }
@@ -209,7 +209,7 @@ class A
               "name": "sealed",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 1,
                 "byteIndex": 1
               }

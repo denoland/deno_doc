@@ -14,7 +14,7 @@ export namespace Audio {
 export namespace Speech {}
 
 # output.txt
-Defined in file:///audio.ts:4:1
+Defined in file:///audio.ts:3:1
 
 namespace Audio
   Some documentation.
@@ -31,7 +31,7 @@ namespace Audio
       {
         "location": {
           "filename": "file:///audio.ts",
-          "line": 4,
+          "line": 3,
           "col": 0,
           "byteIndex": 66
         },
@@ -48,7 +48,7 @@ namespace Audio
                 {
                   "location": {
                     "filename": "file:///speech.ts",
-                    "line": 2,
+                    "line": 1,
                     "col": 0,
                     "byteIndex": 27
                   },

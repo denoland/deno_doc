@@ -65,67 +65,67 @@ error[private-type-ref]: public type 'MyClass.prototype.internal2' references pr
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///other.ts:2:14
+Defined in file:///other.ts:1:14
 
 const Test1: 1
   Test
 
-Defined in file:///other.ts:20:14
+Defined in file:///other.ts:19:14
 
 const Test10: 1
   Test
 
-Defined in file:///other.ts:4:14
+Defined in file:///other.ts:3:14
 
 const Test2: 1
   Test
 
-Defined in file:///other.ts:6:14
+Defined in file:///other.ts:5:14
 
 const Test3: 1
   Test
 
-Defined in file:///other.ts:8:14
+Defined in file:///other.ts:7:14
 
 const Test4: 1
   Test
 
-Defined in file:///other.ts:10:14
+Defined in file:///other.ts:9:14
 
 const Test5: 1
   Test
 
-Defined in file:///other.ts:12:14
+Defined in file:///other.ts:11:14
 
 const Test6: 1
   Test
 
-Defined in file:///other.ts:14:14
+Defined in file:///other.ts:13:14
 
 const Test7: 1
   Test
 
-Defined in file:///other.ts:16:14
+Defined in file:///other.ts:15:14
 
 const Test8: 1
   Test
 
-Defined in file:///other.ts:18:14
+Defined in file:///other.ts:17:14
 
 const Test9: 1
   Test
 
-Defined in file:///mod.ts:5:1
+Defined in file:///mod.ts:4:1
 
 private class Internal1
 
 
-Defined in file:///mod.ts:6:1
+Defined in file:///mod.ts:5:1
 
 private class Internal2
 
 
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 class MyClass
   Test
@@ -144,7 +144,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 9,
+          "line": 8,
           "col": 0,
           "byteIndex": 165
         },
@@ -177,7 +177,7 @@ class MyClass
               "name": "internal",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 11,
+                "line": 10,
                 "col": 2,
                 "byteIndex": 204
               }
@@ -202,7 +202,7 @@ class MyClass
               "name": "internal2",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 13,
+                "line": 12,
                 "col": 2,
                 "byteIndex": 241
               }
@@ -224,7 +224,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 2,
+          "line": 1,
           "col": 13,
           "byteIndex": 25
         },
@@ -253,7 +253,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 4,
+          "line": 3,
           "col": 13,
           "byteIndex": 61
         },
@@ -282,7 +282,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 6,
+          "line": 5,
           "col": 13,
           "byteIndex": 97
         },
@@ -311,7 +311,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 8,
+          "line": 7,
           "col": 13,
           "byteIndex": 133
         },
@@ -340,7 +340,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 10,
+          "line": 9,
           "col": 13,
           "byteIndex": 169
         },
@@ -369,7 +369,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 12,
+          "line": 11,
           "col": 13,
           "byteIndex": 205
         },
@@ -398,7 +398,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 14,
+          "line": 13,
           "col": 13,
           "byteIndex": 241
         },
@@ -427,7 +427,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 16,
+          "line": 15,
           "col": 13,
           "byteIndex": 277
         },
@@ -456,7 +456,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 18,
+          "line": 17,
           "col": 13,
           "byteIndex": 313
         },
@@ -485,7 +485,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///other.ts",
-          "line": 20,
+          "line": 19,
           "col": 13,
           "byteIndex": 349
         },
@@ -514,7 +514,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 5,
+          "line": 4,
           "col": 0,
           "byteIndex": 114
         },
@@ -540,7 +540,7 @@ class MyClass
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 6,
+          "line": 5,
           "col": 0,
           "byteIndex": 133
         },

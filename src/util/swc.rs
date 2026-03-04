@@ -118,14 +118,12 @@ pub fn get_text_info_location(
   text_info: &SourceTextInfo,
   pos: SourcePos,
 ) -> Location {
-  // todo(#150): for some reason we're using a display indent width of 4
   let line_and_column_index =
-    text_info.line_and_column_display_with_indent_width(pos, 4);
+    text_info.line_and_column_display_with_indent_width(pos, 2);
   let byte_index = pos.as_byte_index(text_info.range().start);
   Location {
     filename: specifier.into(),
-    // todo(#150): make 0-indexed
-    line: line_and_column_index.line_number,
+    line: line_and_column_index.line_number - 1,
     col: line_and_column_index.column_number - 1,
     byte_index,
   }

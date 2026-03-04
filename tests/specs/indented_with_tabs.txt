@@ -26,7 +26,7 @@ export namespace Tabs {
 	}
 }
 # output.txt
-Defined in file:///mod.ts:8:1
+Defined in file:///mod.ts:7:1
 
 namespace Tabs
   Line 1
@@ -51,7 +51,7 @@ namespace Tabs
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 8,
+          "line": 7,
           "col": 0,
           "byteIndex": 47
         },
@@ -68,8 +68,8 @@ namespace Tabs
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 16,
-                    "col": 4,
+                    "line": 15,
+                    "col": 2,
                     "byteIndex": 126
                   },
                   "declarationKind": "export",
@@ -89,8 +89,8 @@ namespace Tabs
                         },
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 24,
-                          "col": 8,
+                          "line": 23,
+                          "col": 4,
                           "byteIndex": 212
                         },
                         "params": [],

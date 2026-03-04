@@ -50,13 +50,13 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:5:1
+Defined in file:///mod.ts:4:1
 
 interface Output
 
   other: Test.Other
 
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 private namespace Test
 
@@ -71,7 +71,7 @@ private namespace Test
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 5,
+          "line": 4,
           "col": 0,
           "byteIndex": 44
         },
@@ -86,7 +86,7 @@ private namespace Test
               "name": "other",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 6,
+                "line": 5,
                 "col": 2,
                 "byteIndex": 72
               },
@@ -117,7 +117,7 @@ private namespace Test
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -131,7 +131,7 @@ private namespace Test
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 2,
+                    "line": 1,
                     "col": 2,
                     "byteIndex": 19
                   },
