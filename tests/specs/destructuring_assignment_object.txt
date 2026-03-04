@@ -5,31 +5,31 @@ const { a: a1, b: b1 } = obj;
 const { ["a"]: a2 } = obj;
 
 # output.txt
-Defined in file:///mod.ts:2:9
+Defined in file:///mod.ts:1:9
 
 private const a
 
-Defined in file:///mod.ts:3:12
+Defined in file:///mod.ts:2:12
 
 private const a1
 
-Defined in file:///mod.ts:4:16
+Defined in file:///mod.ts:3:16
 
 private const a2
 
-Defined in file:///mod.ts:2:12
+Defined in file:///mod.ts:1:12
 
 private const b
 
-Defined in file:///mod.ts:3:19
+Defined in file:///mod.ts:2:19
 
 private const b1
 
-Defined in file:///mod.ts:1:7
+Defined in file:///mod.ts:0:7
 
 private const obj: { a: string; b: string; }
 
-Defined in file:///mod.ts:2:18
+Defined in file:///mod.ts:1:18
 
 private const rest
 
@@ -42,7 +42,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 6,
           "byteIndex": 6
         },
@@ -60,7 +60,7 @@ private const rest
                   "name": "a",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 1,
+                    "line": 0,
                     "col": 14,
                     "byteIndex": 14
                   },
@@ -78,7 +78,7 @@ private const rest
                   "name": "b",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 1,
+                    "line": 0,
                     "col": 24,
                     "byteIndex": 24
                   },
@@ -108,7 +108,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 8,
           "byteIndex": 44
         },
@@ -127,7 +127,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 11,
           "byteIndex": 47
         },
@@ -146,7 +146,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 17,
           "byteIndex": 53
         },
@@ -165,7 +165,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 3,
+          "line": 2,
           "col": 11,
           "byteIndex": 78
         },
@@ -184,7 +184,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 3,
+          "line": 2,
           "col": 18,
           "byteIndex": 85
         },
@@ -203,7 +203,7 @@ private const rest
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 15,
           "byteIndex": 112
         },

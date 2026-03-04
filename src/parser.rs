@@ -1615,7 +1615,7 @@ fn parse_json_module_symbol(
       Location {
         filename: specifier.to_string().into_boxed_str(),
         col: 0,
-        line: 1,
+        line: 0,
         byte_index: 0,
       },
       DeclarationKind::Export,

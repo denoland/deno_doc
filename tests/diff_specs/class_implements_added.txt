@@ -19,7 +19,7 @@ export class Foo implements Runnable {
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 0,
                 "byteIndex": 0
               },
@@ -34,7 +34,7 @@ export class Foo implements Runnable {
                     "kind": "method",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 1,
+                      "line": 0,
                       "col": 21,
                       "byteIndex": 21
                     },
@@ -101,7 +101,7 @@ export class Foo implements Runnable {
                         },
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 3,
+                          "line": 2,
                           "col": 2,
                           "byteIndex": 77
                         }

@@ -9,7 +9,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 interface Interface<V> extends Iterable<V>
 
@@ -23,7 +23,7 @@ interface Interface<V> extends Iterable<V>
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },

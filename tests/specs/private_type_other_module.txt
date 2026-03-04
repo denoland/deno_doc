@@ -79,17 +79,17 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 class MyClass extends YesDiagnostic2
 
   prop: MyNamespace.YesDiagnostic
   other: Uint8Array
 
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 
 
@@ -101,7 +101,7 @@ Defined in file:///mod.ts:1:1
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 3,
+          "line": 2,
           "col": 0,
           "byteIndex": 64
         },
@@ -128,7 +128,7 @@ Defined in file:///mod.ts:1:1
               "name": "prop",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 4,
+                "line": 3,
                 "col": 2,
                 "byteIndex": 112
               }
@@ -150,7 +150,7 @@ Defined in file:///mod.ts:1:1
               "name": "other",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 5,
+                "line": 4,
                 "col": 2,
                 "byteIndex": 147
               }
@@ -172,7 +172,7 @@ Defined in file:///mod.ts:1:1
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -191,7 +191,7 @@ Defined in file:///mod.ts:1:1
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },

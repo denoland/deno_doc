@@ -3,7 +3,7 @@
 export default (a: string): void => {};
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 function default(a: string): void
   A default arrow fn
@@ -18,7 +18,7 @@ function default(a: string): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 26
         },

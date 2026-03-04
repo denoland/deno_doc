@@ -47,7 +47,7 @@ error[private-type-ref]: public type 'ClassB.prototype.prop' references private 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 class ClassA
   Class A
@@ -55,7 +55,7 @@ class ClassA
   prop: PrivateInterface
     property a
 
-Defined in file:///mod.ts:10:1
+Defined in file:///mod.ts:9:1
 
 class ClassB
   Class B
@@ -63,7 +63,7 @@ class ClassB
   prop: PrivateInterface
     property b
 
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 
 
@@ -75,7 +75,7 @@ Defined in file:///mod.ts:1:1
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 0,
           "byteIndex": 65
         },
@@ -108,7 +108,7 @@ Defined in file:///mod.ts:1:1
               "name": "prop",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 6,
+                "line": 5,
                 "col": 2,
                 "byteIndex": 109
               }
@@ -130,7 +130,7 @@ Defined in file:///mod.ts:1:1
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 10,
+          "line": 9,
           "col": 0,
           "byteIndex": 151
         },
@@ -163,7 +163,7 @@ Defined in file:///mod.ts:1:1
               "name": "prop",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 12,
+                "line": 11,
                 "col": 2,
                 "byteIndex": 195
               }
@@ -185,7 +185,7 @@ Defined in file:///mod.ts:1:1
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },

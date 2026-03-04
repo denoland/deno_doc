@@ -27,7 +27,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |              ^
 
 # output.txt
-Defined in file:///mod.ts:4:14
+Defined in file:///mod.ts:3:14
 
 const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): void; a: string; b: Map<string, number>; c: { d: string; }; f: (g: string) => void; [[s]]: (number | string)[]; }
 
@@ -40,7 +40,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 13,
           "byteIndex": 84
         },
@@ -58,7 +58,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "kind": "method",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 9,
+                    "line": 8,
                     "col": 2,
                     "byteIndex": 166
                   },
@@ -87,7 +87,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "kind": "getter",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 11,
+                    "line": 10,
                     "col": 2,
                     "byteIndex": 221
                   },
@@ -105,7 +105,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "kind": "setter",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 14,
+                    "line": 13,
                     "col": 2,
                     "byteIndex": 262
                   },
@@ -130,7 +130,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "kind": "method",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 18,
+                    "line": 17,
                     "col": 2,
                     "byteIndex": 316
                   },
@@ -164,7 +164,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   },
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 6,
+                    "line": 5,
                     "col": 2,
                     "byteIndex": 107
                   },
@@ -182,7 +182,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "name": "b",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 7,
+                    "line": 6,
                     "col": 2,
                     "byteIndex": 117
                   },
@@ -214,7 +214,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "name": "c",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 8,
+                    "line": 7,
                     "col": 2,
                     "byteIndex": 149
                   },
@@ -232,7 +232,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                           "name": "d",
                           "location": {
                             "filename": "file:///mod.ts",
-                            "line": 8,
+                            "line": 7,
                             "col": 7,
                             "byteIndex": 154
                           },
@@ -257,7 +257,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "name": "f",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 10,
+                    "line": 9,
                     "col": 2,
                     "byteIndex": 191
                   },
@@ -295,7 +295,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "name": "[s]",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 17,
+                    "line": 16,
                     "col": 2,
                     "byteIndex": 293
                   },

@@ -149,7 +149,7 @@ async fn types_header_handling() {
         "kind": "variable",
         "location": {
           "filename": "https://example.com/a.d.ts",
-          "line": 1,
+          "line": 0,
           "col": 13,
           "byteIndex": 13
         },
@@ -241,7 +241,7 @@ export function fooFn(a: number) {
       "declarations": [{
         "location": {
           "filename": "file:///reexport.ts",
-          "line": 7,
+          "line": 6,
           "col": 13,
           "byteIndex": 86
         },
@@ -268,7 +268,7 @@ export function fooFn(a: number) {
       "declarations": [{
         "location": {
           "filename": "file:///nested_reexport.ts",
-          "line": 5,
+          "line": 4,
           "col": 13,
           "byteIndex": 41
         },
@@ -295,7 +295,7 @@ export function fooFn(a: number) {
       "declarations": [{
         "location": {
           "filename": "file:///test.ts",
-          "line": 6,
+          "line": 5,
           "col": 0,
           "byteIndex": 152
         },
@@ -330,7 +330,7 @@ export function fooFn(a: number) {
       "declarations": [{
         "location": {
           "filename": "file:///test.ts",
-          "line": 3,
+          "line": 2,
           "col": 0,
           "byteIndex": 79
         },
@@ -392,7 +392,7 @@ export { Hello } from "./reexport.ts";
         {
           "location": {
             "filename": "file:///reexport.ts",
-            "line": 2,
+            "line": 1,
             "col": 0,
             "byteIndex": 1
           },
@@ -411,7 +411,7 @@ export { Hello } from "./reexport.ts";
         {
           "location": {
             "filename": "file:///reexport.ts",
-            "line": 3,
+            "line": 2,
             "col": 0,
             "byteIndex": 27
           },
@@ -475,7 +475,7 @@ async fn deep_reexports() {
         "kind": "variable",
         "location": {
           "filename": "file:///foo.ts",
-          "line": 1,
+          "line": 0,
           "col": 13,
           "byteIndex": 13
         },
@@ -545,7 +545,7 @@ export * as b from "./mod_doc.ts";
         "kind": "namespace",
         "location": {
           "filename": "file:///ns.ts",
-          "line": 2,
+          "line": 1,
           "col": 7,
           "byteIndex": 8
         },
@@ -566,7 +566,7 @@ export * as b from "./mod_doc.ts";
                 "kind": "variable",
                 "location": {
                   "filename": "file:///mod_doc.ts",
-                  "line": 9,
+                  "line": 8,
                   "col": 13,
                   "byteIndex": 83
                 },
@@ -741,7 +741,7 @@ async fn exports_imported_earlier() {
         "kind": "variable",
         "location": {
           "filename": "file:///foo.ts",
-          "line": 1,
+          "line": 0,
           "col": 13,
           "byteIndex": 13
         },
@@ -762,7 +762,7 @@ async fn exports_imported_earlier() {
         "kind": "import",
         "location": {
           "filename": "file:///test.ts",
-          "line": 2,
+          "line": 1,
           "col": 2,
           "byteIndex": 3
         },
@@ -815,7 +815,7 @@ async fn exports_imported_earlier_renamed() {
         "kind": "variable",
         "location": {
           "filename": "file:///foo.ts",
-          "line": 1,
+          "line": 0,
           "col": 13,
           "byteIndex": 13
         },
@@ -836,7 +836,7 @@ async fn exports_imported_earlier_renamed() {
         "kind": "import",
         "location": {
           "filename": "file:///test.ts",
-          "line": 2,
+          "line": 1,
           "col": 2,
           "byteIndex": 3
         },
@@ -890,7 +890,7 @@ async fn exports_imported_earlier_default() {
         "kind": "variable",
         "location": {
           "filename": "file:///foo.ts",
-          "line": 1,
+          "line": 0,
           "col": 6,
           "byteIndex": 6
         },
@@ -911,7 +911,7 @@ async fn exports_imported_earlier_default() {
         "kind": "import",
         "location": {
           "filename": "file:///test.ts",
-          "line": 2,
+          "line": 1,
           "col": 2,
           "byteIndex": 3
         },
@@ -967,7 +967,7 @@ async fn exports_imported_earlier_private() {
         "kind": "variable",
         "location": {
           "filename": "file:///foo.ts",
-          "line": 1,
+          "line": 0,
           "col": 13,
           "byteIndex": 13
         },
@@ -988,7 +988,7 @@ async fn exports_imported_earlier_private() {
         "kind": "import",
         "location": {
           "filename": "file:///test.ts",
-          "line": 2,
+          "line": 1,
           "col": 2,
           "byteIndex": 3
         },
@@ -1053,7 +1053,7 @@ async fn json_module() {
         "kind": "variable",
         "location": {
           "filename": "file:///bar.json",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0,
         },

@@ -40,7 +40,7 @@ export class Foo {
                                 "name": "memoize",
                                 "location": {
                                   "filename": "file:///mod.ts",
-                                  "line": 3,
+                                  "line": 2,
                                   "col": 3,
                                   "byteIndex": 29
                                 }
@@ -61,7 +61,7 @@ export class Foo {
                               "name": "deprecated",
                               "location": {
                                 "filename": "file:///mod.ts",
-                                "line": 5,
+                                "line": 4,
                                 "col": 3,
                                 "byteIndex": 49
                               }

@@ -20,7 +20,7 @@ export const Baz = class MyClass {
 };
 
 # output.txt
-Defined in file:///mod.ts:8:14
+Defined in file:///mod.ts:7:14
 
 class Bar extends Foo
   A class expression extending another
@@ -28,7 +28,7 @@ class Bar extends Foo
   constructor(public name: string)
     A constructor
 
-Defined in file:///mod.ts:16:14
+Defined in file:///mod.ts:15:14
 
 class Baz
   A named class expression
@@ -36,7 +36,7 @@ class Baz
   prop: string
     A property
 
-Defined in file:///mod.ts:2:14
+Defined in file:///mod.ts:1:14
 
 class Foo
   A simple class expression
@@ -53,7 +53,7 @@ class Foo
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 13,
           "byteIndex": 46
         },
@@ -92,7 +92,7 @@ class Foo
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 4,
+                "line": 3,
                 "col": 2,
                 "byteIndex": 80
               }
@@ -112,7 +112,7 @@ class Foo
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 8,
+          "line": 7,
           "col": 13,
           "byteIndex": 156
         },
@@ -146,7 +146,7 @@ class Foo
               ],
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 10,
+                "line": 9,
                 "col": 2,
                 "byteIndex": 207
               }
@@ -169,7 +169,7 @@ class Foo
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 16,
+          "line": 15,
           "col": 13,
           "byteIndex": 308
         },
@@ -200,7 +200,7 @@ class Foo
               "name": "prop",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 18,
+                "line": 17,
                 "col": 2,
                 "byteIndex": 352
               }

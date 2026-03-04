@@ -22,7 +22,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 namespace Namespace
 
@@ -44,7 +44,7 @@ namespace Namespace
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -58,7 +58,7 @@ namespace Namespace
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 7,
+                    "line": 6,
                     "col": 2,
                     "byteIndex": 82
                   },
@@ -88,7 +88,7 @@ namespace Namespace
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 13,
+                    "line": 12,
                     "col": 2,
                     "byteIndex": 158
                   },

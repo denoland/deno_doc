@@ -71,7 +71,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |     ^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 class Foobar extends Fizz implements Buzz, Aldrin
   Class doc
@@ -91,7 +91,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 17
         },
@@ -118,7 +118,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "name": "protected1",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 5,
+                "line": 4,
                 "col": 4,
                 "byteIndex": 131
               }
@@ -137,7 +137,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "name": "public2",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 8,
+                "line": 7,
                 "col": 4,
                 "byteIndex": 213
               }
@@ -156,7 +156,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "name": "s",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 13,
+                "line": 12,
                 "col": 4,
                 "byteIndex": 337
               }
@@ -190,7 +190,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "name": "a",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 14,
+                "line": 13,
                 "col": 4,
                 "byteIndex": 352
               }
@@ -229,7 +229,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "name": "fn",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 15,
+                "line": 14,
                 "col": 4,
                 "byteIndex": 372
               }

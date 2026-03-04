@@ -32,11 +32,11 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |       ^
 
 # output.txt
-Defined in file:///a.ts:1:7
+Defined in file:///a.ts:0:7
 
 const test1: string
 
-Defined in file:///b.ts:1:1
+Defined in file:///b.ts:0:1
 
 class Test
 
@@ -50,7 +50,7 @@ class Test
       {
         "location": {
           "filename": "file:///b.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -76,7 +76,7 @@ class Test
       {
         "location": {
           "filename": "file:///a.ts",
-          "line": 1,
+          "line": 0,
           "col": 6,
           "byteIndex": 6
         },

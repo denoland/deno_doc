@@ -42,7 +42,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    | ^
 
 # output.txt
-Defined in file:///mod.ts:7:1
+Defined in file:///mod.ts:6:1
 
 class MyClass
 
@@ -52,7 +52,7 @@ class MyClass
   privateTypeUse: PrivateType
   method()
 
-Defined in file:///mod.ts:19:1
+Defined in file:///mod.ts:18:1
 
 class Other
   Test
@@ -64,13 +64,13 @@ class Other
 
     @internal
 
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 private type PrivateType = string
 
   @internal
 
-Defined in file:///mod.ts:34:1
+Defined in file:///mod.ts:33:1
 
 type Test = OtherPrivateType
 
@@ -83,7 +83,7 @@ type Test = OtherPrivateType
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 7,
+          "line": 6,
           "col": 0,
           "byteIndex": 109
         },
@@ -110,7 +110,7 @@ type Test = OtherPrivateType
               "name": "test",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 9,
+                "line": 8,
                 "col": 2,
                 "byteIndex": 187
               }
@@ -132,7 +132,7 @@ type Test = OtherPrivateType
               "name": "privateTypeUse",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 15,
+                "line": 14,
                 "col": 2,
                 "byteIndex": 240
               }
@@ -157,7 +157,7 @@ type Test = OtherPrivateType
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 11,
+                "line": 10,
                 "col": 2,
                 "byteIndex": 196
               }
@@ -177,7 +177,7 @@ type Test = OtherPrivateType
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 19,
+          "line": 18,
           "col": 0,
           "byteIndex": 284
         },
@@ -207,7 +207,7 @@ type Test = OtherPrivateType
               "name": "test",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 21,
+                "line": 20,
                 "col": 2,
                 "byteIndex": 326
               }
@@ -239,7 +239,7 @@ type Test = OtherPrivateType
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 24,
+                "line": 23,
                 "col": 2,
                 "byteIndex": 354
               }
@@ -259,7 +259,7 @@ type Test = OtherPrivateType
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 34,
+          "line": 33,
           "col": 0,
           "byteIndex": 480
         },
@@ -285,7 +285,7 @@ type Test = OtherPrivateType
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 0,
           "byteIndex": 64
         },

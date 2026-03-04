@@ -28,7 +28,7 @@ export interface Foo {
                         "name": "baz",
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 3,
+                          "line": 2,
                           "col": 2,
                           "byteIndex": 40
                         },

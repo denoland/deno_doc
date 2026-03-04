@@ -19,14 +19,14 @@ export interface B {}
 export function C() {}
 
 # output.txt
-Defined in file:///mod.ts:18:1
+Defined in file:///mod.ts:17:1
 
 function C(): void
   C is a function
 
   Summarised
 
-Defined in file:///mod.ts:6:1
+Defined in file:///mod.ts:5:1
 
 class A
   A is a class
@@ -34,7 +34,7 @@ class A
   Nothing more
 
 
-Defined in file:///mod.ts:12:1
+Defined in file:///mod.ts:11:1
 
 interface B
   B is an interface
@@ -51,7 +51,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 6,
+          "line": 5,
           "col": 0,
           "byteIndex": 43
         },
@@ -80,7 +80,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 12,
+          "line": 11,
           "col": 0,
           "byteIndex": 106
         },
@@ -107,7 +107,7 @@ interface B
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 18,
+          "line": 17,
           "col": 0,
           "byteIndex": 172
         },

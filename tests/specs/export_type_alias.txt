@@ -2,7 +2,7 @@
 /** Array holding numbers */
 export type NumberArray = Array<number>;
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 type NumberArray = Array<number>
   Array holding numbers
@@ -16,7 +16,7 @@ type NumberArray = Array<number>
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 29
         },

@@ -37,7 +37,7 @@ export type Config = {
                             "name": "debug",
                             "location": {
                               "filename": "file:///mod.ts",
-                              "line": 2,
+                              "line": 1,
                               "col": 2,
                               "byteIndex": 25
                             },
@@ -55,7 +55,7 @@ export type Config = {
                             "name": "verbose",
                             "location": {
                               "filename": "file:///mod.ts",
-                              "line": 3,
+                              "line": 2,
                               "col": 2,
                               "byteIndex": 43
                             },

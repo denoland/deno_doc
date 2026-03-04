@@ -79,23 +79,23 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp
 
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 private namespace MyNamespace
 
   class Export
 
-Defined in file:///mod.ts:7:1
+Defined in file:///mod.ts:6:1
 
 private namespace MyNamespace2
 
   class MyClass
 
-Defined in file:///mod.ts:11:1
+Defined in file:///mod.ts:10:1
 
 private namespace MyNamespace3
 
@@ -110,7 +110,7 @@ private namespace MyNamespace3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 0,
           "byteIndex": 0
         },
@@ -133,7 +133,7 @@ private namespace MyNamespace3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 3,
+          "line": 2,
           "col": 0,
           "byteIndex": 82
         },
@@ -147,7 +147,7 @@ private namespace MyNamespace3
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 12,
+                    "line": 11,
                     "col": 2,
                     "byteIndex": 259
                   },
@@ -171,7 +171,7 @@ private namespace MyNamespace3
                         "name": "someProp",
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 13,
+                          "line": 12,
                           "col": 4,
                           "byteIndex": 286
                         }
@@ -198,7 +198,7 @@ private namespace MyNamespace3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 7,
+          "line": 6,
           "col": 0,
           "byteIndex": 156
         },
@@ -212,7 +212,7 @@ private namespace MyNamespace3
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 12,
+                    "line": 11,
                     "col": 2,
                     "byteIndex": 259
                   },
@@ -236,7 +236,7 @@ private namespace MyNamespace3
                         "name": "someProp",
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 13,
+                          "line": 12,
                           "col": 4,
                           "byteIndex": 286
                         }
@@ -263,7 +263,7 @@ private namespace MyNamespace3
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 11,
+          "line": 10,
           "col": 0,
           "byteIndex": 232
         },
@@ -277,7 +277,7 @@ private namespace MyNamespace3
                 {
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 12,
+                    "line": 11,
                     "col": 2,
                     "byteIndex": 259
                   },
@@ -301,7 +301,7 @@ private namespace MyNamespace3
                         "name": "someProp",
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 13,
+                          "line": 12,
                           "col": 4,
                           "byteIndex": 286
                         }

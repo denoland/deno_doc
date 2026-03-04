@@ -57,7 +57,7 @@ export interface Foo {
                         "typeParams": [],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 2,
+                          "line": 1,
                           "col": 2,
                           "byteIndex": 25
                         }
@@ -88,7 +88,7 @@ export interface Foo {
                         "typeParams": [],
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 2,
+                          "line": 1,
                           "col": 2,
                           "byteIndex": 25
                         }

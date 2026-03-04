@@ -12,7 +12,7 @@ export enum Hello {
     Buzz = "buzz",
 }
 # output.txt
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 enum Hello
   Some enum for good measure
@@ -30,7 +30,7 @@ enum Hello
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 0,
           "byteIndex": 38
         },
@@ -53,7 +53,7 @@ enum Hello
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 5,
+                "line": 4,
                 "col": 4,
                 "byteIndex": 62
               }
@@ -73,7 +73,7 @@ enum Hello
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 7,
+                "line": 6,
                 "col": 4,
                 "byteIndex": 111
               }

@@ -45,7 +45,7 @@ export class Foo {
                         },
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 3,
+                          "line": 2,
                           "col": 2,
                           "byteIndex": 32
                         }

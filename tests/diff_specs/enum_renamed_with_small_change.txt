@@ -37,7 +37,7 @@ export enum Bar {
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 0,
                 "byteIndex": 0
               },
@@ -49,7 +49,7 @@ export enum Bar {
                     "name": "A",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 2,
+                      "line": 1,
                       "col": 2,
                       "byteIndex": 20
                     }
@@ -58,7 +58,7 @@ export enum Bar {
                     "name": "B",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 3,
+                      "line": 2,
                       "col": 2,
                       "byteIndex": 25
                     }
@@ -67,7 +67,7 @@ export enum Bar {
                     "name": "C",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 4,
+                      "line": 3,
                       "col": 2,
                       "byteIndex": 30
                     }
@@ -76,7 +76,7 @@ export enum Bar {
                     "name": "D",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 5,
+                      "line": 4,
                       "col": 2,
                       "byteIndex": 35
                     }
@@ -85,7 +85,7 @@ export enum Bar {
                     "name": "E",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 6,
+                      "line": 5,
                       "col": 2,
                       "byteIndex": 40
                     }
@@ -94,7 +94,7 @@ export enum Bar {
                     "name": "F",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 7,
+                      "line": 6,
                       "col": 2,
                       "byteIndex": 45
                     }
@@ -103,7 +103,7 @@ export enum Bar {
                     "name": "G",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 8,
+                      "line": 7,
                       "col": 2,
                       "byteIndex": 50
                     }
@@ -112,7 +112,7 @@ export enum Bar {
                     "name": "H",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 9,
+                      "line": 8,
                       "col": 2,
                       "byteIndex": 55
                     }
@@ -121,7 +121,7 @@ export enum Bar {
                     "name": "I",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 10,
+                      "line": 9,
                       "col": 2,
                       "byteIndex": 60
                     }
@@ -130,7 +130,7 @@ export enum Bar {
                     "name": "K",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 11,
+                      "line": 10,
                       "col": 2,
                       "byteIndex": 65
                     }
@@ -148,7 +148,7 @@ export enum Bar {
             {
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 1,
+                "line": 0,
                 "col": 0,
                 "byteIndex": 0
               },
@@ -160,7 +160,7 @@ export enum Bar {
                     "name": "A",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 2,
+                      "line": 1,
                       "col": 2,
                       "byteIndex": 20
                     }
@@ -169,7 +169,7 @@ export enum Bar {
                     "name": "B",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 3,
+                      "line": 2,
                       "col": 2,
                       "byteIndex": 25
                     }
@@ -178,7 +178,7 @@ export enum Bar {
                     "name": "C",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 4,
+                      "line": 3,
                       "col": 2,
                       "byteIndex": 30
                     }
@@ -187,7 +187,7 @@ export enum Bar {
                     "name": "D",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 5,
+                      "line": 4,
                       "col": 2,
                       "byteIndex": 35
                     }
@@ -196,7 +196,7 @@ export enum Bar {
                     "name": "E",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 6,
+                      "line": 5,
                       "col": 2,
                       "byteIndex": 40
                     }
@@ -205,7 +205,7 @@ export enum Bar {
                     "name": "F",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 7,
+                      "line": 6,
                       "col": 2,
                       "byteIndex": 45
                     }
@@ -214,7 +214,7 @@ export enum Bar {
                     "name": "G",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 8,
+                      "line": 7,
                       "col": 2,
                       "byteIndex": 50
                     }
@@ -223,7 +223,7 @@ export enum Bar {
                     "name": "H",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 9,
+                      "line": 8,
                       "col": 2,
                       "byteIndex": 55
                     }
@@ -232,7 +232,7 @@ export enum Bar {
                     "name": "I",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 10,
+                      "line": 9,
                       "col": 2,
                       "byteIndex": 60
                     }
@@ -241,7 +241,7 @@ export enum Bar {
                     "name": "J",
                     "location": {
                       "filename": "file:///mod.ts",
-                      "line": 11,
+                      "line": 10,
                       "col": 2,
                       "byteIndex": 65
                     }

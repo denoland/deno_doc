@@ -52,7 +52,7 @@ export function withList(): void {}
 export function deepNested(): void {}
 
 # output.txt
-Defined in file:///mod.ts:51:1
+Defined in file:///mod.ts:50:1
 
 function deepNested(): void
   Deeply nested blockquotes.
@@ -64,7 +64,7 @@ function deepNested(): void
   │││ Level three.
   │││
 
-Defined in file:///mod.ts:29:1
+Defined in file:///mod.ts:28:1
 
 function followedByText(): void
   Blockquote followed by normal text.
@@ -74,7 +74,7 @@ function followedByText(): void
 
   Back to normal text.
 
-Defined in file:///mod.ts:14:1
+Defined in file:///mod.ts:13:1
 
 function multiParagraph(): void
   Blockquote with multiple paragraphs.
@@ -84,7 +84,7 @@ function multiParagraph(): void
   │ Second paragraph inside the quote.
   │
 
-Defined in file:///mod.ts:21:1
+Defined in file:///mod.ts:20:1
 
 function nested(): void
   Nested blockquotes.
@@ -94,7 +94,7 @@ function nested(): void
   ││ Inner quote.
   ││
 
-Defined in file:///mod.ts:6:1
+Defined in file:///mod.ts:5:1
 
 function simple(): void
   Simple blockquote.
@@ -102,7 +102,7 @@ function simple(): void
   │ This is quoted text.
   │
 
-Defined in file:///mod.ts:35:1
+Defined in file:///mod.ts:34:1
 
 function withCodeSpan(): void
   Blockquote containing a code span.
@@ -110,7 +110,7 @@ function withCodeSpan(): void
   │ Use `console.log()` for debugging.
   │
 
-Defined in file:///mod.ts:43:1
+Defined in file:///mod.ts:42:1
 
 function withList(): void
   Blockquote containing a list.
@@ -129,7 +129,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 6,
+          "line": 5,
           "col": 0,
           "byteIndex": 59
         },
@@ -159,7 +159,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 14,
+          "line": 13,
           "col": 0,
           "byteIndex": 228
         },
@@ -189,7 +189,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 21,
+          "line": 20,
           "col": 0,
           "byteIndex": 341
         },
@@ -219,7 +219,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 29,
+          "line": 28,
           "col": 0,
           "byteIndex": 473
         },
@@ -249,7 +249,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 35,
+          "line": 34,
           "col": 0,
           "byteIndex": 604
         },
@@ -279,7 +279,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 43,
+          "line": 42,
           "col": 0,
           "byteIndex": 722
         },
@@ -309,7 +309,7 @@ function withList(): void
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 51,
+          "line": 50,
           "col": 0,
           "byteIndex": 852
         },

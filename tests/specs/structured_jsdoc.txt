@@ -35,7 +35,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |   ^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 class A
   Class doc
@@ -69,7 +69,7 @@ class A
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 17
         },
@@ -130,7 +130,7 @@ class A
               ],
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 14,
+                "line": 13,
                 "col": 2,
                 "byteIndex": 289
               }
@@ -158,7 +158,7 @@ class A
               "name": "p",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 4,
+                "line": 3,
                 "col": 2,
                 "byteIndex": 54
               }
@@ -195,7 +195,7 @@ class A
               },
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 19,
+                "line": 18,
                 "col": 2,
                 "byteIndex": 361
               }

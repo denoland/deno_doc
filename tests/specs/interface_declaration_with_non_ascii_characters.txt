@@ -32,7 +32,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 interface 插件描述
 
@@ -48,7 +48,7 @@ interface 插件描述
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 0,
           "byteIndex": 35
         },
@@ -63,7 +63,7 @@ interface 插件描述
               "name": "pmim_version",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 3,
+                "line": 2,
                 "col": 2,
                 "byteIndex": 69
               },
@@ -81,7 +81,7 @@ interface 插件描述
               "name": "插件信息",
               "location": {
                 "filename": "file:///mod.ts",
-                "line": 4,
+                "line": 3,
                 "col": 2,
                 "byteIndex": 93
               },
@@ -99,7 +99,7 @@ interface 插件描述
                       "name": "名称",
                       "location": {
                         "filename": "file:///mod.ts",
-                        "line": 5,
+                        "line": 4,
                         "col": 4,
                         "byteIndex": 113
                       },
@@ -117,7 +117,7 @@ interface 插件描述
                       "name": "描述",
                       "location": {
                         "filename": "file:///mod.ts",
-                        "line": 6,
+                        "line": 5,
                         "col": 4,
                         "byteIndex": 133
                       },
@@ -135,7 +135,7 @@ interface 插件描述
                       "name": "版本",
                       "location": {
                         "filename": "file:///mod.ts",
-                        "line": 7,
+                        "line": 6,
                         "col": 4,
                         "byteIndex": 153
                       },
@@ -153,7 +153,7 @@ interface 插件描述
                       "name": "URL",
                       "location": {
                         "filename": "file:///mod.ts",
-                        "line": 8,
+                        "line": 7,
                         "col": 4,
                         "byteIndex": 173
                       },

@@ -61,8 +61,7 @@ impl From<&DeclarationDef> for DocNodeKind {
 #[serde(rename_all = "camelCase")]
 pub struct Location {
   pub filename: Box<str>,
-  /// The 1-indexed display line.
-  /// todo(#150): why is one of these 0-indexed and the other 1-indexed?
+  /// The 0-indexed display line.
   pub line: usize,
   /// The 0-indexed display column.
   pub col: usize,

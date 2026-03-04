@@ -3,15 +3,15 @@ const obj = { a: "foo", b: "bar" };
 const { a: a1 = "a", b = "b" } = obj;
 
 # output.txt
-Defined in file:///mod.ts:2:12
+Defined in file:///mod.ts:1:12
 
 private const a1
 
-Defined in file:///mod.ts:2:22
+Defined in file:///mod.ts:1:22
 
 private const b
 
-Defined in file:///mod.ts:1:7
+Defined in file:///mod.ts:0:7
 
 private const obj: { a: string; b: string; }
 
@@ -24,7 +24,7 @@ private const obj: { a: string; b: string; }
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 1,
+          "line": 0,
           "col": 6,
           "byteIndex": 6
         },
@@ -42,7 +42,7 @@ private const obj: { a: string; b: string; }
                   "name": "a",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 1,
+                    "line": 0,
                     "col": 14,
                     "byteIndex": 14
                   },
@@ -60,7 +60,7 @@ private const obj: { a: string; b: string; }
                   "name": "b",
                   "location": {
                     "filename": "file:///mod.ts",
-                    "line": 1,
+                    "line": 0,
                     "col": 24,
                     "byteIndex": 24
                   },
@@ -90,7 +90,7 @@ private const obj: { a: string; b: string; }
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 11,
           "byteIndex": 47
         },
@@ -109,7 +109,7 @@ private const obj: { a: string; b: string; }
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 21,
           "byteIndex": 57
         },

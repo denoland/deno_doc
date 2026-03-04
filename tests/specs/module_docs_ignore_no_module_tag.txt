@@ -9,7 +9,7 @@
 /** One associated with a class */
 export class A {}
 # output.txt
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 class A
   One associated with a class
@@ -24,7 +24,7 @@ class A
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 9,
+          "line": 8,
           "col": 0,
           "byteIndex": 109
         },

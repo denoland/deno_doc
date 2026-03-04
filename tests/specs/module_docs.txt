@@ -10,13 +10,13 @@
 export class A {}
 
 # output.txt
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
   A leading JSDoc comment
 
   @module
 
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 class A
   One associated with a class
@@ -31,7 +31,7 @@ class A
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 3,
+          "line": 2,
           "col": 0,
           "byteIndex": 27
         },
@@ -54,7 +54,7 @@ class A
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 9,
+          "line": 8,
           "col": 0,
           "byteIndex": 109
         },

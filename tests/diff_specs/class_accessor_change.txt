@@ -62,7 +62,7 @@ export class Widget {
                         },
                         "location": {
                           "filename": "file:///mod.ts",
-                          "line": 6,
+                          "line": 5,
                           "col": 2,
                           "byteIndex": 127
                         }

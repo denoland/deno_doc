@@ -30,57 +30,57 @@ error[missing-return-type]: exported function is missing an explicit return type
    |              ^
 
 # output.txt
-Defined in file:///mod.ts:22:14
+Defined in file:///mod.ts:21:14
 
 function k(value: string)
   doc11
 
-Defined in file:///mod.ts:2:12
+Defined in file:///mod.ts:1:12
 
 let a: number
   doc1
 
-Defined in file:///mod.ts:4:14
+Defined in file:///mod.ts:3:14
 
 const b: number
   doc2
 
-Defined in file:///mod.ts:6:14
+Defined in file:///mod.ts:5:14
 
 const c: string
   doc3
 
-Defined in file:///mod.ts:8:14
+Defined in file:///mod.ts:7:14
 
 const d: string
   doc4
 
-Defined in file:///mod.ts:10:14
+Defined in file:///mod.ts:9:14
 
 const e: 1
   doc5
 
-Defined in file:///mod.ts:12:14
+Defined in file:///mod.ts:11:14
 
 const f: "a" | 1
   doc6
 
-Defined in file:///mod.ts:14:14
+Defined in file:///mod.ts:13:14
 
 const g: "a"
   doc7
 
-Defined in file:///mod.ts:16:14
+Defined in file:///mod.ts:15:14
 
 const h: never
   doc8
 
-Defined in file:///mod.ts:18:14
+Defined in file:///mod.ts:17:14
 
 const i: boolean
   doc9
 
-Defined in file:///mod.ts:20:14
+Defined in file:///mod.ts:19:14
 
 const j: number
   doc10
@@ -94,7 +94,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 2,
+          "line": 1,
           "col": 11,
           "byteIndex": 23
         },
@@ -120,7 +120,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 4,
+          "line": 3,
           "col": 13,
           "byteIndex": 57
         },
@@ -146,7 +146,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 6,
+          "line": 5,
           "col": 13,
           "byteIndex": 91
         },
@@ -172,7 +172,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 8,
+          "line": 7,
           "col": 13,
           "byteIndex": 132
         },
@@ -198,7 +198,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 10,
+          "line": 9,
           "col": 13,
           "byteIndex": 174
         },
@@ -227,7 +227,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 12,
+          "line": 11,
           "col": 13,
           "byteIndex": 212
         },
@@ -270,7 +270,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 14,
+          "line": 13,
           "col": 13,
           "byteIndex": 257
         },
@@ -299,7 +299,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 16,
+          "line": 15,
           "col": 13,
           "byteIndex": 308
         },
@@ -325,7 +325,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 18,
+          "line": 17,
           "col": 13,
           "byteIndex": 344
         },
@@ -351,7 +351,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 20,
+          "line": 19,
           "col": 13,
           "byteIndex": 386
         },
@@ -377,7 +377,7 @@ const j: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 22,
+          "line": 21,
           "col": 13,
           "byteIndex": 424
         },

@@ -31,21 +31,21 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |                      ^
 
 # output.txt
-Defined in file:///mod.ts:6:3
+Defined in file:///mod.ts:5:3
 
 const a: string
   export a doc
 
-Defined in file:///mod.ts:8:3
+Defined in file:///mod.ts:7:3
 
 const b: number
   export b doc
 
-Defined in file:///mod.ts:16:16
+Defined in file:///mod.ts:15:16
 
 const f: string
 
-Defined in file:///mod.ts:16:22
+Defined in file:///mod.ts:15:22
 
 const h: number
 
@@ -58,7 +58,7 @@ const h: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 6,
+          "line": 5,
           "col": 2,
           "byteIndex": 123
         },
@@ -84,7 +84,7 @@ const h: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 8,
+          "line": 7,
           "col": 2,
           "byteIndex": 150
         },
@@ -110,7 +110,7 @@ const h: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 16,
+          "line": 15,
           "col": 15,
           "byteIndex": 250
         },
@@ -133,7 +133,7 @@ const h: number
       {
         "location": {
           "filename": "file:///mod.ts",
-          "line": 16,
+          "line": 15,
           "col": 21,
           "byteIndex": 256
         },
