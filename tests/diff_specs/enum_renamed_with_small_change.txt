@@ -43,7 +43,7 @@ export enum Bar {
               },
               "declarationKind": "export",
               "kind": "enum",
-              "enumDef": {
+              "def": {
                 "members": [
                   {
                     "name": "A",
@@ -154,7 +154,7 @@ export enum Bar {
               },
               "declarationKind": "export",
               "kind": "enum",
-              "enumDef": {
+              "def": {
                 "members": [
                   {
                     "name": "A",

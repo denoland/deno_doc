@@ -29,7 +29,7 @@ interface Interface<T>
         },
         "declarationKind": "export",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],

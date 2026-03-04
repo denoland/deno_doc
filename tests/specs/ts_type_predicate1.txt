@@ -28,7 +28,7 @@ function foo(bar: A | B): bar is A
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

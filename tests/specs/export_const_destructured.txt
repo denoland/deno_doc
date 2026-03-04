@@ -67,7 +67,7 @@ const h: number
           "doc": "export a doc"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -93,7 +93,7 @@ const h: number
           "doc": "export b doc"
         },
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",
@@ -116,7 +116,7 @@ const h: number
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -139,7 +139,7 @@ const h: number
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",

@@ -28,7 +28,7 @@ type Flatten<T> = T extends Array<infer U> ? U : T
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "conditional",

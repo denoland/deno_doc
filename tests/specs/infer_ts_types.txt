@@ -324,7 +324,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
@@ -347,7 +347,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",
@@ -370,7 +370,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "boolean",
             "kind": "keyword",
@@ -393,7 +393,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "bigint",
             "kind": "keyword",
@@ -416,7 +416,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "hello",
             "kind": "typeRef",
@@ -442,7 +442,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "foobar",
             "kind": "literal",
@@ -477,7 +477,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "f${string | number}${string | null}o${string}${number}o",
             "kind": "literal",
@@ -586,7 +586,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -613,7 +613,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "Promise",
@@ -649,7 +649,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": null,
           "hasBody": true,
@@ -672,7 +672,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": null,
           "hasBody": true,
@@ -695,7 +695,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": null,
           "hasBody": true,
@@ -718,7 +718,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -872,7 +872,7 @@ namespace MyNamespace
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "cannotInfer",
@@ -886,7 +886,7 @@ namespace MyNamespace
                   },
                   "declarationKind": "declare",
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [],
                     "returnType": null,
                     "isAsync": false,

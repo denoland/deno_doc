@@ -28,7 +28,7 @@ type A = number
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "number",
             "kind": "keyword",

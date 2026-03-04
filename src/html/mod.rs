@@ -359,19 +359,17 @@ impl GenerateCtx {
                   kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
                 })
               {
-                let DeclarationDef::Variable { variable_def } =
-                  std::mem::replace(
-                    &mut declaration.def,
-                    DeclarationDef::ModuleDoc,
-                  )
-                else {
+                let DeclarationDef::Variable(variable_def) = std::mem::replace(
+                  &mut declaration.def,
+                  DeclarationDef::ModuleDoc,
+                ) else {
                   unreachable!()
                 };
                 let fn_or_constructor =
                   variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
 
-                declaration.def = DeclarationDef::Function {
-                  function_def: crate::function::FunctionDef {
+                declaration.def =
+                  DeclarationDef::Function(crate::function::FunctionDef {
                     def_name: None,
                     params: fn_or_constructor.params,
                     return_type: Some(fn_or_constructor.ts_type),
@@ -380,8 +378,7 @@ impl GenerateCtx {
                     is_generator: false,
                     type_params: fn_or_constructor.type_params,
                     decorators: Box::new([]),
-                  },
-                };
+                  });
               }
             }
 
@@ -517,7 +514,7 @@ impl GenerateCtx {
             .entry(decl.location.clone())
             .or_default()
             .push((depth, node.clone()));
-          if matches!(decl.def, DeclarationDef::Namespace { .. })
+          if matches!(decl.def, DeclarationDef::Namespace(..))
             && let Some(children) = &node.namespace_children
           {
             for child in children {
@@ -728,7 +725,7 @@ fn apply_namespace_diff_inner(
         if child
           .declarations
           .iter()
-          .any(|decl| matches!(decl.def, DeclarationDef::Namespace { .. }))
+          .any(|decl| matches!(decl.def, DeclarationDef::Namespace(..)))
         {
           let child_ns_diff =
             symbol_diff.declarations.as_ref().and_then(|decls_diff| {
@@ -945,9 +942,7 @@ impl DocNodeWithContext {
         .inner
         .declarations
         .iter()
-        .filter(|d| {
-          !matches!(d.def, crate::node::DeclarationDef::Import { .. })
-        })
+        .filter(|d| !matches!(d.def, crate::node::DeclarationDef::Import(..)))
         .map(|d| DocNodeKindCtx::from(crate::node::DocNodeKind::from(&d.def)))
         .collect()
     }
@@ -1067,7 +1062,7 @@ impl DocNodeWithContext {
 
     for decl in &self.inner.declarations {
       match &decl.def {
-        DeclarationDef::Class { class_def } => {
+        DeclarationDef::Class(class_def) => {
           symbols.extend(class_def.methods.iter().map(|method| {
             self.create_child_method(
               Symbol::function(
@@ -1089,7 +1084,7 @@ impl DocNodeWithContext {
             )
           }));
         }
-        DeclarationDef::Interface { interface_def } => {
+        DeclarationDef::Interface(interface_def) => {
           symbols.extend(interface_def.methods.iter().map(|method| {
             self.create_child_method(
               Symbol::from(method.clone()),
@@ -1101,7 +1096,7 @@ impl DocNodeWithContext {
             self.create_child_property(Symbol::from(property.clone()), true)
           }));
         }
-        DeclarationDef::TypeAlias { type_alias_def } => {
+        DeclarationDef::TypeAlias(type_alias_def) => {
           if let Some(ts_type_literal) =
             type_alias_def.ts_type.type_literal.as_ref()
           {
@@ -1117,7 +1112,7 @@ impl DocNodeWithContext {
             }));
           }
         }
-        DeclarationDef::Variable { variable_def } => {
+        DeclarationDef::Variable(variable_def) => {
           if let Some(ts_type_literal) = variable_def
             .ts_type
             .as_ref()

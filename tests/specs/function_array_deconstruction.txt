@@ -28,7 +28,7 @@ function f([a, b, ...c]): void
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "array",

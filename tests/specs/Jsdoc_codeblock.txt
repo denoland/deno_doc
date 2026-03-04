@@ -110,7 +110,7 @@ interface B
           "doc": "A is a class\n\n```ts\nconst bar = \"foo\";\nconsole.log(bar);\n```\n\nNothing more"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -139,7 +139,7 @@ interface B
           "doc": "B is an interface\n\n```ts\nconsole.log(bar);\n```\n\nShould be"
         },
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -166,7 +166,7 @@ interface B
           "doc": "C is a function\n\n```ts\nclass Bar {\n  #foo = \"something\";\n}\nconsole.log(bar);\n```\n\nSummarised"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -196,7 +196,7 @@ interface B
           "doc": "D\n\n```ts\nconst bar = \"foo\";\n```"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",

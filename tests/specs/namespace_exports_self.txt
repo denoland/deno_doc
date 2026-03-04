@@ -92,7 +92,7 @@ namespace f
           "doc": "Description."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "a",
@@ -109,7 +109,7 @@ namespace f
                     "doc": "Description."
                   },
                   "kind": "variable",
-                  "variableDef": {
+                  "def": {
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
@@ -140,7 +140,7 @@ namespace f
           "doc": "Description."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "b",
@@ -157,7 +157,7 @@ namespace f
                     "doc": "Description."
                   },
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],
@@ -191,7 +191,7 @@ namespace f
           "doc": "Description."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": []
         }
       }
@@ -212,7 +212,7 @@ namespace f
           "doc": "Description."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "e",
@@ -229,7 +229,7 @@ namespace f
                     "doc": "Description."
                   },
                   "kind": "namespace",
-                  "namespaceDef": {
+                  "def": {
                     "elements": []
                   }
                 }
@@ -255,7 +255,7 @@ namespace f
           "doc": "Description."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "g",
@@ -272,7 +272,7 @@ namespace f
                     "doc": "Description."
                   },
                   "kind": "namespace",
-                  "namespaceDef": {
+                  "def": {
                     "elements": [
                       {
                         "name": "value",
@@ -289,7 +289,7 @@ namespace f
                               "doc": "Description."
                             },
                             "kind": "variable",
-                            "variableDef": {
+                            "def": {
                               "tsType": {
                                 "repr": "f",
                                 "kind": "typeRef",

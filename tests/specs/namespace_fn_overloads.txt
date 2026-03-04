@@ -49,7 +49,7 @@ namespace Namespace
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "a",
@@ -63,7 +63,7 @@ namespace Namespace
                   },
                   "declarationKind": "export",
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [
                       {
                         "kind": "identifier",
@@ -95,7 +95,7 @@ namespace Namespace
                   },
                   "declarationKind": "export",
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [
                       {
                         "kind": "identifier",
@@ -127,7 +127,7 @@ namespace Namespace
                   },
                   "declarationKind": "export",
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [
                       {
                         "kind": "identifier",

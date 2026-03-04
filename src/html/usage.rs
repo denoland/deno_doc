@@ -116,7 +116,7 @@ fn usage_to_md(
       .all(|decl| {
         matches!(
           decl.def,
-          DeclarationDef::TypeAlias { .. } | DeclarationDef::Interface { .. }
+          DeclarationDef::TypeAlias(..) | DeclarationDef::Interface(..)
         )
       });
 
@@ -159,7 +159,7 @@ fn usage_to_md(
       let is_type = nodes[0].declarations.iter().all(|decl| {
         matches!(
           decl.def,
-          DeclarationDef::TypeAlias { .. } | DeclarationDef::Interface { .. }
+          DeclarationDef::TypeAlias(..) | DeclarationDef::Interface(..)
         )
       });
 

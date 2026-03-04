@@ -30,7 +30,7 @@ const foo: string
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",

@@ -52,7 +52,7 @@ namespace Namespace1
         },
         "declarationKind": "export",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "Test1",
@@ -66,7 +66,7 @@ namespace Namespace1
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],
@@ -92,7 +92,7 @@ namespace Namespace1
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],

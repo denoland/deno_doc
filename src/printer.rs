@@ -67,7 +67,7 @@ impl DocPrinter<'_> {
       let fn_decl_count = node
         .declarations
         .iter()
-        .filter(|d| matches!(d.def, DeclarationDef::Function { .. }))
+        .filter(|d| matches!(d.def, DeclarationDef::Function(..)))
         .count();
       let has_overloads = fn_decl_count > 1;
 
@@ -93,10 +93,10 @@ impl DocPrinter<'_> {
         writeln!(w)?;
 
         match &decl.def {
-          DeclarationDef::Class { .. } => self.format_class(w, decl)?,
-          DeclarationDef::Enum { .. } => self.format_enum(w, decl)?,
-          DeclarationDef::Interface { .. } => self.format_interface(w, decl)?,
-          DeclarationDef::Namespace { .. } => self.format_namespace(w, decl)?,
+          DeclarationDef::Class(..) => self.format_class(w, decl)?,
+          DeclarationDef::Enum(..) => self.format_enum(w, decl)?,
+          DeclarationDef::Interface(..) => self.format_interface(w, decl)?,
+          DeclarationDef::Namespace(..) => self.format_namespace(w, decl)?,
           _ => {}
         }
       }
@@ -115,15 +115,15 @@ impl DocPrinter<'_> {
       .iter()
       .map(|decl| match &decl.def {
         DeclarationDef::ModuleDoc => 0,
-        DeclarationDef::Function { .. } => 1,
-        DeclarationDef::Variable { .. } => 2,
-        DeclarationDef::Class { .. } => 3,
-        DeclarationDef::Enum { .. } => 4,
-        DeclarationDef::Interface { .. } => 5,
-        DeclarationDef::TypeAlias { .. } => 6,
-        DeclarationDef::Namespace { .. } => 7,
-        DeclarationDef::Import { .. } => 8,
-        DeclarationDef::Reference { .. } => 9,
+        DeclarationDef::Function(..) => 1,
+        DeclarationDef::Variable(..) => 2,
+        DeclarationDef::Class(..) => 3,
+        DeclarationDef::Enum(..) => 4,
+        DeclarationDef::Interface(..) => 5,
+        DeclarationDef::TypeAlias(..) => 6,
+        DeclarationDef::Namespace(..) => 7,
+        DeclarationDef::Import(..) => 8,
+        DeclarationDef::Reference(..) => 9,
       })
       .min()
       .unwrap()
@@ -139,29 +139,29 @@ impl DocPrinter<'_> {
   ) -> FmtResult {
     match &decl.def {
       DeclarationDef::ModuleDoc => self.format_module_doc(w, node, indent),
-      DeclarationDef::Function { .. } => {
+      DeclarationDef::Function(..) => {
         self.format_function_signature_def(w, node, decl, indent, has_overloads)
       }
-      DeclarationDef::Variable { .. } => {
+      DeclarationDef::Variable(..) => {
         self.format_variable_signature(w, node, decl, indent)
       }
-      DeclarationDef::Class { .. } => {
+      DeclarationDef::Class(..) => {
         self.format_class_signature(w, node, decl, indent)
       }
-      DeclarationDef::Enum { .. } => {
+      DeclarationDef::Enum(..) => {
         self.format_enum_signature(w, node, decl, indent)
       }
-      DeclarationDef::Interface { .. } => {
+      DeclarationDef::Interface(..) => {
         self.format_interface_signature(w, node, decl, indent)
       }
-      DeclarationDef::TypeAlias { .. } => {
+      DeclarationDef::TypeAlias(..) => {
         self.format_type_alias_signature(w, node, decl, indent)
       }
-      DeclarationDef::Namespace { .. } => {
+      DeclarationDef::Namespace(..) => {
         self.format_namespace_signature(w, node, decl, indent)
       }
-      DeclarationDef::Import { .. } => Ok(()),
-      DeclarationDef::Reference { .. } => {
+      DeclarationDef::Import(..) => Ok(()),
+      DeclarationDef::Reference(..) => {
         self.format_reference_signature(w, node, decl, indent)
       }
     }
@@ -538,7 +538,7 @@ impl DocPrinter<'_> {
       let fn_decl_count = elem
         .declarations
         .iter()
-        .filter(|d| matches!(d.def, DeclarationDef::Function { .. }))
+        .filter(|d| matches!(d.def, DeclarationDef::Function(..)))
         .count();
       let has_overloads = fn_decl_count > 1;
 

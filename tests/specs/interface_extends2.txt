@@ -29,7 +29,7 @@ interface Interface extends Iterator, Iterable
         },
         "declarationKind": "export",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [
             {
               "repr": "Iterator",

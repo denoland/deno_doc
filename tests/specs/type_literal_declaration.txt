@@ -28,7 +28,7 @@ type T = { }
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",

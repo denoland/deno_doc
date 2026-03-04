@@ -136,7 +136,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
           "doc": "Class doc"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [
             {

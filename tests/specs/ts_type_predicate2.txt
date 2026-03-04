@@ -28,7 +28,7 @@ function foo(bar: A | B): asserts bar is B
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

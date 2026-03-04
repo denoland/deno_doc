@@ -79,7 +79,7 @@ interface Reader extends Foo, Bar
           "doc": "Interface js doc"
         },
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [
             {
               "repr": "Foo",
@@ -205,7 +205,7 @@ interface Reader extends Foo, Bar
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -229,7 +229,7 @@ interface Reader extends Foo, Bar
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],

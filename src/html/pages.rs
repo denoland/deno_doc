@@ -550,7 +550,7 @@ pub fn generate_symbol_pages_for_module(
     if symbol
       .declarations
       .iter()
-      .any(|decl| matches!(decl.def, DeclarationDef::Class { .. }))
+      .any(|decl| matches!(decl.def, DeclarationDef::Class(..)))
     {
       let name = symbol.get_qualified_name();
       let prototype_name = format!("{name}.prototype");

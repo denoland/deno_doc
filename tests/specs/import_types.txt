@@ -30,7 +30,7 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

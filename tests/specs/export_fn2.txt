@@ -54,7 +54,7 @@ private interface AssignOpts
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "array",
@@ -174,7 +174,7 @@ private interface AssignOpts
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],

@@ -221,7 +221,7 @@ pub fn compute_namespaced_symbols<'a>(
     for decl in &symbol.declarations {
       if matches!(
         decl.def,
-        DeclarationDef::ModuleDoc | DeclarationDef::Import { .. }
+        DeclarationDef::ModuleDoc | DeclarationDef::Import(..)
       ) {
         continue;
       }
@@ -229,7 +229,7 @@ pub fn compute_namespaced_symbols<'a>(
       // TODO: handle export aliasing
 
       match &decl.def {
-        DeclarationDef::Class { class_def } => {
+        DeclarationDef::Class(class_def) => {
           namespaced_symbols.extend(class_def.methods.iter().map(|method| {
             let mut method_path = symbol.ns_qualifiers.to_vec();
             method_path.extend(
@@ -260,7 +260,7 @@ pub fn compute_namespaced_symbols<'a>(
             },
           ));
         }
-        DeclarationDef::Interface { interface_def } => {
+        DeclarationDef::Interface(interface_def) => {
           namespaced_symbols.extend(interface_def.methods.iter().map(
             |method| {
               let mut method_path = symbol.ns_qualifiers.to_vec();
@@ -285,7 +285,7 @@ pub fn compute_namespaced_symbols<'a>(
             },
           ));
         }
-        DeclarationDef::TypeAlias { type_alias_def } => {
+        DeclarationDef::TypeAlias(type_alias_def) => {
           if let Some(type_literal) =
             type_alias_def.ts_type.type_literal.as_ref()
           {
@@ -318,7 +318,7 @@ pub fn compute_namespaced_symbols<'a>(
             ));
           }
         }
-        DeclarationDef::Variable { variable_def } => {
+        DeclarationDef::Variable(variable_def) => {
           if let Some(type_literal) = variable_def
             .ts_type
             .as_ref()
@@ -359,7 +359,7 @@ pub fn compute_namespaced_symbols<'a>(
       namespaced_symbols
         .insert(name_path.to_vec(), Some(symbol.origin.clone()));
 
-      if matches!(decl.def, DeclarationDef::Namespace { .. }) {
+      if matches!(decl.def, DeclarationDef::Namespace(..)) {
         let children =
           symbol.namespace_children.as_ref().unwrap().iter().flat_map(
             |element| {

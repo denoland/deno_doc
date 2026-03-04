@@ -62,7 +62,7 @@ class Foo
           "doc": "A simple class expression"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -121,7 +121,7 @@ class Foo
           "doc": "A class expression extending another"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [
             {
@@ -178,7 +178,7 @@ class Foo
           "doc": "A named class expression"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "defName": "MyClass",
           "isAbstract": false,
           "constructors": [],

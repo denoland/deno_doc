@@ -28,7 +28,7 @@ type A<T> = T
         },
         "declarationKind": "export",
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "T",
             "kind": "typeRef",

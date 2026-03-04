@@ -69,7 +69,7 @@ class Class3
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [
             {
@@ -126,7 +126,7 @@ class Class3
           "doc": "doc2"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [
             {
@@ -168,7 +168,7 @@ class Class3
           "doc": "doc3"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [
             {

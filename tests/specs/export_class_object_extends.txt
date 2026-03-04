@@ -50,7 +50,7 @@ class Bar extends obj.Foo
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -76,7 +76,7 @@ class Bar extends obj.Foo
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",

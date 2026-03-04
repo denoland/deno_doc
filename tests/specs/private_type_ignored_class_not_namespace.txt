@@ -41,7 +41,7 @@ private namespace MyNamespace
           "doc": "Comment"
         },
         "kind": "typeAlias",
-        "typeAliasDef": {
+        "def": {
           "tsType": {
             "repr": "MyNamespace.MyInternal",
             "kind": "typeQuery",
@@ -64,7 +64,7 @@ private namespace MyNamespace
         },
         "declarationKind": "private",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "MyInternal",
@@ -85,7 +85,7 @@ private namespace MyNamespace
                     ]
                   },
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],

@@ -35,7 +35,7 @@ function add<T>(a: T, b: T)
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

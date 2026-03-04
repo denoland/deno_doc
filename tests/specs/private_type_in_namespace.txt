@@ -77,7 +77,7 @@ private namespace Test
         },
         "declarationKind": "export",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -123,7 +123,7 @@ private namespace Test
         },
         "declarationKind": "private",
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "Other",
@@ -137,7 +137,7 @@ private namespace Test
                   },
                   "declarationKind": "export",
                   "kind": "class",
-                  "classDef": {
+                  "def": {
                     "isAbstract": false,
                     "constructors": [],
                     "properties": [],

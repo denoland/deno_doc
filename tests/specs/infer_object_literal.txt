@@ -46,7 +46,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",

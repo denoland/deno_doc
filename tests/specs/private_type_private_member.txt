@@ -71,7 +71,7 @@ private interface YesDiagnostic
           "doc": "Comment"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -156,7 +156,7 @@ private interface YesDiagnostic
         },
         "declarationKind": "private",
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],

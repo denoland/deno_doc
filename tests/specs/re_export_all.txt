@@ -56,7 +56,7 @@ class Test
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -82,7 +82,7 @@ class Test
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "string",
             "kind": "keyword",

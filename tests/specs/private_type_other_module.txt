@@ -107,7 +107,7 @@ Defined in file:///mod.ts:1:1
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [
@@ -178,7 +178,7 @@ Defined in file:///mod.ts:1:1
         },
         "declarationKind": "private",
         "kind": "import",
-        "importDef": {
+        "def": {
           "src": "file:///diagnostic.ts",
           "imported": "MyNamespace"
         }
@@ -197,7 +197,7 @@ Defined in file:///mod.ts:1:1
         },
         "declarationKind": "private",
         "kind": "import",
-        "importDef": {
+        "def": {
           "src": "file:///diagnostic.ts",
           "imported": "YesDiagnostic2"
         }

@@ -48,7 +48,7 @@ function noop(): void
           ]
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",

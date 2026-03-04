@@ -214,7 +214,7 @@ async fn run() -> anyhow::Result<()> {
         doc_nodes_by_url.into_values().flatten().collect::<Vec<_>>();
 
       doc_nodes.retain(|doc_node| {
-        !matches!(doc_node.declarations[0].def, DeclarationDef::Import { .. })
+        !matches!(doc_node.declarations[0].def, DeclarationDef::Import(..))
       });
 
       if let Some(filter) = filter {

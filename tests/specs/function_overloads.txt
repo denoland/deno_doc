@@ -42,7 +42,7 @@ function a(b: number): number
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -74,7 +74,7 @@ function a(b: number): number
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -106,7 +106,7 @@ function a(b: number): number
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

@@ -62,7 +62,7 @@ class PublicType2
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": null,
           "hasBody": true,
@@ -85,7 +85,7 @@ class PublicType2
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [
@@ -134,7 +134,7 @@ class PublicType2
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": null,
           "hasBody": true,
@@ -157,7 +157,7 @@ class PublicType2
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [

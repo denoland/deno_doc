@@ -22,7 +22,7 @@ export function bar() {}
               },
               "declarationKind": "export",
               "kind": "function",
-              "functionDef": {
+              "def": {
                 "params": [],
                 "returnType": {
                   "repr": "void",

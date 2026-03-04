@@ -96,7 +96,7 @@ fn get_children_of_node(node: Symbol) -> Vec<Symbol> {
   let mut doc_nodes: Vec<Symbol> = vec![];
   for decl in node.declarations {
     match decl.def {
-      DeclarationDef::Namespace { namespace_def } => {
+      DeclarationDef::Namespace(namespace_def) => {
         doc_nodes.extend(
           namespace_def
             .elements
@@ -104,7 +104,7 @@ fn get_children_of_node(node: Symbol) -> Vec<Symbol> {
             .map(std::sync::Arc::unwrap_or_clone),
         );
       }
-      DeclarationDef::Interface { interface_def } => {
+      DeclarationDef::Interface(interface_def) => {
         for method in interface_def.methods {
           doc_nodes.push(method.into());
         }
@@ -112,7 +112,7 @@ fn get_children_of_node(node: Symbol) -> Vec<Symbol> {
           doc_nodes.push(property.into());
         }
       }
-      DeclarationDef::Class { class_def } => {
+      DeclarationDef::Class(class_def) => {
         for method in class_def.methods.into_vec().into_iter() {
           doc_nodes.push(method.into());
         }
@@ -153,7 +153,25 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
       .and_then(|v| v.as_bool())
       .unwrap_or(false);
 
-    // The remaining fields form the declaration
+    // v1 had kind-specific def fields (e.g. "functionDef", "variableDef")
+    // at the top level. v2 uses adjacently-tagged "def" for all kinds.
+    for field in [
+      "functionDef",
+      "variableDef",
+      "enumDef",
+      "classDef",
+      "typeAliasDef",
+      "namespaceDef",
+      "interfaceDef",
+      "importDef",
+      "referenceDef",
+    ] {
+      if let Some(val) = obj.remove(field) {
+        obj.insert("def".to_string(), val);
+        break;
+      }
+    }
+
     let declaration = serde_json::Value::Object(obj);
 
     let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {

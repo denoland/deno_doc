@@ -33,13 +33,13 @@ where
       for decl in &node.declarations {
         if matches!(
           decl.def,
-          DeclarationDef::ModuleDoc | DeclarationDef::Import { .. }
+          DeclarationDef::ModuleDoc | DeclarationDef::Import(..)
         ) {
           continue 'outer;
         }
 
         if flatten_namespaces
-          && matches!(decl.def, DeclarationDef::Namespace { .. })
+          && matches!(decl.def, DeclarationDef::Namespace(..))
         {
           partitioner_inner(
             ctx,
@@ -228,12 +228,12 @@ pub fn flatten_namespace<'a>(
       for decl in &node.declarations {
         if matches!(
           decl.def,
-          DeclarationDef::ModuleDoc | DeclarationDef::Import { .. }
+          DeclarationDef::ModuleDoc | DeclarationDef::Import(..)
         ) {
           continue 'outer;
         }
 
-        if matches!(decl.def, DeclarationDef::Namespace { .. }) {
+        if matches!(decl.def, DeclarationDef::Namespace(..)) {
           let children: Vec<_> =
             node.namespace_children.as_ref().unwrap().clone();
           partitioner_inner(

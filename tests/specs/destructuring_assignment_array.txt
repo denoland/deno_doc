@@ -75,7 +75,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "",
             "kind": "array",
@@ -102,7 +102,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -121,7 +121,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -140,7 +140,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -159,7 +159,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -178,7 +178,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -197,7 +197,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -216,7 +216,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -235,7 +235,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -254,7 +254,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -273,7 +273,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -292,7 +292,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }
@@ -311,7 +311,7 @@ private const rest5
         },
         "declarationKind": "private",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": null,
           "kind": "const"
         }

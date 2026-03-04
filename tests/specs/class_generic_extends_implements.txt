@@ -29,7 +29,7 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
         },
         "declarationKind": "export",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],

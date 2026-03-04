@@ -98,7 +98,7 @@ function a(b, c, d): void
           ]
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",

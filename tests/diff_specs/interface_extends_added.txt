@@ -27,7 +27,7 @@ export interface Foo extends Base {
               },
               "declarationKind": "private",
               "kind": "interface",
-              "interfaceDef": {
+              "def": {
                 "extends": [],
                 "constructors": [],
                 "methods": [],

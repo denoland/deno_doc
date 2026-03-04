@@ -89,7 +89,7 @@ class B
           ]
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -118,7 +118,7 @@ class B
           "doc": "Decorator in doc codeblock\n\n```ts\n@decorator\nclass Foo {}\n```"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],

@@ -88,7 +88,7 @@ interface B
           "doc": "A is a simple class."
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],
@@ -117,7 +117,7 @@ interface B
           "doc": "B is a simple interface."
         },
         "kind": "interface",
-        "interfaceDef": {
+        "def": {
           "extends": [],
           "constructors": [],
           "methods": [],
@@ -144,7 +144,7 @@ interface B
           "doc": "C is a function."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",

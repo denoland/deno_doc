@@ -32,7 +32,7 @@ class default
           "doc": "Class doc"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "defName": "Foobar",
           "isAbstract": false,
           "constructors": [

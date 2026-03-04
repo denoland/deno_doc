@@ -33,7 +33,7 @@ namespace other
           "doc": "Re-exports of other."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "foo",
@@ -50,7 +50,7 @@ namespace other
                     "doc": "a function"
                   },
                   "kind": "function",
-                  "functionDef": {
+                  "def": {
                     "params": [],
                     "returnType": {
                       "repr": "void",

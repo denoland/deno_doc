@@ -40,7 +40,7 @@ namespace Audio
           "doc": "Some documentation."
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "Speech",
@@ -57,7 +57,7 @@ namespace Audio
                     "doc": "Some documentation."
                   },
                   "kind": "namespace",
-                  "namespaceDef": {
+                  "def": {
                     "elements": []
                   }
                 }

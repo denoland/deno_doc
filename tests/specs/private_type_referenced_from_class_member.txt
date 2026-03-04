@@ -53,7 +53,7 @@ private class YesDiagnostic
           "doc": "Comment"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [
@@ -105,7 +105,7 @@ private class YesDiagnostic
         },
         "declarationKind": "private",
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [],

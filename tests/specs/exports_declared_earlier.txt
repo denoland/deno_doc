@@ -53,7 +53,7 @@ const hello: "world"
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "world",
             "kind": "literal",
@@ -79,7 +79,7 @@ const hello: "world"
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [
             {
               "kind": "identifier",
@@ -117,7 +117,7 @@ const hello: "world"
         },
         "declarationKind": "export",
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",

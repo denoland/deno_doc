@@ -28,7 +28,7 @@ const Const: 0
         },
         "declarationKind": "export",
         "kind": "variable",
-        "variableDef": {
+        "def": {
           "tsType": {
             "repr": "0",
             "kind": "literal",

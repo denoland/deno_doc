@@ -83,7 +83,7 @@ class Data
           "doc": "doc"
         },
         "kind": "class",
-        "classDef": {
+        "def": {
           "isAbstract": false,
           "constructors": [],
           "properties": [

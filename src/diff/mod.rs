@@ -484,31 +484,23 @@ impl DeclarationDefDiff {
       (DeclarationDefDiff::TypeAlias(d), _, _) => d.change_percentage(),
       (
         DeclarationDefDiff::Enum(d),
-        DeclarationDef::Enum { enum_def: old_def },
-        DeclarationDef::Enum { enum_def: new_def },
+        DeclarationDef::Enum(old_def),
+        DeclarationDef::Enum(new_def),
       ) => d.change_percentage(old_def, new_def),
       (
         DeclarationDefDiff::Class(d),
-        DeclarationDef::Class { class_def: old_def },
-        DeclarationDef::Class { class_def: new_def },
+        DeclarationDef::Class(old_def),
+        DeclarationDef::Class(new_def),
       ) => d.change_percentage(old_def, new_def),
       (
         DeclarationDefDiff::Interface(d),
-        DeclarationDef::Interface {
-          interface_def: old_def,
-        },
-        DeclarationDef::Interface {
-          interface_def: new_def,
-        },
+        DeclarationDef::Interface(old_def),
+        DeclarationDef::Interface(new_def),
       ) => d.change_percentage(old_def, new_def),
       (
         DeclarationDefDiff::Namespace(d),
-        DeclarationDef::Namespace {
-          namespace_def: old_def,
-        },
-        DeclarationDef::Namespace {
-          namespace_def: new_def,
-        },
+        DeclarationDef::Namespace(old_def),
+        DeclarationDef::Namespace(new_def),
       ) => d.change_percentage(old_def, new_def),
       _ => 1.0,
     }
@@ -566,74 +558,50 @@ impl DeclarationDefDiff {
   pub fn diff(old: &DeclarationDef, new: &DeclarationDef) -> Option<Self> {
     match (old, new) {
       (
-        DeclarationDef::Function {
-          function_def: old_def,
-        },
-        DeclarationDef::Function {
-          function_def: new_def,
-        },
+        DeclarationDef::Function(old_def),
+        DeclarationDef::Function(new_def),
       ) => {
         FunctionDiff::diff(old_def, new_def).map(DeclarationDefDiff::Function)
       }
 
       (
-        DeclarationDef::Variable {
-          variable_def: old_def,
-        },
-        DeclarationDef::Variable {
-          variable_def: new_def,
-        },
+        DeclarationDef::Variable(old_def),
+        DeclarationDef::Variable(new_def),
       ) => {
         VariableDiff::diff(old_def, new_def).map(DeclarationDefDiff::Variable)
       }
 
-      (
-        DeclarationDef::Enum { enum_def: old_def },
-        DeclarationDef::Enum { enum_def: new_def },
-      ) => EnumDiff::diff(old_def, new_def).map(DeclarationDefDiff::Enum),
+      (DeclarationDef::Enum(old_def), DeclarationDef::Enum(new_def)) => {
+        EnumDiff::diff(old_def, new_def).map(DeclarationDefDiff::Enum)
+      }
+
+      (DeclarationDef::Class(old_def), DeclarationDef::Class(new_def)) => {
+        ClassDiff::diff(old_def, new_def).map(DeclarationDefDiff::Class)
+      }
 
       (
-        DeclarationDef::Class { class_def: old_def },
-        DeclarationDef::Class { class_def: new_def },
-      ) => ClassDiff::diff(old_def, new_def).map(DeclarationDefDiff::Class),
-
-      (
-        DeclarationDef::TypeAlias {
-          type_alias_def: old_def,
-        },
-        DeclarationDef::TypeAlias {
-          type_alias_def: new_def,
-        },
+        DeclarationDef::TypeAlias(old_def),
+        DeclarationDef::TypeAlias(new_def),
       ) => {
         TypeAliasDiff::diff(old_def, new_def).map(DeclarationDefDiff::TypeAlias)
       }
 
       (
-        DeclarationDef::Namespace {
-          namespace_def: old_def,
-        },
-        DeclarationDef::Namespace {
-          namespace_def: new_def,
-        },
+        DeclarationDef::Namespace(old_def),
+        DeclarationDef::Namespace(new_def),
       ) => {
         NamespaceDiff::diff(old_def, new_def).map(DeclarationDefDiff::Namespace)
       }
 
       (
-        DeclarationDef::Interface {
-          interface_def: old_def,
-        },
-        DeclarationDef::Interface {
-          interface_def: new_def,
-        },
+        DeclarationDef::Interface(old_def),
+        DeclarationDef::Interface(new_def),
       ) => {
         InterfaceDiff::diff(old_def, new_def).map(DeclarationDefDiff::Interface)
       }
 
-      (DeclarationDef::Import { .. }, DeclarationDef::Import { .. }) => None,
-      (DeclarationDef::Reference { .. }, DeclarationDef::Reference { .. }) => {
-        None
-      }
+      (DeclarationDef::Import(..), DeclarationDef::Import(..)) => None,
+      (DeclarationDef::Reference(..), DeclarationDef::Reference(..)) => None,
       (DeclarationDef::ModuleDoc, DeclarationDef::ModuleDoc) => None,
 
       _ => unreachable!(),

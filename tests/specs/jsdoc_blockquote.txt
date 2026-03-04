@@ -138,7 +138,7 @@ function withList(): void
           "doc": "Simple blockquote.\n\n> This is quoted text."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -168,7 +168,7 @@ function withList(): void
           "doc": "Blockquote with multiple paragraphs.\n\n> First paragraph inside the quote.\n>\n> Second paragraph inside the quote."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -198,7 +198,7 @@ function withList(): void
           "doc": "Nested blockquotes.\n\n> Outer quote.\n>> Inner quote."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -228,7 +228,7 @@ function withList(): void
           "doc": "Blockquote followed by normal text.\n\n> Quoted section.\n\nBack to normal text."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -258,7 +258,7 @@ function withList(): void
           "doc": "Blockquote containing a code span.\n\n> Use `console.log()` for debugging."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -288,7 +288,7 @@ function withList(): void
           "doc": "Blockquote containing a list.\n\n> Items:\n> - one\n> - two"
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",
@@ -318,7 +318,7 @@ function withList(): void
           "doc": "Deeply nested blockquotes.\n\n> Level one.\n>> Level two.\n>>> Level three."
         },
         "kind": "function",
-        "functionDef": {
+        "def": {
           "params": [],
           "returnType": {
             "repr": "void",

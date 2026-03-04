@@ -60,7 +60,7 @@ namespace Tabs
           "doc": "Line 1\n\nLine 2\n\n\tIndented"
         },
         "kind": "namespace",
-        "namespaceDef": {
+        "def": {
           "elements": [
             {
               "name": "Tabs",
@@ -77,7 +77,7 @@ namespace Tabs
                     "doc": "Line 1\n\nLine 2\n\n\tIndented"
                   },
                   "kind": "interface",
-                  "interfaceDef": {
+                  "def": {
                     "extends": [],
                     "constructors": [],
                     "methods": [],
