@@ -1,29 +1,33 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-export type DocNode =
-  | DocNodeModuleDoc
-  | DocNodeFunction
-  | DocNodeVariable
-  | DocNodeEnum
-  | DocNodeClass
-  | DocNodeTypeAlias
-  | DocNodeNamespace
-  | DocNodeInterface
-  | DocNodeImport
-  | DocNodeReference;
+export interface DocNode {
+  name: string;
+  isDefault?: true;
+  declarations: Declaration[];
+}
 
 /** Indicates how the documentation node was declared. `"private"` indicates
  * the node is un-exported. `"export"` indicates it is exported from the current
  * module. `"declare"` indicates that it is a type only declaration. */
 export type DeclarationKind = "private" | "export" | "declare";
 
-interface DocNodeBase {
+export type Declaration =
+  | DeclarationModuleDoc
+  | DeclarationFunction
+  | DeclarationVariable
+  | DeclarationEnum
+  | DeclarationClass
+  | DeclarationTypeAlias
+  | DeclarationNamespace
+  | DeclarationInterface
+  | DeclarationImport
+  | DeclarationReference;
+
+interface DeclarationBase {
   kind: DocNodeKind;
-  name: string;
   location: Location;
   declarationKind: DeclarationKind;
   jsDoc?: JsDoc;
-  isDefault?: true;
 }
 
 export type DocNodeKind =
@@ -38,52 +42,52 @@ export type DocNodeKind =
   | "import"
   | "reference";
 
-export interface DocNodeModuleDoc extends DocNodeBase {
+export interface DeclarationModuleDoc extends DeclarationBase {
   kind: "moduleDoc";
   jsDoc: JsDoc;
 }
 
-export interface DocNodeFunction extends DocNodeBase {
+export interface DeclarationFunction extends DeclarationBase {
   kind: "function";
   functionDef: FunctionDef;
 }
 
-export interface DocNodeVariable extends DocNodeBase {
+export interface DeclarationVariable extends DeclarationBase {
   kind: "variable";
   variableDef: VariableDef;
 }
 
-export interface DocNodeEnum extends DocNodeBase {
+export interface DeclarationEnum extends DeclarationBase {
   kind: "enum";
   enumDef: EnumDef;
 }
 
-export interface DocNodeClass extends DocNodeBase {
+export interface DeclarationClass extends DeclarationBase {
   kind: "class";
   classDef: ClassDef;
 }
 
-export interface DocNodeTypeAlias extends DocNodeBase {
+export interface DeclarationTypeAlias extends DeclarationBase {
   kind: "typeAlias";
   typeAliasDef: TypeAliasDef;
 }
 
-export interface DocNodeNamespace extends DocNodeBase {
+export interface DeclarationNamespace extends DeclarationBase {
   kind: "namespace";
   namespaceDef: NamespaceDef;
 }
 
-export interface DocNodeInterface extends DocNodeBase {
+export interface DeclarationInterface extends DeclarationBase {
   kind: "interface";
   interfaceDef: InterfaceDef;
 }
 
-export interface DocNodeImport extends DocNodeBase {
+export interface DeclarationImport extends DeclarationBase {
   kind: "import";
   importDef: ImportDef;
 }
 
-export interface DocNodeReference extends DocNodeBase {
+export interface DeclarationReference extends DeclarationBase {
   kind: "reference";
   reference_def: ReferenceDef;
 }
