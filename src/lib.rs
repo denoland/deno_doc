@@ -202,16 +202,14 @@ fn migrate_ts_type_defs(value: &mut serde_json::Value) {
     serde_json::Value::Object(obj) => {
       // If this looks like a v1 TsTypeDef (has "repr" and "kind"), rename
       // the kind-named content key to "value".
-      if obj.contains_key("repr") {
-        if let Some(kind_str) = obj
+      if obj.contains_key("repr")
+        && let Some(kind_str) = obj
           .get("kind")
           .and_then(|k| k.as_str())
           .map(|s| s.to_string())
-        {
-          if let Some(content) = obj.remove(&kind_str) {
-            obj.insert("value".to_string(), content);
-          }
-        }
+        && let Some(content) = obj.remove(&kind_str)
+      {
+        obj.insert("value".to_string(), content);
       }
 
       for val in obj.values_mut() {

@@ -1981,15 +1981,11 @@ impl Display for TsTypeDef {
         LiteralDefKind::Template => {
           write!(f, "{}", colors::green("`"))?;
           for ts_type in literal.ts_types.as_ref().unwrap() {
-            if let TsTypeDefKind::Literal(literal) = &ts_type.kind {
-              if literal.kind == LiteralDefKind::String {
-                write!(
-                  f,
-                  "{}",
-                  colors::green(literal.string.as_ref().unwrap())
-                )?;
-                continue;
-              }
+            if let TsTypeDefKind::Literal(literal) = &ts_type.kind
+              && literal.kind == LiteralDefKind::String
+            {
+              write!(f, "{}", colors::green(literal.string.as_ref().unwrap()))?;
+              continue;
             }
             write!(
               f,
