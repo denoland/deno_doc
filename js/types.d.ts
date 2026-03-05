@@ -9,10 +9,8 @@ export interface Document {
 export interface Import {
   importedName: string;
   originalName?: string;
-  location: Location;
   jsDoc?: JsDoc;
   src: string;
-  imported?: string;
 }
 
 export interface DocNode {
