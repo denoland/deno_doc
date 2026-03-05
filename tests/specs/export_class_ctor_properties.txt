@@ -27,6 +27,7 @@ class A
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "A",

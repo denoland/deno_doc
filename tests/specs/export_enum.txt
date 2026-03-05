@@ -24,6 +24,7 @@ enum Hello
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Hello",

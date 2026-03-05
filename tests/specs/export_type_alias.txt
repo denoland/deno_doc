@@ -10,6 +10,7 @@ type NumberArray = Array<number>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "NumberArray",

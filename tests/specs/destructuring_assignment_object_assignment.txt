@@ -18,6 +18,7 @@ private const obj: { a: string; b: string; }
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "obj",

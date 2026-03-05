@@ -63,6 +63,7 @@ private const rest5
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "array",

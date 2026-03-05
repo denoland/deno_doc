@@ -17,6 +17,7 @@ class Class implements Iterator
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Class",

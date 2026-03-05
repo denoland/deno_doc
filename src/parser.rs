@@ -555,7 +555,7 @@ impl<'a> DocParser<'a> {
         for specifier in &import_decl.specifiers {
           use deno_ast::swc::ast::ImportSpecifier::*;
 
-          let (imported_name, aliased_name, src) = match specifier {
+          let (imported_name, original_name, src) = match specifier {
             Named(named_specifier) => (
               named_specifier.local.sym.to_string(),
               named_specifier
@@ -584,7 +584,7 @@ impl<'a> DocParser<'a> {
             imported_name: imported_name.into_boxed_str(),
             js_doc: js_doc.clone(),
             src: resolved_specifier.to_string(),
-            aliased_name,
+            original_name,
           });
         }
       }

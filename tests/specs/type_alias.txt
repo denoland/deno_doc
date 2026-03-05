@@ -16,6 +16,7 @@ type A = number
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "A",

@@ -29,6 +29,7 @@ function default(a: number)
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "default",

@@ -30,6 +30,7 @@ class A
       }
     ]
   },
+  "imports": [],
   "symbols": [
     {
       "name": "A",

@@ -59,6 +59,7 @@ namespace RootNs
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "RootNs",

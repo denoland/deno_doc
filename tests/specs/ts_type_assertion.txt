@@ -16,6 +16,7 @@ function foo(bar: any): asserts bar
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

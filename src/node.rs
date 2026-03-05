@@ -9,7 +9,6 @@ use std::sync::Arc;
 pub struct Document {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub module_doc: JsDoc,
-  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub imports: Vec<Import>,
   pub symbols: Vec<Symbol>,
 }
@@ -19,7 +18,7 @@ pub struct Document {
 pub struct Import {
   pub imported_name: Box<str>,
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub aliased_name: Option<String>,
+  pub original_name: Option<String>,
   pub src: String,
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,

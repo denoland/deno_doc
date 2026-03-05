@@ -18,6 +18,7 @@ const foo: string
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

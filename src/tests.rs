@@ -333,15 +333,9 @@ export function fooFn(a: number) {
 
   let expected_imports = json!([
     {
-      "name": "buzz",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 2,
-        "col": 0,
-        "byteIndex": 79
-      },
+      "importedName": "buzz",
+      "originalName": "fizz",
       "src": "file:///reexport.ts",
-      "imported": "fizz",
     }
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -777,15 +771,9 @@ async fn exports_imported_earlier() {
 
   let expected_imports = json!([
     {
-      "name": "foo",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 1,
-        "col": 2,
-        "byteIndex": 3
-      },
+      "importedName": "foo",
+      "originalName": "foo",
       "src": "file:///foo.ts",
-      "imported": "foo",
     },
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -850,15 +838,9 @@ async fn exports_imported_earlier_renamed() {
 
   let expected_imports = json!([
     {
-      "name": "f",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 1,
-        "col": 2,
-        "byteIndex": 3
-      },
+      "importedName": "f",
+      "originalName": "foo",
       "src": "file:///foo.ts",
-      "imported": "foo"
     }
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -924,15 +906,9 @@ async fn exports_imported_earlier_default() {
 
   let expected_imports = json!([
     {
-      "name": "foo",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 1,
-        "col": 2,
-        "byteIndex": 3
-      },
+      "importedName": "foo",
+      "originalName": "default",
       "src": "file:///foo.ts",
-      "imported": "default"
     }
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -1000,15 +976,9 @@ async fn exports_imported_earlier_private() {
 
   let expected_imports = json!([
     {
-      "name": "foo",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 1,
-        "col": 2,
-        "byteIndex": 3
-      },
+      "importedName": "foo",
+      "originalName": "foo",
       "src": "file:///foo.ts",
-      "imported": "foo",
     },
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();

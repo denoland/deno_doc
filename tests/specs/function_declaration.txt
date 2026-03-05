@@ -16,6 +16,7 @@ function fun(): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "fun",

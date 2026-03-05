@@ -45,6 +45,7 @@ namespace Tabs
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Tabs",

@@ -41,6 +41,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
       }
     ]
   },
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

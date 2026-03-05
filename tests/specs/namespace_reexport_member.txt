@@ -72,15 +72,9 @@ namespace default
 {
   "imports": [
     {
-      "name": "Chat",
-      "location": {
-        "filename": "file:///mod.ts",
-        "line": 0,
-        "col": 0,
-        "byteIndex": 0
-      },
-      "src": "file:///chat.ts",
-      "imported": "Chat"
+      "importedName": "Chat",
+      "originalName": "Chat",
+      "src": "file:///chat.ts"
     }
   ],
   "symbols": [

@@ -16,6 +16,7 @@ type T = { readonly [key: string]: number; }
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "T",

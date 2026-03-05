@@ -8,7 +8,7 @@ export interface Document {
 
 export interface Import {
   importedName: string;
-  aliasedName?: string;
+  originalName?: string;
   location: Location;
   jsDoc?: JsDoc;
   src: string;

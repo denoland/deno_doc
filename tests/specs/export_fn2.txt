@@ -42,6 +42,7 @@ private interface AssignOpts
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

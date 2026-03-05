@@ -44,6 +44,7 @@ class Test
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Test",

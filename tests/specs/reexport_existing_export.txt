@@ -21,6 +21,7 @@ function foo(): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

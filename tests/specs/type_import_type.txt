@@ -16,6 +16,7 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "adopt",

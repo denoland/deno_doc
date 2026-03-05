@@ -16,6 +16,7 @@ function f([a, b, ...c]): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "f",

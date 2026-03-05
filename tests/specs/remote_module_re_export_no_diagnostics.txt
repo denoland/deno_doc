@@ -50,6 +50,7 @@ class PublicType2
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "myFunction",

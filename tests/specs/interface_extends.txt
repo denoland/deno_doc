@@ -17,6 +17,7 @@ interface Interface extends Iterator
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Interface",

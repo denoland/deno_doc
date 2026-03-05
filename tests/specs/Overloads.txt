@@ -32,6 +32,7 @@ function a(b: number): number
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "a",

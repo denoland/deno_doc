@@ -16,6 +16,7 @@ type Flatten<T> = T extends Array<infer U> ? U : T
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Flatten",

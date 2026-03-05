@@ -24,6 +24,7 @@ interface Options
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Options",

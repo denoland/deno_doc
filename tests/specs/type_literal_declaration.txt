@@ -16,6 +16,7 @@ type T = { }
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "T",

@@ -471,7 +471,7 @@ fn get_current_imports(
 
   for import in imports {
     // TODO: handle import aliasing
-    if import.aliased_name.as_deref() == Some(&*import.imported_name) {
+    if import.original_name.as_deref() == Some(&*import.imported_name) {
       imports_out.insert(import.imported_name.to_string(), import.src.clone());
     }
   }
@@ -566,7 +566,7 @@ mod test {
           imported_name: "foo".into(),
           js_doc: Default::default(),
           src: "b".to_string(),
-          aliased_name: Some("foo".to_string()),
+          original_name: Some("foo".to_string()),
         }],
         symbols: vec![],
       },

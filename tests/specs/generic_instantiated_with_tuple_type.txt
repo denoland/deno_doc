@@ -29,6 +29,7 @@ interface Generic<T>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Generic",

@@ -91,26 +91,14 @@ class MyClass extends YesDiagnostic2
 {
   "imports": [
     {
-      "name": "MyNamespace",
-      "location": {
-        "filename": "file:///mod.ts",
-        "line": 0,
-        "col": 0,
-        "byteIndex": 0
-      },
-      "src": "file:///diagnostic.ts",
-      "imported": "MyNamespace"
+      "importedName": "MyNamespace",
+      "originalName": "MyNamespace",
+      "src": "file:///diagnostic.ts"
     },
     {
-      "name": "YesDiagnostic2",
-      "location": {
-        "filename": "file:///mod.ts",
-        "line": 0,
-        "col": 0,
-        "byteIndex": 0
-      },
-      "src": "file:///diagnostic.ts",
-      "imported": "YesDiagnostic2"
+      "importedName": "YesDiagnostic2",
+      "originalName": "YesDiagnostic2",
+      "src": "file:///diagnostic.ts"
     }
   ],
   "symbols": [

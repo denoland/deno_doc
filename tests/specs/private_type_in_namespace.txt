@@ -65,6 +65,7 @@ private namespace Test
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Output",

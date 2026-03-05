@@ -76,6 +76,7 @@ private interface YesDiagnostic2
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "SameName",

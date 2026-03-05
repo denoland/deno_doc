@@ -38,6 +38,7 @@ private class YesDiagnostic
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Other",

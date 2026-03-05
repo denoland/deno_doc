@@ -36,6 +36,7 @@ private const rest
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "obj",

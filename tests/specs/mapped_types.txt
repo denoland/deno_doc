@@ -18,6 +18,7 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "MappedTypeWithNewProperties",

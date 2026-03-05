@@ -43,6 +43,7 @@ function a(b, c, d): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "a",

@@ -17,6 +17,7 @@ function default(): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "default",
