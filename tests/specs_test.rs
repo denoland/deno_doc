@@ -182,8 +182,7 @@ fn parse_spec(text: String) -> Spec {
       continue;
     }
     if let Some(specifier) = line.strip_prefix("# ")
-      && (specifier.contains('.')
-        || specifier == "diagnostics")
+      && (specifier.contains('.') || specifier == "diagnostics")
     {
       if let Some(file) = current_file.take() {
         files.push(file);

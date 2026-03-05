@@ -801,31 +801,30 @@ impl ModuleDocCtx {
 
     let mut sections = Vec::with_capacity(7);
 
-    let (deprecated, html) = if let Some(js_doc) =
-      render_ctx.ctx.module_docs.get(short_path)
-    {
-      let deprecated = js_doc.tags.iter().find_map(|tag| {
-        if let JsDocTag::Deprecated { doc } = tag {
-          Some(render_markdown(
-            render_ctx,
-            doc.as_deref().unwrap_or_default(),
-            false,
-          ))
-        } else {
-          None
+    let (deprecated, html) =
+      if let Some(js_doc) = render_ctx.ctx.module_docs.get(short_path) {
+        let deprecated = js_doc.tags.iter().find_map(|tag| {
+          if let JsDocTag::Deprecated { doc } = tag {
+            Some(render_markdown(
+              render_ctx,
+              doc.as_deref().unwrap_or_default(),
+              false,
+            ))
+          } else {
+            None
+          }
+        });
+
+        if let Some(examples) = jsdoc_examples(render_ctx, js_doc) {
+          sections.push(examples);
         }
-      });
 
-      if let Some(examples) = jsdoc_examples(render_ctx, js_doc) {
-        sections.push(examples);
-      }
+        let html = jsdoc_body_to_html(render_ctx, js_doc, summary);
 
-      let html = jsdoc_body_to_html(render_ctx, js_doc, summary);
-
-      (deprecated, html)
-    } else {
-      (None, None)
-    };
+        (deprecated, html)
+      } else {
+        (None, None)
+      };
 
     if render_symbols {
       let partitions_by_kind = super::partition::partition_nodes_by_kind(
@@ -1011,13 +1010,13 @@ mod test {
                   def_name: None,
                   extends: vec![],
                   constructors: vec![],
-                methods: vec![],
-                properties: vec![],
-                call_signatures: vec![],
-                index_signatures: vec![],
-                type_params: Box::new([]),
-              },
-            ),
+                  methods: vec![],
+                  properties: vec![],
+                  call_signatures: vec![],
+                  index_signatures: vec![],
+                  type_params: Box::new([]),
+                },
+              ),
             ],
           },
         ),
@@ -1026,22 +1025,22 @@ mod test {
           Document {
             module_doc: Default::default(),
             symbols: vec![Symbol::interface(
-            "baz".into(),
-            false,
-            Location::default(),
-            DeclarationKind::Export,
-            JsDoc::default(),
-            InterfaceDef {
-              def_name: None,
-              extends: vec![],
-              constructors: vec![],
-              methods: vec![],
-              properties: vec![],
-              call_signatures: vec![],
-              index_signatures: vec![],
-              type_params: Box::new([]),
-            },
-          )],
+              "baz".into(),
+              false,
+              Location::default(),
+              DeclarationKind::Export,
+              JsDoc::default(),
+              InterfaceDef {
+                def_name: None,
+                extends: vec![],
+                constructors: vec![],
+                methods: vec![],
+                properties: vec![],
+                call_signatures: vec![],
+                index_signatures: vec![],
+                type_params: Box::new([]),
+              },
+            )],
           },
         ),
       ]),

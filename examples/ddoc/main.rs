@@ -223,7 +223,8 @@ async fn run() -> anyhow::Result<()> {
       });
 
       if let Some(filter) = filter {
-        merged_doc.symbols = find_nodes_by_name_recursively(merged_doc.symbols, &filter);
+        merged_doc.symbols =
+          find_nodes_by_name_recursively(merged_doc.symbols, &filter);
       }
 
       if json {

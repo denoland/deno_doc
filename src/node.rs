@@ -362,7 +362,9 @@ impl Default for Symbol {
         declaration_kind: DeclarationKind::Private,
         location: Location::default(),
         js_doc: JsDoc::default(),
-        def: DeclarationDef::Reference(ReferenceDef { target: Default::default() }),
+        def: DeclarationDef::Reference(ReferenceDef {
+          target: Default::default(),
+        }),
       }],
     }
   }

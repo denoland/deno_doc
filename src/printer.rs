@@ -8,9 +8,8 @@ use crate::display::display_generator;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationDef;
-use crate::node::Document;
-use crate::node::DocNodeKind;
 use crate::node::DeclarationKind;
+use crate::node::Document;
 use crate::node::Symbol;
 
 use deno_terminal::colors;

@@ -46,10 +46,10 @@ use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
-use crate::node::{DeclarationDef, Document};
 use crate::node::DeclarationKind;
 use crate::node::NamespaceDef;
 use crate::node::ReferenceDef;
+use crate::node::{DeclarationDef, Document};
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
@@ -450,7 +450,9 @@ impl<'a> DocParser<'a> {
     match module {
       Module::Js(_) | Module::Json(_) | Module::Wasm(_) => {
         let module_info = self.get_module_info(module.specifier())?;
-        let mut document = self.get_symbols_for_module_info(module_info)?.unwrap_or_default();
+        let mut document = self
+          .get_symbols_for_module_info(module_info)?
+          .unwrap_or_default();
         let exports = module_info.exports(&self.root_symbol);
         for (export_name, export) in exports.resolved {
           let export = export.as_resolved_export();
@@ -529,7 +531,9 @@ impl<'a> DocParser<'a> {
 
         Ok(document)
       }
-      Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(Default::default()),
+      Module::Npm(_) | Module::Node(_) | Module::External(_) => {
+        Ok(Default::default())
+      }
     }
   }
 
@@ -1081,15 +1085,17 @@ impl<'a> DocParser<'a> {
     module_info: ModuleInfoRef,
   ) -> Result<Option<Document>, DocError> {
     match module_info {
-      ModuleInfoRef::Json(module) => Ok(
-        parse_json_module_symbol(
-          module.specifier(),
-          module.text_info().text_str(),
-        )
-      ),
+      ModuleInfoRef::Json(module) => Ok(parse_json_module_symbol(
+        module.specifier(),
+        module.text_info().text_str(),
+      )),
       ModuleInfoRef::Esm(module_info) => {
-        if let Some(mut document) = self.get_document_for_module_info_body(module_info) {
-          document.symbols.extend(self.get_symbols_for_module_imports(module_info)?);
+        if let Some(mut document) =
+          self.get_document_for_module_info_body(module_info)
+        {
+          document
+            .symbols
+            .extend(self.get_symbols_for_module_imports(module_info)?);
 
           Ok(Some(document))
         } else {
@@ -1105,7 +1111,8 @@ impl<'a> DocParser<'a> {
   ) -> Option<Document> {
     let mut symbols = Vec::new();
     // check to see if there is a module level JSDoc for the source file
-    let module_doc = if let Some(module_js_doc) = module_js_doc_for_source(module_info.source())
+    let module_doc = if let Some(module_js_doc) =
+      module_js_doc_for_source(module_info.source())
     {
       if let Some((js_doc, _range)) = module_js_doc {
         js_doc

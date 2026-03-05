@@ -75,7 +75,9 @@ pub(crate) fn module_js_doc_for_source(
     .comments()
     .get_vec()
     .into_iter()
-    .filter(|comment| comment.kind == CommentKind::Block && comment.text.starts_with('*'))
+    .filter(|comment| {
+      comment.kind == CommentKind::Block && comment.text.starts_with('*')
+    })
     .find_map(|comment| {
       let js_doc = parse_js_doc(&comment);
 

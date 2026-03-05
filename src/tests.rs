@@ -349,7 +349,10 @@ export function fooFn(a: number) {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let doc = crate::node::Document { module_doc: Default::default(), symbols: entries };
+  let doc = crate::node::Document {
+    module_doc: Default::default(),
+    symbols: entries,
+  };
   assert!(
     DocPrinter::new(&doc, false, false)
       .to_string()
@@ -440,7 +443,10 @@ export { Hello } from "./reexport.ts";
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let doc = crate::node::Document { module_doc: Default::default(), symbols: entries };
+  let doc = crate::node::Document {
+    module_doc: Default::default(),
+    symbols: entries,
+  };
   let output = DocPrinter::new(&doc, false, false).to_string();
   assert!(output.contains("class Hello"));
   assert!(output.contains("interface Hello"));
@@ -501,7 +507,10 @@ async fn deep_reexports() {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let doc = crate::node::Document { module_doc: Default::default(), symbols: entries };
+  let doc = crate::node::Document {
+    module_doc: Default::default(),
+    symbols: entries,
+  };
   assert!(
     DocPrinter::new(&doc, false, false)
       .to_string()
