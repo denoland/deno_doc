@@ -63,12 +63,22 @@ class ClassB
   prop: PrivateInterface
     property b
 
-Defined in file:///mod.ts:0:1
-
-
 
 # output.json
 {
+  "imports": [
+    {
+      "name": "PrivateInterface",
+      "location": {
+        "filename": "file:///mod.ts",
+        "line": 0,
+        "col": 0,
+        "byteIndex": 0
+      },
+      "src": "file:///private.ts",
+      "imported": "PrivateInterface"
+    }
+  ],
   "symbols": [
     {
       "name": "ClassA",
@@ -176,25 +186,6 @@ Defined in file:///mod.ts:0:1
             "implements": [],
             "typeParams": [],
             "superTypeParams": []
-          }
-        }
-      ]
-    },
-    {
-      "name": "PrivateInterface",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 0,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "import",
-          "def": {
-            "src": "file:///private.ts",
-            "imported": "PrivateInterface"
           }
         }
       ]

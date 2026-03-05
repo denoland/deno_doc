@@ -40,7 +40,6 @@ pub use node::Document;
 pub use node::Location;
 pub use node::Symbol;
 
-use node::ImportDef;
 use params::ParamDef;
 
 cfg_if! {
@@ -164,7 +163,6 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
       "typeAliasDef",
       "namespaceDef",
       "interfaceDef",
-      "importDef",
       "referenceDef",
     ] {
       if let Some(val) = obj.remove(field) {

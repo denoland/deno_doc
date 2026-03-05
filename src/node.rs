@@ -9,7 +9,20 @@ use std::sync::Arc;
 pub struct Document {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub module_doc: JsDoc,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub imports: Vec<Import>,
   pub symbols: Vec<Symbol>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Import {
+  pub imported_name: Box<str>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub aliased_name: Option<String>,
+  pub src: String,
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
+  pub js_doc: JsDoc,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -36,7 +49,6 @@ pub enum DocNodeKind {
   Class,
   Enum,
   Function,
-  Import,
   Interface,
   Namespace,
   Reference,
@@ -50,7 +62,6 @@ impl From<&DeclarationDef> for DocNodeKind {
       DeclarationDef::Class(..) => Self::Class,
       DeclarationDef::Enum(..) => Self::Enum,
       DeclarationDef::Function(..) => Self::Function,
-      DeclarationDef::Import(..) => Self::Import,
       DeclarationDef::Interface(..) => Self::Interface,
       DeclarationDef::Namespace(..) => Self::Namespace,
       DeclarationDef::Reference(..) => Self::Reference,
@@ -91,13 +102,6 @@ impl PartialOrd for Location {
   fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
     Some(self.cmp(other))
   }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ImportDef {
-  pub src: String,
-  pub imported: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -144,7 +148,6 @@ pub enum DeclarationDef {
   TypeAlias(super::type_alias::TypeAliasDef),
   Namespace(NamespaceDef),
   Interface(super::interface::InterfaceDef),
-  Import(ImportDef),
   Reference(ReferenceDef),
 }
 
@@ -158,7 +161,6 @@ impl DeclarationDef {
       DeclarationDef::TypeAlias(_) => DocNodeKind::TypeAlias,
       DeclarationDef::Namespace(_) => DocNodeKind::Namespace,
       DeclarationDef::Interface(_) => DocNodeKind::Interface,
-      DeclarationDef::Import(_) => DocNodeKind::Import,
       DeclarationDef::Reference(_) => DocNodeKind::Reference,
     }
   }
@@ -210,13 +212,6 @@ impl Declaration {
   pub fn interface_def(&self) -> Option<&super::interface::InterfaceDef> {
     match &self.def {
       DeclarationDef::Interface(interface_def) => Some(interface_def),
-      _ => None,
-    }
-  }
-
-  pub fn import_def(&self) -> Option<&ImportDef> {
-    match &self.def {
-      DeclarationDef::Import(import_def) => Some(import_def),
       _ => None,
     }
   }
@@ -323,19 +318,6 @@ impl Declaration {
       declaration_kind,
       js_doc,
       def: DeclarationDef::Interface(interface_def),
-    }
-  }
-
-  pub fn import(
-    location: Location,
-    js_doc: JsDoc,
-    import_def: ImportDef,
-  ) -> Self {
-    Self {
-      declaration_kind: DeclarationKind::Private,
-      location,
-      js_doc,
-      def: DeclarationDef::Import(import_def),
     }
   }
 
@@ -493,19 +475,6 @@ impl Symbol {
     )
   }
 
-  pub fn import(
-    name: Box<str>,
-    location: Location,
-    js_doc: JsDoc,
-    import_def: ImportDef,
-  ) -> Self {
-    Self::single(
-      name,
-      false,
-      Declaration::import(location, js_doc, import_def),
-    )
-  }
-
   pub fn reference(
     name: Box<str>,
     location: Location,
@@ -530,7 +499,6 @@ impl Symbol {
           interface_def.def_name.as_deref()
         }
         DeclarationDef::Enum(..)
-        | DeclarationDef::Import(..)
         | DeclarationDef::Namespace(..)
         | DeclarationDef::TypeAlias(..)
         | DeclarationDef::Variable(..)

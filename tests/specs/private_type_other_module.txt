@@ -86,15 +86,33 @@ class MyClass extends YesDiagnostic2
   prop: MyNamespace.YesDiagnostic
   other: Uint8Array
 
-Defined in file:///mod.ts:0:1
-
-
-Defined in file:///mod.ts:0:1
-
-
 
 # output.json
 {
+  "imports": [
+    {
+      "name": "MyNamespace",
+      "location": {
+        "filename": "file:///mod.ts",
+        "line": 0,
+        "col": 0,
+        "byteIndex": 0
+      },
+      "src": "file:///diagnostic.ts",
+      "imported": "MyNamespace"
+    },
+    {
+      "name": "YesDiagnostic2",
+      "location": {
+        "filename": "file:///mod.ts",
+        "line": 0,
+        "col": 0,
+        "byteIndex": 0
+      },
+      "src": "file:///diagnostic.ts",
+      "imported": "YesDiagnostic2"
+    }
+  ],
   "symbols": [
     {
       "name": "MyClass",
@@ -163,44 +181,6 @@ Defined in file:///mod.ts:0:1
             "implements": [],
             "typeParams": [],
             "superTypeParams": []
-          }
-        }
-      ]
-    },
-    {
-      "name": "MyNamespace",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 0,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "import",
-          "def": {
-            "src": "file:///diagnostic.ts",
-            "imported": "MyNamespace"
-          }
-        }
-      ]
-    },
-    {
-      "name": "YesDiagnostic2",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 0,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "import",
-          "def": {
-            "src": "file:///diagnostic.ts",
-            "imported": "YesDiagnostic2"
           }
         }
       ]

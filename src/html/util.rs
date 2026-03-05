@@ -219,10 +219,6 @@ pub fn compute_namespaced_symbols<'a>(
     let name_path: Rc<[String]> = symbol.sub_qualifier().into();
 
     for decl in &symbol.declarations {
-      if matches!(decl.def, DeclarationDef::Import(..)) {
-        continue;
-      }
-
       // TODO: handle export aliasing
 
       match &decl.def {
@@ -587,7 +583,7 @@ impl From<DocNodeKind> for DocNodeKindCtx {
       DocNodeKind::Namespace => {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
-      DocNodeKind::Import | DocNodeKind::Reference => {
+      DocNodeKind::Reference => {
         unreachable!()
       }
     };

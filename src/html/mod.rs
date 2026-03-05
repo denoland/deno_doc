@@ -287,6 +287,7 @@ pub struct GenerateCtx {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
   pub module_docs: IndexMap<Rc<ShortPath>, crate::js_doc::JsDoc>,
+  pub imports: IndexMap<Rc<ShortPath>, Vec<crate::node::Import>>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<Rc<dyn UsageComposer>>,
@@ -323,6 +324,7 @@ impl GenerateCtx {
 
     let mut main_entrypoint = None;
     let mut module_docs = IndexMap::new();
+    let mut imports = IndexMap::new();
 
     let mut doc_nodes = doc_nodes_by_url
       .into_iter()
@@ -339,6 +341,7 @@ impl GenerateCtx {
         }
 
         module_docs.insert(short_path.clone(), document.module_doc);
+        imports.insert(short_path.clone(), document.imports);
 
         let nodes = document
           .symbols
@@ -529,6 +532,7 @@ impl GenerateCtx {
       package_name: options.package_name,
       common_ancestor,
       module_docs,
+      imports,
       doc_nodes,
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,
@@ -938,7 +942,6 @@ impl DocNodeWithContext {
         .inner
         .declarations
         .iter()
-        .filter(|d| !matches!(d.def, crate::node::DeclarationDef::Import(..)))
         .map(|d| DocNodeKindCtx::from(crate::node::DocNodeKind::from(&d.def)))
         .collect()
     }

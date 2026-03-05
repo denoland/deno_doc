@@ -13,7 +13,6 @@ use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
-use deno_doc::node::DeclarationDef;
 use deno_graph::BuildOptions;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
@@ -217,10 +216,6 @@ async fn run() -> anyhow::Result<()> {
         }
         merged_doc.symbols.extend(doc.symbols);
       }
-
-      merged_doc.symbols.retain(|doc_node| {
-        !matches!(doc_node.declarations[0].def, DeclarationDef::Import(..))
-      });
 
       if let Some(filter) = filter {
         merged_doc.symbols =

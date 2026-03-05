@@ -469,7 +469,7 @@ pub enum DeclarationDefDiff {
   TypeAlias(TypeAliasDiff),
   Namespace(NamespaceDiff),
   Interface(InterfaceDiff),
-  // ignore Import & Reference
+  // ignore Reference
 }
 
 impl DeclarationDefDiff {
@@ -600,7 +600,6 @@ impl DeclarationDefDiff {
         InterfaceDiff::diff(old_def, new_def).map(DeclarationDefDiff::Interface)
       }
 
-      (DeclarationDef::Import(..), DeclarationDef::Import(..)) => None,
       (DeclarationDef::Reference(..), DeclarationDef::Reference(..)) => None,
 
       _ => unreachable!(),

@@ -133,8 +133,7 @@ impl DocPrinter<'_> {
         DeclarationDef::Interface(..) => 4,
         DeclarationDef::TypeAlias(..) => 5,
         DeclarationDef::Namespace(..) => 6,
-        DeclarationDef::Import(..) => 7,
-        DeclarationDef::Reference(..) => 8,
+        DeclarationDef::Reference(..) => 7,
       })
       .min()
       .unwrap()
@@ -170,7 +169,6 @@ impl DocPrinter<'_> {
       DeclarationDef::Namespace(..) => {
         self.format_namespace_signature(w, node, decl, indent)
       }
-      DeclarationDef::Import(..) => Ok(()),
       DeclarationDef::Reference(..) => {
         self.format_reference_signature(w, node, decl, indent)
       }
