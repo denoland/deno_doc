@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
-import type { DocNode, Document, Location } from "./types.d.ts";
+import type { Document, Location } from "./types.d.ts";
 import type { Page } from "./html_types.d.ts";
 import { createCache } from "@deno/cache-dir";
 import type { CacheSetting, LoadResponse } from "@deno/graph";
